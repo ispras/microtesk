@@ -36,7 +36,7 @@ class MiniMipsBaseTemplate < Template
     #
     # Information on data types to be used in data sections.
     #
-    data_config(:target => 'M', :base_virtual_address => 0x00080000) {
+    data_config(:target => 'M') {
       define_type :id => :byte, :text => '.byte', :type => type('card', 8)
       define_type :id => :half, :text => '.half', :type => type('card', 16)
       define_type :id => :word, :text => '.word', :type => type('card', 32)
@@ -45,6 +45,22 @@ class MiniMipsBaseTemplate < Template
       define_ascii_string :id => :ascii,  :text => '.ascii',  :zero_term => false
       define_ascii_string :id => :asciiz, :text => '.asciiz', :zero_term => true
     }
+
+    #
+    # Defines .text section.
+    #
+    # pa: base physical address (used for memory allocation).
+    # va: base virtual address (used for encoding instructions that refer to labels).
+    #
+    section_text(:pa => 0x0, :va => 0x0) {}
+
+    #
+    # Defines .data section.
+    #
+    # pa: base physical address (used for memory allocation).
+    # va: base virtual address (used for encoding instructions that refer to labels).
+    #
+    section_data(:pa => 0x00080000, :va => 0x00080000) {}
 
     #
     # Simple exception handler. Continues execution from the next instruction.

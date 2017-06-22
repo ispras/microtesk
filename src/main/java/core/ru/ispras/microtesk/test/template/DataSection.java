@@ -22,6 +22,7 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.LabelManager;
 
 /**
@@ -49,7 +50,9 @@ public final class DataSection {
       final Section section,
       final boolean global,
       final boolean separateFile) {
+    InvariantChecks.checkNotNull(labelValues);
     InvariantChecks.checkNotNull(directives);
+    InvariantChecks.checkNotNull(section);
 
     this.labelValues = Collections.unmodifiableList(labelValues);
     this.directives = Collections.unmodifiableList(directives);
@@ -124,8 +127,8 @@ public final class DataSection {
     return directives;
   }
 
-  public boolean isSection() {
-    return null != section;
+  public Section getSection() {
+    return section;
   }
 
   public boolean isGlobal() {
@@ -143,7 +146,9 @@ public final class DataSection {
   public void allocate(final MemoryAllocator allocator) {
     InvariantChecks.checkNotNull(allocator);
 
-    final BigInteger oldAddress = allocator.getCurrentAddress();
+    allocator.setBaseAddress(section.getBasePa());
+    allocator.setCurrentAddress(section.getPa());
+
     if (null != physicalAddress) {
       allocator.setCurrentAddress(physicalAddress);
     }
@@ -155,13 +160,17 @@ public final class DataSection {
         directive.apply(allocator);
 
         if (Logger.isDebug()) {
-          Logger.debug("0x%016x (PA): %s", address, directive.getText());
+          if (!address.equals(allocator.getCurrentAddress())) {
+            Logger.debug("0x%016x (PA): %s", address, directive.getText());
+          } else {
+            Logger.debug(directive.getText());
+          }
         }
       }
     } finally {
       allocationEndAddress = allocator.getCurrentAddress();
-      if (null != physicalAddress) {
-        allocator.setCurrentAddress(oldAddress);
+      if (null == physicalAddress) {
+        section.setPa(allocationEndAddress);
       }
     }
   }
@@ -186,7 +195,7 @@ public final class DataSection {
   public String toString() {
     return String.format(
         "DataSection [section=%s, global=%s, separateFile=%s, labelValues=%s, directives=%s]",
-        null != section ? section.getName() : null,
+        section,
         global,
         separateFile,
         labelValues,

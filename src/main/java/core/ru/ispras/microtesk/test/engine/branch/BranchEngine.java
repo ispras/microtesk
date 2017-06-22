@@ -20,6 +20,7 @@ import static ru.ispras.microtesk.test.engine.utils.EngineUtils.makeStreamRead;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -228,7 +229,9 @@ public final class BranchEngine implements Engine {
           setBranchEntry(abstractCall, branchEntry);
         }
 
-        return insertControlCode(engineContext, abstractSequence);
+        return resolveDependencies(
+            insertComments(
+                insertControlCode(engineContext, abstractSequence)));
       }
 
       @Override
@@ -282,6 +285,9 @@ public final class BranchEngine implements Engine {
 
       final String testDataStream = getTestDataStream(abstractCall);
       final List<AbstractCall> controlCode = makeStreamRead(engineContext, testDataStream);
+      if (!controlCode.isEmpty()) {
+        controlCode.get(0).getAttributes().put("dependsOn", abstractCall);
+      }
 
       branchEntry.setControlCodeInBasicBlock(false);
       branchEntry.setControlCodeInDelaySlot(false);
@@ -356,5 +362,45 @@ public final class BranchEngine implements Engine {
     }
 
     return new AbstractSequence(modifiedSequence);
+  }
+
+  private static AbstractSequence insertComments(final AbstractSequence abstractSequence) {
+    final List<AbstractCall> abstractCalls = new ArrayList<>(abstractSequence.size());
+    for (int i = 0; i < abstractSequence.size(); i++) {
+      final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
+      final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
+
+      if (null != branchEntry && branchEntry.isIfThen()) {
+        abstractCalls.add(AbstractCall.newComment(branchEntry.toString()));
+      }
+
+      abstractCalls.add(abstractCall);
+    }
+
+    return new AbstractSequence(abstractCalls);
+  }
+
+  private static AbstractSequence resolveDependencies(final AbstractSequence abstractSequence) {
+    final Map<AbstractCall, Integer> abstractCalls = new IdentityHashMap<>();
+
+    for (int index = 0; index < abstractSequence.size(); index++) {
+      final AbstractCall abstractCall = abstractSequence.getSequence().get(index);
+      abstractCalls.put(abstractCall, index);
+    }
+
+    for (int index = 0; index < abstractSequence.size(); index++) {
+      final AbstractCall abstractCall =
+          abstractSequence.getSequence().get(index);
+
+      final AbstractCall dependencyAbstractCall =
+          (AbstractCall) abstractCall.getAttributes().get("dependsOn");
+
+      if (null != dependencyAbstractCall) {
+        final int dependencyIndex = abstractCalls.get(dependencyAbstractCall);
+        abstractCall.getAttributes().put("dependsOn", dependencyIndex);
+      }
+    }
+
+    return abstractSequence;
   }
 }

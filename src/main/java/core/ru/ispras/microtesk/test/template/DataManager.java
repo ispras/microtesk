@@ -19,8 +19,8 @@ import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Model;
-import ru.ispras.microtesk.model.memory.AddressTranslator;
-import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.engine.EngineContext;
 
@@ -45,8 +45,7 @@ public final class DataManager {
 
   public DataDirectiveFactory.Builder beginConfig(
       final String target,
-      final int addressableUnitBitSize,
-      final BigInteger baseVirtualAddress) throws ConfigurationException {
+      final int addressableUnitBitSize) throws ConfigurationException {
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
 
@@ -55,14 +54,8 @@ public final class DataManager {
     final Model model = engineContext.getModel();
     final Options options = engineContext.getOptions();
 
-    final BigInteger baseVA = null != baseVirtualAddress ?
-        baseVirtualAddress : options.getValueAsBigInteger(Option.BASE_VA);
-
-    final BigInteger basePA =
-        AddressTranslator.get().virtualToPhysical(baseVA);
-
-    model.initMemoryAllocator(target, addressableUnitBitSize, basePA);
-    factoryBuilder = new DataDirectiveFactory.Builder(options, baseVA, addressableUnitBitSize);
+    model.initMemoryAllocator(target, addressableUnitBitSize, BigInteger.ZERO);
+    factoryBuilder = new DataDirectiveFactory.Builder(options, addressableUnitBitSize);
 
     return factoryBuilder;
   }
@@ -115,10 +108,18 @@ public final class DataManager {
     InvariantChecks.checkNotNull(method);
 
     checkInitialized();
-    final DataDirectiveFactory factory = engineContext.getDataDirectiveFactory();
 
-    final DataSectionBuilder dataBuilder =
-        new DataSectionBuilder(new BlockId(), factory, null, true, isSeparateFile);
+    final Section section = Sections.get().getDataSection();
+    InvariantChecks.checkNotNull(section, "Data section is not defined in the template!");
+
+    final DataDirectiveFactory factory = engineContext.getDataDirectiveFactory();
+    final DataSectionBuilder dataBuilder = new DataSectionBuilder(
+        new BlockId(),
+        factory,
+        section,
+        true,
+        isSeparateFile
+        );
 
     dataBuilder.setPhysicalAddress(address);
 

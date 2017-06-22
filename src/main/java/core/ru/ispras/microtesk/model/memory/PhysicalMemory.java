@@ -266,7 +266,7 @@ final class PhysicalMemory extends Memory {
 
     private BitVector virtualIndexToPhysicalIndex(final BitVector index) {
       final BigInteger virtualAddress = indexToAddress(index.bigIntegerValue(false));
-      final BigInteger physicalAddress = AddressTranslator.get().virtualToPhysical(virtualAddress);
+      final BigInteger physicalAddress = Sections.get().virtualToPhysical(virtualAddress);
 
       final BigInteger physicalIndex = addressToIndex(physicalAddress);
       return BitVector.valueOf(physicalIndex, storage.getAddressBitSize());

@@ -16,11 +16,8 @@ package ru.ispras.microtesk.model.memory;
 
 import static org.junit.Assert.assertEquals;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -29,7 +26,6 @@ import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.data.Type;
 
 public final class MemoryLocationTestCase {
-
   public static final Type  LONG = Type.INT(32);
   public static final Type  WORD = Type.CARD(32);
   public static final Type SHORT = Type.INT(16);
@@ -39,11 +35,6 @@ public final class MemoryLocationTestCase {
   public static final Type   BIT = Type.CARD(1);
 
   public static final int COUNT = 32;
-
-  @BeforeClass
-  public static void init() {
-    AddressTranslator.initialize(BigInteger.ZERO, BigInteger.ZERO);
-  }
 
   @Test
   public void testRandom() {

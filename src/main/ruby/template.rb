@@ -523,7 +523,7 @@ class Template
     target = get_attribute attrs, :target
 
     builder = @template.beginPreparator target.to_s, is_comparator
-    builder.setWhere get_caller_location 2
+    builder.setWhere get_caller_location(2)
 
     name = attrs[:name]
     if !name.nil?
@@ -747,10 +747,9 @@ class Template
 
     # Default value is 8 bits if other value is not explicitly specified
     addressableSize = attrs.has_key?(:item_size) ? attrs[:item_size] : 8
-    baseVirtAddr = attrs.has_key?(:base_virtual_address) ? attrs[:base_virtual_address] : nil
 
     @data_manager = DataManager.new(self, @template.getDataManager)
-    @data_manager.beginConfig target, addressableSize, baseVirtAddr
+    @data_manager.beginConfig target, addressableSize
 
     @data_manager.instance_eval &contents
     @data_manager.endConfig
@@ -809,8 +808,38 @@ class Template
     2 ** n
   end
 
-  def section(name, pa, args, &contents)
-    @template.beginSection name, pa, args
+  # -------------------------------------------------------------------------- #
+  # Sections                                                                   #
+  # -------------------------------------------------------------------------- #
+
+  def section(attrs, &contents)
+    name = get_attribute attrs, :name
+
+    pa   = attrs[:pa]
+    va   = attrs[:va]
+    args = attrs[:args]
+
+    @template.beginSection name, pa, va, args
+    self.instance_eval &contents
+    @template.endSection
+  end
+
+  def section_text(attrs, &contents)
+    pa   = attrs[:pa]
+    va   = attrs[:va]
+    args = attrs[:args]
+
+    @template.beginSectionText pa, va, args
+    self.instance_eval &contents
+    @template.endSection
+  end
+
+  def section_data(attrs, &contents)
+    pa   = attrs[:pa]
+    va   = attrs[:va]
+    args = attrs[:args]
+
+    @template.beginSectionData pa, va, args
     self.instance_eval &contents
     @template.endSection
   end
@@ -899,10 +928,8 @@ class Template
     end
 
     @data_manager.beginData global, separate_file
-
     page_table = PageTable.new self, @data_manager
     page_table.instance_eval &contents
-
     @data_manager.endData
   end
 
@@ -1028,8 +1055,8 @@ class DataManager
     @ref_count = 0
   end
 
-  def beginConfig(target, addressableSize, baseVirtAddr)
-    @configurer = @manager.beginConfig target, addressableSize, baseVirtAddr
+  def beginConfig(target, addressableSize)
+    @configurer = @manager.beginConfig target, addressableSize
   end
 
   def endConfig
@@ -1162,7 +1189,6 @@ class DataManager
       raise MTRubyError, "Method '#{meth}' is not available in data sections."
     end
   end
-
 end # DataManager
 
 # Methods init, read, write are defined in a separate class to

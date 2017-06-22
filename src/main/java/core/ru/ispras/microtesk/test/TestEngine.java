@@ -29,7 +29,6 @@ import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.Execution;
 import ru.ispras.microtesk.model.Model;
-import ru.ispras.microtesk.model.memory.AddressTranslator;
 import ru.ispras.microtesk.model.Reader;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
@@ -229,18 +228,13 @@ public final class TestEngine {
     statistics.setTraceLengthLimit(options.getValueAsInteger(Option.TRACE_LIMIT));
     statistics.pushActivity(Statistics.Activity.PARSING);
 
-    AddressTranslator.initialize(
-        options.getValueAsBigInteger(Option.BASE_VA),
-        options.getValueAsBigInteger(Option.BASE_PA)
-        );
-
     final EngineContext context = new EngineContext(
         options,
         model,
         statistics
         );
 
-    final Template.Processor processor = new TemplateProcessor2(context);
+    final Template.Processor processor = new TemplateProcessor(context);
     return new Template(context, processor);
   }
 

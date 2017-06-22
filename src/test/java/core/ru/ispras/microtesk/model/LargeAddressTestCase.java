@@ -17,13 +17,11 @@ package ru.ispras.microtesk.model;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
-
 import org.junit.Test;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.data.Type;
-import ru.ispras.microtesk.model.memory.AddressTranslator;
 import ru.ispras.microtesk.model.memory.Memory;
 
 public class LargeAddressTestCase {
@@ -40,8 +38,6 @@ public class LargeAddressTestCase {
 
   @Test
   public void test() {
-    AddressTranslator.initialize(BigInteger.ZERO, BigInteger.ZERO);
-
     M48.access(0x800000000000L).store(Data.valueOf(WORD48, 0xffffffffffffL));
     assertEquals(new Data(BitVector.valueOf(-1L, WORD48.getBitSize()), WORD48), M48.access(0x800000000000L).load());
 

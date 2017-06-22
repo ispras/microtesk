@@ -65,6 +65,22 @@ class VliwBaseTemplate < Template
     }
 
     #
+    # Defines .text section.
+    #
+    # pa: base physical address (used for memory allocation).
+    # va: base virtual address (used for encoding instructions that refer to labels).
+    #
+    section_text(:pa => 0x0, :va => 0x0) {}
+
+    #
+    # Defines .data section.
+    #
+    # pa: base physical address (used for memory allocation).
+    # va: base virtual address (used for encoding instructions that refer to labels).
+    #
+    section_data(:pa => 0x0, :va => 0x0) {}
+
+    #
     # Rules for writing preparators of initializing instruction sequences:
     #
     # preparator(:target => '<name>') {

@@ -19,11 +19,11 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.ExecutionException;
 import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.ProcessingElement;
-import ru.ispras.microtesk.model.memory.AddressTranslator;
+import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.model.memory.Sections;
 
 /**
  * The {@link ConcreteCall} class describes an instruction call with fixed arguments
@@ -39,11 +39,9 @@ public final class ConcreteCall {
   private final InstructionCall executable;
   private final boolean relativeOrigin; 
   private final BigInteger origin;
-  private final BigInteger basePa;
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;
   private final DataSection data;
-  private final Pair<Section, Boolean> section;
 
   private long address = 0;
   private String text = null;
@@ -77,11 +75,9 @@ public final class ConcreteCall {
     this.executable = executable;
     this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
-    this.basePa = abstractCall.getBasePa();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = null;
-    this.section = abstractCall.getSection();
   }
 
   public ConcreteCall(
@@ -99,11 +95,9 @@ public final class ConcreteCall {
     this.executable = executable;
     this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
-    this.basePa = abstractCall.getBasePa();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = null;
-    this.section = abstractCall.getSection();
   }
 
   public ConcreteCall(final AbstractCall abstractCall) {
@@ -116,11 +110,9 @@ public final class ConcreteCall {
     this.executable = null;
     this.relativeOrigin = abstractCall.isRelativeOrigin();
     this.origin = abstractCall.getOrigin();
-    this.basePa = abstractCall.getBasePa();
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = abstractCall.hasData() ? new DataSection(abstractCall.getData()) : null;
-    this.section = abstractCall.getSection();
   }
 
   public ConcreteCall(final InstructionCall executable) {
@@ -133,11 +125,9 @@ public final class ConcreteCall {
     this.executable = executable;
     this.relativeOrigin = false;
     this.origin = null;
-    this.basePa = null;
     this.alignment = null;
     this.alignmentInBytes = null;
     this.data = null;
-    this.section = null;
   }
 
   public boolean isExecutable() {
@@ -232,33 +222,21 @@ public final class ConcreteCall {
   public long setAddress(final long value) {
     long thisAddress = value;
 
-    if (null != section) {
-      final Section sectionVar = section.first;
-      final boolean isStart = section.second;
-
-      if (isStart) {
-        sectionVar.setSavedPa(BigInteger.valueOf(thisAddress));
-        thisAddress = AddressTranslator.get().physicalToVirtual(sectionVar.getPa()).longValue();
+    if (origin != null) {
+      if (relativeOrigin) {
+        thisAddress = value + origin.longValue();
       } else {
-        thisAddress = sectionVar.getSavedPa().longValue();
+        final Section section = Sections.get().getTextSection();
+        InvariantChecks.checkNotNull("Section .text is not defined in the template!");
+        thisAddress = section.virtualFromOrigin(origin).longValue();
       }
-    } else {
-      if (origin != null) {
-        if (null != basePa) {
-          thisAddress = AddressTranslator.get().physicalToVirtual(basePa).add(origin).longValue();
-        } else if (relativeOrigin) {
-          thisAddress = value + origin.longValue();
-        } else {
-          thisAddress = AddressTranslator.get().virtualFromOrigin(origin).longValue();
-        }
-      }
+    }
 
-      if (alignmentInBytes != null) {
-        final long alignmentLength = alignmentInBytes.longValue();
-        final long unalignedLength = thisAddress % alignmentLength;
-        if (0 != unalignedLength) {
-          thisAddress = thisAddress + (alignmentLength - unalignedLength);
-        }
+    if (alignmentInBytes != null) {
+      final long alignmentLength = alignmentInBytes.longValue();
+      final long unalignedLength = thisAddress % alignmentLength;
+      if (0 != unalignedLength) {
+        thisAddress = thisAddress + (alignmentLength - unalignedLength);
       }
     }
 
@@ -275,7 +253,10 @@ public final class ConcreteCall {
       return origin;
     }
 
-    return AddressTranslator.get().virtualToOrigin(BigInteger.valueOf(address));
+    final Section section = Sections.get().getTextSection();
+    InvariantChecks.checkNotNull("Section .text is not defined in the template!");
+
+    return section.virtualToOrigin(BigInteger.valueOf(address));
   }
 
   public BigInteger getAlignment() {
@@ -284,9 +265,5 @@ public final class ConcreteCall {
 
   public DataSection getData() {
     return data;
-  }
-
-  public Pair<Section, Boolean> getSection() {
-    return section;
   }
 }

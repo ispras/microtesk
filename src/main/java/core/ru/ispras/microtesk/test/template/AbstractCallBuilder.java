@@ -33,7 +33,6 @@ public final class AbstractCallBuilder {
 
   private boolean relativeOrigin;
   private BigInteger origin;
-  private BigInteger basePa;
   private BigInteger alignment;
   private BigInteger alignmentInBytes;
 
@@ -96,11 +95,10 @@ public final class AbstractCallBuilder {
     outputs.add(output);
   }
 
-  public void setOrigin(final BigInteger value, final boolean isRelative, final BigInteger basePa) {
+  public void setOrigin(final BigInteger value, final boolean isRelative) {
     checkNotNull(value);
     this.origin = value;
     this.relativeOrigin = isRelative;
-    this.basePa = basePa;
   }
 
   public void setAlignment(final BigInteger value, final BigInteger valueInBytes) {
@@ -126,11 +124,9 @@ public final class AbstractCallBuilder {
         outputs,
         relativeOrigin,
         origin,
-        basePa,
         alignment,
         alignmentInBytes,
         preparatorReference,
-        null,
         null,
         null,
         null,

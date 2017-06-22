@@ -1,0 +1,94 @@
+\documentclass[12pt,letterpaper,extrafontsizes]{memoir}
+
+\listfiles
+\usepackage{comment}
+\usepackage{memsty}
+\usepackage{titlepages}
+\usepackage{memlays}
+\usepackage{dpfloat}
+\usepackage{fonttable}[2009/04/01]
+\usepackage{listings}
+
+% Use the built-in division styling
+\headstyles{memman}
+% ToC down to subsections
+\settocdepth{subsection}
+% Numbering down to subsections as well
+\setsecnumdepth{subsection}
+% extra index for first lines
+\makeindex[lines]
+
+\usepackage[draft]{fixme}
+\fxsetup{
+  layout=marginnote
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+\begin{document}
+\firmlists
+\midsloppy
+\raggedbottom
+\chapterstyle{default}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Front Matter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frontmatter
+\pagestyle{empty}
+
+% title page
+\vspace*{\fill}
+\begin{center}
+\HUGE\textsf{MicroTESK}\par
+\end{center}
+
+\begin{center}
+\Huge\textsf{Installation Guide}\par
+\end{center}
+
+\begin{center}
+\normalsize\textsf{Corresponding to MicroTESK v2.5}\par
+\end{center}
+
+\vspace*{\fill}
+\clearpage
+
+% copyright page
+\begingroup
+\footnotesize
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{\baselineskip}
+%%\ttfamily
+\textcopyright{} Institute for System Programming of the Russian Academy of Sciences (ISP RAS)\\
+All rights reserved
+
+\begin{center}
+\begin{tabular}{ll}
+First edition: & 22 June 2017 \\
+\end{tabular}
+\end{center}
+
+\endgroup
+\clearpage
+
+\pagestyle{headings}
+
+\tableofcontents
+
+\pagenumbering{arabic}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Matter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\mainmatter
+
+\include{install}
+\include{usage}
+\include{options}
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

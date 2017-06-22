@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public final class AbstractCall {
@@ -37,13 +36,11 @@ public final class AbstractCall {
 
   private final boolean relativeOrigin;
   private final BigInteger origin;
-  private final BigInteger basePa;
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;
 
   private final PreparatorReference preparatorReference;
   private final DataSection data;
-  private final Pair<Section, Boolean> section;
   private final List<AbstractCall> atomicSequence;
   private final Primitive modeToFree;
   private final boolean freeAllModes;
@@ -63,32 +60,7 @@ public final class AbstractCall {
         null,
         null,
         null,
-        null,
         data,
-        null,
-        null,
-        null,
-        false
-        );
-  }
-
-  public static AbstractCall newSection(final Section section, final boolean start) {
-    InvariantChecks.checkNotNull(section);
-    return new AbstractCall(
-        null,
-        null,
-        null,
-        Collections.<Label>emptyList(),
-        Collections.<LabelReference>emptyList(),
-        Collections.<Output>emptyList(),
-        false,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        new Pair<>(section, start),
         null,
         null,
         false
@@ -107,8 +79,6 @@ public final class AbstractCall {
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         false,
-        null,
-        null,
         null,
         null,
         null,
@@ -142,8 +112,6 @@ public final class AbstractCall {
         null,
         null,
         null,
-        null,
-        null,
         false
         );
   }
@@ -166,8 +134,6 @@ public final class AbstractCall {
         null,
         null,
         null,
-        null,
-        null,
         false
         );
   }
@@ -183,8 +149,6 @@ public final class AbstractCall {
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         false,
-        null,
-        null,
         null,
         null,
         null,
@@ -229,8 +193,6 @@ public final class AbstractCall {
         null,
         null,
         null,
-        null,
-        null,
         mode,
         freeAll
         );
@@ -245,12 +207,10 @@ public final class AbstractCall {
       final List<Output> outputs,
       final boolean relativeOrigin,
       final BigInteger origin,
-      final BigInteger basePa,
       final BigInteger alignment,
       final BigInteger alignmentInBytes,
       final PreparatorReference preparatorReference,
       final DataSection data,
-      final Pair<Section, Boolean> section,
       final List<AbstractCall> atomicSequence,
       final Primitive modeToFree,
       final boolean freeAllModes) {
@@ -274,13 +234,11 @@ public final class AbstractCall {
 
     this.relativeOrigin = relativeOrigin;
     this.origin = origin;
-    this.basePa = basePa;
     this.alignment = alignment;
     this.alignmentInBytes = alignmentInBytes;
 
     this.preparatorReference = preparatorReference;
     this.data = data;
-    this.section = section;
     this.atomicSequence = atomicSequence;
     this.modeToFree = modeToFree;
     this.freeAllModes = freeAllModes;
@@ -300,7 +258,6 @@ public final class AbstractCall {
 
     this.relativeOrigin = other.relativeOrigin;
     this.origin = other.origin;
-    this.basePa = other.basePa;
     this.alignment = other.alignment;
     this.alignmentInBytes = other.alignmentInBytes;
 
@@ -308,7 +265,6 @@ public final class AbstractCall {
         new PreparatorReference(other.preparatorReference) : null;
 
     this.data = null != other.data ? new DataSection(other.data) : null;
-    this.section = other.section;
 
     this.atomicSequence = null != other.atomicSequence ?
         copyAll(other.atomicSequence) : null;
@@ -353,8 +309,7 @@ public final class AbstractCall {
            labels.isEmpty()    &&
            outputs.isEmpty()   &&
            null == origin      &&
-           null == alignment   &&
-           null == section;
+           null == alignment;
   }
 
   public Where getWhere() {
@@ -425,10 +380,6 @@ public final class AbstractCall {
     return origin;
   }
 
-  public BigInteger getBasePa() {
-    return basePa;
-  }
-
   public BigInteger getAlignment() {
     return alignment;
   }
@@ -447,10 +398,6 @@ public final class AbstractCall {
 
   public DataSection getData() {
     return data;
-  }
-
-  public Pair<Section, Boolean> getSection() {
-    return section;
   }
 
   public boolean isAtomicSequence() {

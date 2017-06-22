@@ -21,7 +21,6 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.Model;
-import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.DelaySlotSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -35,7 +34,7 @@ import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
 /**
- * {@link EngineContext} contains information required by an {@link Engine} and an {@link Adapter}.
+ * {@link EngineContext} contains information required by an {@link Engine}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -81,7 +80,7 @@ public final class EngineContext {
     final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
 
-    this.codeAllocationAddress = options.getValueAsBigInteger(Option.BASE_VA).longValue();
+    this.codeAllocationAddress = 0;
     this.dataDirectiveFactory = null;
   }
 

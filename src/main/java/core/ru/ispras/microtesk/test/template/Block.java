@@ -18,12 +18,14 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.sequence.GeneratorPrologueEpilogue;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 public final class Block {
   private final BlockId blockId;
   private final Where where;
+  private final Section section;
 
   private final boolean isAtomic;
   private final boolean isExternal;
@@ -42,6 +44,7 @@ public final class Block {
   protected Block(
       final BlockId blockId,
       final Where where,
+      final Section section,
       final boolean isAtomic,
       final boolean isExternal,
       final Map<String, Object> attributes,
@@ -49,6 +52,7 @@ public final class Block {
       final List<AbstractCall> prologue,
       final List<AbstractCall> epilogue) {
     InvariantChecks.checkNotNull(blockId);
+    InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(attributes);
     InvariantChecks.checkNotNull(iterator);
     InvariantChecks.checkNotNull(prologue);
@@ -59,6 +63,7 @@ public final class Block {
 
     this.blockId = blockId;
     this.where = where;
+    this.section = section;
 
     this.isAtomic = isAtomic;
     this.isExternal = isExternal;

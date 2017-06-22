@@ -36,7 +36,7 @@ public final class MemoryAllocator {
   private final int addressableUnitBitSize;
   private final int addressableUnitsInRegion;
 
-  private final BigInteger baseAddress; // in addressable units
+  private BigInteger baseAddress; // in addressable units
   private BigInteger currentAddress; // in addressable units
 
   private static String ERROR_INVALID_SIZE =
@@ -77,20 +77,14 @@ public final class MemoryAllocator {
     this.currentAddress = baseAddress;
   }
 
-  /**
-   * Returns the base address.
-   * 
-   * @return Base address (in addressable units).
-   */
   public BigInteger getBaseAddress() {
     return baseAddress;
   }
 
-  /**
-   * Returns the current address.
-   * 
-   * @return Current address (in addressable units).
-   */
+  public void setBaseAddress(final BigInteger value) {
+    baseAddress = value;
+  }
+
   public BigInteger getCurrentAddress() {
     return currentAddress;
   }
@@ -406,7 +400,7 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the {@code string} argument is {@code null}.
    * @throws IllegalStateException if failed to convert the string to the "US-ASCII" encoding.
    */
-  private BitVector toAsciiBinary(final String string, final boolean zeroTerm) {
+  private static BitVector toAsciiBinary(final String string, final boolean zeroTerm) {
     InvariantChecks.checkNotNull(string);
 
     final byte[] stringBytes;

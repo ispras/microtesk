@@ -26,6 +26,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.ProcessingElement;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -33,7 +34,6 @@ import ru.ispras.microtesk.test.template.DataDirective;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
-import ru.ispras.microtesk.test.template.Section;
 import ru.ispras.microtesk.utils.FileUtils;
 import ru.ispras.microtesk.utils.BinaryWriter;
 
@@ -43,7 +43,7 @@ import ru.ispras.microtesk.utils.BinaryWriter;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-final class Printer {
+public final class Printer {
   private final static int LINE_WIDTH = 100;
   private static Printer console = null;
 
@@ -56,15 +56,13 @@ final class Printer {
   private final File binaryFile;
   private final BinaryWriter binaryWriter;
 
-  private final String codeKeyword;
-  private final String dataKeyword;
+  private final String textKeyword;
   private final String commentToken;
   private final String indentToken;
   private final String separatorToken;
   private final String separator;
 
-  private boolean needPrintCodeKeyword = true;
-  private boolean needPrintDataKeyword = true;
+  private boolean needPrintTextKeyword = true;
 
   public static Printer newCodeFile(
       final Options options,
@@ -136,7 +134,7 @@ final class Printer {
         FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
     final Printer result = new Printer(options, false, file, binaryFile);
-    result.needPrintCodeKeyword = false;
+    result.needPrintTextKeyword = false;
 
     return result;
   }
@@ -163,8 +161,7 @@ final class Printer {
     final boolean bigEndian = options.getValueAsBoolean(Option.BIN_USE_BIG_ENDIAN);
     this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile, bigEndian) : null;
 
-    this.codeKeyword  = options.getValueAsString(Option.CODE_SECTION_KEYWORD);
-    this.dataKeyword  = options.getValueAsString(Option.DATA_SECTION_KEYWORD);
+    this.textKeyword  = options.getValueAsString(Option.TEXT_SECTION_KEYWORD);
     this.commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
     this.indentToken = options.getValueAsString(Option.INDENT_TOKEN);
     this.separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
@@ -224,8 +221,10 @@ final class Printer {
 
   /**
    * Prints the specified instruction call sequence.
-   * 
+   *
+   * @param observer Information on the processing element state.
    * @param sequence Instruction call sequence.
+   *
    * @throws NullPointerException if the parameter is null.
    * @throws ConfigurationException if failed to evaluate one of the output objects associated with
    *         an instruction call in the sequence.
@@ -242,10 +241,9 @@ final class Printer {
       printToFile("");
     }
 
-    if (needPrintCodeKeyword) {
-      printText(codeKeyword);
-      needPrintCodeKeyword = false;
-      needPrintDataKeyword = true;
+    if (needPrintTextKeyword) {
+      printText(textKeyword);
+      needPrintTextKeyword = false;
 
       if (sequence.isEmpty()) {
         return;
@@ -288,11 +286,6 @@ final class Printer {
       if (call.getAlignment() != null) {
         printText(String.format(
             options.getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
-      }
-
-      if (call.getSection() != null && call.getSection().second) {
-        final Section section = call.getSection().first;
-        printText(String.format(".section \"%s\", %s", section.getName(), section.getArgs()));
       }
 
       printOutputs(observer, call.getOutputs());
@@ -507,7 +500,9 @@ final class Printer {
     }
 
     printHeaderToFile("Data");
-    needPrintCodeKeyword = true;
+    Section section = null;
+
+    needPrintTextKeyword = true;
 
     int currentTestCaseIndex = Integer.MIN_VALUE;
     for (final DataSection dataSection : dataSections) {
@@ -515,9 +510,9 @@ final class Printer {
         continue;
       }
 
-      if (needPrintDataKeyword && !dataSection.isSection()) {
-        printText(dataKeyword);
-        needPrintDataKeyword = false;
+      if (dataSection.getSection() != section) {
+        section = dataSection.getSection();
+        printText(section.getText());
       }
 
       printToFile("");
@@ -529,10 +524,6 @@ final class Printer {
       }
 
       printData(dataSection);
-
-      if (dataSection.isSection()) {
-        needPrintDataKeyword = true;
-      }
     }
   }
 }

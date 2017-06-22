@@ -25,8 +25,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.data.Type;
-import ru.ispras.microtesk.model.memory.AddressTranslator;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 
@@ -40,7 +40,6 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
  */
 public final class DataDirectiveFactory {
   private final Options options;
-  private final BigInteger baseVirtualAddress;
   private final Map<String, TypeInfo> types;
   private final int maxTypeBitSize;
   private final String spaceText;
@@ -50,7 +49,6 @@ public final class DataDirectiveFactory {
 
   private DataDirectiveFactory(
       final Options options,
-      final BigInteger baseVirtualAddress,
       final Map<String, TypeInfo> types,
       final int maxTypeBitSize,
       final String spaceText,
@@ -58,11 +56,9 @@ public final class DataDirectiveFactory {
       final String ztermStrText,
       final String nztermStrText) {
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(baseVirtualAddress);
     InvariantChecks.checkNotNull(types);
 
     this.options = options;
-    this.baseVirtualAddress = baseVirtualAddress;
     this.types = types;
     this.maxTypeBitSize = maxTypeBitSize;
     this.spaceText = spaceText;
@@ -73,7 +69,6 @@ public final class DataDirectiveFactory {
 
   public static final class Builder {
     private final Options options;
-    private final BigInteger baseVirtualAddress;
     private final boolean isDebugPrinting;
     private final int addressableUnitBitSize;
 
@@ -84,16 +79,11 @@ public final class DataDirectiveFactory {
     private String ztermStrText;
     private String nztermStrText;
 
-    protected Builder(
-        final Options options,
-        final BigInteger baseVirtualAddress,
-        final int addressableUnitBitSize) {
+    protected Builder(final Options options, final int addressableUnitBitSize) {
       InvariantChecks.checkNotNull(options);
-      InvariantChecks.checkNotNull(baseVirtualAddress);
       InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
 
       this.options = options;
-      this.baseVirtualAddress = baseVirtualAddress;
       this.isDebugPrinting = options.getValueAsBoolean(Option.DEBUG);
       this.addressableUnitBitSize = addressableUnitBitSize;
 
@@ -156,7 +146,6 @@ public final class DataDirectiveFactory {
     public DataDirectiveFactory build() {
       return new DataDirectiveFactory(
           options,
-          baseVirtualAddress,
           types,
           maxTypeBitSize,
           spaceText,
@@ -240,12 +229,15 @@ public final class DataDirectiveFactory {
   }
 
   private static final class Label implements DataDirective {
+    private final Section section;
     private final LabelValue label;
 
-    private Label(final LabelValue label) {
+    private Label(final Section section, final LabelValue label) {
+      InvariantChecks.checkNotNull(section);
       InvariantChecks.checkNotNull(label);
       InvariantChecks.checkNotNull(label.getLabel());
 
+      this.section = section;
       this.label = label;
     }
 
@@ -261,12 +253,13 @@ public final class DataDirectiveFactory {
 
     @Override
     public void apply(final MemoryAllocator allocator) {
-      linkLabelToAddress(label, allocator.getCurrentAddress());
+      final BigInteger virtuaAddress = section.physicalToVirtual(allocator.getCurrentAddress());
+      label.setAddress(virtuaAddress);
     }
 
     @Override
     public DataDirective copy() {
-      return new Label(label.sharedCopy());
+      return new Label(section, label.sharedCopy());
     }
 
     @Override
@@ -297,7 +290,7 @@ public final class DataDirectiveFactory {
 
     @Override
     public void apply(final MemoryAllocator allocator) {
-      linkLabelToAddress(label, allocator.getCurrentAddress());
+      // Nothing
     }
 
     @Override
@@ -373,16 +366,9 @@ public final class DataDirectiveFactory {
 
     @Override
     public void apply(final MemoryAllocator allocator) {
-      final BigInteger physicalAddress = allocator.getCurrentAddress().add(delta);
-      allocator.setCurrentAddress(physicalAddress);
-
-      final BigInteger currentOrigin =
-          AddressTranslator.get().physicalToOrigin(physicalAddress);
-
-      final BigInteger baseOrigin = 
-          AddressTranslator.get().physicalToOrigin(allocator.getBaseAddress());
-
-      origin = currentOrigin.subtract(baseOrigin);
+      final BigInteger address = allocator.getCurrentAddress().add(delta);
+      allocator.setCurrentAddress(address);
+      origin = address.subtract(allocator.getBaseAddress());
     }
 
     @Override
@@ -395,44 +381,6 @@ public final class DataDirectiveFactory {
       return origin != null ?
           getText() :
           String.format(options.getValueAsString(Option.ORIGIN_FORMAT) + " (relative)", delta);
-    }
-  }
-
-  private final class OriginOffset implements DataDirective {
-    private final BigInteger basePa;
-    private final BigInteger origin;
-
-    private OriginOffset(final BigInteger basePa, final BigInteger origin) {
-      InvariantChecks.checkNotNull(basePa);
-      InvariantChecks.checkNotNull(origin);
-      InvariantChecks.checkGreaterOrEq(origin, BigInteger.ZERO);
-      this.basePa = basePa;
-      this.origin = origin;
-    }
-
-    @Override
-    public String getText() {
-      return String.format(options.getValueAsString(Option.ORIGIN_FORMAT), origin);
-    }
-
-    @Override
-    public boolean needsIndent() {
-      return true;
-    }
-
-    @Override
-    public void apply(final MemoryAllocator allocator) {
-      allocator.setCurrentAddress(basePa.add(origin));
-    }
-
-    @Override
-    public DataDirective copy() {
-      return this;
-    }
-
-    @Override
-    public String toString() {
-      return getText();
     }
   }
 
@@ -677,69 +625,6 @@ public final class DataDirectiveFactory {
     }
   }
 
-  private static final class SectionStart implements DataDirective {
-    private final Section section;
-    private final SharedValue savedAddress;
-
-    public SectionStart(final Section section, final SharedValue savedAddress) {
-      InvariantChecks.checkNotNull(section);
-      InvariantChecks.checkNotNull(savedAddress);
-
-      this.section = section;
-      this.savedAddress = savedAddress;
-    }
-
-    @Override
-    public String getText() {
-      return String.format(".section \"%s\", %s%n", section.getName(), section.getArgs());
-    }
-
-    @Override
-    public boolean needsIndent() {
-      return true;
-    }
-
-    @Override
-    public void apply(final MemoryAllocator allocator) {
-      savedAddress.setValue(allocator.getBaseAddress());
-      allocator.setCurrentAddress(section.getPa());
-    }
-
-    @Override
-    public DataDirective copy() {
-      return new SectionStart(section, savedAddress.newCopy());
-    }
-  }
-
-  private static final class SectionEnd implements DataDirective {
-    private final SharedValue savedAddress;
-
-    private SectionEnd(final SharedValue savedAddress) {
-      InvariantChecks.checkNotNull(savedAddress);
-      this.savedAddress = savedAddress;
-    }
-
-    @Override
-    public String getText() {
-      return "";
-    }
-
-    @Override
-    public boolean needsIndent() {
-      return false;
-    }
-
-    @Override
-    public void apply(final MemoryAllocator allocator) {
-      allocator.setCurrentAddress(savedAddress.getValue());
-    }
-
-    @Override
-    public DataDirective copy() {
-      return new SectionEnd(savedAddress.sharedCopy());
-    }
-  }
-
   public DataDirective newText(final String text) {
     return new Text(text);
   }
@@ -748,8 +633,8 @@ public final class DataDirectiveFactory {
     return new Comment(text);
   }
 
-  public DataDirective newLabel(final LabelValue label) {
-    return new Label(label);
+  public DataDirective newLabel(final Section section, final LabelValue label) {
+    return new Label(section, label);
   }
 
   public DataDirective newGlobalLabel(final LabelValue label) {
@@ -763,16 +648,6 @@ public final class DataDirectiveFactory {
 
   public DataDirective newOriginRelative(final BigInteger delta) {
     return new OriginRelative(delta);
-  }
-
-  public DataDirective newOriginOffset(final BigInteger basePa, final BigInteger origin) {
-    return new OriginOffset(basePa, origin);
-  }
-
-  public DataDirective newOriginForVirtualAddress(final BigInteger address) {
-    InvariantChecks.checkGreaterOrEq(address, BigInteger.ZERO);
-    final BigInteger origin = address.subtract(baseVirtualAddress);
-    return new Origin(origin);
   }
 
   public DataDirective newAlign(final BigInteger alignment, final BigInteger alignmentInBytes) {
@@ -837,14 +712,6 @@ public final class DataDirectiveFactory {
     return new DataValue(typeInfo, values);
   }
 
-  public DataDirective newSectionStart(final Section section, final SharedValue savedAddress) {
-    return new SectionStart(section, savedAddress);
-  }
-
-  public DataDirective newSectionEnd(final SharedValue savedAddress) {
-    return new SectionEnd(savedAddress);
-  }
-
   public int getMaxTypeBitSize() {
     return maxTypeBitSize;
   }
@@ -872,12 +739,5 @@ public final class DataDirectiveFactory {
 
     throw new GenerationAbortedException(
         String.format("No %d-bit type is defined.", typeSizeInBits));
-  }
-
-  private static void linkLabelToAddress(
-      final LabelValue label,
-      final BigInteger physicalAddress) {
-    final BigInteger virtuaAddress = AddressTranslator.get().physicalToVirtual(physicalAddress);
-    label.setAddress(virtuaAddress);
   }
 }

@@ -25,8 +25,9 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.Model;
-import ru.ispras.microtesk.model.memory.AddressTranslator;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
@@ -34,7 +35,6 @@ import ru.ispras.microtesk.test.template.LabelReference;
 public final class CodeAllocator {
   private final Model model;
   private final LabelManager labelManager;
-  private final long baseAddress;
   private final boolean placeToMemory;
 
   private Code code;
@@ -43,29 +43,33 @@ public final class CodeAllocator {
   public CodeAllocator(
       final Model model,
       final LabelManager labelManager,
-      final long baseAddress,
       final boolean placeToMemory) {
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(labelManager);
 
     this.model = model;
     this.labelManager = labelManager;
-    this.baseAddress = baseAddress;
     this.code = null;
-    this.address = baseAddress;
+    this.address = 0;
     this.placeToMemory = placeToMemory;
   }
 
   public void init() {
     InvariantChecks.checkTrue(null == code);
     code = new Code();
-    address = baseAddress;
+
+    final Section section = Sections.get().getTextSection();
+    InvariantChecks.checkNotNull("Section .text is not defined in the template!");
+    address = section.getBaseVa().longValue();
   }
 
   public void reset() {
     InvariantChecks.checkNotNull(code);
     code = null;
-    address = baseAddress;
+
+    final Section section = Sections.get().getTextSection();
+    InvariantChecks.checkNotNull("Section .text is not defined in the template!");
+    address = section.getBaseVa().longValue();
   }
 
   public Code getCode() {
@@ -198,8 +202,11 @@ public final class CodeAllocator {
         final BitVector image = BitVector.valueOf(call.getImage());
         final BitVector virtualAddress = BitVector.valueOf(call.getAddress(), 64);
 
+        final Section section = Sections.get().getTextSection();
+        InvariantChecks.checkNotNull("Section .text is not defined in the template!");
+
         final BigInteger physicalAddress =
-            AddressTranslator.get().virtualToPhysical(virtualAddress.bigIntegerValue(false));
+            section.virtualToPhysical(virtualAddress.bigIntegerValue(false));
 
         if (Logger.isDebug()) {
           Logger.debug("0x%016x (PA): %s (0x%s)",
