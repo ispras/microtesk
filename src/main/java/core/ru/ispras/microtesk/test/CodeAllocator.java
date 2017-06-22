@@ -25,8 +25,9 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.Model;
-import ru.ispras.microtesk.model.memory.AddressTranslator;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
@@ -198,8 +199,11 @@ public final class CodeAllocator {
         final BitVector image = BitVector.valueOf(call.getImage());
         final BitVector virtualAddress = BitVector.valueOf(call.getAddress(), 64);
 
+        final Section section = Sections.get().getTextSection();
+        InvariantChecks.checkNotNull("Section .text is not defined in the template!");
+
         final BigInteger physicalAddress =
-            AddressTranslator.get().virtualToPhysical(virtualAddress.bigIntegerValue(false));
+            section.virtualToPhysical(virtualAddress.bigIntegerValue(false));
 
         if (Logger.isDebug()) {
           Logger.debug("0x%016x (PA): %s (0x%s)",

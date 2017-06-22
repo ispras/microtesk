@@ -22,7 +22,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ExecutionException;
 import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.ProcessingElement;
-import ru.ispras.microtesk.model.memory.AddressTranslator;
+import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.model.memory.Sections;
 
 /**
  * The {@link ConcreteCall} class describes an instruction call with fixed arguments
@@ -225,7 +226,9 @@ public final class ConcreteCall {
       if (relativeOrigin) {
         thisAddress = value + origin.longValue();
       } else {
-        thisAddress = AddressTranslator.get().virtualFromOrigin(origin).longValue();
+        final Section section = Sections.get().getTextSection();
+        InvariantChecks.checkNotNull("Section .text is not defined in the template!");
+        thisAddress = section.virtualFromOrigin(origin).longValue();
       }
     }
 
@@ -250,7 +253,10 @@ public final class ConcreteCall {
       return origin;
     }
 
-    return AddressTranslator.get().virtualToOrigin(BigInteger.valueOf(address));
+    final Section section = Sections.get().getTextSection();
+    InvariantChecks.checkNotNull("Section .text is not defined in the template!");
+
+    return section.virtualToOrigin(BigInteger.valueOf(address));
   }
 
   public BigInteger getAlignment() {
