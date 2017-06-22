@@ -109,11 +109,14 @@ public final class DataManager {
 
     checkInitialized();
 
+    final Section section = Sections.get().getDataSection();
+    InvariantChecks.checkNotNull(section, "Data section is not defined in the template!");
+
     final DataDirectiveFactory factory = engineContext.getDataDirectiveFactory();
     final DataSectionBuilder dataBuilder = new DataSectionBuilder(
         new BlockId(),
         factory,
-        Sections.get().getDataSection(),
+        section,
         true,
         isSeparateFile
         );

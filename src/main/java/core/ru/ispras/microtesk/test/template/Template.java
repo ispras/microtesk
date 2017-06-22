@@ -215,7 +215,11 @@ public final class Template {
   }
 
   private void beginNewSection() {
-    final BlockBuilder rootBlockBuilder = new BlockBuilder(true, Sections.get().getTextSection());
+    final Section section = Sections.get().getTextSection();
+    checkSectionDefined(section,
+        context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
+
+    final BlockBuilder rootBlockBuilder = new BlockBuilder(true, section);
     rootBlockBuilder.setSequence(true);
 
     InvariantChecks.checkTrue(blockBuilders.isEmpty());
@@ -246,6 +250,9 @@ public final class Template {
 
     final Section section =
         !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
+
+    checkSectionDefined(section,
+        context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
 
     final BlockBuilder current = parent.isExternal() ?
         new BlockBuilder(false, section) : new BlockBuilder(parent);
@@ -293,6 +300,9 @@ public final class Template {
 
     final Section section =
         !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
+
+    checkSectionDefined(section,
+        context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
 
     final BlockBuilder newRootBuilder = new BlockBuilder(true, section);
     newRootBuilder.setSequence(true);
@@ -1035,6 +1045,9 @@ public final class Template {
     final Section section =
         !sections.isEmpty() ? sections.peek() : Sections.get().getDataSection();
 
+    checkSectionDefined(section,
+        context.getOptions().getValueAsString(Option.DATA_SECTION_KEYWORD));
+
     return dataManager.beginData(
         getCurrentBlockId(),
         section,
@@ -1104,7 +1117,7 @@ public final class Template {
       section = new Section(keyword, pa, va, args);
       Sections.get().addSection(section);
     } else {
-      checkSectionRedefinition(section, pa, va, args);
+      checkSectionRedefined(section, pa, va, args);
     }
 
     sections.push(section);
@@ -1117,11 +1130,11 @@ public final class Template {
     Section section = Sections.get().getTextSection();
 
     if (null == section) {
-      final String keyword = context.getOptions().getValueAsString(Option.CODE_SECTION_KEYWORD);
+      final String keyword = context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD);
       section = new Section(keyword, pa, va);
       Sections.get().setTextSection(section);
     } else {
-      checkSectionRedefinition(section, pa, va, args);
+      checkSectionRedefined(section, pa, va, args);
     }
 
     sections.push(section);
@@ -1138,7 +1151,7 @@ public final class Template {
       section = new Section(keyword, pa, va);
       Sections.get().setDataSection(section);
     } else {
-      checkSectionRedefinition(section, pa, va, args);
+      checkSectionRedefined(section, pa, va, args);
     }
 
     sections.push(section);
@@ -1150,7 +1163,7 @@ public final class Template {
      sections.pop();
   }
 
-  private static void checkSectionRedefinition(
+  private static void checkSectionRedefined(
       final Section section,
       final BigInteger pa,
       final BigInteger va,
@@ -1158,7 +1171,14 @@ public final class Template {
     if (null != pa && !section.getBasePa().equals(pa) ||
         null != va && !section.getBaseVa().equals(va) ||
         null != args && !section.getArgs().equals(args)) {
-      Logger.warning("Changing section attributes is not allowed: %s", section);
+      Logger.warning("Changing section attributes is not allowed: %s.", section);
+    }
+  }
+
+  private static void checkSectionDefined(final Section section, final String name) {
+    if (null == section) {
+      throw new GenerationAbortedException(
+          String.format("Section %s is not defined in the template.", name));
     }
   }
 

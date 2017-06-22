@@ -99,13 +99,8 @@ public enum Option {
   BASE_VA("base-virtual-address", "Base VA for memory allocation", BigInteger.ZERO, GENERATE),
   BASE_PA("base-physical-address", "Base PA for memory allocation", BigInteger.ZERO, GENERATE),
 
-  CODE_SECTION_KEYWORD("code-section-keyword", "Code section directive", ".text", GENERATE),
-  CODE_BASE_VA("base-code-virtual-address", "Base VA for code section", BigInteger.ZERO, GENERATE),
-  CODE_BASE_PA("base-code-physical-address", "Base PA for code section", BigInteger.ZERO, GENERATE),
-
+  TEXT_SECTION_KEYWORD("text-section-keyword", "Text section directive", ".text", GENERATE),
   DATA_SECTION_KEYWORD("data-section-keyword", "Data section directive", ".data", GENERATE),
-  DATA_BASE_VA("base-data-virtual-address", "Base VA for data section", BigInteger.ZERO, GENERATE),
-  DATA_BASE_PA("base-data-physical-address", "Base PA for data section", BigInteger.ZERO, GENERATE),
 
   INSTANCE_NUMBER("instance-number", "Number of processing element instances", 1, GENERATE),
 

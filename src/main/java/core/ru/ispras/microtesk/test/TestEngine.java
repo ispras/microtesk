@@ -30,8 +30,6 @@ import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.Execution;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.AddressTranslator;
-import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.model.Reader;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
@@ -235,18 +233,6 @@ public final class TestEngine {
         options.getValueAsBigInteger(Option.BASE_VA),
         options.getValueAsBigInteger(Option.BASE_PA)
         );
-
-    Sections.get().setTextSection(new Section(
-        options.getValueAsString(Option.CODE_SECTION_KEYWORD),
-        options.getValueAsBigInteger(Option.CODE_BASE_PA),
-        options.getValueAsBigInteger(Option.CODE_BASE_VA)
-        ));
-
-    Sections.get().setDataSection(new Section(
-        options.getValueAsString(Option.DATA_SECTION_KEYWORD),
-        options.getValueAsBigInteger(Option.DATA_BASE_PA),
-        options.getValueAsBigInteger(Option.DATA_BASE_VA)
-        ));
 
     final EngineContext context = new EngineContext(
         options,

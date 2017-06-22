@@ -56,13 +56,13 @@ public final class Printer {
   private final File binaryFile;
   private final BinaryWriter binaryWriter;
 
-  private final String codeKeyword;
+  private final String textKeyword;
   private final String commentToken;
   private final String indentToken;
   private final String separatorToken;
   private final String separator;
 
-  private boolean needPrintCodeKeyword = true;
+  private boolean needPrintTextKeyword = true;
 
   public static Printer newCodeFile(
       final Options options,
@@ -134,7 +134,7 @@ public final class Printer {
         FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
     final Printer result = new Printer(options, false, file, binaryFile);
-    result.needPrintCodeKeyword = false;
+    result.needPrintTextKeyword = false;
 
     return result;
   }
@@ -161,7 +161,7 @@ public final class Printer {
     final boolean bigEndian = options.getValueAsBoolean(Option.BIN_USE_BIG_ENDIAN);
     this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile, bigEndian) : null;
 
-    this.codeKeyword  = options.getValueAsString(Option.CODE_SECTION_KEYWORD);
+    this.textKeyword  = options.getValueAsString(Option.TEXT_SECTION_KEYWORD);
     this.commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
     this.indentToken = options.getValueAsString(Option.INDENT_TOKEN);
     this.separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
@@ -241,9 +241,9 @@ public final class Printer {
       printToFile("");
     }
 
-    if (needPrintCodeKeyword) {
-      printText(codeKeyword);
-      needPrintCodeKeyword = false;
+    if (needPrintTextKeyword) {
+      printText(textKeyword);
+      needPrintTextKeyword = false;
 
       if (sequence.isEmpty()) {
         return;
@@ -502,7 +502,7 @@ public final class Printer {
     printHeaderToFile("Data");
     Section section = null;
 
-    needPrintCodeKeyword = true;
+    needPrintTextKeyword = true;
 
     int currentTestCaseIndex = Integer.MIN_VALUE;
     for (final DataSection dataSection : dataSections) {
