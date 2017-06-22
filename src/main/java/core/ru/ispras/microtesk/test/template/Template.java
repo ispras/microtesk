@@ -1027,7 +1027,6 @@ public final class Template {
   }
 
   public DataSectionBuilder beginData(
-      final Section section,
       final boolean isGlobalArgument,
       final boolean isSeparateFile) {
     endBuildingCall();
@@ -1044,7 +1043,7 @@ public final class Template {
     debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
 
     final Section selectedSection =
-        null != section ? section : Sections.get().getDataSection();
+        null != wrappingSection ? wrappingSection : Sections.get().getDataSection();
 
     return dataManager.beginData(
         getCurrentBlockId(),

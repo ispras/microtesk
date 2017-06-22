@@ -772,7 +772,7 @@ class Template
       separate_file = false
     end
 
-    @data_manager.beginData get_section_attribute(attrs), global, separate_file
+    @data_manager.beginData global, separate_file
     @data_manager.instance_eval &contents
     @data_manager.endData
   end
@@ -810,9 +810,10 @@ class Template
 
   def section(attrs, &contents)
     name = get_attribute attrs, :name
-    pa = get_attribute attrs, :pa
-    va = get_attribute attrs, :va
-    args = get_attribute attrs, :args
+
+    pa   = attrs[:pa]
+    va   = attrs[:va]
+    args = attrs[:args]
 
     @template.beginSection name, pa, va, args
     self.instance_eval &contents
@@ -902,7 +903,7 @@ class Template
       separate_file = false
     end
 
-    @data_manager.beginData get_section_attribute(attrs), global, separate_file
+    @data_manager.beginData global, separate_file
     page_table = PageTable.new self, @data_manager
     page_table.instance_eval &contents
     @data_manager.endData
@@ -942,19 +943,6 @@ class Template
     java_import Java::Ru.ispras.microtesk.test.TestEngine
     engine = TestEngine.getInstance
     engine.getOptionValue name
-  end
-
-  def get_section_attribute(attrs)
-    section = nil
-    if attrs.has_key?(:section)
-      sectionAttrs = get_attribute attrs,   :section
-      name    = get_attribute sectionAttrs, :name
-      pa      = get_attribute sectionAttrs, :pa
-      va      = get_attribute sectionAttrs, :va
-      args    = get_attribute sectionAttrs, :args
-      section = @template.newSection name, pa, va, args
-    end
-    section
   end
 
 end # Template
@@ -1052,9 +1040,9 @@ class DataManager
     @configurer = nil
   end
 
-  def beginData(section, global, separate_file)
+  def beginData(global, separate_file)
     if @ref_count == 0
-      @builder = @template.template.beginData section, global, separate_file
+      @builder = @template.template.beginData global, separate_file
     end
     @ref_count = @ref_count + 1
     @builder
