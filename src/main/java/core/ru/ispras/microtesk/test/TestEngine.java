@@ -75,18 +75,6 @@ public final class TestEngine {
     this.plugins = plugins;
     this.statistics = statistics;
 
-    Sections.get().setTextSection(new Section(
-        options.getValueAsString(Option.CODE_SECTION_KEYWORD),
-        options.getValueAsBigInteger(Option.CODE_BASE_PA),
-        options.getValueAsBigInteger(Option.CODE_BASE_VA)
-        ));
-
-    Sections.get().setDataSection(new Section(
-        options.getValueAsString(Option.DATA_SECTION_KEYWORD),
-        options.getValueAsBigInteger(Option.DATA_BASE_PA),
-        options.getValueAsBigInteger(Option.DATA_BASE_VA)
-        ));
-
     Reader.setModel(model);
     initSolverPaths(SysUtils.getHomeDir());
 
@@ -247,6 +235,18 @@ public final class TestEngine {
         options.getValueAsBigInteger(Option.BASE_VA),
         options.getValueAsBigInteger(Option.BASE_PA)
         );
+
+    Sections.get().setTextSection(new Section(
+        options.getValueAsString(Option.CODE_SECTION_KEYWORD),
+        options.getValueAsBigInteger(Option.CODE_BASE_PA),
+        options.getValueAsBigInteger(Option.CODE_BASE_VA)
+        ));
+
+    Sections.get().setDataSection(new Section(
+        options.getValueAsString(Option.DATA_SECTION_KEYWORD),
+        options.getValueAsBigInteger(Option.DATA_BASE_PA),
+        options.getValueAsBigInteger(Option.DATA_BASE_VA)
+        ));
 
     final EngineContext context = new EngineContext(
         options,
