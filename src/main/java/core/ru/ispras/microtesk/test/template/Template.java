@@ -242,12 +242,11 @@ public final class Template {
     return blockBuilders.peek().getBlockId();
   }
 
-  public BlockBuilder beginBlock(final Section section) {
+  public BlockBuilder beginBlock() {
     InvariantChecks.checkTrue(!blockBuilders.isEmpty());
     endBuildingCall();
 
-    final Section selectedSection = null != section ?
-        section :
+    final Section selectedSection =
         null != wrappingSection ? wrappingSection : Sections.get().getCodeSection();
 
     final BlockBuilder parent = blockBuilders.peek();
