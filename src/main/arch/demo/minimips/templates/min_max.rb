@@ -23,15 +23,7 @@ require_relative 'minimips_base'
 # The generated program finds minimum and maximum in a 5-element array
 # storing random numbers from 0 to 9. 
 #
-
 class MinMaxTemplate < MiniMipsBaseTemplate
-
-  def initialize
-    super
-
-    set_option_value 'base-virtual-address', 0x00204000
-    set_option_value 'base-physical-address', 0x00204000
-  end
 
   def pre
     super

@@ -24,7 +24,6 @@ require_relative 'minimips_base'
 # program. A template is considered containing an endless loop, if the number of
 # times an instruction call is executed exceeds the allowed limit.
 #
-
 class EndlessLoopTemplate < MiniMipsBaseTemplate
 
   def run

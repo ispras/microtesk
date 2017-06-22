@@ -23,14 +23,6 @@ require_relative 'minimips_base'
 #
 class MemorySimulationTemplate < MiniMipsBaseTemplate
 
-  def initialize
-    super
-
-    # Memory-related settings
-    set_option_value 'base-virtual-address', 0x00001000
-    set_option_value 'base-physical-address', 0x00001000
-  end
-
   def pre
     super
   

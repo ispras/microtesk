@@ -25,7 +25,6 @@ require_relative 'minimips_base'
 # the remainder of division of two random numbers by using 
 # the simple algorithm of repeated subtraction.
 #
-
 class IntDivideTemplate < MiniMipsBaseTemplate
 
   def run

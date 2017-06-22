@@ -24,7 +24,6 @@ require_relative 'minimips_base'
 # design under test. The described program calculates the integer square root
 # a positive integer.
 #
-
 class IntSqrtTemplate < MiniMipsBaseTemplate
 
   def run
