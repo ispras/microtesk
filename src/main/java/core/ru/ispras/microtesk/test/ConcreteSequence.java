@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /**
@@ -33,11 +34,17 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 public final class ConcreteSequence {
 
   public static final class Builder {
+    private final Section section;
     private final List<ConcreteCall> prologue;
     private final List<ConcreteCall> body;
     private int instructionCount;
 
     public Builder() {
+      this(null);
+    }
+
+    public Builder(final Section section) {
+      this.section = section;
       this.prologue = new ArrayList<>();
       this.body = new ArrayList<>();
       this.instructionCount = 0;
@@ -77,10 +84,11 @@ public final class ConcreteSequence {
     }
 
     public ConcreteSequence build() {
-      return new ConcreteSequence(prologue, body, instructionCount);
+      return new ConcreteSequence(section, prologue, body, instructionCount);
     }
   }
 
+  private final Section section;
   private final List<ConcreteCall> all;
   private final List<ConcreteCall> prologue;
   private final List<ConcreteCall> body;
@@ -93,12 +101,15 @@ public final class ConcreteSequence {
   private long endAddress;
 
   private ConcreteSequence(
+      final Section section,
       final List<ConcreteCall> prologue,
       final List<ConcreteCall> body,
       final int instructionCount) {
     InvariantChecks.checkNotNull(prologue);
     InvariantChecks.checkNotNull(body);
     InvariantChecks.checkGreaterOrEqZero(instructionCount);
+
+    this.section = section;
 
     final List<ConcreteCall> allCalls = merge(prologue, body);
     this.all = Collections.unmodifiableList(allCalls);
@@ -135,6 +146,10 @@ public final class ConcreteSequence {
     result.addAll(second);
 
     return result;
+  }
+
+  public Section getSection() {
+    return section;
   }
 
   public List<ConcreteCall> getAll() {
