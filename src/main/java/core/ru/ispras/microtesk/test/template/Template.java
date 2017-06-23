@@ -296,6 +296,11 @@ public final class Template {
   private void processExternalCode() {
     endBuildingCall();
 
+    // No active block builder, no created calls -> nothing to process.
+    if (blockBuilders.isEmpty()) {
+      return;
+    }
+
     final BlockBuilder rootBuilder = blockBuilders.pop();
     InvariantChecks.checkTrue(rootBuilder.isExternal());
 
@@ -405,6 +410,11 @@ public final class Template {
     final AbstractCall call = callBuilder.build();
     debug("Ended building a call (empty = %b, executable = %b)",
         call.isEmpty(), call.isExecutable());
+
+    // The call is empty and there is nowhere to add it: no needed to recreate the builder.
+    if (call.isEmpty() && blockBuilders.isEmpty()) {
+      return;
+    }
 
     addCall(call);
     this.callBuilder = new AbstractCallBuilder(getCurrentBlockId());
@@ -1110,6 +1120,7 @@ public final class Template {
       final BigInteger pa,
       final BigInteger va,
       final String args) {
+    processExternalCode();
     InvariantChecks.checkNotNull(name);
 
     final String keyword = String.format(".section \"%s\"", name);
@@ -1129,6 +1140,7 @@ public final class Template {
       final BigInteger pa,
       final BigInteger va,
       final String args) {
+    processExternalCode();
     Section section = Sections.get().getTextSection();
 
     if (null == section) {
@@ -1146,6 +1158,7 @@ public final class Template {
       final BigInteger pa,
       final BigInteger va,
       final String args) {
+    processExternalCode();
     Section section = Sections.get().getDataSection();
 
     if (null == section) {
