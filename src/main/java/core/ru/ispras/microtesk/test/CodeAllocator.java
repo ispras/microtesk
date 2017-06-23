@@ -151,6 +151,7 @@ public final class CodeAllocator {
 
   private void allocateCodeBlocks(final Section section, final List<ConcreteCall> calls) {
     Logger.debugHeader("Allocating code");
+    Logger.debug("Section: %s%n", section.toString());
 
     int startIndex = 0;
     int currentIndex = startIndex;
