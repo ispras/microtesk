@@ -140,6 +140,7 @@ public final class CodeAllocator {
       final List<ConcreteCall> calls,
       final int sequenceIndex) {
     InvariantChecks.checkNotEmpty(calls);
+    InvariantChecks.checkNotNull(section);
 
     allocateCodeBlocks(calls);
 
