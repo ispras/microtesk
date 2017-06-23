@@ -121,13 +121,12 @@ public final class CodeAllocator {
           continue;
         }
 
-        final List<ConcreteCall> handlerCalls = e.getValue().getAll();
-        getCode().addHandlerAddress(handlerName, handlerCalls.get(0).getAddress());
-
+        final List<ConcreteCall> handlerCalls = handlerSequence.getAll();
         if (!handlerSet.contains(handlerSequence)) {
           allocate(handlerSequence.getSection(), handlerCalls, Label.NO_SEQUENCE_INDEX);
           handlerSet.add(handlerSequence);
         }
+        getCode().addHandlerAddress(handlerName, handlerCalls.get(0).getAddress());
       }
     }
 
