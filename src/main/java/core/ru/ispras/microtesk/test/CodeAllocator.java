@@ -87,15 +87,18 @@ public final class CodeAllocator {
 
   public void allocateSequence(final ConcreteSequence sequence, final int sequenceIndex) {
     final List<ConcreteCall> calls = sequence.getAll();
-    allocateCalls(calls, sequenceIndex);
+    allocateCalls(sequence.getSection(), calls, sequenceIndex);
 
     sequence.setAllocationAddresses(
         !calls.isEmpty() ? calls.get(0).getAddress() : address, address);
   }
 
-  private void allocateCalls(final List<ConcreteCall> calls, final int sequenceIndex) {
+  private void allocateCalls(
+      final Section section,
+      final List<ConcreteCall> calls,
+      final int sequenceIndex) {
     if (!calls.isEmpty()) {
-      allocate(calls, sequenceIndex);
+      allocate(section, calls, sequenceIndex);
       code.addBreakAddress(address);
     }
   }
@@ -122,7 +125,7 @@ public final class CodeAllocator {
         getCode().addHandlerAddress(handlerName, handlerCalls.get(0).getAddress());
 
         if (!handlerSet.contains(handlerSequence)) {
-          allocate(handlerCalls, Label.NO_SEQUENCE_INDEX);
+          allocate(handlerSequence.getSection(), handlerCalls, Label.NO_SEQUENCE_INDEX);
           handlerSet.add(handlerSequence);
         }
       }
@@ -132,7 +135,10 @@ public final class CodeAllocator {
     address = currentAddress;
   }
 
-  private void allocate(final List<ConcreteCall> calls, final int sequenceIndex) {
+  private void allocate(
+      final Section section,
+      final List<ConcreteCall> calls,
+      final int sequenceIndex) {
     InvariantChecks.checkNotEmpty(calls);
 
     allocateCodeBlocks(calls);
