@@ -106,7 +106,7 @@ final class TestProgram {
 
   public void addPostponedEntry(final Block block, final int times) {
     InvariantChecks.checkNotNull(block);
-    final ConcreteSequence sequence = new ConcreteSequence.Builder().build();
+    final ConcreteSequence sequence = new ConcreteSequence.Builder(block.getSection()).build();
 
     postponedEntries.put(sequence, new Pair<>(block, times));
     addEntry(sequence);
