@@ -215,14 +215,10 @@ public final class Template {
   }
 
   private BlockBuilder currentBlockBuilder() {
-    if (blockBuilders.isEmpty()) {
-      beginNewRootBlock();
+    if (!blockBuilders.isEmpty()) {
+      return blockBuilders.peek();
     }
 
-    return blockBuilders.peek();
-  }
-
-  private void beginNewRootBlock() {
     final Section section =
         !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
 
@@ -234,6 +230,8 @@ public final class Template {
 
     InvariantChecks.checkTrue(blockBuilders.isEmpty());
     this.blockBuilders.push(rootBlockBuilder);
+
+    return rootBlockBuilder;
   }
 
   private BlockBuilder endCurrentSection() {
@@ -308,8 +306,6 @@ public final class Template {
       final Block rootBlock = rootBuilder.build();
       processor.process(SectionKind.MAIN, rootBlock);
     }
-
-    beginNewRootBlock();
   }
 
   public final class BlockHolder {
