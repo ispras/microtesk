@@ -212,6 +212,8 @@ public final class CodeAllocator {
     for (final ConcreteCall call : calls) {
       if (call.isExecutable()) {
         final BitVector image = BitVector.valueOf(call.getImage());
+        final int imageSize = memoryAllocator.bitsToAddressableUnits(image.getBitSize());
+
         final BitVector virtualAddress = BitVector.valueOf(call.getAddress(), 64);
 
         final BigInteger physicalAddress =
@@ -222,10 +224,8 @@ public final class CodeAllocator {
               physicalAddress, call.getText(), image.toHexString());
         }
 
-        memoryAllocator.setCurrentAddress(physicalAddress);
-        memoryAllocator.allocate(image);
-
-        section.setPa(memoryAllocator.getCurrentAddress());
+        memoryAllocator.allocateAt(image, physicalAddress);
+        section.setPa(physicalAddress.add(BigInteger.valueOf(imageSize)));
       }
     }
   }
