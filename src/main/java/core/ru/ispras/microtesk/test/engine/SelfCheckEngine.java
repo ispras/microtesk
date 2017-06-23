@@ -23,6 +23,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.ConcreteSequence;
@@ -38,12 +39,13 @@ public final class SelfCheckEngine {
 
   public static ConcreteSequence solve(
       final EngineContext engineContext,
+      final Section section,
       final List<SelfCheck> checks) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(checks);
 
     try {
-      final ConcreteSequence.Builder sequenceBuilder = new ConcreteSequence.Builder();
+      final ConcreteSequence.Builder sequenceBuilder = new ConcreteSequence.Builder(section);
       for (final SelfCheck check : checks) {
         processCheck(engineContext, sequenceBuilder, check);
       }

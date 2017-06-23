@@ -29,6 +29,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.tracer.Tracer;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.AdapterResult;
@@ -250,7 +251,8 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     Logger.debugHeader("Preparing %s", sequenceId);
-    final ConcreteSequence sequence = SelfCheckEngine.solve(engineContext, selfChecks);
+    final Section section = previous.getSection();
+    final ConcreteSequence sequence = SelfCheckEngine.solve(engineContext, section, selfChecks);
     sequence.setTitle(sequenceId);
 
     allocateTestSequenceAfter(previous, sequence, testCaseIndex);
