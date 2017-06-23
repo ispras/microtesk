@@ -124,10 +124,6 @@ final class TestProgram {
     postponedEntries.remove(sequence);
   }
 
-  public ConcreteSequence getFirstEntry() {
-    return entries.getFirst();
-  }
-  
   public ConcreteSequence getLastEntry() {
     return entries.getLast();
   }
