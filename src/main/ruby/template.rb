@@ -824,7 +824,7 @@ class Template
     @template.endSection
   end
 
-  def section_text(attrs, &contents)
+  def section_text(attrs = {}, &contents)
     pa   = attrs[:pa]
     va   = attrs[:va]
     args = attrs[:args]
@@ -834,7 +834,7 @@ class Template
     @template.endSection
   end
 
-  def section_data(attrs, &contents)
+  def section_data(attrs = {}, &contents)
     pa   = attrs[:pa]
     va   = attrs[:va]
     args = attrs[:args]
