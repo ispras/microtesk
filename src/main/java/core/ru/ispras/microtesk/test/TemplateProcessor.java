@@ -572,9 +572,8 @@ final class TemplateProcessor implements Template.Processor {
   private void allocateTestSequence(
       final ConcreteSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
-    final ConcreteSequence previous = testProgram.getLastEntry();
     testProgram.addEntry(sequence);
-    allocate(previous, sequence, sequenceIndex);
+    allocate(null, sequence, sequenceIndex);
   }
 
   private void allocate(
@@ -583,9 +582,14 @@ final class TemplateProcessor implements Template.Processor {
       final int sequenceIndex) throws ConfigurationException {
     PrinterUtils.printSequenceToConsole(engineContext, sequence);
 
+    final long allocationAddress;
     if (null != previous && previous.isAllocated()) {
-      allocator.setAddress(previous.getEndAddress());
+      allocationAddress = previous.getEndAddress();
+    } else {
+      final Section section = sequence.getSection();
+      allocationAddress = section.physicalToVirtual(section.getPa()).longValue();
     }
+    allocator.setAddress(allocationAddress);
 
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
