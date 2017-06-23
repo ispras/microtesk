@@ -25,6 +25,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.memory.Section;
 
 /**
  * The {@link ExceptionHandlerBuilder} class builds the template representation
@@ -34,6 +35,7 @@ import ru.ispras.microtesk.Logger;
  */
 public final class ExceptionHandlerBuilder {
   private final String id;
+  private final Section section;
   private final boolean isDebugPrinting;
   private Set<Integer> instances;
   private final List<ExceptionHandler.EntryPoint> entryPoints;
@@ -42,10 +44,15 @@ public final class ExceptionHandlerBuilder {
   private Set<String> exceptions; 
   private List<AbstractCall> calls;
 
-  public ExceptionHandlerBuilder(final String id, final boolean isDebugPrinting) {
+  public ExceptionHandlerBuilder(
+      final String id,
+      final Section section,
+      final boolean isDebugPrinting) {
     InvariantChecks.checkNotNull(id);
+    InvariantChecks.checkNotNull(section);
 
     this.id = id;
+    this.section = section;
     this.isDebugPrinting = isDebugPrinting;
     this.instances = null;
     this.entryPoints = new ArrayList<>();
@@ -118,6 +125,6 @@ public final class ExceptionHandlerBuilder {
     InvariantChecks.checkTrue(this.exceptions == null);
     InvariantChecks.checkTrue(this.calls == null);
 
-    return new ExceptionHandler(id, instances, entryPoints);
+    return new ExceptionHandler(id, section, instances, entryPoints);
   }
 }

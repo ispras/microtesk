@@ -1007,7 +1007,13 @@ public final class Template {
     InvariantChecks.checkTrue(null == streamPreparatorBuilder);
     InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
-    exceptionHandlerBuilder = new ExceptionHandlerBuilder(id, isDebugPrinting);
+    final Section section =
+        !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
+
+    checkSectionDefined(section,
+        context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
+
+    exceptionHandlerBuilder = new ExceptionHandlerBuilder(id, section, isDebugPrinting);
     return exceptionHandlerBuilder;
   }
 

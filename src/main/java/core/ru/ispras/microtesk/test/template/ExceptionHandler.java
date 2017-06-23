@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.memory.Section;
 
 /**
  * The {@link ExceptionHandler} class holds template descriptions of
@@ -63,24 +64,32 @@ public final class ExceptionHandler {
   }
 
   private final String id;
+  private final Section section;
   private final Set<Integer> instances;
   private final List<EntryPoint> entryPoints;
 
   protected ExceptionHandler(
       final String id,
+      final Section section,
       final Set<Integer> instances,
       final List<EntryPoint> entryPoints) {
     InvariantChecks.checkNotNull(id);
+    InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(instances);
     InvariantChecks.checkNotNull(entryPoints);
 
     this.id = id;
+    this.section = section;
     this.instances = Collections.unmodifiableSet(instances);
     this.entryPoints = Collections.unmodifiableList(entryPoints);
   }
 
   public String getId() {
     return id;
+  }
+
+  public Section getSection() {
+    return section;
   }
 
   public Set<Integer> getInstances() {
