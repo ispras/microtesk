@@ -441,9 +441,9 @@ alu t6, t7, t8
 Test situations are associated with specific instruction calls and specify methods
 used to generate their input data. There is a wide range of data generation methods
 implemented by various data generation engines. Test situations are specified using the
-{\tt situation} construct. It takes the situation name and a map of optional attributes
+{\texttt situation} construct. It takes the situation name and a map of optional attributes
 that specify situation-specific parameters. For example, the following line of code
-causes input registers of the {\tt add} instruction to be filled with zeros:
+causes input registers of the {\texttt add} instruction to be filled with zeros:
 
 \begin{lstlisting}[language=ruby, emph={situation}]
 add t1, t2, t3 do situation('zero') end
@@ -451,7 +451,7 @@ add t1, t2, t3 do situation('zero') end
 
 When no situation is specified, a default situation is used. This situation places random
 values into input registers. It is possible to assign a custom default situation for
-individual instructions and instruction groups with the {\tt set{\_}default{\_}situation} function.
+individual instructions and instruction groups with the {\texttt set{\_}default{\_}situation} function.
 For example:
 
 \begin{lstlisting}[language=ruby, emph={situation, set_default_situation}]
@@ -459,7 +459,7 @@ set_default_situation 'add' do situation('zero') end
 \end{lstlisting}
 
 Situations can be selected at random. The selection is based on a distribution. This
-can be done by using the {\tt random{\_}situation} construct. For example:
+can be done by using the {\texttt random{\_}situation} construct. For example:
 
 \begin{lstlisting}[language=ruby, emph={situation, random_situation, dist, range}]
 sit_dist = dist(
@@ -473,7 +473,7 @@ add t1, t2, t3 do random_situation(sit_dist) end
 \end{lstlisting}
 
 Unknown immediate arguments that should have their va-lues generated are specified using
-the "{\tt \_}" symbol. For example, the code below states that a random value should be added
+the "{\texttt \_}" symbol. For example, the code below states that a random value should be added
 to a value stored in a random register and the result should be placed to another random register:
 
 \begin{lstlisting}[language=ruby, emph={situation}]
@@ -490,15 +490,15 @@ must not overlap. To be able to solve such tasks, all values passed to addressin
 The allowed value range and the method of value selection are specified in configuration files.
 Values are selected using the specified method before the instruction call is processed by the
 engine that generates data for the test situation. The selection method can be customized by using
-the  {\tt mode{\_}allocator} function. It takes the allocation method name and a map of
+the  {\texttt mode{\_}allocator} function. It takes the allocation method name and a map of
 method-specific parameters. For example, the following code states that the output register
-of the {\tt add} instruction must be a random register which is not used in the current test case:
+of the {\texttt add} instruction must be a random register which is not used in the current test case:
 
 \begin{lstlisting}[language=ruby, emph={situation, mode_allocator}]
 add reg(_ mode_allocator('free')), t0, t1
 \end{lstlisting}
 
-Also, it is possible to exclude some elements from the range by using the {\tt exclude}
+Also, it is possible to exclude some elements from the range by using the {\texttt exclude}
 attribute. For example:
 
 \begin{lstlisting}[language=ruby, emph={situation, mode_allocator}]
@@ -506,8 +506,8 @@ add reg(_ :exclude=>[1, 5, 7]), t0, t1
 \end{lstlisting}
 
 Addressing modes with specific argument values can be marked as free using the
-{\tt free{\_}allocated{\_}mode} function. To free all allocated addressing modes,
-the  {\tt free{\_}all{\_}allocated{\_}modes} function can be used.
+{\texttt free{\_}allocated{\_}mode} function. To free all allocated addressing modes,
+the  {\texttt free{\_}all{\_}allocated{\_}modes} function can be used.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -519,7 +519,7 @@ The algorithm used for sequence construction depends on the type and the attribu
 
 An individual instruction call is considered a primitive block describing a single sequence
 that consists of a single instruction call. A single sequence that consists of multiple calls
-can be described using the {\tt sequence} or the {\tt atomic} construct. The difference between
+can be described using the {\texttt sequence} or the {\texttt atomic} construct. The difference between
 the two is that an atomic sequence is never mixed with other instruction calls when sequences
 are merged. The code below demonstrates how to specify a sequence of three instruction calls:
 
@@ -531,7 +531,7 @@ sequence {
 }
 \end{lstlisting}
 
-A collection of sequences that are processed one by one can be specified using the {\tt iterate}
+A collection of sequences that are processed one by one can be specified using the {\texttt iterate}
 construct. For example, the code below describes three sequences consisting of one instruction call:
 
 \begin{lstlisting}[language=ruby, emph={iterate}, deletekeywords={or}]
@@ -542,19 +542,19 @@ iterate {
 }
 \end{lstlisting}
 
-Sequences can be combined using the {\tt block} construct. The resulting sequences are
+Sequences can be combined using the {\texttt block} construct. The resulting sequences are
 constructed by sequentially applying the following engines to sequences returned by
 nested blocks:
 
 \begin{itemize}
-\item {\tt combinator} - builds combinations of sequences returned by nested blocks.
+\item {\texttt combinator} - builds combinations of sequences returned by nested blocks.
       Each combination is a tuple of length equal to the number of nested blocks.
-\item {\tt permutator} - modifies combinations returned by combinator by rearranging
+\item {\texttt permutator} - modifies combinations returned by combinator by rearranging
       some sequences.
-\item {\tt compositor} - merges (multiplexes) sequences in a combination into a single
+\item {\texttt compositor} - merges (multiplexes) sequences in a combination into a single
       sequence preserving the initial order of instructions calls in each sequence.
-\item {\tt rearranger} - rearranges sequences constructed by compositor.
-\item {\tt obfuscator} - modifies sequences returned by rearranger by permuting some
+\item {\texttt rearranger} - rearranges sequences constructed by compositor.
+\item {\texttt obfuscator} - modifies sequences returned by rearranger by permuting some
       instruction calls.
 \end{itemize}
 
@@ -583,13 +583,13 @@ block(
 }
 \end{lstlisting}
 
-The default method names are: {\tt diagonal} for combinator, {\tt catenation} for compositor,
-and {\tt trivial} for permutator, rearranger and obfuscator. Such a combination of engines
+The default method names are: {\texttt diagonal} for combinator, {\texttt catenation} for compositor,
+and {\texttt trivial} for permutator, rearranger and obfuscator. Such a combination of engines
 describes a collection of sequences constructed as a concatenation of sequences returned
 by nested blocks. For example, sequences constructed for the block in the above example
-will be as follows: \{{\tt A11}, {\tt B11}, {\tt B12}, {\tt C11}, {\tt C12}, {\tt C13}\},
-\{{\tt A21}, {\tt B21}, {\tt B22}, {\tt C11}, {\tt C12}, {\tt C13}\} and
-\{{\tt A31}, {\tt B11}, {\tt B12}, {\tt C11}, {\tt C12}, {\tt C13}\}
+will be as follows: \{{\texttt A11}, {\texttt B11}, {\texttt B12}, {\texttt C11}, {\texttt C12}, {\texttt C13}\},
+\{{\texttt A21}, {\texttt B21}, {\texttt B22}, {\texttt C11}, {\texttt C12}, {\texttt C13}\} and
+\{{\texttt A31}, {\texttt B11}, {\texttt B12}, {\texttt C11}, {\texttt C12}, {\texttt C13}\}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -760,33 +760,33 @@ Preparators describe instruction sequences that place data into registers or mem
 accessed via the specified addressing mode. These sequences are inserted into test programs to
 set up the initial state of the microprocessor required by test situations. It is possible to
 overload preparators for specific cases (value masks, register numbers, etc).
-Preparators are defined in the {\tt pre} method using the {\tt preparator} construct, which uses
+Preparators are defined in the {\texttt pre} method using the {\texttt preparator} construct, which uses
 the following parameters describing conditions under which it is applied:
 
 \begin{itemize}
-\item {\tt target} - the name of the target addressing mode;
-\item {\tt mask} (optional) - the mask that should be matched by the value in order for the
+\item {\texttt target} - the name of the target addressing mode;
+\item {\texttt mask} (optional) - the mask that should be matched by the value in order for the
        preparator to be selected;
-\item {\tt arguments} (optional) - values of the target addressing mode arguments that should
+\item {\texttt arguments} (optional) - values of the target addressing mode arguments that should
       be matched in order for the preparator to be selected;
-\item {\tt name} (optional) - the name that identifies the current preparator to resolve ambiguity
+\item {\texttt name} (optional) - the name that identifies the current preparator to resolve ambiguity
       when there are several different preparators that have the same target, mask and arguments.
 \end{itemize}
 
 It is possible to define several variants of a preparator which are selected at random according to
-the specified distribution. They are described using the {\tt variant} construct. It has two
+the specified distribution. They are described using the {\texttt variant} construct. It has two
 optional parameters:
 
 \begin{itemize}
-\item {\tt name} (optional) - identifies the variant to make it possible to explicitly select
+\item {\texttt name} (optional) - identifies the variant to make it possible to explicitly select
       a specific variant;
-\item {\tt bias} - specifies the weight of the variant, can be skipped to set up an even
+\item {\texttt bias} - specifies the weight of the variant, can be skipped to set up an even
       distribution.
 \end{itemize}
 
 Here is an example of a preparator what places a value into a 32-bit register described by
-the {\tt REG} addressing mode and two its special cases for values equal to {\tt 0x00000000}
-and {\tt 0xFFFFFFFF}:
+the {\texttt REG} addressing mode and two its special cases for values equal to {\texttt 0x00000000}
+and {\texttt 0xFFFFFFFF}:
 
 \begin{lstlisting}[language=ruby, emph={preparator, variant, data}]
 preparator(:target => 'REG') {
@@ -815,20 +815,20 @@ preparator(:target => 'REG', :mask => 'FFFFFFFF') {
 }
 \end{lstlisting}
 
-Code inside the {\tt preparator} block uses the {\tt target} and {\tt value} functions to
+Code inside the {\texttt preparator} block uses the {\texttt target} and {\texttt value} functions to
 access the target addressing mode and the value passed to the preparator.
 
-Also, the {\tt prepare} function can be used to explicitly insert preparators into test programs.
+Also, the {\texttt prepare} function can be used to explicitly insert preparators into test programs.
 It can be used to create composite preparators. The function has the following arguments:
 
 \begin{itemize}
-\item {\tt target} - specifies the target addressing mode;
-\item {\tt value} - specifies the value to be written;
-\item {\tt attrs} (optional) - specifies the preparator name and the variant name to select
+\item {\texttt target} - specifies the target addressing mode;
+\item {\texttt value} - specifies the value to be written;
+\item {\texttt attrs} (optional) - specifies the preparator name and the variant name to select
       a specific preparator.
 \end{itemize}
 
-For example, the following line of code places value {\tt 0xDEADBEEF} into the {\tt t0} register:
+For example, the following line of code places value {\texttt 0xDEADBEEF} into the {\texttt t0} register:
 
 \begin{lstlisting}[language=ruby, emph={prepare}]
 prepare t0, 0xDEADBEEF
@@ -842,10 +842,10 @@ Test programs can include self-checks that check validity of the microprocessor 
 a test case has been executed. These checks are instruction sequences inserted in the end of
 test cases which compare values stored in registers with expected values. If the values do not
 match control is transferred to a handler that reports an error. Expected values are produced by
-the MicroTESK simulator. Self-check are described using the  {\tt comparator} construct which has
-the same features as the {\tt preparator} construct, but serves a different purpose. Here is
+the MicroTESK simulator. Self-check are described using the  {\texttt comparator} construct which has
+the same features as the {\texttt preparator} construct, but serves a different purpose. Here is
 an example of a comparator for 32-bit registers and its special case for value equal to
-{\tt 0x00000000}:
+{\texttt 0x00000000}:
 
 \begin{lstlisting}[language=ruby, emph={comparator, prepare}]
 comparator(:target => 'REG') {
@@ -865,13 +865,13 @@ comparator(:target => 'REG', :mask => "00000000") {
 \section{Exception Handlers}
 
 Test programs can provide handlers of exceptions that occur during their execution.
-Exception handlers are descibed using the {\tt exception{\_}handler} construct.
+Exception handlers are descibed using the {\texttt exception{\_}handler} construct.
 This description is also used by the MicroTESK simulator to handle exceptions.
-Separate exception handlers are described using the {\tt section} construct nested into
-the {\tt exception{\_}handler} block. The {\tt section} function has two arguments: {\tt org}
-that specifies the handler's location in memory and {\tt exception} that specifies names of
+Separate exception handlers are described using the {\texttt section} construct nested into
+the {\texttt exception{\_}handler} block. The {\texttt section} function has two arguments: {\texttt org}
+that specifies the handler's location in memory and {\texttt exception} that specifies names of
 associated exceptions. For example, the code below describes a handler for
-the {\tt IntegerOverflow}, {\tt SystemCall} and {\tt Breakpoint} exceptions which resumes
+the {\texttt IntegerOverflow}, {\texttt SystemCall} and {\texttt Breakpoint} exceptions which resumes
 execution from the next instruction:
 
 \begin{lstlisting}[language=ruby, emph={exception_handler, section}]
