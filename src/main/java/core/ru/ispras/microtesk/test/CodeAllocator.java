@@ -216,7 +216,10 @@ public final class CodeAllocator {
               physicalAddress, call.getText(), image.toHexString());
         }
 
-        memoryAllocator.allocateAt(image, physicalAddress);
+        memoryAllocator.setCurrentAddress(physicalAddress);
+        memoryAllocator.allocate(image);
+
+        section.setPa(memoryAllocator.getCurrentAddress());
       }
     }
   }
