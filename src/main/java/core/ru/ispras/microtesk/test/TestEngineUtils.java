@@ -25,6 +25,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineConfig;
@@ -157,8 +158,8 @@ final class TestEngineUtils {
     final Map<String, ConcreteSequence> handlers = new LinkedHashMap<>();
 
     for (final ExceptionHandler.EntryPoint entryPoint : exceptionHandler.getEntryPoints()) {
-      final ConcreteSequence sequence =
-          makeTestSequenceForExceptionHandler(engineContext, entryPoint);
+      final ConcreteSequence sequence = makeTestSequenceForExceptionHandler(
+          engineContext, exceptionHandler.getSection(), entryPoint);
       sequences.add(sequence);
 
       for (final String exception : entryPoint.getExceptions()) {
@@ -173,8 +174,10 @@ final class TestEngineUtils {
 
   private static ConcreteSequence makeTestSequenceForExceptionHandler(
       final EngineContext engineContext,
+      final Section section,
       final ExceptionHandler.EntryPoint entryPoint) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(entryPoint);
 
     final List<AbstractCall> calls = new ArrayList<>();
@@ -183,7 +186,7 @@ final class TestEngineUtils {
     calls.addAll(entryPoint.getCalls());
 
     final List<ConcreteCall> concreteCalls = EngineUtils.makeConcreteCalls(engineContext, calls);
-    final ConcreteSequence.Builder concreteSequenceBuilder = new ConcreteSequence.Builder();
+    final ConcreteSequence.Builder concreteSequenceBuilder = new ConcreteSequence.Builder(section);
     concreteSequenceBuilder.add(concreteCalls);
 
     return concreteSequenceBuilder.build();
