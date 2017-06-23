@@ -135,7 +135,9 @@ final class TestEngineUtils {
     final List<AbstractCall> expandedAbstractSequence =
         Preparator.expandPreparators(null, engineContext.getPreparators(), abstractSequence);
 
-    final ConcreteSequence.Builder sequenceBuilder = new ConcreteSequence.Builder();
+    final ConcreteSequence.Builder sequenceBuilder =
+        new ConcreteSequence.Builder(block.getSection());
+
     sequenceBuilder.add(EngineUtils.makeConcreteCalls(engineContext, expandedAbstractSequence));
 
     final ConcreteSequence sequence = sequenceBuilder.build();
