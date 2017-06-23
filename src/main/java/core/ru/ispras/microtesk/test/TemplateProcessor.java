@@ -68,7 +68,7 @@ final class TemplateProcessor implements Template.Processor {
       InvariantChecks.checkNotNull(block);
       InvariantChecks.checkGreaterThanZero(times);
 
-      this.entry = new ConcreteSequence.Builder().build();
+      this.entry = new ConcreteSequence.Builder(block.getSection()).build();
       this.block = block;
       this.times = times;
       this.beingProcessed = false;
