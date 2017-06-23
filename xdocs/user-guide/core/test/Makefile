@@ -1,5 +1,5 @@
 MAIN    = MicroTESK.TestGuide.tex
-SOURCE  = $(MAIN) overview.tex utils.tex sequence.tex data.tex engines.tex biblio.tex
+SOURCE  = $(MAIN) overview.tex utils.tex sequence.tex data.tex engines.tex memconfig.tex biblio.tex
 INCLUDE = memfonts.sty memlays.sty memsty.sty titlepages.sty memnoidxnum.tex trims-example.tex
 
 SRC_DIR = src
