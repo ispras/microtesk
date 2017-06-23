@@ -111,9 +111,10 @@ public final class TestSequenceEngine {
     allocateModes(sequence, context.getOptions().getValueAsBoolean(Option.RESERVE_EXPLICIT));
     sequence = expandPreparators(context, sequence);
 
-    final AbstractSequence newAbstractSequence = new AbstractSequence(sequence);
-    final EngineResult result = engine.solve(context, newAbstractSequence);
+    final AbstractSequence newAbstractSequence =
+        new AbstractSequence(abstractSequence.getSection(), sequence);
 
+    final EngineResult result = engine.solve(context, newAbstractSequence);
     if (result.getStatus() != EngineResult.Status.OK) {
       return new TestSequenceEngineResult(result.getStatus(), null, result.getErrors());
     }
@@ -176,8 +177,8 @@ public final class TestSequenceEngine {
         final AbstractSequence abstractSequence = solutionIterator.value();
 
         // Makes a copy as the adapter may modify the abstract sequence.
-        final AbstractSequence abstractSequenceCopy =
-            new AbstractSequence(AbstractCall.copyAll(abstractSequence.getSequence()));
+        final AbstractSequence abstractSequenceCopy = new AbstractSequence(
+            abstractSequence.getSection(), AbstractCall.copyAll(abstractSequence.getSequence()));
 
         try {
           engineContext.getModel().setUseTempState(true);

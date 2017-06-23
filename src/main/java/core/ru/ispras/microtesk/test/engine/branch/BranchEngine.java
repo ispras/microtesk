@@ -361,7 +361,7 @@ public final class BranchEngine implements Engine {
       }
     }
 
-    return new AbstractSequence(modifiedSequence);
+    return new AbstractSequence(abstractSequence.getSection(), modifiedSequence);
   }
 
   private static AbstractSequence insertComments(final AbstractSequence abstractSequence) {
@@ -377,7 +377,7 @@ public final class BranchEngine implements Engine {
       abstractCalls.add(abstractCall);
     }
 
-    return new AbstractSequence(abstractCalls);
+    return new AbstractSequence(abstractSequence.getSection(), abstractCalls);
   }
 
   private static AbstractSequence resolveDependencies(final AbstractSequence abstractSequence) {

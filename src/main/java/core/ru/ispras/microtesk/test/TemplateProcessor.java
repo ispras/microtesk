@@ -377,6 +377,7 @@ final class TemplateProcessor implements Template.Processor {
     InvariantChecks.checkTrue(entry.isEmpty());
     entry.setAllocationAddresses(allocationAddress, allocationAddress);
 
+    final Section section = block.getSection();
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
     ConcreteSequence previous = entry;
 
@@ -386,7 +387,7 @@ final class TemplateProcessor implements Template.Processor {
         engineContext.setCodeAllocationAddress(allocationAddress);
 
         final TestSequenceEngineResult engineResult =
-            engine.process(engineContext, new AbstractSequence(abstractIt.value()));
+            engine.process(engineContext, new AbstractSequence(section, abstractIt.value()));
         final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
@@ -467,6 +468,7 @@ final class TemplateProcessor implements Template.Processor {
     long allocationAddress =
         null != prevEntry ? prevEntry.getEndAddress() : allocator.getAddress();
 
+    final Section section = block.getSection();
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
     ConcreteSequence previous = entry;
 
@@ -476,7 +478,7 @@ final class TemplateProcessor implements Template.Processor {
         engineContext.setCodeAllocationAddress(allocationAddress);
 
         final TestSequenceEngineResult engineResult =
-            engine.process(engineContext, new AbstractSequence(abstractIt.value()));
+            engine.process(engineContext, new AbstractSequence(section, abstractIt.value()));
         final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {

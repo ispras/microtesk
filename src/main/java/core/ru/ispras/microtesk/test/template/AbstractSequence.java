@@ -14,20 +14,25 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public final class AbstractSequence {
-  public static final AbstractSequence EMPTY = new AbstractSequence();
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.memory.Section;
 
+public final class AbstractSequence {
+  private final Section section;
   private final List<AbstractCall> sequence;
 
-  public AbstractSequence() {
-    this.sequence = new ArrayList<>();
+  public AbstractSequence(final Section section, final List<AbstractCall> sequence) {
+    InvariantChecks.checkNotNull(section);
+    InvariantChecks.checkNotNull(sequence);
+
+    this.section = section;
+    this.sequence = sequence;
   }
 
-  public AbstractSequence(final List<AbstractCall> sequence) {
-    this.sequence = sequence;
+  public Section getSection() {
+    return section;
   }
 
   public boolean isEmpty() {
