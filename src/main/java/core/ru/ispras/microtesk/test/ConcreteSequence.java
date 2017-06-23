@@ -39,11 +39,9 @@ public final class ConcreteSequence {
     private final List<ConcreteCall> body;
     private int instructionCount;
 
-    public Builder() {
-      this(null);
-    }
-
     public Builder(final Section section) {
+      InvariantChecks.checkNotNull(section);
+
       this.section = section;
       this.prologue = new ArrayList<>();
       this.body = new ArrayList<>();

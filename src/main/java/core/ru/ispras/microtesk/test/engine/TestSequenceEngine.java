@@ -254,7 +254,8 @@ public final class TestSequenceEngine {
         EngineUtils.makeConcreteCalls(engineContext, abstractSequence.getSequence());
 
     if (Logger.isDebug()) {
-      final ConcreteSequence.Builder builder = new ConcreteSequence.Builder();
+      final ConcreteSequence.Builder builder =
+          new ConcreteSequence.Builder(abstractSequence.getSection());
       builder.add(concreteSequence);
 
       Logger.debugHeader("Concrete Sequence");
@@ -440,7 +441,7 @@ public final class TestSequenceEngine {
         }
       }
 
-      this.testSequenceBuilder = new ConcreteSequence.Builder();
+      this.testSequenceBuilder = new ConcreteSequence.Builder(abstractSequence.getSection());
       this.testSequenceBuilder.add(concreteSequence);
     }
 

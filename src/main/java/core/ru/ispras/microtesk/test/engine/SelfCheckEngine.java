@@ -42,6 +42,7 @@ public final class SelfCheckEngine {
       final Section section,
       final List<SelfCheck> checks) {
     InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(checks);
 
     try {
