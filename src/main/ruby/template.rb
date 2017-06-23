@@ -1227,7 +1227,7 @@ class ExceptionHandler
     @builder = builder
   end
 
-  def section(attrs = {}, &contents)
+  def entry_point(attrs = {}, &contents)
     org = get_attribute attrs, :org
     exception = get_attribute attrs, :exception
 
