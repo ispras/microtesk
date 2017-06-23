@@ -1,51 +1,51 @@
+%===================================================================================================
+% Document Class
+%===================================================================================================
+
 \documentclass[12pt,letterpaper,extrafontsizes]{memoir}
 
-\listfiles
-\usepackage{comment}
 \usepackage{memsty}
-\usepackage{titlepages}
-\usepackage{memlays}
-\usepackage{dpfloat}
-\usepackage{fonttable}[2009/04/01]
 \usepackage{listings}
 
-% Use the built-in division styling
+% Heading style
 \headstyles{memman}
-% ToC down to subsections
 \settocdepth{subsection}
-% Numbering down to subsections as well
 \setsecnumdepth{subsection}
-% extra index for first lines
-\makeindex[lines]
 
-\usepackage[draft]{fixme}
-\fxsetup{
-  layout=marginnote
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
-\begin{document}
-\firmlists
-\midsloppy
-\raggedbottom
+% Chapter stype
 \chapterstyle{default}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PDF properties
+\title{MicroTESK Installation and Usage}
+\author{ISP RAS}
+\hypersetup{pdftitle=\thetitle, pdfauthor=\theauthor}
+
+%===================================================================================================
+% Begin Document
+%===================================================================================================
+ 
+\begin{document}
+
+%===================================================================================================
 % Front Matter
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%===================================================================================================
 
 \frontmatter
+
+% No page numbers & headings
 \pagestyle{empty}
 
-% title page
+%---------------------------------------------------------------------------------------------------
+% Title Page
+%---------------------------------------------------------------------------------------------------
+
 \vspace*{\fill}
 \begin{center}
-\HUGE\textsf{MicroTESK}\par
+\HUGE\textsf{MicroTESK v2}\par
 \end{center}
 
 \begin{center}
-\Huge\textsf{Installation Guide}\par
+\Huge\textsf{Installation and Usage}\par
 \end{center}
 
 \begin{center}
@@ -55,34 +55,34 @@
 \vspace*{\fill}
 \clearpage
 
-% copyright page
+%---------------------------------------------------------------------------------------------------
+% Copyright Page
+%---------------------------------------------------------------------------------------------------
+
 \begingroup
 \footnotesize
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{\baselineskip}
-%%\ttfamily
 \textcopyright{} Institute for System Programming of the Russian Academy of Sciences (ISP RAS)\\
 All rights reserved
-
-\begin{center}
-\begin{tabular}{ll}
-First edition: & 22 June 2017 \\
-\end{tabular}
-\end{center}
-
 \endgroup
 \clearpage
 
+%---------------------------------------------------------------------------------------------------
+% Table of Contents
+%---------------------------------------------------------------------------------------------------
+
+% Headings
 \pagestyle{headings}
 
+% Table of contents
 \tableofcontents
 
-\pagenumbering{arabic}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%===================================================================================================
 % Main Matter
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%===================================================================================================
 
+\pagenumbering{arabic}
 \mainmatter
 
 \include{install}
@@ -91,4 +91,6 @@ First edition: & 22 June 2017 \\
 
 \end{document}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%===================================================================================================
+% End Document
+%===================================================================================================
