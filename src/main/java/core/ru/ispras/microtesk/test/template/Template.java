@@ -238,7 +238,9 @@ public final class Template {
     endBuildingCall();
     callBuilder = null;
 
-    final BlockBuilder rootBuilder = blockBuilders.pop();
+    final BlockBuilder rootBuilder = currentBlockBuilder();
+
+    blockBuilders.pop();
     InvariantChecks.checkTrue(blockBuilders.isEmpty());
 
     return rootBuilder;

@@ -122,10 +122,16 @@ public final class CodeAllocator {
         }
 
         final List<ConcreteCall> handlerCalls = handlerSequence.getAll();
+        final Section section = handlerSequence.getSection();
+
         if (!handlerSet.contains(handlerSequence)) {
-          allocate(handlerSequence.getSection(), handlerCalls, Label.NO_SEQUENCE_INDEX);
+          // Allocation of handlers must not be taken into account when allocating other code
+          final BigInteger pa = section.getPa();
+          allocate(section, handlerCalls, Label.NO_SEQUENCE_INDEX);
+          section.setPa(pa);
           handlerSet.add(handlerSequence);
         }
+
         getCode().addHandlerAddress(handlerName, handlerCalls.get(0).getAddress());
       }
     }
