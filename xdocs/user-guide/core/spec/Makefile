@@ -1,6 +1,6 @@
 MAIN    = MicroTESK.SpecGuide.tex
 SOURCE  = $(MAIN) intro.tex language.tex appendix.tex biblio.tex
-INCLUDE = memfonts.sty memlays.sty memsty.sty titlepages.sty memnoidxnum.tex trims-example.tex
+INCLUDE = memfonts.sty memlays.sty memsty.sty titlepages.sty memnoidxnum.tex
 
 SRC_DIR = src
 INC_DIR = ../../../include/memoir/doc-src/
