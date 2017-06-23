@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -30,12 +30,12 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 public final class ExceptionHandler {
 
-  public static final class Section {
+  public static final class EntryPoint {
     private final BigInteger origin;
     private final Set<String> exceptions;
     private final List<AbstractCall> calls;
 
-    protected Section(
+    protected EntryPoint(
         final BigInteger origin,
         final Set<String> exceptions,
         final List<AbstractCall> calls) {
@@ -64,19 +64,19 @@ public final class ExceptionHandler {
 
   private final String id;
   private final Set<Integer> instances;
-  private final List<Section> sections;
+  private final List<EntryPoint> entryPoints;
 
   protected ExceptionHandler(
       final String id,
       final Set<Integer> instances,
-      final List<Section> sections) {
+      final List<EntryPoint> entryPoints) {
     InvariantChecks.checkNotNull(id);
     InvariantChecks.checkNotNull(instances);
-    InvariantChecks.checkNotNull(sections);
+    InvariantChecks.checkNotNull(entryPoints);
 
     this.id = id;
     this.instances = Collections.unmodifiableSet(instances);
-    this.sections = Collections.unmodifiableList(sections);
+    this.entryPoints = Collections.unmodifiableList(entryPoints);
   }
 
   public String getId() {
@@ -87,7 +87,7 @@ public final class ExceptionHandler {
     return instances;
   }
 
-  public List<Section> getSections() {
-    return sections;
+  public List<EntryPoint> getEntryPoints() {
+    return entryPoints;
   }
 }

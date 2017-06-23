@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -36,7 +36,7 @@ public final class ExceptionHandlerBuilder {
   private final String id;
   private final boolean isDebugPrinting;
   private Set<Integer> instances;
-  private final List<ExceptionHandler.Section> sections;
+  private final List<ExceptionHandler.EntryPoint> entryPoints;
 
   private BigInteger origin;
   private Set<String> exceptions; 
@@ -48,7 +48,7 @@ public final class ExceptionHandlerBuilder {
     this.id = id;
     this.isDebugPrinting = isDebugPrinting;
     this.instances = null;
-    this.sections = new ArrayList<>();
+    this.entryPoints = new ArrayList<>();
     this.exceptions = null;
     this.origin = null;
     this.calls = null;
@@ -74,12 +74,12 @@ public final class ExceptionHandlerBuilder {
     instances = new TreeSet<>(indices);
   }
 
-  public void beginSection(final BigInteger origin, final String exception) {
+  public void beginEntryPoint(final BigInteger origin, final String exception) {
     InvariantChecks.checkNotNull(exception);
-    beginSection(origin, Collections.singletonList(exception));
+    beginEntryPoint(origin, Collections.singletonList(exception));
   }
 
-  public void beginSection(final BigInteger origin, final Collection<String> exceptions) {
+  public void beginEntryPoint(final BigInteger origin, final Collection<String> exceptions) {
     InvariantChecks.checkNotNull(origin);
     InvariantChecks.checkGreaterThan(origin, BigInteger.ZERO);
     InvariantChecks.checkNotEmpty(exceptions);
@@ -97,11 +97,11 @@ public final class ExceptionHandlerBuilder {
     this.calls = new ArrayList<>();
   }
 
-  public void endSection() {
-    final ExceptionHandler.Section section =
-        new ExceptionHandler.Section(origin, exceptions, calls);
+  public void endEntryPoint() {
+    final ExceptionHandler.EntryPoint entryPoint =
+        new ExceptionHandler.EntryPoint(origin, exceptions, calls);
 
-    this.sections.add(section);
+    this.entryPoints.add(entryPoint);
 
     this.origin = null;
     this.exceptions = null;
@@ -118,6 +118,6 @@ public final class ExceptionHandlerBuilder {
     InvariantChecks.checkTrue(this.exceptions == null);
     InvariantChecks.checkTrue(this.calls == null);
 
-    return new ExceptionHandler(id, instances, sections);
+    return new ExceptionHandler(id, instances, entryPoints);
   }
 }

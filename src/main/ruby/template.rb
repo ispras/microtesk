@@ -1231,9 +1231,9 @@ class ExceptionHandler
     org = get_attribute attrs, :org
     exception = get_attribute attrs, :exception
 
-    @builder.beginSection org, exception
+    @builder.beginEntryPoint org, exception
     @context.instance_eval &contents
-    @builder.endSection
+    @builder.endEntryPoint
   end
 
 end # ExceptionHandler

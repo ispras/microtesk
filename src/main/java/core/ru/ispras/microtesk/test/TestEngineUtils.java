@@ -148,18 +148,20 @@ final class TestEngineUtils {
 
   public static Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>> makeExceptionHandler(
       final EngineContext engineContext,
-      final ExceptionHandler handler) throws ConfigurationException {
+      final ExceptionHandler exceptionHandler) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(handler);
+    InvariantChecks.checkNotNull(exceptionHandler);
 
-    final List<ConcreteSequence> sequences = new ArrayList<>(handler.getSections().size());
-    final Map<String, ConcreteSequence> handlers = new LinkedHashMap<>(); 
+    final List<ConcreteSequence> sequences =
+        new ArrayList<>(exceptionHandler.getEntryPoints().size());
+    final Map<String, ConcreteSequence> handlers = new LinkedHashMap<>();
 
-    for (final ExceptionHandler.Section section : handler.getSections()) {
-      final ConcreteSequence sequence = makeTestSequenceForExceptionHandler(engineContext, section);
+    for (final ExceptionHandler.EntryPoint entryPoint : exceptionHandler.getEntryPoints()) {
+      final ConcreteSequence sequence =
+          makeTestSequenceForExceptionHandler(engineContext, entryPoint);
       sequences.add(sequence);
 
-      for (final String exception : section.getExceptions()) {
+      for (final String exception : entryPoint.getExceptions()) {
         if (null != handlers.put(exception, sequence)) {
           Logger.warning("Exception handler for %s is redefined.", exception);
         }
@@ -171,14 +173,14 @@ final class TestEngineUtils {
 
   private static ConcreteSequence makeTestSequenceForExceptionHandler(
       final EngineContext engineContext,
-      final ExceptionHandler.Section section) throws ConfigurationException {
+      final ExceptionHandler.EntryPoint entryPoint) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(section);
+    InvariantChecks.checkNotNull(entryPoint);
 
     final List<AbstractCall> calls = new ArrayList<>();
-    calls.add(AbstractCall.newComment(String.format("Exceptions: %s", section.getExceptions())));
-    calls.add(AbstractCall.newOrigin(section.getOrigin(), false));
-    calls.addAll(section.getCalls());
+    calls.add(AbstractCall.newComment(String.format("Exceptions: %s", entryPoint.getExceptions())));
+    calls.add(AbstractCall.newOrigin(entryPoint.getOrigin(), false));
+    calls.addAll(entryPoint.getCalls());
 
     final List<ConcreteCall> concreteCalls = EngineUtils.makeConcreteCalls(engineContext, calls);
     final ConcreteSequence.Builder concreteSequenceBuilder = new ConcreteSequence.Builder();
