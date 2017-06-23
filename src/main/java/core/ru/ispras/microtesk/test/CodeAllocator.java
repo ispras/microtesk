@@ -93,7 +93,7 @@ public final class CodeAllocator {
         !calls.isEmpty() ? calls.get(0).getAddress() : address, address);
   }
 
-  public void allocateCalls(final List<ConcreteCall> calls, final int sequenceIndex) {
+  private void allocateCalls(final List<ConcreteCall> calls, final int sequenceIndex) {
     if (!calls.isEmpty()) {
       allocate(calls, sequenceIndex);
       code.addBreakAddress(address);

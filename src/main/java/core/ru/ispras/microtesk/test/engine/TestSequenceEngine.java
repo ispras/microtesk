@@ -250,15 +250,16 @@ public final class TestSequenceEngine {
     final int sequenceIndex =
         engineContext.getStatistics().getSequences();
 
-    final List<ConcreteCall> concreteSequence =
+    final List<ConcreteCall> concreteCalls =
         EngineUtils.makeConcreteCalls(engineContext, abstractSequence.getSequence());
 
-    if (Logger.isDebug()) {
-      final ConcreteSequence.Builder builder =
-          new ConcreteSequence.Builder(abstractSequence.getSection());
-      builder.add(concreteSequence);
+    final ConcreteSequence.Builder builder =
+        new ConcreteSequence.Builder(abstractSequence.getSection());
+    builder.add(concreteCalls);
 
-      Logger.debugHeader("Concrete Sequence");
+    final ConcreteSequence concreteSequence = builder.build();
+
+    if (Logger.isDebug()) {
       Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics()).
           printSequence(engineContext.getModel().getPE(), builder.build());
     }
@@ -282,17 +283,18 @@ public final class TestSequenceEngine {
       final EngineContext engineContext,
       final ExecutorListener listener,
       final long allocationAddress,
-      final List<ConcreteCall> sequence,
+      final ConcreteSequence concreteSequence,
       final int sequenceIndex) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(listener);
-    InvariantChecks.checkNotNull(sequence);
+    InvariantChecks.checkNotNull(concreteSequence);
 
-    if (sequence.isEmpty()) {
+    if (concreteSequence.isEmpty()) {
       listener.setAllocationAddress(allocationAddress);
       return;
     }
 
+    final List<ConcreteCall> sequence = concreteSequence.getAll();
     final LabelManager labelManager = new LabelManager(engineContext.getLabelManager());
     allocateData(engineContext, labelManager, sequence, sequenceIndex);
 
@@ -304,7 +306,7 @@ public final class TestSequenceEngine {
 
     codeAllocator.init();
     codeAllocator.setAddress(allocationAddress);
-    codeAllocator.allocateCalls(sequence, sequenceIndex);
+    codeAllocator.allocateSequence(concreteSequence, sequenceIndex);
 
     final ConcreteCall first = sequence.get(0);
     final ConcreteCall last = sequence.get(sequence.size() - 1);
@@ -414,10 +416,10 @@ public final class TestSequenceEngine {
     private ConcreteSequenceCreator(
         final int sequenceIndex,
         final AbstractSequence abstractSequence,
-        final List<ConcreteCall> concreteSequence) {
+        final ConcreteSequence concreteSequence) {
       InvariantChecks.checkNotNull(abstractSequence);
       InvariantChecks.checkNotNull(concreteSequence);
-      InvariantChecks.checkTrue(abstractSequence.size() == concreteSequence.size());
+      InvariantChecks.checkTrue(abstractSequence.size() == concreteSequence.getAll().size());
 
       this.sequenceIndex = sequenceIndex;
       this.abstractSequence = abstractSequence;
@@ -427,7 +429,7 @@ public final class TestSequenceEngine {
 
       for (int index = 0; index < abstractSequence.getSequence().size(); ++index) {
         final AbstractCall abstractCall = abstractSequence.getSequence().get(index);
-        final ConcreteCall concreteCall = concreteSequence.get(index);
+        final ConcreteCall concreteCall = concreteSequence.getAll().get(index);
 
         InvariantChecks.checkNotNull(abstractCall);
         InvariantChecks.checkNotNull(concreteCall);
@@ -435,14 +437,14 @@ public final class TestSequenceEngine {
         if (abstractCall.getAttributes().containsKey("dependsOn")) {
           final int dependencyIndex = (int) abstractCall.getAttributes().get("dependsOn");
           callMap.put(concreteCall, new Pair<>(abstractSequence.getSequence().get(dependencyIndex),
-                                               concreteSequence.get(dependencyIndex)));
+                                               concreteSequence.getAll().get(dependencyIndex)));
         } else {
           callMap.put(concreteCall, new Pair<>(abstractCall, concreteCall));
         }
       }
 
       this.testSequenceBuilder = new ConcreteSequence.Builder(abstractSequence.getSection());
-      this.testSequenceBuilder.add(concreteSequence);
+      this.testSequenceBuilder.add(concreteSequence.getAll());
     }
 
     public ConcreteSequence createTestSequence() {
@@ -573,6 +575,12 @@ public final class TestSequenceEngine {
       final List<ConcreteCall> concreteCalls =
           EngineUtils.makeConcreteCalls(engineContext, abstractCalls);
 
+      final ConcreteSequence.Builder builder =
+          new ConcreteSequence.Builder(abstractSequence.getSection());
+
+      builder.add(concreteCalls);
+      final ConcreteSequence concreteSequence = builder.build();
+
       testSequenceBuilder.addToPrologue(concreteCalls);
 
       final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
@@ -587,7 +595,7 @@ public final class TestSequenceEngine {
             engineContext,
             listenerForInitializers,
             getAllocationAddress(),
-            concreteCalls,
+            concreteSequence,
             sequenceIndex
             );
       } finally {
