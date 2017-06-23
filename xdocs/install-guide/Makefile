@@ -1,6 +1,6 @@
 MAIN    = MicroTESK.InstallGuide.tex
 SOURCE  = $(MAIN) install.tex usage.tex options.tex
-INCLUDE = memfonts.sty memlays.sty memsty.sty titlepages.sty memnoidxnum.tex trims-example.tex
+INCLUDE = memfonts.sty memlays.sty memsty.sty titlepages.sty memnoidxnum.tex
 
 SRC_DIR = src
 INC_DIR = ../include/memoir/doc-src/
