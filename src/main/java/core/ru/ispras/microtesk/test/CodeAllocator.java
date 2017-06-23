@@ -144,8 +144,7 @@ public final class CodeAllocator {
     allocateCodeBlocks(section, calls);
     registerLabels(calls, sequenceIndex);
     patchLabels(calls, sequenceIndex, false);
-
-    allocateMemory(calls);
+    allocateMemory(section, calls);
   }
 
   private void allocateCodeBlocks(final Section section, final List<ConcreteCall> calls) {
@@ -196,7 +195,7 @@ public final class CodeAllocator {
     address = currentAddress;
   }
 
-  private void allocateMemory(final List<ConcreteCall> calls) {
+  private void allocateMemory(final Section section, final List<ConcreteCall> calls) {
     if (!placeToMemory) {
       return;
     }
@@ -208,9 +207,6 @@ public final class CodeAllocator {
       if (call.isExecutable()) {
         final BitVector image = BitVector.valueOf(call.getImage());
         final BitVector virtualAddress = BitVector.valueOf(call.getAddress(), 64);
-
-        final Section section = Sections.get().getTextSection();
-        InvariantChecks.checkNotNull("Section .text is not defined in the template!");
 
         final BigInteger physicalAddress =
             section.virtualToPhysical(virtualAddress.bigIntegerValue(false));
