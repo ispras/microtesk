@@ -142,15 +142,14 @@ public final class CodeAllocator {
     InvariantChecks.checkNotEmpty(calls);
     InvariantChecks.checkNotNull(section);
 
-    allocateCodeBlocks(calls);
-
+    allocateCodeBlocks(section, calls);
     registerLabels(calls, sequenceIndex);
     patchLabels(calls, sequenceIndex, false);
 
     allocateMemory(calls);
   }
 
-  private void allocateCodeBlocks(final List<ConcreteCall> calls) {
+  private void allocateCodeBlocks(final Section section, final List<ConcreteCall> calls) {
     Logger.debugHeader("Allocating code");
 
     int startIndex = 0;
