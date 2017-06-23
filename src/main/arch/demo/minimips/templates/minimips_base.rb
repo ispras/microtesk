@@ -66,7 +66,7 @@ class MiniMipsBaseTemplate < Template
     # Simple exception handler. Continues execution from the next instruction.
     #
     exception_handler {
-      section(:org => 0x380, :exception => ['IntegerOverflow', 'SystemCall', 'Breakpoint']) {
+      entry_point(:org => 0x380, :exception => ['IntegerOverflow', 'SystemCall', 'Breakpoint']) {
         trace 'Exception handler (EPC = 0x%x)', location('COP0_R', 14)
         mfc0 ra, rcop0(14)
         addi ra, ra, 4
