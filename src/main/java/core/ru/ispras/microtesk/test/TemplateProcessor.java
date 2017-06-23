@@ -349,9 +349,7 @@ final class TemplateProcessor implements Template.Processor {
       runExecutionFromStart();
     }
 
-    final ConcreteSequence prevEntry = testProgram.hasEntry(entry) ?
-                                       testProgram.getPrevEntry(entry) :
-                                       testProgram.getLastEntry();
+    final ConcreteSequence prevEntry = testProgram.getPrevEntry(entry);
 
     final int instanceIndex = TestEngineUtils.findAtEndOf(executorStatuses, prevEntry);
     if (-1 == instanceIndex) {
