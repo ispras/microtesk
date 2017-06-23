@@ -23,7 +23,6 @@ import ru.ispras.microtesk.model.ExecutionException;
 import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.ProcessingElement;
 import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.model.memory.Sections;
 
 /**
  * The {@link ConcreteCall} class describes an instruction call with fixed arguments
@@ -46,6 +45,7 @@ public final class ConcreteCall {
   private long address = 0;
   private String text = null;
   private int executionCount = 0;
+  private BigInteger originFromRelative = null;
 
   // TODO:
   public static ConcreteCall newText(final String text) {
@@ -219,15 +219,14 @@ public final class ConcreteCall {
     return address;
   }
 
-  public long setAddress(final long value) {
+  public long setAddress(final Section section,  final long value) {
     long thisAddress = value;
 
     if (origin != null) {
       if (relativeOrigin) {
         thisAddress = value + origin.longValue();
+        originFromRelative = section.virtualToOrigin(BigInteger.valueOf(thisAddress));
       } else {
-        final Section section = Sections.get().getTextSection();
-        InvariantChecks.checkNotNull("Section .text is not defined in the template!");
         thisAddress = section.virtualFromOrigin(origin).longValue();
       }
     }
@@ -245,18 +244,12 @@ public final class ConcreteCall {
   }
 
   public BigInteger getOrigin() {
-    if (null == origin) {
-      return null;
-    }
-
     if (!relativeOrigin) {
       return origin;
     }
 
-    final Section section = Sections.get().getTextSection();
-    InvariantChecks.checkNotNull("Section .text is not defined in the template!");
-
-    return section.virtualToOrigin(BigInteger.valueOf(address));
+    InvariantChecks.checkNotNull(relativeOrigin, "Relative origin is not calculated!");
+    return originFromRelative;
   }
 
   public BigInteger getAlignment() {
