@@ -94,6 +94,10 @@ public final class Block {
     return where;
   }
 
+  public Section getSection() {
+    return section;
+  }
+
   public boolean isAtomic() {
     return isAtomic;
   }
