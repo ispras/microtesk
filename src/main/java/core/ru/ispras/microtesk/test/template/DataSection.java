@@ -154,7 +154,8 @@ public final class DataSection {
     }
 
     Logger.debugHeader("Allocating data");
-    Logger.debug(section.toString());
+    Logger.debug("Section: " + section.toString());
+    Logger.debug("Allocation starts: 0x%016x%n", section.getPa());
 
     try {
       for (final DataDirective directive : directives) {
