@@ -5,11 +5,11 @@
 \subsection{Parameters}
 
 \begin{itemize}
-\item \emph{branch{\_}exec{\_}limit} is an upper bound for the number of executions of a single branch instruction;
-\item \emph{trace{\_}count{\_}limit} is an upper bound for the number of execution traces to be returned.
+\item $branch\_exec\_limit$ is an upper bound for the number of executions of a single branch instruction;
+\item $trace\_count\_limit$ is an upper bound for the number of execution traces to be returned.
 \end{itemize}
 
-More information on the parameters is given in the “Execution Traces Enumeration” section.
+More information on the parameters is given in the `Execution Traces Enumeration' section.
 
 \subsection{Description}
 
@@ -25,5 +25,362 @@ Functioning of the \emph{branch} test engine includes the following steps:
   \end{enumerate}
 \end{enumerate}
 
-Let \emph{D} be the size of the delay slot for an architecture under scrutiny (e.g., \emph{D}=1
-for MIPS, and \emph{D}=0 for ARM).
+Let $D$ be the size of the delay slot for an architecture under scrutiny (e.g., $D = 1$ for MIPS, and $D = 0$ for ARM).
+
+\subsection{Branch Structure Construction}
+
+Step 1 consists in scanning the instructions of the abstract test sequence and constructing the branch structure.
+
+A branch structure is a finite and nonempty sequence of the kind
+$$\{(op_i,target_i)\}_(i=0)^N,$$
+where $op_i \in \{block, if, goto, slot, end\}$ is a type of the ith element,
+and $target_i \in \{0, ... ,N-1\}$ is a target label of the ith element (it is defined for if and goto elements only).
+
+A branch structure satisfies the following constraints:
+
+\begin{itemize}
+\item
+$op_i = end$ if and only if $i = N$;
+\item
+if $op_i \in \{if, goto\}$, then $i < N + D$;
+\item
+$op_i = slot$ if and only if $\exists j \in \{i-D, ..., i-1\} (op_j \in \{if, goto\})$.
+\end{itemize}
+
+The following features of the branch structure construction should be emphasized.
+
+An abstract call is classified as if if it is supplied with a situation whose name ends with `if-then', e.g.:
+
+\begin{lstlisting}
+beq r1, :label do
+  situation('beq-if-then', ...)
+end
+\end{lstlisting}
+
+An abstract call is classified as goto if it is supplied with a situation whose name ends with `goto', e.g.:
+
+\begin{lstlisting}
+b :label do
+  situation('b-goto', ...)
+end
+\end{lstlisting}
+
+\subsection{Execution Traces Enumeration}
+
+To describe the next step, it is worth introducing the following denotations.
+If $op_i = slot$, then $branch_i$ denotes the index of the $if$ or $goto$ element that proceeds the ith element.
+If $op_i \in \{if, goto\}$, then $branch_i = i$.
+
+Step 2 consists in enumerating execution traces for the constructed branch structure.
+Given a branch structure $\{(op_i, target_i)\}_(i=0)^N$, an execution trace is a sequence of the kind $\{(pc_i,cond_i)\}_(i=0)^n$,
+where $pc_i$ is an integer, and $cond_i \in \{false, true\}$ satisfies the following constraints:
+
+\begin{itemize}
+\item $pc_i = 0$;
+\item $pc_i = N$ if and only if $i = n$;
+\item if $op_{pc_i} = goto$, then $cond_{pc_i} = true$;
+\item if $op_{pc_i} = block$ or\\
+      if $op_{pc_i} \in \{if, goto\} \wedge D > 0$ or\\
+      if $op_{pc_i} = slot \wedge pc_i < branch_i+ D$:
+  \begin{itemize}
+  \item $pc_{i+1} = pc_i + 1$;
+  \end{itemize}
+\item if $op_{pc_i} \in \{if, goto\} \wedge D = 0$ or\\
+      if $op_{pc_i} = slot \wedge pc_i = branch_i + D$:
+  \begin{itemize}
+  \item if $cond_{branch_i} = false$:
+    \begin{itemize}
+    \item $pc_{i+1} = pc_i + 1$;
+    \end{itemize}
+  \item if $cond_{branch_i} = true$:
+    \begin{itemize}
+    \item $pc_{i+1} = target_{branch_i}$;
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+Execution traces are enumerated in a random order.
+To guide the trace enumeration process, the following parameters are used:
+
+\begin{itemize}
+\item
+$branch\_exec\_limit$ specifies the maximum number of occurrences of an if or goto element in an execution trace:
+  \begin{itemize}
+  \item a trace, where there exists an index $i$, such that $op_i \in \{if, goto\}$ and the number of $i$’s occurrences is greater than $branch\_exec\_limit$, is rejected;
+  \item the default value is $1$.
+  \end{itemize}
+\item
+$trace\_count\_limit$ specifies the upper bound for the number of execution traces to be returned:
+  \begin{itemize}
+  \item if $trace_count_limit \ne -1$ and the number of execution traces (for a given value of the $branch\_exec\_limit parameter$) exceeds $trace\_count\_limit$,
+    the engine returns the first $trace\_count\_limit$ traces;
+  \item the default value is $-1$ (no limit).
+  \end{itemize}
+\end{itemize}
+
+\subsection{Test Sequence Concretization}
+
+Step 3 consists in concretizing the test sequence for the given execution trace.
+It includes two stages:
+
+\begin{enumerate}
+\item construction of control code;
+\item construction of initialization code.
+\end{enumerate}
+
+Stage 1 consists in injecting a special code, so-called control code, into block and slot elements of the branch structure.
+The goal is to guarantee that the test sequence is executed as it is specified in the execution trace.
+In other words, the control code changes the registers used by the conditional branches in such a way that every time the instruction is executed,
+the calculated condition is equal to the one specified in the execution trace.
+
+The control code construction is based on data streams specified as values of the `stream' parameter of the situations of the conditional branches, e.g. (MIPS):
+
+\begin{lstlisting}
+beq r1, :label do
+  situation('beq-if-then', :stream => 'stream1')
+end
+\end{lstlisting}
+
+A data stream can be thought as a pair $\langle data, i \rangle$, where $data$ is an array, and $i$ is an index.
+Three code patterns expressed in the terms of the target assembly language are defined for each data stream type:
+
+\begin{itemize}
+\item $init = \{ i = 0; \}$;
+\item $read(r) = \{ r = data[i]; i = i + 1; \}$;
+\item $write(r) = \{ data[i] = r; i = i + 1; \}$.
+\end{itemize}
+
+These patterns compose a stream preparator, e.g. (ARM):
+
+\begin{lstlisting}
+stream_preparator(:data_source => 'REG',
+                  :index_source => 'REG') {
+  init {
+    adr index_source, start_label
+  }
+
+  read {
+    ldar data_source, index_source
+    add index_source, index_source, 8, 0
+  }
+
+  write {
+    stlr data_source, index_source
+    add index_source, index_source, 8, 0
+  }
+}
+\end{lstlisting}
+
+A data stream instance is declared as follows (ARM):
+
+\begin{lstlisting}
+data {
+  # Array storing the values of the register
+  # used by the conditional branch
+  label :branch_data
+  dword 0x0, 0x0, 0x0, 0x0, ...
+}
+...
+# Stream  Label          Data  Address  Size
+stream   :branch_data,   x0,   x10,     128
+\end{lstlisting}
+
+Stage 2 consists in constructing an initialization code. It also uses data streams, but in this case, the init and write patterns are applied instead of read.
+
+\subsection{Requirements}
+
+Currently, the branch test engine imposes the following requirements on test templates:
+
+\begin{enumerate}
+\item Each conditional branch instruction should be supplied with a situation whose name ends with `if-then', e.g. (MIPS):
+
+\begin{lstlisting}
+beq r1, :label do
+  situation('beq-if-then', ...)
+end
+\end{lstlisting}
+
+\item The stream parameter is obligatory for situations of conditional branch instructions, e.g. (MIPS):
+
+\begin{lstlisting}
+beq r1, :label do
+  situation('beq-if-then', :stream => 'branch_data')
+end
+\end{lstlisting}
+
+\item A conditional branch instruction's register should coincide with the $data\_source$ register of the corresponding data stream.
+\item $data\_source$ and $index\_source$ registers of data streams should be pairwise different.
+\item $index\_source$ registers should not be used inside test templates.
+\item Each unconditional branch instruction should be supplied with a situation whose name ends with `goto', e.g. (MIPS):
+
+\begin{lstlisting}
+b :label do
+  situation('b-goto', ...)
+end
+\end{lstlisting}
+
+\end{enumerate}
+
+\subsection{Limitations}
+
+\begin{enumerate}
+\item Situations of non-branch instructions are ignored.
+\end{enumerate}
+
+\subsection{Example}
+
+Here is an example illustrating how the branch test engine works (ARM).
+
+\begin{lstlisting}
+class BranchGenerationTemplate < ArmV8BaseTemplate
+  def pre
+    super
+
+    data {
+      org   0
+      align 8
+
+      # Array storing the values of the register
+      # used by the conditional branches
+      label :branch_data_0
+      dword 0x0, 0x0, 0x0, 0x0,    0x0, 0x0, 0x0, 0x0,
+            0x0, 0x0, 0x0, 0x0,    0x0, 0x0, 0x0, 0x0,
+            0x0, 0x0, 0x0, 0x0,    0x0, 0x0, 0x0, 0x0,
+            0x0, 0x0, 0x0, 0x0,    0x0, 0x0, 0x0, 0x0
+
+      label :branch_data_1
+      dword 0x0, 0x0, 0x0, 0x0,    0x0, 0x0, 0x0, 0x0,
+            0x0, 0x0, 0x0, 0x0,    0x0, 0x0, 0x0, 0x0,
+            0x0, 0x0, 0x0, 0x0,    0x0, 0x0, 0x0, 0x0,
+            0x0, 0x0, 0x0, 0x0,    0x0, 0x0, 0x0, 0x0
+    }
+
+    # Data stream preparator
+    stream_preparator(:data_source => 'REG',
+                      :index_source => 'REG') {
+      init {
+        adr index_source, start_label
+      }
+
+      read {
+        ldar data_source, index_source
+        add index_source, index_source, 8, 0
+      }
+
+      write {
+        stlr data_source, index_source
+        add index_source, index_source, 8, 0
+      }
+    }
+  end
+
+  def run
+    # Data stream instances for the conditional branches
+    stream :branch_data_0, x0, x10, 32
+    stream :branch_data_1, x1, x11, 32
+
+    # Request to the branch test engine:
+    # select one execution trace,
+    # where each branch instruction is called at most twice
+    sequence(:engine => 'branch',
+             :branch_exec_limit => 2,
+             :trace_count_limit => 1) {
+      label :label0
+        nop
+        cbnz x0, :label0 do
+          situation('cbnz-if-then',
+            :stream => 'branch_data_0')
+        end
+        nop
+        cbz  x1, :label1 do
+          situation('cbz-if-then',
+            :stream => 'branch_data_1')
+        end
+        nop
+        b_imm    :label0 do
+          situation('b-goto')
+        end
+      label :label1
+        nop
+    }.run 10 # Repeat 10 times
+  end
+end
+\end{lstlisting}
+
+In Step 1, a branch structure is constructed (for ARM, $D = 0$):
+
+~\\
+\begin{tabular}{|l|l|}
+\hline
+$(block, \phi)$	& \texttt{nop}\\
+\hline
+$(if, 0)$       & \texttt{cbnz x0, :label0}\\
+\hline
+$(block, \phi)$ & \texttt{nop}\\
+\hline
+$(if, 6)$       & \texttt{cbz x1,  :label1}\\
+\hline
+$(block, \phi)$ & \texttt{nop}\\
+\hline
+$(goto, 0)$     & \texttt{b\_imm    :label0}\\
+\hline
+$(block, \phi)$ & \texttt{nop}\\
+\hline
+$(end, \phi)$   & \\
+\hline
+\end{tabular}
+~\\
+
+In step 2, a single execution trace ($trace\_count\_limit = 1$),
+such that the number of calls of each branch instruction does not exceed two ($branch\_exec\_limit = 2$),
+is selected, e.g., $\{0, 1, 0, 1, 2, 3, 6, 7\}$:
+
+~\\
+\begin{tabular}{|l|l|l|}
+\hline
+$pc_0=0$: & $(block, \phi)$ & \texttt{nop}\\
+\hline
+$pc_1=1$: & $(if, 0)$       & \texttt{cbnz x0, :label0}\\
+\hline
+$pc_2=0$: & $(block, \phi)$ & \texttt{nop}\\
+\hline
+$pc_3=1$: & $(if, 0)$       & \texttt{cbnz x0, :label0}\\
+\hline
+$pc_4=2$: & $(block, \phi)$ & \texttt{nop}\\
+\hline
+$pc_5=3$: & $(if, 6)$       & \texttt{cbz x1,  :label1}\\
+\hline
+$pc_6=6$: & $(block, \phi)$ & \texttt{nop}\\
+\hline
+$pc_7=7$: & $(end, \phi)$   & \\
+\hline
+\end{tabular}
+~\\
+
+In step 3, the test sequence is concretized -- a control and initialization code is constructed:
+
+\begin{lstlisting}
+  // Initialization code (preparation)
+  adr x10, branch_data_0    // init(branch_data_0)
+  movz x0, #0x938f, LSL #0  // cbnz: true
+  stlr x0, [x10, #0]        // write(branch_data_0)
+  add x10, x10, #8, LSL #0
+  movz x0, #0x0, LSL #0     // cbnz: false
+  stlr x0, [x10, #0]        // write(branch_data_0)
+  add x10, x10, #8, LSL #0
+  adr x10, branch_data_0    // init(branch_data_0)
+  movz x1, #0x0, LSL #0     // cbz: true
+
+  // Test sequence (stimulus)
+  label0_0000:
+  nop
+  ldar x0, [x10, #0]        // Control code
+  add x10, x10, #8, LSL #0  // read(branch_data_0)
+  cbnz x0, label0_0000
+  nop
+  cbz x1, label1_0000
+  nop
+  b label0_0000
+label1_0000:
+  nop
+\end{lstlisting}
