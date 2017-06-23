@@ -154,6 +154,8 @@ public final class DataSection {
     }
 
     Logger.debugHeader("Allocating data");
+    Logger.debug(section.toString());
+
     try {
       for (final DataDirective directive : directives) {
         final BigInteger address = allocator.getCurrentAddress();

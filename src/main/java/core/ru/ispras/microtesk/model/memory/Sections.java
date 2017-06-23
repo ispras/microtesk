@@ -66,9 +66,9 @@ public final class Sections {
 
   public void addSection(final Section section) {
     InvariantChecks.checkNotNull(section);
-    InvariantChecks.checkFalse(sections.containsKey(section.getText()));
+    InvariantChecks.checkFalse(sections.containsKey(section.getName()));
 
-    sections.put(section.getText(), section);
+    sections.put(section.getName(), section);
     sectionAddresses.put(section.getBaseVa(), section);
   }
 
