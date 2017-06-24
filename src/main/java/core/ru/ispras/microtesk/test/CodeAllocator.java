@@ -210,14 +210,13 @@ public final class CodeAllocator {
     InvariantChecks.checkNotNull(memoryAllocator);
 
     for (final ConcreteCall call : calls) {
+      final BitVector virtualAddress = BitVector.valueOf(call.getAddress(), 64);
+      final BigInteger physicalAddress =
+              section.virtualToPhysical(virtualAddress.bigIntegerValue(false));
+
       if (call.isExecutable()) {
         final BitVector image = BitVector.valueOf(call.getImage());
         final int imageSize = memoryAllocator.bitsToAddressableUnits(image.getBitSize());
-
-        final BitVector virtualAddress = BitVector.valueOf(call.getAddress(), 64);
-
-        final BigInteger physicalAddress =
-            section.virtualToPhysical(virtualAddress.bigIntegerValue(false));
 
         if (Logger.isDebug()) {
           Logger.debug("0x%016x (PA): %s (0x%s)",
@@ -226,6 +225,8 @@ public final class CodeAllocator {
 
         memoryAllocator.allocateAt(image, physicalAddress);
         section.setPa(physicalAddress.add(BigInteger.valueOf(imageSize)));
+      } else {
+        section.setPa(physicalAddress);
       }
     }
   }
