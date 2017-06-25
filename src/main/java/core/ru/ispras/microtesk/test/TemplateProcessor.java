@@ -570,8 +570,9 @@ final class TemplateProcessor implements Template.Processor {
   private void allocateTestSequence(
       final ConcreteSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
+    final ConcreteSequence previous = testProgram.getLastEntry();
     testProgram.addEntry(sequence);
-    allocate(null, sequence, sequenceIndex);
+    allocate(previous, sequence, sequenceIndex);
   }
 
   private void allocate(
