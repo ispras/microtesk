@@ -24,6 +24,7 @@ import java.util.TreeMap;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.utils.AdjacencyList;
@@ -124,12 +125,20 @@ final class TestProgram {
     postponedEntries.remove(sequence);
   }
 
-  public ConcreteSequence getLastEntry() {
-    return entries.getLast();
+  public ConcreteSequence getLastEntry(final Section section) {
+    ConcreteSequence last = entries.getLast();
+    while (null != last && section != last.getSection()) {
+      last = entries.getPrevious(last);
+    }
+    return last;
   }
 
   public ConcreteSequence getPrevEntry(final ConcreteSequence sequence) {
-    return entries.getPrevious(sequence);
+    ConcreteSequence previous = entries.getPrevious(sequence);
+    while (null != previous && sequence.getSection() != previous.getSection()) {
+      previous = entries.getPrevious(previous);
+    }
+    return previous;
   }
 
   public void replaceEntryWith(final ConcreteSequence previous, final ConcreteSequence current) {

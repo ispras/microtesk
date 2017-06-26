@@ -212,7 +212,7 @@ final class TemplateProcessor implements Template.Processor {
     startProgram();
 
     hasDispatchingCode = true;
-    final ConcreteSequence prevEntry = testProgram.getLastEntry();
+    final ConcreteSequence prevEntry = testProgram.getLastEntry(block.getSection());
     if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, block)) {
       Logger.debug("Processing of external code defined at %s is postponed.", block.getWhere());
       postpone(new BlockEntry(block));
@@ -351,7 +351,7 @@ final class TemplateProcessor implements Template.Processor {
 
     final ConcreteSequence prevEntry = testProgram.hasEntry(entry) ?
                                        testProgram.getPrevEntry(entry) :
-                                       testProgram.getLastEntry();
+                                       testProgram.getLastEntry(entry.getSection());
 
     final int instanceIndex = TestEngineUtils.findAtEndOf(executorStatuses, prevEntry);
     if (-1 == instanceIndex) {
@@ -369,8 +369,9 @@ final class TemplateProcessor implements Template.Processor {
 
     engineContext.getModel().setActivePE(instanceIndex);
 
-    long allocationAddress =
-        null != prevEntry ? prevEntry.getEndAddress() : allocator.getAddress();
+    long allocationAddress =  null != prevEntry ?
+        prevEntry.getEndAddress() :
+        entry.getSection().physicalToVirtual(entry.getSection().getPa()).longValue();
 
     // The placeholder entry is marked allocated at allocationAddress in case no sequences are
     // produced. In this situation, the placeholder sequences will be printed as empty.
@@ -465,8 +466,9 @@ final class TemplateProcessor implements Template.Processor {
       final ConcreteSequence entry) throws ConfigurationException {
     final ConcreteSequence prevEntry = testProgram.getPrevEntry(entry);
 
-    long allocationAddress =
-        null != prevEntry ? prevEntry.getEndAddress() : allocator.getAddress();
+    long allocationAddress = null != prevEntry ?
+        prevEntry.getEndAddress() :
+        entry.getSection().physicalToVirtual(entry.getSection().getPa()).longValue();
 
     final Section section = block.getSection();
     final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
@@ -572,7 +574,7 @@ final class TemplateProcessor implements Template.Processor {
   private void allocateTestSequence(
       final ConcreteSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
-    final ConcreteSequence previous = testProgram.getLastEntry();
+    final ConcreteSequence previous = testProgram.getLastEntry(sequence.getSection());
     testProgram.addEntry(sequence);
     allocate(previous, sequence, sequenceIndex);
   }
