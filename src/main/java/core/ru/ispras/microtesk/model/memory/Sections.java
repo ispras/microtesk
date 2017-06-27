@@ -47,9 +47,8 @@ public final class Sections {
   }
 
   public void setTextSection(final Section section) {
-    InvariantChecks.checkNotNull(section);
-    InvariantChecks.checkTrue(null == textSection);
-    textSection = section;
+    addSection(section);
+    this.textSection = section;
   }
 
   public Section getTextSection() {
@@ -57,9 +56,8 @@ public final class Sections {
   }
 
   public void setDataSection(final Section section) {
-    InvariantChecks.checkNotNull(section);
-    InvariantChecks.checkTrue(null == dataSection);
-    dataSection = section;
+    addSection(section);
+    this.dataSection = section;
   }
 
   public Section getDataSection() {
@@ -68,9 +66,12 @@ public final class Sections {
 
   public void addSection(final Section section) {
     InvariantChecks.checkNotNull(section);
-    InvariantChecks.checkFalse(sections.containsKey(section.getName()));
 
-    sections.put(section.getName(), section);
+    final String name = !section.getName().isEmpty() ?
+        section.getName() : section.toString();
+
+    InvariantChecks.checkFalse(sections.containsKey(name));
+    sections.put(name, section);
     sectionAddresses.put(section.getBaseVa(), section);
   }
 
