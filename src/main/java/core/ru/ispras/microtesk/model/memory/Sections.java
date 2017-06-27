@@ -47,8 +47,9 @@ public final class Sections {
   }
 
   public void setTextSection(final Section section) {
-    addSection(section);
-    this.textSection = section;
+    InvariantChecks.checkNotNull(section);
+    InvariantChecks.checkTrue(null == textSection);
+    textSection = section;
   }
 
   public Section getTextSection() {
@@ -56,8 +57,9 @@ public final class Sections {
   }
 
   public void setDataSection(final Section section) {
-    addSection(section);
-    this.dataSection = section;
+    InvariantChecks.checkNotNull(section);
+    InvariantChecks.checkTrue(null == dataSection);
+    dataSection = section;
   }
 
   public Section getDataSection() {
