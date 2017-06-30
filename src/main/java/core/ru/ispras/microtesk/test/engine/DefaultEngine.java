@@ -17,7 +17,6 @@ package ru.ispras.microtesk.test.engine;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.template.AbstractSequence;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**

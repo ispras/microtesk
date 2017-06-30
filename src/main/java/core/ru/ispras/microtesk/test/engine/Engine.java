@@ -16,8 +16,6 @@ package ru.ispras.microtesk.test.engine;
 
 import java.util.Map;
 
-import ru.ispras.microtesk.test.template.AbstractSequence;
-
 /**
  * {@link Engine} defines an interface of abstract sequence processing engines.
  * 

@@ -20,7 +20,6 @@ import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Result;
 import ru.ispras.microtesk.test.SelfCheck;
-import ru.ispras.microtesk.test.template.AbstractSequence;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
