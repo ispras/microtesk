@@ -22,6 +22,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.AbstractCall;
 
 public final class SequenceMerger {
+  private SequenceMerger() {}
+
   public static final AbstractSequence merge(
       final AbstractSequence originalSequence,
       final List<AbstractSequence> engineSequences) {
