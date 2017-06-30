@@ -28,14 +28,14 @@ public final class AbstractSequence {
   public static final class Builder {
     private final Section section;
     private final List<AbstractCall> sequence;
-    private final List<Integer> positions;
+    private final Map<Integer, Integer> positions;
 
     public Builder(final Section section) {
       InvariantChecks.checkNotNull(section);
 
       this.section = section;
       this.sequence = new ArrayList<>();
-      this.positions = new ArrayList<>();
+      this.positions = new HashMap<>();
     }
 
     public void addCall(final AbstractCall call, final int position) {
@@ -43,7 +43,7 @@ public final class AbstractSequence {
       InvariantChecks.checkGreaterOrEqZero(position);
 
       sequence.add(call);
-      positions.add(position);
+      positions.put(position, sequence.size() - 1);
     }
 
     public AbstractSequence build() {
@@ -53,7 +53,7 @@ public final class AbstractSequence {
 
   private final Section section;
   private final List<AbstractCall> sequence;
-  private final List<Integer> positions;
+  private final Map<Integer, Integer> positions;
 
   private Map<Integer, List<AbstractCall>> prologues;
   private Map<Integer, List<AbstractCall>> epilogues;
@@ -65,7 +65,7 @@ public final class AbstractSequence {
   private AbstractSequence(
       final Section section,
       final List<AbstractCall> sequence,
-      final List<Integer> positions) {
+      final Map<Integer, Integer> positions) {
     InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(sequence);
 
@@ -85,7 +85,7 @@ public final class AbstractSequence {
     return sequence;
   }
 
-  public List<Integer> getPositions() {
+  public Map<Integer, Integer> getPositions() {
     return positions;
   }
 
