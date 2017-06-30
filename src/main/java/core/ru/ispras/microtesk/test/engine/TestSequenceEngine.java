@@ -418,7 +418,8 @@ public final class TestSequenceEngine {
         final ConcreteSequence concreteSequence) {
       InvariantChecks.checkNotNull(abstractSequence);
       InvariantChecks.checkNotNull(concreteSequence);
-      InvariantChecks.checkTrue(abstractSequence.size() == concreteSequence.getAll().size());
+      InvariantChecks.checkTrue(abstractSequence.getSequence().size() ==
+                                concreteSequence.getAll().size());
 
       this.sequenceIndex = sequenceIndex;
       this.abstractSequence = abstractSequence;

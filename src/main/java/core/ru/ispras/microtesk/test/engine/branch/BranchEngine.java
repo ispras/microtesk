@@ -144,7 +144,7 @@ public final class BranchEngine implements Engine {
 
     // Collect information about labels.
     final LabelManager labels = new LabelManager();
-    for (int i = 0; i < abstractSequence.size(); i++) {
+    for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
       final AbstractCall call = abstractSequence.getSequence().get(i);
       for (final Label label : call.getLabels()) {
         labels.addLabel(label, i);
@@ -152,13 +152,15 @@ public final class BranchEngine implements Engine {
     }
 
     // Transform the abstract sequence into the branch structure.
-    final List<BranchEntry> branchStructure = new ArrayList<>(abstractSequence.size());
-    for (int i = 0; i < abstractSequence.size(); i++) {
+    final List<BranchEntry> branchStructure =
+        new ArrayList<>(abstractSequence.getSequence().size());
+
+    for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
       branchStructure.add(new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, -1));
     }
 
     int delaySlot = 0;
-    for (int i = 0; i < abstractSequence.size(); i++) {
+    for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
       final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
       final BranchEntry branchEntry = branchStructure.get(i);
 
@@ -222,7 +224,7 @@ public final class BranchEngine implements Engine {
       public AbstractSequence value() {
         final List<BranchEntry> branchStructure = branchStructureExecutionIterator.value();
 
-        for (int i = 0; i < abstractSequence.size(); i++) {
+        for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
           final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
           final BranchEntry branchEntry = branchStructure.get(i);
 
@@ -272,7 +274,7 @@ public final class BranchEngine implements Engine {
     final Set<Integer> delaySlots = new HashSet<>();
 
     // Construct the control code to enforce the given execution trace.
-    for (int i = 0; i < abstractSequence.size(); i++) {
+    for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
       final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
       final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
 
@@ -365,8 +367,8 @@ public final class BranchEngine implements Engine {
   }
 
   private static AbstractSequence insertComments(final AbstractSequence abstractSequence) {
-    final List<AbstractCall> abstractCalls = new ArrayList<>(abstractSequence.size());
-    for (int i = 0; i < abstractSequence.size(); i++) {
+    final List<AbstractCall> abstractCalls = new ArrayList<>(abstractSequence.getSequence().size());
+    for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
       final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
       final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
 
@@ -383,12 +385,12 @@ public final class BranchEngine implements Engine {
   private static AbstractSequence resolveDependencies(final AbstractSequence abstractSequence) {
     final Map<AbstractCall, Integer> abstractCalls = new IdentityHashMap<>();
 
-    for (int index = 0; index < abstractSequence.size(); index++) {
+    for (int index = 0; index < abstractSequence.getSequence().size(); index++) {
       final AbstractCall abstractCall = abstractSequence.getSequence().get(index);
       abstractCalls.put(abstractCall, index);
     }
 
-    for (int index = 0; index < abstractSequence.size(); index++) {
+    for (int index = 0; index < abstractSequence.getSequence().size(); index++) {
       final AbstractCall abstractCall =
           abstractSequence.getSequence().get(index);
 

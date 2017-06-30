@@ -40,10 +40,6 @@ public final class AbstractSequence {
     return sequence.isEmpty();
   }
 
-  public int size() {
-    return sequence.size();
-  }
-
   public List<AbstractCall> getSequence() {
     return sequence;
   }

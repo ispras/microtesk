@@ -252,7 +252,7 @@ public final class MemoryEngine implements Engine {
             final List<AbstractCall> abstractCalls = abstractSequence.getSequence();
             final List<Access> accesses = accessIterator.value();
 
-            for (int i = 0; i < abstractSequence.size(); i++) {
+            for (int i = 0; i < abstractCalls.size(); i++) {
               final AbstractCall abstractCall = abstractCalls.get(i);
               final Access access = accesses.get(i);
 
