@@ -14,34 +14,111 @@
 
 package ru.ispras.microtesk.test.engine;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.template.AbstractCall;
 
 public final class AbstractSequence {
+  public static final class Builder {
+    private final Section section;
+    private final List<AbstractCall> sequence;
+    private final List<Integer> positions;
+
+    public Builder(final Section section) {
+      InvariantChecks.checkNotNull(section);
+
+      this.section = section;
+      this.sequence = new ArrayList<>();
+      this.positions = new ArrayList<>();
+    }
+
+    public void addCall(final AbstractCall call, final int position) {
+      InvariantChecks.checkNotNull(call);
+      InvariantChecks.checkGreaterOrEqZero(position);
+
+      sequence.add(call);
+      positions.add(position);
+    }
+
+    public AbstractSequence build() {
+      return new AbstractSequence(section, sequence, positions);
+    }
+  }
+
   private final Section section;
   private final List<AbstractCall> sequence;
+  private final List<Integer> positions;
+
+  private Map<Integer, List<AbstractCall>> prologues;
+  private Map<Integer, List<AbstractCall>> epilogues;
 
   public AbstractSequence(final Section section, final List<AbstractCall> sequence) {
+    this(section, sequence, null);
+  }
+
+  private AbstractSequence(
+      final Section section,
+      final List<AbstractCall> sequence,
+      final List<Integer> positions) {
     InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(sequence);
 
     this.section = section;
     this.sequence = sequence;
+    this.positions = positions;
+
+    this.prologues = null;
+    this.epilogues = null;
   }
 
   public Section getSection() {
     return section;
   }
 
-  public boolean isEmpty() {
-    return sequence.isEmpty();
-  }
-
   public List<AbstractCall> getSequence() {
     return sequence;
+  }
+
+  public List<Integer> getPositions() {
+    return positions;
+  }
+
+  public Map<Integer, List<AbstractCall>> getPrologues() {
+    return prologues;
+  }
+
+  public Map<Integer, List<AbstractCall>> getEpilogues() {
+    return epilogues;
+  }
+
+  public void addPrologue(final int index, final List<AbstractCall> calls) {
+    InvariantChecks.checkBounds(index, sequence.size());
+    InvariantChecks.checkNotNull(calls);
+
+    if (null == prologues) {
+      prologues = new HashMap<>();
+    }
+
+    final List<AbstractCall> oldCalls = prologues.get(index);
+    prologues.put(index, null == oldCalls ? calls : CollectionUtils.appendToList(oldCalls, calls));
+  }
+
+  public void addEpilogue(final int index, final List<AbstractCall> calls) {
+    InvariantChecks.checkBounds(index, sequence.size());
+    InvariantChecks.checkNotNull(calls);
+
+    if (null == epilogues) {
+      epilogues = new HashMap<>();
+    }
+
+    final List<AbstractCall> oldCalls = epilogues.get(index);
+    epilogues.put(index, null == oldCalls ? calls : CollectionUtils.appendToList(oldCalls, calls));
   }
 
   @Override
