@@ -46,6 +46,10 @@ public final class AbstractSequence {
       positions.put(position, sequence.size() - 1);
     }
 
+    public boolean isEmpty() {
+      return sequence.isEmpty() && positions.isEmpty();
+    }
+
     public AbstractSequence build() {
       return new AbstractSequence(section, sequence, positions);
     }
