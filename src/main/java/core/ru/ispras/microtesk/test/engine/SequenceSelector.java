@@ -37,7 +37,7 @@ public final class SequenceSelector {
       InvariantChecks.checkNotNull(call);
 
       if (isSelected(call.getRootOperation())) {
-        builder.addCall(null, position);
+        builder.addCall(call, position);
       }
     }
 
