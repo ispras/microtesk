@@ -17,9 +17,7 @@ package ru.ispras.microtesk.test.engine;
 import java.util.Collections;
 import java.util.List;
 
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Result;
-import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -50,18 +48,5 @@ public final class EngineResult extends Result<EngineResult.Status, Iterator<Abs
 
   public EngineResult(final String error) {
     this(Collections.singletonList(error));
-  }
-
-  // TODO: temporary implementation of self-checks.
-  // Must be removed once simulation-based is implemented.
-  private List<SelfCheck> selfChecks = null;
-
-  public void setSelfChecks(final List<SelfCheck> selfChecks) {
-    InvariantChecks.checkNotNull(selfChecks);
-    this.selfChecks = selfChecks;
-  }
-
-  public List<SelfCheck> getSelfChecks() {
-    return selfChecks;
   }
 }
