@@ -23,6 +23,7 @@ import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 public final class AbstractSequenceProcessor {
   private AbstractSequenceProcessor() {}
@@ -48,12 +49,21 @@ public final class AbstractSequenceProcessor {
       final SequenceSelector selector = engine.getSequenceSelector(); 
       final AbstractSequence engineSequence = selector.select(abstractSequence);
 
-      final EngineResult engineResult = engine.solve(engineContext, engineSequence);
-      iterators.add(engineResult.getResult());
+      if (null != engineSequence) {
+        engine.configure(attributes);
+        final EngineResult engineResult = engine.solve(engineContext, engineSequence);
+        iterators.add(engineResult.getResult());
+      }
     }
 
-    //final Iterator<List<AbstractSequence>> combinator = makeCombinator(combinatorName, iterators);
-    return null;
+    if (iterators.isEmpty()) {
+      return concretize(engineContext, new SingleValueIterator<>(abstractSequence)); 
+    }
+
+    final Iterator<List<AbstractSequence>> combinator = makeCombinator("??", iterators);
+    final Iterator<AbstractSequence> merger = new SequenceMerger(abstractSequence, combinator);
+
+    return concretize(engineContext, merger);
   }
 
   private static Iterator<List<AbstractSequence>> makeCombinator(
@@ -70,4 +80,12 @@ public final class AbstractSequenceProcessor {
 
     return combinator;
   }
+
+  private Iterator<ConcreteSequence> concretize(
+      final EngineContext engineContext,
+      final Iterator<AbstractSequence> iterator) {
+    // TODO: implement like TestSequenceEngine
+    return null;
+  }
 }
+

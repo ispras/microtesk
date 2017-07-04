@@ -20,33 +20,82 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
-public final class SequenceMerger {
-  private SequenceMerger() {}
+/**
+ * The {@link SequenceMerger} class is responsible for merging instruction sequences describing
+ * parts of a test case processed with different engines.
+ *
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
+final class SequenceMerger implements Iterator<AbstractSequence> {
+  private final AbstractSequence defaultSequence;
+  private final Iterator<List<AbstractSequence>> sequenceIterator;
 
-  public static final AbstractSequence merge(
-      final AbstractSequence originalSequence,
-      final List<AbstractSequence> engineSequences) {
-    InvariantChecks.checkNotNull(originalSequence);
-    InvariantChecks.checkNotNull(engineSequences);
+  public SequenceMerger(
+      final AbstractSequence defaultSequence,
+      final Iterator<List<AbstractSequence>> sequenceIterator) {
+    InvariantChecks.checkNotNull(defaultSequence);
+    InvariantChecks.checkNotNull(sequenceIterator);
 
-    if (engineSequences.isEmpty()) {
-      return originalSequence;
+    this.defaultSequence = defaultSequence;
+    this.sequenceIterator = sequenceIterator;
+  }
+
+  @Override
+  public void init() {
+    sequenceIterator.init();
+  }
+
+  @Override
+  public boolean hasValue() {
+    return sequenceIterator.hasValue();
+  }
+
+  @Override
+  public AbstractSequence value() {
+    final List<AbstractSequence> sequences = sequenceIterator.value();
+    return merge(defaultSequence, sequences);
+  }
+
+  @Override
+  public void next() {
+    sequenceIterator.next();
+  }
+
+  @Override
+  public void stop() {
+    sequenceIterator.stop();
+  }
+
+  @Override
+  public Iterator<AbstractSequence> clone() {
+    throw new UnsupportedOperationException();
+  }
+
+  private static final AbstractSequence merge(
+      final AbstractSequence defaultSequence,
+      final List<AbstractSequence> sequences) {
+    InvariantChecks.checkNotNull(defaultSequence);
+    InvariantChecks.checkNotNull(sequences);
+
+    if (sequences.isEmpty()) {
+      return defaultSequence;
     }
 
-    final List<AbstractCall> originalCalls = originalSequence.getSequence();
+    final List<AbstractCall> defaultCalls = defaultSequence.getSequence();
     final List<AbstractCall> resultCalls = new ArrayList<>();
 
-    for (int position = 0; position < originalCalls.size(); position++) {
-      final List<AbstractCall> calls = getCallsForPosition(engineSequences, position);
+    for (int position = 0; position < defaultCalls.size(); position++) {
+      final List<AbstractCall> calls = getCallsForPosition(sequences, position);
       if (null != calls) {
-        resultCalls.addAll(originalCalls);
+        resultCalls.addAll(defaultCalls);
       } else {
-        resultCalls.add(originalCalls.get(position));
+        resultCalls.add(defaultCalls.get(position));
       }
     }
 
-    return new AbstractSequence(originalSequence.getSection(), resultCalls);
+    return new AbstractSequence(defaultSequence.getSection(), resultCalls);
   }
 
   private static List<AbstractCall> getCallsForPosition(
