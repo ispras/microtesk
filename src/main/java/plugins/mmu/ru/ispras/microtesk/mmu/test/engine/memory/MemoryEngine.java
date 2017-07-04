@@ -30,6 +30,7 @@ import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineParameter;
 import ru.ispras.microtesk.test.engine.EngineResult;
+import ru.ispras.microtesk.test.engine.SequenceSelector;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
@@ -169,6 +170,18 @@ public final class MemoryEngine implements Engine {
   private AccessesIterator.Mode iterator = PARAM_ITERATOR.getDefaultValue();
   private int recursionLimit = PARAM_RECURSION_LIMIT.getDefaultValue();
   private int count = PARAM_COUNT.getDefaultValue();
+
+  private final SequenceSelector sequenceSelector = new SequenceSelector(ID);
+
+  @Override
+  public String getId() {
+    return ID;
+  }
+
+  @Override
+  public SequenceSelector getSequenceSelector() {
+    return sequenceSelector;
+  }
 
   @Override
   public void configure(final Map<String, Object> attributes) {

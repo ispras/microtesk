@@ -34,6 +34,7 @@ import ru.ispras.microtesk.test.engine.AbstractSequence;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineResult;
+import ru.ispras.microtesk.test.engine.SequenceSelector;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -122,6 +123,18 @@ public final class BranchEngine implements Engine {
   private int maxBranchExecutions = PARAM_BRANCH_LIMIT_DEFAULT;
   /** Trace count limit: default value is -1 (no limitations). */
   private int maxExecutionTraces = PARAM_TRACE_LIMIT_DEFAULT;
+
+  private final SequenceSelector sequenceSelector = new SequenceSelector(ID);
+
+  @Override
+  public String getId() {
+    return ID;
+  }
+
+  @Override
+  public SequenceSelector getSequenceSelector() {
+    return sequenceSelector;
+  }
 
   @Override
   public void configure(final Map<String, Object> attributes) {

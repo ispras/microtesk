@@ -20,13 +20,15 @@ import java.util.Map;
  * {@link Engine} defines an interface of abstract sequence processing engines.
  * 
  * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public interface Engine {
-  void configure(Map<String, Object> attributes);
+  String getId();
+  SequenceSelector getSequenceSelector();
 
+  void configure(Map<String, Object> attributes);
   EngineResult solve(EngineContext engineContext, AbstractSequence abstractSequence);
 
   void onStartProgram();
-
   void onEndProgram();
 }

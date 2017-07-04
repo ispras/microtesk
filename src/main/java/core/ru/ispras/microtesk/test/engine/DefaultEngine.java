@@ -29,19 +29,22 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class DefaultEngine implements Engine {
+  private static final String ID = "default";
+  private final SequenceSelector sequenceSelector = new SequenceSelector(ID);
+
+  @Override
+  public String getId() {
+    return ID;
+  }
+
+  @Override
+  public SequenceSelector getSequenceSelector() {
+    return sequenceSelector;
+  }
+
   @Override
   public void configure(final Map<String, Object> attributes) {
     // Do nothing.
-  }
-
-  @Override
-  public void onStartProgram() {
-    // Empty
-  }
-
-  @Override
-  public void onEndProgram() {
-    // Empty
   }
 
   @Override
@@ -52,5 +55,15 @@ public final class DefaultEngine implements Engine {
     InvariantChecks.checkNotNull(abstractSequence);
 
     return new EngineResult(new SingleValueIterator<>(abstractSequence));
+  }
+
+  @Override
+  public void onStartProgram() {
+    // Empty
+  }
+
+  @Override
+  public void onEndProgram() {
+    // Empty
   }
 }
