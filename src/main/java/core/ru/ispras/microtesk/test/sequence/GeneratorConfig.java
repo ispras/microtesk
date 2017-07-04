@@ -82,7 +82,7 @@ public final class GeneratorConfig<T> {
    * @return a combinator instance.
    */
   @SuppressWarnings("unchecked")
-  public Combinator<List<T>> getCombinator(final String name) {
+  public Combinator<T> getCombinator(final String name) {
     InvariantChecks.checkNotNull(name);
 
     final Class<?> combinatorClass = combinators.get(name.toLowerCase());
@@ -90,7 +90,7 @@ public final class GeneratorConfig<T> {
       throw new GenerationAbortedException("Combinator is not defined: " + name);
     }
 
-    return createInstance((Class<Combinator<List<T>>>) combinatorClass);
+    return createInstance((Class<Combinator<T>>) combinatorClass);
   }
 
   /**

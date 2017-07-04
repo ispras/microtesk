@@ -128,10 +128,8 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
    * @return the test sequence generator.
    */
   public Generator<T> getGenerator() {
-    final GeneratorConfig<T> config = GeneratorConfig.get();
-
-    final Permutator<T> obfuscatorEngine =
-        config.getModificator(obfuscator != null ? obfuscator : DEFAULT_OBFUSCATOR);
+    final Permutator<T> obfuscatorEngine = GeneratorConfig.<T>get().getModificator(
+        obfuscator != null ? obfuscator : DEFAULT_OBFUSCATOR);
 
     // If the isSequence flag is set, the single sequence generator is returned.
     if (isSequence) {
@@ -141,8 +139,8 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
           );
     }
 
-    final Rearranger<T> rearrangerEngine =
-        config.getRearranger(rearranger != null ? rearranger : DEFAULT_REARRANGER);
+    final Rearranger<T> rearrangerEngine = GeneratorConfig.<T>get().getRearranger(
+        rearranger != null ? rearranger : DEFAULT_REARRANGER);
 
     // If the isIterate flag is set, the generator will iterate over sequences of nested iterators.
     if (isIterate) {
@@ -152,14 +150,14 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
           );
     }
 
-    final Combinator<List<T>> combinatorEngine =
-        config.getCombinator(combinator != null ? combinator : DEFAULT_COMBINATOR);
+    final Combinator<List<T>> combinatorEngine = GeneratorConfig.<List<T>>get().getCombinator(
+        combinator != null ? combinator : DEFAULT_COMBINATOR);
 
-    final Permutator<List<T>> permutatorEngine =
-        config.getPermutator(permutator != null ? permutator : DEFAULT_PERMUTATOR);
+    final Permutator<List<T>> permutatorEngine = GeneratorConfig.<T>get().getPermutator(
+        permutator != null ? permutator : DEFAULT_PERMUTATOR);
 
-    final Compositor<T> compositorEngine = 
-        config.getCompositor(compositor != null ? compositor : DEFAULT_COMPOSITOR);
+    final Compositor<T> compositorEngine = GeneratorConfig.<T>get().getCompositor(
+        compositor != null ? compositor : DEFAULT_COMPOSITOR);
 
     return new GeneratorObfuscator<>(
         new GeneratorRearranger<>(
