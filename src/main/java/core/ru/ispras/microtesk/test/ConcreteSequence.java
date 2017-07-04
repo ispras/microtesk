@@ -198,4 +198,17 @@ public final class ConcreteSequence {
     InvariantChecks.checkTrue(allocated, "Sequence is not allocated!");
     return endAddress;
   }
+
+  // TODO: temporary implementation of self-checks.
+  // Must be removed once simulation-based is implemented.
+  private List<SelfCheck> selfChecks = null;
+
+  public void setSelfChecks(final List<SelfCheck> selfChecks) {
+    InvariantChecks.checkNotNull(selfChecks);
+    this.selfChecks = selfChecks;
+  }
+
+  public List<SelfCheck> getSelfChecks() {
+    return selfChecks;
+  }
 }

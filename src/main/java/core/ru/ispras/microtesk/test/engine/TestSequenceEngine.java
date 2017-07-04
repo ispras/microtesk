@@ -118,15 +118,7 @@ public final class TestSequenceEngine {
       return new TestSequenceEngineResult(result.getStatus(), null, result.getErrors());
     }
 
-    final TestSequenceEngineResult engineResult = adapt(context, result.getResult());
-
-    // TODO: temporary implementation of self-checks.
-    if (context.getOptions().getValueAsBoolean(Option.SELF_CHECKS)) {
-      final List<SelfCheck> selfChecks = createSelfChecks(sequence);
-      engineResult.setSelfChecks(selfChecks);
-    }
-
-    return engineResult;
+    return adapt(context, result.getResult());
   }
 
   private static void allocateModes(
@@ -275,7 +267,15 @@ public final class TestSequenceEngine {
         );
 
     engineContext.setCodeAllocationAddress(creator.getAllocationAddress());
-    return creator.createTestSequence();
+    final ConcreteSequence result = creator.createTestSequence();
+
+    // TODO: temporary implementation of self-checks.
+    if (engineContext.getOptions().getValueAsBoolean(Option.SELF_CHECKS)) {
+      final List<SelfCheck> selfChecks = createSelfChecks(abstractSequence.getSequence());
+      result.setSelfChecks(selfChecks);
+    }
+
+    return result;
   }
 
   private void execute(

@@ -234,10 +234,10 @@ final class TemplateProcessor implements Template.Processor {
 
   private ConcreteSequence processSelfChecks(
       final ConcreteSequence previous,
-      final List<SelfCheck> selfChecks,
       final int testCaseIndex) throws ConfigurationException {
     InvariantChecks.checkNotNull(previous);
 
+    final List<SelfCheck> selfChecks = previous.getSelfChecks();
     if (null == selfChecks) {
       return previous;
     }
@@ -420,7 +420,7 @@ final class TemplateProcessor implements Template.Processor {
             interruptedSequences.pop();
           }
 
-          previous = processSelfChecks(sequence, engineResult.getSelfChecks(), sequenceIndex);
+          previous = processSelfChecks(sequence, sequenceIndex);
           allocationAddress = previous.getEndAddress();
 
           if (!hasDispatchingCode && engineContext.getStatistics().isFileLengthLimitExceeded()) {
