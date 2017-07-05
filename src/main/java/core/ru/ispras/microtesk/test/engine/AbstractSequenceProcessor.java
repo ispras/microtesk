@@ -77,6 +77,8 @@ public final class AbstractSequenceProcessor {
 
     if (isBranch) {
       final Engine engine = EngineConfig.get().getEngine("branch");
+      engine.configure(attributes);
+
       final Iterator<AbstractSequence> iterator = engine.solve(engineContext, defaultAbstractSequence);
       return new SequenceConcretizer(engineContext, false, iterator);
     }
