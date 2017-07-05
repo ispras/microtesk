@@ -73,22 +73,29 @@ public final class TestSequenceEngine {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    // Makes a copy as the abstract sequence can be modified by solver or adapter.
-    List<AbstractCall> sequence = AbstractCall.copyAll(
-        AbstractCall.expandAtomic(abstractSequence.getSequence()));
+    final AbstractSequence expendedAbstractSequence =
+        expandAbstractSequence(context, abstractSequence);
 
-    allocateModes(sequence, context.getOptions().getValueAsBoolean(Option.RESERVE_EXPLICIT));
-    sequence = expandPreparators(context, sequence);
-
-    final AbstractSequence newAbstractSequence =
-        new AbstractSequence(abstractSequence.getSection(), sequence);
-
-    final Iterator<AbstractSequence> iterator = engine.solve(context, newAbstractSequence);
+    final Iterator<AbstractSequence> iterator = engine.solve(context, expendedAbstractSequence);
     return new SequenceConcretizer(context, isTrivial, iterator);
   }
 
+  private static AbstractSequence expandAbstractSequence(
+      final EngineContext context,
+      final AbstractSequence abstractSequence) {
+    // Makes a copy as the abstract sequence can be modified by solver or adapter.
+    final List<AbstractCall> calls = AbstractCall.copyAll(
+        AbstractCall.expandAtomic(abstractSequence.getSequence()));
+
+    allocateModes(calls, context.getOptions().getValueAsBoolean(Option.RESERVE_EXPLICIT));
+
+    final List<AbstractCall> expandedCalls = expandPreparators(context, calls);
+    return new AbstractSequence(abstractSequence.getSection(), expandedCalls);
+  }
+
   private static void allocateModes(
-      final List<AbstractCall> abstractSequence, final boolean markExplicitAsUsed) {
+      final List<AbstractCall> abstractSequence,
+      final boolean markExplicitAsUsed) {
     final ModeAllocator modeAllocator = ModeAllocator.get();
     if (null != modeAllocator) {
       modeAllocator.allocate(abstractSequence, markExplicitAsUsed);
@@ -96,7 +103,8 @@ public final class TestSequenceEngine {
   }
 
   private static List<AbstractCall> expandPreparators(
-      final EngineContext context, final List<AbstractCall> abstractSequence) {
+      final EngineContext context,
+      final List<AbstractCall> abstractSequence) {
     // Labels in repeated parts of a sequence have to be unique only on sequence level.
     LabelUniqualizer.get().resetNumbers();
     return Preparator.expandPreparators(null, context.getPreparators(), abstractSequence);

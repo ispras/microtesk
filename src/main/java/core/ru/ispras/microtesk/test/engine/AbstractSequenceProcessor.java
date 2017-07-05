@@ -19,9 +19,14 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.ConcreteSequence;
+import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
+import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.LabelUniqualizer;
+import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
@@ -44,10 +49,13 @@ public final class AbstractSequenceProcessor {
     InvariantChecks.checkNotNull(attributes);
     InvariantChecks.checkNotNull(abstractSequence);
 
+    final AbstractSequence defaultAbstractSequence =
+        expandAbstractSequence(engineContext, abstractSequence);
+
     final List<Iterator<AbstractSequence>> iterators = new ArrayList<>();
     for (final Engine engine : EngineConfig.get().getEngines()) {
       final SequenceSelector selector = engine.getSequenceSelector(); 
-      final AbstractSequence engineSequence = selector.select(abstractSequence);
+      final AbstractSequence engineSequence = selector.select(defaultAbstractSequence);
 
       if (null != engineSequence) {
         engine.configure(attributes);
@@ -60,13 +68,46 @@ public final class AbstractSequenceProcessor {
 
     if (iterators.isEmpty()) {
       return new SequenceConcretizer(
-          engineContext, isTrivial, new SingleValueIterator<>(abstractSequence));
+          engineContext, isTrivial, new SingleValueIterator<>(defaultAbstractSequence));
     }
 
-    final Iterator<List<AbstractSequence>> combinator = makeCombinator("??", iterators);
-    final Iterator<AbstractSequence> merger = new SequenceMerger(abstractSequence, combinator);
+    final Iterator<List<AbstractSequence>> combinator =
+        makeCombinator("random", iterators);
+
+    final Iterator<AbstractSequence> merger =
+        new SequenceMerger(defaultAbstractSequence, combinator);
 
     return new SequenceConcretizer(engineContext, isTrivial, merger);
+  }
+
+  private static AbstractSequence expandAbstractSequence(
+      final EngineContext context,
+      final AbstractSequence abstractSequence) {
+    // Makes a copy as the abstract sequence can be modified by solver or adapter.
+    final List<AbstractCall> calls = AbstractCall.copyAll(
+        AbstractCall.expandAtomic(abstractSequence.getSequence()));
+
+    allocateModes(calls, context.getOptions().getValueAsBoolean(Option.RESERVE_EXPLICIT));
+
+    final List<AbstractCall> expandedCalls = expandPreparators(context, calls);
+    return new AbstractSequence(abstractSequence.getSection(), expandedCalls);
+  }
+
+  private static void allocateModes(
+      final List<AbstractCall> abstractSequence,
+      final boolean markExplicitAsUsed) {
+    final ModeAllocator modeAllocator = ModeAllocator.get();
+    if (null != modeAllocator) {
+      modeAllocator.allocate(abstractSequence, markExplicitAsUsed);
+    }
+  }
+
+  private static List<AbstractCall> expandPreparators(
+      final EngineContext context,
+      final List<AbstractCall> abstractSequence) {
+    // Labels in repeated parts of a sequence have to be unique only on sequence level.
+    LabelUniqualizer.get().resetNumbers();
+    return Preparator.expandPreparators(null, context.getPreparators(), abstractSequence);
   }
 
   private static Iterator<List<AbstractSequence>> makeCombinator(
