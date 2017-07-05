@@ -16,6 +16,8 @@ package ru.ispras.microtesk.test.engine;
 
 import java.util.Map;
 
+import ru.ispras.testbase.knowledge.iterator.Iterator;
+
 /**
  * {@link Engine} defines an interface of abstract sequence processing engines.
  * 
@@ -27,7 +29,7 @@ public interface Engine {
   SequenceSelector getSequenceSelector();
 
   void configure(Map<String, Object> attributes);
-  EngineResult solve(EngineContext engineContext, AbstractSequence abstractSequence);
+  Iterator<AbstractSequence> solve(EngineContext engineContext, AbstractSequence abstractSequence);
 
   void onStartProgram();
   void onEndProgram();

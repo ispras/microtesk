@@ -29,7 +29,6 @@ import ru.ispras.microtesk.test.engine.AbstractSequence;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineParameter;
-import ru.ispras.microtesk.test.engine.EngineResult;
 import ru.ispras.microtesk.test.engine.SequenceSelector;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -204,7 +203,7 @@ public final class MemoryEngine implements Engine {
   }
 
   @Override
-  public EngineResult solve(
+  public Iterator<AbstractSequence> solve(
       final EngineContext engineContext, final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
@@ -292,7 +291,7 @@ public final class MemoryEngine implements Engine {
           }
       };
 
-    return new EngineResult(solutionIterator);
+    return solutionIterator;
   }
 
   @Override

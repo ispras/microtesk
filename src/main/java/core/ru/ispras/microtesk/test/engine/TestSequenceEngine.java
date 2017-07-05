@@ -21,13 +21,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.ConcreteSequence;
-import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.LabelUniqualizer;
 import ru.ispras.microtesk.test.template.Preparator;
-import ru.ispras.microtesk.utils.StringUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -87,13 +85,8 @@ public final class TestSequenceEngine {
     final AbstractSequence newAbstractSequence =
         new AbstractSequence(abstractSequence.getSection(), sequence);
 
-    final EngineResult result = engine.solve(context, newAbstractSequence);
-    if (result.getStatus() != EngineResult.Status.OK) {
-      throw new GenerationAbortedException("Failed to concretize abstract sequence. Errors: " +
-          StringUtils.toString(result.getErrors(), "; "));
-    }
-
-    return new SequenceConcretizer(context, isTrivial, result.getResult());
+    final Iterator<AbstractSequence> testBases = engine.solve(context, newAbstractSequence);
+    return new SequenceConcretizer(context, isTrivial, testBases);
   }
 
   private static void allocateModes(

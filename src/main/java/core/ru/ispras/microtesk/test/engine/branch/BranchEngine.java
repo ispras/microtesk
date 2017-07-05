@@ -18,7 +18,6 @@ import static ru.ispras.microtesk.test.engine.utils.EngineUtils.getSituationName
 import static ru.ispras.microtesk.test.engine.utils.EngineUtils.makeStreamRead;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -33,7 +32,6 @@ import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.engine.AbstractSequence;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
-import ru.ispras.microtesk.test.engine.EngineResult;
 import ru.ispras.microtesk.test.engine.SequenceSelector;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Label;
@@ -150,7 +148,7 @@ public final class BranchEngine implements Engine {
   }
 
   @Override
-  public EngineResult solve(
+  public Iterator<AbstractSequence> solve(
       final EngineContext engineContext, final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
@@ -265,7 +263,7 @@ public final class BranchEngine implements Engine {
       }
     };
 
-    return new EngineResult(EngineResult.Status.OK, iterator, Collections.<String>emptyList());
+    return iterator;
   }
 
   @Override

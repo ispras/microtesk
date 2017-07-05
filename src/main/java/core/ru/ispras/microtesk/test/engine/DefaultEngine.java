@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.engine;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
@@ -48,13 +49,13 @@ public final class DefaultEngine implements Engine {
   }
 
   @Override
-  public EngineResult solve(
+  public Iterator<AbstractSequence> solve(
       final EngineContext engineContext,
       final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    return new EngineResult(new SingleValueIterator<>(abstractSequence));
+    return new SingleValueIterator<>(abstractSequence);
   }
 
   @Override

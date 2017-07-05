@@ -51,8 +51,8 @@ public final class AbstractSequenceProcessor {
 
       if (null != engineSequence) {
         engine.configure(attributes);
-        final EngineResult engineResult = engine.solve(engineContext, engineSequence);
-        iterators.add(engineResult.getResult());
+        final Iterator<AbstractSequence> iterator = engine.solve(engineContext, engineSequence);
+        iterators.add(iterator);
       }
     }
 
