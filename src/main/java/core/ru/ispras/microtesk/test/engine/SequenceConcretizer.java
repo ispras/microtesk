@@ -1,11 +1,11 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
- * 
+ * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -16,7 +16,6 @@ package ru.ispras.microtesk.test.engine;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -39,194 +38,81 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.Printer;
 import ru.ispras.microtesk.test.SelfCheck;
-import ru.ispras.microtesk.test.Statistics;
-import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
-import ru.ispras.microtesk.test.template.LabelUniqualizer;
-import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.Primitive;
-import ru.ispras.microtesk.utils.StringUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
-/**
- * The {@link TestSequenceEngine} class processes an abstract sequence with the
- * specified solver engine and adapts the results with the specified adapter
- * to produce a collection of concrete sequences.
- * 
- * @author <a href="mailto:kotsynyak@ispras.ru">Artem Kotsynyak</a>
- * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
- */
-public final class TestSequenceEngine {
-  private final Engine engine;
-  private boolean isTrivial;
+final class SequenceConcretizer implements Iterator<ConcreteSequence>{
+  private final EngineContext engineContext;
+  private final boolean isTrivial;
+  private final Iterator<AbstractSequence> sequenceIterator;
 
-  public TestSequenceEngine(final Engine engine) {
-    InvariantChecks.checkNotNull(engine);
-    this.engine = engine;
-    this.isTrivial = false;
-  }
-
-  public Iterator<ConcreteSequence> process(
-      final EngineContext context, final AbstractSequence abstractSequence) {
-    InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(abstractSequence);
-
-    final int instanceIndex = context.getModel().getActivePE();
-    Logger.debugHeader("Processing Abstract Sequence (Instance %d)", instanceIndex);
-    context.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
-    context.getModel().setUseTempState(true);
-
-    try {
-      return solve(context, abstractSequence);
-    } finally {
-      context.getModel().setUseTempState(false);
-      context.getStatistics().popActivity(); // PROCESSING
-    }
-  }
-
-  public void configure(final Map<String, Object> attributes) {
-    InvariantChecks.checkNotNull(attributes);
-    engine.configure(attributes);
-    isTrivial = "trivial".equals(attributes.get("engine"));
-  }
-
-  public Iterator<ConcreteSequence> solve(
-      final EngineContext context, final AbstractSequence abstractSequence) {
-    InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(abstractSequence);
-
-    // Makes a copy as the abstract sequence can be modified by solver or adapter.
-    List<AbstractCall> sequence = AbstractCall.copyAll(
-        AbstractCall.expandAtomic(abstractSequence.getSequence()));
-
-    allocateModes(sequence, context.getOptions().getValueAsBoolean(Option.RESERVE_EXPLICIT));
-    sequence = expandPreparators(context, sequence);
-
-    final AbstractSequence newAbstractSequence =
-        new AbstractSequence(abstractSequence.getSection(), sequence);
-
-    final EngineResult result = engine.solve(context, newAbstractSequence);
-    if (result.getStatus() != EngineResult.Status.OK) {
-      throw new GenerationAbortedException("Failed to concretize abstract sequence. Errors: " +
-          StringUtils.toString(result.getErrors(), "; "));
-    }
-
-    return new SequenceConcretizer(context, isTrivial, result.getResult());
-  }
-
-  private static void allocateModes(
-      final List<AbstractCall> abstractSequence, final boolean markExplicitAsUsed) {
-    final ModeAllocator modeAllocator = ModeAllocator.get();
-    if (null != modeAllocator) {
-      modeAllocator.allocate(abstractSequence, markExplicitAsUsed);
-    }
-  }
-
-  private static List<SelfCheck> createSelfChecks(final List<AbstractCall> abstractSequence) {
-    InvariantChecks.checkNotNull(abstractSequence);
-
-    final Set<AddressingModeWrapper> modes = EngineUtils.getOutAddressingModes(abstractSequence);
-    final List<SelfCheck> selfChecks = new ArrayList<>(modes.size());
-
-    for (final AddressingModeWrapper mode : modes) {
-      selfChecks.add(new SelfCheck(mode));
-    }
-
-    return selfChecks;
-  }
-
-  private static List<AbstractCall> expandPreparators(
-      final EngineContext context, final List<AbstractCall> abstractSequence) {
-    // Labels in repeated parts of a sequence have to be unique only on sequence level.
-    LabelUniqualizer.get().resetNumbers();
-    return Preparator.expandPreparators(null, context.getPreparators(), abstractSequence);
-  }
-
-  private TestSequenceEngineResult adapt(
+  public SequenceConcretizer(
       final EngineContext engineContext,
-      final Iterator<AbstractSequence> solutionIterator) {
-    return new TestSequenceEngineResult(new Iterator<AdapterResult>() {
-      @Override
-      public void init() {
-        solutionIterator.init();
-      }
-
-      @Override
-      public boolean hasValue() {
-        return solutionIterator.hasValue();
-      }
-
-      @Override
-      public AdapterResult value() {
-        final AbstractSequence abstractSequence = solutionIterator.value();
-
-        // Makes a copy as the adapter may modify the abstract sequence.
-        final AbstractSequence abstractSequenceCopy = new AbstractSequence(
-            abstractSequence.getSection(), AbstractCall.copyAll(abstractSequence.getSequence()));
-
-        try {
-          engineContext.getModel().setUseTempState(true);
-          return adapt(engineContext, abstractSequenceCopy);
-        } finally {
-          engineContext.getModel().setUseTempState(false);
-        }
-      }
-
-      @Override
-      public void next() {
-        solutionIterator.next();
-      }
-
-      @Override
-      public void stop() {
-        solutionIterator.stop();
-      }
-
-      @Override
-      public Iterator<AdapterResult> clone() {
-        throw new UnsupportedOperationException();
-      }
-    });
-  }
-
-  private static void checkResultStatus(final TestSequenceEngineResult result) {
-    if (EngineResult.Status.OK != result.getStatus()) {
-      throw new IllegalStateException(listErrors(
-          "Failed to find a solution for an abstract call sequence.", result.getErrors()));
-    }
-  }
-
-  private static String listErrors(final String message, final Collection<String> errors) {
-    if (errors.isEmpty()) {
-      return message;
-    }
-
-    final String separator = System.lineSeparator() + "  ";
-    return message + " Errors:" + separator + StringUtils.toString(errors, separator);
-  }
-
-  private AdapterResult adapt(
-      final EngineContext engineContext,
-      final AbstractSequence abstractSequence) {
-
+      final boolean isTrivial,
+      final Iterator<AbstractSequence> sequenceIterator) {
     InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(sequenceIterator);
+
+    this.engineContext = engineContext;
+    this.isTrivial = isTrivial;
+    this.sequenceIterator = sequenceIterator;
+  }
+
+  @Override
+  public void init() {
+    sequenceIterator.init();
+  }
+
+  @Override
+  public boolean hasValue() {
+    return sequenceIterator.hasValue();
+  }
+
+  @Override
+  public ConcreteSequence value() {
+    final AbstractSequence abstractSequence = sequenceIterator.value();
+    return concretizeSequence(abstractSequence);
+  }
+
+  @Override
+  public void next() {
+    sequenceIterator.next();
+  }
+
+  @Override
+  public void stop() {
+    sequenceIterator.stop();
+  }
+
+  @Override
+  public Iterator<ConcreteSequence> clone() {
+    throw new UnsupportedOperationException();
+  }
+
+  private ConcreteSequence concretizeSequence(final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(abstractSequence);
+
+    // Makes a copy as the adapter may modify the abstract sequence.
+    final AbstractSequence abstractSequenceCopy = new AbstractSequence(
+        abstractSequence.getSection(), AbstractCall.copyAll(abstractSequence.getSequence()));
 
     final boolean isDebug = Logger.isDebug();
     Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG));
 
     try {
-      final ConcreteSequence testSequence = processSequence(engineContext, abstractSequence);
-      return new AdapterResult(testSequence);
+      engineContext.getModel().setUseTempState(true);
+      return processSequence(engineContext, abstractSequenceCopy);
     } catch (final ConfigurationException e) {
-      return new AdapterResult(e.getMessage());
+      throw new GenerationAbortedException(e);
     } finally {
       Logger.setDebug(isDebug);
+      engineContext.getModel().setUseTempState(false);
     }
   }
 
@@ -602,5 +488,18 @@ public final class TestSequenceEngine {
         Logger.debug("");
       }
     }
+  }
+
+  private static List<SelfCheck> createSelfChecks(final List<AbstractCall> abstractSequence) {
+    InvariantChecks.checkNotNull(abstractSequence);
+
+    final Set<AddressingModeWrapper> modes = EngineUtils.getOutAddressingModes(abstractSequence);
+    final List<SelfCheck> selfChecks = new ArrayList<>(modes.size());
+
+    for (final AddressingModeWrapper mode : modes) {
+      selfChecks.add(new SelfCheck(mode));
+    }
+
+    return selfChecks;
   }
 }

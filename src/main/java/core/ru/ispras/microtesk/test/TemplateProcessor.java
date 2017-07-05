@@ -33,11 +33,9 @@ import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.tracer.Tracer;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.AbstractSequence;
-import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.engine.TestSequenceEngine;
-import ru.ispras.microtesk.test.engine.TestSequenceEngineResult;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -387,9 +385,8 @@ final class TemplateProcessor implements Template.Processor {
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
         engineContext.setCodeAllocationAddress(allocationAddress);
 
-        final TestSequenceEngineResult engineResult =
+        final Iterator<ConcreteSequence> concreteIt =
             engine.process(engineContext, new AbstractSequence(section, abstractIt.value()));
-        final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
           if (!isProgramStarted) {
@@ -397,7 +394,7 @@ final class TemplateProcessor implements Template.Processor {
             runExecutionFromStart();
           }
 
-          final ConcreteSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
+          final ConcreteSequence sequence = concreteIt.value();
           final int sequenceIndex = engineContext.getStatistics().getSequences();
           sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
@@ -479,12 +476,11 @@ final class TemplateProcessor implements Template.Processor {
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
         engineContext.setCodeAllocationAddress(allocationAddress);
 
-        final TestSequenceEngineResult engineResult =
+        final Iterator<ConcreteSequence> concreteIt =
             engine.process(engineContext, new AbstractSequence(section, abstractIt.value()));
-        final Iterator<AdapterResult> concreteIt = engineResult.getResult();
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
-          final ConcreteSequence sequence = TestEngineUtils.getTestSequence(concreteIt.value());
+          final ConcreteSequence sequence = concreteIt.value();
 
           final int sequenceIndex = engineContext.getStatistics().getSequences();
           sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
