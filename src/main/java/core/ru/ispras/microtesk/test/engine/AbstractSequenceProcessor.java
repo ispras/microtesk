@@ -56,14 +56,17 @@ public final class AbstractSequenceProcessor {
       }
     }
 
+    final boolean isTrivial = "trivial".equals(attributes.get("engine"));
+
     if (iterators.isEmpty()) {
-      return concretize(engineContext, new SingleValueIterator<>(abstractSequence)); 
+      return new SequenceConcretizer(
+          engineContext, isTrivial, new SingleValueIterator<>(abstractSequence));
     }
 
     final Iterator<List<AbstractSequence>> combinator = makeCombinator("??", iterators);
     final Iterator<AbstractSequence> merger = new SequenceMerger(abstractSequence, combinator);
 
-    return concretize(engineContext, merger);
+    return new SequenceConcretizer(engineContext, isTrivial, merger);
   }
 
   private static Iterator<List<AbstractSequence>> makeCombinator(
@@ -79,13 +82,6 @@ public final class AbstractSequenceProcessor {
     combinator.init();
 
     return combinator;
-  }
-
-  private Iterator<ConcreteSequence> concretize(
-      final EngineContext engineContext,
-      final Iterator<AbstractSequence> iterator) {
-    // TODO: implement like TestSequenceEngine
-    return null;
   }
 }
 
