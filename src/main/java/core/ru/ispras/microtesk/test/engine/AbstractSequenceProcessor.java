@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.ConcreteSequence;
+import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
@@ -42,6 +44,24 @@ public final class AbstractSequenceProcessor {
   }
 
   public Iterator<ConcreteSequence> process(
+      final EngineContext context,
+      final Map<String, Object> attributes,
+      final AbstractSequence abstractSequence) {
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(abstractSequence);
+
+    final int instanceIndex = context.getModel().getActivePE();
+    Logger.debugHeader("Processing Abstract Sequence (Instance %d)", instanceIndex);
+
+    context.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
+    try {
+      return processSequence(context, attributes, abstractSequence);
+    } finally {
+      context.getStatistics().popActivity(); // PROCESSING
+    }
+  }
+
+  private Iterator<ConcreteSequence> processSequence(
       final EngineContext engineContext,
       final Map<String, Object> attributes,
       final AbstractSequence abstractSequence) {
