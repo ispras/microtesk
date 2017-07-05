@@ -33,6 +33,7 @@ import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.tracer.Tracer;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.AbstractSequence;
+import ru.ispras.microtesk.test.engine.AbstractSequenceProcessor;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.engine.TestSequenceEngine;
@@ -377,7 +378,6 @@ final class TemplateProcessor implements Template.Processor {
     entry.setAllocationAddresses(allocationAddress, allocationAddress);
 
     final Section section = block.getSection();
-    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
     ConcreteSequence previous = entry;
 
     for (int index = 0; index < times; index++) {
@@ -385,8 +385,11 @@ final class TemplateProcessor implements Template.Processor {
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
         engineContext.setCodeAllocationAddress(allocationAddress);
 
-        final Iterator<ConcreteSequence> concreteIt =
-            engine.process(engineContext, new AbstractSequence(section, abstractIt.value()));
+        final Iterator<ConcreteSequence> concreteIt = AbstractSequenceProcessor.get().process(
+            engineContext,
+            block.getAttributes(),
+            new AbstractSequence(section, abstractIt.value())
+            );
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
           if (!isProgramStarted) {
@@ -468,7 +471,6 @@ final class TemplateProcessor implements Template.Processor {
         entry.getSection().physicalToVirtual(entry.getSection().getPa()).longValue();
 
     final Section section = block.getSection();
-    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
     ConcreteSequence previous = entry;
 
     for (int index = 0; index < times; index++) {
@@ -476,8 +478,11 @@ final class TemplateProcessor implements Template.Processor {
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
         engineContext.setCodeAllocationAddress(allocationAddress);
 
-        final Iterator<ConcreteSequence> concreteIt =
-            engine.process(engineContext, new AbstractSequence(section, abstractIt.value()));
+        final Iterator<ConcreteSequence> concreteIt = AbstractSequenceProcessor.get().process(
+            engineContext,
+            block.getAttributes(),
+            new AbstractSequence(section, abstractIt.value())
+            );
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
           final ConcreteSequence sequence = concreteIt.value();

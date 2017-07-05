@@ -49,8 +49,17 @@ public final class AbstractSequenceProcessor {
     InvariantChecks.checkNotNull(attributes);
     InvariantChecks.checkNotNull(abstractSequence);
 
+    final boolean isTrivial = "trivial".equals(attributes.get("engine"));
+    final boolean isBranch = "branch".equals(attributes.get("engine"));
+
     final AbstractSequence defaultAbstractSequence =
         expandAbstractSequence(engineContext, abstractSequence);
+
+    if (isBranch) {
+      final Engine engine = EngineConfig.get().getEngine("branch");
+      final Iterator<AbstractSequence> iterator = engine.solve(engineContext, defaultAbstractSequence);
+      return new SequenceConcretizer(engineContext, false, iterator);
+    }
 
     final List<Iterator<AbstractSequence>> iterators = new ArrayList<>();
     for (final Engine engine : EngineConfig.get().getEngines()) {
@@ -63,8 +72,6 @@ public final class AbstractSequenceProcessor {
         iterators.add(iterator);
       }
     }
-
-    final boolean isTrivial = "trivial".equals(attributes.get("engine"));
 
     if (iterators.isEmpty()) {
       return new SequenceConcretizer(
