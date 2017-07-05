@@ -53,13 +53,11 @@ public final class TestSequenceEngine {
 
     final int instanceIndex = context.getModel().getActivePE();
     Logger.debugHeader("Processing Abstract Sequence (Instance %d)", instanceIndex);
-    context.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
-    context.getModel().setUseTempState(true);
 
+    context.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
     try {
       return solve(context, abstractSequence);
     } finally {
-      context.getModel().setUseTempState(false);
       context.getStatistics().popActivity(); // PROCESSING
     }
   }
