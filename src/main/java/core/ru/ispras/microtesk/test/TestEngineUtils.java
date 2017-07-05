@@ -26,7 +26,6 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.test.engine.AdapterResult;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.test.engine.EngineContext;
@@ -81,34 +80,6 @@ final class TestEngineUtils {
     }
 
     final List<AbstractCall> result = iterator.value();
-
-    iterator.next();
-    InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
-
-    return result;
-  }
-
-  public static ConcreteSequence getTestSequence(final AdapterResult adapterResult) {
-    InvariantChecks.checkNotNull(adapterResult);
-
-    if (adapterResult.getStatus() != AdapterResult.Status.OK) {
-      throw new GenerationAbortedException(String.format(
-          "Adapter Error: %s", adapterResult.getErrors()));
-    }
-
-    final ConcreteSequence result = adapterResult.getResult();
-    InvariantChecks.checkNotNull(result);
-
-    return result;
-  }
-
-  public static ConcreteSequence getSingleTestSequence(final Iterator<AdapterResult> iterator) {
-    InvariantChecks.checkNotNull(iterator);
-
-    iterator.init();
-    InvariantChecks.checkTrue(iterator.hasValue());
-
-    final ConcreteSequence result = getTestSequence(iterator.value());
 
     iterator.next();
     InvariantChecks.checkFalse(iterator.hasValue(), "A single sequence is expected.");
