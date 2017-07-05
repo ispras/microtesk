@@ -70,7 +70,7 @@ public final class TestSequenceEngine {
     isTrivial = "trivial".equals(attributes.get("engine"));
   }
 
-  public Iterator<ConcreteSequence> solve(
+  private Iterator<ConcreteSequence> solve(
       final EngineContext context, final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(abstractSequence);
@@ -85,8 +85,8 @@ public final class TestSequenceEngine {
     final AbstractSequence newAbstractSequence =
         new AbstractSequence(abstractSequence.getSection(), sequence);
 
-    final Iterator<AbstractSequence> testBases = engine.solve(context, newAbstractSequence);
-    return new SequenceConcretizer(context, isTrivial, testBases);
+    final Iterator<AbstractSequence> iterator = engine.solve(context, newAbstractSequence);
+    return new SequenceConcretizer(context, isTrivial, iterator);
   }
 
   private static void allocateModes(
