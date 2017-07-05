@@ -33,9 +33,9 @@ import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.tracer.Tracer;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.AbstractSequence;
+import ru.ispras.microtesk.test.engine.AbstractSequenceProcessor;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.SelfCheckEngine;
-import ru.ispras.microtesk.test.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -379,7 +379,6 @@ final class TemplateProcessor implements Template.Processor {
     final Section section = block.getSection();
     ConcreteSequence previous = entry;
 
-    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
     for (int index = 0; index < times; index++) {
       final Iterator<List<AbstractCall>> abstractIt = block.getIterator();
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
@@ -388,13 +387,14 @@ final class TemplateProcessor implements Template.Processor {
         final AbstractSequence abstractSequence =
             new AbstractSequence(section, abstractIt.value());
 
+        /*
+        final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
         final Iterator<ConcreteSequence> concreteIt =
             engine.process(engineContext, abstractSequence);
+        */
 
-        /*
         final Iterator<ConcreteSequence> concreteIt = AbstractSequenceProcessor.get().process(
             engineContext, block.getAttributes(), abstractSequence);
-        */
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
           if (!isProgramStarted) {
@@ -478,7 +478,6 @@ final class TemplateProcessor implements Template.Processor {
     final Section section = block.getSection();
     ConcreteSequence previous = entry;
 
-    final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
     for (int index = 0; index < times; index++) {
     final Iterator<List<AbstractCall>> abstractIt = block.getIterator();
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
@@ -487,13 +486,14 @@ final class TemplateProcessor implements Template.Processor {
         final AbstractSequence abstractSequence =
             new AbstractSequence(section, abstractIt.value());
 
+        /*
+        final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
         final Iterator<ConcreteSequence> concreteIt =
             engine.process(engineContext, abstractSequence);
+        */
 
-        /*
         final Iterator<ConcreteSequence> concreteIt = AbstractSequenceProcessor.get().process(
             engineContext, block.getAttributes(), abstractSequence);
-        */
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
           final ConcreteSequence sequence = concreteIt.value();
