@@ -26,7 +26,7 @@ import ru.ispras.microtesk.model.tracer.Tracer;
 import ru.ispras.microtesk.model.tracer.Record;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.EngineContext;
-import ru.ispras.microtesk.test.engine.utils.EngineUtils;
+import ru.ispras.microtesk.test.engine.EngineUtils;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;

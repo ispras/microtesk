@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.microtesk.model.ConfigurationException;
-import ru.ispras.microtesk.test.engine.utils.AddressingModeWrapper;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;

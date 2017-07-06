@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
-import static ru.ispras.microtesk.test.engine.utils.EngineUtils.getSituationName;
-import static ru.ispras.microtesk.test.engine.utils.EngineUtils.makeStreamRead;
+import static ru.ispras.microtesk.test.engine.EngineUtils.getSituationName;
+import static ru.ispras.microtesk.test.engine.EngineUtils.makeStreamRead;
 
 import java.util.ArrayList;
 import java.util.HashSet;

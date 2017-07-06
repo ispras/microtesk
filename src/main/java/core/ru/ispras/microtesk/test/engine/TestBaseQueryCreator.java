@@ -12,18 +12,16 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.engine.utils;
+package ru.ispras.microtesk.test.engine;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.engine.utils.EngineUtils.acquireContext;
+import static ru.ispras.microtesk.test.engine.EngineUtils.acquireContext;
 
 import java.util.Map;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.microtesk.test.engine.AbstractSequence;
-import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
@@ -125,7 +123,8 @@ public final class TestBaseQueryCreator {
       createParameters(queryBuilder);
     }
 
-    final BindingBuilder bindingBuilder = new BindingBuilder(engineContext, queryBuilder, primitive);
+    final TestBaseQueryBindingBuilder bindingBuilder =
+        new TestBaseQueryBindingBuilder(engineContext, queryBuilder, primitive);
 
     unknownImmValues = bindingBuilder.getUnknownValues();
     modes = bindingBuilder.getModes();

@@ -12,10 +12,10 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.engine.utils;
+package ru.ispras.microtesk.test.engine;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.engine.utils.EngineUtils.makeMode;
+import static ru.ispras.microtesk.test.engine.EngineUtils.makeMode;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -33,7 +33,6 @@ import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.Location;
-import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.LazyValue;
@@ -42,13 +41,13 @@ import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.testbase.TestBaseQueryBuilder;
 
-public final class BindingBuilder {
+final class TestBaseQueryBindingBuilder {
   private EngineContext engineContext;
   private final TestBaseQueryBuilder queryBuilder;
   private final Map<String, Argument> unknownValues;
   private final Map<String, Argument> modes;
 
-  public BindingBuilder(
+  public TestBaseQueryBindingBuilder(
       final EngineContext engineContext,
       final TestBaseQueryBuilder queryBuilder,
       final Primitive primitive) {

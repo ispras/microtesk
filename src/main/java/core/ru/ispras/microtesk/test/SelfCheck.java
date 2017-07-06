@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.test;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.engine.utils.AddressingModeWrapper;
+import ru.ispras.microtesk.test.engine.AddressingModeWrapper;
 
 public final class SelfCheck {
   private final AddressingModeWrapper mode;

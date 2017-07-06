@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import static ru.ispras.microtesk.test.engine.utils.EngineUtils.newTestBase;
+import static ru.ispras.microtesk.test.engine.EngineUtils.newTestBase;
 
 import java.util.HashMap;
 import java.util.Map;

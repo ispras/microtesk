@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.engine.utils;
+package ru.ispras.microtesk.test.engine;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Argument;
