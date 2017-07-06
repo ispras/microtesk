@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ru.ispras.microtesk.mmu.test.engine.memory.AddressDataGenerator;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.engine.InitializerMakerDefault;
@@ -57,9 +57,7 @@ final class Core implements Plugin {
 
   @Override
   public Map<String, DataGenerator> getDataGenerators() {
-    final Map<String, DataGenerator> dataGenerators = new LinkedHashMap<>();
-    dataGenerators.put(AddressDataGenerator.ID, new AddressDataGenerator());
-    return dataGenerators;
+    return Collections.emptyMap();
   }
 
   @Override
