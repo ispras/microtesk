@@ -25,8 +25,8 @@ public class RandomSituationTestCase extends MiniMipsTest {
     final Statistics statistics = run("random_situation.rb");
     Assert.assertNotNull(statistics);
 
-    Assert.assertEquals(1,  statistics.getPrograms());
-    Assert.assertEquals(10, statistics.getSequences());
-    Assert.assertEquals(55, statistics.getInstructions());
+    Assert.assertEquals("programs",     1,  statistics.getPrograms());
+    Assert.assertEquals("sequences",    10, statistics.getSequences());
+    Assert.assertEquals("instructions", 53, statistics.getInstructions());
   }
 }

@@ -30,7 +30,6 @@ import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineConfig;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
-import ru.ispras.microtesk.test.engine.TestSequenceEngine;
 import ru.ispras.microtesk.test.engine.utils.EngineUtils;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Block;
@@ -49,25 +48,6 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 final class TestEngineUtils {
   private TestEngineUtils() {}
-
-  public static TestSequenceEngine getEngine(final Block block) {
-    InvariantChecks.checkNotNull(block);
-
-    final String engineName;
-    if (block.isExternal()) {
-      engineName = "trivial";
-    } else {
-      engineName = block.getAttribute("engine", "default");
-    }
-
-    final Engine engine = EngineConfig.get().getEngine(engineName);
-    InvariantChecks.checkNotNull(engine);
-
-    final TestSequenceEngine testSequenceEngine = new TestSequenceEngine(engine);
-    testSequenceEngine.configure(block.getAttributes());
-
-    return testSequenceEngine;
-  }
 
   public static List<AbstractCall> getSingleSequence(final Block block) {
     InvariantChecks.checkNotNull(block);

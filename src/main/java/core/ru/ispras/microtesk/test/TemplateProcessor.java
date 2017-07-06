@@ -387,12 +387,6 @@ final class TemplateProcessor implements Template.Processor {
         final AbstractSequence abstractSequence =
             new AbstractSequence(section, abstractIt.value());
 
-        /*
-        final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
-        final Iterator<ConcreteSequence> concreteIt =
-            engine.process(engineContext, abstractSequence);
-        */
-
         final Iterator<ConcreteSequence> concreteIt = AbstractSequenceProcessor.get().process(
             engineContext, block.getAttributes(), abstractSequence);
 
@@ -485,12 +479,6 @@ final class TemplateProcessor implements Template.Processor {
 
         final AbstractSequence abstractSequence =
             new AbstractSequence(section, abstractIt.value());
-
-        /*
-        final TestSequenceEngine engine = TestEngineUtils.getEngine(block);
-        final Iterator<ConcreteSequence> concreteIt =
-            engine.process(engineContext, abstractSequence);
-        */
 
         final Iterator<ConcreteSequence> concreteIt = AbstractSequenceProcessor.get().process(
             engineContext, block.getAttributes(), abstractSequence);
