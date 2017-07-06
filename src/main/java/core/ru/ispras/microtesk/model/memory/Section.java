@@ -50,7 +50,7 @@ public final class Section {
     this.baseVa = baseVa;
     this.translate = !basePa.equals(baseVa);
     this.args = args;
-    this.text = args.isEmpty() ? name : name + ", " + args;
+    this.text = args.isEmpty() ? name : String.format("%s, \"%s\"", name, args);
 
     this.pa = basePa;
     this.savedPa = null;

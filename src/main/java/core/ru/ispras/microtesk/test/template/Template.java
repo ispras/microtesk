@@ -1121,7 +1121,7 @@ public final class Template {
     processExternalCode();
     InvariantChecks.checkNotNull(name);
 
-    final String keyword = String.format(".section \"%s\"", name);
+    final String keyword = String.format(".section %s", name);
     Section section = Sections.get().getSection(keyword);
 
     if (null == section) {
