@@ -173,7 +173,7 @@ public final class TestEngine {
     final long rateLimit = options.getValueAsInteger(Option.RATE_LIMIT);
     if (genRate < rateLimit && statistics.getInstructions() >= 1500) { 
       // Makes sense only for sequences of significant length (>= 1000)
-      Logger.error("Generation rate is too slow. At least %d is expected.", rateLimit);
+      Logger.error("Generation rate is too slow (%d). At least %d is expected.", genRate, rateLimit);
       return false;
     }
 
