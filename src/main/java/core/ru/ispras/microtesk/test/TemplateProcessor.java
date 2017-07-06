@@ -33,7 +33,7 @@ import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.tracer.Tracer;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.AbstractSequence;
-import ru.ispras.microtesk.test.engine.AbstractSequenceProcessor;
+import ru.ispras.microtesk.test.engine.SequenceProcessor;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.SelfCheckEngine;
 import ru.ispras.microtesk.test.template.AbstractCall;
@@ -387,7 +387,7 @@ final class TemplateProcessor implements Template.Processor {
         final AbstractSequence abstractSequence =
             new AbstractSequence(section, abstractIt.value());
 
-        final Iterator<ConcreteSequence> concreteIt = AbstractSequenceProcessor.get().process(
+        final Iterator<ConcreteSequence> concreteIt = SequenceProcessor.get().process(
             engineContext, block.getAttributes(), abstractSequence);
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
@@ -480,7 +480,7 @@ final class TemplateProcessor implements Template.Processor {
         final AbstractSequence abstractSequence =
             new AbstractSequence(section, abstractIt.value());
 
-        final Iterator<ConcreteSequence> concreteIt = AbstractSequenceProcessor.get().process(
+        final Iterator<ConcreteSequence> concreteIt = SequenceProcessor.get().process(
             engineContext, block.getAttributes(), abstractSequence);
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {

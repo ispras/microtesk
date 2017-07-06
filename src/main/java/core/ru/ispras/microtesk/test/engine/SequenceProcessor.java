@@ -32,13 +32,13 @@ import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
-public final class AbstractSequenceProcessor {
-  private AbstractSequenceProcessor() {}
-  private static AbstractSequenceProcessor instance = null;
+public final class SequenceProcessor {
+  private SequenceProcessor() {}
+  private static SequenceProcessor instance = null;
 
-  public static AbstractSequenceProcessor get() {
+  public static SequenceProcessor get() {
     if (null == instance) {
-      instance = new AbstractSequenceProcessor();
+      instance = new SequenceProcessor();
     }
     return instance;
   }
