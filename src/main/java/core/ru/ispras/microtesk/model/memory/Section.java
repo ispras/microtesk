@@ -20,11 +20,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class Section {
   private final String name;
   private final boolean standard;
+
   private final BigInteger basePa;
   private final BigInteger baseVa;
   private final boolean translate;
   private final String args;
-  private final String text;
 
   private BigInteger pa;
   private BigInteger savedPa;
@@ -48,16 +48,24 @@ public final class Section {
     InvariantChecks.checkNotNull(baseVa);
     InvariantChecks.checkNotNull(args);
 
-    this.name = name;
+    this.name = trimDots(name);
     this.standard = standard;
+
     this.basePa = basePa;
     this.baseVa = baseVa;
     this.translate = !basePa.equals(baseVa);
     this.args = args;
-    this.text = args.isEmpty() ? name : String.format("%s, \"%s\"", name, args);
 
     this.pa = basePa;
     this.savedPa = null;
+  }
+
+  private static String trimDots(final String string) {
+    int index = 0;
+    while (index < string.length() && string.charAt(index) == '.') {
+      index++;
+    }
+    return string.substring(index, string.length());
   }
 
   public String getName() {
@@ -68,8 +76,12 @@ public final class Section {
     return standard;
   }
 
-  public String getText() {
-    return text;
+  public String getLinkerText() {
+    return "." + name;
+  }
+
+  public String getAsmText() {
+    return standard ? "." + name : String.format(".section %s, \"%s\"", name, args);
   }
 
   public BigInteger getBasePa() {
@@ -122,7 +134,7 @@ public final class Section {
 
   @Override
   public String toString() {
-    return String.format("%s [pa=0x%016x, va=0x%016x]", getText(), basePa, baseVa);
+    return String.format("%s [pa=0x%016x, va=0x%016x]", getAsmText(), basePa, baseVa);
   }
 
   public BigInteger virtualToPhysical(final BigInteger va) {

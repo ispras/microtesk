@@ -238,7 +238,7 @@ public final class Printer {
 
     if (sequence.getSection() != section) {
       section = sequence.getSection();
-      printText(section.getText());
+      printText(section.getAsmText());
 
       if (sequence.isEmpty()) {
         return;
@@ -504,7 +504,7 @@ public final class Printer {
 
       if (dataSection.getSection() != section) {
         section = dataSection.getSection();
-        printText(section.getText());
+        printText(section.getAsmText());
       }
 
       printToFile("");

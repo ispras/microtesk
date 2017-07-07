@@ -1121,11 +1121,9 @@ public final class Template {
     processExternalCode();
     InvariantChecks.checkNotNull(name);
 
-    final String keyword = String.format(".section %s", name);
-    Section section = Sections.get().getSection(keyword);
-
+    Section section = Sections.get().getSection(name, false);
     if (null == section) {
-      section = new Section(keyword, false, pa, va, args);
+      section = new Section(name, false, pa, va, args);
       Sections.get().addSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);

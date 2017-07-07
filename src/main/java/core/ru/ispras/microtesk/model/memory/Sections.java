@@ -68,17 +68,20 @@ public final class Sections {
   public void addSection(final Section section) {
     InvariantChecks.checkNotNull(section);
 
-    final String name = !section.getName().isEmpty() ?
-        section.getName() : section.toString();
+    final String key = makeKey(section.getName(), section.isStandard());
+    InvariantChecks.checkFalse(sections.containsKey(key));
 
-    InvariantChecks.checkFalse(sections.containsKey(name));
-    sections.put(name, section);
+    sections.put(key, section);
     sectionAddresses.put(section.getBaseVa(), section);
   }
 
-  public Section getSection(final String text) {
-    InvariantChecks.checkNotNull(text);
-    return sections.get(text);
+  public Section getSection(final String name, final boolean standard) {
+    InvariantChecks.checkNotNull(name);
+    return sections.get(makeKey(name, standard));
+  }
+
+  private static String makeKey(final String name, final boolean standard) {
+    return String.format("%s#%b", name, standard);
   }
 
   public Collection<Section> getSectionsOrderedByVa() {
