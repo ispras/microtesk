@@ -60,16 +60,16 @@ final class LinkerScriptPrinter {
         st.add("time", new Date().toString());
 
         final Section textSection = Sections.get().getTextSection();
-        st.add("text_id", textSection.getLinkerText());
+        st.add("text_id", textSection.getName());
         st.add("text_va", toHexString(textSection.getBaseVa()));
 
         final Section dataSection = Sections.get().getDataSection();
-        st.add("data_id", dataSection.getLinkerText());
+        st.add("data_id", dataSection.getName());
         st.add("data_va", toHexString(dataSection.getBaseVa()));
 
         for (final Section section : Sections.get().getSectionsOrderedByVa()) {
           if (section != textSection && section != dataSection) {
-            st.add("section_ids", section.getLinkerText());
+            st.add("section_ids", section.getName());
             st.add("section_vas", toHexString(section.getBaseVa()));
           }
         }

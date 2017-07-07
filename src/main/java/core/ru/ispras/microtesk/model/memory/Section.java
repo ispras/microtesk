@@ -48,7 +48,7 @@ public final class Section {
     InvariantChecks.checkNotNull(baseVa);
     InvariantChecks.checkNotNull(args);
 
-    this.name = trimDots(name);
+    this.name = name;
     this.standard = standard;
 
     this.basePa = basePa;
@@ -60,14 +60,6 @@ public final class Section {
     this.savedPa = null;
   }
 
-  private static String trimDots(final String string) {
-    int index = 0;
-    while (index < string.length() && string.charAt(index) == '.') {
-      index++;
-    }
-    return string.substring(index, string.length());
-  }
-
   public String getName() {
     return name;
   }
@@ -76,12 +68,8 @@ public final class Section {
     return standard;
   }
 
-  public String getLinkerText() {
-    return "." + name;
-  }
-
   public String getAsmText() {
-    return standard ? "." + name : String.format(".section %s, \"%s\"", name, args);
+    return standard ? name : String.format(".section %s, \"%s\"", name, args);
   }
 
   public BigInteger getBasePa() {
