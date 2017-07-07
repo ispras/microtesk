@@ -6,6 +6,11 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2017/07/07 MicroTESK 2.4.28 beta
+
+ - Support for generation of GCC linker scripts for test programs
+ - Bug fixes and general improvements
+
 2017/06/26 MicroTESK 2.4.27 beta
  - Improved support for sections in test templates (constructs section {},
    section_data {}, section_text{})
