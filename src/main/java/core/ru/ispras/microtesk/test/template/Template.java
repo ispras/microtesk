@@ -1125,7 +1125,7 @@ public final class Template {
     Section section = Sections.get().getSection(keyword);
 
     if (null == section) {
-      section = new Section(keyword, pa, va, args);
+      section = new Section(keyword, false, pa, va, args);
       Sections.get().addSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);
@@ -1142,8 +1142,8 @@ public final class Template {
     Section section = Sections.get().getTextSection();
 
     if (null == section) {
-      final String keyword = context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD);
-      section = new Section(keyword, pa, va);
+      final String name = context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD);
+      section = new Section(name, true, pa, va);
       Sections.get().setTextSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);
@@ -1160,8 +1160,8 @@ public final class Template {
     Section section = Sections.get().getDataSection();
 
     if (null == section) {
-      final String keyword = context.getOptions().getValueAsString(Option.DATA_SECTION_KEYWORD);
-      section = new Section(keyword, pa, va);
+      final String name = context.getOptions().getValueAsString(Option.DATA_SECTION_KEYWORD);
+      section = new Section(name, true, pa, va);
       Sections.get().setDataSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);

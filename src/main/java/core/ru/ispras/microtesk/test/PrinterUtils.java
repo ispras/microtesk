@@ -124,4 +124,19 @@ final class PrinterUtils {
       statistics.popActivity();
     }
   }
+
+  public static void printLinkerScript(final EngineContext engineContext) throws IOException {
+    InvariantChecks.checkNotNull(engineContext);
+
+    final Statistics statistics = engineContext.getStatistics();
+    statistics.pushActivity(Statistics.Activity.PRINTING);
+
+    try {
+      final LinkerScriptPrinter printer = new LinkerScriptPrinter(engineContext.getOptions());
+      Logger.debugHeader("Printing linker script to %s", printer.getFileName());
+      printer.print();
+    } finally {
+      statistics.popActivity();
+    }
+  }
 }

@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.model.memory;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -78,6 +79,10 @@ public final class Sections {
   public Section getSection(final String text) {
     InvariantChecks.checkNotNull(text);
     return sections.get(text);
+  }
+
+  public Collection<Section> getSectionsOrderedByVa() {
+    return sectionAddresses.values();
   }
 
   public void resetState() {

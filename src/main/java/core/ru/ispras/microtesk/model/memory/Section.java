@@ -19,6 +19,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Section {
   private final String name;
+  private final boolean standard;
   private final BigInteger basePa;
   private final BigInteger baseVa;
   private final boolean translate;
@@ -30,13 +31,15 @@ public final class Section {
 
   public Section(
       final String name,
+      final boolean standard,
       final BigInteger basePa,
       final BigInteger baseVa) {
-    this(name, basePa, baseVa, "");
+    this(name, standard, basePa, baseVa, "");
   }
 
   public Section(
       final String name,
+      final boolean standard,
       final BigInteger basePa,
       final BigInteger baseVa,
       final String args) {
@@ -46,6 +49,7 @@ public final class Section {
     InvariantChecks.checkNotNull(args);
 
     this.name = name;
+    this.standard = standard;
     this.basePa = basePa;
     this.baseVa = baseVa;
     this.translate = !basePa.equals(baseVa);
@@ -58,6 +62,10 @@ public final class Section {
 
   public String getName() {
     return name;
+  }
+
+  public boolean isStandard() {
+    return standard;
   }
 
   public String getText() {

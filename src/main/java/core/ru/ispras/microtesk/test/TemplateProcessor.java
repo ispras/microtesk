@@ -188,6 +188,8 @@ final class TemplateProcessor implements Template.Processor {
 
       finishProgram();
       Logger.debugHeader("Ended Processing Template");
+
+      PrinterUtils.printLinkerScript(engineContext);
     } catch (final Exception e) {
       TestEngineUtils.rethrowException(e);
     } finally {
