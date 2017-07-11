@@ -141,7 +141,7 @@ final class GuardPrinter {
       InvariantChecks.checkTrue(segments.size() == 1, "One segment event is allowed.");
 
       final Pair<String, Boolean> segmentInfo = extractSegmentInfo(segments.get(0));
-      return String.format("new MmuGuard(%s, %b)", segmentInfo.first, segmentInfo.second);
+      return String.format("new MmuGuard(%s.get(), %b)", segmentInfo.first, segmentInfo.second);
     }
 
     if (equalities.isEmpty() && segments.isEmpty() && !buffers.isEmpty()) {
