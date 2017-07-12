@@ -425,7 +425,7 @@ final class MemoryStorage implements MemoryDevice {
     InvariantChecks.checkTrue(regionBitSize % 8 == 0);
 
     final BigInteger addressValue =
-        address.bigIntegerValue().multiply(BigInteger.valueOf(regionBitSize / 8));
+        address.bigIntegerValue(false).multiply(BigInteger.valueOf(regionBitSize / 8));
 
     if (!memorySettings.checkDataAddress(addressValue)) {
       throw new GenerationAbortedException(String.format(
