@@ -236,13 +236,14 @@ public final class Printer {
       printToFile("");
     }
 
+    if (sequence.isEmpty()) {
+      printCommentToFile("Empty");
+      return;
+    }
+
     if (sequence.getSection() != section) {
       section = sequence.getSection();
       printText(section.getAsmText());
-
-      if (sequence.isEmpty()) {
-        return;
-      }
     }
 
     final List<ConcreteCall> prologue = sequence.getPrologue();
