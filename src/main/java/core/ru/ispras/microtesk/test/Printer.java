@@ -237,7 +237,7 @@ public final class Printer {
     }
 
     if (sequence.isEmpty()) {
-      printCommentToFile("Empty");
+      printNote("Empty");
       return;
     }
 
