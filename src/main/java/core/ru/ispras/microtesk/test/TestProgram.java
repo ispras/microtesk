@@ -133,6 +133,14 @@ final class TestProgram {
     return last;
   }
 
+  public ConcreteSequence getLastNonEmptyEntry() {
+    ConcreteSequence last = entries.getLast();
+    while (null != last && last.isEmpty()) {
+      last = entries.getPrevious(last);
+    }
+    return last;
+  }
+
   public ConcreteSequence getPrevEntry(final ConcreteSequence sequence) {
     ConcreteSequence previous = entries.getPrevious(sequence);
     while (null != previous && sequence.getSection() != previous.getSection()) {

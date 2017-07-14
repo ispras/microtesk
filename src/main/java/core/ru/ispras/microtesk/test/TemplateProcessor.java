@@ -538,7 +538,7 @@ final class TemplateProcessor implements Template.Processor {
       allocateTestSequence(epilogue, Label.NO_SEQUENCE_INDEX);
       runExecution(epilogue);
 
-      TestEngineUtils.checkAllAtEndOf(executorStatuses, epilogue);
+      TestEngineUtils.checkAllAtEndOf(executorStatuses, testProgram.getLastNonEmptyEntry());
     } finally {
       TestEngineUtils.notifyProgramEnd();
 
