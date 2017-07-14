@@ -6,12 +6,17 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2017/07/14 MicroTESK 2.4.29 beta
+
+ - Bug fixes and general improvements
+
 2017/07/07 MicroTESK 2.4.28 beta
 
  - Support for generation of GCC linker scripts for test programs
  - Bug fixes and general improvements
 
 2017/06/26 MicroTESK 2.4.27 beta
+
  - Improved support for sections in test templates (constructs section {},
    section_data {}, section_text{})
 
@@ -19,6 +24,7 @@
  - Bug fixes and general improvements
 
 2017/06/05 MicroTESK 2.4.25 beta
+
  - Support for sections (code and data can be placed into regions defined by
    the .section directive)
  - Changes in generator (common mechanism of test situation processing for
@@ -26,20 +32,25 @@
  - Bug fixes and general improvements
 
 2017/05/26 MicroTESK 2.4.24 beta
+
  - Bug fixes and general improvements
 
 2017/05/19 MicroTESK 2.4.23 beta
+
  - Changes in generator: external code with fixed origin is generated and
    allocated first
  - Bug fixes and general improvements
 
 2017/05/12 MicroTESK 2.4.22 beta
+
  - Bug fixes and general improvements
 
 2017/05/05 MicroTESK 2.4.21 beta
+
  - Bug fixes and general improvements
 
 2017/04/28 MicroTESK 2.4.20 beta
+
  - Bug fixes and general improvements
 
 2017/04/21 MicroTESK 2.4.19 beta
@@ -76,60 +87,73 @@
  - Bug fixes and general improvements
 
 2017/02/10 MicroTESK 2.4.12 beta
+
  - Support for jumps over instruction blocks (unstable)
  - Support for generation of tests running on multiple processing elements
    (unstable)
  - Improvements in the memory engine
 
 2017/02/03 MicroTESK 2.4.11 beta
+
  - Memory engine performance has been optimized
  - Bug fixes and general improvements
 
 2017/01/27 MicroTESK 2.4.10 beta
+
  - The SAT4J solver has been adapted to be used in the memory engine
  - The .text directive is automatically inserted into code
  - Bug fixes and general improvements
 
 2017/01/20 MicroTESK 2.4.9 beta
+
  - Refactoring of simulation logic
 
 2017/01/16 MicroTESK 2.4.8 beta
+
  - Refactoring of simulation logic
 
 2016/12/30 MicroTESK 2.4.7 beta
+
  - Refactoring of generation and simulation logic
 
 2016/12/21 MicroTESK 2.4.6 beta
+
  - Improved disassembler
  - Improved floating-point support
  - Bug fixes and general improvements
 
 2016/12/09 MicroTESK 2.4.5 beta
+
  - Improved floating-point support
  - Bug fixes and general improvements
 
 2016/12/05 MicroTESK 2.4.4 beta
+
  - Basic implementation of disassembler
  - Basic support for 16-bit floating point data types
  - Bug fixes and general improvements
 
 2016/11/18 MicroTESK 2.4.3 beta
+
  - Support for binary masks in preparators (test templates)
  - The 'internal' modifier for nML operation was established
  - Bug fixes and general improvements
 
 2016/11/11 MicroTESK 2.4.2 beta
+
  - Support for structures (the 'struct' keyword) in nML
  - Improved timing statistics
  - Bug fixes and general improvements
 
 2016/11/03 MicroTESK 2.4.1 beta
+
  - Performance optimization: variables are not reset
  - Simulation on multiple instances is debugged
  - Improvements in exception handling facilities
  - Bug fixes and general improvements
 
 2016/10/28 MicroTESK 2.4.0 alpha
+
  - Basic facilities for multicore generation (unstable, untested)
  - nML: the 'init' attribute was made public
  - Refactoring in the ISA simulator
@@ -139,6 +163,7 @@
 --------------------------------------------------------------------------------
 
 2016/10/21 MicroTESK 2.3.52 beta
+
  - Refactoring in the ISA simulator
 
 2016/09/30 MicroTESK 2.3.51 beta
