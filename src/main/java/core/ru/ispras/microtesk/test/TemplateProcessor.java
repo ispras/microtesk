@@ -220,7 +220,7 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     final ConcreteSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
-    allocateTestSequence(sequence, Label.NO_SEQUENCE_INDEX);
+    allocateSequence(sequence, Label.NO_SEQUENCE_INDEX);
   }
 
   private void processBlock(
@@ -255,7 +255,7 @@ final class TemplateProcessor implements Template.Processor {
     final ConcreteSequence sequence = SelfCheckEngine.solve(engineContext, section, selfChecks);
     sequence.setTitle(sequenceId);
 
-    allocateTestSequenceAfter(previous, sequence, testCaseIndex);
+    allocateSequenceAfter(previous, sequence, testCaseIndex);
 
     try {
       executor.setPauseOnUndefinedLabel(false);
@@ -334,7 +334,7 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     final ConcreteSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
-    allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
+    allocateSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
 
     runExecution(sequence);
     return true;
@@ -403,11 +403,11 @@ final class TemplateProcessor implements Template.Processor {
           sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
           if (!testProgram.hasEntry(previous)) {
-            allocateTestSequence(sequence, sequenceIndex);
+            allocateSequence(sequence, sequenceIndex);
           } else if (previous == entry) {
-            allocateTestSequenceWithReplace(previous, sequence, sequenceIndex);
+            allocateSequenceWithReplace(previous, sequence, sequenceIndex);
           } else {
-            allocateTestSequenceAfter(previous, sequence, sequenceIndex);
+            allocateSequenceAfter(previous, sequence, sequenceIndex);
           }
 
           engineContext.getStatistics().incSequences();
@@ -458,7 +458,7 @@ final class TemplateProcessor implements Template.Processor {
       final Block block,
       final ConcreteSequence entry) throws ConfigurationException {
     final ConcreteSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
-    allocateTestSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
+    allocateSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
   }
 
   private void processPostponedBlockNoSimulation(
@@ -492,9 +492,9 @@ final class TemplateProcessor implements Template.Processor {
           sequence.setTitle(String.format("Test Case %d (%s)", sequenceIndex, block.getWhere()));
 
           if (previous == entry) {
-            allocateTestSequenceWithReplace(previous, sequence, sequenceIndex);
+            allocateSequenceWithReplace(previous, sequence, sequenceIndex);
           } else {
-            allocateTestSequenceAfter(previous, sequence, sequenceIndex);
+            allocateSequenceAfter(previous, sequence, sequenceIndex);
           }
 
           previous = sequence;
@@ -525,7 +525,7 @@ final class TemplateProcessor implements Template.Processor {
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
 
     final ConcreteSequence prologue = testProgram.getPrologue();
-    allocateTestSequence(prologue, Label.NO_SEQUENCE_INDEX);
+    allocateSequence(prologue, Label.NO_SEQUENCE_INDEX);
   }
 
   private void finishProgram() throws ConfigurationException, IOException {
@@ -535,7 +535,7 @@ final class TemplateProcessor implements Template.Processor {
 
     try {
       final ConcreteSequence epilogue = testProgram.getEpilogue();
-      allocateTestSequence(epilogue, Label.NO_SEQUENCE_INDEX);
+      allocateSequence(epilogue, Label.NO_SEQUENCE_INDEX);
       runExecution(epilogue);
 
       TestEngineUtils.checkAllAtEndOf(executorStatuses, testProgram.getLastNonEmptyEntry());
@@ -556,7 +556,7 @@ final class TemplateProcessor implements Template.Processor {
     }
   }
 
-  private void allocateTestSequenceWithReplace(
+  private void allocateSequenceWithReplace(
       final ConcreteSequence old,
       final ConcreteSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
@@ -565,7 +565,7 @@ final class TemplateProcessor implements Template.Processor {
     allocate(previous, sequence, sequenceIndex);
   }
 
-  private void allocateTestSequenceAfter(
+  private void allocateSequenceAfter(
       final ConcreteSequence previous,
       final ConcreteSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
@@ -573,7 +573,7 @@ final class TemplateProcessor implements Template.Processor {
     allocate(previous, sequence, sequenceIndex);
   }
 
-  private void allocateTestSequence(
+  private void allocateSequence(
       final ConcreteSequence sequence,
       final int sequenceIndex) throws ConfigurationException {
     final ConcreteSequence previous = testProgram.getLastEntry(sequence.getSection());
