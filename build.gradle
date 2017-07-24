@@ -144,10 +144,10 @@ dependencies {
 
   antlr 'org.antlr:antlr:3.5.2'
   compile 'commons-cli:commons-cli:1.2'
+  compile 'commons-lang:commons-lang:2.4'
   compile 'org.jruby:jruby-complete:1.7.25'
   jruby 'org.jruby:jruby-complete:1.7.25'
   compile 'sat4j:org.sat4j.core:v20130525'
-  compile 'org.apache.velocity:velocity:1.7'
 
   compile ("fortress:fortress:${fortressVersion}") { changing = true }
   compile ("testbase:testbase:${testbaseVersion}") { changing = true }
