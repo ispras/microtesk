@@ -16,8 +16,8 @@ package ru.ispras.microtesk.mmu.model.api;
 
 /**
  * This enumeration contains basic data replacement policies.
- * 
- * @author Tatiana Sergeeva
+ *
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public enum PolicyId {
   /**

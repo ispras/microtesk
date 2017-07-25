@@ -23,11 +23,10 @@ import ru.ispras.fortress.util.Pair;
 
 /**
  * This class implements a cache set, which is a fully associative buffer consisting of cache lines.
- * 
+ *
  * @param <D> the data type.
  * @param <A> the address type.
  *
- * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public class Set<D extends Data, A extends Address> implements Buffer<D, A> {

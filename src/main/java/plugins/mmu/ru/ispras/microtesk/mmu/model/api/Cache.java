@@ -30,11 +30,10 @@ import ru.ispras.microtesk.utils.SparseArray;
  * <li><code>policyId</code> - the data replacement policy,
  * <li><code>indexer</code> - the set indexer, and
  * <li><code>matcher</code> - the line matcher.</ol>
- * 
+ *
  * @param <D> the data type.
  * @param <A> the address type.
- * 
- * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public abstract class Cache<D extends Data, A extends Address>

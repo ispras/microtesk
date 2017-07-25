@@ -20,8 +20,8 @@ import ru.ispras.fortress.randomizer.Randomizer;
 
 /**
  * Base interface to be implemented by all data replacement policies.
- * 
- * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
+ *
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class Policy {
   /** The associativity. */
@@ -29,7 +29,7 @@ public abstract class Policy {
 
   /**
    * Constructs a data replacement controller.
-   * 
+   *
    * @param associativity the buffer associativity.
    */
   protected Policy(final int associativity) {
@@ -61,7 +61,7 @@ public abstract class Policy {
 
 /**
  * The random data replacement policy.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class PolicyRandom extends Policy {
@@ -100,7 +100,7 @@ final class PolicyFIFO extends Policy {
 
   /**
    * Constructs a FIFO data replacement controller.
-   * 
+   *
    * @param associativity the buffer associativity.
    */
   PolicyFIFO(final int associativity) {
@@ -138,7 +138,7 @@ final class PolicyFIFO extends Policy {
 
 /**
  * The LRU (Least Recently Used) data replacement policy.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class PolicyLRU extends Policy {
@@ -189,7 +189,7 @@ final class PolicyLRU extends Policy {
 
 /**
  * The PLRU (Pseudo Least Recently Used) data replacement policy.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class PolicyPLRU extends Policy {

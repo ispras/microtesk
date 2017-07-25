@@ -19,11 +19,10 @@ import ru.ispras.fortress.util.Pair;
 
 /**
  * This is an abstract representation of a cache line.
- * 
+ *
  * @param <D> the data type.
  * @param <A> the address type.
- * 
- * @author <a href="mailto:leonsia@ispras.ru">Tatiana Sergeeva</a>
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Line<D extends Data, A extends Address> implements Buffer<D, A> {
@@ -38,7 +37,7 @@ public final class Line<D extends Data, A extends Address> implements Buffer<D, 
 
   /**
    * Constructs a default (invalid) line.
-   * 
+   *
    * @param matcher the data-address matcher.
    */
   public Line(final Matcher<D, A> matcher) {
