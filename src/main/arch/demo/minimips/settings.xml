@@ -19,4 +19,31 @@
 
   <delaySlot size="1" />
 
+  <extensions>
+    <!-- Data generators for branch instructions -->
+    <extension name="beq-if-then"     path="ru.ispras.microtesk.mips.test.branch.MipsEqDataGenerator"/>
+    <extension name="beql-if-then"    path="ru.ispras.microtesk.mips.test.branch.MipsEqDataGenerator"/>
+    <extension name="bne-if-then"     path="ru.ispras.microtesk.mips.test.branch.MipsNeqDataGenerator"/>
+    <extension name="bnel-if-then"    path="ru.ispras.microtesk.mips.test.branch.MipsNeqDataGenerator"/>
+    <extension name="bgezal-if-then"  path="ru.ispras.microtesk.mips.test.branch.MipsGezDataGenerator"/>
+    <extension name="bgezall-if-then" path="ru.ispras.microtesk.mips.test.branch.MipsGezDataGenerator"/>
+    <extension name="bgez-if-then"    path="ru.ispras.microtesk.mips.test.branch.MipsGezDataGenerator"/>
+    <extension name="bgezl-if-then"   path="ru.ispras.microtesk.mips.test.branch.MipsGezDataGenerator"/>
+    <extension name="bgtz-if-then"    path="ru.ispras.microtesk.mips.test.branch.MipsGtzDataGenerator"/>
+    <extension name="bgtzl-if-then"   path="ru.ispras.microtesk.mips.test.branch.MipsGtzDataGenerator"/>
+    <extension name="blez-if-then"    path="ru.ispras.microtesk.mips.test.branch.MipsLezDataGenerator"/>
+    <extension name="blezl-if-then"   path="ru.ispras.microtesk.mips.test.branch.MipsLezDataGenerator"/>
+    <extension name="bltzal-if-then"  path="ru.ispras.microtesk.mips.test.branch.MipsLtzDataGenerator"/>
+    <extension name="bltzall-if-then" path="ru.ispras.microtesk.mips.test.branch.MipsLtzDataGenerator"/>
+    <extension name="bltz-if-then"    path="ru.ispras.microtesk.mips.test.branch.MipsLtzDataGenerator"/>
+    <extension name="bltzl-if-then"   path="ru.ispras.microtesk.mips.test.branch.MipsLtzDataGenerator"/>
+
+    <extension name="b-goto"    path="ru.ispras.microtesk.mips.test.branch.MipsGotoDataGenerator"/>
+    <extension name="bal-goto"  path="ru.ispras.microtesk.mips.test.branch.MipsGotoDataGenerator"/>
+    <extension name="j-goto"    path="ru.ispras.microtesk.mips.test.branch.MipsGotoDataGenerator"/>
+    <extension name="jr-goto"   path="ru.ispras.microtesk.mips.test.branch.MipsGotoDataGenerator"/>
+    <extension name="jal-goto"  path="ru.ispras.microtesk.mips.test.branch.MipsGotoDataGenerator"/>
+    <extension name="jalr-goto" path="ru.ispras.microtesk.mips.test.branch.MipsGotoDataGenerator"/>
+  </extensions>
+
 </settings>
