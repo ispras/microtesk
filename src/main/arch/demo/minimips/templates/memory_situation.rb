@@ -44,7 +44,7 @@ class MemorySituationTemplate < MiniMipsBaseTemplate
   def run
     sequence(:engine => 'memory', :classifier => 'event-based', :page_mask => 0x0fff, :align => 4) {
       lw s0, 0, t0 do situation(
-          'address', :base => 'lw.address', :path => constraints(miss('L1'), hit('L2'))) end
+          'memory', :base => 'lw.address', :path => constraints(miss('L1'), hit('L2'))) end
     }.run
   end
 

@@ -45,8 +45,8 @@ class MemorySubsystemTemplate < MiniMipsBaseTemplate
 
   def run
     sequence(:engine => 'memory', :classifier => 'event-based', :page_mask => 0x0fff, :align => 4) {
-      lw s0, 0, t0 do situation('address', :base => 'lw.address') end
-      lw s1, 0, t1 do situation('address', :base => 'lw.address') end
+      lw s0, 0, t0 do situation('memory', :base => 'lw.address') end
+      lw s1, 0, t1 do situation('memory', :base => 'lw.address') end
     }.run
   end
 
