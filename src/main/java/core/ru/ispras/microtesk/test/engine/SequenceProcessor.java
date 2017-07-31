@@ -69,14 +69,18 @@ public final class SequenceProcessor {
     InvariantChecks.checkNotNull(attributes);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    final boolean isTrivial = "trivial".equals(attributes.get("engine"));
-    final boolean isBranch = "branch".equals(attributes.get("engine"));
+    final String engineId = (String) attributes.get("engine");
+
+    final boolean isTrivial = "trivial".equals(engineId);
+    final boolean isBranch = "branch".equals(engineId);
+    final boolean isMemory = "memory".equals(engineId);
 
     final AbstractSequence defaultAbstractSequence =
         expandAbstractSequence(engineContext, abstractSequence);
 
-    if (isBranch) {
-      final Engine engine = EngineConfig.get().getEngine("branch");
+    // FIXME: Temporary implementation
+    if (isBranch || isMemory) {
+      final Engine engine = EngineConfig.get().getEngine(engineId);
       engine.configure(attributes);
 
       final Iterator<AbstractSequence> iterator = engine.solve(engineContext, defaultAbstractSequence);
