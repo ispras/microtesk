@@ -20,13 +20,19 @@ import org.junit.Test;
 import ru.ispras.microtesk.test.Statistics;
 
 public class MemorySubsystemTestCase extends MiniMipsTest {
+  @Override
+  protected boolean isExpectedError(final String message) {
+    return super.isExpectedError(message)
+        || message.contains("No data was generated for the query");
+  }
+
   @Test
   public void test() {
     final Statistics statistics = run("memory_subsystem.rb");
     Assert.assertNotNull(statistics);
 
     Assert.assertEquals(1, statistics.getPrograms());
-    Assert.assertEquals(1, statistics.getSequences());
-    //Assert.assertEquals(0 /*unknown*/, statistics.getInstructions());
+    Assert.assertEquals(5, statistics.getSequences());
+    Assert.assertEquals(44, statistics.getInstructions());
   }
 }
