@@ -6,6 +6,11 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2017/08/01 MicroTESK 2.4.30 beta
+
+ - Example templates demonstrating how to create tests for BPU (miniMIPS)
+ - Bug fixes and general improvements
+
 2017/07/14 MicroTESK 2.4.29 beta
 
  - Bug fixes and general improvements
