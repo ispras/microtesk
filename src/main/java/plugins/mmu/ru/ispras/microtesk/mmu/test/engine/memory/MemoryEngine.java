@@ -153,6 +153,7 @@ public final class MemoryEngine implements Engine {
 
   private static void setAccess(final AbstractCall abstractCall, final Access access) {
     final Primitive primitive = abstractCall.getRootOperation();
+    InvariantChecks.checkNotNull(primitive);
 
     final Situation oldSituation = primitive.getSituation();
     final Map<String, Object> oldAttributes = oldSituation.getAttributes();
