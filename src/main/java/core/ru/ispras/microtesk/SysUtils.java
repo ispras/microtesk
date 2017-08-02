@@ -114,11 +114,23 @@ public final class SysUtils {
     final URLClassLoader cl = new URLClassLoader(urls);
 
     final Class<?> cls;
+    final Object instance;
+
     try {
-      cls = cl.loadClass(className);
-    } catch (final ClassNotFoundException e) {
-      throw new IllegalArgumentException(String.format(
-          "Failed to load the %s class from %s. Reason: %s", className, modelsJarPath, e.getMessage()));
+      try {
+        cls = cl.loadClass(className);
+      } catch (final ClassNotFoundException e) {
+        throw new IllegalArgumentException(String.format(
+            "Failed to load the %s class from %s. Reason: %s",
+            className, modelsJarPath, e.getMessage()));
+      }
+
+      try {
+        instance = cls.newInstance();
+      } catch (final InstantiationException | IllegalAccessException e) {
+        throw new IllegalArgumentException(String.format(
+            "Failed to create an instance of %s. Reason: %s", className, e.getMessage()));
+      }
     } finally {
       try {
         cl.close();
@@ -126,14 +138,6 @@ public final class SysUtils {
         throw new IllegalArgumentException(String.format(
             "Failed to close the class loader. Reason: %s", e.getMessage()));
       }
-    }
-
-    final Object instance;
-    try {
-      instance = cls.newInstance();
-    } catch (final InstantiationException | IllegalAccessException e) {
-      throw new IllegalArgumentException(String.format(
-          "Failed to create an instance of %s. Reason: %s", className, e.getMessage()));
     }
 
     return instance;
