@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 package ru.ispras.microtesk;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -110,7 +111,7 @@ public final class SysUtils {
     }
 
     final URL[] urls = new URL[] {url};
-    final ClassLoader cl = new URLClassLoader(urls);
+    final URLClassLoader cl = new URLClassLoader(urls);
 
     final Class<?> cls;
     try {
@@ -118,6 +119,13 @@ public final class SysUtils {
     } catch (final ClassNotFoundException e) {
       throw new IllegalArgumentException(String.format(
           "Failed to load the %s class from %s. Reason: %s", className, modelsJarPath, e.getMessage()));
+    } finally {
+      try {
+        cl.close();
+      } catch (final IOException e) {
+        throw new IllegalArgumentException(String.format(
+            "Failed to close the class loader. Reason: %s", e.getMessage()));
+      }
     }
 
     final Object instance;
