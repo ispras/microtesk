@@ -108,9 +108,13 @@ final class SequenceMerger implements Iterator<AbstractSequence> {
 
       final Integer index = positions.get(position);
       if (null != index) {
-        final List<AbstractCall> prologue = sequence.getPrologues().get(index);
+        final List<AbstractCall> prologue =
+            null != sequence.getPrologues() ? sequence.getPrologues().get(index) : null;
+
         final AbstractCall call = sequence.getSequence().get(index);
-        final List<AbstractCall> epilogue = sequence.getEpilogues().get(index);
+
+        final List<AbstractCall> epilogue =
+            null != sequence.getEpilogues() ? sequence.getEpilogues().get(index) : null;
 
         return merge(prologue, call, epilogue);
       }
