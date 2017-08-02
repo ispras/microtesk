@@ -19,7 +19,8 @@ require_relative 'minimips_base'
 #
 # Description:
 #
-# This test template demonstrates how to use memory-related constraints.
+# This test template demonstrates how to mix MMU-related constraints with nML-derived constraints
+# in a single instruction sequence.
 #
 class MemorySituationTemplate < MiniMipsBaseTemplate
 
@@ -44,6 +45,10 @@ class MemorySituationTemplate < MiniMipsBaseTemplate
         :page_mask => 0x0fff,
         :align => 4,
         :count => 5) {
+      add t2, t3, t4 do
+        situation('IntegerOverflow')
+      end
+
       lw s0, 0, t0 do
         situation('memory', :base => 'lw.address', :path => constraints(miss('L1'), hit('L2')))
       end
