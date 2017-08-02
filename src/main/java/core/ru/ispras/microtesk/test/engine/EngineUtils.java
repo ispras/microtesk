@@ -105,13 +105,22 @@ public final class EngineUtils {
     }
 
     final URL[] urls = new URL[]{url};
-    final ClassLoader loader = new URLClassLoader(urls);
+    final URLClassLoader loader = new URLClassLoader(urls);
 
-    for (final ExtensionSettings ext : settings.getExtensions().getExtensions()) {
+    try {
+      for (final ExtensionSettings ext : settings.getExtensions().getExtensions()) {
+        try {
+          final Class<?> cls = loader.loadClass(ext.getPath());
+          final DataGenerator generator = DataGenerator.class.cast(cls.newInstance());
+          registry.registerGenerator(ext.getName(), generator);
+        } catch (final Exception e) {
+          Logger.error(e.getMessage());
+          e.printStackTrace();
+        }
+      }
+    } finally {
       try {
-        final Class<?> cls = loader.loadClass(ext.getPath());
-        final DataGenerator generator = DataGenerator.class.cast(cls.newInstance());
-        registry.registerGenerator(ext.getName(), generator);
+        loader.close();
       } catch (final Exception e) {
         Logger.error(e.getMessage());
         e.printStackTrace();
