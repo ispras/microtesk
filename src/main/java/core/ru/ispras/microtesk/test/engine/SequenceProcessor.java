@@ -73,13 +73,13 @@ public final class SequenceProcessor {
 
     final boolean isTrivial = "trivial".equals(engineId);
     final boolean isBranch = "branch".equals(engineId);
-    final boolean isMemory = "memory".equals(engineId);
+    //final boolean isMemory = "memory".equals(engineId);
 
     final AbstractSequence defaultAbstractSequence =
         expandAbstractSequence(engineContext, abstractSequence);
 
     // FIXME: Temporary implementation
-    if (isBranch || isMemory) {
+    if (isBranch /* || isMemory */) {
       final Engine engine = EngineConfig.get().getEngine(engineId);
       engine.configure(attributes);
 
@@ -95,6 +95,8 @@ public final class SequenceProcessor {
       if (null != engineSequence) {
         engine.configure(attributes);
         final Iterator<AbstractSequence> iterator = engine.solve(engineContext, engineSequence);
+
+        InvariantChecks.checkNotNull(iterator);
         iterators.add(iterator);
       }
     }
@@ -105,7 +107,7 @@ public final class SequenceProcessor {
     }
 
     final Iterator<List<AbstractSequence>> combinator =
-        makeCombinator("random", iterators);
+        makeCombinator("diagonal", iterators);
 
     final Iterator<AbstractSequence> merger =
         new SequenceMerger(defaultAbstractSequence, combinator);
@@ -143,18 +145,16 @@ public final class SequenceProcessor {
     return Preparator.expandPreparators(null, context.getPreparators(), abstractSequence);
   }
 
-  private static Iterator<List<AbstractSequence>> makeCombinator(
+  private static <T> Iterator<List<T>> makeCombinator(
       final String combinatorName,
-      final List<Iterator<AbstractSequence>> iterators) {
+      final List<Iterator<T>> iterators) {
     InvariantChecks.checkNotNull(combinatorName);
     InvariantChecks.checkNotNull(iterators);
 
-    final GeneratorConfig<AbstractSequence> config = GeneratorConfig.get();
-    final Combinator<AbstractSequence> combinator = config.getCombinator(combinatorName);
+    final GeneratorConfig<T> config = GeneratorConfig.get();
+    final Combinator<T> combinator = config.getCombinator(combinatorName);
 
     combinator.initialize(iterators);
-    combinator.init();
-
     return combinator;
   }
 }
