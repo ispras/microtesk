@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -23,6 +23,14 @@ import ru.ispras.microtesk.model.memory.MemoryDevice;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.utils.SparseArray;
 
+/**
+ * The {@link RegisterMapping} class implements a register-mapped buffer.
+ *
+ * @param <D> the data type.
+ * @param <A> the address type.
+ *
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public abstract class RegisterMapping<D extends Data, A extends Address>
     implements Buffer<D, A>, BufferObserver {
 
@@ -94,7 +102,11 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
 
     @Override
     public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-      throw new UnsupportedOperationException();
+      final MemoryDevice storage = getRegisterDevice();
+      return storage.isInitialized(registerIndex) ?
+          new Pair<>(registerIndex, storage.load(registerIndex)) :
+          null
+          ;
     }
 
     @Override
@@ -201,9 +213,9 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
   }
 
   @Override
-  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
-    // NOT SUPPORTED
-    throw new UnsupportedOperationException();
+  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
+    final Buffer<D, A> set = sets.get(index);
+    return null != set ? set.seeData(index, way) : null;
   }
 
   public final Proxy setData(final A address) {
