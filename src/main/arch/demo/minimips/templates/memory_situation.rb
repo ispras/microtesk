@@ -35,10 +35,6 @@ class MemorySituationTemplate < MiniMipsBaseTemplate
       la t0, address
       lw t1, 0, t0
     }
-
-    buffer_preparator(:target => 'M') {
-      # Nothing
-    }
   end
 
   def run
@@ -48,8 +44,9 @@ class MemorySituationTemplate < MiniMipsBaseTemplate
         :page_mask => 0x0fff,
         :align => 4,
         :count => 5) {
-      lw s0, 0, t0 do situation(
-          'memory', :base => 'lw.address', :path => constraints(miss('L1'), hit('L2'))) end
+      lw s0, 0, t0 do
+        situation('memory', :base => 'lw.address', :path => constraints(miss('L1'), hit('L2')))
+      end
     }.run
   end
 
