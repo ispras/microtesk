@@ -89,7 +89,7 @@ final class SequenceMerger implements Iterator<AbstractSequence> {
     for (int position = 0; position < defaultCalls.size(); position++) {
       final List<AbstractCall> calls = getCallsForPosition(sequences, position);
       if (null != calls) {
-        resultCalls.addAll(defaultCalls);
+        resultCalls.addAll(calls);
       } else {
         resultCalls.add(defaultCalls.get(position));
       }
