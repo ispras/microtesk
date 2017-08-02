@@ -111,33 +111,24 @@ public final class SysUtils {
     }
 
     final URL[] urls = new URL[] {url};
-    final URLClassLoader cl = new URLClassLoader(urls);
+    final ClassLoader cl = new URLClassLoader(urls);
 
     final Class<?> cls;
     final Object instance;
 
     try {
-      try {
-        cls = cl.loadClass(className);
-      } catch (final ClassNotFoundException e) {
-        throw new IllegalArgumentException(String.format(
-            "Failed to load the %s class from %s. Reason: %s",
-            className, modelsJarPath, e.getMessage()));
-      }
+      cls = cl.loadClass(className);
+    } catch (final ClassNotFoundException e) {
+      throw new IllegalArgumentException(String.format(
+          "Failed to load the %s class from %s. Reason: %s",
+          className, modelsJarPath, e.getMessage()));
+    }
 
-      try {
-        instance = cls.newInstance();
-      } catch (final InstantiationException | IllegalAccessException e) {
-        throw new IllegalArgumentException(String.format(
-            "Failed to create an instance of %s. Reason: %s", className, e.getMessage()));
-      }
-    } finally {
-      try {
-        cl.close();
-      } catch (final IOException e) {
-        throw new IllegalArgumentException(String.format(
-            "Failed to close the class loader. Reason: %s", e.getMessage()));
-      }
+    try {
+      instance = cls.newInstance();
+    } catch (final InstantiationException | IllegalAccessException e) {
+      throw new IllegalArgumentException(String.format(
+          "Failed to create an instance of %s. Reason: %s", className, e.getMessage()));
     }
 
     return instance;
