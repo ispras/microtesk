@@ -36,6 +36,12 @@ class MemorySubsystemTemplate < MiniMipsBaseTemplate
       lw t1, 0, t0
     }
 
+    memory_preparator(:size => 32) {
+      la t0, address
+      prepare t1, value
+      sw t0, 0, t1
+    }
+
     org 0x10000
   end
 
