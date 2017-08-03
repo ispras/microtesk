@@ -262,8 +262,7 @@ public final class EngineUtils {
 
     final java.util.Iterator<TestData> dataProvider = queryResult.getDataProvider();
     if (!dataProvider.hasNext()) {
-      Logger.warning("No data was generated for the query: default test data will be used");
-      return getDefaultTestData(engineContext, primitive, queryCreator);
+      return NO_TEST_DATA;
     }
 
     return dataProvider.next();

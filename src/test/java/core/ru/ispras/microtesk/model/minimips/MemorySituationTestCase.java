@@ -20,12 +20,6 @@ import org.junit.Test;
 import ru.ispras.microtesk.test.Statistics;
 
 public class MemorySituationTestCase extends MiniMipsTest {
-  @Override
-  protected boolean isExpectedError(final String message) {
-    return super.isExpectedError(message)
-        || message.contains("No data was generated for the query");
-  }
-
   @Test
   public void test() {
     final Statistics statistics = run("memory_situation.rb");
