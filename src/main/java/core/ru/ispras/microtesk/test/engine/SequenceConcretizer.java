@@ -133,6 +133,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     final ConcreteSequence concreteSequence = builder.build();
 
     if (Logger.isDebug()) {
+      Logger.debugHeader("Abstract Sequence");
       Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics()).
           printSequence(engineContext.getModel().getPE(), builder.build());
     }
@@ -300,8 +301,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         final ConcreteSequence concreteSequence) {
       InvariantChecks.checkNotNull(abstractSequence);
       InvariantChecks.checkNotNull(concreteSequence);
-      InvariantChecks.checkTrue(abstractSequence.getSequence().size() ==
-                                concreteSequence.getAll().size());
 
       this.sequenceIndex = sequenceIndex;
       this.abstractSequence = abstractSequence;
@@ -309,24 +308,34 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       this.initializedModes = new HashSet<>();
       this.listenerForInitializers = new ExecutorListener();
 
-      for (int index = 0; index < abstractSequence.getSequence().size(); ++index) {
-        final AbstractCall abstractCall = abstractSequence.getSequence().get(index);
-        final ConcreteCall concreteCall = concreteSequence.getAll().get(index);
+      final List<AbstractCall> abstractCalls = abstractSequence.getSequence();
+      final List<ConcreteCall> concreteCalls = concreteSequence.getAll();
+      InvariantChecks.checkTrue(abstractCalls.size() == concreteCalls.size());
 
+      for (int index = 0; index < abstractCalls.size(); ++index) {
+        final AbstractCall abstractCall = abstractCalls.get(index);
         InvariantChecks.checkNotNull(abstractCall);
+
+        final ConcreteCall concreteCall = concreteCalls.get(index);
         InvariantChecks.checkNotNull(concreteCall);
 
         if (abstractCall.getAttributes().containsKey("dependsOn")) {
           final int dependencyIndex = (int) abstractCall.getAttributes().get("dependsOn");
-          callMap.put(concreteCall, new Pair<>(abstractSequence.getSequence().get(dependencyIndex),
-                                               concreteSequence.getAll().get(dependencyIndex)));
+
+          final AbstractCall dependencyAbstractCall = abstractCalls.get(dependencyIndex);
+          InvariantChecks.checkNotNull(dependencyAbstractCall);
+
+          final ConcreteCall dependencyConcreteCall = concreteCalls.get(dependencyIndex);
+          InvariantChecks.checkNotNull(dependencyConcreteCall);
+
+          callMap.put(concreteCall, new Pair<>(dependencyAbstractCall, dependencyConcreteCall));
         } else {
           callMap.put(concreteCall, new Pair<>(abstractCall, concreteCall));
         }
       }
 
       this.testSequenceBuilder = new ConcreteSequence.Builder(abstractSequence.getSection());
-      this.testSequenceBuilder.add(concreteSequence.getAll());
+      this.testSequenceBuilder.add(concreteCalls);
     }
 
     public ConcreteSequence createTestSequence() {
@@ -342,6 +351,10 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
       final Pair<AbstractCall, ConcreteCall> callEntry = callMap.get(concreteCall);
       if (null == callEntry) {
+        return; // Already processed
+      }
+
+      if (concreteCall != callEntry.second && null == callMap.get(callEntry.second)) {
         return; // Already processed
       }
 
