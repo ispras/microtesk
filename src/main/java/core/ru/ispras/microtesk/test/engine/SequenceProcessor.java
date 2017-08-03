@@ -73,13 +73,12 @@ public final class SequenceProcessor {
 
     final boolean isTrivial = "trivial".equals(engineId);
     final boolean isBranch = "branch".equals(engineId);
-    //final boolean isMemory = "memory".equals(engineId);
 
     final AbstractSequence defaultAbstractSequence =
         expandAbstractSequence(engineContext, abstractSequence);
 
     // FIXME: Temporary implementation
-    if (isBranch /* || isMemory */) {
+    if (isBranch) {
       final Engine engine = EngineConfig.get().getEngine(engineId);
       engine.configure(attributes);
 
