@@ -6,6 +6,12 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2017/08/03 MicroTESK 2.4.31 beta
+
+ - Test template demonstrating how to mix BPU and ALU constraints (miniMIPS)
+ - Test template demonstrating how to mix MMU and ALU constraints (miniMIPS)
+ - Bug fixes and general improvements
+
 2017/08/01 MicroTESK 2.4.30 beta
 
  - Example templates demonstrating how to create tests for BPU (miniMIPS)
