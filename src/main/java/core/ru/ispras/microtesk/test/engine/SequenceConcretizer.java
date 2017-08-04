@@ -208,7 +208,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
     listener.setAllocationAddress(endAddress);
 
-    if (isProcessing) {
+    if (!isProcessing) {
       // Processing of test situations (and presimulation) are disabled.
       return;
     }

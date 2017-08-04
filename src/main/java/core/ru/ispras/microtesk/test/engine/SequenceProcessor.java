@@ -72,9 +72,8 @@ public final class SequenceProcessor {
     InvariantChecks.checkNotNull(attributes);
     InvariantChecks.checkNotNull(abstractSequence);
 
+    final boolean isProcessing = !Boolean.FALSE.equals(attributes.get("processing"));
     final String engineId = (String) attributes.get("engine");
-
-    final boolean isTrivial = "trivial".equals(engineId);
     final boolean isBranch = "branch".equals(engineId);
 
     // FIXME: Temporary implementation
@@ -95,14 +94,14 @@ public final class SequenceProcessor {
 
     if (iterators.isEmpty()) {
       return new SequenceConcretizer(
-          engineContext, isTrivial, new SingleValueIterator<>(abstractSequence));
+          engineContext, isProcessing, new SingleValueIterator<>(abstractSequence));
     }
 
     final Iterator<List<AbstractSequence>> combinator =
         makeCombinator("diagonal", iterators);
 
     final Iterator<AbstractSequence> merger = new SequenceMerger(abstractSequence, combinator);
-    return new SequenceConcretizer(engineContext, isTrivial, merger);
+    return new SequenceConcretizer(engineContext, isProcessing, merger);
   }
 
   private static Iterator<AbstractSequence> processSequenceWithEngine(
@@ -146,7 +145,7 @@ public final class SequenceProcessor {
     engine.configure(attributes);
     final Iterator<AbstractSequence> iterator = engine.solve(engineContext, abstractSequence);
 
-    return new SequenceConcretizer(engineContext, false, iterator);
+    return new SequenceConcretizer(engineContext, true, iterator);
   }
 
   private static AbstractSequence expandAbstractSequence(
