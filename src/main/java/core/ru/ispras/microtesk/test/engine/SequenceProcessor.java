@@ -88,14 +88,10 @@ public final class SequenceProcessor {
 
     final List<Iterator<AbstractSequence>> iterators = new ArrayList<>();
     for (final Engine engine : EngineConfig.get().getEngines()) {
-      final SequenceSelector selector = engine.getSequenceSelector(); 
-      final AbstractSequence engineSequence = selector.select(abstractSequence);
+      final Iterator<AbstractSequence> iterator =
+          processSequenceWithEngine(engine, engineContext, attributes, abstractSequence);
 
-      if (null != engineSequence) {
-        engine.configure(attributes);
-        final Iterator<AbstractSequence> iterator = engine.solve(engineContext, engineSequence);
-
-        InvariantChecks.checkNotNull(iterator);
+      if (null != iterator) {
         iterators.add(iterator);
       }
     }
@@ -112,16 +108,44 @@ public final class SequenceProcessor {
     return new SequenceConcretizer(engineContext, isTrivial, merger);
   }
 
-  private static AbstractSequence expandAbstractSequence(
-      final EngineContext context,
+  private Iterator<AbstractSequence> processSequenceWithEngine(
+      final Engine engine,
+      final EngineContext engineContext,
+      final Map<String, Object> attributes,
       final AbstractSequence abstractSequence) {
+    InvariantChecks.checkNotNull(engine);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(attributes);
+    InvariantChecks.checkNotNull(abstractSequence);
+
+    final SequenceSelector selector = engine.getSequenceSelector();
+    final AbstractSequence engineSequence = selector.select(abstractSequence);
+
+    if (null == engineSequence) {
+      // No calls are selected for processing.
+      return null;
+    }
+
+    engine.configure(attributes);
+    final Iterator<AbstractSequence> iterator = engine.solve(engineContext, engineSequence);
+
+    InvariantChecks.checkNotNull(iterator);
+    return iterator;
+  }
+
+  private static AbstractSequence expandAbstractSequence(
+      final EngineContext engineContext,
+      final AbstractSequence abstractSequence) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(abstractSequence);
+
     // Makes a copy as the abstract sequence can be modified by solver or adapter.
     final List<AbstractCall> calls = AbstractCall.copyAll(
         AbstractCall.expandAtomic(abstractSequence.getSequence()));
 
-    allocateModes(calls, context.getOptions().getValueAsBoolean(Option.RESERVE_EXPLICIT));
+    allocateModes(calls, engineContext.getOptions().getValueAsBoolean(Option.RESERVE_EXPLICIT));
 
-    final List<AbstractCall> expandedCalls = expandPreparators(context, calls);
+    final List<AbstractCall> expandedCalls = expandPreparators(engineContext, calls);
     return new AbstractSequence(abstractSequence.getSection(), expandedCalls);
   }
 
