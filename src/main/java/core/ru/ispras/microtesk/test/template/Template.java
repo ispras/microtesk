@@ -840,6 +840,10 @@ public final class Template {
     return bufferPreparatorBuilder;
   }
 
+  public MapBuilder newMapBuilder() {
+    return new MapBuilder();
+  }
+
   public void endBufferPreparator() {
     endBuildingCall();
     debug("End buffer preparator: %s", bufferPreparatorBuilder.getBufferId());

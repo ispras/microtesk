@@ -128,10 +128,7 @@ class Template
       blockBuilder.setObfuscator(attributes[:obfuscator])
     end
 
-    attributes.each_pair do |key, value|
-      blockBuilder.setAttribute(key.to_s, value)
-    end
-
+    set_attributes blockBuilder, attributes
     self.instance_eval &contents
 
     @template.endBlock
@@ -149,11 +146,9 @@ class Template
       blockBuilder.setObfuscator(attributes[:obfuscator])
     end
 
-    attributes.each_pair do |key, value|
-      blockBuilder.setAttribute(key.to_s, value)
-    end
-
+    set_attributes blockBuilder, attributes
     self.instance_eval &contents
+
     @template.endBlock
   end
 
@@ -169,11 +164,9 @@ class Template
       blockBuilder.setObfuscator(attributes[:obfuscator])
     end
 
-    attributes.each_pair do |key, value|
-      blockBuilder.setAttribute(key.to_s, value)
-    end
-
+    set_attributes blockBuilder, attributes
     self.instance_eval &contents
+
     @template.endBlock
   end
 
@@ -193,11 +186,9 @@ class Template
       blockBuilder.setRearranger(attributes[:rearranger])
     end
 
-    attributes.each_pair do |key, value|
-      blockBuilder.setAttribute(key.to_s, value)
-    end
-
+    set_attributes blockBuilder, attributes
     self.instance_eval &contents
+
     @template.endBlock
   end
 
@@ -967,6 +958,24 @@ class Template
     java_import Java::Ru.ispras.microtesk.test.TestEngine
     engine = TestEngine.getInstance
     engine.getOptionValue name
+  end
+
+  # -------------------------------------------------------------------------- #
+  # Private Methods                                                            #
+  # -------------------------------------------------------------------------- #
+
+  private
+
+  def set_attributes(builder, attributes)
+    attributes.each_pair do |key, value|
+      if value.is_a?(Hash) then
+        mapBuilder = set_attributes @template.newMapBuilder, value
+        builder.setAttribute key.to_s, mapBuilder.getMap
+      else
+        builder.setAttribute key.to_s, value
+      end
+    end
+    builder
   end
 
 end # Template
