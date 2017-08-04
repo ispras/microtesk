@@ -22,7 +22,7 @@ require_relative 'minimips_base'
 # This test template demonstrates how to mix MMU-related constraints with nML-derived constraints
 # in a single instruction sequence.
 #
-class MemorySituationTemplate < MiniMipsBaseTemplate
+class MemorySituation2Template < MiniMipsBaseTemplate
 
   def pre
     super
@@ -40,11 +40,13 @@ class MemorySituationTemplate < MiniMipsBaseTemplate
 
   def run
     sequence(
-      :engine => 'memory',
-        :classifier => 'event-based',
-        :page_mask => 0x0fff,
-        :align => 4,
-        :count => 5) {
+        :engines => {
+            :memory => {
+                :classifier => 'event-based',
+                :page_mask => 0x0fff,
+                :align => 4,
+                :count => 5}
+        }) {
       add t2, t3, t4 do
         situation('IntegerOverflow')
       end

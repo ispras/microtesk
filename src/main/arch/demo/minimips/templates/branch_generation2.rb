@@ -103,9 +103,13 @@ class BranchGeneration2Template < MiniMipsBaseTemplate
     #   the default value is 1.
     # Parameter 'trace_count_limit' bounds the number of execution traces to be created:
     #   the default value is -1 (no limitation).
-    block(:engine => 'branch', :branch_exec_limit => 3, :trace_count_limit => 10,
-          :combinator => 'diagonal', :compositor => 'catenation') {
-
+    block(
+       :combinator => 'diagonal',
+       :compositor => 'catenation',
+       :engines => {
+           :branch => {:branch_exec_limit => 3,
+                       :trace_count_limit => 10}
+       }) {
       sequence {
         label :labelA
         pseudo '// Start Label'

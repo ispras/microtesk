@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.engine;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -72,20 +73,34 @@ public final class SequenceProcessor {
     InvariantChecks.checkNotNull(attributes);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    final boolean isProcessing = !Boolean.FALSE.equals(attributes.get("processing"));
-    final String engineId = (String) attributes.get("engine");
-    final boolean isBranch = "branch".equals(engineId);
+    final Object enginesAttribute = attributes.get("engines");
+
+    final boolean isEnginesEnabled = !Boolean.FALSE.equals(enginesAttribute);
+    final boolean isPresimulation = !Boolean.FALSE.equals(attributes.get("presimulation"));
+
+    if (!isEnginesEnabled) {
+      // All engines are disabled
+      return new SequenceConcretizer(
+          engineContext, isPresimulation, new SingleValueIterator<>(abstractSequence));
+    }
+
+    final Map<String, Object> engineAttributeMap = toMap(enginesAttribute);
 
     // FIXME: Temporary implementation
-    if (isBranch) {
+    if (engineAttributeMap.containsKey("branch")) {
       return processSequenceWithSingleEngine(
-          engineId, engineContext, attributes, abstractSequence);
+          "branch",
+          engineContext,
+          toMap(engineAttributeMap.get("branch")),
+          abstractSequence,
+          isPresimulation
+          );
     }
 
     final List<Iterator<AbstractSequence>> iterators = new ArrayList<>();
     for (final Engine engine : EngineConfig.get().getEngines()) {
       final Iterator<AbstractSequence> iterator =
-          processSequenceWithEngine(engine, engineContext, attributes, abstractSequence);
+          processSequenceWithEngine(engine, engineContext, engineAttributeMap, abstractSequence);
 
       if (null != iterator) {
         iterators.add(iterator);
@@ -94,14 +109,14 @@ public final class SequenceProcessor {
 
     if (iterators.isEmpty()) {
       return new SequenceConcretizer(
-          engineContext, isProcessing, new SingleValueIterator<>(abstractSequence));
+          engineContext, isPresimulation, new SingleValueIterator<>(abstractSequence));
     }
 
     final Iterator<List<AbstractSequence>> combinator =
         makeCombinator("diagonal", iterators);
 
     final Iterator<AbstractSequence> merger = new SequenceMerger(abstractSequence, combinator);
-    return new SequenceConcretizer(engineContext, isProcessing, merger);
+    return new SequenceConcretizer(engineContext, isPresimulation, merger);
   }
 
   private static Iterator<AbstractSequence> processSequenceWithEngine(
@@ -114,6 +129,15 @@ public final class SequenceProcessor {
     InvariantChecks.checkNotNull(attributes);
     InvariantChecks.checkNotNull(abstractSequence);
 
+    final String engineId = engine.getId();
+    final Object engineAttribute = attributes.get(engineId);
+
+    final boolean isEngineEnabled = !Boolean.FALSE.equals(engineAttribute);
+    if (!isEngineEnabled) {
+      // The engines is disabled.
+      return null;
+    }
+
     final SequenceSelector selector = engine.getSequenceSelector();
     final AbstractSequence engineSequence = selector.select(abstractSequence);
 
@@ -122,10 +146,15 @@ public final class SequenceProcessor {
       return null;
     }
 
-    engine.configure(attributes);
-    final Iterator<AbstractSequence> iterator = engine.solve(engineContext, engineSequence);
+    final Map<String, Object> engineAttributeMap = toMap(engineAttribute);
+    if (engineAttributeMap.isEmpty()) {
+      Logger.warning("No attributes are provided for the '%s' engine.", engineId);
+    }
 
+    engine.configure(engineAttributeMap);
+    final Iterator<AbstractSequence> iterator = engine.solve(engineContext, engineSequence);
     InvariantChecks.checkNotNull(iterator);
+
     return iterator;
   }
 
@@ -133,7 +162,8 @@ public final class SequenceProcessor {
       final String engineId,
       final EngineContext engineContext,
       final Map<String, Object> attributes,
-      final AbstractSequence abstractSequence) {
+      final AbstractSequence abstractSequence,
+      final boolean isPresimulation) {
     InvariantChecks.checkNotNull(engineId);
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(attributes);
@@ -142,10 +172,14 @@ public final class SequenceProcessor {
     final Engine engine = EngineConfig.get().getEngine(engineId);
     InvariantChecks.checkNotNull(engine);
 
+    if (attributes.isEmpty()) {
+      Logger.warning("No attributes are provided for the '%s' engine.", engineId);
+    }
+
     engine.configure(attributes);
     final Iterator<AbstractSequence> iterator = engine.solve(engineContext, abstractSequence);
 
-    return new SequenceConcretizer(engineContext, true, iterator);
+    return new SequenceConcretizer(engineContext, isPresimulation, iterator);
   }
 
   private static AbstractSequence expandAbstractSequence(
@@ -193,5 +227,17 @@ public final class SequenceProcessor {
     combinator.initialize(iterators);
     return combinator;
   }
-}
 
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> toMap(final Object object) {
+    if (object instanceof Map) {
+      return (Map<String, Object>) object;
+    }
+
+    if (null != object) {
+      Logger.warning(object + " is not a map. Empty map will be used.");
+    }
+
+    return Collections.emptyMap();
+  }
+}

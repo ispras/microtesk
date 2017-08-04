@@ -117,7 +117,10 @@ class BranchGenerationTemplate < MiniMipsBaseTemplate
     #   the default value is 1.
     # Parameter 'trace_count_limit' bounds the number of execution traces to be created:
     #   the default value is -1 (no limitation).
-    sequence(:engine => 'branch', :branch_exec_limit => 3, :trace_count_limit => -1) {
+    sequence(
+        :engines => {
+            :branch => {:branch_exec_limit => 3,
+                        :trace_count_limit => -1}}) {
       label :label0
         nop  # A basic block should contain at least one instruction
         bgez s0,       :label0 do situation('bgez-if-then', :stream => 'branch_data_0') end

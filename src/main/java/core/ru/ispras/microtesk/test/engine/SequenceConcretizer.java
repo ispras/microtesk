@@ -50,25 +50,25 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  * construct concrete instruction sequences. This includes processing of test situations
  * to generate data and constructing initialization code. Test situations are processed in
  * the order of their execution, which involves simulation on a temporary context (presimulation).
- * Test situation processing and presimulation can be disabled. In this case, the abstract sequence
- * will be turned into a concrete sequences without data generation.
+ * Presimulation and test situation processing can be disabled. In this case, the abstract sequence
+ * will be turned into a concrete sequence without data generation.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class SequenceConcretizer implements Iterator<ConcreteSequence>{
   private final EngineContext engineContext;
-  private final boolean isProcessing;
+  private final boolean isPresimulation;
   private final Iterator<AbstractSequence> sequenceIterator;
 
   public SequenceConcretizer(
       final EngineContext engineContext,
-      final boolean isProcessing,
+      final boolean isPresimulation,
       final Iterator<AbstractSequence> sequenceIterator) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(sequenceIterator);
 
     this.engineContext = engineContext;
-    this.isProcessing = isProcessing;
+    this.isPresimulation = isPresimulation;
     this.sequenceIterator = sequenceIterator;
   }
 
@@ -208,8 +208,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
     listener.setAllocationAddress(endAddress);
 
-    if (!isProcessing) {
-      // Processing of test situations (and presimulation) are disabled.
+    if (!isPresimulation) {
+      // Presimulation and processing of test situations are disabled.
       return;
     }
 

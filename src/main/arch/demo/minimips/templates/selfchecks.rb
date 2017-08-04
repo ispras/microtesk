@@ -45,7 +45,7 @@ class SelfChecksTemplate < MiniMipsBaseTemplate
     }.run
 
     # A sequence is processed with presimulation disabled
-    sequence(:processing => false) {
+    sequence(:presimulation => false) {
       prepare t0, 2
       prepare t1, 7
 

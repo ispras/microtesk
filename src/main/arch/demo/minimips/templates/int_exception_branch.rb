@@ -93,7 +93,10 @@ class IntExceptionBranchTemplate < MiniMipsBaseTemplate
     #   the default value is 1.
     # Parameter 'trace_count_limit' bounds the number of execution traces to be created:
     #   the default value is -1 (no limitation).
-    sequence(:engine => 'branch', :branch_exec_limit => 3, :trace_count_limit => -1) {
+    sequence(
+        :engines => {
+            :branch => {:branch_exec_limit => 3,
+                        :trace_count_limit => -1}}) {
       label :start
         nop
         bgez s0, :normal do situation('bgez-if-then', :stream => 'branch_data_0') end
