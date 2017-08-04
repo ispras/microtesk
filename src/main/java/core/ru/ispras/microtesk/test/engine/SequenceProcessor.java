@@ -44,20 +44,23 @@ public final class SequenceProcessor {
   }
 
   public Iterator<ConcreteSequence> process(
-      final EngineContext context,
+      final EngineContext engineContext,
       final Map<String, Object> attributes,
       final AbstractSequence abstractSequence) {
-    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    final int instanceIndex = context.getModel().getActivePE();
+    final int instanceIndex = engineContext.getModel().getActivePE();
     Logger.debugHeader("Processing Abstract Sequence (Instance %d)", instanceIndex);
 
-    context.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
+    engineContext.getStatistics().pushActivity(Statistics.Activity.PROCESSING);
     try {
-      return processSequence(context, attributes, abstractSequence);
+      final AbstractSequence expandedAbstractSequence =
+          expandAbstractSequence(engineContext, abstractSequence);
+
+      return processSequence(engineContext, attributes, expandedAbstractSequence);
     } finally {
-      context.getStatistics().popActivity(); // PROCESSING
+      engineContext.getStatistics().popActivity(); // PROCESSING
     }
   }
 
@@ -74,22 +77,19 @@ public final class SequenceProcessor {
     final boolean isTrivial = "trivial".equals(engineId);
     final boolean isBranch = "branch".equals(engineId);
 
-    final AbstractSequence defaultAbstractSequence =
-        expandAbstractSequence(engineContext, abstractSequence);
-
     // FIXME: Temporary implementation
     if (isBranch) {
       final Engine engine = EngineConfig.get().getEngine(engineId);
       engine.configure(attributes);
 
-      final Iterator<AbstractSequence> iterator = engine.solve(engineContext, defaultAbstractSequence);
+      final Iterator<AbstractSequence> iterator = engine.solve(engineContext, abstractSequence);
       return new SequenceConcretizer(engineContext, false, iterator);
     }
 
     final List<Iterator<AbstractSequence>> iterators = new ArrayList<>();
     for (final Engine engine : EngineConfig.get().getEngines()) {
       final SequenceSelector selector = engine.getSequenceSelector(); 
-      final AbstractSequence engineSequence = selector.select(defaultAbstractSequence);
+      final AbstractSequence engineSequence = selector.select(abstractSequence);
 
       if (null != engineSequence) {
         engine.configure(attributes);
@@ -102,15 +102,13 @@ public final class SequenceProcessor {
 
     if (iterators.isEmpty()) {
       return new SequenceConcretizer(
-          engineContext, isTrivial, new SingleValueIterator<>(defaultAbstractSequence));
+          engineContext, isTrivial, new SingleValueIterator<>(abstractSequence));
     }
 
     final Iterator<List<AbstractSequence>> combinator =
         makeCombinator("diagonal", iterators);
 
-    final Iterator<AbstractSequence> merger =
-        new SequenceMerger(defaultAbstractSequence, combinator);
-
+    final Iterator<AbstractSequence> merger = new SequenceMerger(abstractSequence, combinator);
     return new SequenceConcretizer(engineContext, isTrivial, merger);
   }
 
