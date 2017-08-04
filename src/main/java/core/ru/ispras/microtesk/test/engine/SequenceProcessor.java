@@ -79,11 +79,8 @@ public final class SequenceProcessor {
 
     // FIXME: Temporary implementation
     if (isBranch) {
-      final Engine engine = EngineConfig.get().getEngine(engineId);
-      engine.configure(attributes);
-
-      final Iterator<AbstractSequence> iterator = engine.solve(engineContext, abstractSequence);
-      return new SequenceConcretizer(engineContext, false, iterator);
+      return processSequenceWithSingleEngine(
+          engineId, engineContext, attributes, abstractSequence);
     }
 
     final List<Iterator<AbstractSequence>> iterators = new ArrayList<>();
@@ -108,7 +105,7 @@ public final class SequenceProcessor {
     return new SequenceConcretizer(engineContext, isTrivial, merger);
   }
 
-  private Iterator<AbstractSequence> processSequenceWithEngine(
+  private static Iterator<AbstractSequence> processSequenceWithEngine(
       final Engine engine,
       final EngineContext engineContext,
       final Map<String, Object> attributes,
@@ -131,6 +128,25 @@ public final class SequenceProcessor {
 
     InvariantChecks.checkNotNull(iterator);
     return iterator;
+  }
+
+  private static Iterator<ConcreteSequence> processSequenceWithSingleEngine(
+      final String engineId,
+      final EngineContext engineContext,
+      final Map<String, Object> attributes,
+      final AbstractSequence abstractSequence) {
+    InvariantChecks.checkNotNull(engineId);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(attributes);
+    InvariantChecks.checkNotNull(abstractSequence);
+
+    final Engine engine = EngineConfig.get().getEngine(engineId);
+    InvariantChecks.checkNotNull(engine);
+
+    engine.configure(attributes);
+    final Iterator<AbstractSequence> iterator = engine.solve(engineContext, abstractSequence);
+
+    return new SequenceConcretizer(engineContext, false, iterator);
   }
 
   private static AbstractSequence expandAbstractSequence(
