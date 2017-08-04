@@ -112,8 +112,9 @@ public final class SequenceProcessor {
           engineContext, isPresimulation, new SingleValueIterator<>(abstractSequence));
     }
 
+    final Object combinatorId = engineAttributeMap.get("combinator");
     final Iterator<List<AbstractSequence>> combinator =
-        makeCombinator("diagonal", iterators);
+        makeCombinator(null != combinatorId ? combinatorId.toString() : "diagonal", iterators);
 
     final Iterator<AbstractSequence> merger = new SequenceMerger(abstractSequence, combinator);
     return new SequenceConcretizer(engineContext, isPresimulation, merger);
