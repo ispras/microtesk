@@ -31,7 +31,7 @@ class ExternalLabelsTemplate < MiniMipsBaseTemplate
     label :start
     nop
 
-    sequence(:engine => 'trivial') {
+    sequence(:processing => false) {
       add t0, t1, t2
       sub t3, t4, t5
       addi s0, s0, 1 # s0 = s0 + 1
@@ -40,7 +40,7 @@ class ExternalLabelsTemplate < MiniMipsBaseTemplate
     ori t0, zero, 1
     sub s0, s0, t0 # s0 = s0 - 1
 
-    sequence(:engine => 'trivial') {
+    sequence(:processing => false) {
       data {
         label :data
         word 1

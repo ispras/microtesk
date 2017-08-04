@@ -29,19 +29,19 @@ class RandomImmediateTemplate < X86BaseTemplate
                       range(:value => 0xFFF0..0xFFFF, :bias => 50))  # Large
 
     # Random value from the given range
-    sequence(:engine => 'trivial') {
+    sequence(:processing => false) {
       and_r16i16 r16(_), IMM16(x = rand(0, 15))
       or_r16i16  r16(_), IMM16(x)
     }.run(10)
 
     # Random value described by a probability distribution
-    sequence(:engine => 'trivial') {
+    sequence(:processing => false) {
       add_r16i16 r16(_), IMM16(x = rand(int16_dist))
       or_r16i16  r16(_), IMM16(x)
     }.run(10)
 
     # Unknown value. Set as a random value of the argument's type
-    sequence(:engine => 'trivial') {
+    sequence(:processing => false) {
       add_r16i16 r16(_), IMM16(x = _)
       sub_r16i16 r16(_), IMM16(x)
     }.run(10)

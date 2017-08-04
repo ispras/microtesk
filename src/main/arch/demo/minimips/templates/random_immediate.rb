@@ -38,19 +38,19 @@ class RandomImmediateTemplate < MiniMipsBaseTemplate
                       range(:value => 0xFFF0..0xFFFF, :bias => 50))  # Large
 
     # Random value from the given range
-    sequence(:engine => 'trivial') {
+    sequence(:processing => false) {
       andi reg(_), reg(_), x = rand(0, 31)
       ori  reg(_), reg(_), x
     }.run(10)
 
     # Random value described by a probability distribution
-    sequence(:engine => 'trivial') {
+    sequence(:processing => false) {
       andi reg(_), reg(_), x = rand(int16_dist)
       ori  reg(_), reg(_), x
     }.run(10)
 
     # Unknown value. Set as a random value of the argument's type
-    sequence(:engine => 'trivial') {
+    sequence(:processing => false) {
       andi reg(_), reg(_), x = _
       ori  reg(_), reg(_), x
     }.run(10)
