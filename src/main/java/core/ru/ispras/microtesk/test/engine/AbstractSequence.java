@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test.engine;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +70,17 @@ public final class AbstractSequence {
 
   private Map<Integer, List<AbstractCall>> prologues;
   private Map<Integer, List<AbstractCall>> epilogues;
+
+  public AbstractSequence(final AbstractSequence other) {
+    InvariantChecks.checkNotNull(other);
+
+    this.section = other.section;
+    this.sequence = other.sequence;
+    this.positions = other.positions;
+    this.flags = other.flags;
+    this.prologues = null != other.prologues ? new HashMap<>(other.prologues) : null;
+    this.epilogues = null != other.epilogues ? new HashMap<>(other.epilogues) : null;
+  }
 
   public AbstractSequence(final Section section, final List<AbstractCall> sequence) {
     this(section, sequence, null, null);
