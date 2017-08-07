@@ -237,11 +237,11 @@ public final class BranchEngine implements Engine {
         for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
           final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
           final BranchEntry branchEntry = branchStructure.get(i);
-
           setBranchEntry(abstractCall, branchEntry);
         }
 
-        return insertComments(insertControlCode(engineContext, abstractSequence));
+        return insertComments(
+            insertControlCode(engineContext, new AbstractSequence(abstractSequence)));
       }
 
       @Override
@@ -348,6 +348,7 @@ public final class BranchEngine implements Engine {
       }
     }
 
+    /*
     // Insert the control code into the sequence.
     int correction = 0;
 
@@ -372,21 +373,34 @@ public final class BranchEngine implements Engine {
     }
 
     return new AbstractSequence(abstractSequence.getSection(), modifiedSequence);
+    */
+
+    for (final Map.Entry<Integer, List<AbstractCall>> entry : steps.entrySet()) {
+      final int position = entry.getKey();
+      final List<AbstractCall> controlCode = entry.getValue();
+
+      abstractSequence.addPrologue(position, controlCode);
+      if (delaySlots.contains(position)) {
+        // Remove the old delay slot.
+        for (int i = 0; i < controlCode.size(); i++) {
+          abstractSequence.getPrologues().put(position + 1, null);
+        }
+      }
+    }
+
+    return abstractSequence;
   }
 
   private static AbstractSequence insertComments(final AbstractSequence abstractSequence) {
-    final List<AbstractCall> abstractCalls = new ArrayList<>(abstractSequence.getSequence().size());
     for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
       final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
       final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
 
       if (null != branchEntry && branchEntry.isIfThen()) {
-        abstractCalls.add(AbstractCall.newComment(branchEntry.toString()));
+        abstractSequence.addPrologue(i, AbstractCall.newComment(branchEntry.toString()));
       }
-
-      abstractCalls.add(abstractCall);
     }
 
-    return new AbstractSequence(abstractSequence.getSection(), abstractCalls);
+    return abstractSequence;
   }
 }
