@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -102,44 +103,50 @@ final class SequenceMerger implements Iterator<AbstractSequence> {
       final List<AbstractSequence> sequences,
       final int position) {
 
+    final List<AbstractCall> prologue = new ArrayList<>();
+    AbstractCall call = null;
+    final List<AbstractCall> epilogue = new ArrayList<>();
+
     for (final AbstractSequence sequence : sequences) {
       final Map<Integer, Integer> positions = sequence.getPositions();
       InvariantChecks.checkNotNull(positions);
 
       final Integer index = positions.get(position);
       if (null != index) {
-        final List<AbstractCall> prologue =
-            null != sequence.getPrologues() ? sequence.getPrologues().get(index) : null;
+        final List<AbstractCall> sequencePrologue = null != sequence.getPrologues() ?
+            sequence.getPrologues().get(index) : null;
 
-        final AbstractCall call = sequence.getSequence().get(index);
+        if (null != sequencePrologue) {
+          prologue.addAll(sequencePrologue);
+        }
 
-        final List<AbstractCall> epilogue =
-            null != sequence.getEpilogues() ? sequence.getEpilogues().get(index) : null;
+        final List<AbstractCall> sequenceEpilogue = null != sequence.getEpilogues() ?
+            sequence.getEpilogues().get(index) : null;
 
-        return merge(prologue, call, epilogue);
+        if (null != sequenceEpilogue) {
+          epilogue.addAll(sequenceEpilogue);
+        }
+
+        if (sequence.isSignificant(index)) {
+          if (null != call) {
+            Logger.warning(
+                "Instruction at position %d was selected by several engines. " +
+                "Only results of the first engine were accepted.", position);
+          } else {
+            call = sequence.getSequence().get(index);
+          }
+        }
       }
     }
 
-    return null;
-  }
-
-  private static List<AbstractCall> merge(
-      final List<AbstractCall> prologue,
-      final AbstractCall call,
-      final List<AbstractCall> epilogue) {
-    InvariantChecks.checkNotNull(call);
     final List<AbstractCall> result = new ArrayList<>();
 
-    if (null != prologue) {
-      result.addAll(prologue);
+    result.addAll(prologue);
+    if (null != call) {
+      result.add(call);
     }
+    result.addAll(epilogue);
 
-    result.add(call);
-
-    if (null != epilogue) {
-      result.addAll(epilogue);
-    }
-
-    return result;
+    return result.isEmpty() ? null : result;
   }
 }
