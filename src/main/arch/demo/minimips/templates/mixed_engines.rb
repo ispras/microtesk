@@ -111,6 +111,7 @@ class MixedEnginesTemplate < MiniMipsBaseTemplate
     #   the default value is -1 (no limitation).
     sequence(
         :engines => {
+            :combinator => 'product',
             :branch => {:branch_exec_limit => 3,
                         :trace_count_limit => -1},
             :memory => {:classifier => 'event-based',
