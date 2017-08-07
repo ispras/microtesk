@@ -119,7 +119,11 @@ public final class AbstractSequence {
 
   public void addPrologue(final int index, final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
-    addPrologue(index, Collections.singletonList(call));
+
+    final List<AbstractCall> calls = new ArrayList<>();
+    calls.add(call);
+
+    addPrologue(index, calls);
   }
 
   public void addPrologue(final int index, final List<AbstractCall> calls) {
@@ -136,7 +140,11 @@ public final class AbstractSequence {
 
   public void addEpilogue(final int index, final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
-    addEpilogue(index, Collections.singletonList(call));
+
+    final List<AbstractCall> calls = new ArrayList<>();
+    calls.add(call);
+
+    addEpilogue(index, calls);
   }
 
   public void addEpilogue(final int index, final List<AbstractCall> calls) {
