@@ -99,20 +99,26 @@ class IntExceptionBranchTemplate < MiniMipsBaseTemplate
                         :trace_count_limit => -1}}) {
       label :start
         nop
-        bgez s0, :normal do situation('bgez-if-then', :stream => 'branch_data_0') end
+        bgez s0, :normal do
+          situation('bgez-if-then', :engine => :branch, :stream => 'branch_data_0')
+        end
         nop
 
       label :overflow
-        add t0, t1, t2   do situation('IntegerOverflow') end
-        j :finish        do situation('b-goto') end
+        add t0, t1, t2 do situation('IntegerOverflow') end
+        j :finish do
+          situation('b-goto', :engine => :branch)
+        end
         nop
 
       label :normal
-        add t0, t3, t4   do situation('normal') end
+        add t0, t3, t4 do situation('normal') end
 
       label :finish
         nop
-        bltz s1, :start  do situation('bltz-if-then', :stream => 'branch_data_1') end
+        bltz s1, :start do
+          situation('bltz-if-then', :engine => :branch, :stream => 'branch_data_1')
+        end
         nop
     }.run
   end

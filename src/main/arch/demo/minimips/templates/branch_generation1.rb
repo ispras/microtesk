@@ -126,27 +126,37 @@ class BranchGeneration1Template < MiniMipsBaseTemplate
                           :trace_count_limit => -1}}) {
       label :label0
         nop
-        bgtz s0,       :label0 do situation('bgtz-if-then', :stream => 'branch_data_0') end
+        bgtz s0, :label0 do
+          situation('bgtz-if-then', :engine => :branch, :stream => 'branch_data_0')
+        end
         addiu reg1=get_register, reg1, 1
 
       label :label1
         nop
-        bltz s1,       :label1 do situation('bltz-if-then', :stream => 'branch_data_1') end
+        bltz s1, :label1 do
+          situation('bltz-if-then', :engine => :branch, :stream => 'branch_data_1')
+        end
         ori reg2=get_register, reg2, 2
 
       label :label2
         nop
-        beq s2, zero,  :label2 do situation('beq-if-then',  :stream => 'branch_data_2') end
+        beq s2, zero, :label2 do
+          situation('beq-if-then', :engine => :branch, :stream => 'branch_data_2')
+        end
         addiu reg3=get_register, reg3, 3
 
       label :label3
         nop
-        bne s3, zero,  :label5 do situation('bne-if-then',  :stream => 'branch_data_3') end
+        bne s3, zero, :label5 do
+          situation('bne-if-then', :engine => :branch, :stream => 'branch_data_3')
+        end
         ori reg4=get_register, reg4, 4
 
       label :label4
         nop
-        j              :label0 do situation('b-goto') end
+        j :label0 do
+          situation('b-goto', :engine => :branch)
+        end
         addiu reg5=get_register, reg5, 5
 
       label :label5

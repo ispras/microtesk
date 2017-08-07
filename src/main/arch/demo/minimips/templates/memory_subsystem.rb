@@ -53,8 +53,8 @@ class MemorySubsystemTemplate < MiniMipsBaseTemplate
                         :align => 4,
                         :count => 5}
         }) {
-      lw s0, 0, t0 do situation('memory', :base => 'lw.address') end
-      lw s1, 0, t1 do situation('memory', :base => 'lw.address') end
+      lw s0, 0, t0 do situation('memory', :engine => :memory, :base => 'lw.address') end
+      lw s1, 0, t1 do situation('memory', :engine => :memory, :base => 'lw.address') end
     }.run
   end
 

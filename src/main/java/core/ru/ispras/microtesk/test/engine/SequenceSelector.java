@@ -68,6 +68,7 @@ public final class SequenceSelector {
       return false;
     }
 
-    return engineId.equals(situation.getName());
+    return engineId.equals(
+        situation.getAttributes().get("engine"));
   }
 }

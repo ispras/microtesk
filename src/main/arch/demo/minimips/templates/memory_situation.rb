@@ -47,7 +47,9 @@ class MemorySituationTemplate < MiniMipsBaseTemplate
                 :count => 5}
         }) {
       lw s0, 0, t0 do
-        situation('memory', :base => 'lw.address', :path => constraints(miss('L1'), hit('L2')))
+        situation('memory', :engine => :memory,
+                            :base => 'lw.address',
+                            :path => constraints(miss('L1'), hit('L2')))
       end
     }.run
   end

@@ -145,11 +145,21 @@ class BranchGeneration2Template < MiniMipsBaseTemplate
           block(:combinator => 'diagonal') {
             # Branches
             iterate {
-              bgez s0, :label0 do situation('bgez-if-then', :stream => 'branch_data_0') end
-              bgtz s1, :label1 do situation('bgtz-if-then', :stream => 'branch_data_1') end
-              blez s2, :label2 do situation('blez-if-then', :stream => 'branch_data_2') end
-              bltz s3, :labelZ do situation('bltz-if-then', :stream => 'branch_data_3') end
-              j        :labelA do situation('b-goto') end
+              bgez s0, :label0 do
+                situation('bgez-if-then', :engine => :branch, :stream => 'branch_data_0')
+              end
+              bgtz s1, :label1 do
+                situation('bgtz-if-then', :engine => :branch, :stream => 'branch_data_1')
+              end
+              blez s2, :label2 do
+                situation('blez-if-then', :engine => :branch, :stream => 'branch_data_2')
+              end
+              bltz s3, :labelZ do
+                situation('bltz-if-then', :engine => :branch,:stream => 'branch_data_3')
+              end
+              j :labelA do
+                situation('b-goto', :engine => :branch)
+              end
             }
 
             # Injected Code placed in delay slot
