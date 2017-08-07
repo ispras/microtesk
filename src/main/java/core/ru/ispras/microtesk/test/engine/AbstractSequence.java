@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.engine;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ public final class AbstractSequence {
     private final Section section;
     private final List<AbstractCall> sequence;
     private final Map<Integer, Integer> positions;
+    private final List<Boolean> flags;
 
     public Builder(final Section section) {
       InvariantChecks.checkNotNull(section);
@@ -37,46 +39,55 @@ public final class AbstractSequence {
       this.section = section;
       this.sequence = new ArrayList<>();
       this.positions = new HashMap<>();
+      this.flags = new ArrayList<>();
     }
 
     public void addCall(final AbstractCall call, final int position) {
+      addCall(call, position, true);
+    }
+
+    public void addCall(final AbstractCall call, final int position, final boolean significant) {
       InvariantChecks.checkNotNull(call);
       InvariantChecks.checkGreaterOrEqZero(position);
 
       sequence.add(call);
       positions.put(position, sequence.size() - 1);
+      flags.add(significant);
     }
 
     public boolean isEmpty() {
-      return sequence.isEmpty() && positions.isEmpty();
+      return sequence.isEmpty() && positions.isEmpty() && flags.isEmpty();
     }
 
     public AbstractSequence build() {
-      return new AbstractSequence(section, sequence, positions);
+      return new AbstractSequence(section, sequence, positions, flags);
     }
   }
 
   private final Section section;
   private final List<AbstractCall> sequence;
   private final Map<Integer, Integer> positions;
+  private final List<Boolean> flags;
 
   private Map<Integer, List<AbstractCall>> prologues;
   private Map<Integer, List<AbstractCall>> epilogues;
 
   public AbstractSequence(final Section section, final List<AbstractCall> sequence) {
-    this(section, sequence, null);
+    this(section, sequence, null, null);
   }
 
   private AbstractSequence(
       final Section section,
       final List<AbstractCall> sequence,
-      final Map<Integer, Integer> positions) {
+      final Map<Integer, Integer> positions,
+      final List<Boolean> flags) {
     InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(sequence);
 
     this.section = section;
     this.sequence = sequence;
     this.positions = positions;
+    this.flags = flags;
 
     this.prologues = null;
     this.epilogues = null;
@@ -88,6 +99,10 @@ public final class AbstractSequence {
 
   public List<AbstractCall> getSequence() {
     return sequence;
+  }
+
+  public boolean isSignificant(final int index) {
+    return null != flags ? flags.get(index) : true;
   }
 
   public Map<Integer, Integer> getPositions() {
@@ -102,6 +117,11 @@ public final class AbstractSequence {
     return epilogues;
   }
 
+  public void addPrologue(final int index, final AbstractCall call) {
+    InvariantChecks.checkNotNull(call);
+    addPrologue(index, Collections.singletonList(call));
+  }
+
   public void addPrologue(final int index, final List<AbstractCall> calls) {
     InvariantChecks.checkBounds(index, sequence.size());
     InvariantChecks.checkNotNull(calls);
@@ -112,6 +132,11 @@ public final class AbstractSequence {
 
     final List<AbstractCall> oldCalls = prologues.get(index);
     prologues.put(index, null == oldCalls ? calls : CollectionUtils.appendToList(oldCalls, calls));
+  }
+
+  public void addEpilogue(final int index, final AbstractCall call) {
+    InvariantChecks.checkNotNull(call);
+    addEpilogue(index, Collections.singletonList(call));
   }
 
   public void addEpilogue(final int index, final List<AbstractCall> calls) {
