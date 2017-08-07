@@ -207,7 +207,13 @@ class Template
 
     builder = @template.newSituation name
     attrs.each_pair do |name, value|
-      attr_value = if value.is_a?(Dist) then value.java_object else value end
+      if value.is_a?(Dist) then
+        attr_value = value.java_object
+      elsif value.is_a?(Symbol) then
+        attr_value = value.to_s
+      else
+        attr_value = value
+      end
       builder.setAttribute name.to_s, attr_value
     end
 
@@ -866,7 +872,7 @@ class Template
       builder.setVa va
     elsif va.is_a?(Range)
       builder.setVa va.min, va.max
-    elsif va.is_a?(String) or va.is_a?(Symbol) 
+    elsif va.is_a?(String) or va.is_a?(Symbol)
       builder.setVa va.to_s
       is_va_label = true
     else
@@ -879,7 +885,7 @@ class Template
         builder.setPa pa
       elsif pa.is_a?(Range)
         builder.setPa pa.min, pa.max
-      elsif pa.is_a?(String) or pa.is_a?(Symbol) 
+      elsif pa.is_a?(String) or pa.is_a?(Symbol)
         builder.setPa pa.to_s
       else
         raise MTRubyError, "The 'pa' attribute has unsupported type #{pa.class}."
@@ -972,7 +978,8 @@ class Template
         mapBuilder = set_attributes @template.newMapBuilder, value
         builder.setAttribute key.to_s, mapBuilder.getMap
       else
-        builder.setAttribute key.to_s, value
+        builder.setAttribute key.to_s, if value.is_a?(Symbol) then value.to_s
+                                                              else value end
       end
     end
     builder
@@ -981,7 +988,7 @@ class Template
 end # Template
 
 #
-# Describes a value range with corresponding biase used in random generation.
+# Describes a value range with corresponding bias used in random generation.
 #
 class ValueRange
   attr_reader :value, :bias
