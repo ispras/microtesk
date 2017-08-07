@@ -121,7 +121,7 @@ public final class BranchEngine implements Engine {
   /** Trace count limit: default value is -1 (no limitations). */
   private int maxExecutionTraces = PARAM_TRACE_LIMIT_DEFAULT;
 
-  private final SequenceSelector sequenceSelector = new SequenceSelector(ID);
+  private final SequenceSelector sequenceSelector = new SequenceSelector(ID, false);
 
   @Override
   public String getId() {
