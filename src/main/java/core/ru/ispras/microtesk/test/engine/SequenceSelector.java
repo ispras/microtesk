@@ -22,26 +22,37 @@ import ru.ispras.microtesk.test.template.Situation;
 
 public final class SequenceSelector {
   private final String engineId;
+  private final boolean significantOnly;
 
   public SequenceSelector(final String engineId) {
+    this(engineId, true);
+  }
+
+  public SequenceSelector(final String engineId, final boolean significantOnly) {
     InvariantChecks.checkNotNull(engineId);
     this.engineId = engineId;
+    this.significantOnly = significantOnly;
   }
 
   public AbstractSequence select(final AbstractSequence sequence) {
     InvariantChecks.checkNotNull(sequence);
 
+    boolean hasSelected = false;
     final AbstractSequence.Builder builder = new AbstractSequence.Builder(sequence.getSection());
+
     for (int position = 0; position < sequence.getSequence().size(); ++position) {
       final AbstractCall call = sequence.getSequence().get(position);
       InvariantChecks.checkNotNull(call);
 
       if (isSelected(call.getRootOperation())) {
-        builder.addCall(call, position);
+        builder.addCall(call, position, true);
+        hasSelected = true;
+      } else if (!significantOnly) {
+        builder.addCall(call, position, false);
       }
     }
 
-    return !builder.isEmpty() ? builder.build() : null;
+    return hasSelected ? builder.build() : null;
   }
 
   private boolean isSelected(final Primitive primitive) {
