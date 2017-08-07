@@ -19,7 +19,6 @@ import static ru.ispras.microtesk.test.engine.EngineUtils.makeStreamRead;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -242,9 +241,7 @@ public final class BranchEngine implements Engine {
           setBranchEntry(abstractCall, branchEntry);
         }
 
-        return resolveDependencies(
-            insertComments(
-                insertControlCode(engineContext, abstractSequence)));
+        return insertComments(insertControlCode(engineContext, abstractSequence));
       }
 
       @Override
@@ -391,29 +388,5 @@ public final class BranchEngine implements Engine {
     }
 
     return new AbstractSequence(abstractSequence.getSection(), abstractCalls);
-  }
-
-  private static AbstractSequence resolveDependencies(final AbstractSequence abstractSequence) {
-    final Map<AbstractCall, Integer> abstractCalls = new IdentityHashMap<>();
-
-    for (int index = 0; index < abstractSequence.getSequence().size(); index++) {
-      final AbstractCall abstractCall = abstractSequence.getSequence().get(index);
-      abstractCalls.put(abstractCall, index);
-    }
-
-    for (int index = 0; index < abstractSequence.getSequence().size(); index++) {
-      final AbstractCall abstractCall =
-          abstractSequence.getSequence().get(index);
-
-      final AbstractCall dependencyAbstractCall =
-          (AbstractCall) abstractCall.getAttributes().get("dependsOn");
-
-      if (null != dependencyAbstractCall) {
-        final int dependencyIndex = abstractCalls.get(dependencyAbstractCall);
-        abstractCall.getAttributes().put("dependsOn", dependencyIndex);
-      }
-    }
-
-    return abstractSequence;
   }
 }

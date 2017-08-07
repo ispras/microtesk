@@ -85,7 +85,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
   @Override
   public ConcreteSequence value() {
     final AbstractSequence abstractSequence = sequenceIterator.value();
-    return concretizeSequence(abstractSequence);
+    return concretizeSequence(resolveDependencies(abstractSequence));
   }
 
   @Override
@@ -101,6 +101,30 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
   @Override
   public Iterator<ConcreteSequence> clone() {
     throw new UnsupportedOperationException();
+  }
+
+  private static AbstractSequence resolveDependencies(final AbstractSequence abstractSequence) {
+    final Map<AbstractCall, Integer> abstractCalls = new IdentityHashMap<>();
+
+    for (int index = 0; index < abstractSequence.getSequence().size(); index++) {
+      final AbstractCall abstractCall = abstractSequence.getSequence().get(index);
+      abstractCalls.put(abstractCall, index);
+    }
+
+    for (int index = 0; index < abstractSequence.getSequence().size(); index++) {
+      final AbstractCall abstractCall =
+          abstractSequence.getSequence().get(index);
+
+      final AbstractCall dependencyAbstractCall =
+          (AbstractCall) abstractCall.getAttributes().get("dependsOn");
+
+      if (null != dependencyAbstractCall) {
+        final int dependencyIndex = abstractCalls.get(dependencyAbstractCall);
+        abstractCall.getAttributes().put("dependsOn", dependencyIndex);
+      }
+    }
+
+    return abstractSequence;
   }
 
   private ConcreteSequence concretizeSequence(final AbstractSequence abstractSequence) {
