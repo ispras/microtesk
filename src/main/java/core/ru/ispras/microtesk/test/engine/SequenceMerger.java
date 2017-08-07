@@ -105,6 +105,7 @@ final class SequenceMerger implements Iterator<AbstractSequence> {
 
     final List<AbstractCall> prologue = new ArrayList<>();
     AbstractCall call = null;
+    boolean isCallSignificant = false;
     final List<AbstractCall> epilogue = new ArrayList<>();
 
     for (final AbstractSequence sequence : sequences) {
@@ -127,15 +128,34 @@ final class SequenceMerger implements Iterator<AbstractSequence> {
           epilogue.addAll(sequenceEpilogue);
         }
 
-        if (sequence.isSignificant(index)) {
-          if (null != call) {
-            Logger.warning(
-                "Instruction at position %d was selected by several engines. " +
-                "Only results of the first engine were accepted.", position);
-          } else {
-            call = sequence.getSequence().get(index);
-          }
+        final AbstractCall sequenceCall = sequence.getSequence().get(index);
+        final boolean isSequenceCallSignificant = sequence.isSignificant(index);
+
+        // Call is not selected yet. Select the new.
+        if (null == call) {
+          call = sequenceCall;
+          isCallSignificant = isSequenceCallSignificant;
+          continue;
         }
+
+        // Call is selected. New selection is insignificant.
+        if (!isSequenceCallSignificant) {
+          // Do not modify anything.
+          continue;
+        }
+
+        // Call is selected. Old selection is insignificant. New selection is applied.
+        if (!isCallSignificant) {
+          call = sequenceCall;
+          isCallSignificant = isSequenceCallSignificant;
+          continue;
+        }
+
+        // Call is selected. Old and new selections are significant.
+        // New is ignored. Warning is printed.
+        Logger.warning(
+            "Instruction at position %d was selected by several engines. " +
+            "Only results of the first engine were accepted.", position);
       }
     }
 
