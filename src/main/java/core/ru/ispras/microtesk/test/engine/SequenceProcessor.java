@@ -85,19 +85,8 @@ public final class SequenceProcessor {
     }
 
     final Map<String, Object> engineAttributeMap = toMap(enginesAttribute);
-
-    // FIXME: Temporary implementation
-    if (engineAttributeMap.containsKey("branch")) {
-      return processSequenceWithSingleEngine(
-          "branch",
-          engineContext,
-          toMap(engineAttributeMap.get("branch")),
-          abstractSequence,
-          isPresimulation
-          );
-    }
-
     final List<Iterator<AbstractSequence>> iterators = new ArrayList<>();
+
     for (final Engine engine : EngineConfig.get().getEngines()) {
       final Iterator<AbstractSequence> iterator =
           processSequenceWithEngine(engine, engineContext, engineAttributeMap, abstractSequence);
@@ -157,30 +146,6 @@ public final class SequenceProcessor {
     InvariantChecks.checkNotNull(iterator);
 
     return iterator;
-  }
-
-  private static Iterator<ConcreteSequence> processSequenceWithSingleEngine(
-      final String engineId,
-      final EngineContext engineContext,
-      final Map<String, Object> attributes,
-      final AbstractSequence abstractSequence,
-      final boolean isPresimulation) {
-    InvariantChecks.checkNotNull(engineId);
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(attributes);
-    InvariantChecks.checkNotNull(abstractSequence);
-
-    final Engine engine = EngineConfig.get().getEngine(engineId);
-    InvariantChecks.checkNotNull(engine);
-
-    if (attributes.isEmpty()) {
-      Logger.warning("No attributes are provided for the '%s' engine.", engineId);
-    }
-
-    engine.configure(attributes);
-    final Iterator<AbstractSequence> iterator = engine.solve(engineContext, abstractSequence);
-
-    return new SequenceConcretizer(engineContext, isPresimulation, iterator);
   }
 
   private static AbstractSequence expandAbstractSequence(
