@@ -22,7 +22,7 @@ require_relative 'minimips_base'
 # This test template demonstrates how to o mix constraints related to ALU, BPU and MMU
 # in a single instruction sequence.
 #
-class MixedEnginesTemplate < MiniMipsBaseTemplate
+class MultipleEnginesTemplate < MiniMipsBaseTemplate
 
   def initialize
     super
