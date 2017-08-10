@@ -26,21 +26,20 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 
 /**
- * The ParserBase class is a base class for implementing ANTLR-based parsers.
+ * The {@link ParserBase} class is a base class for implementing ANTLR-based parsers.
  * It includes support for error reporting (inherited from {@link ParserEx})
  * and support for working with symbol tables.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public class ParserBase extends ParserEx {
   private SymbolTable symbols = null;
 
-  public ParserBase(TokenStream input, RecognizerSharedState state) {
+  public ParserBase(final TokenStream input, final RecognizerSharedState state) {
     super(input, state);
   }
 
-  public final void assignSymbols(SymbolTable symbols) {
+  public final void assignSymbols(final SymbolTable symbols) {
     InvariantChecks.checkNotNull(symbols);
     this.symbols = symbols;
   }
@@ -49,7 +48,10 @@ public class ParserBase extends ParserEx {
     return symbols;
   }
 
-  protected final void declare(Token t, Enum<?> kind, boolean scoped) throws SemanticException {
+  protected final void declare(
+      final Token t,
+      final Enum<?> kind,
+      final boolean scoped) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
@@ -60,7 +62,8 @@ public class ParserBase extends ParserEx {
   }
 
   protected final void declareAndPushSymbolScope(
-      Token t, Enum<?> kind) throws SemanticException {
+      final Token t,
+      final Enum<?> kind) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
 
     checkRedeclared(t);
@@ -86,7 +89,9 @@ public class ParserBase extends ParserEx {
     raiseError(where(t), new RedeclaredSymbol(symbol));
   }
 
-  protected final void checkDeclaration(Token t, Enum<?> expectedKind) throws SemanticException {
+  protected final void checkDeclaration(
+      final Token t,
+      final Enum<?> expectedKind) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
 
     final Symbol symbol = symbols.resolve(t.getText());
@@ -99,7 +104,7 @@ public class ParserBase extends ParserEx {
     }
   }
 
-  protected final boolean isDeclaredAs(Token t, Enum<?> expectedKind) {
+  protected final boolean isDeclaredAs(final Token t, final Enum<?> expectedKind) {
     InvariantChecks.checkNotNull(symbols);
 
     final Symbol symbol = symbols.resolve(t.getText());
