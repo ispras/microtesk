@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
@@ -39,6 +40,7 @@ public abstract class Translator<Ir> {
   private final Set<String> fileExtFilter;
   private final List<TranslatorHandler<Ir>> handlers;
   private final SymbolTable symbols;
+  private final Set<String> revisions;
 
   private String outDir;
   private TranslatorContext context;
@@ -53,6 +55,7 @@ public abstract class Translator<Ir> {
     this.fileExtFilter = fileExtFilter;
     this.handlers = new ArrayList<>();
     this.symbols = new SymbolTable();
+    this.revisions = new HashSet<>();
 
     this.outDir = PackageInfo.DEFAULT_OUTDIR;
     this.context = null;
@@ -89,6 +92,12 @@ public abstract class Translator<Ir> {
   public final void setOutDir(final String outDir) {
     InvariantChecks.checkNotNull(outDir);
     this.outDir = outDir;
+  }
+
+  public final void addRevision(final String revision) {
+    if (null != revision && !revision.isEmpty()) {
+      revisions.add(revision);
+    }
   }
 
   public final TranslatorContext getContext() {
@@ -144,6 +153,7 @@ public abstract class Translator<Ir> {
         addPath(options.getValueAsString(Option.INCLUDE));
       }
       setOutDir(options.getValueAsString(Option.OUTDIR));
+      addRevision((options.getValueAsString(Option.REVID)));
     }
 
     if (null != context) {
