@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
@@ -23,6 +26,7 @@ import ru.ispras.microtesk.translator.antlrex.errors.RedeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.SymbolScope;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 
 /**
@@ -34,9 +38,11 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
  */
 public class ParserBase extends ParserEx {
   private SymbolTable symbols = null;
+  private final Deque<Boolean> revisionApplicable;
 
   public ParserBase(final TokenStream input, final RecognizerSharedState state) {
     super(input, state);
+    this.revisionApplicable = new ArrayDeque<>();
   }
 
   public final void assignSymbols(final SymbolTable symbols) {
@@ -54,6 +60,10 @@ public class ParserBase extends ParserEx {
       final boolean scoped) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
 
+    if (!isRevisionApplicable() && !isFakeScope()) {
+      return;
+    }
+
     checkRedeclared(t);
     final Symbol symbol =
         Symbol.newSymbol(t.getText(), kind, where(t), symbols.peek(), scoped);
@@ -66,11 +76,14 @@ public class ParserBase extends ParserEx {
       final Enum<?> kind) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
 
-    checkRedeclared(t);
-    final Symbol symbol = Symbol.newSymbol(
-        t.getText(), kind, where(t), symbols.peek(), true);
+    final Symbol symbol =
+        Symbol.newSymbol(t.getText(), kind, where(t), symbols.peek(), true);
 
-    symbols.define(symbol);
+    if (isRevisionApplicable()) {
+      checkRedeclared(t);
+      symbols.define(symbol);
+    }
+
     symbols.push(symbol.getInnerScope());
   }
 
@@ -126,5 +139,24 @@ public class ParserBase extends ParserEx {
     } else {
       return true;
     }
+  }
+
+  protected final void pushRevisionApplicable(final boolean applicable) {
+    revisionApplicable.push(applicable);
+  }
+
+  protected final void popRevisionApplicable() {
+    revisionApplicable.pop();
+  }
+
+  private boolean isRevisionApplicable() {
+    return revisionApplicable.isEmpty() || revisionApplicable.peek();
+  }
+
+  private boolean isFakeScope() {
+    final SymbolScope scope = symbols.peek();
+    final Symbol symbol = scope.getAssociatedSymbol();
+
+    return null != symbol && null == scope.resolve(symbol.getName());
   }
 }

@@ -119,8 +119,11 @@ startRule
     ;
 
 procSpecRev
-    : rev=revision procSpec -> {$rev.applicable}? procSpec
-                            ->
+    : rev=revision
+      {pushRevisionApplicable($rev.applicable);}
+      procSpec
+      {popRevisionApplicable();} -> {$rev.applicable}? procSpec
+                                 ->
     ;
 
 procSpec
