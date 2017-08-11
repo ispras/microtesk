@@ -97,7 +97,7 @@ revision returns [boolean applicable]
 //==================================================================================================
 
 typeExpr
-    :  id=ID  { checkDeclaration($id,NmlSymbolKind.TYPE); }
+    :  id=ID
 //  |  BOOL // TODO: NOT SUPPORTED IN THE CURRENT VERSION 
     |  INT^ LEFT_PARENTH! expr RIGHT_PARENTH!
     |  CARD^ LEFT_PARENTH! expr RIGHT_PARENTH!
