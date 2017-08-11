@@ -115,7 +115,12 @@ void setInBitField(boolean value) {
 
 // Start rule
 startRule
-    :  procSpec* EOF
+    :  procSpecRev* EOF -> procSpecRev*
+    ;
+
+procSpecRev
+    : rev=revision procSpec -> {$rev.applicable}? procSpec
+                            ->
     ;
 
 procSpec
@@ -206,8 +211,8 @@ aliasExpr
 
 modeDef
     :  MODE^ id=ID {declareAndPushSymbolScope($id, NmlSymbolKind.MODE);}
-       modeSpecPart
-    ;  finally {popSymbolScope();}
+       modeSpecPart {popSymbolScope();}
+    ;
 
 modeSpecPart
     :  andRule modeReturn? attrDefList
@@ -225,8 +230,8 @@ modeReturn
 opDef
     :  modifier? OP^ id=(ID | EXCEPTION)
        {declareAndPushSymbolScope($id, NmlSymbolKind.OP);}
-       opSpecPart
-    ;  finally {popSymbolScope();}
+       opSpecPart {popSymbolScope();}
+    ;
 
 modifier
     :  PSEUDO
