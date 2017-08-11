@@ -118,4 +118,13 @@ public class ParserBase extends ParserEx {
 
     return true;
   }
+
+  protected final boolean isRevisionApplicable(final Token revisionId) {
+    if (null != revisionId) {
+      // TODO
+      return false;
+    } else {
+      return true;
+    }
+  }
 }
