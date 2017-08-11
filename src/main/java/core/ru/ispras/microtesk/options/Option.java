@@ -47,6 +47,7 @@ public enum Option {
 
   INCLUDE("include", "Directory that stores include files", "", TRANSLATE),
   EXTDIR("extension-dir", "Directory that stores user-defined Java code", "", TRANSLATE),
+  REVID("rev-id", "Identifier of revision to be used", "", TRANSLATE),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options
