@@ -218,12 +218,20 @@ range
 //==================================================================================================
 
 buffer
-    : kw=ID? bufferId (MMU_VIEWOF view=ID)? bufferParameter* ->
-          ^(MMU_BUFFER bufferId ^(MMU_CONTEXT $kw?) $view? bufferParameter*)
+    : kw=ID? bufferId (MMU_VIEWOF view=ID)? bufferParameterRev* ->
+          ^(MMU_BUFFER bufferId ^(MMU_CONTEXT $kw?) $view? bufferParameterRev*)
     ;
 
 bufferId
     : MMU_BUFFER! ID LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH!
+    ;
+
+bufferParameterRev
+    : rev=revision
+      {pushRevisionApplicable($rev.applicable);}
+      bufferParameter
+      {popRevisionApplicable();} -> {$rev.applicable}? bufferParameter
+                                 ->
     ;
 
 bufferParameter
