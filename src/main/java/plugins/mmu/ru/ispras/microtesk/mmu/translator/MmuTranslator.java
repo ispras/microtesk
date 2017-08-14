@@ -82,15 +82,21 @@ public final class MmuTranslator extends Translator<Ir> {
       tokens.setTokenSource(source);
 
       final MmuParser parser = new MmuParser(tokens);
+
       parser.assignLog(getLog());
       parser.assignSymbols(getSymbols());
+      parser.assignRevisions(getRevisions());
+
       parser.commonParser.assignLog(getLog());
       parser.commonParser.assignSymbols(getSymbols());
+      parser.commonParser.assignRevisions(getRevisions());
 
       final MmuParser.startRule_return r = parser.startRule();
       final CommonTree t = (CommonTree) r.getTree();
 
-      Logger.debug("AST: " + t.toStringTree());
+      if (Logger.isDebug()) {
+        Logger.debug("AST: " + t.toStringTree());
+      }
 
       if (!parser.isCorrect()) {
         Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SYNTACTIC ERRORS.");
@@ -157,6 +163,10 @@ public final class MmuTranslator extends Translator<Ir> {
             return false;
           }
 
+          break;
+        }
+
+        default: {
           break;
         }
       }

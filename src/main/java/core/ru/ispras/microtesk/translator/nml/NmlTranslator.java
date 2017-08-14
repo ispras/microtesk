@@ -122,18 +122,29 @@ public final class NmlTranslator extends Translator<Ir> {
     tokens.setTokenSource(source);
 
     final NmlParser parser = new NmlParser(tokens);
+
     parser.assignLog(getLog());
     parser.assignSymbols(getSymbols());
+    parser.assignRevisions(getRevisions());
+
     parser.commonParser.assignLog(getLog());
     parser.commonParser.assignSymbols(getSymbols());
+    parser.commonParser.assignRevisions(getRevisions());
+
     parser.setTreeAdaptor(new CommonTreeAdaptor());
 
     try {
       final RuleReturnScope result = parser.startRule();
       final CommonTree tree = (CommonTree) result.getTree();
 
-      // Disabled: needed for debug purposes only. TODO: command-line switch for debug outputs.
-      // print(tree);
+      if (Logger.isDebug()) {
+        Logger.debug("AST: " + tree.toStringTree());
+      }
+
+      if (!parser.isCorrect()) {
+        Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SYNTACTIC ERRORS.");
+        return null;
+      }
 
       final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
       nodes.setTokenStream(tokens);

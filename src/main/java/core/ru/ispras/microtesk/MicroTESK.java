@@ -138,8 +138,8 @@ public final class MicroTESK {
 
   private static boolean translate(final Options options, final String[] arguments) {
     final String revision = options.getValueAsString(Option.REVID);
-    final Set<String> revisions = revision.isEmpty() ? Collections.emptySet() :
-                                                       Collections.singleton(revision);
+    final Set<String> revisions = revision.isEmpty() ? Collections.<String>emptySet() :
+                                                       Collections.<String>singleton(revision);
 
     final TranslatorContext context = new TranslatorContext();
     for (final Translator<?> translator : translators) {

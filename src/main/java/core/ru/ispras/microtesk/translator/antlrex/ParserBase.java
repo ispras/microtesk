@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.antlrex;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Set;
 
 import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.Token;
@@ -38,6 +39,7 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
  */
 public class ParserBase extends ParserEx {
   private SymbolTable symbols = null;
+  private Set<String> revisions = null;
   private final Deque<Boolean> revisionApplicable;
 
   public ParserBase(final TokenStream input, final RecognizerSharedState state) {
@@ -52,6 +54,11 @@ public class ParserBase extends ParserEx {
 
   public final SymbolTable getSymbols() {
     return symbols;
+  }
+
+  public void assignRevisions(final Set<String> revisions) {
+    InvariantChecks.checkNotNull(revisions);
+    this.revisions = revisions;
   }
 
   protected final void declare(
@@ -132,13 +139,9 @@ public class ParserBase extends ParserEx {
     return true;
   }
 
-  protected final boolean isRevisionApplicable(final Token revisionId) {
-    if (null != revisionId) {
-      // TODO
-      return false;
-    } else {
-      return true;
-    }
+  protected final boolean isRevisionApplicable(final Token revision) {
+    InvariantChecks.checkNotNull(revisions);
+    return null == revision || revisions.contains(revision.getText());
   }
 
   protected final void pushRevisionApplicable(final boolean applicable) {
