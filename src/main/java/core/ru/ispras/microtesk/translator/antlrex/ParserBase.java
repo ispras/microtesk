@@ -145,7 +145,7 @@ public class ParserBase extends ParserEx {
   }
 
   protected final void pushRevisionApplicable(final boolean applicable) {
-    revisionApplicable.push(applicable);
+    revisionApplicable.push(isRevisionApplicable() ? applicable : false);
   }
 
   protected final void popRevisionApplicable() {
