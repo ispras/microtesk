@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,17 +14,16 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.Translator;
 
@@ -43,7 +42,7 @@ public class Preprocessor {
   private final Deque<IfDefScope> ifdefs = new ArrayDeque<>();
 
   public Preprocessor(final Translator<?> translator) {
-    checkNotNull(translator);
+    InvariantChecks.checkNotNull(translator);
     this.translator = translator;
   }
 
@@ -77,13 +76,26 @@ public class Preprocessor {
   }
 
   public void addPath(final String path) {
-    checkNotNull(path);
-
+    InvariantChecks.checkNotNull(path);
     finder.addPaths(path);
   }
 
   public boolean isDefined(final String key) {
     return defines.containsKey(key.trim());
+  }
+
+  public void define(final String key) {
+    InvariantChecks.checkNotNull(key);
+    if (!defines.containsKey(key)) {
+      defines.put(key, "");
+    }
+  }
+
+  public void defineAll(final Set<String> keys) {
+    InvariantChecks.checkNotNull(keys);
+    for (final String key : keys) {
+      define(key);
+    }
   }
 
   public boolean underIfElse() {
@@ -127,10 +139,10 @@ public class Preprocessor {
   }
 
   public void onElse() {
-    checkTrue(underIfElse());
+    InvariantChecks.checkTrue(underIfElse());
 
     final IfDefScope scope = ifdefs.pop();
-    checkTrue(scope == IfDefScope.IF_TRUE || scope == IfDefScope.IF_FALSE);
+    InvariantChecks.checkTrue(scope == IfDefScope.IF_TRUE || scope == IfDefScope.IF_FALSE);
 
     if (isHidden() || scope == IfDefScope.IF_TRUE) {
       ifdefs.push(IfDefScope.ELSE_FALSE);
@@ -140,7 +152,7 @@ public class Preprocessor {
   }
 
   public void onEndif() {
-    checkTrue(underIfElse());
+    InvariantChecks.checkTrue(underIfElse());
     ifdefs.pop();
   }
 
