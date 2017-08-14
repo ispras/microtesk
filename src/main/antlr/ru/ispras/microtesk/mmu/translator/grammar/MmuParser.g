@@ -77,7 +77,15 @@ import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 //==================================================================================================
 
 startRule 
-    : declaration* EOF!
+    : declarationRev* EOF!
+    ;
+
+declarationRev
+    : rev=revision
+      {pushRevisionApplicable($rev.applicable);}
+      declaration
+      {popRevisionApplicable();} -> {$rev.applicable}? declaration
+                                 ->
     ;
 
 declaration
