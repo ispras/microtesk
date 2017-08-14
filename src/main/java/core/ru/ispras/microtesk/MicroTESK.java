@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,8 +17,10 @@ package ru.ispras.microtesk;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.OptionReader;
@@ -135,9 +137,13 @@ public final class MicroTESK {
   }
 
   private static boolean translate(final Options options, final String[] arguments) {
+    final String revision = options.getValueAsString(Option.REVID);
+    final Set<String> revisions = revision.isEmpty() ? Collections.emptySet() :
+                                                       Collections.singleton(revision);
+
     final TranslatorContext context = new TranslatorContext();
     for (final Translator<?> translator : translators) {
-      if (!translator.translate(options, context, arguments)) {
+      if (!translator.translate(options, context, revisions, arguments)) {
         Logger.message("Translation was aborted.");
         return false;
       }

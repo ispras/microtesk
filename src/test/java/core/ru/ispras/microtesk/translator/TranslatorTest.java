@@ -15,6 +15,9 @@
 package ru.ispras.microtesk.translator;
 
 import static org.junit.Assert.fail;
+
+import java.util.Collections;
+
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreListener;
@@ -70,6 +73,6 @@ public abstract class TranslatorTest<Ir> {
 
     translator.setLog(new LogChecker(translator.getLog()));
     translator.addHandler(irChecker);
-    translator.translate(null, null, fileNames);
+    translator.translate(null, null, Collections.emptySet(), fileNames);
   }
 }

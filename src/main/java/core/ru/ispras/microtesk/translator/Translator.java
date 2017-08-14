@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,7 +16,7 @@ package ru.ispras.microtesk.translator;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
@@ -36,14 +36,22 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.utils.FileUtils;
 
+/**
+ * The {@link Translator} is a base class for all translators. It implements all common
+ * facilities shared by translators.
+ *
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ *
+ * @param <Ir> Class describing the internal representation (IR) constructed by the translator.
+ */
 public abstract class Translator<Ir> {
   private final Set<String> fileExtFilter;
   private final List<TranslatorHandler<Ir>> handlers;
   private final SymbolTable symbols;
-  private final Set<String> revisions;
 
   private String outDir;
   private TranslatorContext context;
+  private Set<String> revisions;
   private LogStore log;
 
   private final Preprocessor preprocessor;
@@ -55,10 +63,10 @@ public abstract class Translator<Ir> {
     this.fileExtFilter = fileExtFilter;
     this.handlers = new ArrayList<>();
     this.symbols = new SymbolTable();
-    this.revisions = new HashSet<>();
 
     this.outDir = PackageInfo.DEFAULT_OUTDIR;
     this.context = null;
+    this.revisions = null;
     this.log = LogStoreConsole.INSTANCE;
 
     this.preprocessor = new Preprocessor(this);
@@ -81,7 +89,7 @@ public abstract class Translator<Ir> {
     }
   }
 
-  protected SymbolTable getSymbols() {
+  protected final SymbolTable getSymbols() {
     return symbols;
   }
 
@@ -94,12 +102,6 @@ public abstract class Translator<Ir> {
     this.outDir = outDir;
   }
 
-  public final void addRevision(final String revision) {
-    if (null != revision && !revision.isEmpty()) {
-      revisions.add(revision);
-    }
-  }
-
   public final TranslatorContext getContext() {
     return context;
   }
@@ -107,6 +109,18 @@ public abstract class Translator<Ir> {
   public final void setContext(final TranslatorContext context) {
     InvariantChecks.checkNotNull(context);
     this.context = context;
+  }
+
+  protected final Set<String> getRevisions() {
+    return revisions;
+  }
+
+  public final void setRevisions(final Set<String> revisions) {
+    InvariantChecks.checkNotNull(revisions);
+    InvariantChecks.checkTrue(null == this.revisions);
+
+    this.revisions = Collections.unmodifiableSet(revisions);
+    this.preprocessor.defineAll(revisions);
   }
 
   public final LogStore getLog() {
@@ -147,18 +161,20 @@ public abstract class Translator<Ir> {
   public final boolean translate(
       final Options options,
       final TranslatorContext context,
+      final Set<String> revisions,
       final String... fileNames) {
     if (null != options) {
       if (options.hasValue(Option.INCLUDE)) {
         addPath(options.getValueAsString(Option.INCLUDE));
       }
       setOutDir(options.getValueAsString(Option.OUTDIR));
-      addRevision((options.getValueAsString(Option.REVID)));
     }
 
     if (null != context) {
       setContext(context);
     }
+
+    setRevisions(revisions);
 
     for (final String fileName : fileNames) {
       final String fileDir = FileUtils.getFileDir(fileName);
