@@ -78,7 +78,7 @@ catch (final RecognitionException re) { // Default behavior
 
 @header {
 /*
- * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -281,11 +281,30 @@ attrDefList
     ;
 
 attrDef
-    @after {declare($id, NmlSymbolKind.ATTRIBUTE, false);}
-    :  id=SYNTAX^ ASSIGN! syntaxDef
-    |  id=IMAGE^ ASSIGN! imageDef
-    |  id=ACTION^ ASSIGN! actionDef
-    |  id=ID^ ASSIGN! actionDef
+    :  rev=revision {pushRevisionApplicable($rev.applicable);} id=SYNTAX ASSIGN syntaxDef
+       {declare($id, NmlSymbolKind.ATTRIBUTE, false);
+        popRevisionApplicable();}
+       -> {$rev.applicable}? ^(SYNTAX syntaxDef)
+       ->
+
+    |  rev=revision {pushRevisionApplicable($rev.applicable);} id=IMAGE ASSIGN imageDef
+       {declare($id, NmlSymbolKind.ATTRIBUTE, false);
+        popRevisionApplicable();}
+       -> {$rev.applicable}? ^(IMAGE imageDef)
+       ->
+
+    |  rev=revision {pushRevisionApplicable($rev.applicable);} id=ACTION ASSIGN actionDef
+       {declare($id, NmlSymbolKind.ATTRIBUTE, false);
+       popRevisionApplicable();}
+       -> {$rev.applicable}? ^(ACTION actionDef)
+       ->
+
+    |  rev=revision {pushRevisionApplicable($rev.applicable);} id=ID ASSIGN actionDef
+       {declare($id, NmlSymbolKind.ATTRIBUTE, false);
+       popRevisionApplicable();}
+       -> {$rev.applicable}? ^(ID actionDef)
+       ->
+
 //  |  USES ASSIGN usesDef     // NOT SUPPORTED IN THE CURRENT VERSION
     ;
 

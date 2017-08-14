@@ -141,11 +141,11 @@ public class ParserBase extends ParserEx {
 
   protected final boolean isRevisionApplicable(final Token revision) {
     InvariantChecks.checkNotNull(revisions);
-    return null == revision || revisions.contains(revision.getText());
+    return isRevisionApplicable() && (null == revision || revisions.contains(revision.getText()));
   }
 
   protected final void pushRevisionApplicable(final boolean applicable) {
-    revisionApplicable.push(isRevisionApplicable() ? applicable : false);
+    revisionApplicable.push(applicable);
   }
 
   protected final void popRevisionApplicable() {
