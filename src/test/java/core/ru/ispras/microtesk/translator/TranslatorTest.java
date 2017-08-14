@@ -73,6 +73,6 @@ public abstract class TranslatorTest<Ir> {
 
     translator.setLog(new LogChecker(translator.getLog()));
     translator.addHandler(irChecker);
-    translator.translate(null, null, Collections.emptySet(), fileNames);
+    translator.translate(null, null, Collections.<String>emptySet(), fileNames);
   }
 }
