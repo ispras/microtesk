@@ -468,7 +468,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         constant.getExpression() : null;
 
     if (type == null && size == null) {
-      raiseError(w, String.format("Unkown type name '%s'.", typeId.getText()));
+      raiseError(w, String.format("Unknown type name '%s'.", typeId.getText()));
     }
 
     if (type != null && size != null) {
