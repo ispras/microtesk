@@ -251,7 +251,12 @@ opSpecPart
 /*===============================================================================================*/
 
 orRule
-    :  ASSIGN ID (VERT_BAR ID)* -> ^(ALTERNATIVES ID+)
+    :  ASSIGN idRev (VERT_BAR idRev)* -> ^(ALTERNATIVES idRev+)
+    ;
+
+idRev
+    :  rev=revision ID -> {$rev.applicable}? ID
+                       ->
     ;
 
 /*===============================================================================================*/
