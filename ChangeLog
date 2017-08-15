@@ -9,7 +9,7 @@
 2017/08/15 MicroTESK 2.4.32 beta
 
  - Support for revisions in nML and MMU specifications
- - Integration of multiple generation engines
+ - Integration of generation engines (branch and memory)
  - Test template demonstrating how to mix ALU, BPU and MMU constraints
    in a single sequence (miniMIPS)
  - Bug fixes and general improvements
