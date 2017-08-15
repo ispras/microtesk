@@ -119,11 +119,11 @@ startRule
     ;
 
 procSpecRev
-    : rev=revision
-      {pushRevisionApplicable($rev.applicable);}
-      procSpec
-      {popRevisionApplicable();} -> {$rev.applicable}? procSpec
-                                 ->
+    :  rev=revision
+       {pushRevisionApplicable($rev.applicable);}
+       procSpec
+       {popRevisionApplicable();} -> {$rev.applicable}? procSpec
+                                  ->
     ;
 
 procSpec
@@ -277,34 +277,23 @@ argType
 /*===============================================================================================*/
 
 attrDefList
-    :  attrDef* -> ^(ATTRS attrDef*)
+    :  attrDefRev* -> ^(ATTRS attrDefRev*)
+    ;
+
+attrDefRev
+    :  rev=revision
+       {pushRevisionApplicable($rev.applicable);}
+       attrDef
+       {popRevisionApplicable();} -> {$rev.applicable}? attrDef
+                                  ->
     ;
 
 attrDef
-    :  rev=revision {pushRevisionApplicable($rev.applicable);} id=SYNTAX ASSIGN syntaxDef
-       {declare($id, NmlSymbolKind.ATTRIBUTE, false);
-        popRevisionApplicable();}
-       -> {$rev.applicable}? ^(SYNTAX syntaxDef)
-       ->
-
-    |  rev=revision {pushRevisionApplicable($rev.applicable);} id=IMAGE ASSIGN imageDef
-       {declare($id, NmlSymbolKind.ATTRIBUTE, false);
-        popRevisionApplicable();}
-       -> {$rev.applicable}? ^(IMAGE imageDef)
-       ->
-
-    |  rev=revision {pushRevisionApplicable($rev.applicable);} id=ACTION ASSIGN actionDef
-       {declare($id, NmlSymbolKind.ATTRIBUTE, false);
-       popRevisionApplicable();}
-       -> {$rev.applicable}? ^(ACTION actionDef)
-       ->
-
-    |  rev=revision {pushRevisionApplicable($rev.applicable);} id=ID ASSIGN actionDef
-       {declare($id, NmlSymbolKind.ATTRIBUTE, false);
-       popRevisionApplicable();}
-       -> {$rev.applicable}? ^(ID actionDef)
-       ->
-
+    @after {declare($id, NmlSymbolKind.ATTRIBUTE, false);}
+    :  id=SYNTAX^ ASSIGN! syntaxDef
+    |  id=IMAGE^ ASSIGN! imageDef
+    |  id=ACTION^ ASSIGN! actionDef
+    |  id=ID^ ASSIGN! actionDef
 //  |  USES ASSIGN usesDef     // NOT SUPPORTED IN THE CURRENT VERSION
     ;
 
