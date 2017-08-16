@@ -31,6 +31,7 @@ public enum Option {
   HELP("help", "Shows help message", false),
   VERBOSE("verbose", "Enables printing diagnostic messages", false),
   OUTDIR("output-dir", "Directory to place generated files", "./output"),
+  REVID("rev-id", "Identifier of revision to be used", ""),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Tasks
@@ -47,7 +48,6 @@ public enum Option {
 
   INCLUDE("include", "Directory that stores include files", "", TRANSLATE),
   EXTDIR("extension-dir", "Directory that stores user-defined Java code", "", TRANSLATE),
-  REVID("rev-id", "Identifier of revision to be used", "", TRANSLATE),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options
