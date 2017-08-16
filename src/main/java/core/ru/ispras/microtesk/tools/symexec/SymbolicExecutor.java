@@ -16,6 +16,7 @@ package ru.ispras.microtesk.tools.symexec;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.expression.Node;
@@ -69,7 +70,12 @@ public final class SymbolicExecutor {
     final Cvc4Solver solver = new Cvc4Solver();
 
     try {
-      SmtTextBuilder.saveToFile(fileName, formulas, solver.getOperations());
+      SmtTextBuilder.saveToFile(
+          fileName,
+          Collections.<String>emptyList(),
+          formulas,
+          solver.getOperations()
+          );
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
     }
