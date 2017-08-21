@@ -593,6 +593,20 @@ public final class ExprFactory extends WalkerFactoryBase {
     return new Expr(node);
   }
 
+  public Expr is_type(
+      final Where w,
+      final Expr src,
+      final Type type) throws SemanticException {
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(src);
+    InvariantChecks.checkNotNull(type);
+
+    final Expr result = new Expr(NodeValue.newBoolean(src.isTypeOf(type)));
+    result.setNodeInfo(NodeInfo.newConst(Type.BOOLEAN));
+
+    return result;
+  }
+
   public Expr condition(final Where w, final List<Pair<Expr, Expr>> blocks) throws SemanticException {
     InvariantChecks.checkNotNull(w);
     InvariantChecks.checkNotNull(blocks);

@@ -929,6 +929,12 @@ checkNotNull($te.start, $te.res, $te.text);
 checkNotNull($e.start,   $e.res,  $e.text);
 $res = getExprFactory().float_to_float(where($token), $e.res, $te.res);
 })
+    |  ^(token=IS_TYPE te=typeExpr e=dataExpr
+{
+checkNotNull($te.start, $te.res, $te.text);
+checkNotNull($e.start,   $e.res,  $e.text);
+$res = getExprFactory().is_type(where($token), $e.res, $te.res);
+})
     ;
 
 /*======================================================================================*/

@@ -95,7 +95,7 @@ public final class SymbolTable {
    * Sets the specified scope list as the current scope.
    * The new scope must be nested in the old scope.
    *
-   * @param scope List of scopes to be set as the current scope.
+   * @param scopes List of scopes to be set as the current scope.
    *
    * @throws IllegalArgumentException if {@code scope} is {@code null};
    *         if {@code scope} is not nested into the current scope.

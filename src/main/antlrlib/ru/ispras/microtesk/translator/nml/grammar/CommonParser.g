@@ -238,6 +238,7 @@ typeCast
     |  INT_TO_FLOAT^   LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
     |  FLOAT_TO_INT^   LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
     |  FLOAT_TO_FLOAT^ LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
+    |  IS_TYPE^        LEFT_PARENTH! typeExpr COMMA! expr RIGHT_PARENTH!
     ;
 
 mathFunc
