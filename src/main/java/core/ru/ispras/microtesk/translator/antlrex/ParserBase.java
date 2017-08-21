@@ -78,7 +78,7 @@ public class ParserBase extends ParserEx {
     symbols.define(symbol);
   }
 
-  protected final void declareAndPushSymbolScope(
+  protected final Symbol declareAndPushSymbolScope(
       final Token t,
       final Enum<?> kind) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
@@ -92,6 +92,7 @@ public class ParserBase extends ParserEx {
     }
 
     symbols.push(symbol.getInnerScope());
+    return symbol;
   }
 
   protected void popSymbolScope() {
