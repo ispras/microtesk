@@ -104,7 +104,8 @@ typeExpr
 //  |  FIX^ LEFT_PARENTH! expr COMMA! expr RIGHT_PARENTH!
     |  FLOAT^ LEFT_PARENTH! expr COMMA! expr RIGHT_PARENTH!
 //  |  LEFT_HOOK constExpr DOUBLE_DOT constExpr RIGHT_HOOK -> ^(RANGE constExpr constExpr) // TODO: NOT SUPPORTED IN THE CURRENT VERSION  
-//  |  ENUM^ LEFT_PARENTH! identifierList RIGHT_PARENTH! // TODO: NOT SUPPORTED IN THE CURRENT VERSION  
+//  |  ENUM^ LEFT_PARENTH! identifierList RIGHT_PARENTH! // TODO: NOT SUPPORTED IN THE CURRENT VERSION
+    |  TYPE_OF^ LEFT_PARENTH! expr RIGHT_PARENTH!
     ;
 catch [RecognitionException re] {
     reportError(re);

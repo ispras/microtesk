@@ -23,6 +23,7 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 
 public final class TypeFactory extends WalkerFactoryBase {
   public TypeFactory(final WalkerContext context) {
@@ -73,5 +74,13 @@ public final class TypeFactory extends WalkerFactoryBase {
     }
 
     return ((NodeValue) expr.getNode()).getInteger().intValue();
+  }
+
+  public Type typeOf(final Where where, final Expr expr) throws SemanticException {
+    final NodeInfo nodeInfo = expr.getNodeInfo();
+    if (null == nodeInfo) {
+      raiseError(where, "The type_of operation is not applicable to constant values.");
+    }
+    return nodeInfo.getType();
   }
 }

@@ -151,6 +151,7 @@ typeExpr returns [Type res]
     |   ^(t=FLOAT n=sizeExpr m=sizeExpr)
             { $res=getTypeFactory().newFloat(where($t), $n.res, $m.res); }
 //  |   ^(t=RANGE n=staticJavaExpr m=staticJavaExpr) // TODO: NOT SUPPORTED IN THIS VERSION
+    |   ^(t=TYPE_OF  e=dataExpr) { $res=getTypeFactory().typeOf(where($t), $e.res); }
     ;
 
 /*======================================================================================*/
