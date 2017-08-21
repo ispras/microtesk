@@ -880,6 +880,12 @@ $res = getExprFactory().isNan(where($token), $e.res);
 checkNotNull($e.start, $e.res, $e.text);
 $res = getExprFactory().isSignalingNan(where($token), $e.res);
 })
+    |  ^(token=SIZE_OF e=dataExpr
+{
+checkNotNull($e.start, $e.res, $e.text);
+$res = getExprFactory().sizeOf(where($token), $e.res);
+})
+
     ;
 
 /*======================================================================================*/

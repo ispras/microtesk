@@ -311,6 +311,23 @@ public final class ExprFactory extends WalkerFactoryBase {
     return new Expr(node);
   }
 
+  public Expr sizeOf(final Where w, final Expr operand) throws SemanticException {
+    InvariantChecks.checkNotNull(w);
+    InvariantChecks.checkNotNull(operand);
+
+    final NodeInfo nodeInfo = operand.getNodeInfo();
+    if (null == nodeInfo) {
+      raiseError(w, "The size_of operation is not applicable to constant values.");
+    }
+
+    final Type type = nodeInfo.getType();
+
+    final Expr result = new Expr(NodeValue.newInteger(type.getBitSize()));
+    result.setNodeInfo(NodeInfo.newConst(null)); // No nML type is associated
+
+    return result;
+  }
+
   public Expr signExtend(
       final Where w,
       final Expr src,

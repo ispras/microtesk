@@ -246,6 +246,7 @@ mathFunc
     |  ROUND^       LEFT_PARENTH! expr RIGHT_PARENTH!
     |  IS_NAN^      LEFT_PARENTH! expr RIGHT_PARENTH!
     |  IS_SIGN_NAN^ LEFT_PARENTH! expr RIGHT_PARENTH!
+    |  SIZE_OF^     LEFT_PARENTH! expr RIGHT_PARENTH!
     ;
 
 //==================================================================================================
