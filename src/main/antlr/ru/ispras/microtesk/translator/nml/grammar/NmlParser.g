@@ -97,6 +97,7 @@ package ru.ispras.microtesk.translator.nml.grammar;
 
 import ru.ispras.microtesk.translator.antlrex.ParserBase;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
+import ru.ispras.microtesk.translator.antlrex.symbols.SymbolScope;
 }
 
 @members {
@@ -231,19 +232,21 @@ modeReturn
 /*===============================================================================================*/
 
 opDef
-    :  modifier? OP^ id=(ID | EXCEPTION)
-       {declareAndPushSymbolScope($id, NmlSymbolKind.OP);}
-       opSpecPart {popSymbolScope();}
+@init  {final List<SymbolScope> scopes = new ArrayList<>();}
+    :  (modifier? OP opId andRule {scopes.add(popSymbolScope());})+
+       {pushSymbolScopes(scopes);} attrDefList {popSymbolScope();}
+       -> ^(OP modifier? opId andRule attrDefList)+
+    |  modifier? OP opId orRule {popSymbolScope();}
+       -> ^(OP modifier? opId orRule)
+    ;
+
+opId
+    : id=(ID | EXCEPTION) {declareAndPushSymbolScope($id, NmlSymbolKind.OP);}
     ;
 
 modifier
     :  PSEUDO
     |  INTERNAL
-    ;
-
-opSpecPart
-    :  andRule attrDefList
-    |  orRule
     ;
 
 /*===============================================================================================*/

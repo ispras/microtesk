@@ -57,7 +57,7 @@ public final class Symbol {
     this.kind = kind;
     this.where = where;
     this.scope = scope;
-    this.innerScope = hasInnerScope ? new SymbolScope(scope, this) : null;
+    this.innerScope = hasInnerScope ? new SymbolScopeItem(scope, this) : null;
     this.tag = tag;
   }
 

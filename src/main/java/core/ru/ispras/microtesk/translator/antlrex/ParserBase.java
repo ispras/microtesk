@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.antlrex;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 import java.util.Set;
 
 import org.antlr.runtime.RecognizerSharedState;
@@ -95,8 +96,15 @@ public class ParserBase extends ParserEx {
     return symbol;
   }
 
-  protected void popSymbolScope() {
+  protected SymbolScope popSymbolScope() {
+    final SymbolScope scope = symbols.peek();
     symbols.pop();
+    return scope;
+  }
+
+  protected final void pushSymbolScopes(final List<SymbolScope> scopes) {
+    InvariantChecks.checkNotNull(symbols);
+    symbols.push(scopes);
   }
 
   private final void checkRedeclared(final Token t) throws SemanticException {
