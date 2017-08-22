@@ -232,7 +232,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
     listener.setAllocationAddress(endAddress);
 
-    if (!isPresimulation) {
+    if (!isPresimulation || engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
       // Presimulation and processing of test situations are disabled.
       return;
     }

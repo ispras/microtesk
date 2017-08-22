@@ -81,6 +81,7 @@ final class TemplateProcessor implements Template.Processor {
   private final Executor executor;
   private final List<Executor.Status> executorStatuses;
   private final Deque<ConcreteSequence> interruptedSequences;
+  private final boolean isNoSimulation;
   private boolean isProgramStarted;
   private boolean hasDispatchingCode;
 
@@ -102,6 +103,7 @@ final class TemplateProcessor implements Template.Processor {
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();
+    this.isNoSimulation = engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION);
     this.isProgramStarted = false;
     this.hasDispatchingCode = false;
 
@@ -181,12 +183,15 @@ final class TemplateProcessor implements Template.Processor {
   public void finish() {
     try {
       startProgram();
-      runExecutionFromStart();
 
-      processPostponedBlocks();
+      if (!isNoSimulation) {
+        runExecutionFromStart();
+        processPostponedBlocks();
+      }
+
       processPostponedBlocksNoSimulation();
-
       finishProgram();
+
       Logger.debugHeader("Ended Processing Template");
 
       PrinterUtils.printLinkerScript(engineContext);
@@ -536,9 +541,11 @@ final class TemplateProcessor implements Template.Processor {
     try {
       final ConcreteSequence epilogue = testProgram.getEpilogue();
       allocateSequence(epilogue, Label.NO_SEQUENCE_INDEX);
-      runExecution(epilogue);
 
-      TestEngineUtils.checkAllAtEndOf(executorStatuses, testProgram.getLastNonEmptyEntry());
+      if (!isNoSimulation) {
+        runExecution(epilogue);
+        TestEngineUtils.checkAllAtEndOf(executorStatuses, testProgram.getLastNonEmptyEntry());
+      }
     } finally {
       TestEngineUtils.notifyProgramEnd();
 
