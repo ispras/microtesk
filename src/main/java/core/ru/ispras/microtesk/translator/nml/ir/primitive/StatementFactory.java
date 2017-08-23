@@ -14,12 +14,14 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -169,8 +171,34 @@ public final class StatementFactory extends WalkerFactoryBase {
     }
   }
 
-  public Statement createCondition(List<StatementCondition.Block> blocks) {
-    return new StatementCondition(blocks);
+  public List<Statement> createCondition(final List<StatementCondition.Block> blocks) {
+    final List<StatementCondition.Block> updatedBlocks = new ArrayList<>();
+    for (final StatementCondition.Block block : blocks) {
+      final Expr condition = block.getCondition();
+      if (null != condition && ExprUtils.isValue(condition.getNode())) { // Condition is true.
+        if (NodeValue.newBoolean(true).equals(condition.getNode())) {
+          // This block becomes an else block, the rest are thrown away.
+          updatedBlocks.add(StatementCondition.Block.newElseBlock(block.getStatements()));
+          break;
+        } else { // Condition is false.
+          // This block is thrown away.
+        }
+      } else {
+        updatedBlocks.add(block);
+      }
+    }
+
+    if (updatedBlocks.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    if (updatedBlocks.size() == 1 &&
+       (updatedBlocks.get(0).getCondition() == null ||
+        updatedBlocks.get(0).getCondition().getNode().equals(NodeValue.newBoolean(true)))) {
+      return updatedBlocks.get(0).getStatements();
+    }
+
+    return Collections.<Statement>singletonList(new StatementCondition(updatedBlocks));
   }
 
   public Statement createAttributeCall(

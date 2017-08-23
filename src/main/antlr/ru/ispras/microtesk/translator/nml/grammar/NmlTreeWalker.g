@@ -616,7 +616,7 @@ checkNotNull($eb.start, $eb.res, $eb.text);
 blocks.add($eb.res);
 })?)
 {
-$res = Collections.singletonList(getStatementFactory().createCondition(blocks));
+$res = getStatementFactory().createCondition(blocks);
 }
     ;
 
