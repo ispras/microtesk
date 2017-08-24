@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -20,8 +20,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -33,6 +35,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Config {
   private Config() {}
@@ -47,8 +51,12 @@ public final class Config {
   private static final String      ATTR_NAME = "name";
   private static final String     ATTR_VALUE = "value";
 
+  private static final String      REVISIONS = "revisions";
+  private static final String       REVISION = "revision";
+  private static final String       INCLUDES = "includes";
+
   private static final String ERR_ATTRIBUTE_NOT_DEFINED =
-      "The %s attribute is not defined for a plugin in %s.";
+      "The %s attribute is not defined for the %s node.";
 
   private static final String ERR_SETTINGS_FILE_NOT_EXIST =
       "The configuration file %s does not exist or is not a file.";
@@ -89,7 +97,7 @@ public final class Config {
       final Node className = attributes.getNamedItem(CLASS);
       if (null == className) {
         throw new IllegalStateException(String.format(
-            ERR_ATTRIBUTE_NOT_DEFINED, CLASS, CONFIG_URL));
+            ERR_ATTRIBUTE_NOT_DEFINED, CLASS, PLUGIN));
       }
 
       final Plugin plugin = SysUtils.loadPlugin(className.getNodeValue());
@@ -169,18 +177,81 @@ public final class Config {
       final Node name = attributes.getNamedItem(ATTR_NAME);
       if (null == name) {
         throw new IllegalStateException(String.format(
-            ERR_ATTRIBUTE_NOT_DEFINED, ATTR_NAME, file.getName()));
+            ERR_ATTRIBUTE_NOT_DEFINED, ATTR_NAME, SETTING));
       }
 
       final Node value = attributes.getNamedItem(ATTR_VALUE);
       if (null == value) {
         throw new IllegalStateException(String.format(
-            ERR_ATTRIBUTE_NOT_DEFINED, ATTR_VALUE, file.getName()));
+            ERR_ATTRIBUTE_NOT_DEFINED, ATTR_VALUE, SETTING));
       }
 
       result.put(name.getNodeValue(), value.getNodeValue());
     }
 
     return result;
+  }
+
+  public static Revisions loadRevisions(final String fileName) {
+    InvariantChecks.checkNotNull(fileName);
+
+    final Revisions revisions = new Revisions();
+
+    final File file = new File(fileName);
+    if (!file.exists() || !file.isFile()) {
+      return revisions;
+    }
+
+    final Document document = parseDocument(file);
+    if (null == document) {
+      throw new IllegalStateException(String.format(ERR_FAILED_TO_PARSE, fileName));
+    }
+
+    final Node root = document.getFirstChild();
+    if (!REVISIONS.equalsIgnoreCase((root.getNodeName()))) {
+      throw new IllegalStateException(String.format(
+          ERR_NO_ROOT_NODE, file.getPath(), REVISIONS));
+    }
+
+    final Map<String, Set<String>> result = new LinkedHashMap<>();
+
+    final NodeList revisionList = root.getChildNodes();
+    for (int revisionIndex = 0; revisionIndex < revisionList.getLength(); ++revisionIndex) {
+      final Node revision = revisionList.item(revisionIndex);
+      if (!REVISION.equalsIgnoreCase((revision.getNodeName()))) {
+        continue;
+      }
+
+      final NamedNodeMap revisionAttributes = revision.getAttributes();
+      final Node revisionName = revisionAttributes.getNamedItem(ATTR_NAME);
+      if (null == revisionName) {
+        throw new IllegalStateException(String.format(
+            ERR_ATTRIBUTE_NOT_DEFINED, ATTR_NAME, REVISION));
+      }
+
+      final String revisionId = revisionName.getNodeValue();
+      final Set<String> revisionIncludes = new LinkedHashSet<>();
+
+      final NodeList includesList = revision.getChildNodes();
+      for (int includesIndex = 0; includesIndex < includesList.getLength(); ++includesIndex) {
+        final Node includes = includesList.item(includesIndex);
+        if (!INCLUDES.equalsIgnoreCase((includes.getNodeName()))) {
+          continue;
+        }
+
+        final NamedNodeMap includesAttributes = includes.getAttributes();
+        final Node includesName = includesAttributes.getNamedItem(ATTR_NAME);
+        if (null == includesName) {
+          throw new IllegalStateException(String.format(
+              ERR_ATTRIBUTE_NOT_DEFINED, ATTR_NAME, INCLUDES));
+        }
+
+        revisionIncludes.add(includesName.getNodeValue());
+      }
+
+      revisions.addRevision(revisionId, revisionIncludes);
+    }
+
+    return revisions;
   }
 }

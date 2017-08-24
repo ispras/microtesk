@@ -15,8 +15,8 @@
 package ru.ispras.microtesk;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,14 +32,14 @@ public final class Revisions {
   private final Map<String, Set<String>> revisions;
 
   public Revisions() {
-    this.revisions = new HashMap<>();
+    this.revisions = new LinkedHashMap<>();
   }
 
-  public void addRevision(final String revisionId, final Set<String> revisionIncludes) {
+  protected void addRevision(final String revisionId, final Set<String> revisionIncludes) {
     InvariantChecks.checkNotNull(revisionId);
     InvariantChecks.checkNotNull(revisionIncludes);
 
-    final Set<String> revision = new HashSet<>(revisionIncludes);
+    final Set<String> revision = new LinkedHashSet<>(revisionIncludes);
     revision.add(revisionId);
 
     if (revisions.containsKey(revisionId)) {
@@ -57,7 +57,7 @@ public final class Revisions {
     }
 
     final Set<String> revision = revisions.get(revisionId);
-    final Set<String> expandedRevision = new HashSet<>();
+    final Set<String> expandedRevision = new LinkedHashSet<>();
 
     expand(revision, expandedRevision);
     return expandedRevision;
@@ -79,5 +79,10 @@ public final class Revisions {
         expandedRevision.add(revisionId);
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return revisions.toString();
   }
 }
