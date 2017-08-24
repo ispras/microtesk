@@ -137,13 +137,29 @@ public final class MicroTESK {
   }
 
   private static boolean translate(final Options options, final String[] arguments) {
-    final String revision = options.getValueAsString(Option.REVID);
-    final Set<String> revisions = revision.isEmpty() ? Collections.<String>emptySet() :
-                                                       Collections.<String>singleton(revision);
+    final String revisionId = options.getValueAsString(Option.REVID);
+    final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
+
+    Set<String> revisionSet = revisionId.isEmpty() ? Collections.<String>emptySet() :
+                                                     Collections.<String>singleton(revisionId);
+
+    if (!revisionId.isEmpty() && !archDirs.isEmpty()) {
+      for (final String fileName : arguments) {
+        final String name = FileUtils.getShortFileNameNoExt(fileName);
+        final String archDir = SysUtils.getArchDir(archDirs, name);
+
+        if (null != archDir) {
+          final String path = new File(FileUtils.getFileDir(archDir), "revisions.xml").getPath();
+          final Revisions revisions = Config.loadRevisions(path);
+          revisionSet = revisions.getRevision(revisionId);
+          break;
+        }
+      }
+    }
 
     final TranslatorContext context = new TranslatorContext();
     for (final Translator<?> translator : translators) {
-      if (!translator.translate(options, context, revisions, arguments)) {
+      if (!translator.translate(options, context, revisionSet, arguments)) {
         Logger.message("Translation was aborted.");
         return false;
       }
