@@ -69,14 +69,14 @@ public final class Revisions {
 
     for (final String revisionId : revision) {
       final Set<String> includedRevision = revisions.get(revisionId);
-      if (null != includedRevision) {
+      if (includedRevision == null || includedRevision == revision) {
+        expandedRevision.add(revisionId);
+      } else {
         for (final String includedRevisionId : includedRevision) {
           if (!expandedRevision.contains(includedRevisionId)) {
             expand(includedRevision, expandedRevision);
           }
         }
-      } else {
-        expandedRevision.add(revisionId);
       }
     }
   }

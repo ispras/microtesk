@@ -213,8 +213,6 @@ public final class Config {
           ERR_NO_ROOT_NODE, file.getPath(), REVISIONS));
     }
 
-    final Map<String, Set<String>> result = new LinkedHashMap<>();
-
     final NodeList revisionList = root.getChildNodes();
     for (int revisionIndex = 0; revisionIndex < revisionList.getLength(); ++revisionIndex) {
       final Node revision = revisionList.item(revisionIndex);
