@@ -245,30 +245,14 @@ public final class TestEngine {
     }
 
     final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
-    final String[] archDirsArray = archDirs.split(":");
+    final String archPath = SysUtils.getArchDir(archDirs, modelName);
 
-    GeneratorSettings settings = null;
-    for (final String archDir : archDirsArray) {
-      final String[] archDirArray = archDir.split("=");
-
-      if (archDirArray != null && archDirArray.length > 1 && modelName.equals(archDirArray[0])) {
-        final File archFile = new File(archDirArray[1]);
-
-        final String archPath = archFile.isAbsolute() ?
-            archDirArray[1] :
-            String.format("%s%s%s", SysUtils.getHomeDir(), File.separator, archDirArray[1]); 
-
-        settings = SettingsParser.parse(archPath);
-        break;
-      }
-    }
-
-    if (null == settings) {
+    if (null == archPath) {
       Logger.error("The --%s option does not contain path to settings for %s.",
           Option.ARCH_DIRS.getName(), modelName);
     }
 
-    return settings;
+    return SettingsParser.parse(archPath);
   }
 
   private static void initSolverPaths(final String home) {

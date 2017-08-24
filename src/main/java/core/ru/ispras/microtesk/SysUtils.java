@@ -15,7 +15,6 @@
 package ru.ispras.microtesk;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -168,5 +167,40 @@ public final class SysUtils {
     InvariantChecks.checkNotNull(resourceName);
     final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     return classLoader.getResource(resourceName);
+  }
+
+  /**
+   * Gets the path to the directory of that holds files related to the specified architecture.
+   *
+   * <p>The path is extracted from a string that stores a map of architecture names and
+   * corresponding paths. The string has the following format:
+   * {@code name1=path1:name2=path2:...:nameN=pathN}
+   *
+   * @param archDirs String that stores a map of architectures and their directories.
+   * @param archName Architecture name.
+   * @return Architecture directory path or {@code null} if no such path is found.
+   *
+   * @throws IllegalArgumentException if any of the arguments is {@code null}.
+   */
+  public static String getArchDir(final String archDirs, final String archName) {
+    InvariantChecks.checkNotNull(archDirs);
+    InvariantChecks.checkNotNull(archName);
+
+    final String[] archDirsArray = archDirs.split(":");
+    for (final String archDir : archDirsArray) {
+      final String[] archDirArray = archDir.split("=");
+
+      if (archDirArray != null && archDirArray.length > 1 && archName.equals(archDirArray[0])) {
+        final File archFile = new File(archDirArray[1]);
+
+        final String archDirPath = archFile.isAbsolute() ?
+            archDirArray[1] :
+            String.format("%s%s%s", getHomeDir(), File.separator, archDirArray[1]);
+
+        return archDirPath;
+      }
+    }
+
+    return null;
   }
 }
