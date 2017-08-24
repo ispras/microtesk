@@ -38,6 +38,12 @@ import org.xml.sax.SAXException;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * The {@link Config} class provides methods that read configuration files and create objects
+ * they described.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class Config {
   private Config() {}
 
