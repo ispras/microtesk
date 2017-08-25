@@ -154,7 +154,8 @@ public final class PrimitiveInfo {
 
     if (prevUsage == usage || // Same access type
         prevUsage == ArgumentMode.INOUT || // Already marked as both IN and OUT
-        prevUsage == ArgumentMode.OUT && usage == ArgumentMode.IN) { // IN after OUT means OUT
+        prevUsage == ArgumentMode.OUT && (usage == ArgumentMode.IN ||     // IN or INOUT
+                                          usage == ArgumentMode.INOUT)) { // after OUT means OUT
       return;
     }
 
