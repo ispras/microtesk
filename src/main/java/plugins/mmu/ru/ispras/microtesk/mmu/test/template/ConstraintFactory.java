@@ -22,10 +22,14 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateCollection;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
@@ -62,11 +66,11 @@ public final class ConstraintFactory {
       final BigInteger value) {
     InvariantChecks.checkNotNull(value);
 
-    final IntegerVariable variable = getVariable(variableName);
+    final IntegerField variableField = getVariableField(variableName);
     final Value variate = new FixedValue(value);
     final Set<BigInteger> values = Collections.<BigInteger>singleton(value);
 
-    return new VariableConstraint(variable, variate, values);
+    return new VariableConstraint(variableField, variate, values);
   }
 
   public VariableConstraint newEqRange(
@@ -77,7 +81,7 @@ public final class ConstraintFactory {
     InvariantChecks.checkNotNull(max);
     InvariantChecks.checkGreaterOrEq(max, min);
 
-    final IntegerVariable variable = getVariable(variableName);
+    final IntegerField variableField = getVariableField(variableName);
     final Value variate = new RandomValue(min, max);
     final Set<BigInteger> values = new LinkedHashSet<>();
 
@@ -85,7 +89,7 @@ public final class ConstraintFactory {
       values.add(value);
     }
 
-    return new VariableConstraint(variable, variate, values);
+    return new VariableConstraint(variableField, variate, values);
   }
 
   public VariableConstraint newEqArray(
@@ -93,11 +97,11 @@ public final class ConstraintFactory {
       final BigInteger[] array) {
     InvariantChecks.checkNotNull(array);
 
-    final IntegerVariable variable = getVariable(variableName);
+    final IntegerField variableField = getVariableField(variableName);
     final Value variate = new RandomValue(new VariateCollection<>(array));
     final Set<BigInteger> values = new LinkedHashSet<>(Arrays.asList(array));
 
-    return new VariableConstraint(variable, variate, values);
+    return new VariableConstraint(variableField, variate, values);
   }
 
   public VariableConstraint newEqDist(
@@ -105,11 +109,11 @@ public final class ConstraintFactory {
       final Variate<?> distribution) {
     InvariantChecks.checkNotNull(distribution);
 
-    final IntegerVariable variable = getVariable(variableName);
+    final IntegerField variableField = getVariableField(variableName);
     final Value variate = new RandomValue(distribution);
     final Set<BigInteger> values = extractValues(distribution);
 
-    return new VariableConstraint(variable, variate, values);
+    return new VariableConstraint(variableField, variate, values);
   }
 
   public BufferEventConstraint newHit(final String bufferName) {
@@ -193,17 +197,27 @@ public final class ConstraintFactory {
     return MmuPlugin.getSpecification();
   }
 
-  private IntegerVariable getVariable(final String name) {
+  private IntegerField getVariableField(final String name) {
     InvariantChecks.checkNotNull(name);
+    final Pair<String, String> field = splitBitfield(name);
+
+    final String variableName = field.first;
+    final String variableField = field.second;
 
     final MmuSubsystem spec = getSpecification();
-    final IntegerVariable variable = spec.getVariable(name);
+    final IntegerVariable variable = spec.getVariable(variableName);
+
     if (null == variable) {
       throw new GenerationAbortedException(String.format(
           "Invalid test template: variable %s is not defined in the MMU model.", name));
     }
 
-    return variable;
+    if (null == variableField) {
+      return variable.field();
+    }
+
+    final Pair<Integer, Integer> fieldRange = parseRange(variableField);
+    return variable.field(fieldRange.first, fieldRange.second);
   }
 
   private MmuBuffer getBuffer(final String name) {
@@ -223,5 +237,40 @@ public final class ConstraintFactory {
     final ValueExtractor extractor = new ValueExtractor();
     extractor.visit(variate);
     return extractor.getValues();
+  }
+
+  private static final Pattern FIELD_PATTERN = Pattern.compile("[<][\\d]+[.][.][\\d]+[>]");
+  private static Pair<String, String> splitBitfield(final String fieldName) {
+    InvariantChecks.checkNotNull(fieldName);
+
+    final Matcher matcher = FIELD_PATTERN.matcher(fieldName);
+    if (!matcher.find()) {
+      return new Pair<>(fieldName, null);
+    }
+
+    if (matcher.end() != fieldName.length()) {
+      throw new IllegalArgumentException(
+          String.format("Incorrent format of %s: only one field is allowed.", fieldName));
+    }
+
+    final String variableName = fieldName.substring(0, matcher.start());
+    final String field = fieldName.substring(matcher.start() + 1, matcher.end() - 1);
+    return new Pair<>(variableName, field);
+  }
+
+  private static final Pattern INTEGER_PATTERN = Pattern.compile("\\d+");
+  private static Pair<Integer, Integer> parseRange(final String range) {
+    InvariantChecks.checkNotNull(range);
+    final Matcher matcher = INTEGER_PATTERN.matcher(range);
+
+    final boolean isStartFound = matcher.find(0);
+    InvariantChecks.checkTrue(isStartFound, "Range start is not found.");
+    final int start = Integer.parseInt(matcher.group());
+
+    final boolean isEndFound = matcher.find(matcher.end());
+    InvariantChecks.checkTrue(isEndFound, "Range end is not found.");
+    final int end = Integer.parseInt(matcher.group());
+
+    return new Pair<>(Math.min(start, end), Math.max(start, end));
   }
 }

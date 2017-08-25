@@ -27,7 +27,6 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
@@ -172,11 +171,11 @@ public final class AccessConstraints {
     generalConstraints = new ArrayList<>();
 
     for (final VariableConstraint variableConstraint : variableConstraints) {
-      final IntegerVariable variable = variableConstraint.getVariable();
+      final IntegerField variable = variableConstraint.getVariable();
       final Set<BigInteger> values = variableConstraint.getValues();
 
       if ((1 << variable.getWidth()) != values.size()) {
-        generalConstraints.add(new IntegerDomainConstraint<IntegerField>(variable.field(), values));
+        generalConstraints.add(new IntegerDomainConstraint<IntegerField>(variable, values));
       }
     }
 
@@ -192,10 +191,10 @@ public final class AccessConstraints {
     variateConstraints = new ArrayList<>();
 
     for (final VariableConstraint variableConstraint : variableConstraints) {
-      final IntegerVariable variable = variableConstraint.getVariable();
+      final IntegerField variable = variableConstraint.getVariable();
       final BigInteger value = variableConstraint.getVariate().getValue();
 
-      variateConstraints.add(new IntegerEqualConstraint<IntegerField>(variable.field(), value));
+      variateConstraints.add(new IntegerEqualConstraint<IntegerField>(variable, value));
     }
 
     Logger.debug("Variate constraints: %s", variateConstraints);
