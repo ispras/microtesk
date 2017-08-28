@@ -67,7 +67,7 @@ final class SymbolScopeArray implements SymbolScope {
 
   @Override
   public Symbol getAssociatedSymbol() {
-    throw new UnsupportedOperationException();
+    return scopes.get(0).getAssociatedSymbol();
   }
 
   @Override
