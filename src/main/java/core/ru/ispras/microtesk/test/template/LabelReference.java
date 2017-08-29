@@ -92,6 +92,10 @@ public final class LabelReference {
     return reference.getLabel();
   }
 
+  public void setReference(final Label label) {
+    reference.setLabel(label);
+  }
+
   /**
    * Returns the value assigned (instead of a real address or offset) to the primitive (OP or MODE)
    * argument the label reference is associated with.
