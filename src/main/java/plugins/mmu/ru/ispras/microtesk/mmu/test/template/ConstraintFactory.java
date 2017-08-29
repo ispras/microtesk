@@ -239,7 +239,7 @@ public final class ConstraintFactory {
     return extractor.getValues();
   }
 
-  private static final Pattern FIELD_PATTERN = Pattern.compile("[<][\\d]+[.][.][\\d]+[>]");
+  private static final Pattern FIELD_PATTERN = Pattern.compile("[<][\\d]+([.][.][\\d]+)?[>]");
   private static Pair<String, String> splitBitfield(final String fieldName) {
     InvariantChecks.checkNotNull(fieldName);
 
@@ -267,9 +267,14 @@ public final class ConstraintFactory {
     InvariantChecks.checkTrue(isStartFound, "Range start is not found.");
     final int start = Integer.parseInt(matcher.group());
 
-    final boolean isEndFound = matcher.find(matcher.end());
-    InvariantChecks.checkTrue(isEndFound, "Range end is not found.");
-    final int end = Integer.parseInt(matcher.group());
+    final int end;
+    if (matcher.end() == range.length()) {
+      end = start;
+    } else {
+      final boolean isEndFound = matcher.find(matcher.end());
+      InvariantChecks.checkTrue(isEndFound, "Range end is not found.");
+      end = Integer.parseInt(matcher.group());
+    }
 
     return new Pair<>(Math.min(start, end), Math.max(start, end));
   }
