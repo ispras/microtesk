@@ -364,6 +364,13 @@ class Template
     @template.newUnknownImmediate get_caller_location, allocator, retain, exclude
   end
 
+  #
+  # Creates a placeholder for label to be updated in the process of generation.
+  #
+  def _label
+    @template.newLazyLabel
+  end
+
   # --- Special "no value" method ---
   # Similar to the above method, but the described object is more complex
   # than an immediate value (most likely, it will be some MODE or OP). 

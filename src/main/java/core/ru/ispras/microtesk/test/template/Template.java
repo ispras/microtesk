@@ -531,6 +531,10 @@ public final class Template {
     return result;
   }
 
+  public LabelValue newLazyLabel() {
+    return LabelValue.newLazy();
+  }
+
   public OutputBuilder newOutput(final String kind, String format) {
     return new OutputBuilder(kind, format);
   }
