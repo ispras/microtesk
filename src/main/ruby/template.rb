@@ -128,7 +128,7 @@ class Template
       blockBuilder.setObfuscator(attributes[:obfuscator])
     end
 
-    set_attributes blockBuilder, attributes
+    set_builder_attributes blockBuilder, attributes
     self.instance_eval &contents
 
     @template.endBlock
@@ -146,7 +146,7 @@ class Template
       blockBuilder.setObfuscator(attributes[:obfuscator])
     end
 
-    set_attributes blockBuilder, attributes
+    set_builder_attributes blockBuilder, attributes
     self.instance_eval &contents
 
     @template.endBlock
@@ -164,7 +164,7 @@ class Template
       blockBuilder.setObfuscator(attributes[:obfuscator])
     end
 
-    set_attributes blockBuilder, attributes
+    set_builder_attributes blockBuilder, attributes
     self.instance_eval &contents
 
     @template.endBlock
@@ -186,7 +186,7 @@ class Template
       blockBuilder.setRearranger(attributes[:rearranger])
     end
 
-    set_attributes blockBuilder, attributes
+    set_builder_attributes blockBuilder, attributes
     self.instance_eval &contents
 
     @template.endBlock
@@ -985,10 +985,10 @@ class Template
 
   private
 
-  def set_attributes(builder, attributes)
+  def set_builder_attributes(builder, attributes)
     attributes.each_pair do |key, value|
       if value.is_a?(Hash) then
-        mapBuilder = set_attributes @template.newMapBuilder, value
+        mapBuilder = set_builder_attributes @template.newMapBuilder, value
         builder.setAttribute key.to_s, mapBuilder.getMap
       else
         builder.setAttribute key.to_s, if value.is_a?(Symbol) then value.to_s
