@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.LabelManager;
@@ -33,7 +34,10 @@ import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.SequenceSelector;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.Label;
+import ru.ispras.microtesk.test.template.LabelReference;
+import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -70,7 +74,8 @@ public final class BranchEngine implements Engine {
     final boolean result = abstractCall.isBranch() && abstractCall.isConditionalBranch();
     InvariantChecks.checkTrue(result == flag);
 
-    return result;*/
+    return result;
+    */
 
     return flag;
   }
@@ -148,30 +153,35 @@ public final class BranchEngine implements Engine {
 
   @Override
   public Iterator<AbstractSequence> solve(
-      final EngineContext engineContext, final AbstractSequence abstractSequence) {
+      final EngineContext engineContext,
+      final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    // Collect information about labels.
-    final LabelManager labels = new LabelManager();
-    for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
-      final AbstractCall call = abstractSequence.getSequence().get(i);
-      for (final Label label : call.getLabels()) {
-        labels.addLabel(label, i);
+    final List<AbstractCall> sequence = abstractSequence.getSequence();
+
+    // Collect information about labels in the sequence.
+    final LabelManager labelManager = new LabelManager();
+
+    for (int i = 0; i < sequence.size(); i++) {
+      final AbstractCall abstractCall = sequence.get(i);
+      for (final Label label : abstractCall.getLabels()) {
+        labelManager.addLabel(label, i);
       }
     }
 
     // Transform the abstract sequence into the branch structure.
-    final List<BranchEntry> branchStructure =
-        new ArrayList<>(abstractSequence.getSequence().size());
+    final List<BranchEntry> branchStructure = new ArrayList<>(sequence.size());
 
-    for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
-      branchStructure.add(new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, -1));
+    for (int i = 0; i < sequence.size(); i++) {
+      final BranchEntry branchEntry = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, -1);
+      branchStructure.add(branchEntry);
     }
 
+    int autoLabel = 0;
     int delaySlot = 0;
-    for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
-      final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
+    for (int i = 0; i < sequence.size(); i++) {
+      final AbstractCall abstractCall = sequence.get(i);
       final BranchEntry branchEntry = branchStructure.get(i);
 
       final boolean isIfThen = isIfThen(abstractCall);
@@ -195,9 +205,26 @@ public final class BranchEngine implements Engine {
 
       // Set the target label and start the delay slot.
       if (isIfThen || isGoto) {
-        final Label label = abstractCall.getTargetLabel();
+        Label label = abstractCall.getTargetLabel();
 
-        final LabelManager.Target target = labels.resolve(label);
+        // Branching to any place in the sequence (_label).
+        if (label == null) {
+          // Generate the label name.
+          final String name = String.format("auto_label_%d", autoLabel++);
+          final BlockId blockId = new BlockId(); // FIXME:
+          label = new Label(name, blockId);
+
+          // Put the label in a random position.
+          final int index = Randomizer.get().nextIntRange(0, sequence.size() - 1);
+          final AbstractCall call = sequence.get(index);
+          final LabelReference reference = new LabelReference(LabelValue.newUnknown(label));
+          call.getLabelReferences().add(reference);
+
+          // Associate the label with the chosen position.
+          labelManager.addLabel(label, index);
+        }
+
+        final LabelManager.Target target = labelManager.resolve(label);
         InvariantChecks.checkNotNull(target, "Undefined label: " + label);
 
         branchEntry.setBranchLabel((int) target.getAddress());
@@ -234,8 +261,8 @@ public final class BranchEngine implements Engine {
       public AbstractSequence value() {
         final List<BranchEntry> branchStructure = branchStructureExecutionIterator.value();
 
-        for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
-          final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
+        for (int i = 0; i < sequence.size(); i++) {
+          final AbstractCall abstractCall = sequence.get(i);
           final BranchEntry branchEntry = branchStructure.get(i);
           setBranchEntry(abstractCall, branchEntry);
         }
@@ -347,33 +374,6 @@ public final class BranchEngine implements Engine {
         return null;
       }
     }
-
-    /*
-    // Insert the control code into the sequence.
-    int correction = 0;
-
-    final List<AbstractCall> modifiedSequence =
-        new ArrayList<AbstractCall>(abstractSequence.getSequence());
-
-    for (final Map.Entry<Integer, List<AbstractCall>> entry : steps.entrySet()) {
-      final int position = entry.getKey();
-      final List<AbstractCall> controlCode = entry.getValue();
-
-      modifiedSequence.addAll(position + correction, controlCode);
-
-      if (delaySlots.contains(position)) {
-        // Remove the old delay slot.
-        for (int i = 0; i < controlCode.size(); i++) {
-          modifiedSequence.remove(position + correction + controlCode.size());
-        }
-      } else {
-        // Update the correction offset.
-        correction += controlCode.size();
-      }
-    }
-
-    return new AbstractSequence(abstractSequence.getSection(), modifiedSequence);
-    */
 
     for (final Map.Entry<Integer, List<AbstractCall>> entry : steps.entrySet()) {
       final int position = entry.getKey();

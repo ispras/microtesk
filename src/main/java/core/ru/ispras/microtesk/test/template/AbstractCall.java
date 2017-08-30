@@ -364,6 +364,10 @@ public final class AbstractCall {
   }
 
   public Label getTargetLabel() {
+    if (labelRefs.isEmpty()) {
+      return null;
+    }
+
     final LabelReference reference = labelRefs.get(0);
     if (null == reference) {
       return null;

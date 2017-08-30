@@ -38,7 +38,7 @@ public final class LabelReference {
   private final LocationAccessor patcher;
   private LabelManager.Target target;
 
-  protected LabelReference(final LabelValue lazyLabel) {
+  public LabelReference(final LabelValue lazyLabel) {
     InvariantChecks.checkNotNull(lazyLabel);
 
     this.reference = lazyLabel;

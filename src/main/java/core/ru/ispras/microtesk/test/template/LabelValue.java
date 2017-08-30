@@ -24,16 +24,16 @@ import ru.ispras.microtesk.utils.SharedObject;
 
 public final class LabelValue extends SharedObject<LabelValue> implements Value {
 
-  protected static LabelValue newLazy() {
+  public static LabelValue newLazy() {
     return new LabelValue(null, null);
   }
 
-  protected static LabelValue newUnknown(final Label label) {
+  public static LabelValue newUnknown(final Label label) {
     InvariantChecks.checkNotNull(label);
     return new LabelValue(label, null);
   }
 
-  protected static LabelValue newKnown(final Label label, final BigInteger address) {
+  public static LabelValue newKnown(final Label label, final BigInteger address) {
     InvariantChecks.checkNotNull(label);
     InvariantChecks.checkNotNull(address);
     return new LabelValue(label, address);
