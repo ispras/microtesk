@@ -192,6 +192,12 @@ class Template
     @template.endBlock
   end
 
+  def set_attributes(attributes, &contents)
+    # TODO
+    self.instance_eval &contents
+    # TODO
+  end
+
   def label(name)
     @template.addLabel name
   end
