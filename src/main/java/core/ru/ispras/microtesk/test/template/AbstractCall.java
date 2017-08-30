@@ -228,7 +228,7 @@ public final class AbstractCall {
     this.text = text;
     this.rootOperation = rootOperation;
     this.attributes = new LinkedHashMap<>();
-    this.labels = Collections.unmodifiableList(labels);
+    this.labels = labels; // Modifiable to allow adding labels.
     this.labelRefs = Collections.unmodifiableList(labelRefs);
     this.outputs = Collections.unmodifiableList(outputs);
 
