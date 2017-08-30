@@ -28,7 +28,10 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeAdaptor;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
@@ -95,7 +98,10 @@ public final class NmlTranslator extends Translator<Ir> {
   }
 
   @Override
-  protected boolean start(final List<String> filenames) {
+  protected boolean start(final Options options, final List<String> filenames) {
+    InvariantChecks.checkNotNull(options);
+    InvariantChecks.checkNotNull(filenames);
+
     if (filenames.isEmpty()) {
       Logger.error("FILES ARE NOT SPECIFIED.");
       return false;
@@ -103,9 +109,14 @@ public final class NmlTranslator extends Translator<Ir> {
 
     final String fileName = filenames.get(filenames.size() - 1);
     final String modelName = FileUtils.getShortFileNameNoExt(fileName);
+    final String revisionId = options.getValueAsString(Option.REVID);
 
-    Logger.message("Translating: " + fileName);
-    Logger.message("Model name: " + modelName);
+    Logger.message("Translating: %s", fileName);
+    Logger.message("Model name: %s", modelName);
+
+    if (!revisionId.isEmpty()) {
+      Logger.message("Revision: %s", revisionId);
+    }
 
     final TokenSource source = startLexer(filenames);
     final Ir ir = startParserAndWalker(modelName, source);

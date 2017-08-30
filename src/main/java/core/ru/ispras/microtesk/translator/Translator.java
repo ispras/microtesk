@@ -198,12 +198,12 @@ public abstract class Translator<Ir> {
     }
 
     if (!filteredFileNames.isEmpty()) {
-      return start(filteredFileNames);
+      return start(options, filteredFileNames);
     }
 
     return true;
   }
 
   protected abstract TokenSource newLexer(CharStream stream);
-  protected abstract boolean start(final List<String> fileNames);
+  protected abstract boolean start(final Options options, final List<String> fileNames);
 }

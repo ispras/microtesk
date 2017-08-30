@@ -37,6 +37,8 @@ import ru.ispras.microtesk.mmu.translator.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -60,15 +62,20 @@ public final class MmuTranslator extends Translator<Ir> {
   }
 
   @Override
-  public boolean start(final List<String> fileNames) {
+  public boolean start(final Options options, final List<String> fileNames) {
+    InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(fileNames);
 
     final String fileName = fileNames.get(0);
     final String modelName = FileUtils.getShortFileNameNoExt(fileName);
+    final String revisionId = options.getValueAsString(Option.REVID);
 
     Logger.message("Translating: " + fileName);
     Logger.message("Model name: " + modelName);
-    Logger.message("");
+
+    if (!revisionId.isEmpty()) {
+      Logger.message("Revision: %s", revisionId);
+    }
 
     final Ir ir = new Ir(modelName);
 
