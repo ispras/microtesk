@@ -94,7 +94,8 @@ public final class Template {
   private ExceptionHandlerBuilder exceptionHandlerBuilder;
   private final Set<String> definedExceptionHandlers;
 
-  private Deque<Section> sections;
+  private final Deque<Map<String, Object>> attributes;
+  private final Deque<Section> sections;
   private final Deque<BlockBuilder> blockBuilders;
   private AbstractCallBuilder callBuilder;
 
@@ -128,6 +129,7 @@ public final class Template {
     this.exceptionHandlerBuilder = null;
     this.definedExceptionHandlers = new LinkedHashSet<>();
 
+    this.attributes = new LinkedList<>();
     this.sections = new LinkedList<>();
     this.blockBuilders = new LinkedList<>();
     this.callBuilder = null;
@@ -421,20 +423,26 @@ public final class Template {
   private void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
 
-    if (!call.isEmpty()) {
-      if (null != preparatorBuilder) {
-        preparatorBuilder.addCall(call);
-      } else if (null != bufferPreparatorBuilder) {
-        bufferPreparatorBuilder.addCall(call);
-      } else if (null != memoryPreparatorBuilder) {
-        memoryPreparatorBuilder.addCall(call);
-      } else if (null != streamPreparatorBuilder) {
-        streamPreparatorBuilder.addCall(call);
-      } else if (null != exceptionHandlerBuilder) {
-        exceptionHandlerBuilder.addCall(call);
-      } else {
-        currentBlockBuilder().addCall(call);
-      }
+    if (call.isEmpty()) {
+      return;
+    }
+
+    if (!attributes.isEmpty()) {
+      call.getAttributes().putAll(attributes.peek());
+    }
+
+    if (null != preparatorBuilder) {
+      preparatorBuilder.addCall(call);
+    } else if (null != bufferPreparatorBuilder) {
+      bufferPreparatorBuilder.addCall(call);
+    } else if (null != memoryPreparatorBuilder) {
+      memoryPreparatorBuilder.addCall(call);
+    } else if (null != streamPreparatorBuilder) {
+      streamPreparatorBuilder.addCall(call);
+    } else if (null != exceptionHandlerBuilder) {
+      exceptionHandlerBuilder.addCall(call);
+    } else {
+      currentBlockBuilder().addCall(call);
     }
   }
 
@@ -1199,6 +1207,21 @@ public final class Template {
       throw new GenerationAbortedException(
           String.format("Section %s is not defined in the template.", name));
     }
+  }
+
+  public void beginAttibutes(final MapBuilder builder) {
+    final Map<String, Object> currentAttributes;
+    if (attributes.isEmpty()) {
+      currentAttributes = builder.getMap();
+    } else {
+      currentAttributes = new HashMap<>(attributes.peek());
+      currentAttributes.putAll(builder.getMap());
+    }
+    attributes.push(currentAttributes);
+  }
+
+  public void endAttibutes() {
+    attributes.pop();
   }
 
   public void beginPrologue() {

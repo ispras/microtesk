@@ -193,9 +193,10 @@ class Template
   end
 
   def set_attributes(attributes, &contents)
-    # TODO
+    mapBuilder = set_builder_attributes @template.newMapBuilder, attributes
+    @template.beginAttibutes mapBuilder
     self.instance_eval &contents
-    # TODO
+    @template.endAttibutes
   end
 
   def label(name)
