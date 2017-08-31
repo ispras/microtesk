@@ -205,27 +205,31 @@ public final class BranchEngine implements Engine {
 
       // Set the target label and start the delay slot.
       if (isIfThen || isGoto) {
-        Label label = abstractCall.getTargetLabel();
+        final LabelReference targetReference = abstractCall.getTargetReference();
+        InvariantChecks.checkNotNull(targetReference);
 
         // Branching to any place in the sequence (_label).
-        if (label == null) {
+        if (targetReference.getReference() == null) {
           // Generate the label name.
           final String name = String.format("auto_label_%d", autoLabel++);
           final BlockId blockId = new BlockId(); // FIXME:
-          label = new Label(name, blockId);
+          final Label targetLabel = new Label(name, blockId);
 
           // Put the label in a random position.
           final int index = Randomizer.get().nextIntRange(0, sequence.size() - 1);
-          final AbstractCall call = sequence.get(index);
-          final LabelReference reference = new LabelReference(LabelValue.newUnknown(label));
-          call.getLabelReferences().add(reference);
+          final AbstractCall targetCall = sequence.get(index);
+          targetCall.getLabels().add(targetLabel);
+
+          // Patch the label in the call.
+          targetReference.setReference(targetLabel);
 
           // Associate the label with the chosen position.
-          labelManager.addLabel(label, index);
+          labelManager.addLabel(targetLabel, index);
         }
 
-        final LabelManager.Target target = labelManager.resolve(label);
-        InvariantChecks.checkNotNull(target, "Undefined label: " + label);
+        final Label targetLabel = targetReference.getReference();
+        final LabelManager.Target target = labelManager.resolve(targetLabel);
+        InvariantChecks.checkNotNull(target, "Undefined label: " + targetLabel);
 
         branchEntry.setBranchLabel((int) target.getAddress());
         delaySlot = engineContext.getDelaySlotSize();

@@ -45,7 +45,7 @@ public final class LabelValue extends SharedObject<LabelValue> implements Value 
   public LabelValue(final LabelValue other) {
     super(other);
 
-    this.label = new Label(other.label);
+    this.label = other.label != null ? new Label(other.label) : null;
     this.address = other.address;
   }
 

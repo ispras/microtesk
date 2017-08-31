@@ -363,17 +363,12 @@ public final class AbstractCall {
     return outputs;
   }
 
-  public Label getTargetLabel() {
+  public LabelReference getTargetReference() {
     if (labelRefs.isEmpty()) {
       return null;
     }
 
-    final LabelReference reference = labelRefs.get(0);
-    if (null == reference) {
-      return null;
-    }
-
-    return reference.getReference();
+    return labelRefs.get(0);
   }
 
   public boolean isRelativeOrigin() {
