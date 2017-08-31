@@ -99,7 +99,6 @@ public final class NmlTranslator extends Translator<Ir> {
 
   @Override
   protected boolean start(final Options options, final List<String> filenames) {
-    InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(filenames);
 
     if (filenames.isEmpty()) {
@@ -109,12 +108,12 @@ public final class NmlTranslator extends Translator<Ir> {
 
     final String fileName = filenames.get(filenames.size() - 1);
     final String modelName = FileUtils.getShortFileNameNoExt(fileName);
-    final String revisionId = options.getValueAsString(Option.REVID);
+    final String revisionId = null != options ? options.getValueAsString(Option.REVID) : null;
 
     Logger.message("Translating: %s", fileName);
     Logger.message("Model name: %s", modelName);
 
-    if (!revisionId.isEmpty()) {
+    if (null != revisionId && !revisionId.isEmpty()) {
       Logger.message("Revision: %s", revisionId);
     }
 

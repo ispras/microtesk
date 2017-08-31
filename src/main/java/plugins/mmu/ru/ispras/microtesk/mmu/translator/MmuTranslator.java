@@ -63,17 +63,16 @@ public final class MmuTranslator extends Translator<Ir> {
 
   @Override
   public boolean start(final Options options, final List<String> fileNames) {
-    InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(fileNames);
 
     final String fileName = fileNames.get(0);
     final String modelName = FileUtils.getShortFileNameNoExt(fileName);
-    final String revisionId = options.getValueAsString(Option.REVID);
+    final String revisionId = null != options ? options.getValueAsString(Option.REVID) : null;
 
     Logger.message("Translating: " + fileName);
     Logger.message("Model name: " + modelName);
 
-    if (!revisionId.isEmpty()) {
+    if (null != revisionId && !revisionId.isEmpty()) {
       Logger.message("Revision: %s", revisionId);
     }
 
