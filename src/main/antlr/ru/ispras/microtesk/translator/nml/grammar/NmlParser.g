@@ -254,7 +254,7 @@ modifier
 /*===============================================================================================*/
 
 orRule
-    :  ASSIGN idRev (VERT_BAR idRev)* -> ^(ALTERNATIVES idRev+)
+    :  ASSIGN idRev (VERT_BAR idRev)* -> ^(ALTERNATIVES idRev*)
     ;
 
 idRev
