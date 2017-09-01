@@ -69,8 +69,16 @@ public class ParserBase extends ParserEx {
       final boolean scoped) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
 
-    if (!isRevisionApplicable() && !isFakeScope()) {
-      return;
+    if (!isRevisionApplicable()) {
+      if (!isFakeScope()) {
+        return;
+      }
+
+      // Symbol redefinitions within fake (throw-away) symbol scopes are ignored.
+      final Symbol symbol = symbols.resolve(t.getText());
+      if (null != symbol && symbol.getKind() == kind) {
+        return;
+      }
     }
 
     checkRedeclared(t);
