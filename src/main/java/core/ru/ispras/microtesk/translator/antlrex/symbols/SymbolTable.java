@@ -97,11 +97,16 @@ public final class SymbolTable {
    *
    * @param scopes List of scopes to be set as the current scope.
    *
-   * @throws IllegalArgumentException if {@code scope} is {@code null};
-   *         if {@code scope} is not nested into the current scope.
+   * @throws IllegalArgumentException if {@code scopes} is {@code null} or empty;
+   *         if {@code scopes} are not nested into the current scope.
    */
   public void push(final List<SymbolScope> scopes) {
-    push(new SymbolScopeArray(scopes));
+    InvariantChecks.checkNotEmpty(scopes);
+    if (scopes.size() == 1) {
+      push(scopes.get(0));
+    } else {
+      push(new SymbolScopeArray(scopes));
+    }
   }
 
   /**
