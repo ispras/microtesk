@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 import java.util.Set;
@@ -41,11 +40,10 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 public class ParserBase extends ParserEx {
   private SymbolTable symbols = null;
   private Set<String> revisions = null;
-  private final Deque<Boolean> revisionApplicable;
+  private Deque<Boolean> revisionApplicable = null;
 
   public ParserBase(final TokenStream input, final RecognizerSharedState state) {
     super(input, state);
-    this.revisionApplicable = new ArrayDeque<>();
   }
 
   public final void assignSymbols(final SymbolTable symbols) {
@@ -57,9 +55,12 @@ public class ParserBase extends ParserEx {
     return symbols;
   }
 
-  public void assignRevisions(final Set<String> revisions) {
+  public void assignRevisions(final Set<String> revisions, final Deque<Boolean> revisionApplicable) {
     InvariantChecks.checkNotNull(revisions);
+    InvariantChecks.checkNotNull(revisionApplicable);
+
     this.revisions = revisions;
+    this.revisionApplicable = revisionApplicable;
   }
 
   protected final void declare(
@@ -154,14 +155,17 @@ public class ParserBase extends ParserEx {
   }
 
   protected final void pushRevisionApplicable(final boolean applicable) {
+    InvariantChecks.checkNotNull(revisionApplicable);
     revisionApplicable.push(applicable);
   }
 
   protected final void popRevisionApplicable() {
+    InvariantChecks.checkNotNull(revisionApplicable);
     revisionApplicable.pop();
   }
 
   private boolean isRevisionApplicable() {
+    InvariantChecks.checkNotNull(revisionApplicable);
     return revisionApplicable.isEmpty() || revisionApplicable.peek();
   }
 

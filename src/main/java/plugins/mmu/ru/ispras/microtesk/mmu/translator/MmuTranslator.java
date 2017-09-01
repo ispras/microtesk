@@ -15,7 +15,9 @@
 package ru.ispras.microtesk.mmu.translator;
 
 import java.io.FileReader;
+import java.util.ArrayDeque;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 
@@ -88,14 +90,15 @@ public final class MmuTranslator extends Translator<Ir> {
       tokens.setTokenSource(source);
 
       final MmuParser parser = new MmuParser(tokens);
+      final Deque<Boolean> revisionApplicable = new ArrayDeque<>();
 
       parser.assignLog(getLog());
       parser.assignSymbols(getSymbols());
-      parser.assignRevisions(getRevisions());
+      parser.assignRevisions(getRevisions(), revisionApplicable);
 
       parser.commonParser.assignLog(getLog());
       parser.commonParser.assignSymbols(getSymbols());
-      parser.commonParser.assignRevisions(getRevisions());
+      parser.commonParser.assignRevisions(getRevisions(), revisionApplicable);
 
       final MmuParser.startRule_return r = parser.startRule();
       final CommonTree t = (CommonTree) r.getTree();
