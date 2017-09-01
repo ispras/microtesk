@@ -32,9 +32,8 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Where;
  * provides means of error reporting based on MicroTESK library classes
  * facilitating logging.
  * 
- * @author Andrei Tatarnikov
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public class ParserEx extends Parser implements ErrorReporter {
   private LogStore log = null;
   private int errorCount = 0;
@@ -44,12 +43,12 @@ public class ParserEx extends Parser implements ErrorReporter {
     super(input, state);
   }
 
-  public void assignLog(LogStore log) {
+  public void assignLog(final LogStore log) {
     this.log = log;
   }
 
   @Override
-  public final void reportError(RecognitionException re) {
+  public final void reportError(final RecognitionException re) {
     InvariantChecks.checkNotNull(log);
 
     if (re instanceof SemanticException) {
@@ -61,36 +60,36 @@ public class ParserEx extends Parser implements ErrorReporter {
     super.reportError(re);
 
     final LogEntry logEntry = new LogEntry(
-      LogEntry.Kind.ERROR,
-      SenderKind.PARSER,
-      getSourceName(),
-      re.line,
-      re.charPositionInLine,
-      tempErrorMessage
-      );
+        LogEntry.Kind.ERROR,
+        SenderKind.PARSER,
+        getSourceName(),
+        re.line,
+        re.charPositionInLine,
+        tempErrorMessage
+        );
 
     log.append(logEntry);
     ++errorCount;
   }
 
-  public final void reportError(SemanticException se) {
+  public final void reportError(final SemanticException se) {
     InvariantChecks.checkNotNull(log);
 
     final LogEntry logEntry = new LogEntry(
-      LogEntry.Kind.ERROR,
-      SenderKind.SYNTACTIC,
-      getSourceName(),
-      se.line,
-      se.charPositionInLine,
-      se.getMessage()
-      );
+        LogEntry.Kind.ERROR,
+        SenderKind.SYNTACTIC,
+        getSourceName(),
+        se.line,
+        se.charPositionInLine,
+        se.getMessage()
+        );
 
     log.append(logEntry);
     ++errorCount;
   }
 
   @Override
-  public final void emitErrorMessage(String errorMessage) {
+  public final void emitErrorMessage(final String errorMessage) {
     tempErrorMessage = errorMessage;
   }
 
@@ -107,26 +106,31 @@ public class ParserEx extends Parser implements ErrorReporter {
   }
 
   @Override
-  public void raiseError(Where where, ISemanticError error) throws SemanticException {
+  public void raiseError(final Where where, final ISemanticError error) throws SemanticException {
     throw new SemanticException(where, error);
   }
 
   @Override
-  public void raiseError(Where where, String what) throws SemanticException {
+  public void raiseError(final Where where, final String what) throws SemanticException {
     throw new SemanticException(where, new SemanticError(what));
   }
 
-  protected final Where where(Token node) {
+  protected final Where where(final Token node) {
     return new Where(getSourceName(), node.getLine(), node.getCharPositionInLine());
   }
 
-  protected final void checkNotNull(Token t, Object obj) throws SemanticException {
+  protected final void checkNotNull(
+      final Token t,
+      final Object obj) throws SemanticException {
     if (null == obj) {
       raiseError(where(t), new UnrecognizedStructure());
     }
   }
 
-  protected final void checkNotNull(Token t, Object obj, String text) throws SemanticException {
+  protected final void checkNotNull(
+      final Token t,
+      final Object obj,
+      final String text) throws SemanticException {
     if (null == obj) {
       raiseError(where(t), new UnrecognizedStructure(text));
     }
