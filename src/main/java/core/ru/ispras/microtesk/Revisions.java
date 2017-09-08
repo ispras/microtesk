@@ -22,6 +22,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 /**
  * The {@link Revisions} class stores information about revision dependencies.
@@ -29,23 +30,29 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Revisions {
-  private final Map<String, Set<String>> revisions;
+  // Key: revision ID, Value: includes/excludes
+  private final Map<String, Pair<Set<String>, Set<String>>> revisions;
+  private final Map<String, Set<String>> expandedRevisions;
 
   public Revisions() {
     this.revisions = new LinkedHashMap<>();
+    this.expandedRevisions = new LinkedHashMap<>();
   }
 
-  protected void addRevision(final String revisionId, final Set<String> revisionIncludes) {
+  protected void addRevision(
+      final String revisionId,
+      final Set<String> includes,
+      final Set<String> excludes) {
     InvariantChecks.checkNotNull(revisionId);
-    InvariantChecks.checkNotNull(revisionIncludes);
-
-    final Set<String> revision = new LinkedHashSet<>(revisionIncludes);
-    revision.add(revisionId);
+    InvariantChecks.checkNotNull(includes);
+    InvariantChecks.checkNotNull(excludes);
 
     if (revisions.containsKey(revisionId)) {
-      revisions.put(revisionId, CollectionUtils.uniteSets(revisions.get(revisionId), revision));
+      final Pair<Set<String>, Set<String>> revision = revisions.get(revisionId);
+      revisions.put(revisionId, new Pair<>(CollectionUtils.uniteSets(revision.first, includes),
+                                           CollectionUtils.uniteSets(revision.second, excludes)));
     } else {
-      revisions.put(revisionId, revision);
+      revisions.put(revisionId, new Pair<>(includes, excludes));
     }
   }
 
@@ -56,29 +63,32 @@ public final class Revisions {
       return Collections.singleton(revisionId);
     }
 
-    final Set<String> revision = revisions.get(revisionId);
-    final Set<String> expandedRevision = new LinkedHashSet<>();
-
-    expand(revision, expandedRevision);
-    return expandedRevision;
+    return expand(revisionId);
   }
 
-  private void expand(final Set<String> revision, final Set<String> expandedRevision) {
-    InvariantChecks.checkNotNull(revision);
-    InvariantChecks.checkNotNull(expandedRevision);
+  private Set<String> expand(final String revisionId) {
+    InvariantChecks.checkNotNull(revisionId);
 
-    for (final String revisionId : revision) {
-      final Set<String> includedRevision = revisions.get(revisionId);
-      if (includedRevision == null || includedRevision == revision) {
-        expandedRevision.add(revisionId);
-      } else {
-        for (final String includedRevisionId : includedRevision) {
-          if (!expandedRevision.contains(includedRevisionId)) {
-            expand(includedRevision, expandedRevision);
-          }
-        }
+    if (expandedRevisions.containsKey(revisionId)) {
+      return expandedRevisions.get(revisionId);
+    }
+
+    final Set<String> expandedRevision = new LinkedHashSet<>();
+    expandedRevision.add(revisionId);
+
+    final Pair<Set<String>, Set<String>> revision = revisions.get(revisionId);
+    if (null != revision) {
+      for (final String includeRevisionId : revision.first) {
+        expandedRevision.addAll(expand(includeRevisionId));
+      }
+
+      for (final String excludeRevisionId : revision.second) {
+        expandedRevision.removeAll(expand(excludeRevisionId));
       }
     }
+
+    expandedRevisions.put(revisionId, expandedRevision);
+    return expandedRevision;
   }
 
   @Override

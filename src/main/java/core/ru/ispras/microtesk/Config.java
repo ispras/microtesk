@@ -60,6 +60,7 @@ public final class Config {
   private static final String      REVISIONS = "revisions";
   private static final String       REVISION = "revision";
   private static final String       INCLUDES = "includes";
+  private static final String       EXCLUDES = "excludes";
 
   private static final String ERR_ATTRIBUTE_NOT_DEFINED =
       "The %s attribute is not defined for the %s node.";
@@ -200,7 +201,6 @@ public final class Config {
 
   public static Revisions loadRevisions(final String fileName) {
     InvariantChecks.checkNotNull(fileName);
-
     final Revisions revisions = new Revisions();
 
     final File file = new File(fileName);
@@ -215,8 +215,8 @@ public final class Config {
 
     final Node root = document.getFirstChild();
     if (!REVISIONS.equalsIgnoreCase((root.getNodeName()))) {
-      throw new IllegalStateException(String.format(
-          ERR_NO_ROOT_NODE, file.getPath(), REVISIONS));
+      throw new IllegalStateException(
+          String.format(ERR_NO_ROOT_NODE, file.getPath(), REVISIONS));
     }
 
     final NodeList revisionList = root.getChildNodes();
@@ -229,31 +229,39 @@ public final class Config {
       final NamedNodeMap revisionAttributes = revision.getAttributes();
       final Node revisionName = revisionAttributes.getNamedItem(ATTR_NAME);
       if (null == revisionName) {
-        throw new IllegalStateException(String.format(
-            ERR_ATTRIBUTE_NOT_DEFINED, ATTR_NAME, REVISION));
+        throw new IllegalStateException(
+            String.format(ERR_ATTRIBUTE_NOT_DEFINED, ATTR_NAME, REVISION));
       }
 
       final String revisionId = revisionName.getNodeValue();
       final Set<String> revisionIncludes = new LinkedHashSet<>();
+      final Set<String> revisionExcludes = new LinkedHashSet<>();
 
-      final NodeList includesList = revision.getChildNodes();
-      for (int includesIndex = 0; includesIndex < includesList.getLength(); ++includesIndex) {
-        final Node includes = includesList.item(includesIndex);
-        if (!INCLUDES.equalsIgnoreCase((includes.getNodeName()))) {
+      final NodeList nodeList = revision.getChildNodes();
+      for (int nodeIndex = 0; nodeIndex < nodeList.getLength(); ++nodeIndex) {
+        final Node node = nodeList.item(nodeIndex);
+        final String nodeName = node.getNodeName();
+
+        if (!INCLUDES.equalsIgnoreCase(nodeName) && !EXCLUDES.equalsIgnoreCase(nodeName)) {
           continue;
         }
 
-        final NamedNodeMap includesAttributes = includes.getAttributes();
-        final Node includesName = includesAttributes.getNamedItem(ATTR_NAME);
-        if (null == includesName) {
-          throw new IllegalStateException(String.format(
-              ERR_ATTRIBUTE_NOT_DEFINED, ATTR_NAME, INCLUDES));
+        final NamedNodeMap nodeAttributes = node.getAttributes();
+        final Node attributeNode = nodeAttributes.getNamedItem(ATTR_NAME);
+        if (null == attributeNode) {
+          throw new IllegalStateException(
+              String.format(ERR_ATTRIBUTE_NOT_DEFINED, ATTR_NAME, nodeName));
         }
 
-        revisionIncludes.add(includesName.getNodeValue());
+        final String attributeNodeValue = attributeNode.getNodeValue();
+        if (INCLUDES.equalsIgnoreCase(nodeName)) {
+          revisionIncludes.add(attributeNodeValue);
+        } else {
+          revisionExcludes.add(attributeNodeValue);
+        }
       }
 
-      revisions.addRevision(revisionId, revisionIncludes);
+      revisions.addRevision(revisionId, revisionIncludes, revisionExcludes);
     }
 
     return revisions;
