@@ -79,10 +79,6 @@ public final class Label {
   public static List<Label> copyAll(final List<Label> labels) {
     InvariantChecks.checkNotNull(labels);
 
-    if (labels.isEmpty()) {
-      return Collections.emptyList();
-    }
-
     final List<Label> result = new ArrayList<>(labels.size());
     for (final Label label : labels) {
       result.add(new Label(label));
