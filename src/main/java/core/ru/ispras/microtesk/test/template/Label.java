@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test.template;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
