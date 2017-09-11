@@ -75,7 +75,7 @@ public final class AbstractSequence {
     InvariantChecks.checkNotNull(other);
 
     this.section = other.section;
-    this.sequence = other.sequence;
+    this.sequence = new ArrayList<>(other.sequence);
     this.positions = other.positions;
     this.flags = other.flags;
     this.prologues = null != other.prologues ? new HashMap<>(other.prologues) : null;
