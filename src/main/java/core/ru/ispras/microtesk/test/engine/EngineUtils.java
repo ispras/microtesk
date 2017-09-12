@@ -356,7 +356,9 @@ public final class EngineUtils {
 
     for (final AbstractCall abstractCall : abstractSequence) {
       final ConcreteCall concreteCall = makeConcreteCall(engineContext, abstractCall);
-      concreteSequence.add(concreteCall);
+      if (null != concreteCall) {
+        concreteSequence.add(concreteCall);
+      }
     }
 
     return concreteSequence;
@@ -370,6 +372,10 @@ public final class EngineUtils {
 
     // A preparator call must be expanded when the preparator containing this call is instantiated.
     checkFalse(abstractCall.isPreparatorCall() , "Unexpanded preparator invocation.");
+
+    if (abstractCall.isEmpty()) {
+      return null;
+    }
 
     if (!abstractCall.isExecutable()) {
       return new ConcreteCall(abstractCall);

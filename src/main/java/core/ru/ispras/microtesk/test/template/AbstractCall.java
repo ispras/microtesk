@@ -90,6 +90,26 @@ public final class AbstractCall {
         );
   }
 
+  public static AbstractCall newEmpty() {
+    return new AbstractCall(
+        null,
+        null,
+        null,
+        Collections.<Label>emptyList(),
+        Collections.<LabelReference>emptyList(),
+        Collections.<Output>emptyList(),
+        false,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        false
+        );
+  }
+
   public static AbstractCall newLine() {
     return newText("");
   }
