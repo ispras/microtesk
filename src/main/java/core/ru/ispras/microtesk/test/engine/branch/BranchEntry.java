@@ -71,6 +71,10 @@ public final class BranchEntry {
     branchTrace = new BranchTrace();
   }
 
+  public BranchEntry(final Type type) {
+    this(type, -1, -1);
+  }
+
   private BranchEntry(final BranchEntry r) {
     type = r.type;
     groupId = r.groupId;

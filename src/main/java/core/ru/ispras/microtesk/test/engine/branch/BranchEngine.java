@@ -18,7 +18,9 @@ import static ru.ispras.microtesk.test.engine.EngineUtils.getSituationName;
 import static ru.ispras.microtesk.test.engine.EngineUtils.makeStreamRead;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +39,6 @@ import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
-import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -63,6 +64,8 @@ public final class BranchEngine implements Engine {
 
   public static final String IF_THEN_SITUATION_SUFFIX = "if-then";
   public static final String GOTO_SITUATION_SUFFIX = "goto";
+
+  public static final String ATTR_EXECUTED = "executed";
 
   static boolean isIfThen(final AbstractCall abstractCall) {
     // Self check.
@@ -158,50 +161,71 @@ public final class BranchEngine implements Engine {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    final List<AbstractCall> sequence = abstractSequence.getSequence();
+    final AbstractSequence processedSequence = new AbstractSequence(abstractSequence);
+    final List<AbstractCall> sequence = processedSequence.getSequence();
 
-    // Collect information about labels in the sequence.
+    // Collect information about labels and executed/non-executed calls.
     final LabelManager labelManager = new LabelManager();
 
+    final List<AbstractCall> executedCode = new ArrayList<>();
+    final List<AbstractCall> nontakenCode = new ArrayList<>();
+
+    int branchStructureSize = 0;
     for (int i = 0; i < sequence.size(); i++) {
       final AbstractCall abstractCall = sequence.get(i);
-      for (final Label label : abstractCall.getLabels()) {
-        labelManager.addLabel(label, i);
+      final Map<String, Object> attributes = abstractCall.getAttributes();
+
+      // Do not add executed/non-executed calls to the branch structure.
+      final Boolean isExecuted = (Boolean) attributes.get(ATTR_EXECUTED);
+
+      if (isExecuted != null) {
+        if (isExecuted) {
+          executedCode.add(abstractCall);
+        } else {
+          nontakenCode.add(abstractCall);
+        }
+
+        // Replace this call with the empty one.
+        sequence.set(i, AbstractCall.newEmpty());
+        continue;
       }
+
+      for (final Label label : abstractCall.getLabels()) {
+        labelManager.addLabel(label, branchStructureSize);
+      }
+
+      branchStructureSize++;
     }
 
     // Transform the abstract sequence into the branch structure.
-    final List<BranchEntry> branchStructure = new ArrayList<>(sequence.size());
-
-    for (int i = 0; i < sequence.size(); i++) {
-      final BranchEntry branchEntry = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, -1);
-      branchStructure.add(branchEntry);
-    }
+    final List<BranchEntry> branchStructure = new ArrayList<>();
 
     int autoLabel = 0;
     int delaySlot = 0;
-    for (int i = 0; i < sequence.size(); i++) {
-      final AbstractCall abstractCall = sequence.get(i);
-      final BranchEntry branchEntry = branchStructure.get(i);
-
+    for (final AbstractCall abstractCall : sequence) {
       final boolean isIfThen = isIfThen(abstractCall);
       final boolean isGoto = isGoto(abstractCall);
+
+      final BranchEntry.Type type;
 
       // Set the branch entry type.
       if (isIfThen) {
         // Using branches in delay slots is prohibited.
         InvariantChecks.checkTrue(delaySlot == 0);
-        branchEntry.setType(BranchEntry.Type.IF_THEN);
+        type = BranchEntry.Type.IF_THEN;
       } else if (isGoto) {
         // Using branches in delay slots is prohibited.
         InvariantChecks.checkTrue(delaySlot == 0);
-        branchEntry.setType(BranchEntry.Type.GOTO);
+        type = BranchEntry.Type.GOTO;
       } else if (delaySlot > 0) {
-        branchEntry.setType(BranchEntry.Type.DELAY_SLOT);
+        type = BranchEntry.Type.DELAY_SLOT;
         delaySlot--;
       } else {
-        branchEntry.setType(BranchEntry.Type.BASIC_BLOCK);
+        type = BranchEntry.Type.BASIC_BLOCK;
       }
+
+      final BranchEntry branchEntry = new BranchEntry(type);
+      branchStructure.add(branchEntry);
 
       // Set the target label and start the delay slot.
       if (isIfThen || isGoto) {
@@ -212,19 +236,18 @@ public final class BranchEngine implements Engine {
         if (targetReference.getReference() == null) {
           // Generate the label name.
           final String name = String.format("auto_label_%d", autoLabel++);
-          final BlockId blockId = new BlockId(); // FIXME:
+          final BlockId blockId = new BlockId();
           final Label targetLabel = new Label(name, blockId);
 
           // Put the label in a random position.
-          final int index = Randomizer.get().nextIntRange(0, sequence.size() - 1);
-          final AbstractCall targetCall = sequence.get(index);
+          final int targetIndex = Randomizer.get().nextIntRange(0, branchStructureSize - 1);
+          final AbstractCall targetCall = sequence.get(targetIndex);
           targetCall.getLabels().add(targetLabel);
 
           // Patch the label in the call.
           targetReference.setReference(targetLabel);
-
           // Associate the label with the chosen position.
-          labelManager.addLabel(targetLabel, index);
+          labelManager.addLabel(targetLabel, targetIndex);
         }
 
         final Label targetLabel = targetReference.getReference();
@@ -236,7 +259,7 @@ public final class BranchEngine implements Engine {
       }
     }
 
-    Logger.debug("Branch Structure: %s", branchStructure);
+    Logger.debug("Branch structure: %s", branchStructure);
 
     final Iterator<AbstractSequence> iterator = new Iterator<AbstractSequence>() {
       /** Iterator of branch structures. */
@@ -264,15 +287,37 @@ public final class BranchEngine implements Engine {
       @Override
       public AbstractSequence value() {
         final List<BranchEntry> branchStructure = branchStructureExecutionIterator.value();
+        Logger.debug("Branch structure: %s", branchStructure);
 
-        for (int i = 0; i < sequence.size(); i++) {
-          final AbstractCall abstractCall = sequence.get(i);
-          final BranchEntry branchEntry = branchStructure.get(i);
+        final List<Integer> executionTrace = branchStructureExecutionIterator.trace();
+        Logger.debug("Execution trace: %s", executionTrace);
+
+        int index = 0;
+        for (final AbstractCall abstractCall : sequence) {
+          final Map<String, Object> attributes = abstractCall.getAttributes();
+          if (attributes.containsKey(ATTR_EXECUTED)) {
+            continue;
+          }
+
+          final BranchEntry branchEntry = branchStructure.get(index);
           setBranchEntry(abstractCall, branchEntry);
+
+          index++;
         }
 
         return insertComments(
-            insertControlCode(engineContext, new AbstractSequence(abstractSequence)));
+            insertExecutedCode(
+                engineContext,
+                executedCode,
+                nontakenCode,
+                branchStructure,
+                executionTrace,
+                insertControlCode(
+                    engineContext,
+                    new AbstractSequence(processedSequence)
+                )
+            )
+        );
       }
 
       @Override
@@ -308,16 +353,16 @@ public final class BranchEngine implements Engine {
 
     // Maps branch indices to control code (the map should be sorted).
     final SortedMap<Integer, List<AbstractCall>> steps = new TreeMap<>();
-
     // Contains positions of the delay slots.
     final Set<Integer> delaySlots = new HashSet<>();
 
     // Construct the control code to enforce the given execution trace.
-    for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
-      final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
+    final List<AbstractCall> sequence = abstractSequence.getSequence();
+    for (int i = 0; i < sequence.size(); i++) {
+      final AbstractCall abstractCall = sequence.get(i);
       final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
 
-      if (!branchEntry.isIfThen()) {
+      if (branchEntry == null || !branchEntry.isIfThen()) {
         continue;
       }
 
@@ -350,7 +395,8 @@ public final class BranchEngine implements Engine {
           step.addAll(controlCode);
         }
 
-        // Block coverage is allowed to be empty; this means that no additional code is required. 
+        // Block coverage is allowed to be empty (in this case, no additional code is required).
+
         branchEntry.setControlCodeInBasicBlock(true);
       }
 
@@ -395,9 +441,103 @@ public final class BranchEngine implements Engine {
     return abstractSequence;
   }
 
+  private AbstractSequence insertExecutedCode(
+      final EngineContext engineContext,
+      final List<AbstractCall> executedCode,
+      final List<AbstractCall> nontakenCode,
+      final List<BranchEntry> branchStructure,
+      final List<Integer> executionTrace,
+      final AbstractSequence abstractSequence) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(executedCode);
+    InvariantChecks.checkNotNull(nontakenCode);
+    InvariantChecks.checkNotNull(executionTrace);
+    InvariantChecks.checkNotNull(abstractSequence);
+
+    // Executed basic blocks with no repetitions.
+    final List<Integer> executedBlocks = new ArrayList<>();
+    for (final int i : executionTrace) {
+      final BranchEntry branchEntry = branchStructure.get(i);
+      if (branchEntry.isBasicBlock() && !executedBlocks.contains(i)) {
+        executedBlocks.add(i);
+      }
+    }
+
+    // Non-taken basic blocks with no repetitions.
+    final List<Integer> nontakenBlocks = new ArrayList<>();
+    for (final int i : executionTrace) {
+      final BranchEntry branchEntry = branchStructure.get(i);
+      if (branchEntry.isBranch()) {
+        for (int j = i + 1; j < branchStructure.size(); j++) {
+          final BranchEntry nextBranchEntry = branchStructure.get(j);
+
+          if (nextBranchEntry.isDelaySlot()) {
+            continue;
+          }
+          if (nextBranchEntry.isBasicBlock() && !nontakenBlocks.contains(j)) {
+            nontakenBlocks.add(j);
+          }
+          break;
+        }
+      }
+    }
+    nontakenBlocks.removeAll(executedBlocks);
+
+    // Consequent basic blocks should be considered as a single one.
+    final List<Integer> redundantBlocks = new ArrayList<>();
+    int k = 0;
+    for (int i = 0; i < executedBlocks.size() - 1; i++) {
+      final int thisBlock = executedBlocks.get(i);
+      final int nextBlock = executedBlocks.get(i + 1);
+
+      if (nextBlock == thisBlock + 1) {
+        redundantBlocks.add(nextBlock);
+      }
+    }
+    executedBlocks.removeAll(redundantBlocks);
+
+    Logger.debug("Executed code: %s, executed blocks: %s", executedCode, executedBlocks);
+    insertCodeIntoBlocks(executedCode, executedBlocks, abstractSequence);
+
+    Logger.debug("Nontaken code: %s, nontaken blocks: %s", nontakenCode, nontakenBlocks);
+    insertCodeIntoBlocks(nontakenCode, nontakenBlocks, abstractSequence);
+
+    return abstractSequence;
+  }
+
+  private static void insertCodeIntoBlocks(
+      final List<AbstractCall> code,
+      final Collection<Integer> blocks,
+      final AbstractSequence abstractSequence) {
+    if (blocks.isEmpty()) {
+      return;
+    }
+
+    int codeIndex = 0;
+    int codeLength = code.size();
+    int blockNumber = blocks.size();
+
+    for (final int i : blocks) {
+      final int length = codeLength / blockNumber;
+      final List<AbstractCall> codePart = code.subList(codeIndex, codeIndex + length);
+
+      Logger.debug("Code part[%d]: %s", i, codePart);
+      abstractSequence.addPrologue(i, codePart);
+
+      codeIndex += length;
+      codeLength -= length;
+      blockNumber--;
+    }
+  }
+
   private static AbstractSequence insertComments(final AbstractSequence abstractSequence) {
-    for (int i = 0; i < abstractSequence.getSequence().size(); i++) {
-      final AbstractCall abstractCall = abstractSequence.getSequence().get(i);
+    if (abstractSequence == null) {
+      return null;
+    }
+
+    final List<AbstractCall> sequence = abstractSequence.getSequence();
+    for (int i = 0; i < sequence.size(); i++) {
+      final AbstractCall abstractCall = sequence.get(i);
       final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
 
       if (null != branchEntry && branchEntry.isIfThen()) {

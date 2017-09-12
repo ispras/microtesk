@@ -34,7 +34,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 final class BranchTraceConstructor {
   /**
-   * {@link SegmentConstructor} implements a segment constructor.
+   * {@link BranchTraceConstructorVisitor} implements a segment constructor.
    * 
    * <p>A segment is a set of basic blocks (delay slots) executed between two subsequent calls of a
    * given branch instruction or before its first call.</p>
@@ -42,7 +42,10 @@ final class BranchTraceConstructor {
    * <p>For each basic block (delay slot), a segment contains a counter that shows how many times
    * the basic block (delay slot) is executed.</p>
    */
-  private static final class SegmentConstructor extends BranchEntryVisitor {
+  private static final class BranchTraceConstructorVisitor extends BranchEntryVisitor {
+    /** Contains an execution trace. */
+    private List<Integer> trace = new ArrayList<>();
+
     /** Contains a set of basic blocks having been executed. */
     private Map<Integer, Integer> preBlocks = new LinkedHashMap<>();
     /** Contains a set of delay slots having been executed. */
@@ -53,11 +56,17 @@ final class BranchTraceConstructor {
     /** Maps a branch index into the current delay slot segment. */
     private Map<Integer, Map<Integer, Integer>> postSlots = new LinkedHashMap<>();
 
+    public List<Integer> getTrace() {
+      return trace;
+    }
+
     @Override
     public void onBranch(
         final int index, final BranchEntry entry, final BranchExecution execution) {
       InvariantChecks.checkNotNull(entry);
       InvariantChecks.checkNotNull(execution);
+
+      trace.add(index);
 
       // Previous basic blocks.
       if (!postBlocks.containsKey(index)) {
@@ -88,6 +97,8 @@ final class BranchTraceConstructor {
     public void onBasicBlock(final int index, final BranchEntry entry) {
       InvariantChecks.checkNotNull(entry);
 
+      trace.add(index);
+
       incrementCounter(index, preBlocks);
 
       for (final Map<Integer, Integer> segment : postBlocks.values()) {
@@ -98,6 +109,8 @@ final class BranchTraceConstructor {
     @Override
     public void onDelaySlot(final int index, final BranchEntry entry) {
       InvariantChecks.checkNotNull(entry);
+
+      trace.add(index);
 
       incrementCounter(index, preSlots);
 
@@ -147,12 +160,18 @@ final class BranchTraceConstructor {
     this(branchStructure, EnumSet.noneOf(Flags.class));
   }
 
-  /** Constructs trace segments. */
-  private void constructSegments() {
-    final BranchStructureWalker walker =
-        new BranchStructureWalker(branchStructure, new SegmentConstructor());
+  /**
+   * Constructs trace segments.
+   * 
+   * @return the execution trace.
+   */
+  private List<Integer> constructSegments() {
+    final BranchTraceConstructorVisitor visitor = new BranchTraceConstructorVisitor();
+    final BranchStructureWalker walker = new BranchStructureWalker(branchStructure, visitor);
 
     walker.start();
+
+    return visitor.getTrace();
   }
 
   /**
@@ -341,19 +360,19 @@ final class BranchTraceConstructor {
   /**
    * Constructs the coverage for all branch entries.
    * 
-   * @return {@code true} if construction is successful; {@code false} otherwise.
+   * @return an execution trace if construction is successful; {@code null} otherwise.
    */
-  public boolean construct() {
-    constructSegments();
+  public List<Integer> construct() {
+    final List<Integer> trace = constructSegments();
 
     for (int i = 0; i < branchStructure.size(); i++) {
       final BranchEntry entry = branchStructure.get(i);
 
       if (!constructCoverage(entry)) {
-        return false;
+        return null;
       }
     }
 
-    return true;
+    return trace;
   }
 }

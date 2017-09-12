@@ -97,6 +97,11 @@ public final class BranchExecutionIterator implements Iterator<List<BranchEntry>
     return branchTraceIterator.value();
   }
 
+  public List<Integer> trace() {
+    InvariantChecks.checkTrue(hasValue());
+    return branchTraceIterator.trace();
+  }
+
   private boolean nextBranchStructureIterator() {
     if (branchStructureIterator.hasValue()) {
       branchStructureIterator.next();

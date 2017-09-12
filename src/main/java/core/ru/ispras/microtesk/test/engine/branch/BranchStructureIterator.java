@@ -194,7 +194,7 @@ public final class BranchStructureIterator implements Iterator<List<BranchEntry>
     final List<BranchEntry> structure = new ArrayList<>(size);
 
     for (i = 0; i < size; i++) {
-      structure.add(new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, -1));
+      structure.add(new BranchEntry(BranchEntry.Type.BASIC_BLOCK));
     }
 
     // Positions of branch instructions in the test template.
