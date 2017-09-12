@@ -18,9 +18,7 @@ import static ru.ispras.microtesk.test.engine.EngineUtils.getSituationName;
 import static ru.ispras.microtesk.test.engine.EngineUtils.makeStreamRead;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -396,6 +394,7 @@ public final class BranchEngine implements Engine {
         }
 
         // Block coverage is allowed to be empty (in this case, no additional code is required).
+        // Do nothing.
 
         branchEntry.setControlCodeInBasicBlock(true);
       }
@@ -454,7 +453,7 @@ public final class BranchEngine implements Engine {
     InvariantChecks.checkNotNull(executionTrace);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    // Executed basic blocks with no repetitions.
+    // Executed blocks with no repetitions.
     final List<Integer> executedBlocks = new ArrayList<>();
     for (final int i : executionTrace) {
       final BranchEntry branchEntry = branchStructure.get(i);
@@ -463,7 +462,7 @@ public final class BranchEngine implements Engine {
       }
     }
 
-    // Non-taken basic blocks with no repetitions.
+    // Non-taken blocks with no repetitions.
     final List<Integer> nontakenBlocks = new ArrayList<>();
     for (final int i : executionTrace) {
       final BranchEntry branchEntry = branchStructure.get(i);
@@ -483,9 +482,8 @@ public final class BranchEngine implements Engine {
     }
     nontakenBlocks.removeAll(executedBlocks);
 
-    // Consequent basic blocks should be considered as a single one.
+    // Consequent blocks should be considered as a single one.
     final List<Integer> redundantBlocks = new ArrayList<>();
-    int k = 0;
     for (int i = 0; i < executedBlocks.size() - 1; i++) {
       final int thisBlock = executedBlocks.get(i);
       final int nextBlock = executedBlocks.get(i + 1);
@@ -497,17 +495,18 @@ public final class BranchEngine implements Engine {
     executedBlocks.removeAll(redundantBlocks);
 
     Logger.debug("Executed code: %s, executed blocks: %s", executedCode, executedBlocks);
-    insertCodeIntoBlocks(executedCode, executedBlocks, abstractSequence);
+    insertCodeIntoBlocks("Executed code", executedCode, executedBlocks, abstractSequence);
 
     Logger.debug("Nontaken code: %s, nontaken blocks: %s", nontakenCode, nontakenBlocks);
-    insertCodeIntoBlocks(nontakenCode, nontakenBlocks, abstractSequence);
+    insertCodeIntoBlocks("Non-taken code", nontakenCode, nontakenBlocks, abstractSequence);
 
     return abstractSequence;
   }
 
   private static void insertCodeIntoBlocks(
+      final String comment,
       final List<AbstractCall> code,
-      final Collection<Integer> blocks,
+      final List<Integer> blocks,
       final AbstractSequence abstractSequence) {
     if (blocks.isEmpty()) {
       return;
@@ -517,12 +516,16 @@ public final class BranchEngine implements Engine {
     int codeLength = code.size();
     int blockNumber = blocks.size();
 
-    for (final int i : blocks) {
+    for (int i = 0; i < blocks.size(); i++) {
+      final int block = blocks.get(i);
       final int length = codeLength / blockNumber;
       final List<AbstractCall> codePart = code.subList(codeIndex, codeIndex + length);
 
-      Logger.debug("Code part[%d]: %s", i, codePart);
-      abstractSequence.addPrologue(i, codePart);
+      abstractSequence.addPrologue(block,
+          AbstractCall.newComment(String.format("Begin: %s (%d)", comment, i)));
+      abstractSequence.addPrologue(block, codePart);
+      abstractSequence.addPrologue(block,
+          AbstractCall.newComment(String.format("End: %s (%d)", comment, i)));
 
       codeIndex += length;
       codeLength -= length;
@@ -541,7 +544,9 @@ public final class BranchEngine implements Engine {
       final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
 
       if (null != branchEntry && branchEntry.isIfThen()) {
-        abstractSequence.addPrologue(i, AbstractCall.newComment(branchEntry.toString()));
+        abstractSequence.addPrologue(i,
+            AbstractCall.newComment(
+                String.format("Execution trace: $s", branchEntry.getBranchTrace())));
       }
     }
 
