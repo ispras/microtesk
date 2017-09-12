@@ -192,6 +192,14 @@ class Template
     @template.endBlock
   end
 
+  def executed(&contents)
+    set_attributes(:executed => true, &contents)
+  end
+
+  def nontaken(&contents)
+    set_attributes(:executed => false, &contents)
+  end
+
   def set_attributes(attributes, &contents)
     mapBuilder = set_builder_attributes @template.newMapBuilder, attributes
     @template.beginAttibutes mapBuilder
