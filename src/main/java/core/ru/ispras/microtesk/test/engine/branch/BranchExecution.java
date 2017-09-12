@@ -55,6 +55,7 @@ public final class BranchExecution implements Iterator<Boolean> {
 
     // There is only one possibility for unconditional branches.
     if (!conditionalBranch) {
+      // False condition is disabled.
       iterator.next();
     }
   }

@@ -16,6 +16,8 @@ package ru.ispras.microtesk.test.engine.branch;
 
 import java.util.List;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * {@link BranchStructureWalker} implements a branch structure walker.
  * 
@@ -69,6 +71,7 @@ final class BranchStructureWalker {
       final BranchTrace trace = entry.getBranchTrace();
 
       if (entry.isBranch()) {
+        InvariantChecks.checkFalse(trace.isEmpty());
         BranchExecution execution = trace.get(count[addr]++);;
 
         visitor.onBranch(addr, entry, execution);

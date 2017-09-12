@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Stack;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -47,6 +48,9 @@ public final class BranchTraceIterator implements Iterator<List<BranchEntry>> {
   /** Flag that reflects availability of the value. */
   private boolean hasValue;
 
+  /** Execution trace. */
+  private List<Integer> trace;
+
   public BranchTraceIterator(
       final List<BranchEntry> branchStructure,
       final int maxBranchExecutions,
@@ -61,9 +65,12 @@ public final class BranchTraceIterator implements Iterator<List<BranchEntry>> {
     this.branchStack = new Stack<Integer>();
 
     this.hasValue = false;
+    this.trace = null;
   }
 
-  public BranchTraceIterator(final List<BranchEntry> branchStructure, final int maxExecutionTraces) {
+  public BranchTraceIterator(
+      final List<BranchEntry> branchStructure,
+      final int maxExecutionTraces) {
     this(branchStructure, 1, maxExecutionTraces);
   }
 
@@ -108,14 +115,22 @@ public final class BranchTraceIterator implements Iterator<List<BranchEntry>> {
     return branchStructure;
   }
 
+  public List<Integer> trace() {
+    return trace;
+  }
+
   @Override
   public void next() {
     while (hasValue()) {
       final BranchTraceConstructor branchTraceConstructor =
           new BranchTraceConstructor(nextBranchStructure());
 
-      if (hasValue() && branchTraceConstructor.construct()) {
-        break;
+      if (hasValue()) {
+        trace = branchTraceConstructor.construct();
+
+        if (trace != null) {
+          break;
+        }
       }
     }
 
@@ -198,6 +213,7 @@ public final class BranchTraceIterator implements Iterator<List<BranchEntry>> {
         handleBranch();
 
         if (isTraceCompleted()) {
+          Logger.debug("Next branch structure (trace completed 1): %s", branchStructure);
           return branchStructure;
         } else {
           continue;
@@ -235,6 +251,7 @@ public final class BranchTraceIterator implements Iterator<List<BranchEntry>> {
               handleBranch();
 
               if (isTraceCompleted()) {
+                Logger.debug("Next branch structure (trace completed 2): %s", branchStructure);
                 return branchStructure;
               } else {
                 break;
@@ -248,6 +265,8 @@ public final class BranchTraceIterator implements Iterator<List<BranchEntry>> {
 
         if (branchStack.isEmpty()) {
           stop();
+
+          Logger.debug("Next branch structure (empty stack): %s", branchStructure);
           return branchStructure;
         }
 
@@ -255,6 +274,7 @@ public final class BranchTraceIterator implements Iterator<List<BranchEntry>> {
       }
     }
 
+    Logger.debug("Next branch structure (return): %s", branchStructure);
     return branchStructure;
   }
 }
