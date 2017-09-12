@@ -76,7 +76,7 @@ public final class AbstractSequence {
 
     this.section = other.section;
     this.sequence = new ArrayList<>(other.sequence);
-    this.positions = other.positions;
+    this.positions = new HashMap<>(other.positions);
     this.flags = other.flags;
     this.prologues = null != other.prologues ? new HashMap<>(other.prologues) : null;
     this.epilogues = null != other.epilogues ? new HashMap<>(other.epilogues) : null;

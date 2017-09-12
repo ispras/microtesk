@@ -347,9 +347,14 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       final List<ConcreteCall> concreteCalls = concreteSequence.getAll();
       InvariantChecks.checkTrue(abstractCalls.size() == concreteCalls.size());
 
+      this.testSequenceBuilder = new ConcreteSequence.Builder(abstractSequence.getSection());
       for (int index = 0; index < abstractCalls.size(); ++index) {
         final AbstractCall abstractCall = abstractCalls.get(index);
         InvariantChecks.checkNotNull(abstractCall);
+
+        if (abstractCall.isEmpty()) {
+          continue;
+        }
 
         final ConcreteCall concreteCall = concreteCalls.get(index);
         InvariantChecks.checkNotNull(concreteCall);
@@ -367,10 +372,9 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         } else {
           callMap.put(concreteCall, new Pair<>(abstractCall, concreteCall));
         }
-      }
 
-      this.testSequenceBuilder = new ConcreteSequence.Builder(abstractSequence.getSection());
-      this.testSequenceBuilder.add(concreteCalls);
+        this.testSequenceBuilder.add(concreteCall);
+      }
     }
 
     public ConcreteSequence createTestSequence() {

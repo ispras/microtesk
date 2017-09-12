@@ -84,9 +84,7 @@ public final class SelfCheckEngine {
 
     for (final AbstractCall abstractCall : abstractCalls) {
       final ConcreteCall concreteCall = EngineUtils.makeConcreteCall(engineContext, abstractCall);
-      if (null != concreteCall) {
-        sequenceBuilder.add(concreteCall);
-      }
+      sequenceBuilder.add(concreteCall);
     }
   }
 }
