@@ -680,7 +680,7 @@ public final class SymbolicExecutor {
         status = executeFormula(result, defines, constraint.getFormula(), pathIndex);
       } else {
         // FIXME: Handle segment miss.
-        InvariantChecks.checkTrue(false);
+        // InvariantChecks.checkTrue(false);
       }
     }
 
