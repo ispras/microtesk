@@ -138,15 +138,7 @@ public final class BranchExecution implements Iterator<Boolean> {
 
   @Override
   public String toString() {
-    final StringBuilder builder = new StringBuilder();
-
-    builder.append(value());
-    builder.append(", ");
-    builder.append(String.format("pre=%s", preBlocks));
-    builder.append(", ");
-    builder.append(String.format("post=%s", postBlocks));
-
-    return builder.toString();
+    return iterator.value().toString();
   }
 
   @Override
