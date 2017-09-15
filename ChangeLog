@@ -6,6 +6,11 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2017/09/15 MicroTESK 2.4.36 beta
+
+- Enhancements in the branch engine
+- Bug fixes and general improvements
+
 2017/09/08 MicroTESK 2.4.35 beta
 
  - Support for excluded elements in revision configuration files
