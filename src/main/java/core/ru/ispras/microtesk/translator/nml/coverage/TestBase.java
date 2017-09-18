@@ -107,7 +107,17 @@ public final class TestBase {
         if (!marks.isEmpty()) {
           bindings.add(NOT(OR(marks)));
         }
+      } else if (!testCase.equals("undefined") && !testCase.equals("unpredicted")) {
+        final List<NodeVariable> marks = new ArrayList<>();
+        for (final NodeVariable mark : builder.getSpecialMarks()) {
+          if (mark.getName().endsWith(".undefined") || mark.getName().endsWith(".unpredicted")) {
+            marks.add(mark);
+          }
+        }
+        bindings.add(NOT(OR(marks)));
+        bindings.add(EQ(findGuard(testCase, builder.getVariables()), Expression.TRUE));
       } else {
+        // unrestrited access to all paths: same as above, but w/o mark filtering
         bindings.add(EQ(findGuard(testCase, builder.getVariables()), Expression.TRUE));
       }
 
