@@ -110,7 +110,8 @@ public final class TestBase {
       } else if (!testCase.equals("undefined") && !testCase.equals("unpredicted")) {
         final List<NodeVariable> marks = new ArrayList<>();
         for (final NodeVariable mark : builder.getSpecialMarks()) {
-          if (mark.getName().endsWith(".undefined") || mark.getName().endsWith(".unpredicted")) {
+          if (mark.getName().matches(".*\\.undefined(!(\\d+))?$") ||
+              mark.getName().matches(".*\\.unpredicted(!(\\d+))?$")) {
             marks.add(mark);
           }
         }
