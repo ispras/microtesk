@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,14 +15,11 @@
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import java.math.BigInteger;
-import java.util.List;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
@@ -123,40 +120,7 @@ public final class STBOperation implements STBuilder {
     st.add("bindings", binding);
   }
 
-  @SuppressWarnings("unchecked")
   private String toString(final Atom atom) {
-    InvariantChecks.checkNotNull(atom);
-
-    final Object object = atom.getObject();
-    switch (atom.getKind()) {
-      case VALUE: {
-        return Utils.toString((BigInteger) object);
-      }
-
-      case VARIABLE: {
-        final IntegerVariable variable = (IntegerVariable) object;
-        return getVariableName(variable);
-      }
-
-      case FIELD: {
-        final IntegerField field = (IntegerField) object;
-        final IntegerVariable variable = field.getVariable();
-        return String.format("%s.field(%d, %d)",
-            getVariableName(variable), field.getLoIndex(), field.getHiIndex());
-      }
-
-      case CONCAT: {
-        return Utils.toMmuExpressionText(
-            context, (List<IntegerField>) object);
-      }
-
-      default:
-        throw new IllegalStateException(
-            "Unsupported atom kind: " + atom.getKind());
-    }
-  }
-
-  private String getVariableName(final IntegerVariable variable) {
-    return Utils.getVariableName(ir, context, variable);
+    return Utils.toString(ir, context, atom);
   }
 }

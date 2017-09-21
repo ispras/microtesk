@@ -23,6 +23,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
+import ru.ispras.microtesk.mmu.translator.ir.Variable;
 
 public final class Utils {
   private Utils() {}
@@ -166,5 +167,43 @@ public final class Utils {
     }
 
     return getVariableName(context, name);
+  }
+
+  @SuppressWarnings("unchecked")
+  public static String toString(
+      final Ir ir,
+      final String context,
+      final Atom atom) {
+    InvariantChecks.checkNotNull(ir);
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(atom);
+
+    final Object object = atom.getObject();
+    switch (atom.getKind()) {
+      case VALUE:
+        return Utils.toString((BigInteger) object);
+
+      case VARIABLE:
+        return getVariableName(ir, context, (IntegerVariable) object);
+
+      case FIELD: {
+        final IntegerField field = (IntegerField) object;
+        final IntegerVariable variable = field.getVariable();
+        return String.format("%s.field(%d, %d)",
+            getVariableName(ir, context, variable),
+            field.getLoIndex(),
+            field.getHiIndex()
+            );
+      }
+
+      case GROUP:
+        return getVariableName(context, ((Variable) object).getName());
+
+      case CONCAT:
+        return Utils.toMmuExpressionText(context, (List<IntegerField>) object);
+
+      default:
+        throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
+    }
   }
 }

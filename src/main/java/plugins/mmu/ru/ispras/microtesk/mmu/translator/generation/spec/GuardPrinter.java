@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,14 +29,11 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
 import ru.ispras.microtesk.utils.StringUtils;
 
 final class GuardPrinter {
@@ -308,41 +304,8 @@ final class GuardPrinter {
         );
    }
 
-  private String getVariableName(final IntegerVariable variable) {
-    return Utils.getVariableName(ir, context, variable);
-  }
-
-  @SuppressWarnings("unchecked")
   private String toString(final Atom atom) {
-    InvariantChecks.checkNotNull(atom);
-
-    final Object object = atom.getObject();
-    switch (atom.getKind()) {
-      case VALUE:
-        return Utils.toString((BigInteger) object);
-
-      case VARIABLE:
-        return getVariableName((IntegerVariable) object);
-
-      case FIELD: {
-        final IntegerField field = (IntegerField) object;
-        final IntegerVariable variable = field.getVariable();
-        return String.format("%s.field(%d, %d)",
-            getVariableName(variable),
-            field.getLoIndex(),
-            field.getHiIndex()
-            );
-      }
-
-      case GROUP:
-        return Utils.getVariableName(context, ((Variable) object).getName());
-
-      case CONCAT:
-        return Utils.toMmuExpressionText(context, (List<IntegerField>) object);
-
-      default:
-        throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
-    }
+    return Utils.toString(ir, context, atom);
   }
 
   private static final class Equality {
