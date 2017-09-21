@@ -181,7 +181,7 @@ public final class Utils {
     final Object object = atom.getObject();
     switch (atom.getKind()) {
       case VALUE:
-        return Utils.toString((BigInteger) object);
+        return toString((BigInteger) object);
 
       case VARIABLE:
         return getVariableName(ir, context, (IntegerVariable) object);
@@ -200,7 +200,7 @@ public final class Utils {
         return getVariableName(context, ((Variable) object).getName());
 
       case CONCAT:
-        return Utils.toMmuExpressionText(context, (List<IntegerField>) object);
+        return toMmuExpressionText(context, (List<IntegerField>) object);
 
       default:
         throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
