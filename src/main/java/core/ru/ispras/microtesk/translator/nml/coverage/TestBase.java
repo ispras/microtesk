@@ -115,7 +115,9 @@ public final class TestBase {
             marks.add(mark);
           }
         }
-        bindings.add(NOT(OR(marks)));
+        if (!marks.isEmpty()) {
+          bindings.add(NOT(OR(marks)));
+        }
         bindings.add(EQ(findGuard(testCase, builder.getVariables()), Expression.TRUE));
       } else {
         // unrestrited access to all paths: same as above, but w/o mark filtering
