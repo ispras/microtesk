@@ -24,6 +24,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuShiftedVariable;
 
 public final class Utils {
   private Utils() {}
@@ -59,6 +60,17 @@ public final class Utils {
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(variable);
+
+    if (variable instanceof MmuShiftedVariable) {
+      final MmuShiftedVariable shiftedVariable = (MmuShiftedVariable) variable;
+      return String.format(
+          "%s.%s(%s, %s)",
+          MmuShiftedVariable.class.getSimpleName(),
+          shiftedVariable.isLeft() ? "left" : "right",
+          getVariableName(ir, context, shiftedVariable.getVariable()),
+          getVariableName(ir, context, shiftedVariable.getShift())
+          );
+    }
 
     final String name = variable.getName();
     final Constant constant = ir.getConstants().get(name);
