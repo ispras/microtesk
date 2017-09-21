@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +25,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
@@ -39,7 +38,7 @@ public final class AtomExtractor {
   private AtomExtractor() {}
 
   public static Atom extract(final Node node) {
-    checkNotNull(node);
+    InvariantChecks.checkNotNull(node);
 
     final ExprTransformer transformer = new ExprTransformer();
     final Node expr = transformer.transform(node);
@@ -108,7 +107,7 @@ public final class AtomExtractor {
     if (var.isStruct()) {
       return Atom.newGroup(var);
     } else {
-      return Atom.newVariable(new IntegerVariable(var.getName(), var.getBitSize()));
+      return Atom.newVariable(newVariable(var));
     }
   }
 
@@ -149,8 +148,8 @@ public final class AtomExtractor {
     final int intHi = ((BigInteger) hi.getObject()).intValue();
     final IntegerVariable intVar = (IntegerVariable) var.getObject();
 
-    final IntegerField field = new IntegerField(
-        intVar, Math.min(intLo, intHi), Math.max(intLo, intHi));
+    final IntegerField field =
+        new IntegerField(intVar, Math.min(intLo, intHi), Math.max(intLo, intHi));
 
     return Atom.newField(field);
   }
@@ -192,5 +191,10 @@ public final class AtomExtractor {
     }
 
     return Atom.newConcat(concat);
+  }
+
+  static IntegerVariable newVariable(final Variable variable) {
+    InvariantChecks.checkNotNull(variable);
+    return new IntegerVariable(variable.getName(), variable.getBitSize());
   }
 }

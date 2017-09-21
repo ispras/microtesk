@@ -84,9 +84,6 @@ final class ControlFlowBuilder {
   public static final Class<?> TRANSITION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition.class;
 
-  public static final Class<?> MMU_SHIFTED_VARIABLE =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuShiftedVariable.class;
-
   private final Ir ir;
   private final String context;
 
@@ -139,7 +136,6 @@ final class ControlFlowBuilder {
     st.add("imps", GUARD_CLASS.getName());
     st.add("imps", SEGMENT_CLASS.getName());
     st.add("imps", TRANSITION_CLASS.getName());
-    st.add("imps", MMU_SHIFTED_VARIABLE.getName());
   }
 
   private String newBranch() {
