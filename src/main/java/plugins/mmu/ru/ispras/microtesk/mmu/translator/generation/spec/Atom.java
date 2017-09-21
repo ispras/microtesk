@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.List;
 
@@ -23,7 +21,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 
 public final class Atom {
   public static enum Kind {
@@ -74,8 +71,8 @@ public final class Atom {
   private final Object object;
 
   public Atom(final Kind kind, final Object object) {
-    checkNotNull(kind);
-    checkNotNull(object);
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(object);
 
     if (!kind.getObjectClass().isAssignableFrom(object.getClass())) {
       throw new IllegalArgumentException(
@@ -95,48 +92,8 @@ public final class Atom {
     return object;
   }
 
-  public int getWidth() {
-    switch (kind) {
-      case VARIABLE:
-        return ((IntegerVariable) object).getWidth();
-      case GROUP:
-        return ((Variable) object).getBitSize();
-      case FIELD:
-        return ((IntegerField) object).getWidth();
-      case CONCAT:
-        return ((MmuExpression) object).getWidth();
-      default:
-        InvariantChecks.checkTrue(false);
-        return -1;
-    }
-  }
-
   @Override
   public String toString() {
     return String.format("%s: %s", kind, object);
-  }
-
-  public String getText() {
-    switch (kind) {
-      case VALUE:
-        return Utils.toString((BigInteger) object);
-
-      case VARIABLE:
-        return ((IntegerVariable) object).getName().replace('.', '_');
-
-      case FIELD:
-        return String.format("%s.field(%d, %d)", 
-            ((IntegerField) object).getVariable().getName().replace('.', '_'),
-            ((IntegerField) object).getLoIndex(), ((IntegerField) object).getHiIndex());
-
-      case GROUP:
-        return ((Variable) object).getName();
-
-      case CONCAT:
-        return "MmuExpression.XXX";
-
-      default:
-        throw new IllegalStateException(kind.name());
-    }
   }
 }
