@@ -35,7 +35,6 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
-import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Variable;
@@ -310,19 +309,7 @@ final class GuardPrinter {
    }
 
   private String getVariableName(final IntegerVariable variable) {
-    final String name = variable.getName();
-    final Constant constant = ir.getConstants().get(name);
-
-    if (null != constant) {
-      final DataType type = constant.getVariable().getDataType();
-      if (variable.getWidth() == type.getSize()) {
-        return name + ".get()";
-      } else {
-        return String.format("%s.get(%d)", name, variable.getWidth());
-      }
-    }
-
-    return Utils.getVariableName(context, name);
+    return Utils.getVariableName(ir, context, variable);
   }
 
   @SuppressWarnings("unchecked")

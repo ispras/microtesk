@@ -20,11 +20,9 @@ import java.util.List;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
@@ -159,18 +157,6 @@ public final class STBOperation implements STBuilder {
   }
 
   private String getVariableName(final IntegerVariable variable) {
-    final String name = variable.getName();
-    final Constant constant = ir.getConstants().get(name);
-
-    if (null != constant) {
-      final DataType type = constant.getVariable().getDataType();
-      if (variable.getWidth() == type.getSize()) {
-        return name + ".get()";
-      } else {
-        return String.format("%s.get(%d)", name, variable.getWidth());
-      }
-    }
-
-    return Utils.getVariableName(context, name);
+    return Utils.getVariableName(ir, context, variable);
   }
 }

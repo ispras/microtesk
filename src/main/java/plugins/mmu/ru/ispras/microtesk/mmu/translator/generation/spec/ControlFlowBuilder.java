@@ -27,7 +27,6 @@ import java.util.Set;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -43,7 +42,6 @@ import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
-import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
@@ -848,18 +846,6 @@ final class ControlFlowBuilder {
   }
 
   private String getVariableName(final IntegerVariable variable) {
-    final String name = variable.getName();
-    final Constant constant = ir.getConstants().get(name);
-
-    if (null != constant) {
-      final DataType type = constant.getVariable().getDataType();
-      if (variable.getWidth() == type.getSize()) {
-        return name + ".get()";
-      } else {
-        return String.format("%s.get(%d)", name, variable.getWidth());
-      }
-    }
-
-    return Utils.getVariableName(context, name);
+    return Utils.getVariableName(ir, context, variable);
   }
 }

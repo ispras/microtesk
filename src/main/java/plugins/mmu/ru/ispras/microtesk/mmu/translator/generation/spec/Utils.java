@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,9 +17,12 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import java.math.BigInteger;
 import java.util.List;
 
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.mmu.translator.ir.Constant;
+import ru.ispras.microtesk.mmu.translator.ir.Ir;
 
 public final class Utils {
   private Utils() {}
@@ -140,5 +143,28 @@ public final class Utils {
 
     sb.append(')');
     return sb.toString();
+  }
+
+  public static String getVariableName(
+      final Ir ir,
+      final String context,
+      final IntegerVariable variable) {
+    InvariantChecks.checkNotNull(ir);
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(variable);
+
+    final String name = variable.getName();
+    final Constant constant = ir.getConstants().get(name);
+
+    if (null != constant) {
+      final DataType type = constant.getVariable().getDataType();
+      if (variable.getWidth() == type.getSize()) {
+        return name + ".get()";
+      } else {
+        return String.format("%s.get(%d)", name, variable.getWidth());
+      }
+    }
+
+    return getVariableName(context, name);
   }
 }
