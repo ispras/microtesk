@@ -24,7 +24,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 
 public class STBConstant implements STBuilder{
   public static final Class<?> CONSTANT_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuDynamicConst.class;
+      ru.ispras.fortress.data.Variable.class;
 
   private final String packageName;
   private final String simulatorPackageName;
