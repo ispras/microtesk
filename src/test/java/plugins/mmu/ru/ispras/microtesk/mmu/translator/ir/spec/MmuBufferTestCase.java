@@ -25,10 +25,10 @@ import org.junit.Test;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
+import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
@@ -78,13 +78,13 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer JTLB = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, 64, 1, VA_ADDR,
-      IntegerUtils.makeNodeExtract(VA, 13, 39), // Tag
-      IntegerUtils.makeNodeValue(0), // Index
-      IntegerUtils.makeNodeExtract(VA, 0, 12), // Offset
+      FortressUtils.makeNodeExtract(VA, 13, 39), // Tag
+      FortressUtils.makeNodeValue(0), // Index
+      FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
-              IntegerUtils.makeNodeVariable(VPN2),
-              IntegerUtils.makeNodeExtract(VA, 13, 39))),
+              FortressUtils.makeNodeVariable(VPN2),
+              FortressUtils.makeNodeExtract(VA, 13, 39))),
       false, null
       );
 
@@ -106,13 +106,13 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer DTLB = new MmuBuffer(
       "DTLB", MmuBuffer.Kind.UNMAPPED, 4, 1, VA_ADDR,
-      IntegerUtils.makeNodeExtract(VA, 13, 39), // Tag
-      IntegerUtils.makeNodeValue(0), // Index
-      IntegerUtils.makeNodeExtract(VA, 0, 12), // Offset
+      FortressUtils.makeNodeExtract(VA, 13, 39), // Tag
+      FortressUtils.makeNodeValue(0), // Index
+      FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
-              IntegerUtils.makeNodeVariable(VPN2),
-              IntegerUtils.makeNodeExtract(VA, 13, 39))),
+              FortressUtils.makeNodeVariable(VPN2),
+              FortressUtils.makeNodeExtract(VA, 13, 39))),
       true, JTLB
       );
 
@@ -158,13 +158,13 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer L1 = new MmuBuffer(
       "L1", MmuBuffer.Kind.UNMAPPED, 4, 128, PA_ADDR,
-      IntegerUtils.makeNodeExtract(PA, 12, 35), // Tag
-      IntegerUtils.makeNodeExtract(PA, 5, 11), // Index
-      IntegerUtils.makeNodeExtract(PA, 0, 4), // Offset
+      FortressUtils.makeNodeExtract(PA, 12, 35), // Tag
+      FortressUtils.makeNodeExtract(PA, 5, 11), // Index
+      FortressUtils.makeNodeExtract(PA, 0, 4), // Offset
       Collections.singleton(
           new MmuBinding(
-              IntegerUtils.makeNodeVariable(L1_TAG),
-              IntegerUtils.makeNodeExtract(PA, 12, 35))),
+              FortressUtils.makeNodeVariable(L1_TAG),
+              FortressUtils.makeNodeExtract(PA, 12, 35))),
       true, null
       );
 
@@ -198,13 +198,13 @@ public class MmuBufferTestCase {
   // -----------------------------------------------------------------------------------------------
   public static final MmuBuffer L2 = new MmuBuffer(
       "L2", MmuBuffer.Kind.UNMAPPED, 4, 4096, PA_ADDR,
-      IntegerUtils.makeNodeExtract(PA, 17, 35), // Tag
-      IntegerUtils.makeNodeExtract(PA, 5, 16), // Index
-      IntegerUtils.makeNodeExtract(PA, 0, 4), // Offset
+      FortressUtils.makeNodeExtract(PA, 17, 35), // Tag
+      FortressUtils.makeNodeExtract(PA, 5, 16), // Index
+      FortressUtils.makeNodeExtract(PA, 0, 4), // Offset
       Collections.singleton(
           new MmuBinding(
-              IntegerUtils.makeNodeVariable(L2_TAG),
-              IntegerUtils.makeNodeExtract(PA, 17, 35))),
+              FortressUtils.makeNodeVariable(L2_TAG),
+              FortressUtils.makeNodeExtract(PA, 17, 35))),
       true, null
       );
 
@@ -237,9 +237,9 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer MEM = new MmuBuffer(
       "MMU", MmuBuffer.Kind.UNMAPPED, 1, (1L << 36) / 32, PA_ADDR,
-      IntegerUtils.makeNodeValue(0), // Tag
-      IntegerUtils.makeNodeExtract(PA, 5, 35), // Index
-      IntegerUtils.makeNodeExtract(PA, 0, 4),  // Offset
+      FortressUtils.makeNodeValue(0), // Tag
+      FortressUtils.makeNodeExtract(PA, 5, 35), // Index
+      FortressUtils.makeNodeExtract(PA, 0, 4), // Offset
       Collections.<MmuBinding>emptySet(),
       false, null
       );

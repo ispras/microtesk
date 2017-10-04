@@ -30,8 +30,8 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.basis.AddressView;
+import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
@@ -70,10 +70,10 @@ public final class MmuAddressViewBuilder {
       final Node field = entry.getValue();
 
       operands.add(field);
-      expectedIndex += IntegerUtils.getBitSize(field);
+      expectedIndex += FortressUtils.getBitSize(field);
     }
 
-    return IntegerUtils.makeNodeConcat(operands);
+    return FortressUtils.makeNodeConcat(operands);
   }
 
   /**
@@ -97,11 +97,11 @@ public final class MmuAddressViewBuilder {
 
     int offset = 0;
     for (final Node addressField : operation.getOperands()) {
-      final Node field = IntegerUtils.makeNodeExtract(
-          variable, offset, (offset + IntegerUtils.getBitSize(addressField)) - 1);
+      final Node field = FortressUtils.makeNodeExtract(
+          variable, offset, (offset + FortressUtils.getBitSize(addressField)) - 1);
 
-      fields.put(IntegerUtils.getLowerBit(addressField), field);
-      offset += IntegerUtils.getBitSize(addressField);
+      fields.put(FortressUtils.getLowerBit(addressField), field);
+      offset += FortressUtils.getBitSize(addressField);
     }
   }
 
@@ -148,7 +148,7 @@ public final class MmuAddressViewBuilder {
             final List<BigInteger> fields = new ArrayList<BigInteger>();
 
             for (final Node expression : expressions) {
-              final BigInteger value = IntegerUtils.evaluate(
+              final BigInteger value = FortressUtils.evaluate(
                   expression,
                   new ValueProvider() {
                     @Override
@@ -175,7 +175,7 @@ public final class MmuAddressViewBuilder {
               values.put(variable, fields.get(i));
             }
 
-            final BigInteger addressValue = IntegerUtils.evaluate(
+            final BigInteger addressValue = FortressUtils.evaluate(
                 addressExpression,
                 new ValueProvider() {
                   @Override

@@ -38,7 +38,6 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilderSimple;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -55,6 +54,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link SymbolicExecutor} implements a simple symbolic executor of memory access structures.
@@ -197,7 +197,7 @@ public final class SymbolicExecutor {
 
     final MmuAddressInstance addrType = MmuPlugin.getSpecification().getVirtualAddress();
 
-    final Node field = IntegerUtils.makeNodeExtract(
+    final Node field = FortressUtils.makeNodeExtract(
         addrType.getVariable(),
         lowerZeroBit,
         upperZeroBit);
@@ -280,22 +280,22 @@ public final class SymbolicExecutor {
           final Node field2 = result.getVersion(instance2, pathIndex2);
 
           if (equality.getOperationId() == StandardOperation.EQ) {
-            clauseBuilder.add(IntegerUtils.makeNodeEqual(field1, field2));
+            clauseBuilder.add(FortressUtils.makeNodeEqual(field1, field2));
           } else {
-            clauseBuilder.add(IntegerUtils.makeNodeNotEqual(field1, field2));
+            clauseBuilder.add(FortressUtils.makeNodeNotEqual(field1, field2));
           }
 
           result.addOriginalVariable(
-              result.getOriginal(IntegerUtils.getVariable(instance1), pathIndex1));
+              result.getOriginal(FortressUtils.getVariable(instance1), pathIndex1));
           result.addOriginalVariable(
-              result.getOriginal(IntegerUtils.getVariable(instance2), pathIndex2));
+              result.getOriginal(FortressUtils.getVariable(instance2), pathIndex2));
         }
       }
 
       if (condition.getOperationId() == StandardOperation.AND) {
-        result.addFormula(IntegerUtils.makeNodeAnd(clauseBuilder));
+        result.addFormula(FortressUtils.makeNodeAnd(clauseBuilder));
       } else {
-        result.addFormula(IntegerUtils.makeNodeOr(clauseBuilder));
+        result.addFormula(FortressUtils.makeNodeOr(clauseBuilder));
       }
     }
 
@@ -566,9 +566,9 @@ public final class SymbolicExecutor {
           final Variable newVersion = caseResult.getVersion(originalVariable);
 
           caseResult.addFormula(
-              IntegerUtils.makeNodeEqual(
-                  IntegerUtils.makeNodeVariable(newVersion),
-                  IntegerUtils.makeNodeVariable(oldVersion)));
+              FortressUtils.makeNodeEqual(
+                  FortressUtils.makeNodeVariable(newVersion),
+                  FortressUtils.makeNodeVariable(oldVersion)));
         }
       }
 
@@ -594,10 +594,10 @@ public final class SymbolicExecutor {
 
       // Switch: (PHI == 0) | ... | (PHI == N-1)
       for (int i = 0; i < switchResults.size(); i++) {
-        switchBuilder.add(IntegerUtils.makeNodeEqual(phi, IntegerUtils.makeNodeValue(i)));
+        switchBuilder.add(FortressUtils.makeNodeEqual(phi, FortressUtils.makeNodeValue(i)));
       }
   
-      result.addFormula(IntegerUtils.makeNodeOr(switchBuilder));
+      result.addFormula(FortressUtils.makeNodeOr(switchBuilder));
 
       for (int i = 0; i < switchResults.size(); i++) {
         final SymbolicResult caseResult = switchResults.get(i);
@@ -787,7 +787,7 @@ public final class SymbolicExecutor {
     }
 
     // Try to calculate the condition based on the derived constants.
-    final Boolean value = IntegerUtils.check(condition,
+    final Boolean value = FortressUtils.check(condition,
         new ValueProvider() {
           @Override
           public Data getVariableValue(final Variable original) {
@@ -815,9 +815,9 @@ public final class SymbolicExecutor {
 
     if (!clauseBuilder.isEmpty()) {
       if (clause.getOperationId() == StandardOperation.AND) {
-        result.addFormula(IntegerUtils.makeNodeAnd(clauseBuilder));
+        result.addFormula(FortressUtils.makeNodeAnd(clauseBuilder));
       } else {
-        result.addFormula(IntegerUtils.makeNodeOr(clauseBuilder));
+        result.addFormula(FortressUtils.makeNodeOr(clauseBuilder));
       }
     }
 
@@ -855,17 +855,17 @@ public final class SymbolicExecutor {
         int offset = 0;
         for (final Node term : lhsExpr.getOperands()) {
           final int lo = offset;
-          final int hi = offset + (IntegerUtils.getBitSize(term) - 1);
+          final int hi = offset + (FortressUtils.getBitSize(term) - 1);
 
           final Node field = result.getVersion(term, pathIndex);
           final BigInteger value = BitUtils.getField(rhsConst, lo, hi);
 
           // Check whether the field's value is known (via constant propagation).
-          final BigInteger constant = result.getConstants().get(IntegerUtils.getVariable(field));
+          final BigInteger constant = result.getConstants().get(FortressUtils.getVariable(field));
   
           if (constant != null) {
-            final int fieldlowerBit = IntegerUtils.getLowerBit(field);
-            final int fieldUpperBit = IntegerUtils.getUpperBit(field);
+            final int fieldlowerBit = FortressUtils.getLowerBit(field);
+            final int fieldUpperBit = FortressUtils.getUpperBit(field);
 
             final BigInteger fieldConst = BitUtils.getField(constant, fieldlowerBit, fieldUpperBit);
 
@@ -889,15 +889,15 @@ public final class SymbolicExecutor {
           if (!isTrue && constant == null) {
             if (equality.getOperationId() == StandardOperation.EQ) {
               clauseBuilder.add(
-                  IntegerUtils.makeNodeEqual(field, IntegerUtils.makeNodeValue(value)));
+                  FortressUtils.makeNodeEqual(field, FortressUtils.makeNodeValue(value)));
             } else {
               clauseBuilder.add(
-                  IntegerUtils.makeNodeNotEqual(field, IntegerUtils.makeNodeValue(value)));
+                  FortressUtils.makeNodeNotEqual(field, FortressUtils.makeNodeValue(value)));
             }
           }
 
-          offset += IntegerUtils.getBitSize(term);
-          result.addOriginalVariable(result.getOriginal(IntegerUtils.getVariable(term), pathIndex));
+          offset += FortressUtils.getBitSize(term);
+          result.addOriginalVariable(result.getOriginal(FortressUtils.getVariable(term), pathIndex));
         }
     } else {
       final NodeOperation rhsExpr = (NodeOperation) rhs;
@@ -908,23 +908,23 @@ public final class SymbolicExecutor {
           final Node lhsTerm = lhsExpr.getOperand(i);
           final Node rhsTerm = rhsExpr.getOperand(i);
           InvariantChecks.checkTrue(
-              IntegerUtils.getBitSize(lhsTerm) == IntegerUtils.getBitSize(rhsTerm));
+              FortressUtils.getBitSize(lhsTerm) == FortressUtils.getBitSize(rhsTerm));
 
           final Node lhsField = result.getVersion(lhsTerm, pathIndex);
           final Node rhsField = result.getVersion(rhsTerm, pathIndex);
 
           if (equality.getOperationId() == StandardOperation.EQ) {
             clauseBuilder.add(
-                IntegerUtils.makeNodeEqual(lhsField, rhsField));
+                FortressUtils.makeNodeEqual(lhsField, rhsField));
           } else {
             clauseBuilder.add(
-                IntegerUtils.makeNodeNotEqual(lhsField, rhsField));
+                FortressUtils.makeNodeNotEqual(lhsField, rhsField));
           }
 
           result.addOriginalVariable(
-              result.getOriginal(IntegerUtils.getVariable(lhsTerm), pathIndex));
+              result.getOriginal(FortressUtils.getVariable(lhsTerm), pathIndex));
           result.addOriginalVariable(
-              result.getOriginal(IntegerUtils.getVariable(rhsTerm), pathIndex));
+              result.getOriginal(FortressUtils.getVariable(rhsTerm), pathIndex));
         }
     }
 
@@ -947,8 +947,8 @@ public final class SymbolicExecutor {
       final Node lhs = binding.getLhs();
       final Node rhs = binding.getRhs();
 
-      final Variable oldLhsVar = result.getVersion(IntegerUtils.getVariable(lhs), pathIndex);
-      final Variable lhsOriginal = result.getOriginal(IntegerUtils.getVariable(lhs), pathIndex);
+      final Variable oldLhsVar = result.getVersion(FortressUtils.getVariable(lhs), pathIndex);
+      final Variable lhsOriginal = result.getOriginal(FortressUtils.getVariable(lhs), pathIndex);
 
       result.addOriginalVariable(lhsOriginal);
 
@@ -960,18 +960,18 @@ public final class SymbolicExecutor {
         continue;
       }
 
-      final Variable newLhsVar = result.getNextVersion(IntegerUtils.getVariable(lhs), pathIndex);
+      final Variable newLhsVar = result.getNextVersion(FortressUtils.getVariable(lhs), pathIndex);
       final List<Node> rhsTerms = new ArrayList<>();
 
       // Equation for the prefix part.
-      final int lhsLowerBit = IntegerUtils.getLowerBit(lhs);
-      final int lhsUpperBit = IntegerUtils.getUpperBit(lhs);
+      final int lhsLowerBit = FortressUtils.getLowerBit(lhs);
+      final int lhsUpperBit = FortressUtils.getUpperBit(lhs);
 
       if (lhsLowerBit > 0) {
-        final Node oldLhsPre = IntegerUtils.makeNodeExtract(oldLhsVar, 0, lhsLowerBit - 1);
-        final Node newLhsPre = IntegerUtils.makeNodeExtract(newLhsVar, 0, lhsLowerBit - 1);
+        final Node oldLhsPre = FortressUtils.makeNodeExtract(oldLhsVar, 0, lhsLowerBit - 1);
+        final Node newLhsPre = FortressUtils.makeNodeExtract(newLhsVar, 0, lhsLowerBit - 1);
 
-        clauseBuilder.add(IntegerUtils.makeNodeEqual(newLhsPre, oldLhsPre));
+        clauseBuilder.add(FortressUtils.makeNodeEqual(newLhsPre, oldLhsPre));
         rhsTerms.add(oldLhsPre);
       }
 
@@ -984,24 +984,24 @@ public final class SymbolicExecutor {
       for (final Node term : terms.getOperands()) {
         final Node field = result.getVersion(term, pathIndex);
 
-        result.addOriginalVariable(result.getOriginal(IntegerUtils.getVariable(term), pathIndex));
+        result.addOriginalVariable(result.getOriginal(FortressUtils.getVariable(term), pathIndex));
 
-        final int upper = offset + (IntegerUtils.getBitSize(field) - 1);
+        final int upper = offset + (FortressUtils.getBitSize(field) - 1);
         final int trunc = upper > lhsUpperBit ? lhsUpperBit : upper;
 
-        final Node lhsField = IntegerUtils.makeNodeExtract(newLhsVar, offset, trunc);
+        final Node lhsField = FortressUtils.makeNodeExtract(newLhsVar, offset, trunc);
         final Node rhsField = trunc == upper
             ? field
-            : IntegerUtils.makeNodeExtract(
-                IntegerUtils.getVariable(field),
-                IntegerUtils.getLowerBit(field),
-                IntegerUtils.getUpperBit(field) - (upper - trunc)
+            : FortressUtils.makeNodeExtract(
+                FortressUtils.getVariable(field),
+                FortressUtils.getLowerBit(field),
+                FortressUtils.getUpperBit(field) - (upper - trunc)
               );
 
-        clauseBuilder.add(IntegerUtils.makeNodeEqual(lhsField, rhsField));
+        clauseBuilder.add(FortressUtils.makeNodeEqual(lhsField, rhsField));
         rhsTerms.add(rhsField);
 
-        offset += IntegerUtils.getBitSize(field);
+        offset += FortressUtils.getBitSize(field);
 
         // Truncate the upper bits of the expression.
         if (offset > lhsUpperBit) {
@@ -1011,30 +1011,30 @@ public final class SymbolicExecutor {
 
       if (offset <= lhsUpperBit) {
         clauseBuilder.add(
-            IntegerUtils.makeNodeEqual(
-                IntegerUtils.makeNodeExtract(newLhsVar, offset, lhsUpperBit),
-                IntegerUtils.makeNodeValue(0)));
+            FortressUtils.makeNodeEqual(
+                FortressUtils.makeNodeExtract(newLhsVar, offset, lhsUpperBit),
+                FortressUtils.makeNodeValue(0)));
       }
 
       // Equation for the suffix part.
       if (lhsUpperBit < oldLhsVar.getType().getSize() - 1) {
         final Node oldLhsPost =
-            IntegerUtils.makeNodeExtract(oldLhsVar, lhsUpperBit, oldLhsVar.getType().getSize() - 1);
+            FortressUtils.makeNodeExtract(oldLhsVar, lhsUpperBit, oldLhsVar.getType().getSize() - 1);
         final Node newLhsPost =
-            IntegerUtils.makeNodeExtract(newLhsVar, lhsUpperBit, newLhsVar.getType().getSize() - 1);
+            FortressUtils.makeNodeExtract(newLhsVar, lhsUpperBit, newLhsVar.getType().getSize() - 1);
 
-        clauseBuilder.add(IntegerUtils.makeNodeEqual(newLhsPost, oldLhsPost));
+        clauseBuilder.add(FortressUtils.makeNodeEqual(newLhsPost, oldLhsPost));
         rhsTerms.add(oldLhsPost);
       }
 
       // Update the version of the left-hand-side variable.
-      result.defineVersion(IntegerUtils.getVariable(lhs), pathIndex);
+      result.defineVersion(FortressUtils.getVariable(lhs), pathIndex);
 
       // Try to propagate constants.
       final Map<Variable, BigInteger> constants = result.getConstants();
-      final Node rhsExpr = IntegerUtils.makeNodeConcat(rhsTerms);
+      final Node rhsExpr = FortressUtils.makeNodeConcat(rhsTerms);
 
-      final BigInteger constant = IntegerUtils.evaluate(rhsExpr,
+      final BigInteger constant = FortressUtils.evaluate(rhsExpr,
           new ValueProvider() {
             @Override
             public Data getVariableValue(final Variable variable) {
@@ -1049,7 +1049,7 @@ public final class SymbolicExecutor {
     } // For each binding.
 
     if (!clauseBuilder.isEmpty()) {
-      result.addFormula(IntegerUtils.makeNodeAnd(clauseBuilder));
+      result.addFormula(FortressUtils.makeNodeAnd(clauseBuilder));
     }
 
     return Boolean.TRUE;
@@ -1075,13 +1075,13 @@ public final class SymbolicExecutor {
   private static Node getPhiField(final int width) {
     final Variable variable = new Variable(
         String.format("phi_%d", uniqueId++), DataType.BIT_VECTOR(width));
-    return IntegerUtils.makeNodeVariable(variable);
+    return FortressUtils.makeNodeVariable(variable);
   }
 
   private static Node getIfThenField(final Variable phi, final int i) {
     final Variable variable = new Variable(
         String.format("%s_%d", phi.getName(), i), DataType.BIT_VECTOR(1));
-    return IntegerUtils.makeNodeVariable(variable);
+    return FortressUtils.makeNodeVariable(variable);
   }
 
   private static Node getIfThenFormula(
@@ -1092,20 +1092,20 @@ public final class SymbolicExecutor {
     final List<Node> clauseBuilder2 = new ArrayList<>();
 
     // Introduce a Boolean variable: C == (PHI == i).
-    final Node condition = getIfThenField(IntegerUtils.getVariable(phi), i);
+    final Node condition = getIfThenField(FortressUtils.getVariable(phi), i);
 
     clauseBuilder1.add(
-        IntegerUtils.makeNodeEqual(condition, IntegerUtils.makeNodeValue(1)));
+        FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeValue(1)));
     clauseBuilder1.add(
-        IntegerUtils.makeNodeNotEqual(phi, IntegerUtils.makeNodeValue(i)));
+        FortressUtils.makeNodeNotEqual(phi, FortressUtils.makeNodeValue(i)));
 
     clauseBuilder2.add(
-        IntegerUtils.makeNodeNotEqual(condition, IntegerUtils.makeNodeValue(1)));
+        FortressUtils.makeNodeNotEqual(condition, FortressUtils.makeNodeValue(1)));
     clauseBuilder2.add(
-        IntegerUtils.makeNodeEqual(phi, IntegerUtils.makeNodeValue(i)));
+        FortressUtils.makeNodeEqual(phi, FortressUtils.makeNodeValue(i)));
 
-    ifThenBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder1));
-    ifThenBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder2));
+    ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder1));
+    ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder2));
 
     // Transform the formula according to the rule:
     // C -> (x[1] & ... & x[n]) == (~C | x[1]) & ... & (~C | x[n]).
@@ -1121,22 +1121,22 @@ public final class SymbolicExecutor {
       if (clause.getOperationId() == StandardOperation.OR) {
         final List<Node> clauseBuilder = new ArrayList<>();
 
-        clauseBuilder.add(IntegerUtils.makeNodeEqual(condition, IntegerUtils.makeNodeValue(0)));
+        clauseBuilder.add(FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeValue(0)));
         clauseBuilder.addAll(clause.getOperands());
 
-        ifThenBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder));
+        ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder));
       } else {
         for (final Node equation : clause.getOperands()) {
           final List<Node> clauseBuilder = new ArrayList<>();
 
-          clauseBuilder.add(IntegerUtils.makeNodeEqual(condition, IntegerUtils.makeNodeValue(0)));
+          clauseBuilder.add(FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeValue(0)));
           clauseBuilder.add(equation);
 
-          ifThenBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder));
+          ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder));
         }
       }
     }
 
-    return IntegerUtils.makeNodeAnd(ifThenBuilder);
+    return FortressUtils.makeNodeAnd(ifThenBuilder);
   }
 }

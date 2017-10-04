@@ -25,7 +25,6 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.template.BufferEventConstraint;
@@ -33,6 +32,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.AbstractSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link MmuSettingsUtils} implements utilities for handing MMU settings.
@@ -113,7 +113,7 @@ public final class MmuSettingsUtils {
         include.isEmpty() ?
             IntegerDomainConstraint.Kind.EXCLUDE :
             IntegerDomainConstraint.Kind.RETAIN,
-        IntegerUtils.makeNodeVariable(variable),
+        FortressUtils.makeNodeVariable(variable),
         domain,
         include.isEmpty() ?
             exclude :
@@ -152,7 +152,7 @@ public final class MmuSettingsUtils {
 
     return new IntegerDomainConstraint(
         IntegerDomainConstraint.Kind.RETAIN,
-        IntegerUtils.makeNodeVariable(variable),
+        FortressUtils.makeNodeVariable(variable),
         null,
         values);
   }

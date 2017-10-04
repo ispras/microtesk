@@ -21,7 +21,7 @@ import java.util.List;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * This class is to track fields in a variable by exclusion.
@@ -34,14 +34,14 @@ final class IntegerFieldTracker {
   private List<Node> fields;
 
   private static boolean inField(final Node field, final int index) {
-    return IntegerUtils.getLowerBit(field) <= index && index <= IntegerUtils.getUpperBit(field);
+    return FortressUtils.getLowerBit(field) <= index && index <= FortressUtils.getUpperBit(field);
   }
 
   public IntegerFieldTracker(final Variable variable) {
     InvariantChecks.checkNotNull(variable);
 
     this.variable = variable;
-    this.fields = Collections.singletonList(IntegerUtils.makeNodeVariable(variable));
+    this.fields = Collections.singletonList(FortressUtils.makeNodeVariable(variable));
   }
 
   public void exclude(final int lo, final int hi) {
@@ -59,14 +59,14 @@ final class IntegerFieldTracker {
       final boolean isLoInField = inField(field, lo);
       final boolean isHiInField = inField(field, hi);
 
-      if (isLoInField && lo > IntegerUtils.getLowerBit(field)) {
+      if (isLoInField && lo > FortressUtils.getLowerBit(field)) {
         newFields.add(
-            IntegerUtils.makeNodeExtract(variable, IntegerUtils.getLowerBit(field), lo - 1));
+            FortressUtils.makeNodeExtract(variable, FortressUtils.getLowerBit(field), lo - 1));
       }
 
-      if (isHiInField && hi < IntegerUtils.getUpperBit(field)) {
+      if (isHiInField && hi < FortressUtils.getUpperBit(field)) {
         newFields.add(
-            IntegerUtils.makeNodeExtract(variable, hi + 1, IntegerUtils.getUpperBit(field)));
+            FortressUtils.makeNodeExtract(variable, hi + 1, FortressUtils.getUpperBit(field)));
       }
 
       if (!isLoInField && !isHiInField) {

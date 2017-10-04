@@ -21,10 +21,10 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 public final class Utils {
   private Utils() {}
@@ -87,17 +87,17 @@ public final class Utils {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(field);
 
-    if (IntegerUtils.getVariable(field).hasValue()) {
-      return Utils.toString(IntegerUtils.getVariable(field).getData().getInteger());
+    if (FortressUtils.getVariable(field).hasValue()) {
+      return Utils.toString(FortressUtils.getVariable(field).getData().getInteger());
     }
 
-    final String name = getVariableName(context, IntegerUtils.getVariable(field).getName());
+    final String name = getVariableName(context, FortressUtils.getVariable(field).getName());
     if (field.getKind() == Node.Kind.VARIABLE && printAsVariable) {
       return name;
     }
 
     return String.format(
-        "%s.field(%d, %d)", name, IntegerUtils.getLowerBit(field), IntegerUtils.getUpperBit(field));
+        "%s.field(%d, %d)", name, FortressUtils.getLowerBit(field), FortressUtils.getUpperBit(field));
   }
 
   public static String toMmuExpressionText(final String context, final List<Node> fields) {
@@ -126,7 +126,7 @@ public final class Utils {
         sb.append(", ");
       }
 
-      final Variable variable = IntegerUtils.getVariable(field);
+      final Variable variable = FortressUtils.getVariable(field);
       final String variableText;
 
       if (variable.hasValue()) {
@@ -138,7 +138,7 @@ public final class Utils {
       }
 
       final String text = String.format("%s.field(%d, %d)",
-          variableText, IntegerUtils.getLowerBit(field), IntegerUtils.getUpperBit(field));
+          variableText, FortressUtils.getLowerBit(field), FortressUtils.getUpperBit(field));
 
       sb.append(text);
     }
@@ -154,17 +154,17 @@ public final class Utils {
     final StringBuilder sb = new StringBuilder();
     sb.append("MmuExpression.");
 
-    if (IntegerUtils.getVariable(field).hasValue()) {
+    if (FortressUtils.getVariable(field).hasValue()) {
       sb.append(String.format(
           "val(%s, %d",
-          toString(IntegerUtils.getVariable(field).getData().getInteger()),
-          IntegerUtils.getBitSize(field)));
+          toString(FortressUtils.getVariable(field).getData().getInteger()),
+          FortressUtils.getBitSize(field)));
     } else {
-      final String name = getVariableName(context, IntegerUtils.getVariable(field).getName());
+      final String name = getVariableName(context, FortressUtils.getVariable(field).getName());
       sb.append(String.format("var(%s", name));
 
       if (field.getKind() != Node.Kind.VARIABLE) {
-        sb.append(String.format(", %d, %d", IntegerUtils.getLowerBit(field), IntegerUtils.getUpperBit(field)));
+        sb.append(String.format(", %d, %d", FortressUtils.getLowerBit(field), FortressUtils.getUpperBit(field)));
       }
     }
 
@@ -191,11 +191,11 @@ public final class Utils {
 
       case FIELD: {
         final Node field = (Node) object;
-        final Variable variable = IntegerUtils.getVariable(field);
+        final Variable variable = FortressUtils.getVariable(field);
         return String.format("%s.field(%d, %d)",
             getVariableName(ir, context, variable),
-            IntegerUtils.getLowerBit(field),
-            IntegerUtils.getUpperBit(field)
+            FortressUtils.getLowerBit(field),
+            FortressUtils.getUpperBit(field)
             );
       }
 

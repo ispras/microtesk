@@ -21,8 +21,8 @@ import java.util.List;
 
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * The {@link MmuStruct} class describes a variable represented
@@ -168,8 +168,8 @@ public class MmuStruct {
 
       InvariantChecks.checkTrue(thisVar.getType().getSize() == otherVar.getType().getSize());
       result.add(new MmuBinding(
-          IntegerUtils.makeNodeVariable(thisVar),
-          IntegerUtils.makeNodeVariable(otherVar)));
+          FortressUtils.makeNodeVariable(thisVar),
+          FortressUtils.makeNodeVariable(otherVar)));
     }
 
     return result;

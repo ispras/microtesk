@@ -16,12 +16,12 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
 
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Value;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
-public final class MmuDynamicConst extends IntegerVariable {
+public final class MmuDynamicConst extends Variable {
   private final Value<?> value;
 
   public MmuDynamicConst(

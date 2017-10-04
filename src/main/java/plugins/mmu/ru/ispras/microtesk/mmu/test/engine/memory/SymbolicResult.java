@@ -27,7 +27,6 @@ import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
@@ -35,6 +34,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link SymbolicExecutor} represents a result of symbolic execution.
@@ -246,9 +246,9 @@ public final class SymbolicResult {
       InvariantChecks.checkNotNull(version,
           String.format("Version of %s has not been found", original.getName()));
 
-      addFormula(IntegerUtils.makeNodeEqual(
-          IntegerUtils.makeNodeVariable(original),
-          IntegerUtils.makeNodeVariable(version)));
+      addFormula(FortressUtils.makeNodeEqual(
+          FortressUtils.makeNodeVariable(original),
+          FortressUtils.makeNodeVariable(version)));
 
       // Propagate the constant if applicable.
       final BigInteger constant = getConstant(version);

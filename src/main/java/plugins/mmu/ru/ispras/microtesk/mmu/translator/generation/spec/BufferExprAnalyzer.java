@@ -35,7 +35,6 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -83,7 +82,7 @@ final class BufferExprAnalyzer {
     }
 
     fieldTrackerForAddress.excludeAll();
-    return IntegerUtils.makeNodeVariable(variableForAddress);
+    return FortressUtils.makeNodeVariable(variableForAddress);
   }
 
   private class VisitorIndex extends ExprTreeVisitorDefault {
@@ -191,10 +190,10 @@ final class BufferExprAnalyzer {
         InvariantChecks.checkNotNull(addressSide);
         InvariantChecks.checkNotNull(entrySide);
 
-        final Variable variable = IntegerUtils.getVariable(addressSide);
+        final Variable variable = FortressUtils.getVariable(addressSide);
 
-        final int addressSideSize = IntegerUtils.getBitSize(addressSide);
-        final int entrySideSize = IntegerUtils.getBitSize(entrySide);
+        final int addressSideSize = FortressUtils.getBitSize(addressSide);
+        final int entrySideSize = FortressUtils.getBitSize(entrySide);
 
         if (variable.hasValue() && addressSideSize != entrySideSize) {
           final Variable newVariable = new Variable(variable.getName(),

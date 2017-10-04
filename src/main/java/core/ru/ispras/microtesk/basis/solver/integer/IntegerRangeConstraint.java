@@ -23,6 +23,7 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link IntegerRangeConstraint} class represents a range constraint.
@@ -51,7 +52,7 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
     encodeGreaterThanOrEqualTo(formulaBuilder, variable, range.getMin());
     encodeLessThanOrEqualTo(formulaBuilder, variable, range.getMax());
 
-    this.formula = IntegerUtils.makeNodeAnd(formulaBuilder);
+    this.formula = FortressUtils.makeNodeAnd(formulaBuilder);
   }
 
   private static void encodeGreaterThanOrEqualTo(
@@ -92,9 +93,9 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
           : BigInteger.ZERO;
 
       formulaBuilder.add(
-          IntegerUtils.makeNodeEqual(
-              IntegerUtils.makeNodeExtract(x, upperBit + 1, x.getType().getSize() - 1),
-              IntegerUtils.makeNodeValue(value)));
+          FortressUtils.makeNodeEqual(
+              FortressUtils.makeNodeExtract(x, upperBit + 1, x.getType().getSize() - 1),
+              FortressUtils.makeNodeValue(value)));
     }
 
     if (upperBit <= lowerBit) {
@@ -115,9 +116,9 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
 
     // (e[0] | ... | e[n-1]) == (e != 0).
     formulaBuilder.add(
-        IntegerUtils.makeNodeNotEqual(
-            IntegerUtils.makeNodeExtract(e, 0, e.getType().getSize() - 1),
-            IntegerUtils.makeNodeValue(0)));
+        FortressUtils.makeNodeNotEqual(
+            FortressUtils.makeNodeExtract(e, 0, e.getType().getSize() - 1),
+            FortressUtils.makeNodeValue(0)));
 
     // u[0] == (x[upper] = a[upper]).
     // e[0] <=> u[0] == (~u[0] | e[0]) & (u[0] | ~e[0]).
@@ -125,30 +126,30 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
     final List<Node> clauseBuilder1 = new ArrayList<>();
 
     clauseBuilder1.add(
-        IntegerUtils.makeNodeNotEqual(
-            IntegerUtils.makeNodeExtract(x, lowerBit, upperBit),
-            IntegerUtils.makeNodeValue(BitUtils.getField(a, lowerBit, upperBit))));
+        FortressUtils.makeNodeNotEqual(
+            FortressUtils.makeNodeExtract(x, lowerBit, upperBit),
+            FortressUtils.makeNodeValue(BitUtils.getField(a, lowerBit, upperBit))));
 
     clauseBuilder1.add(
-        IntegerUtils.makeNodeEqual(
-            IntegerUtils.makeNodeExtract(e, 0, 0),
-            IntegerUtils.makeNodeValue(1)));
+        FortressUtils.makeNodeEqual(
+            FortressUtils.makeNodeExtract(e, 0, 0),
+            FortressUtils.makeNodeValue(1)));
 
-    formulaBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder1));
+    formulaBuilder.add(FortressUtils.makeNodeOr(clauseBuilder1));
 
     final List<Node> clauseBuilder2 = new ArrayList<>();
 
     clauseBuilder2.add(
-        IntegerUtils.makeNodeEqual(
-            IntegerUtils.makeNodeExtract(x, lowerBit, upperBit),
-            IntegerUtils.makeNodeValue(BitUtils.getField(a, lowerBit, upperBit))));
+        FortressUtils.makeNodeEqual(
+            FortressUtils.makeNodeExtract(x, lowerBit, upperBit),
+            FortressUtils.makeNodeValue(BitUtils.getField(a, lowerBit, upperBit))));
 
     clauseBuilder2.add(
-        IntegerUtils.makeNodeEqual(
-            IntegerUtils.makeNodeExtract(e, 0, 0),
-            IntegerUtils.makeNodeValue(0)));
+        FortressUtils.makeNodeEqual(
+            FortressUtils.makeNodeExtract(e, 0, 0),
+            FortressUtils.makeNodeValue(0)));
 
-    formulaBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder2));
+    formulaBuilder.add(FortressUtils.makeNodeOr(clauseBuilder2));
 
     int k = 1;
     for (int i = upperBit; i >= lowerBit; i--) {
@@ -167,50 +168,50 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
         final int j = i + 1;
 
         clauseBuilder3.add(
-            IntegerUtils.makeNodeNotEqual(
-                IntegerUtils.makeNodeExtract(x, j, upperBit),
-                IntegerUtils.makeNodeValue(BitUtils.getField(a, j, upperBit))));
+            FortressUtils.makeNodeNotEqual(
+                FortressUtils.makeNodeExtract(x, j, upperBit),
+                FortressUtils.makeNodeValue(BitUtils.getField(a, j, upperBit))));
 
         final List<Node> clauseBuilder4 = new ArrayList<>();
 
         clauseBuilder4.add(
-            IntegerUtils.makeNodeEqual(
-                IntegerUtils.makeNodeExtract(x, j, upperBit),
-                IntegerUtils.makeNodeValue(BitUtils.getField(a, j, upperBit))));
+            FortressUtils.makeNodeEqual(
+                FortressUtils.makeNodeExtract(x, j, upperBit),
+                FortressUtils.makeNodeValue(BitUtils.getField(a, j, upperBit))));
 
         clauseBuilder4.add(
-            IntegerUtils.makeNodeEqual(
-                IntegerUtils.makeNodeExtract(e, k, k),
-                IntegerUtils.makeNodeValue(0)));
+            FortressUtils.makeNodeEqual(
+                FortressUtils.makeNodeExtract(e, k, k),
+                FortressUtils.makeNodeValue(0)));
 
-        formulaBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder4));
+        formulaBuilder.add(FortressUtils.makeNodeOr(clauseBuilder4));
       }
 
       clauseBuilder3.add(
-          IntegerUtils.makeNodeEqual(
-              IntegerUtils.makeNodeExtract(x, i, i),
-              IntegerUtils.makeNodeValue(greaterThanOrEqualTo ? 0 : 1)));
+          FortressUtils.makeNodeEqual(
+              FortressUtils.makeNodeExtract(x, i, i),
+              FortressUtils.makeNodeValue(greaterThanOrEqualTo ? 0 : 1)));
 
       clauseBuilder3.add(
-          IntegerUtils.makeNodeEqual(
-              IntegerUtils.makeNodeExtract(e, k, k),
-              IntegerUtils.makeNodeValue(1)));
+          FortressUtils.makeNodeEqual(
+              FortressUtils.makeNodeExtract(e, k, k),
+              FortressUtils.makeNodeValue(1)));
 
-      formulaBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder3));
+      formulaBuilder.add(FortressUtils.makeNodeOr(clauseBuilder3));
 
       final List<Node> clauseBuilder5 = new ArrayList<>();
 
       clauseBuilder5.add(
-          IntegerUtils.makeNodeEqual(
-              IntegerUtils.makeNodeExtract(x, i, i),
-              IntegerUtils.makeNodeValue(greaterThanOrEqualTo ? 1 : 0)));
+          FortressUtils.makeNodeEqual(
+              FortressUtils.makeNodeExtract(x, i, i),
+              FortressUtils.makeNodeValue(greaterThanOrEqualTo ? 1 : 0)));
 
       clauseBuilder5.add(
-          IntegerUtils.makeNodeEqual(
-              IntegerUtils.makeNodeExtract(e, k, k),
-              IntegerUtils.makeNodeValue(0)));
+          FortressUtils.makeNodeEqual(
+              FortressUtils.makeNodeExtract(e, k, k),
+              FortressUtils.makeNodeValue(0)));
 
-      formulaBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder5));
+      formulaBuilder.add(FortressUtils.makeNodeOr(clauseBuilder5));
 
       k++;
     }

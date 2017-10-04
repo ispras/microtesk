@@ -31,7 +31,6 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaProblemSat4j;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaSolverSat4j;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.basis.solver.integer.VariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -45,6 +44,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.settings.RegionSettings;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link MemoryEngineUtils} implements utilities used in the memory engine.
@@ -83,7 +83,7 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final Boolean value = IntegerUtils.check(condition);
+    final Boolean value = FortressUtils.check(condition);
     if (value == null) {
       return false;
     }

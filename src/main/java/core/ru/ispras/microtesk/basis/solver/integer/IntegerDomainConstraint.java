@@ -27,6 +27,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link IntegerDomainConstraint} class represents a simple constraint.
@@ -83,7 +84,7 @@ public final class IntegerDomainConstraint implements IntegerConstraint {
       final Node equality = new NodeOperation(
           effectiveKind == Kind.RETAIN ? StandardOperation.EQ : StandardOperation.NOTEQ,
           variable,
-          new NodeValue(Data.newBitVector(value, IntegerUtils.getBitSize(variable))));
+          new NodeValue(Data.newBitVector(value, FortressUtils.getBitSize(variable))));
 
       operands.add(equality);
     }

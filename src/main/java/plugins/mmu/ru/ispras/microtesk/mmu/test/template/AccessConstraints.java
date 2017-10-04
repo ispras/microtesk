@@ -27,8 +27,8 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.settings.RegionSettings;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * The {@link AccessConstraints} class holds constraints related to memory accesses.
@@ -175,7 +175,7 @@ public final class AccessConstraints {
       final Node variable = variableConstraint.getVariable();
       final Set<BigInteger> values = variableConstraint.getValues();
 
-      if ((1 << IntegerUtils.getBitSize(variable)) != values.size()) {
+      if ((1 << FortressUtils.getBitSize(variable)) != values.size()) {
         generalConstraints.add(new IntegerDomainConstraint(variable, values));
       }
     }

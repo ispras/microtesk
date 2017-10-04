@@ -29,6 +29,7 @@ import org.sat4j.specs.IVecInt;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link Sat4jUtils} contains a number of utilities to deal with SAT4J.
@@ -60,13 +61,13 @@ public final class Sat4jUtils {
       final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = IntegerUtils.getBitSize(lhs);
+    final int n = FortressUtils.getBitSize(lhs);
 
     // Generate n clauses (c[i] ? x[i] : ~x[i]).
     final IVecInt[] clauses = new IVecInt[n];
 
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
+      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
 
       final int literals[] = new int[] { rhs.testBit(i) ? xi : -xi };
       clauses[i] = new VecInt(literals);
@@ -80,7 +81,7 @@ public final class Sat4jUtils {
       final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = IntegerUtils.getBitSize(lhs);
+    final int n = FortressUtils.getBitSize(lhs);
 
     // Generate n+1 clauses e[j] <=> AND[i](c[i] ? x[i] : ~x[i]) ==
     // (OR[i](c[i] ? ~x[i] : x[i]) | e[j]) & AND[i]((c[i] ? x[i] : ~x[i]) | ~e[j]).
@@ -89,7 +90,7 @@ public final class Sat4jUtils {
     final int[] literals1 = new int[n + 1];
 
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
+      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
       literals1[i] = rhs.testBit(i) ? -xi : xi;
 
       final int[] literals2 = new int[] { (rhs.testBit(i) ? xi : -xi), -linkToIndex };
@@ -106,13 +107,13 @@ public final class Sat4jUtils {
       final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = IntegerUtils.getBitSize(lhs);
+    final int n = FortressUtils.getBitSize(lhs);
 
     // Generate 1 clause OR[i](c[i] ? ~x[i] : x[i]).
     final int[] literals = new int[n];
 
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
+      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
       literals[i] = rhs.testBit(i) ? -xi : xi;
     }
 
@@ -125,7 +126,7 @@ public final class Sat4jUtils {
       final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = IntegerUtils.getBitSize(lhs);
+    final int n = FortressUtils.getBitSize(lhs);
 
     // Generate n+1 clauses e[j] <=> OR[i](c[i] ? ~x[i] : x[i]) ==
     // (OR[i](c[i] ? ~x[i] : x[i]) | ~e[j]) & AND[i]((c[i] ? x[i] : ~x[i]) | e[j]).
@@ -134,7 +135,7 @@ public final class Sat4jUtils {
     final int[] literals1 = new int[n + 1];
 
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
+      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
 
       literals1[i] = rhs.testBit(i) ? -xi : xi;
 
@@ -153,7 +154,7 @@ public final class Sat4jUtils {
       final int lhsIndex,
       final Node rhs,
       final int rhsIndex) {
-    final int n = IntegerUtils.getBitSize(lhs);
+    final int n = FortressUtils.getBitSize(lhs);
 
     // Generate 2*n clauses (x[i] & y[i]) | (~x[i] & ~y[i]) ==
     // (~x[i] | y[i]) & (x[i] | ~y[i]).
@@ -161,8 +162,8 @@ public final class Sat4jUtils {
 
     int k = 0;
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
+      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
 
       final int[] literals1 = new int[] { xi, -yi };
       clauses[k++] = new VecInt(literals1);
@@ -181,7 +182,7 @@ public final class Sat4jUtils {
       final Node rhs,
       final int rhsIndex,
       final int newIndex) {
-    final int n = IntegerUtils.getBitSize(lhs);
+    final int n = FortressUtils.getBitSize(lhs);
 
     // Generate 8*n+1 clauses.
     final IVecInt[] clauses = new IVecInt[8 * n + 1];
@@ -213,8 +214,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses u[i] <=> (~x[i] | y[i]) ==
     // (~x[i] | y[i] | ~u[i]) & (x[i] | u[i]) & (~y[i] | u[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
+      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
       final int ui = newIndex + i;
 
       final int[] literals21 = new int[] { -xi, yi, -ui };
@@ -230,8 +231,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses v[i] <=> (x[i] | ~y[i]) ==
     // (x[i] | ~y[i] | ~v[i]) & (~x[i] | v[i]) & (y[i] | v[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
+      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
       final int vi = newIndex + n + i;
 
       final int[] literals31 = new int[] { xi, -yi, -vi };
@@ -253,7 +254,7 @@ public final class Sat4jUtils {
       final Node rhs,
       final int rhsIndex,
       final int newIndex) {
-    final int n = IntegerUtils.getBitSize(lhs);
+    final int n = FortressUtils.getBitSize(lhs);
 
     // Generate 6*n+1 clauses.
     final IVecInt[] clauses = new IVecInt[6 * n + 1];
@@ -275,8 +276,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses u[i] <=> (x[i] & ~y[i]) ==
     // (~x[i] | y[i] | u[i]) & (x[i] | ~u[i]) & (~y[i] | ~u[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
+      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
       final int ui = newIndex + i;
 
       final int[] literals21 = new int[] { -xi, yi, ui };
@@ -292,8 +293,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses v[i] <=> (~x[i] & y[i]) ==
     // (x[i] | ~y[i] | v[i]) & (~x[i] | ~v[i]) & (y[i] | ~v[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
+      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
       final int vi = newIndex + n + i;
 
       final int[] literals31 = new int[] { xi, -yi, vi };
@@ -316,7 +317,7 @@ public final class Sat4jUtils {
       final Node rhs,
       final int rhsIndex,
       final int newIndex) {
-    final int n = IntegerUtils.getBitSize(lhs);
+    final int n = FortressUtils.getBitSize(lhs);
 
     // Generate 8*n+1 clauses.
     final IVecInt[] clauses = new IVecInt[8 * n + 1];
@@ -347,8 +348,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses u[i] <=> (x[i] & ~y[i]) ==
     // (~x[i] | y[i] | u[i]) & (x[i] | ~u[i]) & (~y[i] | ~u[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
+      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
       final int ui = newIndex + i;
 
       final int[] literals21 = new int[] { -xi, yi, ui };
@@ -364,8 +365,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses v[i] <=> (~x[i] & y[i]) ==
     // (x[i] | ~y[i] | v[i]) & (~x[i] | ~v[i]) & (y[i] | ~v[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
+      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
       final int vi = newIndex + n + i;
 
       final int[] literals31 = new int[] { xi, -yi, vi };

@@ -22,6 +22,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link IntegerEqualConstraint} class represents constraints of the kind {@code x == value}.
@@ -45,7 +46,7 @@ public final class IntegerEqualConstraint implements IntegerConstraint {
     this.formula = new NodeOperation(
         StandardOperation.EQ,
         variable,
-        new NodeValue(Data.newBitVector(value, IntegerUtils.getBitSize(variable))));
+        new NodeValue(Data.newBitVector(value, FortressUtils.getBitSize(variable))));
   }
 
   public Node getVariable() {

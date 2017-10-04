@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 public class IntegerFieldTrackerTestCase {
   @Test
@@ -32,30 +32,30 @@ public class IntegerFieldTrackerTestCase {
     final IntegerFieldTracker tracker = new IntegerFieldTracker(var);
 
     assertEquals(Collections.singletonList(
-        IntegerUtils.makeNodeExtract(var, 0, 31)), tracker.getFields());
+        FortressUtils.makeNodeExtract(var, 0, 31)), tracker.getFields());
 
     tracker.exclude(8, 15);
     assertEquals(Arrays.asList(
-        IntegerUtils.makeNodeExtract(var, 0, 7),
-        IntegerUtils.makeNodeExtract(var, 16, 31)),
+        FortressUtils.makeNodeExtract(var, 0, 7),
+        FortressUtils.makeNodeExtract(var, 16, 31)),
         tracker.getFields());
 
     tracker.exclude(12, 23);
     assertEquals(Arrays.asList(
-        IntegerUtils.makeNodeExtract(var, 0, 7),
-        IntegerUtils.makeNodeExtract(var, 24, 31)),
+        FortressUtils.makeNodeExtract(var, 0, 7),
+        FortressUtils.makeNodeExtract(var, 24, 31)),
         tracker.getFields());
 
     tracker.exclude(31, 31);
     assertEquals(Arrays.asList(
-        IntegerUtils.makeNodeExtract(var, 0, 7),
-        IntegerUtils.makeNodeExtract(var, 24, 30)),
+        FortressUtils.makeNodeExtract(var, 0, 7),
+        FortressUtils.makeNodeExtract(var, 24, 30)),
         tracker.getFields());
 
     tracker.exclude(0, 0);
     assertEquals(Arrays.asList(
-        IntegerUtils.makeNodeExtract(var, 1, 7),
-        IntegerUtils.makeNodeExtract(var, 24, 30)),
+        FortressUtils.makeNodeExtract(var, 1, 7),
+        FortressUtils.makeNodeExtract(var, 24, 30)),
         tracker.getFields());
 
     tracker.excludeAll();
@@ -71,7 +71,7 @@ public class IntegerFieldTrackerTestCase {
     tracker.exclude(12, 35);
 
     assertEquals(Collections.singletonList(
-        IntegerUtils.makeNodeExtract(var, 0, 4)),
+        FortressUtils.makeNodeExtract(var, 0, 4)),
         tracker.getFields());
   }
 
@@ -84,7 +84,7 @@ public class IntegerFieldTrackerTestCase {
     tracker.exclude(35, 12);
 
     assertEquals(Collections.singletonList(
-        IntegerUtils.makeNodeExtract(var, 0, 4)),
+        FortressUtils.makeNodeExtract(var, 0, 4)),
         tracker.getFields());
   }
 }

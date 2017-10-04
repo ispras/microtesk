@@ -35,7 +35,6 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.basis.solver.integer.VariableInitializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -55,6 +54,7 @@ import ru.ispras.microtesk.test.engine.AbstractSequence;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
@@ -316,7 +316,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     final MemoryAccessContext context2 = bufferAccess2.getContext();
 
     final Node lhs = context2.getInstance(instanceId2, expression);
-    final BigInteger rhs = IntegerUtils.evaluate(
+    final BigInteger rhs = FortressUtils.evaluate(
         expression,
         new ValueProvider() {
           @Override
@@ -325,7 +325,7 @@ public final class MemoryDataGenerator implements DataGenerator {
           }
         });
 
-    return new NodeOperation(equality.getOperationId(), lhs, IntegerUtils.makeNodeValue(rhs));
+    return new NodeOperation(equality.getOperationId(), lhs, FortressUtils.makeNodeValue(rhs));
   }
 
   private Collection<Node> getHazardConditions(
@@ -384,7 +384,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     final Node lhs = bufferAccess.getIndexExpression();
     final BigInteger rhs = bufferAccess.getBuffer().getIndex(addressWithoutTag);
 
-    return IntegerUtils.makeNodeEqual(lhs, IntegerUtils.makeNodeValue(rhs));
+    return FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeValue(rhs));
   }
 
   private Node getHitCondition(
@@ -410,11 +410,11 @@ public final class MemoryDataGenerator implements DataGenerator {
         final BigInteger address = taggedData.first.bigIntegerValue();
         final BigInteger rhs = buffer.getTag(address);
 
-        atoms.add(IntegerUtils.makeNodeEqual(lhs, IntegerUtils.makeNodeValue(rhs)));
+        atoms.add(FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeValue(rhs)));
       }
     }
 
-    return !atoms.isEmpty() ? IntegerUtils.makeNodeOr(atoms) : NodeValue.newBoolean(true);
+    return !atoms.isEmpty() ? FortressUtils.makeNodeOr(atoms) : NodeValue.newBoolean(true);
   }
 
   private Node getMissCondition(
@@ -440,11 +440,11 @@ public final class MemoryDataGenerator implements DataGenerator {
         final BigInteger address = taggedData.first.bigIntegerValue();
         final BigInteger rhs = buffer.getTag(address);
 
-        atoms.add(IntegerUtils.makeNodeNotEqual(lhs, IntegerUtils.makeNodeValue(rhs)));
+        atoms.add(FortressUtils.makeNodeNotEqual(lhs, FortressUtils.makeNodeValue(rhs)));
       }
     }
 
-    return IntegerUtils.makeNodeAnd(atoms);
+    return FortressUtils.makeNodeAnd(atoms);
   }
 
   private Node getReplaceCondition(
@@ -495,7 +495,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final BigInteger value = entry.getValue();
 
       allConstraints.add(
-          new IntegerEqualConstraint(IntegerUtils.makeNodeVariable(variable), value));
+          new IntegerEqualConstraint(FortressUtils.makeNodeVariable(variable), value));
     }
 
     // Fix known values of the addresses.
@@ -505,7 +505,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final BigInteger value = entry.getValue();
 
       allConstraints.add(
-          new IntegerEqualConstraint(IntegerUtils.makeNodeVariable(variable), value));
+          new IntegerEqualConstraint(FortressUtils.makeNodeVariable(variable), value));
     }
 
     Logger.debug("Constraints for refinement: %s", allConstraints);

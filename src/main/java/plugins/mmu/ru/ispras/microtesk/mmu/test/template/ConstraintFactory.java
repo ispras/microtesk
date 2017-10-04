@@ -31,7 +31,6 @@ import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateCollection;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -43,6 +42,7 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.template.FixedValue;
 import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Value;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * The {@link ConstraintFactory} class is used by test templates to
@@ -214,11 +214,11 @@ public final class ConstraintFactory {
     }
 
     if (null == variableField) {
-      return IntegerUtils.makeNodeVariable(variable);
+      return FortressUtils.makeNodeVariable(variable);
     }
 
     final Pair<Integer, Integer> fieldRange = parseRange(variableField);
-    return IntegerUtils.makeNodeExtract(variable, fieldRange.first, fieldRange.second);
+    return FortressUtils.makeNodeExtract(variable, fieldRange.first, fieldRange.second);
   }
 
   private MmuBuffer getBuffer(final String name) {

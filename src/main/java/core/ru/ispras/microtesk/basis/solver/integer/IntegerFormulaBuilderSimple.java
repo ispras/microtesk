@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -34,7 +35,7 @@ public final class IntegerFormulaBuilderSimple extends IntegerFormulaBuilder {
   }
 
   public Node build() {
-    return IntegerUtils.makeNodeAnd(nodes);
+    return FortressUtils.makeNodeAnd(nodes);
   }
 
   @Override

@@ -24,6 +24,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link NodeOperationFormulaProblemSat4j} represents an integer problem.
@@ -92,7 +93,7 @@ public final class IntegerFormulaProblemSat4j extends IntegerFormulaBuilder {
 
         // If the variable is new.
         if (x >= i) {
-          final Variable variable = IntegerUtils.getVariable(field);
+          final Variable variable = FortressUtils.getVariable(field);
 
           if (variable.hasValue()) {
             setUsedBits(variable);
@@ -100,7 +101,7 @@ public final class IntegerFormulaProblemSat4j extends IntegerFormulaBuilder {
             // Generate n clauses (c[i] ? x[i] : ~x[i]).
             builder.addAllClauses(
                 Sat4jUtils.encodeVarEqualConst(
-                    IntegerUtils.makeNodeVariable(variable), x, variable.getData().getInteger()));
+                    FortressUtils.makeNodeVariable(variable), x, variable.getData().getInteger()));
           }
         }
       }
@@ -115,7 +116,7 @@ public final class IntegerFormulaProblemSat4j extends IntegerFormulaBuilder {
         final Node lhs = equation.getOperand(1);
         final Node rhs = equation.getOperand(2);
 
-        final int n = IntegerUtils.getBitSize(lhs);
+        final int n = FortressUtils.getBitSize(lhs);
         final int x = getVarIndex(lhs);
         final int y = getVarIndex(rhs);
 
@@ -163,7 +164,7 @@ public final class IntegerFormulaProblemSat4j extends IntegerFormulaBuilder {
         final Node lhs = equation.getOperand(1);
         final Node rhs = equation.getOperand(2);
 
-        final int n = IntegerUtils.getBitSize(lhs);
+        final int n = FortressUtils.getBitSize(lhs);
         final int x = getVarIndex(lhs);
         final int y = getVarIndex(rhs);
 
@@ -206,7 +207,7 @@ public final class IntegerFormulaProblemSat4j extends IntegerFormulaBuilder {
   }
 
   private int getVarIndex(final Node node) {
-    final Variable variable = IntegerUtils.getVariable(node);
+    final Variable variable = FortressUtils.getVariable(node);
 
     if (variable == null) {
       return -1;
@@ -237,7 +238,7 @@ public final class IntegerFormulaProblemSat4j extends IntegerFormulaBuilder {
   }
 
   private void setUsedBits(final Node node) {
-    final Variable variable = IntegerUtils.getVariable(node);
+    final Variable variable = FortressUtils.getVariable(node);
 
     if (variable == null) {
       return;
@@ -245,7 +246,7 @@ public final class IntegerFormulaProblemSat4j extends IntegerFormulaBuilder {
 
     final BitVector mask = getVarMask(variable);
 
-    for (int i = IntegerUtils.getLowerBit(node); i <= IntegerUtils.getUpperBit(node); i++) {
+    for (int i = FortressUtils.getLowerBit(node); i <= FortressUtils.getUpperBit(node); i++) {
       mask.setBit(i, true);
     }
   }
