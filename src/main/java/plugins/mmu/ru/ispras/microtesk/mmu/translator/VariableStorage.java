@@ -15,15 +15,15 @@
 package ru.ispras.microtesk.mmu.translator;
 
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 
-public class VariableStorage extends ScopeStorage<Variable> {
-  public Variable declare(final String name, final Type type) {
+public class VariableStorage extends ScopeStorage<Var> {
+  public Var declare(final String name, final Type type) {
     return declare(name, type, null);
   }
 
-  public Variable declare(final String name, final Type type, final Object typeSource) {
-    final Variable var = new Variable(newPath(name), type, typeSource);
+  public Var declare(final String name, final Type type, final Object typeSource) {
+    final Var var = new Var(newPath(name), type, typeSource);
     put(name, var);
 
     return var;

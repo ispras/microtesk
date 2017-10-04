@@ -40,8 +40,8 @@ public final class Buffer extends AbstractStorage {
       final String id,
       final MmuBuffer.Kind kind,
       final Address address,
-      final Variable addressArg,
-      final Variable dataArg,
+      final Var addressArg,
+      final Var dataArg,
       final BigInteger ways,
       final BigInteger sets,
       final Node index,
@@ -54,7 +54,7 @@ public final class Buffer extends AbstractStorage {
         address,
         addressArg,
         dataArg,
-        Collections.<String, Variable>emptyMap(),
+        Collections.<String, Var>emptyMap(),
         createAttributes(addressArg, dataArg)
     );
 
@@ -75,8 +75,8 @@ public final class Buffer extends AbstractStorage {
   }
 
   private static Map<String, Attribute> createAttributes(
-      final Variable addressArg,
-      final Variable dataArg) {
+      final Var addressArg,
+      final Var dataArg) {
 
     checkNotNull(addressArg);
     checkNotNull(dataArg);

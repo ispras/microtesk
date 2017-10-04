@@ -28,17 +28,17 @@ public abstract class AbstractStorage {
 
   private final String id;
   private final Address address;
-  private final Variable addressArg;
-  private final Variable dataArg;
-  private final Map<String, Variable> variables;
+  private final Var addressArg;
+  private final Var dataArg;
+  private final Map<String, Var> variables;
   private final Map<String, Attribute> attributes;
 
   protected AbstractStorage(
       final String id,
       final Address address,
-      final Variable addressArg,
-      final Variable dataArg,
-      final Map<String, Variable> variables,
+      final Var addressArg,
+      final Var dataArg,
+      final Map<String, Var> variables,
       final Map<String, Attribute> attributes) {
 
     checkNotNull(id);
@@ -63,11 +63,11 @@ public abstract class AbstractStorage {
     return address;
   }
 
-  public final Variable getAddressArg() {
+  public final Var getAddressArg() {
     return addressArg;
   }
 
-  public final Variable getDataArg() {
+  public final Var getDataArg() {
     return dataArg;
   }
 
@@ -79,11 +79,11 @@ public abstract class AbstractStorage {
     return attributes.get(attrId);
   }
 
-  public final Collection<Variable> getVariables() {
+  public final Collection<Var> getVariables() {
     return variables.values();
   }
 
-  public final Variable getVariable(final String varId) {
+  public final Var getVariable(final String varId) {
     return variables.get(varId);
   }
 }

@@ -24,7 +24,7 @@ import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.engine.memory.Access;
 import ru.ispras.microtesk.mmu.test.engine.memory.AccessPath;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
@@ -123,7 +123,7 @@ public final class MmuUnderTest {
 
     return new MmuAddressInstance(
         name,
-        new Variable(name, type),
+        new Var(name, type),
         new IntegerVariable(name + ".value", width));
   }
 
@@ -351,15 +351,15 @@ public final class MmuUnderTest {
       new MmuBinding(pfn1));
   public final MmuAction selectVpn = new MmuAction("SELECT_VPN");
   public final MmuAction getLo0 = new MmuAction("GET_LO0",
-      new MmuBinding(v, MmuExpression.var(v0)),
-      new MmuBinding(d, MmuExpression.var(d0)),
-      new MmuBinding(c, MmuExpression.var(c0)),
-      new MmuBinding(pfn, MmuExpression.var(pfn0)));
+      new MmuBinding(v, MmuExpression.getVariable(v0)),
+      new MmuBinding(d, MmuExpression.getVariable(d0)),
+      new MmuBinding(c, MmuExpression.getVariable(c0)),
+      new MmuBinding(pfn, MmuExpression.getVariable(pfn0)));
   public final MmuAction getLo1 = new MmuAction("GET_LO1",
-      new MmuBinding(v, MmuExpression.var(v1)),
-      new MmuBinding(d, MmuExpression.var(d1)),
-      new MmuBinding(c, MmuExpression.var(c1)),
-      new MmuBinding(pfn, MmuExpression.var(pfn1)));
+      new MmuBinding(v, MmuExpression.getVariable(v1)),
+      new MmuBinding(d, MmuExpression.getVariable(d1)),
+      new MmuBinding(c, MmuExpression.getVariable(c1)),
+      new MmuBinding(pfn, MmuExpression.getVariable(pfn1)));
   public final MmuAction checkV = new MmuAction("CHECK_V");
   public final MmuAction checkD = new MmuAction("CHECK_D");
   public final MmuAction checkG = new MmuAction("CHECK_G");
@@ -369,7 +369,7 @@ public final class MmuUnderTest {
       new MmuBinding(pa, MmuExpression.rcat(new IntegerField(pfn), new IntegerField(va, 0, 11))));
   public final MmuAction checkSegment = new MmuAction("CHECK_SEGMENT");
   public final MmuAction startKseg0 = new MmuAction("START_KSEG0",
-      new MmuBinding(c, MmuExpression.var(kseg0Cp)));
+      new MmuBinding(c, MmuExpression.getVariable(kseg0Cp)));
   public final MmuAction startXkphys = new MmuAction("START_XKPHYS",
       new MmuBinding(c, MmuExpression.var(va, 59, 61)));
   public final MmuAction startCache = new MmuAction("START_CACHE");
@@ -422,28 +422,28 @@ public final class MmuUnderTest {
       new MmuGuard(defaultAccess(jtlb, BufferAccessEvent.HIT)));
   public final MmuTransition afterJtlb = new MmuTransition(hitJtlb, selectVpn);
   public final MmuTransition ifVpn0 = new MmuTransition(selectVpn, getLo0,
-      new MmuGuard(MmuCondition.eq(new IntegerField(va, 12), BigInteger.ZERO)));
+      new MmuGuard(MmuCondition.makeNodeEqual(new IntegerField(va, 12), BigInteger.ZERO)));
   public final MmuTransition ifVpn1 = new MmuTransition(selectVpn, getLo1,
-      new MmuGuard(MmuCondition.eq(new IntegerField(va, 12), BigInteger.ONE)));
+      new MmuGuard(MmuCondition.makeNodeEqual(new IntegerField(va, 12), BigInteger.ONE)));
   public final MmuTransition afterLo0 = new MmuTransition(getLo0, checkG);
   public final MmuTransition afterLo1 = new MmuTransition(getLo1, checkG);
   public final MmuTransition ifLocal = new MmuTransition(checkG, local,
-      new MmuGuard(MmuCondition.eq(g, BigInteger.ZERO)));
+      new MmuGuard(MmuCondition.makeNodeEqual(g, BigInteger.ZERO)));
   public final MmuTransition ifGlobal = new MmuTransition(checkG, global,
-      new MmuGuard(MmuCondition.eq(g, BigInteger.ONE)));
+      new MmuGuard(MmuCondition.makeNodeEqual(g, BigInteger.ONE)));
   public final MmuTransition afterLocal = new MmuTransition(local, checkV);
   public final MmuTransition afterGlobal = new MmuTransition(global, checkV);
   public final MmuTransition ifInvalid = new MmuTransition(checkV, tlbInvalid,
       new MmuGuard(
-          MmuCondition.eq(v, BigInteger.ZERO)));
+          MmuCondition.makeNodeEqual(v, BigInteger.ZERO)));
   public final MmuTransition ifValid = new MmuTransition(checkV, checkD,
       new MmuGuard(
-          MmuCondition.eq(v, BigInteger.ONE)));
+          MmuCondition.makeNodeEqual(v, BigInteger.ONE)));
   public final MmuTransition ifDirty = new MmuTransition(checkD, tlbModified,
-      new MmuGuard(MemoryOperation.STORE, MmuCondition.eq(d, BigInteger.ZERO)));
+      new MmuGuard(MemoryOperation.STORE, MmuCondition.makeNodeEqual(d, BigInteger.ZERO)));
   public final MmuTransition ifClean = new MmuTransition(checkD, getMpa,
       new MmuGuard(
-          MmuCondition.eq(d, BigInteger.ONE)));
+          MmuCondition.makeNodeEqual(d, BigInteger.ONE)));
   public final MmuTransition afterMpa = new MmuTransition(getMpa, checkSegment);
   public final MmuTransition ifKseg0 = new MmuTransition(checkSegment, startKseg0,
       new MmuGuard(kseg0, true));
@@ -457,10 +457,10 @@ public final class MmuUnderTest {
   public final MmuTransition afterXkphys = new MmuTransition(startXkphys, startCache);
   public final MmuTransition ifUncached = new MmuTransition(startCache, startMem,
       new MmuGuard(
-          MmuCondition.eq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
+          MmuCondition.makeNodeEqual(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
   public final MmuTransition ifCached = new MmuTransition(startCache, startL1,
       new MmuGuard(
-          MmuCondition.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
+          MmuCondition.makeNodeNotEqual(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2))));
   public final MmuTransition ifL1Miss = new MmuTransition(startL1, checkL2,
       new MmuGuard(defaultAccess(l1, BufferAccessEvent.MISS)));
   public final MmuTransition ifL1Hit = new MmuTransition(startL1, hitL1,
@@ -469,13 +469,13 @@ public final class MmuUnderTest {
   public final MmuTransition ifL2Bypass = new MmuTransition(checkL2, startMem,
       new MmuGuard(
           MmuCondition.and(
-              MmuConditionAtom.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2)),
-              MmuConditionAtom.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x3)))));
+              MmuConditionAtom.makeNodeNotEqual(new IntegerField(c, 0, 1), BigInteger.valueOf(0x2)),
+              MmuConditionAtom.makeNodeNotEqual(new IntegerField(c, 0, 1), BigInteger.valueOf(0x3)))));
   public final MmuTransition ifL2Used = new MmuTransition(checkL2, startL2,
       new MmuGuard(
           MmuCondition.and(
-              MmuConditionAtom.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x0)),
-              MmuConditionAtom.neq(new IntegerField(c, 0, 1), BigInteger.valueOf(0x1)))));
+              MmuConditionAtom.makeNodeNotEqual(new IntegerField(c, 0, 1), BigInteger.valueOf(0x0)),
+              MmuConditionAtom.makeNodeNotEqual(new IntegerField(c, 0, 1), BigInteger.valueOf(0x1)))));
   public final MmuTransition ifL2Miss = new MmuTransition(startL2, startMem,
       new MmuGuard(defaultAccess(l2, BufferAccessEvent.MISS)));
   public final MmuTransition ifL2Hit = new MmuTransition(startL2, hitL2,

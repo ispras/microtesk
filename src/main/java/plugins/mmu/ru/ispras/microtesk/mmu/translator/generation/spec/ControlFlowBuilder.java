@@ -51,7 +51,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 final class ControlFlowBuilder {
   public static final Class<?> BUFFER_EVENT_CLASS =
@@ -221,7 +221,7 @@ final class ControlFlowBuilder {
   public void build(
       final String start,
       final String stop,
-      final Variable retval,
+      final Var retval,
       final List<Stmt> stmts) {
     InvariantChecks.checkNotNull(start);
     InvariantChecks.checkNotNull(stop);
@@ -554,7 +554,7 @@ final class ControlFlowBuilder {
       final Atom... atoms) {
     for (final Atom atom : atoms) {
       if (atom.getKind().isStruct()) {
-        final String name = ((Variable) atom.getObject()).getName();
+        final String name = ((Var) atom.getObject()).getName();
         if (isBufferAccess(name)) {
           return defaultBufferAccess(name, event, address);
         }
@@ -627,7 +627,7 @@ final class ControlFlowBuilder {
     return segmentStop;
   }
 
-  private Variable newTemporary(final Type type) {
+  private Var newTemporary(final Type type) {
     final String name = String.format("TMP_%d", temporaryIndex++);
 
     final ST temporary = group.getInstanceOf("temporary");
@@ -640,7 +640,7 @@ final class ControlFlowBuilder {
     }
     stDef.add("stmts", temporary);
 
-    return new Variable(context + "." + name, type);
+    return new Var(context + "." + name, type);
   }
 
   private String buildCall(
@@ -727,7 +727,7 @@ final class ControlFlowBuilder {
         // In bottom-up transformer every function call has been replaced earlier
         if (arg.getKind() == Node.Kind.OPERATION) {
           final NodeOperation e = (NodeOperation) arg;
-          final Variable tmp = newTemporary(callee.getParameter(i).getType());
+          final Var tmp = newTemporary(callee.getParameter(i).getType());
           state = buildStmtAssign(state, tmp.getNode(), e);
           args.add(tmp.getNode());
         } else {
@@ -735,7 +735,7 @@ final class ControlFlowBuilder {
         }
         ++i;
       }
-      final Variable tmp = newTemporary(callee.getOutput().getType());
+      final Var tmp = newTemporary(callee.getOutput().getType());
       state = buildCall(state, tmp.getNode(), callee, args);
 
       return tmp.getNode();
@@ -759,8 +759,8 @@ final class ControlFlowBuilder {
     InvariantChecks.checkNotNull(rhs);
 
     if (lhs.getKind().isStruct() && rhs.getKind().isStruct()) {
-      final Variable left = (Variable) lhs.getObject();
-      final Variable right = (Variable) rhs.getObject();
+      final Var left = (Var) lhs.getObject();
+      final Var right = (Var) rhs.getObject();
 
       if (!left.getType().equals(right.getType())) {
         throw new IllegalArgumentException(String.format("Type mismatch: %s = %s", left, right));
@@ -772,10 +772,10 @@ final class ControlFlowBuilder {
 
       return String.format("%s, %s", toString(lhs), toString(rhs));
     } else if (lhs.getKind().isStruct()) {
-      final Variable left = (Variable) lhs.getObject();
+      final Var left = (Var) lhs.getObject();
       InvariantChecks.checkTrue(left.getFields().size() == 1);
 
-      final Variable leftField = left.getFields().values().iterator().next();
+      final Var leftField = left.getFields().values().iterator().next();
       InvariantChecks.checkFalse(leftField.isStruct());
 
       final Atom lhsField = AtomExtractor.extract(leftField.getNode());
@@ -784,10 +784,10 @@ final class ControlFlowBuilder {
           toString(rhs)
           );
     } else if (rhs.getKind().isStruct()) {
-      final Variable right = (Variable) rhs.getObject();
+      final Var right = (Var) rhs.getObject();
       InvariantChecks.checkTrue(right.getFields().size() == 1);
 
-      final Variable rightField = right.getFields().values().iterator().next();
+      final Var rightField = right.getFields().values().iterator().next();
       InvariantChecks.checkFalse(rightField.isStruct());
 
       final Atom rhsField = AtomExtractor.extract(rightField.getNode());

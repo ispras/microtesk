@@ -41,7 +41,7 @@ import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 final class ExprPrinter extends MapBasedPrinter {
   private static ExprPrinter instance = null;
@@ -203,7 +203,7 @@ final class ExprPrinter extends MapBasedPrinter {
     variableMappings.pop();
   }
 
-  public void addVariableMappings(final Variable variable, final String mapping) {
+  public void addVariableMappings(final Var variable, final String mapping) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(mapping);
 

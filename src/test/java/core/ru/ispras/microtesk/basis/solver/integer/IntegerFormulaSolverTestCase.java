@@ -50,9 +50,9 @@ public final class IntegerFormulaSolverTestCase {
     VARS.add(z);
   }
 
-  private static IntegerFieldFormulaSolverSat4j getSolver(
+  private static IntegerFormulaSolverSat4j getSolver(
       final IntegerFormula<IntegerField> formula) {
-    return new IntegerFieldFormulaSolverSat4j(formula, IntegerVariableInitializer.RANDOM);
+    return new IntegerFormulaSolverSat4j(formula, VariableInitializer.RANDOM);
   }
 
   private static Map<IntegerVariable, BigInteger> check(

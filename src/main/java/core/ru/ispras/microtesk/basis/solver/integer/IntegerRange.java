@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -264,7 +264,6 @@ public final class IntegerRange {
    */
   public boolean overlaps(final IntegerRange rhs) {
     InvariantChecks.checkNotNull(rhs);
-
     return min.compareTo(rhs.max) <= 0 && rhs.min.compareTo(max) <= 0;
   }
 
@@ -277,7 +276,6 @@ public final class IntegerRange {
    */
   public boolean contains(final IntegerRange rhs) {
     InvariantChecks.checkNotNull(rhs);
-
     return min.compareTo(rhs.min) <= 0 && max.compareTo(rhs.max) >= 0;
   }
 
@@ -290,7 +288,6 @@ public final class IntegerRange {
    */
   public boolean contains(final BigInteger value) {
     InvariantChecks.checkNotNull(value);
-
     return min.compareTo(value) <= 0 && max.compareTo(value) >= 0;
   }
 
@@ -418,7 +415,7 @@ public final class IntegerRange {
   public int hashCode() {
     return 31 * max.hashCode() + min.hashCode();
   }
-  
+
   @Override
   public String toString() {
     return String.format("[0x%s, 0x%s]", min.toString(16), max.toString(16));

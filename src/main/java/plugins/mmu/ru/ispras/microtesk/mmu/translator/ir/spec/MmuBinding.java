@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,17 +14,13 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
-import java.math.BigInteger;
-
-import ru.ispras.fortress.util.BitUtils;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
  * {@link MmuBinding} describes an assignment, i.e. a pair of the kind {@code lhs = rhs},
- * where {@code lhs} is an {@link IntegerField} and {@code rhs} is an {@link MmuExpression}.
+ * where {@code lhs} is an {@link IntegerField} and {@code rhs} is an {@link Node}.
  * 
  * <p>The right-hand side of the assignment is allowed to be {@code null}. It means that the
  * expression can be derived from the context.</p>
@@ -33,11 +29,11 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
  */
 public final class MmuBinding {
   /** Left-hand side. */
-  private final IntegerField lhs;
+  private final Node lhs;
   /** Right-hand side or {@code null}. */
-  private final MmuExpression rhs;
+  private final Node rhs;
 
-  public MmuBinding(final IntegerField lhs, final MmuExpression rhs) {
+  public MmuBinding(final Node lhs, final Node rhs) {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
 
@@ -45,56 +41,11 @@ public final class MmuBinding {
     this.rhs = rhs;
   }
 
-  public MmuBinding(final IntegerField lhs, final IntegerField rhs) {
-    this(lhs, MmuExpression.field(rhs));
-  }
-
-  public MmuBinding(final IntegerField lhs, final IntegerVariable rhs) {
-    this(lhs, MmuExpression.var(rhs));
-  }
-
-  public MmuBinding(final IntegerField lhs, final BigInteger rhs) {
-    this(
-        lhs,
-        MmuExpression.val(
-            BitUtils.getField(rhs, 0, lhs != null ? lhs.getWidth() - 1 : 0),
-            lhs != null ? lhs.getWidth() : 0
-        )
-    );
-  }
-
-  public MmuBinding(final IntegerVariable lhs, final MmuExpression rhs) {
-    this(new IntegerField(lhs), rhs);
-  }
-
-  public MmuBinding(final IntegerVariable lhs, final IntegerField rhs) {
-    this(lhs, MmuExpression.field(rhs));
-  }
-
-  public MmuBinding(final IntegerVariable lhs, final IntegerVariable rhs) {
-    this(lhs, MmuExpression.var(rhs));
-  }
-
-  public MmuBinding(final IntegerVariable lhs, final BigInteger rhs) {
-    this(new IntegerField(lhs), rhs);
-  }
-
-  public MmuBinding(final IntegerField lhs) {
-    InvariantChecks.checkNotNull(lhs);
-
-    this.lhs = lhs;
-    this.rhs = null;
-  }
-
-  public MmuBinding(final IntegerVariable lhs) {
-    this(new IntegerField(lhs));
-  }
-
-  public IntegerField getLhs() {
+  public Node getLhs() {
     return lhs;
   }
 
-  public MmuExpression getRhs() {
+  public Node getRhs() {
     return rhs;
   }
 
@@ -106,7 +57,7 @@ public final class MmuBinding {
 
     return new MmuBinding(
         context.getInstance(lhsInstanceId, lhs),
-        rhs != null ? rhs.getInstance(rhsInstanceId, context) : null);
+        context.getInstance(rhsInstanceId, rhs));
   }
 
   @Override

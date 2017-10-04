@@ -28,7 +28,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
@@ -79,7 +79,7 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
   private void processExterns(
       final Ir ir,
       final SimGeneratorFactory factory) throws IOException {
-    final Map<String, Variable> externs = ir.getExterns();
+    final Map<String, Var> externs = ir.getExterns();
     if (!externs.isEmpty()) {
       final FileGenerator fileGenerator = factory.newExternGenerator(externs);
       fileGenerator.generate();

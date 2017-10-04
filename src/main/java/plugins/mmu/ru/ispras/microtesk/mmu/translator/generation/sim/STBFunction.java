@@ -22,7 +22,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBFunction extends STBCommon implements STBuilder {
@@ -63,13 +63,13 @@ final class STBFunction extends STBCommon implements STBuilder {
   private void buildBody(final ST st, final STGroup group) {
     final ST stBody = group.getInstanceOf("function_body");
 
-    final Variable output = function.getOutput();
+    final Var output = function.getOutput();
     if (output != null) {
       final Type type = output.getType();
       stBody.add("type", type.getId() != null ? type.getId() : BIT_VECTOR_CLASS.getSimpleName());
     }
 
-    for (final Variable variable : function.getParameters()) {
+    for (final Var variable : function.getParameters()) {
       final String name = removePrefix(variable.getName());
       final Type type = variable.getType();
 

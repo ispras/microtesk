@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,32 +21,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaProblemSat4j;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFieldFormulaSolverSat4j;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariableInitializer;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaProblemSat4j;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaSolverSat4j;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
+import ru.ispras.microtesk.basis.solver.integer.VariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
-import ru.ispras.microtesk.mmu.test.template.BufferEventConstraint;
 import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
+import ru.ispras.microtesk.mmu.test.template.BufferEventConstraint;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.settings.RegionSettings;
-import ru.ispras.microtesk.utils.function.Function;
 
 /**
  * {@link MemoryEngineUtils} implements utilities used in the memory engine.
@@ -76,26 +74,16 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(transition);
 
     final MmuGuard guard = transition.getGuard();
-
     if (guard == null) {
       return false;
     }
 
-    final MmuCondition condition = guard.getCondition(null, MemoryAccessContext.EMPTY);
-
+    final Node condition = guard.getCondition(null, MemoryAccessContext.EMPTY);
     if (condition == null) {
       return false;
     }
 
-    final Boolean value =
-        MmuCalculator.eval(condition,
-            new Function<IntegerVariable, BigInteger>() {
-              @Override
-              public BigInteger apply(final IntegerVariable variable) {
-                return null;
-              }
-            });
-
+    final Boolean value = IntegerUtils.check(condition);
     if (value == null) {
       return false;
     }
@@ -169,8 +157,8 @@ public final class MemoryEngineUtils {
     // Integer constraints are not applied, because they are relevant only for
     // latest assignments and latest buffer accesses.
 
-    final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(partialResult, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
+    final SolverResult<Map<Variable, BigInteger>> result =
+        solve(partialResult, VariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
@@ -213,30 +201,30 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final SolverResult<Map<IntegerVariable, BigInteger>> result =
+    final SolverResult<Map<Variable, BigInteger>> result =
         solve(
             access,
-            Collections.<MmuCondition>emptyList(),
+            Collections.<Node>emptyList(),
             constraints.getGeneralConstraints(),
-            IntegerVariableInitializer.ZEROS,
+            VariableInitializer.ZEROS,
             Solver.Mode.SAT
         );
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
-  public static Map<IntegerVariable, BigInteger> generateData(
+  public static Map<Variable, BigInteger> generateData(
       final Access access,
-      final Collection<MmuCondition> conditions,
-      final Collection<IntegerConstraint<IntegerField>> constraints,
-      final IntegerVariableInitializer initializer) {
+      final Collection<Node> conditions,
+      final Collection<IntegerConstraint> constraints,
+      final VariableInitializer initializer) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(initializer);
 
     Logger.debug("Start generating data");
 
-    final SolverResult<Map<IntegerVariable, BigInteger>> result =
+    final SolverResult<Map<Variable, BigInteger>> result =
         solve(access, conditions, constraints, initializer, Solver.Mode.MAP);
 
     Logger.debug("Stop generating data: %s", result.getResult());
@@ -248,27 +236,27 @@ public final class MemoryEngineUtils {
   public static boolean isFeasibleStructure(final List<Access> structure) {
     InvariantChecks.checkNotNull(structure);
 
-    final SolverResult<Map<IntegerVariable, BigInteger>> result =
-        solve(structure, IntegerVariableInitializer.ZEROS, Solver.Mode.SAT);
+    final SolverResult<Map<Variable, BigInteger>> result =
+        solve(structure, VariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
-  private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
+  private static SolverResult<Map<Variable, BigInteger>> solve(
       final SymbolicResult symbolicResult /* INOUT */,
-      final IntegerVariableInitializer initializer,
+      final VariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
 
     if (symbolicResult.hasConflict()) {
-      return new SolverResult<Map<IntegerVariable, BigInteger>>("Conflict in symbolic execution");
+      return new SolverResult<Map<Variable, BigInteger>>("Conflict in symbolic execution");
     }
 
-    final IntegerFormulaBuilder<IntegerField> builder = symbolicResult.getBuilder();
+    final IntegerFormulaBuilder builder = symbolicResult.getBuilder();
 
-    final Solver<Map<IntegerVariable, BigInteger>> solver = newSolver(builder, initializer);
-    final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
+    final Solver<Map<Variable, BigInteger>> solver = newSolver(builder, initializer);
+    final SolverResult<Map<Variable, BigInteger>> result = solver.solve(mode);
 
     if (result.getStatus() != SolverResult.Status.SAT && mode == Solver.Mode.MAP) {
       for (final String error : result.getErrors()) {
@@ -279,11 +267,11 @@ public final class MemoryEngineUtils {
     return result;
   }
 
-  private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
+  private static SolverResult<Map<Variable, BigInteger>> solve(
       final Access access,
-      final Collection<MmuCondition> conditions,
-      final Collection<IntegerConstraint<IntegerField>> constraints,
-      final IntegerVariableInitializer initializer,
+      final Collection<Node> conditions,
+      final Collection<IntegerConstraint> constraints,
+      final VariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(conditions);
@@ -305,24 +293,24 @@ public final class MemoryEngineUtils {
     final SymbolicResult symbolicResult = access.getSymbolicResult();
     final SymbolicExecutor symbolicExecutor = newSymbolicExecutor(region, symbolicResult);
 
-    for (final MmuCondition condition : conditions) {
+    for (final Node condition : conditions) {
       symbolicExecutor.execute(condition);
     }
 
     if (symbolicResult.hasConflict()) {
       Logger.debug("Conflict in symbolic execution");
-      return new SolverResult<Map<IntegerVariable, BigInteger>>("Conflict in symbolic execution");
+      return new SolverResult<Map<Variable, BigInteger>>("Conflict in symbolic execution");
     }
 
-    final IntegerFormulaBuilder<IntegerField> builder = symbolicResult.getBuilder().clone();
+    final IntegerFormulaBuilder builder = symbolicResult.getBuilder().clone();
 
     // Supplement the formula with the constraints.
-    for (final IntegerConstraint<IntegerField> constraint : constraints) {
+    for (final IntegerConstraint constraint : constraints) {
       builder.addFormula(constraint.getFormula());
     }
 
-    final Solver<Map<IntegerVariable, BigInteger>> solver = newSolver(builder, initializer);
-    final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(mode);
+    final Solver<Map<Variable, BigInteger>> solver = newSolver(builder, initializer);
+    final SolverResult<Map<Variable, BigInteger>> result = solver.solve(mode);
 
     if (result.getStatus() != SolverResult.Status.SAT && mode == Solver.Mode.MAP) {
       Logger.debug("Access: %s", access);
@@ -335,9 +323,9 @@ public final class MemoryEngineUtils {
     return result;
   }
 
-  private static SolverResult<Map<IntegerVariable, BigInteger>> solve(
+  private static SolverResult<Map<Variable, BigInteger>> solve(
       final List<Access> structure,
-      final IntegerVariableInitializer initializer,
+      final VariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkNotNull(initializer);
@@ -347,14 +335,14 @@ public final class MemoryEngineUtils {
     symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
 
     final SymbolicResult symbolicResult = symbolicExecutor.getResult();
-    final IntegerFormulaBuilder<IntegerField> builder = symbolicResult.getBuilder();
-    final Solver<Map<IntegerVariable, BigInteger>> solver = newSolver(builder, initializer);
+    final IntegerFormulaBuilder builder = symbolicResult.getBuilder();
+    final Solver<Map<Variable, BigInteger>> solver = newSolver(builder, initializer);
 
     return solver.solve(mode);
   }
 
-  public static IntegerFormulaBuilder<IntegerField> newFormulaBuilder() {
-    return new IntegerFieldFormulaProblemSat4j();
+  public static IntegerFormulaBuilder newFormulaBuilder() {
+    return new IntegerFormulaProblemSat4j();
   }
 
   public static SymbolicResult newSymbolicResult() {
@@ -378,12 +366,12 @@ public final class MemoryEngineUtils {
     return new SymbolicExecutor(newSymbolicRestrictor(region), result);
   }
 
-  public static Solver<Map<IntegerVariable, BigInteger>> newSolver(
-      final IntegerFormulaBuilder<IntegerField> builder,
-      final IntegerVariableInitializer initializer) {
+  public static Solver<Map<Variable, BigInteger>> newSolver(
+      final IntegerFormulaBuilder builder,
+      final VariableInitializer initializer) {
     InvariantChecks.checkNotNull(builder);
     InvariantChecks.checkNotNull(initializer);
 
-    return new IntegerFieldFormulaSolverSat4j(builder, initializer);
+    return new IntegerFormulaSolverSat4j(builder, initializer);
   }
 }

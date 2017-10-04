@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 
@@ -41,10 +41,10 @@ public final class MmuSubsystem {
   private final String name;
 
   /** Stores available variables. */
-  private final Map<String, IntegerVariable> variables;
+  private final Map<String, Variable> variables;
 
   /** Refers to the data variable type of the MMU. */
-  private final IntegerVariable dataVariable;
+  private final Variable dataVariable;
 
   /**
    * Stores available address types.
@@ -90,8 +90,8 @@ public final class MmuSubsystem {
    */
   private MmuSubsystem(
       final String name,
-      final Map<String, IntegerVariable> variables,
-      final IntegerVariable dataVariable,
+      final Map<String, Variable> variables,
+      final Variable dataVariable,
       final Map<String, MmuAddressInstance> addresses,
       final List<MmuAddressInstance> sortedAddresses,
       final MmuAddressInstance virtualAddress,
@@ -154,11 +154,11 @@ public final class MmuSubsystem {
     }
   }
 
-  public IntegerVariable getVariable(final String name) {
+  public Variable getVariable(final String name) {
     return variables.get(name);
   }
 
-  public IntegerVariable getDataVariable() {
+  public Variable getDataVariable() {
     return dataVariable;
   }
 
@@ -379,9 +379,9 @@ public final class MmuSubsystem {
     private String name = null;
 
     /** Stores available address types. */
-    private Map<String, IntegerVariable> variables = new LinkedHashMap<>();
+    private Map<String, Variable> variables = new LinkedHashMap<>();
 
-    private IntegerVariable dataVariable = null;
+    private Variable dataVariable = null;
 
     /**
      * Stores available address types.
@@ -443,19 +443,19 @@ public final class MmuSubsystem {
       this.name = name;
     }
 
-    public void registerVariable(final IntegerVariable variable) {
+    public void registerVariable(final Variable variable) {
       InvariantChecks.checkNotNull(variable);
       variables.put(variable.getName(), variable);
     }
 
     public void registerVariable(final MmuStruct struct) {
       InvariantChecks.checkNotNull(struct);
-      for (final IntegerVariable variable : struct.getFields()) {
+      for (final Variable variable : struct.getFields()) {
         registerVariable(variable);
       }
     }
 
-    public void setDataVariable(final IntegerVariable variable) {
+    public void setDataVariable(final Variable variable) {
       InvariantChecks.checkNotNull(variable);
       dataVariable = variable;
     }

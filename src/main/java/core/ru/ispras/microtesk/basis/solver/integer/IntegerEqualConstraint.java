@@ -16,6 +16,11 @@ package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
 
+import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -23,21 +28,27 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerEqualConstraint<V> implements IntegerConstraint<V> {
-  private final V variable;
-  private BigInteger value;
+public final class IntegerEqualConstraint implements IntegerConstraint {
+  private final Node variable;
+  private final BigInteger value;
+  private final Node formula;
 
   public IntegerEqualConstraint(
-      final V variable,
+      final Node variable,
       final BigInteger value) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(value);
 
     this.variable = variable;
     this.value = value;
+
+    this.formula = new NodeOperation(
+        StandardOperation.EQ,
+        variable,
+        new NodeValue(Data.newBitVector(value, IntegerUtils.getBitSize(variable))));
   }
 
-  public V getVariable() {
+  public Node getVariable() {
     return variable;
   }
 
@@ -46,11 +57,8 @@ public final class IntegerEqualConstraint<V> implements IntegerConstraint<V> {
   }
 
   @Override
-  public IntegerFormula<V> getFormula() {
-    final IntegerFormula.Builder<V> builder = new IntegerFormula.Builder<>();
-
-    builder.addEquation(variable, value, true);
-    return builder.build();
+  public Node getFormula() {
+    return formula;
   }
 
   @Override

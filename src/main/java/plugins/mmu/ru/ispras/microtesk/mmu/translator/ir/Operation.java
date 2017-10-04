@@ -22,13 +22,13 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class Operation {
   private final String id;
   private final Address address;
-  private final Variable addressArg;
+  private final Var addressArg;
   private final List<Stmt> stmts;
 
   public Operation(
       final String id,
       final Address address,
-      final Variable addressArg,
+      final Var addressArg,
       final List<Stmt> stmts) {
     InvariantChecks.checkNotNull(id);
     InvariantChecks.checkNotNull(address);
@@ -49,7 +49,7 @@ public final class Operation {
     return address;
   }
 
-  public Variable getAddressArg() {
+  public Var getAddressArg() {
     return addressArg;
   }
 

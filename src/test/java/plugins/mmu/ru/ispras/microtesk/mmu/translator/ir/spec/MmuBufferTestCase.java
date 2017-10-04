@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,12 +22,13 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
@@ -41,46 +42,49 @@ public class MmuBufferTestCase {
 
     return new MmuAddressInstance(
         name,
-        new Variable(name, type),
-        new IntegerVariable(name + ".value", width));
+        new Var(name, type),
+        new Variable(name + ".value", DataType.BIT_VECTOR(width)));
   }
 
   public static final MmuAddressInstance VA_ADDR = newAddress("VA", 64);
   public static final MmuAddressInstance PA_ADDR = newAddress("PA", 36);
 
-  public static final IntegerVariable VA = VA_ADDR.getVariable();
-  public static final IntegerVariable PA = PA_ADDR.getVariable();
+  public static final Variable VA = VA_ADDR.getVariable();
+  public static final Variable PA = PA_ADDR.getVariable();
 
-  public static final IntegerVariable isMapped = new IntegerVariable("isMapped", 1);
-  public static final IntegerVariable isCached = new IntegerVariable("isCached", 1);
-  public static final IntegerVariable VPN2 = new IntegerVariable("VPN2", 27);
-  public static final IntegerVariable V0 = new IntegerVariable("V0", 1);
-  public static final IntegerVariable D0 = new IntegerVariable("D0", 1);
-  public static final IntegerVariable G0 = new IntegerVariable("G0", 1);
-  public static final IntegerVariable C0 = new IntegerVariable("C0", 3);
-  public static final IntegerVariable PFN0 = new IntegerVariable("PFN0", 24);
-  public static final IntegerVariable V1 = new IntegerVariable("V1", 1);
-  public static final IntegerVariable D1 = new IntegerVariable("D1", 1);
-  public static final IntegerVariable G1 = new IntegerVariable("G1", 1);
-  public static final IntegerVariable C1 = new IntegerVariable("C1", 3);
-  public static final IntegerVariable PFN1 = new IntegerVariable("PFN1", 24);
-  public static final IntegerVariable V = new IntegerVariable("V", 1);
-  public static final IntegerVariable D = new IntegerVariable("D", 1);
-  public static final IntegerVariable G = new IntegerVariable("G", 1);
-  public static final IntegerVariable C = new IntegerVariable("C", 3);
-  public static final IntegerVariable PFN = new IntegerVariable("PFN", 24);
-  public static final IntegerVariable L1_TAG = new IntegerVariable("TAG1", 24);
-  public static final IntegerVariable L2_TAG = new IntegerVariable("TAG2", 24);
-  public static final IntegerVariable L1_DATA = new IntegerVariable("DATA1", 8 * 32);
-  public static final IntegerVariable L2_DATA = new IntegerVariable("DATA2", 8 * 32);
-  public static final IntegerVariable DATA = new IntegerVariable("DATA", 8 * 32);
+  public static final Variable isMapped = new Variable("isMapped", DataType.BIT_VECTOR(1));
+  public static final Variable isCached = new Variable("isCached", DataType.BIT_VECTOR(1));
+  public static final Variable VPN2 = new Variable("VPN2", DataType.BIT_VECTOR(27));
+  public static final Variable V0 = new Variable("V0", DataType.BIT_VECTOR(1));
+  public static final Variable D0 = new Variable("D0", DataType.BIT_VECTOR(1));
+  public static final Variable G0 = new Variable("G0", DataType.BIT_VECTOR(1));
+  public static final Variable C0 = new Variable("C0", DataType.BIT_VECTOR(3));
+  public static final Variable PFN0 = new Variable("PFN0", DataType.BIT_VECTOR(24));
+  public static final Variable V1 = new Variable("V1", DataType.BIT_VECTOR(1));
+  public static final Variable D1 = new Variable("D1", DataType.BIT_VECTOR(1));
+  public static final Variable G1 = new Variable("G1", DataType.BIT_VECTOR(1));
+  public static final Variable C1 = new Variable("C1", DataType.BIT_VECTOR(3));
+  public static final Variable PFN1 = new Variable("PFN1", DataType.BIT_VECTOR(24));
+  public static final Variable V = new Variable("V", DataType.BIT_VECTOR(1));
+  public static final Variable D = new Variable("D", DataType.BIT_VECTOR(1));
+  public static final Variable G = new Variable("G", DataType.BIT_VECTOR(1));
+  public static final Variable C = new Variable("C", DataType.BIT_VECTOR(3));
+  public static final Variable PFN = new Variable("PFN", DataType.BIT_VECTOR(24));
+  public static final Variable L1_TAG = new Variable("TAG1", DataType.BIT_VECTOR(24));
+  public static final Variable L2_TAG = new Variable("TAG2", DataType.BIT_VECTOR(24));
+  public static final Variable L1_DATA = new Variable("DATA1", DataType.BIT_VECTOR(8 * 32));
+  public static final Variable L2_DATA = new Variable("DATA2", DataType.BIT_VECTOR(8 * 32));
+  public static final Variable DATA = new Variable("DATA", DataType.BIT_VECTOR(8 * 32));
 
   public static final MmuBuffer JTLB = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, 64, 1, VA_ADDR,
-      MmuExpression.var(VA, 13, 39), // Tag
-      MmuExpression.empty(),         // Index
-      MmuExpression.var(VA, 0, 12),  // Offset
-      Collections.singleton(new MmuBinding(new IntegerField(VPN2), MmuExpression.var(VA, 13, 39))),
+      IntegerUtils.makeNodeExtract(VA, 13, 39), // Tag
+      IntegerUtils.makeNodeValue(0), // Index
+      IntegerUtils.makeNodeExtract(VA, 0, 12), // Offset
+      Collections.singleton(
+          new MmuBinding(
+              IntegerUtils.makeNodeVariable(VPN2),
+              IntegerUtils.makeNodeExtract(VA, 13, 39))),
       false, null
       );
 
@@ -102,10 +106,13 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer DTLB = new MmuBuffer(
       "DTLB", MmuBuffer.Kind.UNMAPPED, 4, 1, VA_ADDR,
-      MmuExpression.var(VA, 13, 39), // Tag
-      MmuExpression.empty(),         // Index
-      MmuExpression.var(VA, 0, 12),  // Offset
-      Collections.singleton(new MmuBinding(new IntegerField(VPN2), MmuExpression.var(VA, 13, 39))),
+      IntegerUtils.makeNodeExtract(VA, 13, 39), // Tag
+      IntegerUtils.makeNodeValue(0), // Index
+      IntegerUtils.makeNodeExtract(VA, 0, 12), // Offset
+      Collections.singleton(
+          new MmuBinding(
+              IntegerUtils.makeNodeVariable(VPN2),
+              IntegerUtils.makeNodeExtract(VA, 13, 39))),
       true, JTLB
       );
 
@@ -151,11 +158,13 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer L1 = new MmuBuffer(
       "L1", MmuBuffer.Kind.UNMAPPED, 4, 128, PA_ADDR,
-      MmuExpression.var(PA, 12, 35), // Tag
-      MmuExpression.var(PA, 5, 11), // Index
-      MmuExpression.var(PA, 0, 4), // Offset
+      IntegerUtils.makeNodeExtract(PA, 12, 35), // Tag
+      IntegerUtils.makeNodeExtract(PA, 5, 11), // Index
+      IntegerUtils.makeNodeExtract(PA, 0, 4), // Offset
       Collections.singleton(
-          new MmuBinding(new IntegerField(L1_TAG), MmuExpression.var(PA, 12, 35))),
+          new MmuBinding(
+              IntegerUtils.makeNodeVariable(L1_TAG),
+              IntegerUtils.makeNodeExtract(PA, 12, 35))),
       true, null
       );
 
@@ -189,11 +198,13 @@ public class MmuBufferTestCase {
   // -----------------------------------------------------------------------------------------------
   public static final MmuBuffer L2 = new MmuBuffer(
       "L2", MmuBuffer.Kind.UNMAPPED, 4, 4096, PA_ADDR,
-      MmuExpression.var(PA, 17, 35), // Tag
-      MmuExpression.var(PA, 5, 16), // Index
-      MmuExpression.var(PA, 0, 4), // Offset
+      IntegerUtils.makeNodeExtract(PA, 17, 35), // Tag
+      IntegerUtils.makeNodeExtract(PA, 5, 16), // Index
+      IntegerUtils.makeNodeExtract(PA, 0, 4), // Offset
       Collections.singleton(
-          new MmuBinding(new IntegerField(L2_TAG), MmuExpression.var(PA, 17, 35))),
+          new MmuBinding(
+              IntegerUtils.makeNodeVariable(L2_TAG),
+              IntegerUtils.makeNodeExtract(PA, 17, 35))),
       true, null
       );
 
@@ -226,9 +237,9 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer MEM = new MmuBuffer(
       "MMU", MmuBuffer.Kind.UNMAPPED, 1, (1L << 36) / 32, PA_ADDR,
-      MmuExpression.empty(),        // Tag
-      MmuExpression.var(PA, 5, 35), // Index
-      MmuExpression.var(PA, 0, 4),  // Offset
+      IntegerUtils.makeNodeValue(0), // Tag
+      IntegerUtils.makeNodeExtract(PA, 5, 35), // Index
+      IntegerUtils.makeNodeExtract(PA, 0, 4),  // Offset
       Collections.<MmuBinding>emptySet(),
       false, null
       );

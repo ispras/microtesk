@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 import java.util.ArrayList;
@@ -78,13 +78,13 @@ final class STBFunction implements STBuilder {
     if (func.getOutput() != null) {
       decls.add(getVarDecl(func.getName(), func.getOutput()));
     }
-    for (final Variable var : func.getParameters()) {
+    for (final Var var : func.getParameters()) {
       decls.add(getVarDecl(func.getName(), var));
     }
     return decls;
   }
 
-  private static String getVarDecl(final String prefix, final Variable var) {
+  private static String getVarDecl(final String prefix, final Var var) {
     return String.format(
         "%s %s",
         getTypeName(var.getType()),
@@ -112,7 +112,7 @@ final class STBFunction implements STBuilder {
       stFunction.add("names", decl.split(" ")[1]);
     }
 
-    for (final Variable variable : func.getLocals().values()) {
+    for (final Var variable : func.getLocals().values()) {
       final String name = getVariableName(variable.getName());
 
       stFunction.add("locals", getVarDecl(func.getName(), variable));

@@ -21,12 +21,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
@@ -160,10 +161,10 @@ public final class AccessConstraints {
     return bufferEventConstraints;
   }
 
-  private Collection<IntegerConstraint<IntegerField>> generalConstraints = null;
-  private Collection<IntegerConstraint<IntegerField>> variateConstraints = null;
+  private Collection<IntegerConstraint> generalConstraints = null;
+  private Collection<IntegerConstraint> variateConstraints = null;
 
-  public Collection<IntegerConstraint<IntegerField>> getGeneralConstraints() {
+  public Collection<IntegerConstraint> getGeneralConstraints() {
     if (generalConstraints != null) {
       return generalConstraints;
     }
@@ -171,11 +172,11 @@ public final class AccessConstraints {
     generalConstraints = new ArrayList<>();
 
     for (final VariableConstraint variableConstraint : variableConstraints) {
-      final IntegerField variable = variableConstraint.getVariable();
+      final Node variable = variableConstraint.getVariable();
       final Set<BigInteger> values = variableConstraint.getValues();
 
-      if ((1 << variable.getWidth()) != values.size()) {
-        generalConstraints.add(new IntegerDomainConstraint<IntegerField>(variable, values));
+      if ((1 << IntegerUtils.getBitSize(variable)) != values.size()) {
+        generalConstraints.add(new IntegerDomainConstraint(variable, values));
       }
     }
 
@@ -183,7 +184,7 @@ public final class AccessConstraints {
     return generalConstraints;
   }
 
-  public Collection<IntegerConstraint<IntegerField>> getVariateConstraints() {
+  public Collection<IntegerConstraint> getVariateConstraints() {
     if (variateConstraints != null) {
       return variateConstraints;
     }
@@ -191,10 +192,10 @@ public final class AccessConstraints {
     variateConstraints = new ArrayList<>();
 
     for (final VariableConstraint variableConstraint : variableConstraints) {
-      final IntegerField variable = variableConstraint.getVariable();
+      final Node variable = variableConstraint.getVariable();
       final BigInteger value = variableConstraint.getVariate().getValue();
 
-      variateConstraints.add(new IntegerEqualConstraint<IntegerField>(variable, value));
+      variateConstraints.add(new IntegerEqualConstraint(variable, value));
     }
 
     Logger.debug("Variate constraints: %s", variateConstraints);

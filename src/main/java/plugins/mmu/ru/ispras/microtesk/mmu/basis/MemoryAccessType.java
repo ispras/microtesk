@@ -23,21 +23,21 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessType {
-  public static MemoryAccessType LOAD(final DataType dataType) {
+  public static MemoryAccessType LOAD(final MemoryDataType dataType) {
     return new MemoryAccessType(MemoryOperation.LOAD, dataType);
   }
 
-  public static MemoryAccessType STORE(final DataType dataType) {
+  public static MemoryAccessType STORE(final MemoryDataType dataType) {
     return new MemoryAccessType(MemoryOperation.STORE, dataType);
   }
 
   public static final MemoryAccessType NONE =
-      new MemoryAccessType(MemoryOperation.STORE, DataType.BYTE /* Does not matter */);
+      new MemoryAccessType(MemoryOperation.STORE, MemoryDataType.BYTE /* Does not matter */);
 
   private final MemoryOperation operation;
-  private final DataType dataType;
+  private final MemoryDataType dataType;
 
-  public MemoryAccessType(final MemoryOperation operation, final DataType dataType) {
+  public MemoryAccessType(final MemoryOperation operation, final MemoryDataType dataType) {
     InvariantChecks.checkNotNull(operation);
     InvariantChecks.checkNotNull(dataType);
 
@@ -45,7 +45,7 @@ public final class MemoryAccessType {
     this.dataType = dataType;
   }
 
-  public MemoryAccessType(final DataType dataType) {
+  public MemoryAccessType(final MemoryDataType dataType) {
     InvariantChecks.checkNotNull(dataType);
 
     this.operation = null;
@@ -56,7 +56,7 @@ public final class MemoryAccessType {
     return operation;
   }
 
-  public DataType getDataType() {
+  public MemoryDataType getDataType() {
     return dataType;
   }
 

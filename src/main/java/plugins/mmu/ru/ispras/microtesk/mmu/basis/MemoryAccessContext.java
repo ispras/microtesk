@@ -17,9 +17,11 @@ package ru.ispras.microtesk.mmu.basis;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.transformer.Transformer;
+import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
@@ -97,34 +99,33 @@ public final class MemoryAccessContext {
     return memoryAccessStack.ret();
   }
 
-  public IntegerVariable getInstance(final String instanceId, final IntegerVariable variable) {
-    final IntegerVariable instance = getVariable(instanceId, variable);
+  public Variable getInstance(final String instanceId, final Variable variable) {
+    InvariantChecks.checkNotNull(variable);
+
+    final Variable instance = getVariable(instanceId, variable);
     return memoryAccessStack.getInstance(instance);
   }
 
-  public IntegerField getInstance(final String instanceId, final IntegerField field) {
-    final IntegerField instance = getField(instanceId, field);
-    return memoryAccessStack.getInstance(instance);
+  public Node getInstance(final String instanceId, final Node node) {
+    if (node == null) {
+      return null;
+    }
+
+    return Transformer.substitute(node, new VariableProvider() {
+      @Override
+      public Variable getVariable(final Variable variable) {
+        return getInstance(instanceId, variable);
+      }
+    });
   }
 
-  private static IntegerVariable getVariable(
-      final String instanceId,
-      final IntegerVariable variable) {
+  private static Variable getVariable(final String instanceId, final Variable variable) {
     if (instanceId == null) {
       return variable;
     }
 
     final String instanceName = String.format("%s_%s", variable.getName(), instanceId);
-    return new IntegerVariable(instanceName, variable.getWidth());
-  }
-
-  private static IntegerField getField(final String instanceId, final IntegerField field) {
-    if (instanceId == null) {
-      return field;
-    }
-
-    final IntegerVariable variable = getVariable(instanceId, field.getVariable());
-    return variable.field(field.getLoIndex(), field.getHiIndex());
+    return new Variable(instanceName, variable.getType());
   }
 
   @Override

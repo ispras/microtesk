@@ -25,12 +25,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateCollection;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -66,7 +67,7 @@ public final class ConstraintFactory {
       final BigInteger value) {
     InvariantChecks.checkNotNull(value);
 
-    final IntegerField variableField = getVariableField(variableName);
+    final Node variableField = getVariableField(variableName);
     final Value variate = new FixedValue(value);
     final Set<BigInteger> values = Collections.<BigInteger>singleton(value);
 
@@ -81,7 +82,7 @@ public final class ConstraintFactory {
     InvariantChecks.checkNotNull(max);
     InvariantChecks.checkGreaterOrEq(max, min);
 
-    final IntegerField variableField = getVariableField(variableName);
+    final Node variableField = getVariableField(variableName);
     final Value variate = new RandomValue(min, max);
     final Set<BigInteger> values = new LinkedHashSet<>();
 
@@ -97,7 +98,7 @@ public final class ConstraintFactory {
       final BigInteger[] array) {
     InvariantChecks.checkNotNull(array);
 
-    final IntegerField variableField = getVariableField(variableName);
+    final Node variableField = getVariableField(variableName);
     final Value variate = new RandomValue(new VariateCollection<>(array));
     final Set<BigInteger> values = new LinkedHashSet<>(Arrays.asList(array));
 
@@ -109,7 +110,7 @@ public final class ConstraintFactory {
       final Variate<?> distribution) {
     InvariantChecks.checkNotNull(distribution);
 
-    final IntegerField variableField = getVariableField(variableName);
+    final Node variableField = getVariableField(variableName);
     final Value variate = new RandomValue(distribution);
     final Set<BigInteger> values = extractValues(distribution);
 
@@ -197,7 +198,7 @@ public final class ConstraintFactory {
     return MmuPlugin.getSpecification();
   }
 
-  private IntegerField getVariableField(final String name) {
+  private Node getVariableField(final String name) {
     InvariantChecks.checkNotNull(name);
     final Pair<String, String> field = splitBitfield(name);
 
@@ -205,7 +206,7 @@ public final class ConstraintFactory {
     final String variableField = field.second;
 
     final MmuSubsystem spec = getSpecification();
-    final IntegerVariable variable = spec.getVariable(variableName);
+    final Variable variable = spec.getVariable(variableName);
 
     if (null == variable) {
       throw new GenerationAbortedException(String.format(
@@ -213,11 +214,11 @@ public final class ConstraintFactory {
     }
 
     if (null == variableField) {
-      return variable.field();
+      return IntegerUtils.makeNodeVariable(variable);
     }
 
     final Pair<Integer, Integer> fieldRange = parseRange(variableField);
-    return variable.field(fieldRange.first, fieldRange.second);
+    return IntegerUtils.makeNodeExtract(variable, fieldRange.first, fieldRange.second);
   }
 
   private MmuBuffer getBuffer(final String name) {

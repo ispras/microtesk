@@ -26,7 +26,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -62,7 +62,7 @@ final class SimGeneratorFactory {
     return String.format("%s/%s%s", outDir, name, PackageInfo.JAVA_EXT);
   }
 
-  public FileGenerator newExternGenerator(final Map<String, Variable> externs) {
+  public FileGenerator newExternGenerator(final Map<String, Var> externs) {
     InvariantChecks.checkNotNull(externs);
 
     final String outputFileName = getOutputFileName(STBExtern.CLASS_NAME);

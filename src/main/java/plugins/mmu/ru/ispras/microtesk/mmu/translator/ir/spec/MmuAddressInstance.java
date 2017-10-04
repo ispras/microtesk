@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 /**
  * {@link MmuAddressInstance} describes an address, i.e. a parameter used to access a buffer.
@@ -27,13 +27,13 @@ import ru.ispras.microtesk.mmu.translator.ir.Variable;
  */
 public class MmuAddressInstance extends MmuStruct {
   /** Address description (the variable contains the name and the bit length). */
-  private final Variable addrStruct;
-  private IntegerVariable address;
+  private final Var addrStruct;
+  private Variable address;
 
   public MmuAddressInstance(
       final String name,
-      final Variable addrStruct,
-      final IntegerVariable address) {
+      final Var addrStruct,
+      final Variable address) {
     super(name);
 
     this.addrStruct = addrStruct;
@@ -47,22 +47,22 @@ public class MmuAddressInstance extends MmuStruct {
     this.address = null;
   }
 
-  protected void setVariable(final IntegerVariable variable) {
+  protected void setVariable(final Variable variable) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkTrue(address == null);
 
     this.address = variable;
   }
 
-  public final IntegerVariable getVariable() {
+  public final Variable getVariable() {
     return address;
   }
 
   public final int getWidth() {
-    return getVariable().getWidth();
+    return getVariable().getType().getSize();
   }
 
-  public final Variable getStruct() {
+  public final Var getStruct() {
     return addrStruct;
   }
 
@@ -71,7 +71,7 @@ public class MmuAddressInstance extends MmuStruct {
 
     final MmuAddressInstance instance = new MmuAddressInstance(name, addrStruct, address);
 
-    for (final IntegerVariable field : fields) {
+    for (final Variable field : fields) {
       instance.fields.add(context.getInstance(instanceId, field));
     }
 
@@ -84,7 +84,7 @@ public class MmuAddressInstance extends MmuStruct {
 
   @Override
   public String toString() {
-    return String.format("%s:%s[%d]", name, address.getName(), address.getWidth());
+    return String.format("%s:%s[%d]", name, address.getName(), address.getType().getSize());
   }
 
   @Override

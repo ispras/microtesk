@@ -16,13 +16,14 @@ package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
 
 /**
  * {@link BufferHazard} describes a buffer access hazard.
@@ -34,53 +35,64 @@ public final class BufferHazard {
     /** The conflict of the kind {@code Index1 != Index2}. */
     INDEX_NOT_EQUAL("IndexNotEqual", false) {
       @Override
-      public MmuCondition getCondition(
+      public Node getCondition(
           final MmuBufferAccess bufferAccess1,
           final MmuBufferAccess bufferAccess2) {
-        final MmuBuffer buffer = bufferAccess1.getBuffer();
 
         // Index1 != Index2.
-        return MmuCondition.neq(buffer.getIndexExpression()); // TODO: use buffer access variables.
+        return IntegerUtils.makeNodeAnd(
+            Collections.<Node>singletonList(
+                IntegerUtils.makeNodeNotEqual(
+                    bufferAccess1.getIndexExpression(),
+                    bufferAccess2.getIndexExpression())));
       }
     },
 
     /** The conflict of the kind {@code Index1 == Index2 && Tag1 != Tag2}. */
     TAG_NOT_EQUAL("TagNotEqual", false) {
       @Override
-      public MmuCondition getCondition(
+      public Node getCondition(
           final MmuBufferAccess bufferAccess1,
           final MmuBufferAccess bufferAccess2) {
         final MmuBuffer buffer = bufferAccess1.getBuffer();
-        final List<MmuConditionAtom> atoms = new ArrayList<>();
+        final List<Node> atoms = new ArrayList<>();
 
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
-          atoms.add(MmuConditionAtom.eq(buffer.getIndexExpression()));
+          atoms.add(IntegerUtils.makeNodeEqual(
+              bufferAccess1.getIndexExpression(),
+              bufferAccess2.getIndexExpression()));
         }
 
-        atoms.add(MmuConditionAtom.neq(buffer.getTagExpression()));
+        atoms.add(IntegerUtils.makeNodeNotEqual(
+            bufferAccess1.getTagExpression(),
+            bufferAccess2.getTagExpression()));
 
         // Index1 == Index2 && Tag1 != Tag2.
-        return MmuCondition.and(atoms); // TODO:
+        return IntegerUtils.makeNodeAnd(atoms);
       }
     },
 
     /** The conflict of the kind {@code Index1 == Index2 && Tag1 == Tag2}. */
     TAG_EQUAL("TagEqual", true) {
       @Override
-      public MmuCondition getCondition(
+      public Node getCondition(
           final MmuBufferAccess bufferAccess1,
           final MmuBufferAccess bufferAccess2) {
         final MmuBuffer buffer = bufferAccess1.getBuffer();
-        final List<MmuConditionAtom> atoms = new ArrayList<>();
+        final List<Node> atoms = new ArrayList<>();
 
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
-          atoms.add(MmuConditionAtom.eq(buffer.getIndexExpression()));
+          atoms.add(IntegerUtils.makeNodeEqual(
+              bufferAccess1.getIndexExpression(),
+              bufferAccess2.getIndexExpression()));
         }
 
-        atoms.add(MmuConditionAtom.eq(buffer.getTagExpression()));
+        atoms.add(IntegerUtils.makeNodeEqual(
+            bufferAccess1.getTagExpression(),
+            bufferAccess2.getTagExpression()));
 
         // Index1 == Index2 && Tag1 == Tag2.
-        return MmuCondition.and(atoms); // TODO:
+        return IntegerUtils.makeNodeAnd(atoms);
       }
     };
 
@@ -110,7 +122,7 @@ public final class BufferHazard {
      * 
      * @return the hazard condition.
      */
-    public abstract MmuCondition getCondition(
+    public abstract Node getCondition(
         final MmuBufferAccess bufferAccess1,
         final MmuBufferAccess bufferAccess2);
   }
@@ -141,13 +153,13 @@ public final class BufferHazard {
     private final MmuBufferAccess bufferAccess1;
     private final MmuBufferAccess bufferAccess2;
 
-    private final MmuCondition condition;
+    private final Node condition;
 
     private Instance(
         final BufferHazard hazardType,
         final MmuBufferAccess bufferAccess1,
         final MmuBufferAccess bufferAccess2,
-        final MmuCondition condition) {
+        final Node condition) {
       InvariantChecks.checkNotNull(hazardType);
       InvariantChecks.checkNotNull(bufferAccess1);
       InvariantChecks.checkNotNull(bufferAccess2);
@@ -173,7 +185,7 @@ public final class BufferHazard {
       return bufferAccess2;
     }
 
-    public MmuCondition getCondition() {
+    public Node getCondition() {
       return condition;
     }
 

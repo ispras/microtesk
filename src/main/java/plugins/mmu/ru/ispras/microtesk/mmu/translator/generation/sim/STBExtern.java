@@ -23,7 +23,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.generation.spec.Utils;
 import ru.ispras.microtesk.mmu.translator.ir.ExternalSource;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBExtern implements STBuilder {
@@ -33,11 +33,11 @@ final class STBExtern implements STBuilder {
       ru.ispras.microtesk.model.Reader.class;
 
   private final String packageName;
-  private final Map<String, Variable> externs;
+  private final Map<String, Var> externs;
 
   public STBExtern(
       final String packageName,
-      final Map<String, Variable> externs) {
+      final Map<String, Var> externs) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(externs);
 
@@ -53,7 +53,7 @@ final class STBExtern implements STBuilder {
     buildHeader(st);
     buildBody(st, group);
 
-    for (final Variable variable : externs.values()) {
+    for (final Var variable : externs.values()) {
       ExprPrinter.get().addVariableMappings(
           variable, String.format("%s.get().%s()", CLASS_NAME, variable.getName()));
     }
@@ -75,7 +75,7 @@ final class STBExtern implements STBuilder {
     final ST stBody = group.getInstanceOf("extern_body");
     stBody.add("fnames", externs.keySet());
 
-    for (final Variable variable : externs.values()) {
+    for (final Var variable : externs.values()) {
       final ExternalSource source = (ExternalSource) variable.getTypeSource();
 
       final String method;

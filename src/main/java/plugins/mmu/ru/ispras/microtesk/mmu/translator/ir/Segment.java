@@ -30,12 +30,12 @@ public final class Segment extends AbstractStorage {
   public Segment(
       final String id,
       final Address address,
-      final Variable addressArg,
+      final Var addressArg,
       final BigInteger min,
       final BigInteger max,
       final Address dataArgAddress,
-      final Variable dataArg,
-      final Map<String, Variable> variables,
+      final Var dataArg,
+      final Map<String, Var> variables,
       final Map<String, Attribute> attrs) {
     super(
         id,

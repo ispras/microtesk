@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,13 +18,13 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 
 public final class MmuOperation {
   private final String name;
   private final MmuAddressInstance addressType;
-  private final Map<IntegerField, MmuBinding> assignments;
+  private final Map<Node, MmuBinding> assignments;
 
   public MmuOperation(
       final String name,
@@ -36,7 +36,7 @@ public final class MmuOperation {
     this.name = name;
     this.addressType = addressType;
 
-    final Map<IntegerField, MmuBinding> map = new LinkedHashMap<>();
+    final Map<Node, MmuBinding> map = new LinkedHashMap<>();
     for (final MmuBinding binding : assignments) {
       map.put(binding.getLhs(), binding);
     }
@@ -52,7 +52,7 @@ public final class MmuOperation {
     return addressType;
   }
 
-  public Map<IntegerField, MmuBinding> getAssignments() {
+  public Map<Node, MmuBinding> getAssignments() {
     return assignments;
   }
 

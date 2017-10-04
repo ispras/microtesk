@@ -18,9 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
@@ -37,7 +36,7 @@ public final class MemoryAccessStack {
   public  static final class Frame {
     private final String id;
     private final MmuTransition transition;
-    private final Map<IntegerVariable, IntegerVariable> frame = new HashMap<>();
+    private final Map<Variable, Variable> frame = new HashMap<>();
 
     private Frame(final String id, final MmuTransition transition) {
       InvariantChecks.checkNotNull(id);
@@ -54,31 +53,22 @@ public final class MemoryAccessStack {
       return transition;
     }
 
-    public IntegerVariable getInstance(final IntegerVariable variable) {
+    public Variable getInstance(final Variable variable) {
       InvariantChecks.checkNotNull(variable);
 
       // Constants are not duplicated in stack frames.
-      if (variable.isDefined()) {
+      if (variable.hasValue()) {
         return variable;
       }
 
-      IntegerVariable frameVariable = frame.get(variable);
+      Variable frameVariable = frame.get(variable);
 
       if (frameVariable == null) {
         final String name = String.format("%s$%s", id, variable.getName());
-        final int width = variable.getWidth();
-
-        frame.put(variable, frameVariable = new IntegerVariable(name, width));
+        frame.put(variable, frameVariable = new Variable(name, variable.getType()));
       }
 
       return frameVariable;
-    }
-
-    public IntegerField getInstance(final IntegerField field) {
-      InvariantChecks.checkNotNull(field);
-
-      final IntegerVariable frameVariable = getInstance(field.getVariable());
-      return new IntegerField(frameVariable, field.getLoIndex(), field.getHiIndex());
     }
 
     @Override
@@ -142,7 +132,7 @@ public final class MemoryAccessStack {
     return stack.peek();
   }
 
-  public IntegerVariable getInstance(IntegerVariable variable) {
+  public Variable getInstance(Variable variable) {
     InvariantChecks.checkNotNull(variable);
 
     if (stack.isEmpty()) {
@@ -151,17 +141,6 @@ public final class MemoryAccessStack {
 
     final Frame frame = stack.peek();
     return frame.getInstance(variable);
-  }
-
-  public IntegerField getInstance(final IntegerField field) {
-    InvariantChecks.checkNotNull(field);
-
-    if (stack.isEmpty()) {
-      return field;
-    }
-
-    final Frame frame = stack.peek();
-    return frame.getInstance(field);
   }
 
   private String getFullId(final String localId) {

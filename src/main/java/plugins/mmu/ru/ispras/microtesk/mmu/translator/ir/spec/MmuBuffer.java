@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 
@@ -59,11 +60,11 @@ public class MmuBuffer extends MmuStruct {
   private final MmuAddressInstance address;
 
   /** The tag calculation function. */
-  private final MmuExpression tagExpression;
+  private final Node tagExpression;
   /** The index calculation function. */
-  private final MmuExpression indexExpression;
+  private final Node indexExpression;
   /** The offset calculation function. */
-  private final MmuExpression offsetExpression;
+  private final Node offsetExpression;
 
   private Collection<MmuBinding> matchBindings;
 
@@ -84,9 +85,9 @@ public class MmuBuffer extends MmuStruct {
       final long ways,
       final long sets,
       final MmuAddressInstance address,
-      final MmuExpression tagExpression,
-      final MmuExpression indexExpression,
-      final MmuExpression offsetExpression,
+      final Node tagExpression,
+      final Node indexExpression,
+      final Node offsetExpression,
       final Collection<MmuBinding> matchBindings,
       final boolean replaceable,
       final MmuBuffer parent) {
@@ -168,7 +169,7 @@ public class MmuBuffer extends MmuStruct {
    * 
    * @return the tag calculation function.
    */
-  public final MmuExpression getTagExpression() {
+  public final Node getTagExpression() {
     return tagExpression;
   }
 
@@ -177,7 +178,7 @@ public class MmuBuffer extends MmuStruct {
    * 
    * @return the index calculation function.
    */
-  public final MmuExpression getIndexExpression() {
+  public final Node getIndexExpression() {
     return indexExpression;
   }
 
@@ -186,7 +187,7 @@ public class MmuBuffer extends MmuStruct {
    * 
    * @return the offset calculation function.
    */
-  public final MmuExpression getOffsetExpression() {
+  public final Node getOffsetExpression() {
     return offsetExpression;
   }
 
@@ -266,8 +267,10 @@ public class MmuBuffer extends MmuStruct {
   }
 
   public final boolean isFake() {
-    // TODO:
-    return ways == 1 && sets == 1 && tagExpression.size() == 0 && indexExpression.size() == 0;
+    return ways == 1
+        && sets == 1
+        && tagExpression == null
+        && indexExpression == null;
   }
 
   /**

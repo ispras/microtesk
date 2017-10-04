@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,11 +21,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.template.BufferEventConstraint;
@@ -42,18 +42,18 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 public final class MmuSettingsUtils {
   private MmuSettingsUtils() {}
 
-  public static List<IntegerConstraint<IntegerField>> getIntegerConstraints() {
+  public static List<IntegerConstraint> getIntegerConstraints() {
     final GeneratorSettings settings = GeneratorSettings.get();
     InvariantChecks.checkNotNull(settings);
 
-    final List<IntegerConstraint<IntegerField>> integerConstraints = new ArrayList<>();
+    final List<IntegerConstraint> integerConstraints = new ArrayList<>();
 
     final Collection<AbstractSettings> integerValuesSettings =
         settings.get(IntegerValuesSettings.TAG);
 
     if (integerValuesSettings != null) {
       for (final AbstractSettings section : integerValuesSettings) {
-        final IntegerConstraint<IntegerField> constraint =
+        final IntegerConstraint constraint =
             getIntegerConstraint((IntegerValuesSettings) section);
 
         if (constraint != null) {
@@ -67,7 +67,7 @@ public final class MmuSettingsUtils {
 
     if (booleanValuesSettings != null) {
       for (final AbstractSettings section : booleanValuesSettings) {
-        final IntegerConstraint<IntegerField> constraint =
+        final IntegerConstraint constraint =
             getIntegerConstraint((BooleanValuesSettings) section);
 
         if (constraint != null) {
@@ -86,12 +86,12 @@ public final class MmuSettingsUtils {
    * @param settings the values settings.
    * @return the constraint or {@code null}.
    */
-  public static IntegerConstraint<IntegerField> getIntegerConstraint(
+  public static IntegerConstraint getIntegerConstraint(
       final IntegerValuesSettings settings) {
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     InvariantChecks.checkNotNull(memory);
 
-    final IntegerVariable variable = memory.getVariable(settings.getName());
+    final Variable variable = memory.getVariable(settings.getName());
     InvariantChecks.checkNotNull(variable);
 
     final Set<BigInteger> domain = settings.getPossibleValues();
@@ -109,11 +109,11 @@ public final class MmuSettingsUtils {
       return null /* TRUE */;
     }
 
-    return new IntegerDomainConstraint<IntegerField>(
+    return new IntegerDomainConstraint(
         include.isEmpty() ?
-            IntegerDomainConstraint.Type.EXCLUDE :
-            IntegerDomainConstraint.Type.RETAIN,
-        new IntegerField(variable),
+            IntegerDomainConstraint.Kind.EXCLUDE :
+            IntegerDomainConstraint.Kind.RETAIN,
+        IntegerUtils.makeNodeVariable(variable),
         domain,
         include.isEmpty() ?
             exclude :
@@ -127,14 +127,14 @@ public final class MmuSettingsUtils {
    * @param settings the values settings.
    * @return the constraint or {@code null}.
    */
-  public static IntegerConstraint<IntegerField> getIntegerConstraint(
+  public static IntegerConstraint getIntegerConstraint(
       final BooleanValuesSettings settings) {
     InvariantChecks.checkNotNull(settings);
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     InvariantChecks.checkNotNull(memory);
 
-    final IntegerVariable variable = memory.getVariable(settings.getName());
+    final Variable variable = memory.getVariable(settings.getName());
     InvariantChecks.checkNotNull(variable);
 
     final Set<Boolean> booleanValues = settings.getValues();
@@ -150,9 +150,9 @@ public final class MmuSettingsUtils {
       values.add(value ? BigInteger.ONE : BigInteger.ZERO);
     }
 
-    return new IntegerDomainConstraint<IntegerField>(
-        IntegerDomainConstraint.Type.RETAIN,
-        new IntegerField(variable),
+    return new IntegerDomainConstraint(
+        IntegerDomainConstraint.Kind.RETAIN,
+        IntegerUtils.makeNodeVariable(variable),
         null,
         values);
   }

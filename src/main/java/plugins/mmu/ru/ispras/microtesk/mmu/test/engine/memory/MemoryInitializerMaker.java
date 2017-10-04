@@ -25,15 +25,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryDataType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
@@ -167,11 +167,13 @@ public final class MemoryInitializerMaker implements InitializerMaker {
 
     final Map<String, BitVector> entryFieldValues = new LinkedHashMap<>();
 
-    for (final IntegerVariable field : data.getVariables()) {
+    for (final Variable field : data.getVariables()) {
       final String entryFieldName = field.getName();
       final BigInteger entryFieldValue = data.getValue(field);
 
-      entryFieldValues.put(entryFieldName, BitVector.valueOf(entryFieldValue, field.getWidth()));
+      entryFieldValues.put(
+          entryFieldName,
+          BitVector.valueOf(entryFieldValue, field.getType().getSize()));
     }
 
     final boolean isMemoryMapped = buffer.getKind() == MmuBuffer.Kind.MEMORY;
@@ -245,8 +247,8 @@ public final class MemoryInitializerMaker implements InitializerMaker {
 
           final Access access = addressObject.getAccess();
 
-          final DataType dataType = access.getType().getDataType();
-          final DataType entryType = DataType.type(entryValue.getByteSize());
+          final MemoryDataType dataType = access.getType().getDataType();
+          final MemoryDataType entryType = MemoryDataType.type(entryValue.getByteSize());
           InvariantChecks.checkTrue(entryType.getSizeInBytes() >= dataType.getSizeInBytes());
 
           // Main memory.
@@ -416,7 +418,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     final MmuAddressInstance virtualAddressType = memory.getVirtualAddress();
     final BigInteger virtualAddressValue = addressObject.getAddress(virtualAddressType);
 
-    final IntegerVariable dataVariable = memory.getDataVariable();
+    final Variable dataVariable = memory.getDataVariable();
     final BigInteger dataValue = addressObject.getData(dataVariable);
 
     return String.format("%s[0x%s]=[0x%s]",

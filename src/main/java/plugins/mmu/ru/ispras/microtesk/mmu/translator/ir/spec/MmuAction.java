@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
@@ -40,7 +40,7 @@ public final class MmuAction {
   /** Buffer used in the action or {@code null}. */
   private final MmuBufferAccess bufferAccess;
   /** Assignments performed by the action. */
-  private final Map<IntegerField, MmuBinding> action = new HashMap<>();
+  private final Map<Node, MmuBinding> action = new HashMap<>();
   /** Marks associated with the action. */
   private final Set<String> marks = new LinkedHashSet<>();
 
@@ -125,7 +125,7 @@ public final class MmuAction {
     return bufferAccess.getInstance(instanceId, context);
   }
 
-  public Map<IntegerField, MmuBinding> getAssignments(
+  public Map<Node, MmuBinding> getAssignments(
       final String lhsInstanceId,
       final String rhsInstanceId,
       final MemoryAccessContext context) {
@@ -135,10 +135,10 @@ public final class MmuAction {
       return action;
     }
 
-    final Map<IntegerField, MmuBinding> actionInstance = new LinkedHashMap<>();
+    final Map<Node, MmuBinding> actionInstance = new LinkedHashMap<>();
 
-    for (final Map.Entry<IntegerField, MmuBinding> entry : action.entrySet()) {
-      final IntegerField lhs = entry.getKey();
+    for (final Map.Entry<Node, MmuBinding> entry : action.entrySet()) {
+      final Node lhs = entry.getKey();
       final MmuBinding rhs = entry.getValue();
 
       actionInstance.put(

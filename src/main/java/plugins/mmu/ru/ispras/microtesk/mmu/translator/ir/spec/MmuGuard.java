@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
@@ -29,7 +30,7 @@ public final class MmuGuard {
   /** Buffer access. */
   private final MmuBufferAccess bufferAccess;
   /** Logical condition. */
-  private final MmuCondition condition;
+  private final Node condition;
   /** Admissible memory segment. */
   private final MmuSegment segment;
   /** Memory segment hit/miss. */
@@ -38,7 +39,7 @@ public final class MmuGuard {
   public MmuGuard(
       final MemoryOperation operation,
       final MmuBufferAccess bufferAccess,
-      final MmuCondition condition,
+      final Node condition,
       final MmuSegment segment,
       final boolean isHit) {
     this.operation = operation;
@@ -50,7 +51,7 @@ public final class MmuGuard {
 
   public MmuGuard(
       final MmuBufferAccess bufferAccess,
-      final MmuCondition condition) {
+      final Node condition) {
     this(null, bufferAccess, condition, null, false);
   }
 
@@ -58,15 +59,11 @@ public final class MmuGuard {
     this(null, bufferAccess, null, null, false);
   }
 
-  public MmuGuard(final MmuCondition condition) {
+  public MmuGuard(final Node condition) {
     this(null, null, condition, null, false);
   }
 
-  public MmuGuard(final MmuConditionAtom condition) {
-    this(null, null, new MmuCondition(condition), null, false);
-  }
-
-  public MmuGuard(final MemoryOperation operation, final MmuCondition condition) {
+  public MmuGuard(final MemoryOperation operation, final Node condition) {
     this(operation, null, condition, null, false);
   }
 
@@ -89,14 +86,14 @@ public final class MmuGuard {
     return bufferAccess.getInstance(instanceId, context);
   }
 
-  public MmuCondition getCondition(final String instanceId, final MemoryAccessContext context) {
+  public Node getCondition(final String instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    if (condition == null || context.isEmptyStack() && instanceId == null) {
+    if (context.isEmptyStack() && instanceId == null) {
       return condition;
     }
 
-    return condition.getInstance(instanceId, context);
+    return context.getInstance(instanceId, condition);
   }
 
   public MemoryOperation getOperation() {

@@ -23,7 +23,7 @@ import java.util.Map;
 public final class Ir {
   private final String modelName;
   private final Map<String, Constant> constants;
-  private final Map<String, Variable> externs;
+  private final Map<String, Var> externs;
   private final Map<String, Address> addresses;
   private final Map<String, Segment> segments;
   private final Map<String, Buffer> buffers;
@@ -55,7 +55,7 @@ public final class Ir {
     return Collections.unmodifiableMap(constants);
   }
 
-  public Map<String, Variable> getExterns() {
+  public Map<String, Var> getExterns() {
     return Collections.unmodifiableMap(externs);
   }
 
@@ -92,7 +92,7 @@ public final class Ir {
     constants.put(constant.getId(), constant);
   }
 
-  public void addExtern(final Variable variable) {
+  public void addExtern(final Var variable) {
     checkNotNull(variable);
     externs.put(variable.getName(), variable);
   }

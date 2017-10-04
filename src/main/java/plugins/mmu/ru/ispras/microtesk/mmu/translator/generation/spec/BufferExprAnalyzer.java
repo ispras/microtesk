@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -32,16 +32,13 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.microtesk.utils.StringUtils;
 
 final class BufferExprAnalyzer {
-  private final Variable addressVariable;
+  private final Var addressVariable;
 
   private final IntegerVariable variableForAddress;
   private final IntegerFieldTracker fieldTrackerForAddress;
@@ -269,7 +266,7 @@ final class BufferExprAnalyzer {
 
   public BufferExprAnalyzer(
       final Address address,
-      final Variable addressVariable,
+      final Var addressVariable,
       final Node index,
       final Node match) {
     InvariantChecks.checkNotNull(address);

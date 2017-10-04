@@ -21,7 +21,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.mmu.basis.DataType;
+import ru.ispras.microtesk.mmu.basis.MemoryDataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
@@ -224,7 +224,7 @@ public final class MemoryEngine implements Engine {
       InvariantChecks.checkTrue((blockSizeInBits & 7) == 0);
 
       final int blockSizeInBytes = blockSizeInBits >>> 3;
-      accessTypes.add(new MemoryAccessType(operation, DataType.type(blockSizeInBytes)));
+      accessTypes.add(new MemoryAccessType(operation, MemoryDataType.type(blockSizeInBytes)));
 
       final AccessConstraints constraints = operation != MemoryOperation.NONE
           ? getConstraints(abstractCall)

@@ -19,11 +19,9 @@ import java.util.List;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 public final class Utils {
   private Utils() {}
@@ -197,7 +195,7 @@ public final class Utils {
       }
 
       case GROUP:
-        return getVariableName(context, ((Variable) object).getName());
+        return getVariableName(context, ((Var) object).getName());
 
       case CONCAT:
         return toMmuExpressionText(context, (List<IntegerField>) object);

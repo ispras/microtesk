@@ -17,17 +17,17 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import java.math.BigInteger;
 import java.util.List;
 
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 public final class Atom {
   public static enum Kind {
     VALUE    (BigInteger.class, false),
-    VARIABLE (IntegerVariable.class, false),
-    FIELD    (IntegerField.class, false),
-    GROUP    (Variable.class, true),
+    VARIABLE (Variable.class, false),
+    FIELD    (Node.class, false),
+    GROUP    (Var.class, true),
     CONCAT   (List.class, false);
 
     private final Class<?> objectClass;
@@ -51,19 +51,19 @@ public final class Atom {
     return new Atom(Kind.VALUE, value);
   }
 
-  public static Atom newVariable(final IntegerVariable variable) {
+  public static Atom newVariable(final Variable variable) {
     return new Atom(Kind.VARIABLE, variable);
   }
 
-  public static Atom newGroup(final Variable group) {
+  public static Atom newGroup(final Var group) {
     return new Atom(Kind.GROUP, group);
   }
 
-  public static Atom newField(final IntegerField field) {
+  public static Atom newField(final Node field) {
     return new Atom(Kind.FIELD, field);
   }
 
-  public static Atom newConcat(final List<IntegerField> fields) {
+  public static Atom newConcat(final List<Node> fields) {
     return new Atom(Kind.CONCAT, fields);
   }
 

@@ -36,8 +36,8 @@ public final class IntegerRangeConstraintTestCase {
     final IntegerRangeConstraint constraint = new IntegerRangeConstraint(x, range);
     System.out.format("Formula: %s\n", constraint);
 
-    final IntegerFieldFormulaSolverSat4j solver = new IntegerFieldFormulaSolverSat4j(
-        constraint.getFormula(), IntegerVariableInitializer.RANDOM);
+    final IntegerFormulaSolverSat4j solver = new IntegerFormulaSolverSat4j(
+        constraint.getFormula(), VariableInitializer.RANDOM);
 
     final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(Solver.Mode.MAP);
     Assert.assertTrue(result.getErrors().toString(),

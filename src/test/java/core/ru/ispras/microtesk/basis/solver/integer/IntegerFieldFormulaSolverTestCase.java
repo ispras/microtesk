@@ -201,8 +201,8 @@ public final class IntegerFieldFormulaSolverTestCase {
     final Date startTime = new Date();
 
     for (int i = 0; i < N; i++) {
-      final IntegerFieldFormulaSolverSat4j solver =
-          new IntegerFieldFormulaSolverSat4j(formula, IntegerVariableInitializer.RANDOM);
+      final IntegerFormulaSolverSat4j solver =
+          new IntegerFormulaSolverSat4j(formula, VariableInitializer.RANDOM);
 
       final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(Solver.Mode.MAP);
       Assert.assertTrue(result.getErrors().toString(),

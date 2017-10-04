@@ -20,12 +20,14 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.transformer.Transformer;
+import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
 import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
@@ -48,13 +50,13 @@ public final class SymbolicResult {
   private boolean hasConflict = false;
 
   /** Allows updating the formula, i.e. performing symbolic execution. */
-  private final IntegerFormulaBuilder<IntegerField> builder;
+  private final IntegerFormulaBuilder builder;
 
   /** Enables recursive memory calls. */
   private final Map<Integer, MemoryAccessContext> contexts;
 
   /** Contains original variables. */
-  private final Collection<IntegerVariable> originals;
+  private final Collection<Variable> originals;
 
   /**
    * Maps a variable name to the variable version number.
@@ -64,18 +66,18 @@ public final class SymbolicResult {
   private final Map<String, Integer> versions;
 
   /** Maps a name to the corresponding variable (original or version). */
-  private final Map<String, IntegerVariable> cache;
+  private final Map<String, Variable> cache;
 
   /** Maps a variable to the derived values (constant propagation). */
-  private final Map<IntegerVariable, BigInteger> constants;
+  private final Map<Variable, BigInteger> constants;
 
   private SymbolicResult(
-      final IntegerFormulaBuilder<IntegerField> builder,
+      final IntegerFormulaBuilder builder,
       final Map<Integer, MemoryAccessContext> contexts,
-      final Collection<IntegerVariable> originals,
+      final Collection<Variable> originals,
       final Map<String, Integer> versions,
-      final Map<String, IntegerVariable> cache,
-      final Map<IntegerVariable, BigInteger> constants) {
+      final Map<String, Variable> cache,
+      final Map<Variable, BigInteger> constants) {
     InvariantChecks.checkNotNull(builder);
     InvariantChecks.checkNotNull(contexts);
     InvariantChecks.checkNotNull(originals);
@@ -91,14 +93,14 @@ public final class SymbolicResult {
     this.constants = constants;
   }
 
-  public SymbolicResult(final IntegerFormulaBuilder<IntegerField> builder) {
+  public SymbolicResult(final IntegerFormulaBuilder builder) {
     this(
         builder,
         new HashMap<Integer, MemoryAccessContext>(),
-        new LinkedHashSet<IntegerVariable>(),
+        new LinkedHashSet<Variable>(),
         new HashMap<String, Integer>(),
-        new HashMap<String, IntegerVariable>(),
-        new HashMap<IntegerVariable, BigInteger>());
+        new HashMap<String, Variable>(),
+        new HashMap<Variable, BigInteger>());
   }
 
   public SymbolicResult(final SymbolicResult r) {
@@ -117,7 +119,7 @@ public final class SymbolicResult {
   }
 
   public SymbolicResult(
-      final IntegerFormulaBuilder<IntegerField> builder,
+      final IntegerFormulaBuilder builder,
       final SymbolicResult r) {
     this(
         builder,
@@ -141,7 +143,7 @@ public final class SymbolicResult {
     this.hasConflict = hasConflict;
   }
 
-  public IntegerFormulaBuilder<IntegerField> getBuilder() {
+  public IntegerFormulaBuilder getBuilder() {
     return builder;
   }
 
@@ -149,47 +151,35 @@ public final class SymbolicResult {
     return contexts;
   }
 
-  public Collection<IntegerVariable> getOriginalVariables() {
+  public Collection<Variable> getOriginalVariables() {
     return originals;
   }
 
-  public boolean containsOriginalVariable(final IntegerVariable var) {
+  public boolean containsOriginalVariable(final Variable var) {
     return originals.contains(var);
   }
 
-  public void addOriginalVariable(final IntegerVariable var) {
+  public void addOriginalVariable(final Variable var) {
     originals.add(var);
   }
 
-  public void addOriginalVariables(final Collection<IntegerVariable> vars) {
+  public void addOriginalVariables(final Collection<Variable> vars) {
     originals.addAll(vars);
   }
 
-  public BigInteger getConstant(final IntegerVariable var) {
+  public BigInteger getConstant(final Variable var) {
     return constants.get(var);
   }
 
-  public Map<IntegerVariable, BigInteger> getConstants() {
+  public Map<Variable, BigInteger> getConstants() {
     return constants;
   }
 
-  public void addConstant(final IntegerVariable var, final BigInteger constant) {
+  public void addConstant(final Variable var, final BigInteger constant) {
     constants.put(var, constant);
   }
 
-  public void addEquation(final IntegerField lhs, final IntegerField rhs) {
-    builder.addEquation(lhs, rhs, true);
-  }
-
-  public void addEquation(final IntegerField lhs, final BigInteger rhs) {
-    builder.addEquation(lhs, rhs, true);
-  }
-
-  public void addClause(final IntegerClause<IntegerField> clause) {
-    builder.addClause(clause);
-  }
-
-  public void addFormula(final IntegerFormula<IntegerField> formula) {
+  public void addFormula(final Node formula) {
     builder.addFormula(formula);
   }
 
@@ -251,15 +241,14 @@ public final class SymbolicResult {
 
   public void includeOriginalVariables() {
     // Add the constraints of the kind V = V(n), where n is the last version number of V.
-    for (final IntegerVariable original : originals) {
-      final IntegerVariable version = getVersion(original.getName());
+    for (final Variable original : originals) {
+      final Variable version = getVersion(original.getName());
       InvariantChecks.checkNotNull(version,
           String.format("Version of %s has not been found", original.getName()));
 
-      final IntegerField lhs = new IntegerField(original);
-      final IntegerField rhs = new IntegerField(version);
-
-      addEquation(lhs, rhs);
+      addFormula(IntegerUtils.makeNodeEqual(
+          IntegerUtils.makeNodeVariable(original),
+          IntegerUtils.makeNodeVariable(version)));
 
       // Propagate the constant if applicable.
       final BigInteger constant = getConstant(version);
@@ -270,45 +259,49 @@ public final class SymbolicResult {
     }
   }
 
-  public IntegerVariable getOriginal(final IntegerVariable variable, final int pathIndex) {
+  public Variable getOriginal(final Variable variable, final int pathIndex) {
     InvariantChecks.checkNotNull(variable);
 
     final String originalName = getOriginalName(variable, pathIndex);
-    return getVariable(originalName, variable.getWidth(), variable.getValue());
+
+    return getVariable(
+        originalName, variable.getType().getSize(), variable.getData().getInteger());
   }
 
-  public IntegerVariable getVersion(final IntegerVariable variable, final int pathIndex) {
+  public Variable getVersion(final Variable variable, final int pathIndex) {
     InvariantChecks.checkNotNull(variable);
 
     final String originalName = getOriginalName(variable, pathIndex);
     final int versionNumber = getVersionNumber(originalName);
     final String versionName = getVersionName(originalName, versionNumber);
 
-    return getVariable(versionName, variable.getWidth(), variable.getValue());
+    return getVariable(
+        versionName, variable.getType().getSize(), variable.getData().getInteger());
   }
 
-  public IntegerField getVersion(final IntegerField field, final int pathIndex) {
-    InvariantChecks.checkNotNull(field);
+  public Node getVersion(final Node node, final int pathIndex) {
+    InvariantChecks.checkNotNull(node);
 
-    final IntegerVariable version = getVersion(field.getVariable(), pathIndex);
-
-    final int lo = field.getLoIndex();
-    final int hi = field.getHiIndex();
-
-    return new IntegerField(version, lo, hi);
+    return Transformer.substitute(node, new VariableProvider() {
+      @Override
+      public Variable getVariable(final Variable variable) {
+        return getVersion(variable, pathIndex);
+      }
+    });
   }
 
-  public IntegerVariable getNextVersion(final IntegerVariable variable, final int pathIndex) {
+  public Variable getNextVersion(final Variable variable, final int pathIndex) {
     InvariantChecks.checkNotNull(variable);
 
     final String originalName = getOriginalName(variable, pathIndex);
     final int versionNumber = getVersionNumber(originalName);
     final String nextVersionName = getVersionName(originalName, versionNumber + 1);
 
-    return getVariable(nextVersionName, variable.getWidth(), variable.getValue());
+    return getVariable(
+        nextVersionName, variable.getType().getSize(), variable.getData().getInteger());
   }
 
-  public void defineVersion(final IntegerVariable variable, final int pathIndex) {
+  public void defineVersion(final Variable variable, final int pathIndex) {
     InvariantChecks.checkNotNull(variable);
 
     final String originalName = getOriginalName(variable, pathIndex);
@@ -319,36 +312,34 @@ public final class SymbolicResult {
 
   //------------------------------------------------------------------------------------------------
 
-  public IntegerVariable getVersion(final IntegerVariable originalVariable) {
+  public Variable getVersion(final Variable originalVariable) {
     InvariantChecks.checkNotNull(originalVariable);
 
     final String originalName = originalVariable.getName();
     final int versionNumber = getVersionNumber(originalName);
     final String versionName = getVersionName(originalName, versionNumber);
 
-    return getVariable(versionName, originalVariable.getWidth(), originalVariable.getValue());
+    return getVariable(
+        versionName, originalVariable.getType().getSize(), originalVariable.getData().getInteger());
   }
 
-  public int getVersionNumber(final IntegerVariable originalVariable) {
+  public int getVersionNumber(final Variable originalVariable) {
     InvariantChecks.checkNotNull(originalVariable);
     return getVersionNumber(originalVariable.getName());
   }
 
-  public void setVersionNumber(final IntegerVariable originalVariable, final int versionNumber) {
+  public void setVersionNumber(final Variable originalVariable, final int versionNumber) {
     final String originalName = originalVariable.getName();
     versions.put(originalName, versionNumber);
 
     final String versionName = getVersionName(originalName, versionNumber);
 
     if (!cache.containsKey(versionName)) {
-      final int width = originalVariable.getWidth();
-      final BigInteger value = originalVariable.getValue();
-
-      cache.put(versionName, new IntegerVariable(versionName, width, value));
+      cache.put(versionName, new Variable(versionName, originalVariable.getData()));
     }
   }
 
-  private static String getOriginalName(final IntegerVariable variable, final int pathIndex) {
+  private static String getOriginalName(final Variable variable, final int pathIndex) {
     InvariantChecks.checkNotNull(variable);
 
     final String name = variable.getName();
@@ -363,20 +354,20 @@ public final class SymbolicResult {
     return versions.containsKey(originalName) ? versions.get(originalName) : 0;
   }
 
-  private IntegerVariable getVersion(final String originalName) {
+  private Variable getVersion(final String originalName) {
     final int versionNumber = getVersionNumber(originalName);
     final String versionName = getVersionName(originalName, versionNumber);
 
     return cache.get(versionName);
   }
 
-  private IntegerVariable getVariable(
+  private Variable getVariable(
       final String variableName, final int width, final BigInteger value) {
     InvariantChecks.checkNotNull(variableName);
 
-    IntegerVariable variable = cache.get(variableName);
+    Variable variable = cache.get(variableName);
     if (variable == null) {
-      cache.put(variableName, variable = new IntegerVariable(variableName, width, value));
+      cache.put(variableName, variable = new Variable(variableName, Data.newBitVector(value, width)));
     }
 
     return variable;

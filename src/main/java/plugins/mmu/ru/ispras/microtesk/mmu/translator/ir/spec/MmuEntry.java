@@ -21,8 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 
 /**
  * {@link MmuEntry} represents an entry of a {@link MmuBuffer}.
@@ -32,19 +32,19 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 public final class MmuEntry {
   private BigInteger address = BigInteger.ZERO;
 
-  private final Set<IntegerVariable> validFields = new LinkedHashSet<>();
-  private final Map<IntegerVariable, BigInteger> fields = new LinkedHashMap<>();
+  private final Set<Variable> validFields = new LinkedHashSet<>();
+  private final Map<Variable, BigInteger> fields = new LinkedHashMap<>();
   private final int sizeInBits;
 
   private boolean valid = false;
 
-  public MmuEntry(final Collection<IntegerVariable> variables) {
+  public MmuEntry(final Collection<Variable> variables) {
     InvariantChecks.checkNotNull(variables);
 
     int sizeInBits = 0;
-    for (final IntegerVariable variable : variables) {
+    for (final Variable variable : variables) {
       fields.put(variable, BigInteger.ZERO);
-      sizeInBits += variable.getWidth();
+      sizeInBits += variable.getType().getSize();
     }
 
     this.sizeInBits = sizeInBits;
@@ -58,7 +58,7 @@ public final class MmuEntry {
     this.address = address;
   }
 
-  public Collection<IntegerVariable> getVariables() {
+  public Collection<Variable> getVariables() {
     return fields.keySet();
   }
 
@@ -70,16 +70,16 @@ public final class MmuEntry {
     return valid;
   }
 
-  public boolean isValid(final IntegerVariable variable) {
+  public boolean isValid(final Variable variable) {
     return validFields.contains(variable);
   }
 
-  public BigInteger getValue(final IntegerVariable variable) {
+  public BigInteger getValue(final Variable variable) {
     InvariantChecks.checkNotNull(variable);
     return fields.get(variable);
   }
 
-  public void setValue(final IntegerVariable variable, final BigInteger value, final boolean valid) {
+  public void setValue(final Variable variable, final BigInteger value, final boolean valid) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(value);
 
@@ -92,7 +92,7 @@ public final class MmuEntry {
     }
   }
 
-  public void setValue(final IntegerVariable variable, final BigInteger value) {
+  public void setValue(final Variable variable, final BigInteger value) {
     setValue(variable, value, true);
   }
 
@@ -104,7 +104,7 @@ public final class MmuEntry {
     }
   }
 
-  private static String getShortName(final IntegerVariable variable) {
+  private static String getShortName(final Variable variable) {
     final String fullName = variable.getName();
     final int lastIndex = fullName.lastIndexOf('.');
 
@@ -119,7 +119,7 @@ public final class MmuEntry {
     builder.append("[");
 
     boolean comma = false;
-    for (final Map.Entry<IntegerVariable, BigInteger> entry : fields.entrySet()) {
+    for (final Map.Entry<Variable, BigInteger> entry : fields.entrySet()) {
       final String name = getShortName(entry.getKey());
       final String value = entry.getValue().toString(16);
 

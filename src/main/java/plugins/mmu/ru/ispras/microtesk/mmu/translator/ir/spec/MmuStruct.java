@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,13 +19,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
  * The {@link MmuStruct} class describes a variable represented
- * by a structure (a list of {@link IntegerVariable} objects).
+ * by a structure (a list of {@link Variable} objects).
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -33,7 +34,7 @@ public class MmuStruct {
   protected final String name;
 
   protected MmuBuffer buffer = null;
-  protected final List<IntegerVariable> fields = new ArrayList<>();
+  protected final List<Variable> fields = new ArrayList<>();
   protected int bitSize = 0;
 
   /**
@@ -47,11 +48,11 @@ public class MmuStruct {
    */
   public MmuStruct(
       final String name,
-      final IntegerVariable... variables) {
+      final Variable... variables) {
     InvariantChecks.checkNotNull(name);
     this.name = name;
 
-    for (final IntegerVariable variable : variables) {
+    for (final Variable variable : variables) {
       addField(variable);
     }
   }
@@ -92,7 +93,7 @@ public class MmuStruct {
    * 
    * @return the list of structure fields.
    */
-  public final List<IntegerVariable> getFields() {
+  public final List<Variable> getFields() {
     return Collections.unmodifiableList(fields);
   }
 
@@ -103,10 +104,10 @@ public class MmuStruct {
    * 
    * @throws IllegalArgumentException if {@code field == null}.
    */
-  public final void addField(final IntegerVariable field) {
+  public final void addField(final Variable field) {
     InvariantChecks.checkNotNull(field);
     fields.add(field);
-    bitSize += field.getWidth();
+    bitSize += field.getType().getSize();
   }
 
   /**
@@ -118,7 +119,7 @@ public class MmuStruct {
    */
   public final void addField(final MmuStruct struct) {
     InvariantChecks.checkNotNull(struct);
-    for (final IntegerVariable field : struct.getFields()) {
+    for (final Variable field : struct.getFields()) {
       addField(field);
     }
   }
@@ -158,15 +159,17 @@ public class MmuStruct {
 
     final List<MmuBinding> result = new ArrayList<MmuBinding>();
 
-    final Iterator<IntegerVariable> thisIt = this.fields.iterator();
-    final Iterator<IntegerVariable> otherIt = other.fields.iterator();
+    final Iterator<Variable> thisIt = this.fields.iterator();
+    final Iterator<Variable> otherIt = other.fields.iterator();
 
     while(thisIt.hasNext() && otherIt.hasNext()) {
-      final IntegerVariable thisVar = thisIt.next();
-      final IntegerVariable otherVar = otherIt.next();
+      final Variable thisVar = thisIt.next();
+      final Variable otherVar = otherIt.next();
 
-      InvariantChecks.checkTrue(thisVar.getWidth() == otherVar.getWidth());
-      result.add(new MmuBinding(thisVar, otherVar));
+      InvariantChecks.checkTrue(thisVar.getType().getSize() == otherVar.getType().getSize());
+      result.add(new MmuBinding(
+          IntegerUtils.makeNodeVariable(thisVar),
+          IntegerUtils.makeNodeVariable(otherVar)));
     }
 
     return result;
@@ -175,7 +178,7 @@ public class MmuStruct {
   public MmuStruct getInstance(final String instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    final IntegerVariable[] fieldInstances = new IntegerVariable[fields.size()];
+    final Variable[] fieldInstances = new Variable[fields.size()];
 
     for (int i = 0; i < fields.size(); i++) {
       fieldInstances[i] = context.getInstance(instanceId, fields.get(i));

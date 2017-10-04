@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,13 +26,10 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 public final class AtomExtractor {
   private AtomExtractor() {}
@@ -74,8 +71,8 @@ public final class AtomExtractor {
 
   static Atom extract(final NodeVariable expr) {
     final Object userData = expr.getUserData();
-    if (userData instanceof Variable) {
-      return extractFromVariable((Variable) userData);
+    if (userData instanceof Var) {
+      return extractFromVariable((Var) userData);
     } else if (userData instanceof AttributeRef) {
       return extractFromAttributeRef((AttributeRef) userData);
     } else if (userData instanceof Constant) {
@@ -103,7 +100,7 @@ public final class AtomExtractor {
     }
   }
 
-  static Atom extractFromVariable(final Variable var) {
+  static Atom extractFromVariable(final Var var) {
     if (var.isStruct()) {
       return Atom.newGroup(var);
     } else {
@@ -116,7 +113,7 @@ public final class AtomExtractor {
 
     if (attrName.equals(AbstractStorage.READ_ATTR_NAME) || 
         attrName.equals(AbstractStorage.WRITE_ATTR_NAME)) {
-      final Variable output = attrRef.getTarget().getDataArg();
+      final Var output = attrRef.getTarget().getDataArg();
       return Atom.newGroup(output);
     }
 
@@ -193,7 +190,7 @@ public final class AtomExtractor {
     return Atom.newConcat(concat);
   }
 
-  static IntegerVariable newVariable(final Variable variable) {
+  static IntegerVariable newVariable(final Var variable) {
     InvariantChecks.checkNotNull(variable);
     return new IntegerVariable(variable.getName(), variable.getBitSize());
   }

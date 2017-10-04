@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -27,7 +27,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBMemory implements STBuilder {
@@ -87,7 +87,7 @@ final class STBMemory implements STBuilder {
     // There may be several local variables having type which corresponds to some address.
     // In this case they will refer to the same instance causing troubles. 
 
-    for (final Variable variable : memory.getVariables()) {
+    for (final Var variable : memory.getVariables()) {
       final Address address = ir.getAddresses().get(variable.getType().getId());
       if (null != address) {
         STBStruct.buildFieldAlias(
@@ -119,7 +119,7 @@ final class STBMemory implements STBuilder {
         );
     stConstructor.add("stmts", String.format("builder.setDataVariable(%s);%n", dataVariableName));
 
-    for (final Variable variable : memory.getVariables()) {
+    for (final Var variable : memory.getVariables()) {
       final Type type = variable.getType();
       if (!ir.getAddresses().containsKey(type.getId())) {
         // FIXME: All addresses are considered singletons. This assumption is not always correct.

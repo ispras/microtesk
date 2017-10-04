@@ -43,7 +43,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 abstract class STBCommon {
@@ -120,8 +120,8 @@ abstract class STBCommon {
     st.add("members", "");
   }
 
-  protected final void buildVariableDecls(final ST st, final Collection<Variable> variables) {
-    for (final Variable variable : variables) {
+  protected final void buildVariableDecls(final ST st, final Collection<Var> variables) {
+    for (final Var variable : variables) {
       final String name = removePrefix(variable.getName());
       final Type type = variable.getType();
 
@@ -246,8 +246,8 @@ abstract class STBCommon {
 
   private static Type getType(final Node expr) {
     final Object userData = expr.getUserData();
-    if (userData instanceof Variable) {
-      return ((Variable) userData).getType();
+    if (userData instanceof Var) {
+      return ((Var) userData).getType();
     } else if (userData instanceof AttributeRef) {
       final AttributeRef attrRef = (AttributeRef) userData;
       return attrRef.getTarget().getDataArg().getType();

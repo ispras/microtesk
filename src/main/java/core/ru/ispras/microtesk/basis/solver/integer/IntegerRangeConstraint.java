@@ -15,7 +15,12 @@
 package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -24,17 +29,17 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerRangeConstraint implements IntegerConstraint<IntegerField> {
+public final class IntegerRangeConstraint implements IntegerConstraint {
   private static final String NEW_VARIABLE_PREFIX = "new$";
   private static int newVariableId = 0;
 
-  private final IntegerVariable variable;
+  private final Variable variable;
   private final IntegerRange range;
 
-  private final IntegerFormula<IntegerField> formula;
+  private final Node formula;
 
   public IntegerRangeConstraint(
-      final IntegerVariable variable,
+      final Variable variable,
       final IntegerRange range) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(range);
@@ -42,51 +47,54 @@ public final class IntegerRangeConstraint implements IntegerConstraint<IntegerFi
     this.variable = variable;
     this.range = range;
 
-    final IntegerFormula.Builder<IntegerField> formulaBuilder = new IntegerFormula.Builder<>();
+    final List<Node> formulaBuilder = new ArrayList<>();
     encodeGreaterThanOrEqualTo(formulaBuilder, variable, range.getMin());
     encodeLessThanOrEqualTo(formulaBuilder, variable, range.getMax());
 
-    this.formula = formulaBuilder.build();
+    this.formula = IntegerUtils.makeNodeAnd(formulaBuilder);
   }
 
   private static void encodeGreaterThanOrEqualTo(
-      final IntegerFormula.Builder<IntegerField> formulaBuilder,
-      final IntegerVariable x,
+      final List<Node> formulaBuilder,
+      final Variable x,
       final BigInteger a) {
     // Represent x >= a.
     encodeInequality(formulaBuilder, x, a, true);
   }
 
   private static void encodeLessThanOrEqualTo(
-      final IntegerFormula.Builder<IntegerField> formulaBuilder,
-      final IntegerVariable x,
+      final List<Node> formulaBuilder,
+      final Variable x,
       final BigInteger b) {
     // Represent x <= b.
     encodeInequality(formulaBuilder, x, b, false);
   }
 
   private static void encodeInequality(
-      final IntegerFormula.Builder<IntegerField> formulaBuilder,
-      final IntegerVariable x,
+      final List<Node> formulaBuilder,
+      final Variable x,
       final BigInteger a,
       final boolean greaterThanOrEqualTo) {
 
     int lowerBit = 0;
-    while (lowerBit < x.getWidth() && greaterThanOrEqualTo != a.testBit(lowerBit)) {
+    while (lowerBit < x.getType().getSize() && greaterThanOrEqualTo != a.testBit(lowerBit)) {
       lowerBit++;
     }
 
-    int upperBit = x.getWidth() - 1;
+    int upperBit = x.getType().getSize() - 1;
     while (upperBit >= 0 && greaterThanOrEqualTo == a.testBit(upperBit)) {
       upperBit--;
     }
 
-    if (upperBit + 1 < x.getWidth()) {
+    if (upperBit + 1 < x.getType().getSize()) {
       final BigInteger value = greaterThanOrEqualTo
-          ? BitUtils.getBigIntegerMask((x.getWidth() - upperBit) - 1)
+          ? BitUtils.getBigIntegerMask((x.getType().getSize() - upperBit) - 1)
           : BigInteger.ZERO;
 
-      formulaBuilder.addEquation(x.field(upperBit + 1, x.getWidth() - 1), value, true);
+      formulaBuilder.add(
+          IntegerUtils.makeNodeEqual(
+              IntegerUtils.makeNodeExtract(x, upperBit + 1, x.getType().getSize() - 1),
+              IntegerUtils.makeNodeValue(value)));
     }
 
     if (upperBit <= lowerBit) {
@@ -101,30 +109,46 @@ public final class IntegerRangeConstraint implements IntegerConstraint<IntegerFi
     }
 
     // Introduce a new variable to encode OR.
-    final IntegerVariable e = new IntegerVariable(
-        String.format("%s%d", NEW_VARIABLE_PREFIX, newVariableId++), numberOfBits + 1);
+    final Variable e = new Variable(
+        String.format("%s%d", NEW_VARIABLE_PREFIX, newVariableId++),
+        DataType.BIT_VECTOR(numberOfBits + 1));
 
     // (e[0] | ... | e[n-1]) == (e != 0).
-    formulaBuilder.addEquation(e.field(0, e.getWidth() - 1), BigInteger.ZERO, false);
+    formulaBuilder.add(
+        IntegerUtils.makeNodeNotEqual(
+            IntegerUtils.makeNodeExtract(e, 0, e.getType().getSize() - 1),
+            IntegerUtils.makeNodeValue(0)));
 
     // u[0] == (x[upper] = a[upper]).
     // e[0] <=> u[0] == (~u[0] | e[0]) & (u[0] | ~e[0]).
     //                     clause 1         clause 2
-    final IntegerClause.Builder<IntegerField> clauseBuilder1 =
-        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+    final List<Node> clauseBuilder1 = new ArrayList<>();
 
-    clauseBuilder1.addEquation(
-        x.field(lowerBit, upperBit), BitUtils.getField(a, lowerBit, upperBit), false);
-    clauseBuilder1.addEquation(e.field(0, 0), BigInteger.ONE, true);
-    formulaBuilder.addClause(clauseBuilder1.build());
+    clauseBuilder1.add(
+        IntegerUtils.makeNodeNotEqual(
+            IntegerUtils.makeNodeExtract(x, lowerBit, upperBit),
+            IntegerUtils.makeNodeValue(BitUtils.getField(a, lowerBit, upperBit))));
 
-    final IntegerClause.Builder<IntegerField> clauseBuilder2 =
-        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+    clauseBuilder1.add(
+        IntegerUtils.makeNodeEqual(
+            IntegerUtils.makeNodeExtract(e, 0, 0),
+            IntegerUtils.makeNodeValue(1)));
 
-    clauseBuilder2.addEquation(
-        x.field(lowerBit, upperBit), BitUtils.getField(a, lowerBit, upperBit), true);
-    clauseBuilder2.addEquation(e.field(0, 0), BigInteger.ONE, false);
-    formulaBuilder.addClause(clauseBuilder2.build());
+    formulaBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder1));
+
+    final List<Node> clauseBuilder2 = new ArrayList<>();
+
+    clauseBuilder2.add(
+        IntegerUtils.makeNodeEqual(
+            IntegerUtils.makeNodeExtract(x, lowerBit, upperBit),
+            IntegerUtils.makeNodeValue(BitUtils.getField(a, lowerBit, upperBit))));
+
+    clauseBuilder2.add(
+        IntegerUtils.makeNodeEqual(
+            IntegerUtils.makeNodeExtract(e, 0, 0),
+            IntegerUtils.makeNodeValue(0)));
+
+    formulaBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder2));
 
     int k = 1;
     for (int i = upperBit; i >= lowerBit; i--) {
@@ -137,40 +161,62 @@ public final class IntegerRangeConstraint implements IntegerConstraint<IntegerFi
 
       // e[k] <=> u[k] & v[k] == (~u[k] | ~v[k] | e[k]) & (u[k] | ~e[k]) & (v[k] | ~e[k]).
       //                                 clause 3            clause 4         clause 5
-      final IntegerClause.Builder<IntegerField> clauseBuilder3 =
-          new IntegerClause.Builder<>(IntegerClause.Type.OR);
+      final List<Node> clauseBuilder3 = new ArrayList<>();
 
       if (i < upperBit) {
         final int j = i + 1;
 
-        clauseBuilder3.addEquation(
-            x.field(j, upperBit), BitUtils.getField(a, j, upperBit), false);
+        clauseBuilder3.add(
+            IntegerUtils.makeNodeNotEqual(
+                IntegerUtils.makeNodeExtract(x, j, upperBit),
+                IntegerUtils.makeNodeValue(BitUtils.getField(a, j, upperBit))));
 
-        final IntegerClause.Builder<IntegerField> clauseBuilder4 =
-            new IntegerClause.Builder<>(IntegerClause.Type.OR);
+        final List<Node> clauseBuilder4 = new ArrayList<>();
 
-        clauseBuilder4.addEquation(
-            x.field(j, upperBit), BitUtils.getField(a, j, upperBit), true);
-        clauseBuilder4.addEquation(e.field(k, k), BigInteger.ONE, false);
-        formulaBuilder.addClause(clauseBuilder4.build());
+        clauseBuilder4.add(
+            IntegerUtils.makeNodeEqual(
+                IntegerUtils.makeNodeExtract(x, j, upperBit),
+                IntegerUtils.makeNodeValue(BitUtils.getField(a, j, upperBit))));
+
+        clauseBuilder4.add(
+            IntegerUtils.makeNodeEqual(
+                IntegerUtils.makeNodeExtract(e, k, k),
+                IntegerUtils.makeNodeValue(0)));
+
+        formulaBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder4));
       }
 
-      clauseBuilder3.addEquation(x.field(i, i), BigInteger.ONE, !greaterThanOrEqualTo);
-      clauseBuilder3.addEquation(e.field(k, k), BigInteger.ONE, true);
-      formulaBuilder.addClause(clauseBuilder3.build());
+      clauseBuilder3.add(
+          IntegerUtils.makeNodeEqual(
+              IntegerUtils.makeNodeExtract(x, i, i),
+              IntegerUtils.makeNodeValue(greaterThanOrEqualTo ? 0 : 1)));
 
-      final IntegerClause.Builder<IntegerField> clauseBuilder5 =
-          new IntegerClause.Builder<>(IntegerClause.Type.OR);
+      clauseBuilder3.add(
+          IntegerUtils.makeNodeEqual(
+              IntegerUtils.makeNodeExtract(e, k, k),
+              IntegerUtils.makeNodeValue(1)));
 
-      clauseBuilder5.addEquation(x.field(i, i), BigInteger.ONE, greaterThanOrEqualTo);
-      clauseBuilder5.addEquation(e.field(k, k), BigInteger.ONE, false);
-      formulaBuilder.addClause(clauseBuilder5.build());
+      formulaBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder3));
+
+      final List<Node> clauseBuilder5 = new ArrayList<>();
+
+      clauseBuilder5.add(
+          IntegerUtils.makeNodeEqual(
+              IntegerUtils.makeNodeExtract(x, i, i),
+              IntegerUtils.makeNodeValue(greaterThanOrEqualTo ? 1 : 0)));
+
+      clauseBuilder5.add(
+          IntegerUtils.makeNodeEqual(
+              IntegerUtils.makeNodeExtract(e, k, k),
+              IntegerUtils.makeNodeValue(0)));
+
+      formulaBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder5));
 
       k++;
     }
   }
 
-  public IntegerVariable getVariable() {
+  public Variable getVariable() {
     return variable;
   }
 
@@ -179,7 +225,7 @@ public final class IntegerRangeConstraint implements IntegerConstraint<IntegerFi
   }
 
   @Override
-  public IntegerFormula<IntegerField> getFormula() {
+  public Node getFormula() {
     return formula;
   }
 

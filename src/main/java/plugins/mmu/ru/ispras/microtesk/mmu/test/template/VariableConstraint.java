@@ -17,8 +17,8 @@ package ru.ispras.microtesk.mmu.test.template;
 import java.math.BigInteger;
 import java.util.Set;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.test.template.Value;
 
 /**
@@ -27,12 +27,12 @@ import ru.ispras.microtesk.test.template.Value;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class VariableConstraint {
-  private final IntegerField variable;
+  private final Node variable;
   private final Value variate;
   private final Set<BigInteger> values;
 
   public VariableConstraint(
-      final IntegerField variable,
+      final Node variable,
       final Value variate,
       final Set<BigInteger> values) {
     InvariantChecks.checkNotNull(variable);
@@ -44,7 +44,7 @@ public final class VariableConstraint {
     this.values = values;
   }
 
-  public IntegerField getVariable() {
+  public Node getVariable() {
     return variable;
   }
 

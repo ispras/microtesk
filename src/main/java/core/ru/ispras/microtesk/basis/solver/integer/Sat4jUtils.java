@@ -26,6 +26,8 @@ import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -55,16 +57,16 @@ public final class Sat4jUtils {
   }
 
   public static IVec<IVecInt> encodeVarEqualConst(
-      final IntegerField lhs,
+      final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = lhs.getWidth();
+    final int n = IntegerUtils.getBitSize(lhs);
 
     // Generate n clauses (c[i] ? x[i] : ~x[i]).
     final IVecInt[] clauses = new IVecInt[n];
 
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + lhs.getLoIndex() + i;
+      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
 
       final int literals[] = new int[] { rhs.testBit(i) ? xi : -xi };
       clauses[i] = new VecInt(literals);
@@ -74,18 +76,11 @@ public final class Sat4jUtils {
   }
 
   public static IVec<IVecInt> encodeVarEqualConst(
-      final IntegerVariable lhs,
-      final int lhsIndex,
-      final BigInteger rhs) {
-    return encodeVarEqualConst(new IntegerField(lhs), lhsIndex, rhs);
-  }
-
-  public static IVec<IVecInt> encodeVarEqualConst(
       final int linkToIndex,
-      final IntegerField lhs,
+      final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = lhs.getWidth();
+    final int n = IntegerUtils.getBitSize(lhs);
 
     // Generate n+1 clauses e[j] <=> AND[i](c[i] ? x[i] : ~x[i]) ==
     // (OR[i](c[i] ? ~x[i] : x[i]) | e[j]) & AND[i]((c[i] ? x[i] : ~x[i]) | ~e[j]).
@@ -94,7 +89,7 @@ public final class Sat4jUtils {
     final int[] literals1 = new int[n + 1];
 
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + lhs.getLoIndex() + i;
+      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
       literals1[i] = rhs.testBit(i) ? -xi : xi;
 
       final int[] literals2 = new int[] { (rhs.testBit(i) ? xi : -xi), -linkToIndex };
@@ -107,25 +102,17 @@ public final class Sat4jUtils {
     return new Vec<>(clauses);
   }
 
-  public static IVec<IVecInt> encodeVarEqualConst(
-      final int linkToIndex,
-      final IntegerVariable lhs,
-      final int lhsIndex,
-      final BigInteger rhs) {
-    return encodeVarEqualConst(new IntegerField(lhs), lhsIndex, rhs);
-  }
-
   public static IVec<IVecInt> encodeVarNotEqualConst(
-      final IntegerField lhs,
+      final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = lhs.getWidth();
+    final int n = IntegerUtils.getBitSize(lhs);
 
     // Generate 1 clause OR[i](c[i] ? ~x[i] : x[i]).
     final int[] literals = new int[n];
 
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + lhs.getLoIndex() + i;
+      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
       literals[i] = rhs.testBit(i) ? -xi : xi;
     }
 
@@ -134,18 +121,11 @@ public final class Sat4jUtils {
   }
 
   public static IVec<IVecInt> encodeVarNotEqualConst(
-      final IntegerVariable lhs,
-      final int lhsIndex,
-      final BigInteger rhs) {
-    return encodeVarNotEqualConst(new IntegerField(lhs), lhsIndex, rhs);
-  }
-
-  public static IVec<IVecInt> encodeVarNotEqualConst(
       final int linkToIndex,
-      final IntegerField lhs,
+      final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = lhs.getWidth();
+    final int n = IntegerUtils.getBitSize(lhs);
 
     // Generate n+1 clauses e[j] <=> OR[i](c[i] ? ~x[i] : x[i]) ==
     // (OR[i](c[i] ? ~x[i] : x[i]) | ~e[j]) & AND[i]((c[i] ? x[i] : ~x[i]) | e[j]).
@@ -154,7 +134,7 @@ public final class Sat4jUtils {
     final int[] literals1 = new int[n + 1];
 
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + lhs.getLoIndex() + i;
+      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
 
       literals1[i] = rhs.testBit(i) ? -xi : xi;
 
@@ -168,21 +148,12 @@ public final class Sat4jUtils {
     return new Vec<>(clauses);
   }
 
-  public static IVec<IVecInt> encodeVarNotEqualConst(
-      final int linkToIndex,
-      final IntegerVariable lhs,
-      final int lhsIndex,
-      final BigInteger rhs) {
-    return encodeVarNotEqualConst(
-        linkToIndex, new IntegerField(lhs), lhsIndex, rhs);
-  }
-
   public static IVec<IVecInt> encodeVarEqualVar(
-      final IntegerField lhs,
+      final Node lhs,
       final int lhsIndex,
-      final IntegerField rhs,
+      final Node rhs,
       final int rhsIndex) {
-    final int n = lhs.getWidth();
+    final int n = IntegerUtils.getBitSize(lhs);
 
     // Generate 2*n clauses (x[i] & y[i]) | (~x[i] & ~y[i]) ==
     // (~x[i] | y[i]) & (x[i] | ~y[i]).
@@ -190,8 +161,8 @@ public final class Sat4jUtils {
 
     int k = 0;
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + lhs.getLoIndex() + i;
-      final int yi = rhsIndex + rhs.getLoIndex() + i;
+      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
 
       final int[] literals1 = new int[] { xi, -yi };
       clauses[k++] = new VecInt(literals1);
@@ -204,21 +175,13 @@ public final class Sat4jUtils {
   }
 
   public static IVec<IVecInt> encodeVarEqualVar(
-      final IntegerVariable lhs,
-      final int lhsIndex,
-      final IntegerVariable rhs,
-      final int rhsIndex) {
-    return encodeVarEqualVar(new IntegerField(lhs), lhsIndex, new IntegerField(rhs), rhsIndex);
-  }
-
-  public static IVec<IVecInt> encodeVarEqualVar(
       final int linkToIndex,
-      final IntegerField lhs,
+      final Node lhs,
       final int lhsIndex,
-      final IntegerField rhs,
+      final Node rhs,
       final int rhsIndex,
       final int newIndex) {
-    final int n = lhs.getWidth();
+    final int n = IntegerUtils.getBitSize(lhs);
 
     // Generate 8*n+1 clauses.
     final IVecInt[] clauses = new IVecInt[8 * n + 1];
@@ -250,8 +213,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses u[i] <=> (~x[i] | y[i]) ==
     // (~x[i] | y[i] | ~u[i]) & (x[i] | u[i]) & (~y[i] | u[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + lhs.getLoIndex() + i;
-      final int yi = rhsIndex + rhs.getLoIndex() + i;
+      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
       final int ui = newIndex + i;
 
       final int[] literals21 = new int[] { -xi, yi, -ui };
@@ -267,8 +230,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses v[i] <=> (x[i] | ~y[i]) ==
     // (x[i] | ~y[i] | ~v[i]) & (~x[i] | v[i]) & (y[i] | v[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + lhs.getLoIndex() + i;
-      final int yi = rhsIndex + rhs.getLoIndex() + i;
+      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
       final int vi = newIndex + n + i;
 
       final int[] literals31 = new int[] { xi, -yi, -vi };
@@ -284,24 +247,13 @@ public final class Sat4jUtils {
     return new Vec<>(clauses);
   }
 
-  public static IVec<IVecInt> encodeVarEqualVar(
-      final int linkToIndex,
-      final IntegerVariable lhs,
-      final int lhsIndex,
-      final IntegerVariable rhs,
-      final int rhsIndex,
-      final int newIndex) {
-    return encodeVarEqualVar(
-        linkToIndex, new IntegerField(lhs), lhsIndex, new IntegerField(rhs), rhsIndex, newIndex);
-  }
-
   public static IVec<IVecInt> encodeVarNotEqualVar(
-      final IntegerField lhs,
+      final Node lhs,
       final int lhsIndex,
-      final IntegerField rhs,
+      final Node rhs,
       final int rhsIndex,
       final int newIndex) {
-    final int n = lhs.getWidth();
+    final int n = IntegerUtils.getBitSize(lhs);
 
     // Generate 6*n+1 clauses.
     final IVecInt[] clauses = new IVecInt[6 * n + 1];
@@ -323,8 +275,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses u[i] <=> (x[i] & ~y[i]) ==
     // (~x[i] | y[i] | u[i]) & (x[i] | ~u[i]) & (~y[i] | ~u[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + lhs.getLoIndex() + i;
-      final int yi = rhsIndex + rhs.getLoIndex() + i;
+      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
       final int ui = newIndex + i;
 
       final int[] literals21 = new int[] { -xi, yi, ui };
@@ -340,8 +292,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses v[i] <=> (~x[i] & y[i]) ==
     // (x[i] | ~y[i] | v[i]) & (~x[i] | ~v[i]) & (y[i] | ~v[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + lhs.getLoIndex() + i;
-      final int yi = rhsIndex + rhs.getLoIndex() + i;
+      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
       final int vi = newIndex + n + i;
 
       final int[] literals31 = new int[] { xi, -yi, vi };
@@ -358,23 +310,13 @@ public final class Sat4jUtils {
   }
 
   public static IVec<IVecInt> encodeVarNotEqualVar(
-      final IntegerVariable lhs,
-      final int lhsIndex,
-      final IntegerVariable rhs,
-      final int rhsIndex,
-      final int newIndex) {
-    return encodeVarNotEqualVar(
-        new IntegerField(lhs), lhsIndex, new IntegerField(rhs), rhsIndex, newIndex);
-  }
-
-  public static IVec<IVecInt> encodeVarNotEqualVar(
       final int linkToIndex,
-      final IntegerField lhs,
+      final Node lhs,
       final int lhsIndex,
-      final IntegerField rhs,
+      final Node rhs,
       final int rhsIndex,
       final int newIndex) {
-    final int n = lhs.getWidth();
+    final int n = IntegerUtils.getBitSize(lhs);
 
     // Generate 8*n+1 clauses.
     final IVecInt[] clauses = new IVecInt[8 * n + 1];
@@ -405,8 +347,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses u[i] <=> (x[i] & ~y[i]) ==
     // (~x[i] | y[i] | u[i]) & (x[i] | ~u[i]) & (~y[i] | ~u[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + lhs.getLoIndex() + i;
-      final int yi = rhsIndex + rhs.getLoIndex() + i;
+      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
       final int ui = newIndex + i;
 
       final int[] literals21 = new int[] { -xi, yi, ui };
@@ -422,8 +364,8 @@ public final class Sat4jUtils {
     // Generate 3*n clauses v[i] <=> (~x[i] & y[i]) ==
     // (x[i] | ~y[i] | v[i]) & (~x[i] | ~v[i]) & (y[i] | ~v[i]).
     for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + lhs.getLoIndex() + i;
-      final int yi = rhsIndex + rhs.getLoIndex() + i;
+      final int xi = lhsIndex + IntegerUtils.getLowerBit(lhs) + i;
+      final int yi = rhsIndex + IntegerUtils.getLowerBit(rhs) + i;
       final int vi = newIndex + n + i;
 
       final int[] literals31 = new int[] { xi, -yi, vi };
@@ -439,28 +381,17 @@ public final class Sat4jUtils {
     return new Vec<>(clauses);
   }
 
-  public static IVec<IVecInt> encodeVarNotEqualVar(
-      final int linkToIndex,
-      final IntegerVariable lhs,
-      final int lhsIndex,
-      final IntegerVariable rhs,
-      final int rhsIndex,
-      final int newIndex) {
-    return encodeVarNotEqualVar(
-        linkToIndex, new IntegerField(lhs), lhsIndex, new IntegerField(rhs), rhsIndex, newIndex);
-  }
-
-  public static Map<IntegerVariable, BigInteger> decodeSolution(
+  public static Map<Variable, BigInteger> decodeSolution(
       final IProblem problem,
-      final Map<IntegerVariable, Integer> indices) {
-    final Map<IntegerVariable, BigInteger> solution = new LinkedHashMap<>();
+      final Map<Variable, Integer> indices) {
+    final Map<Variable, BigInteger> solution = new LinkedHashMap<>();
 
-    for (final Map.Entry<IntegerVariable, Integer> entry : indices.entrySet()) {
-      final IntegerVariable variable = entry.getKey();
+    for (final Map.Entry<Variable, Integer> entry : indices.entrySet()) {
+      final Variable variable = entry.getKey();
       final int x = entry.getValue();
 
       BigInteger value = BigInteger.ZERO;
-      for (int i = 0; i < variable.getWidth(); i++) {
+      for (int i = 0; i < variable.getType().getSize(); i++) {
         final int xi = x + i;
 
         if (problem.model(xi)) {

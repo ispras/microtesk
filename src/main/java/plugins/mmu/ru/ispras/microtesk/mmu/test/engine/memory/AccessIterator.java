@@ -26,7 +26,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.basis.DataType;
+import ru.ispras.microtesk.mmu.basis.MemoryDataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
@@ -488,7 +488,7 @@ public final class AccessIterator implements Iterator<AccessIterator.Result> {
     final MmuBufferAccess bufferAccess = targetAction.getBufferAccess(MemoryAccessContext.EMPTY);
     InvariantChecks.checkNotNull(bufferAccess);
 
-    final DataType dataType = DataType.type(bufferAccess.getBuffer().getBitSize() >> 3);
+    final MemoryDataType dataType = MemoryDataType.type(bufferAccess.getBuffer().getBitSize() >> 3);
 
     return bufferAccess.getEvent() == BufferAccessEvent.READ
         ? MemoryAccessType.LOAD(dataType)

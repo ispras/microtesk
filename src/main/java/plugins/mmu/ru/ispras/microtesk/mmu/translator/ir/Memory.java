@@ -20,9 +20,9 @@ public final class Memory extends AbstractStorage {
   public Memory(
       final String id,
       final Address address,
-      final Variable addressArg,
-      final Variable dataArg,
-      final Map<String, Variable> variables,
+      final Var addressArg,
+      final Var dataArg,
+      final Map<String, Var> variables,
       final Map<String, Attribute> attributes) {
     super(id, address, addressArg, dataArg, variables, attributes);
   }

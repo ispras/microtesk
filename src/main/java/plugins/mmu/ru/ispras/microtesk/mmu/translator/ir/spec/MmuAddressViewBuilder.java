@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,9 +22,15 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.utils.function.Function;
 
@@ -34,43 +40,40 @@ import ru.ispras.microtesk.utils.function.Function;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuAddressViewBuilder {
-
-  private static MmuExpression createAddressExpression(
-      final IntegerVariable addressVariable,
-      final List<IntegerVariable> variables,
-      final List<MmuExpression> expressions) {
+  private static Node createAddressExpression(
+      final Variable addressVariable,
+      final List<Variable> variables,
+      final List<Node> expressions) {
     InvariantChecks.checkNotNull(addressVariable);
     InvariantChecks.checkNotNull(variables);
     InvariantChecks.checkNotNull(expressions);
     InvariantChecks.checkTrue(variables.size() == expressions.size());
 
-    final SortedMap<Integer, IntegerField> fields = new TreeMap<>();
+    final SortedMap<Integer, Node> fields = new TreeMap<>();
 
     for (int i = 0; i < variables.size(); i++) {
-      final IntegerVariable variable = variables.get(i);
-      final MmuExpression expression = expressions.get(i);
+      final Variable variable = variables.get(i);
+      final Node expression = expressions.get(i);
 
       reverseAssignment(fields, variable, expression);
     }
 
-    final List<IntegerField> concatenation = new ArrayList<>(fields.size());
+    final List<Node> operands = new ArrayList<>(fields.size());
 
     int expectedIndex = 0;
-    for (final Map.Entry<Integer, IntegerField> entry : fields.entrySet()) {
+    for (final Map.Entry<Integer, Node> entry : fields.entrySet()) {
       final int index = entry.getKey();
-      final IntegerField field = entry.getValue();
+      InvariantChecks.checkTrue(index == expectedIndex,
+          String.format("Address function cannot be reconstructed: %d != %d (%s)",
+              index, expectedIndex, fields));
 
-      if (index != expectedIndex) {
-        throw new IllegalArgumentException(String.format(
-            "Address function cannot be reconstructed: %d != %d (%s)",
-            index, expectedIndex, fields));
-      }
+      final Node field = entry.getValue();
 
-      concatenation.add(field);
-      expectedIndex += field.getWidth();
+      operands.add(field);
+      expectedIndex += IntegerUtils.getBitSize(field);
     }
 
-    return MmuExpression.cat(concatenation);
+    return IntegerUtils.makeNodeConcat(operands);
   }
 
   /**
@@ -81,52 +84,59 @@ public final class MmuAddressViewBuilder {
    * @param variable the left-hand-side variable.
    */
   private static void reverseAssignment(
-      final SortedMap<Integer, IntegerField> fields,
-      final IntegerVariable variable,
-      final MmuExpression expression) {
+      final SortedMap<Integer, Node> fields,
+      final Variable variable,
+      final Node node) {
+
+    if (node.getKind() != Node.Kind.OPERATION) {
+      return;
+    }
+
+    final NodeOperation operation = (NodeOperation) node;
+    InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.BVCONCAT);
+
     int offset = 0;
+    for (final Node addressField : operation.getOperands()) {
+      final Node field = IntegerUtils.makeNodeExtract(
+          variable, offset, (offset + IntegerUtils.getBitSize(addressField)) - 1);
 
-    for (final IntegerField addressField : expression.getTerms()) {
-      final IntegerField field =
-          new IntegerField(variable, offset, (offset + addressField.getWidth()) - 1);
-
-      fields.put(addressField.getLoIndex(), field);
-      offset += addressField.getWidth();
+      fields.put(IntegerUtils.getLowerBit(addressField), field);
+      offset += IntegerUtils.getBitSize(addressField);
     }
   }
 
   private final MmuAddressInstance addressType;
-  private final List<MmuExpression> expressions = new ArrayList<>();
+  private final List<Node> expressions = new ArrayList<>();
 
   /** Auxiliary variables that represent values of the fields. */
-  private final List<IntegerVariable> variables = new ArrayList<>();
+  private final List<Variable> variables = new ArrayList<>();
 
-  public MmuAddressViewBuilder(final MmuAddressInstance addressType, final MmuExpression ... fields) {
+  public MmuAddressViewBuilder(final MmuAddressInstance addressType, final Node ... fields) {
     InvariantChecks.checkNotNull(addressType);
     InvariantChecks.checkNotNull(fields);
 
     this.addressType = addressType;
 
-    for (final MmuExpression expression : fields) {
+    for (final Node expression : fields) {
       this.expressions.add(expression);
     }
   }
 
   public AddressView<BigInteger> build() {
     final int addressWidth = addressType.getWidth();
-    final IntegerVariable addressVariable = addressType.getVariable();
+    final Variable addressVariable = addressType.getVariable();
 
     // Create the auxiliary variables to represent the address calculation function.
     final String variableNamePrefix = "var";
 
     for (int i = 0; i < expressions.size(); i++) {
-      final IntegerVariable variable =
-          new IntegerVariable(String.format("%s$%d", variableNamePrefix, i), addressWidth);
+      final Variable variable = new Variable(
+          String.format("%s$%d", variableNamePrefix, i), DataType.BIT_VECTOR(addressWidth));
 
       variables.add(variable);
     }
 
-    final MmuExpression addressExpression =
+    final Node addressExpression =
         createAddressExpression(addressVariable, variables, expressions);
 
     final AddressView<BigInteger> addressView = new AddressView<BigInteger>(
@@ -137,17 +147,15 @@ public final class MmuAddressViewBuilder {
 
             final List<BigInteger> fields = new ArrayList<BigInteger>();
 
-            for (final MmuExpression expression : expressions) {
-              final BigInteger value =
-                  MmuCalculator.eval(
-                      expression,
-                      new Function<IntegerVariable, BigInteger>() {
-                        @Override
-                        public BigInteger apply(final IntegerVariable variable) {
-                          return addressValue;
-                        }
-                      },
-                      true);
+            for (final Node expression : expressions) {
+              final BigInteger value = IntegerUtils.evaluate(
+                  expression,
+                  new ValueProvider() {
+                    @Override
+                    public Data getVariableValue(final Variable variable) {
+                      return Data.newBitVector(addressValue, variable.getType().getSize());
+                    }
+                  });
 
               fields.add(value);
             }
@@ -160,23 +168,21 @@ public final class MmuAddressViewBuilder {
           public BigInteger apply(final List<BigInteger> fields) {
             InvariantChecks.checkNotNull(fields);
 
-            final Map<IntegerVariable, BigInteger> values = new LinkedHashMap<>();
+            final Map<Variable, BigInteger> values = new LinkedHashMap<>();
 
             for (int i = 0; i < variables.size(); i++) {
-              final IntegerVariable variable = variables.get(i);
+              final Variable variable = variables.get(i);
               values.put(variable, fields.get(i));
             }
 
-            final BigInteger addressValue =
-                MmuCalculator.eval(
-                    addressExpression,
-                    new Function<IntegerVariable, BigInteger>() {
-                      @Override
-                      public BigInteger apply(final IntegerVariable variable) {
-                        return values.get(variable);
-                      }
-                    },
-                    true);
+            final BigInteger addressValue = IntegerUtils.evaluate(
+                addressExpression,
+                new ValueProvider() {
+                  @Override
+                  public Data getVariableValue(final Variable variable) {
+                    return Data.newBitVector(values.get(variable), variable.getType().getSize());
+                  }
+                });
 
             return addressValue;
           }

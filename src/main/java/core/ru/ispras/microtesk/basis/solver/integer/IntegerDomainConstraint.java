@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,10 +15,17 @@
 package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -26,88 +33,90 @@ import ru.ispras.fortress.util.InvariantChecks;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerDomainConstraint<V> implements IntegerConstraint<V> {
+public final class IntegerDomainConstraint implements IntegerConstraint {
   /**
-   * {@link Type} contains domain constraint types.
+   * {@link Kind} contains domain constraint Kinds.
    */
-  public static enum Type {
+  public static enum Kind {
     RETAIN,
     EXCLUDE
   }
 
-  private final Type type;
-  private final V variable;
+  private final Kind kind;
+  private final Node variable;
   private final Set<BigInteger> values;
 
-  private final IntegerFormula<V> formula;
+  private final Node formula;
 
   public IntegerDomainConstraint(
-      final Type type,
-      final V variable,
+      final Kind kind,
+      final Node variable,
       final Set<BigInteger> domain,
       final Set<BigInteger> values) {
-    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(values);
     InvariantChecks.checkNotEmpty(values);
     // Parameter {@code domain} can be null.
 
-    this.type = type;
+    this.kind = kind;
     this.variable = variable;
     this.values = values;
 
     final boolean inverse = (domain != null) && (domain.size() < 2 * values.size());
 
-    final Type effectiveType;
+    final Kind effectiveKind;
     final Set<BigInteger> effectiveValues;
 
     if (inverse) {
-      effectiveType = type == Type.RETAIN ? Type.EXCLUDE : Type.RETAIN;
+      effectiveKind = kind == Kind.RETAIN ? Kind.EXCLUDE : Kind.RETAIN;
       effectiveValues = new LinkedHashSet<>(domain);
       effectiveValues.removeAll(values);
     } else {
-      effectiveType = type;
+      effectiveKind = kind;
       effectiveValues = values;
     }
 
     // Construct the constraint formula.
-    final IntegerClause.Builder<V> clauseBuilder = new IntegerClause.Builder<>(
-        effectiveType == Type.RETAIN ? IntegerClause.Type.OR : IntegerClause.Type.AND);
-
+    final List<Node> operands = new ArrayList<>(effectiveValues.size());
     for (final BigInteger value : effectiveValues) {
-      clauseBuilder.addEquation(variable, value, effectiveType == Type.RETAIN);
+      final Node equality = new NodeOperation(
+          effectiveKind == Kind.RETAIN ? StandardOperation.EQ : StandardOperation.NOTEQ,
+          variable,
+          new NodeValue(Data.newBitVector(value, IntegerUtils.getBitSize(variable))));
+
+      operands.add(equality);
     }
 
-    final IntegerFormula.Builder<V> formulaBuilder = new IntegerFormula.Builder<>();
-    formulaBuilder.addClause(clauseBuilder.build());
-
-    this.formula = formulaBuilder.build();
+    this.formula = new NodeOperation(
+        effectiveKind == Kind.RETAIN ? StandardOperation.OR : StandardOperation.AND,
+        operands);
   }
 
   public IntegerDomainConstraint(
-      final V variable,
+      final Node variable,
       final Set<BigInteger> domain,
       final Set<BigInteger> values) {
-    this(Type.RETAIN, variable, domain, values);
+    this(Kind.RETAIN, variable, domain, values);
   }
 
   public IntegerDomainConstraint(
-      final V variable,
+      final Node variable,
       final Set<BigInteger> values) {
-    this(Type.RETAIN, variable, null, values);
+    this(Kind.RETAIN, variable, null, values);
   }
 
   public IntegerDomainConstraint(
-      final V variable,
+      final Node variable,
       final BigInteger value) {
     this(variable, Collections.singleton(value));
   }
 
-  public Type getType() {
-    return type;
+  public Kind getKind() {
+    return kind;
   }
 
-  public V getVariable() {
+  public Node getVariable() {
     return variable;
   }
 
@@ -116,7 +125,7 @@ public final class IntegerDomainConstraint<V> implements IntegerConstraint<V> {
   }
 
   @Override
-  public IntegerFormula<V> getFormula() {
+  public Node getFormula() {
     return formula;
   }
 

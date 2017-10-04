@@ -1,4 +1,5 @@
 /*
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,39 +22,39 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerClause;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerEquation;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormula;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
+import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilderSimple;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.basis.DataType;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
+import ru.ispras.microtesk.mmu.basis.MemoryDataType;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCalculator;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.utils.function.Function;
 
 /**
  * {@link SymbolicExecutor} implements a simple symbolic executor of memory access structures.
@@ -85,17 +86,17 @@ public final class SymbolicExecutor {
     return result;
   }
 
-  public Boolean execute(final DataType dataType) {
+  public Boolean execute(final MemoryDataType dataType) {
     InvariantChecks.checkNotNull(dataType);
     return executeAlignment(result, null, dataType, -1);
   }
 
-  public Boolean execute(final IntegerConstraint<IntegerField> constraint) {
+  public Boolean execute(final IntegerConstraint constraint) {
     InvariantChecks.checkNotNull(constraint);
     return executeFormula(result, null, constraint.getFormula(), -1);
   }
 
-  public Boolean execute(final MmuCondition condition) {
+  public Boolean execute(final Node condition) {
     InvariantChecks.checkNotNull(condition);
     return executeCondition(result, null, condition, -1);
   }
@@ -132,7 +133,7 @@ public final class SymbolicExecutor {
 
   private Boolean executeStructure(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final List<Access> structure) {
 
     for (int j = 0; j < structure.size(); j++) {
@@ -156,7 +157,7 @@ public final class SymbolicExecutor {
 
   private Boolean executeAccess(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final Access access,
       final int pathIndex) {
 
@@ -166,7 +167,7 @@ public final class SymbolicExecutor {
 
   private Boolean executePath(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final AccessPath path,
       final int pathIndex) {
 
@@ -183,8 +184,8 @@ public final class SymbolicExecutor {
 
   private Boolean executeAlignment(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
-      final DataType dataType,
+      final Set<Variable> defines,
+      final MemoryDataType dataType,
       final int pathIndex) {
 
     final int lowerZeroBit = 0;
@@ -195,17 +196,21 @@ public final class SymbolicExecutor {
     }
 
     final MmuAddressInstance addrType = MmuPlugin.getSpecification().getVirtualAddress();
-    final IntegerField field = addrType.getVariable().field(lowerZeroBit, upperZeroBit);
 
-    final IntegerConstraint<IntegerField> constraint =
-        new IntegerDomainConstraint<>(field, BigInteger.ZERO);
+    final Node field = IntegerUtils.makeNodeExtract(
+        addrType.getVariable(),
+        lowerZeroBit,
+        upperZeroBit);
+
+    final IntegerConstraint constraint =
+        new IntegerDomainConstraint(field, BigInteger.ZERO);
 
     return executeFormula(result, defines, constraint.getFormula(), pathIndex);
   }
 
   private Boolean executeDependency(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final Access access1,
       final int pathIndex1,
       final Access access2,
@@ -225,7 +230,7 @@ public final class SymbolicExecutor {
 
   private Boolean executeHazard(
       final SymbolicResult result, 
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final BufferHazard.Instance hazard,
       final int pathIndex1,
       final int pathIndex2) {
@@ -235,44 +240,63 @@ public final class SymbolicExecutor {
     }
 
     final MmuBuffer buffer = hazard.getPrimaryAccess().getBuffer();
-    final MmuCondition condition = hazard.getCondition();
+
+    final NodeOperation condition = (NodeOperation) hazard.getCondition();
+    InvariantChecks.checkTrue(
+           condition.getOperationId() == StandardOperation.AND
+        || condition.getOperationId() == StandardOperation.OR);
 
     if (condition != null) {
       final MemoryAccessContext context1 = result.getContext(pathIndex1);
       final MemoryAccessContext context2 = result.getContext(pathIndex2);
 
-      final IntegerClause.Type clauseType = (condition.getType() == MmuCondition.Type.AND)
-          ? IntegerClause.Type.AND
-          : IntegerClause.Type.OR;
+      final List<Node> clauseBuilder = new ArrayList<>(condition.getOperandCount());
 
-      final IntegerClause.Builder<IntegerField> clauseBuilder =
-          new IntegerClause.Builder<>(clauseType);
+      for (final Node atom : condition.getOperands()) {
+        final NodeOperation equality = (NodeOperation) atom;
+        InvariantChecks.checkTrue(
+               equality.getOperationId() == StandardOperation.EQ
+            || equality.getOperationId() == StandardOperation.NOTEQ);
 
-      for (final MmuConditionAtom atom : condition.getAtoms()) {
-        if (atom.getType() != MmuConditionAtom.Type.EQ_SAME_EXPR) {
-          continue;
-        }
+        final NodeOperation lhs = (NodeOperation) equality.getOperand(0);
+        InvariantChecks.checkTrue(lhs.getOperationId() == StandardOperation.BVCONCAT);
 
-        final MmuExpression expression = atom.getLhsExpr();
+        final NodeOperation rhs = (NodeOperation) equality.getOperand(1);
+        InvariantChecks.checkTrue(rhs.getOperationId() == StandardOperation.BVCONCAT);
 
-        for (final IntegerField term : expression.getTerms()) {
+        InvariantChecks.checkTrue(lhs.getOperandCount() == rhs.getOperandCount());
+
+        for (int i = 0; i < lhs.getOperandCount(); i++) {
+          final NodeOperation term1 = (NodeOperation) lhs.getOperand(i);
+          final NodeOperation term2 = (NodeOperation) rhs.getOperand(i);
+
           final String instanceId1 = MmuBufferAccess.getId(buffer, context1);
           final String instanceId2 = MmuBufferAccess.getId(buffer, context2);
 
-          final IntegerField term1 = context1.getInstance(instanceId1, term);
-          final IntegerField term2 = context2.getInstance(instanceId2, term);
+          final Node instance1 = context1.getInstance(instanceId1, term1);
+          final Node instance2 = context2.getInstance(instanceId2, term2);
 
-          final IntegerField field1 = result.getVersion(term1, pathIndex1);
-          final IntegerField field2 = result.getVersion(term2, pathIndex2);
+          final Node field1 = result.getVersion(instance1, pathIndex1);
+          final Node field2 = result.getVersion(instance2, pathIndex2);
 
-          clauseBuilder.addEquation(field1, field2, !atom.isNegated());
+          if (equality.getOperationId() == StandardOperation.EQ) {
+            clauseBuilder.add(IntegerUtils.makeNodeEqual(field1, field2));
+          } else {
+            clauseBuilder.add(IntegerUtils.makeNodeNotEqual(field1, field2));
+          }
 
-          result.addOriginalVariable(result.getOriginal(term1.getVariable(), pathIndex1));
-          result.addOriginalVariable(result.getOriginal(term2.getVariable(), pathIndex2));
+          result.addOriginalVariable(
+              result.getOriginal(IntegerUtils.getVariable(instance1), pathIndex1));
+          result.addOriginalVariable(
+              result.getOriginal(IntegerUtils.getVariable(instance2), pathIndex2));
         }
       }
 
-      result.addClause(clauseBuilder.build());
+      if (condition.getOperationId() == StandardOperation.AND) {
+        result.addFormula(IntegerUtils.makeNodeAnd(clauseBuilder));
+      } else {
+        result.addFormula(IntegerUtils.makeNodeOr(clauseBuilder));
+      }
     }
 
     return result.hasConflict() ? Boolean.FALSE : null;
@@ -280,47 +304,26 @@ public final class SymbolicExecutor {
 
   private Boolean executeFormula(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
-      final IntegerFormula<IntegerField> formula,
+      final Set<Variable> defines,
+      final Node formula,
       final int pathIndex) {
-
-    for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
-      final IntegerClause.Builder<IntegerField> clauseBuilder =
-          new IntegerClause.Builder<>(clause.getType());
-
-      for (final IntegerEquation<IntegerField> equation : clause.getEquations()) {
-        if (equation.val == null) {
-          clauseBuilder.addEquation(
-              result.getVersion(equation.lhs, pathIndex),
-              result.getVersion(equation.rhs, pathIndex), equation.equal);
-        } else {
-          clauseBuilder.addEquation(
-              result.getVersion(equation.lhs, pathIndex),
-              equation.val, equation.equal);
-        }
-      }
-
-      if (!clauseBuilder.isEmpty()) {
-        result.addClause(clauseBuilder.build());
-      }
-    }
-
+    result.addFormula(result.getVersion(formula, pathIndex));
     return result.hasConflict() ? Boolean.FALSE : null;
   }
 
   private void restrictTransition(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final boolean isStart,
       final MmuTransition transition,
       final int pathIndex) {
     final MemoryAccessContext context = result.getContext(pathIndex);
 
     if (restrictor != null) {
-      final Collection<IntegerConstraint<IntegerField>> constraints =
+      final Collection<IntegerConstraint> constraints =
           restrictor.getConstraints(isStart, transition, context);
 
-      for (final IntegerConstraint<IntegerField> constraint : constraints) {
+      for (final IntegerConstraint constraint : constraints) {
         executeFormula(result, defines, constraint.getFormula(), pathIndex);
       }
     }
@@ -328,17 +331,17 @@ public final class SymbolicExecutor {
 
   private void restrictProgram(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final boolean isStart,
       final MmuProgram program,
       final int pathIndex) {
     final MemoryAccessContext context = result.getContext(pathIndex);
 
     if (restrictor != null) {
-      final Collection<IntegerConstraint<IntegerField>> constraints =
+      final Collection<IntegerConstraint> constraints =
           restrictor.getConstraints(isStart, program, context);
 
-      for (final IntegerConstraint<IntegerField> constraint : constraints) {
+      for (final IntegerConstraint constraint : constraints) {
         executeFormula(result, defines, constraint.getFormula(), pathIndex);
       }
     }
@@ -346,7 +349,7 @@ public final class SymbolicExecutor {
 
   private Boolean executeEntry(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final AccessPath.Entry entry,
       final int pathIndex) {
 
@@ -405,7 +408,7 @@ public final class SymbolicExecutor {
 
     case RETURN:
       // The entry read from the buffer is the data read from the memory.
-      final IntegerVariable preData = context.getInstance(null, memory.getDataVariable());
+      final Variable preVariable = context.getInstance(null, memory.getDataVariable());
 
       // Return.
       final MemoryAccessStack.Frame frame = result.updateStack(entry, pathIndex);
@@ -416,20 +419,33 @@ public final class SymbolicExecutor {
       final MmuBufferAccess postBufferAccess = callAction.getBufferAccess(context);
 
       final MmuStruct postEntry = postBufferAccess.getEntry();
-      final List<IntegerVariable> postFields = postEntry.getFields();
+      final List<Variable> postFields = postEntry.getFields();
 
       int bit = 0;
       final Collection<MmuBinding> bindings = new ArrayList<>();
 
       // Reverse order.
       for (int i = postFields.size() - 1; i >= 0; i--) {
-        final IntegerVariable postField = postFields.get(i);
-        final IntegerField preField = preData.field(bit, bit + postField.getWidth() - 1);
+        final Variable postVariable = postFields.get(i);
+        final int sizeInBits = postVariable.getType().getSize() - 1;
+
+        final NodeOperation postField = new NodeOperation(
+            StandardOperation.BVEXTRACT,
+            new NodeVariable(postVariable),
+            new NodeValue(Data.newInteger(0)),
+            new NodeValue(Data.newInteger(sizeInBits - 1)));
+
+        final NodeOperation preField = new NodeOperation(
+            StandardOperation.BVEXTRACT,
+            new NodeVariable(preVariable),
+            new NodeValue(Data.newInteger(0)),
+            new NodeValue(Data.newInteger((bit + sizeInBits) - 1)));
+
         // Buffer.Entry = Memory.DATA.
         final MmuBinding binding = new MmuBinding(postField, preField);
 
         bindings.add(binding);
-        bit += postField.getWidth();
+        bit += sizeInBits;
       }
 
       executeBindings(result, defines, bindings, pathIndex);
@@ -446,7 +462,7 @@ public final class SymbolicExecutor {
 
   private Boolean executeProgram(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final MmuProgram program,
       final int pathIndex) {
 
@@ -471,7 +487,7 @@ public final class SymbolicExecutor {
 
   private Boolean executeStatement(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final Collection<MmuProgram> statement,
       final int pathIndex) {
 
@@ -489,12 +505,12 @@ public final class SymbolicExecutor {
     }
 
     final List<SymbolicResult> switchResults = new ArrayList<>(statement.size());
-    final List<Set<IntegerVariable>> switchDefines = new ArrayList<>(statement.size());
+    final List<Set<Variable>> switchDefines = new ArrayList<>(statement.size());
 
     for (final MmuProgram program : statement) {
-      final IntegerFormulaBuilder<IntegerField> caseBuilder = new IntegerFormula.Builder<>();
+      final IntegerFormulaBuilderSimple caseBuilder = new IntegerFormulaBuilderSimple();
       final SymbolicResult caseResult = new SymbolicResult(caseBuilder, result);
-      final Set<IntegerVariable> caseDefines = new LinkedHashSet<>();
+      final Set<Variable> caseDefines = new LinkedHashSet<>();
 
       executeProgram(caseResult, caseDefines, program, pathIndex);
 
@@ -509,9 +525,9 @@ public final class SymbolicExecutor {
       return Boolean.FALSE;
     }
 
-    final Set<IntegerVariable> allDefines = new LinkedHashSet<>();
+    final Set<Variable> allDefines = new LinkedHashSet<>();
 
-    for (final Set<IntegerVariable> caseDefines : switchDefines) {
+    for (final Set<Variable> caseDefines : switchDefines) {
       allDefines.addAll(caseDefines);
     }
 
@@ -520,13 +536,13 @@ public final class SymbolicExecutor {
     }
 
     // Construct PHI functions.
-    for (final IntegerVariable originalVariable : allDefines) {
+    for (final Variable originalVariable : allDefines) {
       final List<Integer> indices = new ArrayList<>(switchDefines.size());
 
       int maxVersionNumber = 0;
 
       for (int i = 0; i < switchDefines.size(); i++) {
-        final Set<IntegerVariable> caseDefines = switchDefines.get(i);
+        final Set<Variable> caseDefines = switchDefines.get(i);
 
         if (caseDefines.contains(originalVariable)) {
           final SymbolicResult caseResult = switchResults.get(i);
@@ -545,11 +561,14 @@ public final class SymbolicExecutor {
         final int versionNumber = caseResult.getVersionNumber(originalVariable);
 
         if (versionNumber < maxVersionNumber) {
-          final IntegerVariable oldVersion = caseResult.getVersion(originalVariable);
+          final Variable oldVersion = caseResult.getVersion(originalVariable);
           caseResult.setVersionNumber(originalVariable, maxVersionNumber);
-          final IntegerVariable newVersion = caseResult.getVersion(originalVariable);
+          final Variable newVersion = caseResult.getVersion(originalVariable);
 
-          caseResult.addEquation(new IntegerField(newVersion), new IntegerField(oldVersion));
+          caseResult.addFormula(
+              IntegerUtils.makeNodeEqual(
+                  IntegerUtils.makeNodeVariable(newVersion),
+                  IntegerUtils.makeNodeVariable(oldVersion)));
         }
       }
 
@@ -559,9 +578,9 @@ public final class SymbolicExecutor {
     if (switchResults.size() == 1) {
       // There is only one control flow.
       final SymbolicResult caseResult = switchResults.get(0);
-      final IntegerFormula.Builder<IntegerField> caseBuilder =
-          (IntegerFormula.Builder<IntegerField>) caseResult.getBuilder();
-      final IntegerFormula<IntegerField> caseFormula = caseBuilder.build();
+      final IntegerFormulaBuilderSimple caseBuilder =
+          (IntegerFormulaBuilderSimple) caseResult.getBuilder();
+      final Node caseFormula = caseBuilder.build();
 
       result.addFormula(caseFormula);
       // TODO: Constant propagation can be optimized.
@@ -569,26 +588,25 @@ public final class SymbolicExecutor {
     } else {
       // Join the control flows.
       final int width = getWidth(statement.size());
-      final IntegerField phi = getPhiField(width);
+      final Node phi = getPhiField(width);
 
-      final IntegerClause.Builder<IntegerField> switchBuilder =
-          new IntegerClause.Builder<>(IntegerClause.Type.OR);
+      final List<Node> switchBuilder = new ArrayList<>();
 
       // Switch: (PHI == 0) | ... | (PHI == N-1)
       for (int i = 0; i < switchResults.size(); i++) {
-        switchBuilder.addEquation(phi, BigInteger.valueOf(i), true);
+        switchBuilder.add(IntegerUtils.makeNodeEqual(phi, IntegerUtils.makeNodeValue(i)));
       }
   
-      result.addClause(switchBuilder.build());
+      result.addFormula(IntegerUtils.makeNodeOr(switchBuilder));
 
       for (int i = 0; i < switchResults.size(); i++) {
         final SymbolicResult caseResult = switchResults.get(i);
-        final IntegerFormula.Builder<IntegerField> caseBuilder =
-            (IntegerFormula.Builder<IntegerField>) caseResult.getBuilder();
-        final IntegerFormula<IntegerField> caseFormula = caseBuilder.build();
+        final IntegerFormulaBuilderSimple caseBuilder =
+            (IntegerFormulaBuilderSimple) caseResult.getBuilder();
+        final Node caseFormula = caseBuilder.build();
 
         // Case: (PHI == i) -> CASE(i).
-        final IntegerFormula<IntegerField> ifThenFormula = getIfThenFormula(phi, i, caseFormula);
+        final Node ifThenFormula = getIfThenFormula(phi, i, caseFormula);
         result.addFormula(ifThenFormula);
       }
     }
@@ -598,7 +616,7 @@ public final class SymbolicExecutor {
 
   private Boolean executeTransition(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final MmuTransition transition,
       final int pathIndex,
       final boolean executeCall,
@@ -635,7 +653,7 @@ public final class SymbolicExecutor {
   
   private Boolean executeGuard(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final MmuGuard guard,
       final int pathIndex) {
 
@@ -688,7 +706,7 @@ public final class SymbolicExecutor {
       return status;
     }
 
-    final MmuCondition condition = guard.getCondition(null, context);
+    final Node condition = guard.getCondition(null, context);
     if (condition != null) {
       status = executeCondition(result, defines, condition, pathIndex);
     }
@@ -698,7 +716,7 @@ public final class SymbolicExecutor {
 
   private Boolean executeAction(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final MmuAction action,
       final int pathIndex,
       final boolean executeCall,
@@ -734,7 +752,7 @@ public final class SymbolicExecutor {
           bufferAccess != null && bufferAccess.getEvent() == BufferAccessEvent.READ
             ? bufferAccess.getId() : null;
 
-      final Map<IntegerField, MmuBinding> assignments =
+      final Map<Node, MmuBinding> assignments =
           action.getAssignments(lhsInstanceId, rhsInstanceId, context);
 
       if (assignments != null) {
@@ -756,21 +774,25 @@ public final class SymbolicExecutor {
 
   private Boolean executeCondition(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
-      final MmuCondition condition,
+      final Set<Variable> defines,
+      final Node condition,
       final int pathIndex) {
+    final NodeOperation clause = (NodeOperation) condition;
+    InvariantChecks.checkTrue(
+           clause.getOperationId() == StandardOperation.AND
+        || clause.getOperationId() == StandardOperation.OR);
 
     if (result.hasConflict()) {
       return Boolean.FALSE;
     }
 
     // Try to calculate the condition based on the derived constants.
-    final Boolean value = MmuCalculator.eval(condition,
-        new Function<IntegerVariable, BigInteger>() {
+    final Boolean value = IntegerUtils.check(condition,
+        new ValueProvider() {
           @Override
-          public BigInteger apply(final IntegerVariable original) {
-            final IntegerVariable version = result.getVersion(original);
-            return result.getConstant(version);
+          public Data getVariableValue(final Variable original) {
+            final Variable version = result.getVersion(original);
+            return Data.newBitVector(result.getConstant(version), original.getType().getSize());
           }
         });
 
@@ -781,22 +803,22 @@ public final class SymbolicExecutor {
       return value;
     }
 
-    final IntegerClause.Type definedType = condition.getType() == MmuCondition.Type.AND ?
-        IntegerClause.Type.AND : IntegerClause.Type.OR;
+    final List<Node> clauseBuilder = new ArrayList<>();
 
-    final IntegerClause.Builder<IntegerField> clauseBuilder =
-        new IntegerClause.Builder<>(definedType);
-
-    for (final MmuConditionAtom atom : condition.getAtoms()) {
+    for (final Node atom : clause.getOperands()) {
       if (result.hasConflict()) {
         return Boolean.FALSE;
       }
 
-      executeConditionAtom(result, defines, clauseBuilder, atom, pathIndex);
+      executeConditionAtom(result, defines, clause.getOperationId(), clauseBuilder, atom, pathIndex);
     }
 
-    if (clauseBuilder.size() != 0) {
-      result.addClause(clauseBuilder.build());
+    if (!clauseBuilder.isEmpty()) {
+      if (clause.getOperationId() == StandardOperation.AND) {
+        result.addFormula(IntegerUtils.makeNodeAnd(clauseBuilder));
+      } else {
+        result.addFormula(IntegerUtils.makeNodeOr(clauseBuilder));
+      }
     }
 
     return null;
@@ -804,49 +826,59 @@ public final class SymbolicExecutor {
 
   private Boolean executeConditionAtom(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
-      final IntegerClause.Builder<IntegerField> clauseBuilder,
-      final MmuConditionAtom atom,
+      final Set<Variable> defines,
+      final Enum<?> operation,
+      final List<Node> clauseBuilder,
+      final Node atom,
       final int pathIndex) {
+    final NodeOperation equality = (NodeOperation) atom;
+    InvariantChecks.checkTrue(
+           equality.getOperationId() == StandardOperation.EQ
+        || equality.getOperationId() == StandardOperation.NOTEQ);
 
     if (result.hasConflict()) {
       return Boolean.FALSE;
     }
 
-    final MmuExpression lhsExpr = atom.getLhsExpr();
+    final Node lhs = equality.getOperand(0);
+    final Node rhs = equality.getOperand(1);
 
-    switch(atom.getType()) {
-      case EQ_EXPR_CONST:
+    final NodeOperation lhsExpr = (NodeOperation) lhs;
+    InvariantChecks.checkTrue(lhsExpr.getOperationId() == StandardOperation.BVCONCAT);
+
+    if (rhs.getKind() == Node.Kind.VALUE) {
         boolean isTrue = false;
 
-        final BigInteger rhsConst = atom.getRhsConst();
+        final NodeValue rhsValue = (NodeValue) rhs;
+        final BigInteger rhsConst = rhsValue.getInteger();
 
         int offset = 0;
-        for (final IntegerField term : lhsExpr.getTerms()) {
+        for (final Node term : lhsExpr.getOperands()) {
           final int lo = offset;
-          final int hi = offset + (term.getWidth() - 1);
+          final int hi = offset + (IntegerUtils.getBitSize(term) - 1);
 
-          final IntegerField field = result.getVersion(term, pathIndex);
+          final Node field = result.getVersion(term, pathIndex);
           final BigInteger value = BitUtils.getField(rhsConst, lo, hi);
 
           // Check whether the field's value is known (via constant propagation).
-          final BigInteger constant = result.getConstants().get(field.getVariable());
+          final BigInteger constant = result.getConstants().get(IntegerUtils.getVariable(field));
   
           if (constant != null) {
-            final int fieldLo = field.getLoIndex();
-            final int fieldHi = field.getHiIndex();
+            final int fieldlowerBit = IntegerUtils.getLowerBit(field);
+            final int fieldUpperBit = IntegerUtils.getUpperBit(field);
 
-            final BigInteger fieldConst = BitUtils.getField(constant, fieldLo, fieldHi);
+            final BigInteger fieldConst = BitUtils.getField(constant, fieldlowerBit, fieldUpperBit);
 
-            final boolean truthValue = (value.equals(fieldConst) != atom.isNegated());
+            final boolean truthValue =
+                (value.equals(fieldConst) == (equality.getOperationId() == StandardOperation.EQ));
 
-            if (!truthValue && clauseBuilder.getType() == IntegerClause.Type.AND) {
+            if (!truthValue && operation == StandardOperation.AND) {
               // Condition is always false.
               result.setConflict(true);
               return Boolean.FALSE;
             }
 
-            if (truthValue && clauseBuilder.getType() == IntegerClause.Type.OR) {
+            if (truthValue && operation == StandardOperation.OR) {
               // Condition is always true.
               // Formally, the empty OR clause is false, but it is simply ignored.
               clauseBuilder.clear();
@@ -855,37 +887,45 @@ public final class SymbolicExecutor {
           }
 
           if (!isTrue && constant == null) {
-            clauseBuilder.addEquation(field, value, !atom.isNegated());
+            if (equality.getOperationId() == StandardOperation.EQ) {
+              clauseBuilder.add(
+                  IntegerUtils.makeNodeEqual(field, IntegerUtils.makeNodeValue(value)));
+            } else {
+              clauseBuilder.add(
+                  IntegerUtils.makeNodeNotEqual(field, IntegerUtils.makeNodeValue(value)));
+            }
           }
 
-          offset += term.getWidth();
-
-          result.addOriginalVariable(result.getOriginal(term.getVariable(), pathIndex));
+          offset += IntegerUtils.getBitSize(term);
+          result.addOriginalVariable(result.getOriginal(IntegerUtils.getVariable(term), pathIndex));
         }
-        break;
+    } else {
+      final NodeOperation rhsExpr = (NodeOperation) rhs;
+        InvariantChecks.checkTrue(rhsExpr.getOperationId() == StandardOperation.BVCONCAT);
+        InvariantChecks.checkTrue(rhsExpr.getOperandCount() == rhsExpr.getOperandCount());
 
-      case EQ_EXPR_EXPR:
-        final MmuExpression rhsExpr = atom.getRhsExpr();
-        InvariantChecks.checkTrue(lhsExpr.size() == rhsExpr.size());
+        for (int i = 0; i < lhsExpr.getOperandCount(); i++) {
+          final Node lhsTerm = lhsExpr.getOperand(i);
+          final Node rhsTerm = rhsExpr.getOperand(i);
+          InvariantChecks.checkTrue(
+              IntegerUtils.getBitSize(lhsTerm) == IntegerUtils.getBitSize(rhsTerm));
 
-        for (int i = 0; i < lhsExpr.size(); i++) {
-          final IntegerField lhsTerm = lhsExpr.getTerms().get(i);
-          final IntegerField rhsTerm = rhsExpr.getTerms().get(i);
-          InvariantChecks.checkTrue(lhsTerm.getWidth() == rhsTerm.getWidth());
+          final Node lhsField = result.getVersion(lhsTerm, pathIndex);
+          final Node rhsField = result.getVersion(rhsTerm, pathIndex);
 
-          final IntegerField lhsField = result.getVersion(lhsTerm, pathIndex);
-          final IntegerField rhsField = result.getVersion(rhsTerm, pathIndex);
+          if (equality.getOperationId() == StandardOperation.EQ) {
+            clauseBuilder.add(
+                IntegerUtils.makeNodeEqual(lhsField, rhsField));
+          } else {
+            clauseBuilder.add(
+                IntegerUtils.makeNodeNotEqual(lhsField, rhsField));
+          }
 
-          clauseBuilder.addEquation(lhsField, rhsField, !atom.isNegated());
-
-          result.addOriginalVariable(result.getOriginal(lhsTerm.getVariable(), pathIndex));
-          result.addOriginalVariable(result.getOriginal(rhsTerm.getVariable(), pathIndex));
+          result.addOriginalVariable(
+              result.getOriginal(IntegerUtils.getVariable(lhsTerm), pathIndex));
+          result.addOriginalVariable(
+              result.getOriginal(IntegerUtils.getVariable(rhsTerm), pathIndex));
         }
-        break;
-
-      default:
-        InvariantChecks.checkTrue(false);
-        break;
     }
 
     return null;
@@ -893,7 +933,7 @@ public final class SymbolicExecutor {
 
   private Boolean executeBindings(
       final SymbolicResult result,
-      final Set<IntegerVariable> defines,
+      final Set<Variable> defines,
       final Collection<MmuBinding> bindings,
       final int pathIndex) {
 
@@ -901,15 +941,14 @@ public final class SymbolicExecutor {
       return Boolean.FALSE;
     }
 
-    final IntegerClause.Builder<IntegerField> clauseBuilder =
-        new IntegerClause.Builder<>(IntegerClause.Type.AND);
+    final List<Node> clauseBuilder = new ArrayList<>();
 
     for (final MmuBinding binding : bindings) {
-      final IntegerField lhs = binding.getLhs();
-      final MmuExpression rhs = binding.getRhs();
+      final Node lhs = binding.getLhs();
+      final Node rhs = binding.getRhs();
 
-      final IntegerVariable oldLhsVar = result.getVersion(lhs.getVariable(), pathIndex);
-      final IntegerVariable lhsOriginal = result.getOriginal(lhs.getVariable(), pathIndex);
+      final Variable oldLhsVar = result.getVersion(IntegerUtils.getVariable(lhs), pathIndex);
+      final Variable lhsOriginal = result.getOriginal(IntegerUtils.getVariable(lhs), pathIndex);
 
       result.addOriginalVariable(lhsOriginal);
 
@@ -921,78 +960,87 @@ public final class SymbolicExecutor {
         continue;
       }
 
-      final IntegerVariable newLhsVar = result.getNextVersion(lhs.getVariable(), pathIndex);
-      final List<IntegerField> rhsTerms = new ArrayList<>();
+      final Variable newLhsVar = result.getNextVersion(IntegerUtils.getVariable(lhs), pathIndex);
+      final List<Node> rhsTerms = new ArrayList<>();
 
       // Equation for the prefix part.
-      if (lhs.getLoIndex() > 0) {
-        final IntegerField oldLhsPre = new IntegerField(oldLhsVar, 0, lhs.getLoIndex() - 1);
-        final IntegerField newLhsPre = new IntegerField(newLhsVar, 0, lhs.getLoIndex() - 1);
+      final int lhsLowerBit = IntegerUtils.getLowerBit(lhs);
+      final int lhsUpperBit = IntegerUtils.getUpperBit(lhs);
 
-        clauseBuilder.addEquation(newLhsPre, oldLhsPre, true);
+      if (lhsLowerBit > 0) {
+        final Node oldLhsPre = IntegerUtils.makeNodeExtract(oldLhsVar, 0, lhsLowerBit - 1);
+        final Node newLhsPre = IntegerUtils.makeNodeExtract(newLhsVar, 0, lhsLowerBit - 1);
+
+        clauseBuilder.add(IntegerUtils.makeNodeEqual(newLhsPre, oldLhsPre));
         rhsTerms.add(oldLhsPre);
       }
 
-      int offset = lhs.getLoIndex();
+      int offset = lhsLowerBit;
 
       // Equations for the middle part.
-      for (final IntegerField term : rhs.getTerms()) {
-        final IntegerField field = result.getVersion(term, pathIndex);
+      final NodeOperation terms = (NodeOperation) rhs;
+      InvariantChecks.checkNotNull(terms.getOperationId() == StandardOperation.BVCONCAT);
 
-        result.addOriginalVariable(result.getOriginal(term.getVariable(), pathIndex));
+      for (final Node term : terms.getOperands()) {
+        final Node field = result.getVersion(term, pathIndex);
 
-        final int upper = offset + (field.getWidth() - 1);
-        final int trunc = upper > lhs.getHiIndex() ? lhs.getHiIndex() : upper;
+        result.addOriginalVariable(result.getOriginal(IntegerUtils.getVariable(term), pathIndex));
 
-        final IntegerField lhsField = new IntegerField(newLhsVar, offset, trunc);
-        final IntegerField rhsField = trunc == upper
+        final int upper = offset + (IntegerUtils.getBitSize(field) - 1);
+        final int trunc = upper > lhsUpperBit ? lhsUpperBit : upper;
+
+        final Node lhsField = IntegerUtils.makeNodeExtract(newLhsVar, offset, trunc);
+        final Node rhsField = trunc == upper
             ? field
-            : new IntegerField(
-                field.getVariable(),
-                field.getLoIndex(),
-                field.getHiIndex() - (upper - trunc)
+            : IntegerUtils.makeNodeExtract(
+                IntegerUtils.getVariable(field),
+                IntegerUtils.getLowerBit(field),
+                IntegerUtils.getUpperBit(field) - (upper - trunc)
               );
 
-        clauseBuilder.addEquation(lhsField, rhsField, true);
+        clauseBuilder.add(IntegerUtils.makeNodeEqual(lhsField, rhsField));
         rhsTerms.add(rhsField);
 
-        offset += field.getWidth();
+        offset += IntegerUtils.getBitSize(field);
 
         // Truncate the upper bits of the expression.
-        if (offset > lhs.getHiIndex()) {
+        if (offset > lhsUpperBit) {
           break;
         }
       } // For each right-hand-side term.
 
-      if (offset <= lhs.getHiIndex()) {
-        final IntegerField lhsZeroField = new IntegerField(newLhsVar, offset, lhs.getHiIndex());
-        clauseBuilder.addEquation(lhsZeroField, BigInteger.ZERO, true);
+      if (offset <= lhsUpperBit) {
+        clauseBuilder.add(
+            IntegerUtils.makeNodeEqual(
+                IntegerUtils.makeNodeExtract(newLhsVar, offset, lhsUpperBit),
+                IntegerUtils.makeNodeValue(0)));
       }
 
       // Equation for the suffix part.
-      if (lhs.getHiIndex() < oldLhsVar.getWidth() - 1) {
-        final IntegerField oldLhsPost =
-            new IntegerField(oldLhsVar, lhs.getHiIndex() + 1, oldLhsVar.getWidth() - 1);
-        final IntegerField newLhsPost =
-            new IntegerField(newLhsVar, lhs.getHiIndex() + 1, newLhsVar.getWidth() - 1);
+      if (lhsUpperBit < oldLhsVar.getType().getSize() - 1) {
+        final Node oldLhsPost =
+            IntegerUtils.makeNodeExtract(oldLhsVar, lhsUpperBit, oldLhsVar.getType().getSize() - 1);
+        final Node newLhsPost =
+            IntegerUtils.makeNodeExtract(newLhsVar, lhsUpperBit, newLhsVar.getType().getSize() - 1);
 
-        clauseBuilder.addEquation(newLhsPost, oldLhsPost, true);
+        clauseBuilder.add(IntegerUtils.makeNodeEqual(newLhsPost, oldLhsPost));
         rhsTerms.add(oldLhsPost);
       }
 
       // Update the version of the left-hand-side variable.
-      result.defineVersion(lhs.getVariable(), pathIndex);
+      result.defineVersion(IntegerUtils.getVariable(lhs), pathIndex);
 
       // Try to propagate constants.
-      final Map<IntegerVariable, BigInteger> constants = result.getConstants();
-      final MmuExpression rhsExpr = MmuExpression.cat(rhsTerms);
-      final BigInteger constant = MmuCalculator.eval(rhsExpr,
-          new Function<IntegerVariable, BigInteger>() {
+      final Map<Variable, BigInteger> constants = result.getConstants();
+      final Node rhsExpr = IntegerUtils.makeNodeConcat(rhsTerms);
+
+      final BigInteger constant = IntegerUtils.evaluate(rhsExpr,
+          new ValueProvider() {
             @Override
-            public BigInteger apply(final IntegerVariable variable) {
-              return constants.get(variable);
+            public Data getVariableValue(final Variable variable) {
+              return Data.newBitVector(constants.get(variable), variable.getType().getSize());
             }
-          }, false);
+          });
 
       if (constant != null) {
         // Constant propagation.
@@ -1001,8 +1049,7 @@ public final class SymbolicExecutor {
     } // For each binding.
 
     if (!clauseBuilder.isEmpty()) {
-      final IntegerClause<IntegerField> clause = clauseBuilder.build();
-      result.addClause(clause);
+      result.addFormula(IntegerUtils.makeNodeAnd(clauseBuilder));
     }
 
     return Boolean.TRUE;
@@ -1025,61 +1072,71 @@ public final class SymbolicExecutor {
     return width;
   }
 
-  private static IntegerField getPhiField(final int width) {
-    final IntegerVariable var = new IntegerVariable(String.format("phi_%d", uniqueId++), width);
-    return new IntegerField(var);
+  private static Node getPhiField(final int width) {
+    final Variable variable = new Variable(
+        String.format("phi_%d", uniqueId++), DataType.BIT_VECTOR(width));
+    return IntegerUtils.makeNodeVariable(variable);
   }
 
-  private static IntegerField getIfThenField(final IntegerVariable phi, final int i) {
-    final IntegerVariable var = new IntegerVariable(String.format("%s_%d", phi.getName(), i), 1);
-    return new IntegerField(var);
+  private static Node getIfThenField(final Variable phi, final int i) {
+    final Variable variable = new Variable(
+        String.format("%s_%d", phi.getName(), i), DataType.BIT_VECTOR(1));
+    return IntegerUtils.makeNodeVariable(variable);
   }
 
-  private static IntegerFormula<IntegerField> getIfThenFormula(
-      final IntegerField phi, final int i, final IntegerFormula<IntegerField> formula) {
-    final IntegerFormula.Builder<IntegerField> ifThenBuilder = new IntegerFormula.Builder<>();
+  private static Node getIfThenFormula(
+      final Node phi, final int i, final Node formula) {
+    final List<Node> ifThenBuilder = new ArrayList<>();
 
-    final IntegerClause.Builder<IntegerField> clauseBuilder1 =
-        new IntegerClause.Builder<>(IntegerClause.Type.OR);
-    final IntegerClause.Builder<IntegerField> clauseBuilder2 =
-        new IntegerClause.Builder<>(IntegerClause.Type.OR);
+    final List<Node> clauseBuilder1 = new ArrayList<>();
+    final List<Node> clauseBuilder2 = new ArrayList<>();
 
     // Introduce a Boolean variable: C == (PHI == i).
-    final IntegerField condition = getIfThenField(phi.getVariable(), i);
+    final Node condition = getIfThenField(IntegerUtils.getVariable(phi), i);
 
-    clauseBuilder1.addEquation(condition, BigInteger.valueOf(1), true);
-    clauseBuilder1.addEquation(phi, BigInteger.valueOf(i), false);
+    clauseBuilder1.add(
+        IntegerUtils.makeNodeEqual(condition, IntegerUtils.makeNodeValue(1)));
+    clauseBuilder1.add(
+        IntegerUtils.makeNodeNotEqual(phi, IntegerUtils.makeNodeValue(i)));
 
-    clauseBuilder2.addEquation(condition, BigInteger.valueOf(1), false);
-    clauseBuilder2.addEquation(phi, BigInteger.valueOf(i), true);
+    clauseBuilder2.add(
+        IntegerUtils.makeNodeNotEqual(condition, IntegerUtils.makeNodeValue(1)));
+    clauseBuilder2.add(
+        IntegerUtils.makeNodeEqual(phi, IntegerUtils.makeNodeValue(i)));
 
-    ifThenBuilder.addClause(clauseBuilder1.build());
-    ifThenBuilder.addClause(clauseBuilder2.build());
+    ifThenBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder1));
+    ifThenBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder2));
 
     // Transform the formula according to the rule:
     // C -> (x[1] & ... & x[n]) == (~C | x[1]) & ... & (~C | x[n]).
-    for (final IntegerClause<IntegerField> clause : formula.getClauses()) {
-      if (clause.getType() == IntegerClause.Type.OR) {
-        final IntegerClause.Builder<IntegerField> clauseBuilder =
-            new IntegerClause.Builder<>(IntegerClause.Type.OR);
+    final NodeOperation clauses = (NodeOperation) formula;
+    InvariantChecks.checkTrue(clauses.getOperationId() == StandardOperation.AND);
 
-        clauseBuilder.addEquation(condition, BigInteger.valueOf(1), false);
-        clauseBuilder.addClause(clause);
+    for (final Node operand : clauses.getOperands()) {
+      final NodeOperation clause = (NodeOperation) operand;
+      InvariantChecks.checkTrue(
+          clause.getOperationId() == StandardOperation.AND
+       || clause.getOperationId() == StandardOperation.OR);
 
-        ifThenBuilder.addClause(clauseBuilder.build());
+      if (clause.getOperationId() == StandardOperation.OR) {
+        final List<Node> clauseBuilder = new ArrayList<>();
+
+        clauseBuilder.add(IntegerUtils.makeNodeEqual(condition, IntegerUtils.makeNodeValue(0)));
+        clauseBuilder.addAll(clause.getOperands());
+
+        ifThenBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder));
       } else {
-        for (final IntegerEquation<IntegerField> equation : clause.getEquations()) {
-          final IntegerClause.Builder<IntegerField> clauseBuilder =
-              new IntegerClause.Builder<>(IntegerClause.Type.OR);
+        for (final Node equation : clause.getOperands()) {
+          final List<Node> clauseBuilder = new ArrayList<>();
 
-          clauseBuilder.addEquation(condition, BigInteger.valueOf(1), false);
-          clauseBuilder.addEquation(equation);
+          clauseBuilder.add(IntegerUtils.makeNodeEqual(condition, IntegerUtils.makeNodeValue(0)));
+          clauseBuilder.add(equation);
 
-          ifThenBuilder.addClause(clauseBuilder.build());
+          ifThenBuilder.add(IntegerUtils.makeNodeOr(clauseBuilder));
         }
       }
     }
 
-    return ifThenBuilder.build();
+    return IntegerUtils.makeNodeAnd(ifThenBuilder);
   }
 }

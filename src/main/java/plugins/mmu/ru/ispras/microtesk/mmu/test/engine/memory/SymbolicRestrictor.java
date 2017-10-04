@@ -21,7 +21,6 @@ import java.util.Collections;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerField;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
@@ -50,7 +49,7 @@ public final class SymbolicRestrictor {
     this.region = region;
   }
 
-  public Collection<IntegerConstraint<IntegerField>> getConstraints(
+  public Collection<IntegerConstraint> getConstraints(
       final MmuBufferAccess bufferAccess) {
     final MmuAddressInstance physAddrType = memory.getPhysicalAddress();
     final MmuAddressInstance addrType = bufferAccess.getAddress();
@@ -75,10 +74,10 @@ public final class SymbolicRestrictor {
           settings.getMemory().getRegion(buffer.getName()));
     }
 
-    return Collections.<IntegerConstraint<IntegerField>>emptyList();
+    return Collections.<IntegerConstraint>emptyList();
   }
 
-  public Collection<IntegerConstraint<IntegerField>> getConstraints() {
+  public Collection<IntegerConstraint> getConstraints() {
     final GeneratorSettings settings = GeneratorSettings.get();
     InvariantChecks.checkNotNull(settings);
 
@@ -87,7 +86,7 @@ public final class SymbolicRestrictor {
         settings.getMemory().getRegion(memory.getName()));
   }
 
-  private Collection<IntegerConstraint<IntegerField>> getConstraints(
+  private Collection<IntegerConstraint> getConstraints(
       final MmuAddressInstance addrType,
       final RegionSettings region) {
     InvariantChecks.checkNotNull(addrType);
@@ -96,15 +95,15 @@ public final class SymbolicRestrictor {
     final IntegerRange range = new IntegerRange(region.getMin(), region.getMax());
     Logger.debug("Range constraint: %s in %s", addrType, range);
 
-    return Collections.<IntegerConstraint<IntegerField>>singleton(
+    return Collections.<IntegerConstraint>singleton(
         new IntegerRangeConstraint(addrType.getVariable(), range));
   }
 
-  public Collection<IntegerConstraint<IntegerField>> getConstraints(
+  public Collection<IntegerConstraint> getConstraints(
       final boolean isStart,
       final MmuTransition transition,
       final MemoryAccessContext context) {
-    final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
+    final Collection<IntegerConstraint> constraints = new ArrayList<>();
 
     if (isStart) {
       constraints.addAll(getConstraints());
@@ -117,11 +116,11 @@ public final class SymbolicRestrictor {
     return constraints;
   }
 
-  public Collection<IntegerConstraint<IntegerField>> getConstraints(
+  public Collection<IntegerConstraint> getConstraints(
       final boolean isStart,
       final MmuProgram program,
       final MemoryAccessContext context) {
-    final Collection<IntegerConstraint<IntegerField>> constraints = new ArrayList<>();
+    final Collection<IntegerConstraint> constraints = new ArrayList<>();
 
     if (isStart) {
       constraints.addAll(getConstraints());

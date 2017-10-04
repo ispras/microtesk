@@ -72,7 +72,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.translator.TranslatorContext;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
@@ -301,7 +301,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     final ExternalSource source = new ExternalSource(sourceKind, sourceName, argValues);
-    final Variable variable = storage.declare(name, type, source);
+    final Var variable = storage.declare(name, type, source);
 
     ir.addExtern(variable);
   }
@@ -488,7 +488,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     private final CommonTree id;
     private final Address address;
-    private final Variable addressArg;
+    private final Var addressArg;
     private List<Stmt> stmts;
     private final Set<Node> assigned;
 
@@ -584,8 +584,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       if (node.getKind() == Node.Kind.VARIABLE &&
-          node.getUserData() instanceof Variable) {
-        final Variable variable = (Variable) node.getUserData();
+          node.getUserData() instanceof Var) {
+        final Var variable = (Var) node.getUserData();
         return variable.isParent(addressArg) && !variable.isStruct();
       }
 
@@ -605,8 +605,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           return true;
         }
 
-        if (userData instanceof Variable &&
-           ((Variable) userData).getTypeSource() instanceof ExternalSource) {
+        if (userData instanceof Var &&
+           ((Var) userData).getTypeSource() instanceof ExternalSource) {
           return true;
         }
 
@@ -680,10 +680,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final CommonTree id;
     private final Address address;
     private final String addressArgId;
-    private final Variable addressArg;
+    private final Var addressArg;
     private final Buffer parent;
 
-    private Variable dataArg = null; // stores entries
+    private Var dataArg = null; // stores entries
     private BigInteger ways = BigInteger.ZERO;
     private BigInteger sets = BigInteger.ZERO;
     private Node index = null;
@@ -787,7 +787,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     private void setDataArg(final String name, final Type type) {
       dataArg = storage.declare(name, type);
-      final Map<String, Variable> scope = new HashMap<>(dataArg.getFields());
+      final Map<String, Var> scope = new HashMap<>(dataArg.getFields());
       scope.put(addressArgId, addressArg);
       storage.newScope(scope);
     }
@@ -918,17 +918,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   protected final class CallableBuilder {
     private final Where location;
     private final String name;
-    private final Map<String, Variable> parameters = new LinkedHashMap<>();
+    private final Map<String, Var> parameters = new LinkedHashMap<>();
     private final Map<String, Local> locals = new HashMap<>();
     private List<Stmt> body = null;
     private Type retType = null;
-    private Variable output = null;
+    private Var output = null;
 
     private final class Local {
-      public final Variable var;
+      public final Var var;
       public final Where loc;
 
-      public Local(final Variable var, final Where loc) {
+      public Local(final Var var, final Where loc) {
         this.var = var;
         this.loc = loc;
       }
@@ -945,7 +945,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.retType = retType;
     }
 
-    public void setOutput(final Variable var) {
+    public void setOutput(final Var var) {
       this.output = var;
       this.retType = var.getType();
     }
@@ -954,15 +954,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       this.body = body;
     }
 
-    public Map<String, Variable> addParameters(
+    public Map<String, Var> addParameters(
         final Collection<CommonTree> nodes, 
         final Collection<Type> types) throws SemanticException {
-      final Map<String, Variable> variables = addLocalVariables(nodes, types);
+      final Map<String, Var> variables = addLocalVariables(nodes, types);
       parameters.putAll(variables);
       return variables;
     }
 
-    public Map<String, Variable> addLocalVariables(
+    public Map<String, Var> addLocalVariables(
         final Collection<CommonTree> nodes, 
         final Collection<Type> types) throws SemanticException {
       InvariantChecks.checkNotNull(nodes);
@@ -972,16 +972,16 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final Iterator<CommonTree> nodeIt = nodes.iterator();
       final Iterator<Type> typeIt = types.iterator();
 
-      final Map<String, Variable> variables = new LinkedHashMap<>(nodes.size());
+      final Map<String, Var> variables = new LinkedHashMap<>(nodes.size());
       while (nodeIt.hasNext() && typeIt.hasNext()) {
         final CommonTree node = nodeIt.next();
-        final Variable var = addVariable(node, typeIt.next());
+        final Var var = addVariable(node, typeIt.next());
         variables.put(node.getText(), var);
       }
       return variables;
     }
 
-    private Variable addVariable(final CommonTree node,
+    private Var addVariable(final CommonTree node,
                                  final Type type) throws SemanticException {
       final String name = node.getText();
       final Local local = locals.get(name);
@@ -994,14 +994,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         raiseError(where(node), msg);
       }
 
-      final Variable var = storage.declare(name, type);
+      final Var var = storage.declare(name, type);
       locals.put(name, new Local(var, where(node)));
 
       return var;
     }
 
     public Callable build() throws SemanticException {
-      final Map<String, Variable> locals = new HashMap<>(this.locals.size());
+      final Map<String, Var> locals = new HashMap<>(this.locals.size());
       for (final Map.Entry<String, Local> entry : this.locals.entrySet()) {
         locals.put(entry.getKey(), entry.getValue().var);
       }
@@ -1015,7 +1015,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         raiseError(location, "missing 'return' statement in function returning non-void");
       }
 
-      final List<Variable> params = new ArrayList<>(parameters.values());
+      final List<Var> params = new ArrayList<>(parameters.values());
       final Callable c = new Callable(name, params, locals, body, output);
       storage.popScope();
       return c;
@@ -1024,7 +1024,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private int setExit(
         final Where w,
         final List<Stmt> body,
-        final Variable output) throws SemanticException {
+        final Var output) throws SemanticException {
       int nexits = 0;
       for (final Stmt s : body) {
         switch (s.getKind()) {
@@ -1084,7 +1084,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final List<Node> castArgs = new ArrayList<>(args.size());
     for (int index = 0; index < callee.getParameters().size(); ++index) {
       final Node arg = args.get(index);
-      final Variable param = callee.getParameter(index);
+      final Var param = callee.getParameter(index);
 
       if (arg.getKind() == Node.Kind.VALUE) {
         final Node castArg = IntegerCast.cast(arg, param.getDataType());
@@ -1131,11 +1131,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     private final String id;
     private final Address address;
-    private final Variable addressArg;
-    private final Variable outputVar;
+    private final Var addressArg;
+    private final Var outputVar;
     private final Address outputVarAddress;
 
-    private final Map<String, Variable> variables;
+    private final Map<String, Var> variables;
     private final Map<String, Attribute> attributes;
 
     private CommonBuilder(
@@ -1193,7 +1193,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final int bitSize = extractPositiveInt(
           where(varId), sizeExpr, String.format("Variable %s size", varId.getText()));
 
-      final Variable variable = storage.declare(varId.getText(), new Type(bitSize));
+      final Var variable = storage.declare(varId.getText(), new Type(bitSize));
       variables.put(variable.getName(), variable);
     }
 
@@ -1219,7 +1219,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
             Arrays.<Enum<?>>asList(MmuSymbolKind.BUFFER, MmuSymbolKind.ADDRESS)));
         */
       }
-      final Variable v = storage.declare(varId.getText(), type, source);
+      final Var v = storage.declare(varId.getText(), type, source);
       variables.put(v.getName(), v);
     }
 
@@ -1631,7 +1631,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       raiseError(where(id), "Address argument is not an address structure.");
     }
 
-    final Variable addressVar = (Variable) addressArg.getUserData();
+    final Var addressVar = (Var) addressArg.getUserData();
 
     final Type expectedType = object.getAddressArg().getType();
     if (!addressVar.getType().equals(expectedType)) {
@@ -1670,9 +1670,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       return newImmediateAttribute(id, memberChain.get(0));
     }
 
-    Variable variable = getVariableObject(id);
+    Var variable = getVariableObject(id);
     for (final CommonTree member : memberChain) {
-      final Variable field = variable.getFields().get(member.getText());
+      final Var field = variable.getFields().get(member.getText());
       if (null == field) {
         raiseError(where(member),
                    String.format("The variable '%s' does not have the field '%s'.",
@@ -1727,8 +1727,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return variable;
   }
 
-  private Variable getVariableObject(final CommonTree id) throws SemanticException {
-    final Variable variable = storage.get(id.getText());
+  private Var getVariableObject(final CommonTree id) throws SemanticException {
+    final Var variable = storage.get(id.getText());
     if (null == variable) {
       raiseError(where(id), String.format(
           "%s is undefined in the current scope or is not a variable.", id.getText()));

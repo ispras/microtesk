@@ -18,8 +18,8 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerVariable;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
@@ -41,7 +41,7 @@ public final class AddressObject {
   private final Access access;
 
   /*** Contains the data values. */
-  private final Map<IntegerVariable, BigInteger> data = new LinkedHashMap<>();
+  private final Map<Variable, BigInteger> data = new LinkedHashMap<>();
 
   /*** Contains the address values of the given memory access. */
   private final Map<MmuAddressInstance, BigInteger> addresses = new LinkedHashMap<>();
@@ -58,16 +58,16 @@ public final class AddressObject {
     return access;
   }
 
-  public Map<IntegerVariable, BigInteger> getData() {
+  public Map<Variable, BigInteger> getData() {
     return data; 
   }
 
-  public BigInteger getData(final IntegerVariable variable) {
+  public BigInteger getData(final Variable variable) {
     InvariantChecks.checkNotNull(variable);
     return data.get(variable); 
   }
 
-  public void setData(final IntegerVariable variable, final BigInteger value) {
+  public void setData(final Variable variable, final BigInteger value) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(value);
     data.put(variable, value);

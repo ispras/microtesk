@@ -18,7 +18,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
-import ru.ispras.microtesk.mmu.translator.ir.Variable;
+import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -100,19 +100,19 @@ public final class ConstantPropagator {
     final Set<String> names = new HashSet<>();
     for (final NodeVariable node : nodes) {
       names.add(node.getName());
-      if (node.getUserData() instanceof Variable) {
-        collectNames((Variable) node.getUserData(), names);
+      if (node.getUserData() instanceof Var) {
+        collectNames((Var) node.getUserData(), names);
       }
     }
     return names;
   }
 
-  private static int collectNames(final Variable var, final Set<String> bag) {
+  private static int collectNames(final Var var, final Set<String> bag) {
     int n = 0;
     if (bag.add(var.getName())) {
       ++n;
     }
-    for (final Variable field : var.getFields().values()) {
+    for (final Var field : var.getFields().values()) {
       n += collectNames(field, bag);
     }
     return n;

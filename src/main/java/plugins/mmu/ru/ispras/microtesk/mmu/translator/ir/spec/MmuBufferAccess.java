@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -101,16 +102,16 @@ public final class MmuBufferAccess {
     return argument;
   }
 
-  public MmuExpression getTagExpression() {
-    return buffer.getTagExpression().getInstance(id, context);
+  public Node getTagExpression() {
+    return context.getInstance(id, buffer.getTagExpression());
   }
 
-  public MmuExpression getIndexExpression() {
-    return buffer.getIndexExpression().getInstance(id, context);
+  public Node getIndexExpression() {
+    return context.getInstance(id, buffer.getIndexExpression());
   }
 
-  public MmuExpression getOffsetExpression() {
-    return buffer.getOffsetExpression().getInstance(id, context);
+  public Node getOffsetExpression() {
+    return context.getInstance(id, buffer.getOffsetExpression());
   }
 
   public final Collection<MmuBinding> getMatchBindings() {

@@ -20,17 +20,17 @@ import java.util.Map;
 
 public final class Callable {
   private final String name;
-  private final List<Variable> params;
-  private final Map<String, Variable> locals;
+  private final List<Var> params;
+  private final Map<String, Var> locals;
   private final List<Stmt> body;
-  private final Variable output;
+  private final Var output;
 
   public Callable(
       final String name,
-      final List<Variable> params,
-      final Map<String, Variable> locals,
+      final List<Var> params,
+      final Map<String, Var> locals,
       final List<Stmt> body,
-      final Variable output) {
+      final Var output) {
     this.name = name;
     this.params = params;
     this.locals = locals;
@@ -42,20 +42,20 @@ public final class Callable {
     return name;
   }
 
-  public Map<String, Variable> getLocals() {
+  public Map<String, Var> getLocals() {
     return Collections.unmodifiableMap(locals);
   }
 
-  public List<Variable> getParameters() {
+  public List<Var> getParameters() {
     return Collections.unmodifiableList(params);
   }
 
-  public Variable getParameter(final int i) {
+  public Var getParameter(final int i) {
     return params.get(i);
   }
 
-  public Variable getParameter(final String name) {
-    for (final Variable p : params) {
+  public Var getParameter(final String name) {
+    for (final Var p : params) {
       if (p.getName().equals(name)) {
         return p;
       }
@@ -63,7 +63,7 @@ public final class Callable {
     return null;
   }
 
-  public Variable getOutput() {
+  public Var getOutput() {
     return output;
   }
 
