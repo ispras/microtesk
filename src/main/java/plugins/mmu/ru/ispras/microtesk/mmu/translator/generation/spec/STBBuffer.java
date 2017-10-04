@@ -22,6 +22,7 @@ import java.util.List;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
@@ -141,12 +142,12 @@ final class STBBuffer implements STBuilder {
     return Utils.getVariableName(buffer.getId(), prefixedName);
   }
 
-  private String toMmuBindingsText(final List<Pair<IntegerField, IntegerField>> bindings) {
+  private String toMmuBindingsText(final List<Pair<Node, Node>> bindings) {
     final StringBuilder sb = new StringBuilder();
     sb.append(String.format("Arrays.<MmuBinding>asList(", Arrays.class.getSimpleName()));
 
     boolean isFirst = true;
-    for (final Pair<IntegerField, IntegerField> binding : bindings) {
+    for (final Pair<Node, Node> binding : bindings) {
       if (isFirst) {
         isFirst = false;
       } else {

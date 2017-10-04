@@ -93,7 +93,7 @@ public final class AtomExtractor {
   static Atom extract(final NodeOperation expr) {
     final Enum<?> op = expr.getOperationId();
     if (StandardOperation.BVEXTRACT == op) {
-      return Atom.newExtract(expr);
+      return Atom.newField(expr);
     } else if (StandardOperation.BVCONCAT == op) {
       return Atom.newConcat(expr);
     } else {
