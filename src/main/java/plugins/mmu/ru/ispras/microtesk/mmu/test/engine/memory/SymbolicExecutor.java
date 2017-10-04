@@ -594,7 +594,7 @@ public final class SymbolicExecutor {
 
       // Switch: (PHI == 0) | ... | (PHI == N-1)
       for (int i = 0; i < switchResults.size(); i++) {
-        switchBuilder.add(FortressUtils.makeNodeEqual(phi, FortressUtils.makeNodeValue(i)));
+        switchBuilder.add(FortressUtils.makeNodeEqual(phi, FortressUtils.makeNodeInteger(i)));
       }
   
       result.addFormula(FortressUtils.makeNodeOr(switchBuilder));
@@ -889,10 +889,10 @@ public final class SymbolicExecutor {
           if (!isTrue && constant == null) {
             if (equality.getOperationId() == StandardOperation.EQ) {
               clauseBuilder.add(
-                  FortressUtils.makeNodeEqual(field, FortressUtils.makeNodeValue(value)));
+                  FortressUtils.makeNodeEqual(field, FortressUtils.makeNodeValueInteger(value)));
             } else {
               clauseBuilder.add(
-                  FortressUtils.makeNodeNotEqual(field, FortressUtils.makeNodeValue(value)));
+                  FortressUtils.makeNodeNotEqual(field, FortressUtils.makeNodeValueInteger(value)));
             }
           }
 
@@ -1013,7 +1013,7 @@ public final class SymbolicExecutor {
         clauseBuilder.add(
             FortressUtils.makeNodeEqual(
                 FortressUtils.makeNodeExtract(newLhsVar, offset, lhsUpperBit),
-                FortressUtils.makeNodeValue(0)));
+                FortressUtils.makeNodeInteger(0)));
       }
 
       // Equation for the suffix part.
@@ -1095,14 +1095,14 @@ public final class SymbolicExecutor {
     final Node condition = getIfThenField(FortressUtils.getVariable(phi), i);
 
     clauseBuilder1.add(
-        FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeValue(1)));
+        FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeInteger(1)));
     clauseBuilder1.add(
-        FortressUtils.makeNodeNotEqual(phi, FortressUtils.makeNodeValue(i)));
+        FortressUtils.makeNodeNotEqual(phi, FortressUtils.makeNodeInteger(i)));
 
     clauseBuilder2.add(
-        FortressUtils.makeNodeNotEqual(condition, FortressUtils.makeNodeValue(1)));
+        FortressUtils.makeNodeNotEqual(condition, FortressUtils.makeNodeInteger(1)));
     clauseBuilder2.add(
-        FortressUtils.makeNodeEqual(phi, FortressUtils.makeNodeValue(i)));
+        FortressUtils.makeNodeEqual(phi, FortressUtils.makeNodeInteger(i)));
 
     ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder1));
     ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder2));
@@ -1121,7 +1121,7 @@ public final class SymbolicExecutor {
       if (clause.getOperationId() == StandardOperation.OR) {
         final List<Node> clauseBuilder = new ArrayList<>();
 
-        clauseBuilder.add(FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeValue(0)));
+        clauseBuilder.add(FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeInteger(0)));
         clauseBuilder.addAll(clause.getOperands());
 
         ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder));
@@ -1129,7 +1129,7 @@ public final class SymbolicExecutor {
         for (final Node equation : clause.getOperands()) {
           final List<Node> clauseBuilder = new ArrayList<>();
 
-          clauseBuilder.add(FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeValue(0)));
+          clauseBuilder.add(FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeInteger(0)));
           clauseBuilder.add(equation);
 
           ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder));

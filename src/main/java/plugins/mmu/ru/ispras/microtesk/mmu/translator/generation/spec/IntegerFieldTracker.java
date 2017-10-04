@@ -41,7 +41,7 @@ final class IntegerFieldTracker {
     InvariantChecks.checkNotNull(variable);
 
     this.variable = variable;
-    this.fields = Collections.singletonList(FortressUtils.makeNodeVariable(variable));
+    this.fields = Collections.singletonList(FortressUtils.makeNodeExtract(variable));
   }
 
   public void exclude(final int lo, final int hi) {

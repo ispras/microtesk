@@ -79,7 +79,7 @@ public class MmuBufferTestCase {
   public static final MmuBuffer JTLB = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, 64, 1, VA_ADDR,
       FortressUtils.makeNodeExtract(VA, 13, 39), // Tag
-      FortressUtils.makeNodeValue(0), // Index
+      FortressUtils.makeNodeInteger(0), // Index
       FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
@@ -107,7 +107,7 @@ public class MmuBufferTestCase {
   public static final MmuBuffer DTLB = new MmuBuffer(
       "DTLB", MmuBuffer.Kind.UNMAPPED, 4, 1, VA_ADDR,
       FortressUtils.makeNodeExtract(VA, 13, 39), // Tag
-      FortressUtils.makeNodeValue(0), // Index
+      FortressUtils.makeNodeInteger(0), // Index
       FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
@@ -237,7 +237,7 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer MEM = new MmuBuffer(
       "MMU", MmuBuffer.Kind.UNMAPPED, 1, (1L << 36) / 32, PA_ADDR,
-      FortressUtils.makeNodeValue(0), // Tag
+      FortressUtils.makeNodeInteger(0), // Tag
       FortressUtils.makeNodeExtract(PA, 5, 35), // Index
       FortressUtils.makeNodeExtract(PA, 0, 4), // Offset
       Collections.<MmuBinding>emptySet(),
@@ -249,7 +249,9 @@ public class MmuBufferTestCase {
   }
 
   private void runTest(
-      final MmuBuffer device, final AddressView<BigInteger> addressView, final BigInteger address) {
+      final MmuBuffer device,
+      final AddressView<BigInteger> addressView,
+      final BigInteger address) {
     System.out.format("Test: %s, %x\n", device.getName(), address);
 
     final BigInteger tagA = addressView.getTag(address);

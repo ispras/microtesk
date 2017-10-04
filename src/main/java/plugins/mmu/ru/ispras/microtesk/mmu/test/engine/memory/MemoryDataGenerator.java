@@ -325,7 +325,7 @@ public final class MemoryDataGenerator implements DataGenerator {
           }
         });
 
-    return new NodeOperation(equality.getOperationId(), lhs, FortressUtils.makeNodeValue(rhs));
+    return new NodeOperation(equality.getOperationId(), lhs, FortressUtils.makeNodeValueInteger(rhs));
   }
 
   private Collection<Node> getHazardConditions(
@@ -384,7 +384,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     final Node lhs = bufferAccess.getIndexExpression();
     final BigInteger rhs = bufferAccess.getBuffer().getIndex(addressWithoutTag);
 
-    return FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeValue(rhs));
+    return FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeValueInteger(rhs));
   }
 
   private Node getHitCondition(
@@ -410,7 +410,7 @@ public final class MemoryDataGenerator implements DataGenerator {
         final BigInteger address = taggedData.first.bigIntegerValue();
         final BigInteger rhs = buffer.getTag(address);
 
-        atoms.add(FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeValue(rhs)));
+        atoms.add(FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeValueInteger(rhs)));
       }
     }
 
@@ -440,7 +440,7 @@ public final class MemoryDataGenerator implements DataGenerator {
         final BigInteger address = taggedData.first.bigIntegerValue();
         final BigInteger rhs = buffer.getTag(address);
 
-        atoms.add(FortressUtils.makeNodeNotEqual(lhs, FortressUtils.makeNodeValue(rhs)));
+        atoms.add(FortressUtils.makeNodeNotEqual(lhs, FortressUtils.makeNodeValueInteger(rhs)));
       }
     }
 

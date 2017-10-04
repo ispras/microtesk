@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
@@ -64,12 +65,16 @@ public final class FortressUtils {
     }
   }
 
-  public static Node makeNodeValue(final int value) {
+  public static Node makeNodeInteger(final int value) {
     return new NodeValue(Data.newInteger(value));
   }
 
-  public static Node makeNodeValue(final BigInteger value) {
+  public static Node makeNodeInteger(final BigInteger value) {
     return new NodeValue(Data.newInteger(value));
+  }
+
+  public static Node makeNodeBitVector(final BitVector value) {
+    return new NodeValue(Data.newBitVector(value));
   }
 
   public static Node makeNodeVariable(final Variable variable) {
@@ -79,9 +84,13 @@ public final class FortressUtils {
   public static Node makeNodeExtract(final Variable variable, final int lower, final int upper) {
     return new NodeOperation(
         StandardOperation.BVEXTRACT,
-        makeNodeVariable(variable),
-        makeNodeValue(lower),
-        makeNodeValue(upper));
+        makeNodeInteger(upper),
+        makeNodeInteger(lower),
+        makeNodeVariable(variable));
+  }
+
+  public static Node makeNodeExtract(final Variable variable) {
+    return makeNodeExtract(variable, 0, variable.getType().getSize() - 1);
   }
 
   public static Node makeNodeExtract(final Variable variable, final int bit) {
@@ -132,7 +141,7 @@ public final class FortressUtils {
         final NodeOperation operation = (NodeOperation) node;
         InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.BVEXTRACT);
 
-        final NodeVariable vector = (NodeVariable) operation.getOperand(0);
+        final NodeVariable vector = (NodeVariable) operation.getOperand(2);
         return vector.getVariable();
       default:
         return null;
@@ -164,7 +173,7 @@ public final class FortressUtils {
         final NodeOperation operation = (NodeOperation) node;
         InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.BVEXTRACT);
 
-        final NodeValue lowerBitValue = (NodeValue) operation.getOperand(2);
+        final NodeValue lowerBitValue = (NodeValue) operation.getOperand(0);
         return lowerBitValue.getInteger().intValue();
       default:
         InvariantChecks.checkTrue(false);
@@ -185,7 +194,10 @@ public final class FortressUtils {
     }
 
     final NodeValue value = (NodeValue) result;
-    return value.getInteger();
+
+    return value.getDataTypeId() == DataTypeId.BIT_VECTOR
+        ? value.getBitVector().bigIntegerValue(false)
+        : value.getInteger();
   }
 
   public static BigInteger evaluate(final Node node) {

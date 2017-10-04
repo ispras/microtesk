@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,17 +87,28 @@ public final class MmuAddressViewBuilder {
   private static void reverseAssignment(
       final SortedMap<Integer, Node> fields,
       final Variable variable,
-      final Node node) {
-
-    if (node.getKind() != Node.Kind.OPERATION) {
+      final Node expression) {
+    if (expression.getKind() == Node.Kind.VALUE) {
       return;
     }
 
-    final NodeOperation operation = (NodeOperation) node;
-    InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.BVCONCAT);
+    final List<Node> addressFields;
+
+    if (expression.getKind() == Node.Kind.OPERATION) {
+      final NodeOperation operation = (NodeOperation) expression;
+
+      if (operation.getOperationId() == StandardOperation.BVCONCAT) {
+        addressFields = operation.getOperands();
+      } else {
+        InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.BVEXTRACT);
+        addressFields = Collections.<Node>singletonList(expression);
+      }
+    } else {
+      addressFields = Collections.<Node>singletonList(expression);
+    }
 
     int offset = 0;
-    for (final Node addressField : operation.getOperands()) {
+    for (final Node addressField : addressFields) {
       final Node field = FortressUtils.makeNodeExtract(
           variable, offset, (offset + FortressUtils.getBitSize(addressField)) - 1);
 
@@ -157,6 +169,7 @@ public final class MmuAddressViewBuilder {
                     }
                   });
 
+              InvariantChecks.checkNotNull(value, String.format("Cannot evaluate: %s", expression));
               fields.add(value);
             }
 
