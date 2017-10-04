@@ -15,6 +15,8 @@
 package ru.ispras.microtesk.basis.solver.integer;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.data.Data;
@@ -52,8 +54,19 @@ public class IntegerUtils {
         makeNodeValue(upper));
   }
 
+  public static Node makeNodeExtract(final Variable variable, final int bit) {
+    return makeNodeExtract(variable, bit, bit);
+  }
+
   public static Node makeNodeConcat(final List<Node> operands) {
     return new NodeOperation(StandardOperation.BVCONCAT, operands);
+  }
+
+  public static Node makeNodeReverseConcat(final Node... operands) {
+    final List<Node> reversedOperands = Arrays.<Node>asList(operands);
+    Collections.reverse(reversedOperands);
+
+    return makeNodeConcat(reversedOperands);
   }
 
   public static Node makeNodeEqual(final Node lhs, final Node rhs) {
@@ -68,8 +81,16 @@ public class IntegerUtils {
     return new NodeOperation(StandardOperation.AND, operands);
   }
 
+  public static Node makeNodeAnd(final Node... operands) {
+    return makeNodeAnd(Arrays.<Node>asList(operands));
+  }
+
   public static Node makeNodeOr(final List<Node> operands) {
     return new NodeOperation(StandardOperation.OR, operands);
+  }
+
+  public static Node makeNodeOr(final Node... operands) {
+    return makeNodeOr(Arrays.<Node>asList(operands));
   }
 
   public static Variable getVariable(final Node node) {

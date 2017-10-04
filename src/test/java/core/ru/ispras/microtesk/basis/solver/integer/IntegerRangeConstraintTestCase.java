@@ -20,6 +20,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 
@@ -29,7 +31,7 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerRangeConstraintTestCase {
-  private void runTest(final IntegerVariable x, final BigInteger a, final BigInteger b) {
+  private void runTest(final Variable x, final BigInteger a, final BigInteger b) {
     final IntegerRange range = new IntegerRange(a, b);
     System.out.format("Range: %s\n", range);
 
@@ -39,11 +41,11 @@ public final class IntegerRangeConstraintTestCase {
     final IntegerFormulaSolverSat4j solver = new IntegerFormulaSolverSat4j(
         constraint.getFormula(), VariableInitializer.RANDOM);
 
-    final SolverResult<Map<IntegerVariable, BigInteger>> result = solver.solve(Solver.Mode.MAP);
+    final SolverResult<Map<Variable, BigInteger>> result = solver.solve(Solver.Mode.MAP);
     Assert.assertTrue(result.getErrors().toString(),
         result.getStatus() == SolverResult.Status.SAT);
 
-    final Map<IntegerVariable, BigInteger> values = result.getResult();
+    final Map<Variable, BigInteger> values = result.getResult();
     Assert.assertTrue(values != null);
 
     final BigInteger value = values.get(x);
@@ -54,7 +56,7 @@ public final class IntegerRangeConstraintTestCase {
 
   @Test
   public void runTest1() {
-    final IntegerVariable x = new IntegerVariable("x", 64);
+    final Variable x = new Variable("x", DataType.BIT_VECTOR(64));
 
     runTest(x, BigInteger.valueOf(0x00000L), BigInteger.valueOf(0x0ffffL));
     runTest(x, BigInteger.valueOf(0x10000L), BigInteger.valueOf(0x1ffffL));
@@ -63,7 +65,7 @@ public final class IntegerRangeConstraintTestCase {
   @Test
   public void runTest2() {
     final int N = 1000;
-    final IntegerVariable x = new IntegerVariable("x", 64);
+    final Variable x = new Variable("x", DataType.BIT_VECTOR(64));
 
     for (int i = 0; i < N; i++) {
       runTest(x, BigInteger.valueOf(i), BigInteger.valueOf(0xffff0000L + 2*i));

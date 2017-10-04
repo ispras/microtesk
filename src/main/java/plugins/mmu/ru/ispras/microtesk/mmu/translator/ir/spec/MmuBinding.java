@@ -41,6 +41,13 @@ public final class MmuBinding {
     this.rhs = rhs;
   }
 
+  public MmuBinding(final Node lhs) {
+    InvariantChecks.checkNotNull(lhs);
+
+    this.lhs = lhs;
+    this.rhs = null;
+  }
+
   public Node getLhs() {
     return lhs;
   }
