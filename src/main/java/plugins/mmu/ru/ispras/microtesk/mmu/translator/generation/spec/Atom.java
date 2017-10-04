@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import java.math.BigInteger;
-import java.util.List;
 
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
@@ -28,7 +27,7 @@ public final class Atom {
     VARIABLE (Variable.class, false),
     FIELD    (Node.class, false),
     GROUP    (Var.class, true),
-    CONCAT   (List.class, false);
+    CONCAT   (Node.class, false);
 
     private final Class<?> objectClass;
     private final boolean isStruct;
@@ -59,12 +58,12 @@ public final class Atom {
     return new Atom(Kind.GROUP, group);
   }
 
-  public static Atom newField(final Node field) {
-    return new Atom(Kind.FIELD, field);
+  public static Atom newField(final Node extract) {
+    return new Atom(Kind.FIELD, extract);
   }
 
-  public static Atom newConcat(final List<Node> fields) {
-    return new Atom(Kind.CONCAT, fields);
+  public static Atom newConcat(final Node concat) {
+    return new Atom(Kind.CONCAT, concat);
   }
 
   private final Kind kind;

@@ -30,9 +30,6 @@ public final class STBOperation implements STBuilder {
   public static final Class<?> BINDING_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
 
-  public static final Class<?> EXPRESSION_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
-
   public static final Class<?> OPERATION_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuOperation.class;
 
@@ -70,7 +67,6 @@ public final class STBOperation implements STBuilder {
     st.add("pack", packageName);
     st.add("imps", BigInteger.class.getName());
     st.add("imps", BINDING_CLASS.getName());
-    st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", OPERATION_CLASS.getName());
   }
 

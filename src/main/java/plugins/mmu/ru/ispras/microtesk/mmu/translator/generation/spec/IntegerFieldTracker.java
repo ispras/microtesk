@@ -18,7 +18,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 
 /**
  * This class is to track fields in a variable by exclusion.
@@ -27,18 +30,18 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 
 final class IntegerFieldTracker {
-  private final IntegerVariable variable;
-  private List<IntegerField> fields;
+  private final Variable variable;
+  private List<Node> fields;
 
-  private static boolean inField(final IntegerField field, final int index) {
-    return field.getLoIndex() <= index && index <= field.getHiIndex();
+  private static boolean inField(final Node field, final int index) {
+    return IntegerUtils.getLowerBit(field) <= index && index <= IntegerUtils.getUpperBit(field);
   }
 
-  public IntegerFieldTracker(final IntegerVariable variable) {
+  public IntegerFieldTracker(final Variable variable) {
     InvariantChecks.checkNotNull(variable);
 
     this.variable = variable;
-    this.fields = Collections.singletonList(new IntegerField(variable));
+    this.fields = Collections.singletonList(IntegerUtils.makeNodeVariable(variable));
   }
 
   public void exclude(final int lo, final int hi) {
@@ -51,17 +54,19 @@ final class IntegerFieldTracker {
       return;
     }
 
-    final List<IntegerField> newFields = new ArrayList<>();
-    for (final IntegerField field : fields) {
+    final List<Node> newFields = new ArrayList<>();
+    for (final Node field : fields) {
       final boolean isLoInField = inField(field, lo);
       final boolean isHiInField = inField(field, hi);
 
-      if (isLoInField && lo > field.getLoIndex()) {
-        newFields.add(new IntegerField(variable, field.getLoIndex(), lo - 1));
+      if (isLoInField && lo > IntegerUtils.getLowerBit(field)) {
+        newFields.add(
+            IntegerUtils.makeNodeExtract(variable, IntegerUtils.getLowerBit(field), lo - 1));
       }
 
-      if (isHiInField && hi < field.getHiIndex()) {
-        newFields.add(new IntegerField(variable, hi + 1, field.getHiIndex()));
+      if (isHiInField && hi < IntegerUtils.getUpperBit(field)) {
+        newFields.add(
+            IntegerUtils.makeNodeExtract(variable, hi + 1, IntegerUtils.getUpperBit(field)));
       }
 
       if (!isLoInField && !isHiInField) {
@@ -76,13 +81,13 @@ final class IntegerFieldTracker {
     fields = Collections.emptyList();
   }
 
-  public List<IntegerField> getFields() {
+  public List<Node> getFields() {
     return Collections.unmodifiableList(fields);
   }
 
   @Override
   public String toString() {
     return String.format("%s(%d), available fields: %s",
-        variable, variable.getWidth(), fields);
+        variable, variable.getType().getSize(), fields);
   }
 }

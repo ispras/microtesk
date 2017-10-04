@@ -27,14 +27,11 @@ import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSegment implements STBuilder {
-  public static final Class<?> EXPRESSION_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
-
   public static final Class<?> SEGMENT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment.class;
 
   public static final Class<?> INTEGER_CLASS =
-      ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
+      ru.ispras.fortress.data.Variable.class;
 
   public static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
@@ -75,7 +72,6 @@ final class STBSegment implements STBuilder {
     st.add("instance", "INSTANCE");
 
     st.add("imps", INTEGER_CLASS.getName());
-    st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", SEGMENT_CLASS.getName());
     st.add("imps", SPEC_CLASS.getName());
     st.add("imps", BIG_INTEGER_UTILS_CLASS.getName());

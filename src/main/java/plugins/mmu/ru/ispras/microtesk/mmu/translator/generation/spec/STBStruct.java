@@ -30,7 +30,7 @@ final class STBStruct implements STBuilder {
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct.class;
 
   public static final Class<?> INTEGER_CLASS =
-      ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
+      ru.ispras.fortress.data.Variable.class;
 
   private final String packageName;
   private final Type type;

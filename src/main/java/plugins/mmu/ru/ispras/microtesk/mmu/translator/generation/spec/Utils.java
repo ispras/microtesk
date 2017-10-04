@@ -18,7 +18,10 @@ import java.math.BigInteger;
 import java.util.List;
 
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
@@ -53,7 +56,7 @@ public final class Utils {
   public static String getVariableName(
       final Ir ir,
       final String context,
-      final IntegerVariable variable) {
+      final Variable variable) {
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(variable);
@@ -63,41 +66,41 @@ public final class Utils {
 
     if (null != constant) {
       final DataType type = constant.getVariable().getDataType();
-      if (variable.getWidth() == type.getSize()) {
+      if (variable.getType().getSize() == type.getSize()) {
         return name + ".get()";
       } else {
-        return String.format("%s.get(%d)", name, variable.getWidth());
+        return String.format("%s.get(%d)", name, variable.getType().getSize());
       }
     }
 
     return getVariableName(context, name);
   }
 
-  public static String toString(final String context, final IntegerField field) {
+  public static String toString(final String context, final Node field) {
     return toString(context, field, true);
   }
 
   public static String toString(
       final String context,
-      final IntegerField field,
+      final Node field,
       final boolean printAsVariable) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(field);
 
-    if (field.getVariable().isDefined()) {
-      return Utils.toString(field.getVariable().getValue());
+    if (IntegerUtils.getVariable(field).hasValue()) {
+      return Utils.toString(IntegerUtils.getVariable(field).getData().getInteger());
     }
 
-    final String name = getVariableName(context, field.getVariable().getName());
-    if (field.isVariable() && printAsVariable) {
+    final String name = getVariableName(context, IntegerUtils.getVariable(field).getName());
+    if (field.getKind() == Node.Kind.VARIABLE && printAsVariable) {
       return name;
     }
 
     return String.format(
-        "%s.field(%d, %d)", name, field.getLoIndex(), field.getHiIndex());
+        "%s.field(%d, %d)", name, IntegerUtils.getLowerBit(field), IntegerUtils.getUpperBit(field));
   }
 
-  public static String toMmuExpressionText(final String context, final List<IntegerField> fields) {
+  public static String toMmuExpressionText(final String context, final List<Node> fields) {
     InvariantChecks.checkNotNull(context);
 
     if (null == fields) {
@@ -116,26 +119,26 @@ public final class Utils {
     sb.append("MmuExpression.rcat(");
 
     boolean isFirst = true;
-    for (final IntegerField field : fields) {
+    for (final Node field : fields) {
       if (isFirst) {
         isFirst = false;
       } else {
         sb.append(", ");
       }
 
-      final IntegerVariable variable = field.getVariable();
+      final Variable variable = IntegerUtils.getVariable(field);
       final String variableText;
 
-      if (variable.isDefined()) {
-        variableText = String.format("new IntegerVariable(%d, %s)",
-            variable.getWidth(), toString(variable.getValue()));
+      if (variable.hasValue()) {
+        variableText = String.format("new Variable(%d, %s)",
+            variable.getType().getSize(), toString(variable.getData().getInteger()));
       } else {
         variableText =
             getVariableName(context, variable.getName());
       }
 
-      final String text = String.format(
-          "%s.field(%d, %d)", variableText, field.getLoIndex(), field.getHiIndex());
+      final String text = String.format("%s.field(%d, %d)",
+          variableText, IntegerUtils.getLowerBit(field), IntegerUtils.getUpperBit(field));
 
       sb.append(text);
     }
@@ -144,22 +147,24 @@ public final class Utils {
     return sb.toString();
   }
 
-  public static String toMmuExpressionText(final String context, final IntegerField field) {
+  public static String toMmuExpressionText(final String context, final Node field) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(field);
 
     final StringBuilder sb = new StringBuilder();
     sb.append("MmuExpression.");
 
-    if (field.getVariable().isDefined()) {
+    if (IntegerUtils.getVariable(field).hasValue()) {
       sb.append(String.format(
-          "val(%s, %d", toString(field.getVariable().getValue()), field.getWidth()));
+          "val(%s, %d",
+          toString(IntegerUtils.getVariable(field).getData().getInteger()),
+          IntegerUtils.getBitSize(field)));
     } else {
-      final String name = getVariableName(context, field.getVariable().getName());
+      final String name = getVariableName(context, IntegerUtils.getVariable(field).getName());
       sb.append(String.format("var(%s", name));
 
-      if (!field.isVariable()) {
-        sb.append(String.format(", %d, %d", field.getLoIndex(), field.getHiIndex()));
+      if (field.getKind() != Node.Kind.VARIABLE) {
+        sb.append(String.format(", %d, %d", IntegerUtils.getLowerBit(field), IntegerUtils.getUpperBit(field)));
       }
     }
 
@@ -182,15 +187,15 @@ public final class Utils {
         return toString((BigInteger) object);
 
       case VARIABLE:
-        return getVariableName(ir, context, (IntegerVariable) object);
+        return getVariableName(ir, context, (Variable) object);
 
       case FIELD: {
-        final IntegerField field = (IntegerField) object;
-        final IntegerVariable variable = field.getVariable();
+        final Node field = (Node) object;
+        final Variable variable = IntegerUtils.getVariable(field);
         return String.format("%s.field(%d, %d)",
             getVariableName(ir, context, variable),
-            field.getLoIndex(),
-            field.getHiIndex()
+            IntegerUtils.getLowerBit(field),
+            IntegerUtils.getUpperBit(field)
             );
       }
 
@@ -198,7 +203,7 @@ public final class Utils {
         return getVariableName(context, ((Var) object).getName());
 
       case CONCAT:
-        return toMmuExpressionText(context, (List<IntegerField>) object);
+        return toMmuExpressionText(context, (List<Node>) object);
 
       default:
         throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());

@@ -22,7 +22,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
 import ru.ispras.fortress.expression.Node;
@@ -32,6 +35,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.basis.solver.integer.IntegerUtils;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -40,38 +44,15 @@ import ru.ispras.microtesk.utils.StringUtils;
 final class BufferExprAnalyzer {
   private final Var addressVariable;
 
-  private final IntegerVariable variableForAddress;
+  private final Variable variableForAddress;
   private final IntegerFieldTracker fieldTrackerForAddress;
 
-  private final List<IntegerField> indexFields;
-  private final List<IntegerField> tagFields;
-  private final List<IntegerField> offsetFields;
-  private final List<Pair<IntegerField, IntegerField>> matchBindings;
+  private final List<Node> indexFields;
+  private final List<Node> tagFields;
+  private final List<Node> offsetFields;
+  private final List<Pair<Node, Node>> matchBindings;
 
-  private static IntegerField newField(final NodeOperation node) {
-    InvariantChecks.checkTrue(node.getOperationId() == StandardOperation.BVEXTRACT);
-
-    if (node.getOperandCount() != 3) {
-      throw new IllegalStateException("Wrong operand count (3 is expected): " + node);
-    }
-
-    final Node variable = node.getOperand(2);
-    if (variable.getKind() != Node.Kind.VARIABLE) {
-      throw new IllegalStateException(variable + " is not a variable.");
-    }
-
-    final int lo = FortressUtils.extractInt(node.getOperand(1));
-    final int hi = FortressUtils.extractInt(node.getOperand(0));
-
-    return new IntegerField(
-        new IntegerVariable(
-            ((NodeVariable) variable).getName(), variable.getDataType().getSize()),
-         lo,
-         hi
-         );
-  }
-
-  private IntegerField newAddressField(final NodeOperation node) {
+  private Node newAddressField(final NodeOperation node) {
     InvariantChecks.checkTrue(node.getOperationId() == StandardOperation.BVEXTRACT);
 
     if (node.getOperandCount() != 3) {
@@ -92,26 +73,26 @@ final class BufferExprAnalyzer {
     final int hi = FortressUtils.extractInt(node.getOperand(0));
 
     fieldTrackerForAddress.exclude(lo, hi);
-    return new IntegerField(variableForAddress, lo, hi);
+    return node;
   }
 
-  private IntegerField newAddressField(final NodeVariable node) {
+  private Node newAddressField(final NodeVariable node) {
     if (!node.equals(addressVariable.getNode())) {
       throw new IllegalStateException(
           node + " is not equal to " + addressVariable.getNode());
     }
 
     fieldTrackerForAddress.excludeAll();
-    return new IntegerField(variableForAddress);
+    return IntegerUtils.makeNodeVariable(variableForAddress);
   }
 
   private class VisitorIndex extends ExprTreeVisitorDefault {
     private final Set<StandardOperation> SUPPORTED_OPS = EnumSet.of(
         StandardOperation.BVEXTRACT, StandardOperation.BVCONCAT);
 
-    private final List<IntegerField> fields = new ArrayList<>();
+    private final List<Node> fields = new ArrayList<>();
 
-    public List<IntegerField> getFields() {
+    public List<Node> getFields() {
       return fields;
     }
 
@@ -124,7 +105,7 @@ final class BufferExprAnalyzer {
       }
 
       if (op == StandardOperation.BVEXTRACT) {
-        final IntegerField addressField = newAddressField(node);
+        final Node addressField = newAddressField(node);
         fields.add(addressField);
         setStatus(Status.SKIP);
       }
@@ -132,7 +113,7 @@ final class BufferExprAnalyzer {
 
     @Override
     public void onVariable(final NodeVariable node) {
-      final IntegerField addressField = newAddressField(node);
+      final Node addressField = newAddressField(node);
       fields.add(addressField);
     }
   }
@@ -142,19 +123,19 @@ final class BufferExprAnalyzer {
         StandardOperation.EQ, StandardOperation.AND, StandardOperation.BVEXTRACT);
 
     private final Deque<Enum<?>> opStack = new ArrayDeque<Enum<?>>();
-    private final List<IntegerField> fields = new ArrayList<>();
+    private final List<Node> fields = new ArrayList<>();
 
     /** Match bindings, format: (<entry expression> == (<address expression> | constant)) */
-    private final List<Pair<IntegerField, IntegerField>> bindings = new ArrayList<>();
+    private final List<Pair<Node, Node>> bindings = new ArrayList<>();
 
-    private IntegerField entrySide = null;
-    private IntegerField addressSide = null;
+    private Node entrySide = null;
+    private Node addressSide = null;
 
-    public List<IntegerField> getTagFields() {
+    public List<Node> getTagFields() {
       return fields;
     }
 
-    public List<Pair<IntegerField, IntegerField>> getMatchBindings() {
+    public List<Pair<Node, Node>> getMatchBindings() {
       return bindings;
     }
 
@@ -174,16 +155,14 @@ final class BufferExprAnalyzer {
 
         final Node variable = node.getOperand(2);
         if (variable.equals(addressVariable.getNode())) {
-          final IntegerField addressField = newAddressField(node);
+          final Node addressField = newAddressField(node);
           fields.add(addressField);
 
           InvariantChecks.checkTrue(addressSide == null);
           addressSide = addressField;
         } else {
-          final IntegerField entryField = newField(node);
-
           InvariantChecks.checkTrue(entrySide == null);
-          entrySide = entryField;
+          entrySide = node;
         }
 
         setStatus(Status.SKIP);
@@ -205,19 +184,23 @@ final class BufferExprAnalyzer {
       opStack.push(op);
     }
 
+    @Override
     public void onOperationEnd(final NodeOperation node) {
       final Enum<?> op = node.getOperationId();
       if (op == StandardOperation.EQ) {
         InvariantChecks.checkNotNull(addressSide);
         InvariantChecks.checkNotNull(entrySide);
 
-        if (addressSide.getVariable().isDefined() && 
-            addressSide.getWidth() != entrySide.getWidth()) {
-          addressSide = new IntegerField(new IntegerVariable(
-              addressSide.getVariable().getName(),
-              entrySide.getWidth(),
-              addressSide.getVariable().getValue())
-              );
+        final Variable variable = IntegerUtils.getVariable(addressSide);
+
+        final int addressSideSize = IntegerUtils.getBitSize(addressSide);
+        final int entrySideSize = IntegerUtils.getBitSize(entrySide);
+
+        if (variable.hasValue() && addressSideSize != entrySideSize) {
+          final Variable newVariable = new Variable(variable.getName(),
+              Data.newBitVector(variable.getData().getInteger(), entrySideSize));
+
+          addressSide = new NodeVariable(newVariable);
         }
 
         bindings.add(new Pair<>(entrySide, addressSide));
@@ -231,15 +214,14 @@ final class BufferExprAnalyzer {
     @Override
     public void onVariable(final NodeVariable node) {
       if (node.equals(addressVariable.getNode())) {
-        final IntegerField addressField = newAddressField(node);
+        final Node addressField = newAddressField(node);
         fields.add(addressField);
 
         InvariantChecks.checkTrue(addressSide == null);
         addressSide = addressField; 
       } else {
         InvariantChecks.checkTrue(entrySide == null);
-        entrySide = new IntegerField(
-            new IntegerVariable(node.getName(), node.getDataType().getSize()));
+        entrySide = node;
       }
     }
 
@@ -260,7 +242,7 @@ final class BufferExprAnalyzer {
         throw new IllegalStateException("Unsupported value type: " + node.getDataType());
       }
 
-      addressSide = new IntegerField(new IntegerVariable("#fake", width, value));
+      addressSide = new NodeVariable(new Variable("#fake", Data.newBitVector(value, width)));
     }
   }
 
@@ -280,7 +262,7 @@ final class BufferExprAnalyzer {
     final String addressName =
         address.getId() + "." + StringUtils.toString(address.getAccessChain(), ".");
 
-    this.variableForAddress = new IntegerVariable(addressName, addressSize);
+    this.variableForAddress = new Variable(addressName, DataType.BIT_VECTOR(addressSize));
     this.fieldTrackerForAddress = new IntegerFieldTracker(variableForAddress);
 
     final VisitorIndex visitorIndex = new VisitorIndex();
@@ -297,19 +279,19 @@ final class BufferExprAnalyzer {
     this.offsetFields = fieldTrackerForAddress.getFields();
   }
 
-  public List<IntegerField> getIndexFields() {
+  public List<Node> getIndexFields() {
     return indexFields;
   }
 
-  public List<IntegerField> getTagFields() {
+  public List<Node> getTagFields() {
     return tagFields;
   }
 
-  public List<IntegerField> getOffsetFields() {
+  public List<Node> getOffsetFields() {
     return offsetFields;
   }
 
-  public List<Pair<IntegerField, IntegerField>> getMatchBindings() {
+  public List<Pair<Node, Node>> getMatchBindings() {
     return matchBindings;
   }
 }

@@ -28,7 +28,7 @@ final class STBAddress implements STBuilder {
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance.class;
 
   public static final Class<?> INTEGER_CLASS =
-      ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
+      ru.ispras.fortress.data.Variable.class;
 
   private final String packageName;
   private final Address address;

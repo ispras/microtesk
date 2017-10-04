@@ -32,7 +32,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBMemory implements STBuilder {
   public static final Class<?> INTEGER_CLASS =
-      ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
+      ru.ispras.fortress.data.Variable.class;
 
   public static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;

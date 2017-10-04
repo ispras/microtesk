@@ -35,20 +35,11 @@ final class STBBuffer implements STBuilder {
   public static final Class<?> BUFFER_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.class;
 
-  public static final Class<?> COND_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuCondition.class;
-
-  public static final Class<?> COND_ATOM_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuConditionAtom.class;
-
-  public static final Class<?> EXPRESSION_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
-
   public static final Class<?> STRUCT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct.class;
 
   public static final Class<?> INTEGER_CLASS =
-      ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
+      ru.ispras.fortress.data.Variable.class;
 
   private final String packageName;
   private final Buffer buffer;
@@ -84,7 +75,6 @@ final class STBBuffer implements STBuilder {
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", BINDING_CLASS.getName());
     st.add("imps", BUFFER_CLASS.getName());
-    st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", STRUCT_CLASS.getName());
   }
 

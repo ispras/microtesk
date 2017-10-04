@@ -28,11 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class STBFunction implements STBuilder {
-  public static final Class<?> EXPRESSION_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuExpression.class;
-
   public static final Class<?> INTEGER_CLASS =
-      ru.ispras.microtesk.basis.solver.integer.IntegerVariable.class;
+      ru.ispras.fortress.data.Variable.class;
 
   public static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
@@ -69,7 +66,6 @@ final class STBFunction implements STBuilder {
     st.add("instance", "INSTANCE");
 
     st.add("imps", INTEGER_CLASS.getName());
-    st.add("imps", EXPRESSION_CLASS.getName());
     st.add("imps", SPEC_CLASS.getName());
   }
 
