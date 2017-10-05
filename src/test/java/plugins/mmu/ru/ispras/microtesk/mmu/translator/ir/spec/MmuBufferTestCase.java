@@ -284,7 +284,7 @@ public class MmuBufferTestCase {
   public void runTest() {
     final int testCount = 1000;
     for (int i = 0; i < testCount; i++) {
-      runTest(DTLB, DTLB_ADDR_VIEW, BitVector.valueOf(/*Randomizer.get().nextLong()*/ 0x12345678deadbeefL, 64));
+      runTest(DTLB, DTLB_ADDR_VIEW, BitVector.valueOf(Randomizer.get().nextLong(), 64));
       runTest(L1, L1_ADDR_VIEW, BitVector.valueOf(Randomizer.get().nextLong(), 36));
       runTest(L2, L2_ADDR_VIEW, BitVector.valueOf(Randomizer.get().nextLong(), 36));
     }
