@@ -27,11 +27,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
-import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaProblemSat4j;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaSolverSat4j;
-import ru.ispras.microtesk.basis.solver.integer.VariableInitializer;
+import ru.ispras.microtesk.basis.solver.integer.BitVectorConstraint;
+import ru.ispras.microtesk.basis.solver.integer.BitVectorFormulaBuilder;
+import ru.ispras.microtesk.basis.solver.integer.BitVectorFormulaProblemSat4j;
+import ru.ispras.microtesk.basis.solver.integer.BitVectorFormulaSolverSat4j;
+import ru.ispras.microtesk.basis.solver.integer.BitVectorVariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
@@ -158,7 +158,7 @@ public final class MemoryEngineUtils {
     // latest assignments and latest buffer accesses.
 
     final SolverResult<Map<Variable, BitVector>> result =
-        solve(partialResult, VariableInitializer.ZEROS, Solver.Mode.SAT);
+        solve(partialResult, BitVectorVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
@@ -206,7 +206,7 @@ public final class MemoryEngineUtils {
             access,
             Collections.<Node>emptyList(),
             constraints.getGeneralConstraints(),
-            VariableInitializer.ZEROS,
+            BitVectorVariableInitializer.ZEROS,
             Solver.Mode.SAT
         );
 
@@ -216,8 +216,8 @@ public final class MemoryEngineUtils {
   public static Map<Variable, BitVector> generateData(
       final Access access,
       final Collection<Node> conditions,
-      final Collection<IntegerConstraint> constraints,
-      final VariableInitializer initializer) {
+      final Collection<BitVectorConstraint> constraints,
+      final BitVectorVariableInitializer initializer) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(initializer);
@@ -237,14 +237,14 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(structure);
 
     final SolverResult<Map<Variable, BitVector>> result =
-        solve(structure, VariableInitializer.ZEROS, Solver.Mode.SAT);
+        solve(structure, BitVectorVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
   private static SolverResult<Map<Variable, BitVector>> solve(
       final SymbolicResult symbolicResult /* INOUT */,
-      final VariableInitializer initializer,
+      final BitVectorVariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
@@ -253,7 +253,7 @@ public final class MemoryEngineUtils {
       return new SolverResult<Map<Variable, BitVector>>("Conflict in symbolic execution");
     }
 
-    final IntegerFormulaBuilder builder = symbolicResult.getBuilder();
+    final BitVectorFormulaBuilder builder = symbolicResult.getBuilder();
 
     final Solver<Map<Variable, BitVector>> solver = newSolver(builder, initializer);
     final SolverResult<Map<Variable, BitVector>> result = solver.solve(mode);
@@ -270,8 +270,8 @@ public final class MemoryEngineUtils {
   private static SolverResult<Map<Variable, BitVector>> solve(
       final Access access,
       final Collection<Node> conditions,
-      final Collection<IntegerConstraint> constraints,
-      final VariableInitializer initializer,
+      final Collection<BitVectorConstraint> constraints,
+      final BitVectorVariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(conditions);
@@ -302,10 +302,10 @@ public final class MemoryEngineUtils {
       return new SolverResult<Map<Variable, BitVector>>("Conflict in symbolic execution");
     }
 
-    final IntegerFormulaBuilder builder = symbolicResult.getBuilder().clone();
+    final BitVectorFormulaBuilder builder = symbolicResult.getBuilder().clone();
 
     // Supplement the formula with the constraints.
-    for (final IntegerConstraint constraint : constraints) {
+    for (final BitVectorConstraint constraint : constraints) {
       builder.addFormula(constraint.getFormula());
     }
 
@@ -325,7 +325,7 @@ public final class MemoryEngineUtils {
 
   private static SolverResult<Map<Variable, BitVector>> solve(
       final List<Access> structure,
-      final VariableInitializer initializer,
+      final BitVectorVariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkNotNull(initializer);
@@ -335,14 +335,14 @@ public final class MemoryEngineUtils {
     symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
 
     final SymbolicResult symbolicResult = symbolicExecutor.getResult();
-    final IntegerFormulaBuilder builder = symbolicResult.getBuilder();
+    final BitVectorFormulaBuilder builder = symbolicResult.getBuilder();
     final Solver<Map<Variable, BitVector>> solver = newSolver(builder, initializer);
 
     return solver.solve(mode);
   }
 
-  public static IntegerFormulaBuilder newFormulaBuilder() {
-    return new IntegerFormulaProblemSat4j();
+  public static BitVectorFormulaBuilder newFormulaBuilder() {
+    return new BitVectorFormulaProblemSat4j();
   }
 
   public static SymbolicResult newSymbolicResult() {
@@ -367,11 +367,11 @@ public final class MemoryEngineUtils {
   }
 
   public static Solver<Map<Variable, BitVector>> newSolver(
-      final IntegerFormulaBuilder builder,
-      final VariableInitializer initializer) {
+      final BitVectorFormulaBuilder builder,
+      final BitVectorVariableInitializer initializer) {
     InvariantChecks.checkNotNull(builder);
     InvariantChecks.checkNotNull(initializer);
 
-    return new IntegerFormulaSolverSat4j(builder, initializer);
+    return new BitVectorFormulaSolverSat4j(builder, initializer);
   }
 }

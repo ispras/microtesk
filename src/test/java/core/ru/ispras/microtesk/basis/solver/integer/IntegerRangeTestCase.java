@@ -23,15 +23,15 @@ import org.junit.Test;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
- * Test for {@link IntegerRange}.
+ * Test for {@link BitVectorRange}.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 
 public class IntegerRangeTestCase {
-  private void printRanges(final List<IntegerRange> ranges, int index) {
+  private void printRanges(final List<BitVectorRange> ranges, int index) {
     System.out.format(" ===== Range list %x ===== \n", index);
-    for (final IntegerRange range : ranges) {
+    for (final BitVectorRange range : ranges) {
       System.out.format("%s\n", range);
     }
     System.out.format("\n");
@@ -42,73 +42,73 @@ public class IntegerRangeTestCase {
    */
   @Test
   public void runTest0() {
-    final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(
+    final Set<BitVectorRange> inRanges = new HashSet<>();
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(16, 32),
         BitVector.valueOf(25, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(1, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(24, 32),
         BitVector.valueOf(53, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(12, 32),
         BitVector.valueOf(12, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(2, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(1, 32),
         BitVector.valueOf(1, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(63, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(15, 32),
         BitVector.valueOf(17, 32)));
-    final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
+    final List<BitVectorRange> outRanges = BitVectorRange.divide(inRanges);
     printRanges(outRanges, 0);
 
-    final Set<IntegerRange> checkRanges = new HashSet<>();
-    checkRanges.add(new IntegerRange(
+    final Set<BitVectorRange> checkRanges = new HashSet<>();
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(0, 32)));
-    checkRanges.add(new IntegerRange(
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(1, 32),
         BitVector.valueOf(1, 32)));
-    checkRanges.add(new IntegerRange(
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(2, 32),
         BitVector.valueOf(2, 32)));
-    checkRanges.add(new IntegerRange(
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(3, 32),
         BitVector.valueOf(11, 32)));
-    checkRanges.add(new IntegerRange(
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(12, 32),
         BitVector.valueOf(12, 32)));
-    checkRanges.add(new IntegerRange(
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(13, 32),
         BitVector.valueOf(14, 32)));
-    checkRanges.add(new IntegerRange(
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(15, 32),
         BitVector.valueOf(15, 32)));
-    checkRanges.add(new IntegerRange(
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(16, 32),
         BitVector.valueOf(17, 32)));
-    checkRanges.add(new IntegerRange(
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(18, 32),
         BitVector.valueOf(23, 32)));
-    checkRanges.add(new IntegerRange(
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(24, 32),
         BitVector.valueOf(25, 32)));
-    checkRanges.add(new IntegerRange(
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(26, 32),
         BitVector.valueOf(53, 32)));
-    checkRanges.add(new IntegerRange(
+    checkRanges.add(new BitVectorRange(
         BitVector.valueOf(54, 32),
         BitVector.valueOf(63, 32)));
 
-    for (IntegerRange range : outRanges) {
+    for (BitVectorRange range : outRanges) {
       if (!checkRanges.contains(range)) {
         throw new IllegalStateException("Error: invalid range " + range);
       }
@@ -120,36 +120,36 @@ public class IntegerRangeTestCase {
    */
   @Test
   public void runTest1() {
-    final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(
+    final Set<BitVectorRange> inRanges = new HashSet<>();
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(127, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(55, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(3, 32),
         BitVector.valueOf(5, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(27, 32),
         BitVector.valueOf(63, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(12, 32),
         BitVector.valueOf(26, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(15, 32),
         BitVector.valueOf(30, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(31, 32),
         BitVector.valueOf(111, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(100, 32),
         BitVector.valueOf(101, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(91, 32),
         BitVector.valueOf(100, 32)));
 
-    final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
+    final List<BitVectorRange> outRanges = BitVectorRange.divide(inRanges);
     printRanges(outRanges, 1);
   }
 
@@ -158,18 +158,18 @@ public class IntegerRangeTestCase {
    */
   @Test
   public void runTest2() {
-    final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(
+    final Set<BitVectorRange> inRanges = new HashSet<>();
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(127, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(55, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(44, 32),
         BitVector.valueOf(99, 32)));
 
-    final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
+    final List<BitVectorRange> outRanges = BitVectorRange.divide(inRanges);
     printRanges(outRanges, 2);
   }
 
@@ -178,21 +178,21 @@ public class IntegerRangeTestCase {
    */
   @Test
   public void runTest3() {
-    final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(
+    final Set<BitVectorRange> inRanges = new HashSet<>();
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(127, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(55, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(44, 32),
         BitVector.valueOf(99, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(55, 32),
         BitVector.valueOf(111, 32)));
 
-    final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
+    final List<BitVectorRange> outRanges = BitVectorRange.divide(inRanges);
     printRanges(outRanges, 3);
   }
 
@@ -201,18 +201,18 @@ public class IntegerRangeTestCase {
    */
   @Test
   public void runTest4() {
-    final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(
+    final Set<BitVectorRange> inRanges = new HashSet<>();
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(127, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(0, 32),
         BitVector.valueOf(55, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(58, 32),
         BitVector.valueOf(99, 32)));
 
-    final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
+    final List<BitVectorRange> outRanges = BitVectorRange.divide(inRanges);
     printRanges(outRanges, 4);
   }
 
@@ -221,21 +221,21 @@ public class IntegerRangeTestCase {
    */
   @Test
   public void runTest5() {
-    final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(
+    final Set<BitVectorRange> inRanges = new HashSet<>();
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(23, 32),
         BitVector.valueOf(127, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(22, 32),
         BitVector.valueOf(55, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(44, 32),
         BitVector.valueOf(99, 32)));
-    inRanges.add(new IntegerRange(
+    inRanges.add(new BitVectorRange(
         BitVector.valueOf(55, 32),
         BitVector.valueOf(111, 32)));
 
-    final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
+    final List<BitVectorRange> outRanges = BitVectorRange.divide(inRanges);
     printRanges(outRanges, 5);
   }
 }

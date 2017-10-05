@@ -17,10 +17,10 @@ package ru.ispras.microtesk.basis.solver.integer;
 import ru.ispras.fortress.expression.Node;
 
 /**
- * {@link IntegerConstraint} is generic interface for integer constraints.
+ * {@link BitVectorConstraint} is generic interface of a bit-vector constraint.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface IntegerConstraint {
+public interface BitVectorConstraint {
   Node getFormula();
 }

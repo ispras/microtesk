@@ -26,20 +26,20 @@ import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 
 /**
- * Test for {@link IntegerRangeConstraint}.
+ * Test for {@link BitVectorRangeConstraint}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntegerRangeConstraintTestCase {
   private void runTest(final Variable x, final BitVector a, final BitVector b) {
-    final IntegerRange range = new IntegerRange(a, b);
+    final BitVectorRange range = new BitVectorRange(a, b);
     System.out.format("Range: %s\n", range);
 
-    final IntegerRangeConstraint constraint = new IntegerRangeConstraint(x, range);
+    final BitVectorRangeConstraint constraint = new BitVectorRangeConstraint(x, range);
     System.out.format("Formula: %s\n", constraint);
 
-    final IntegerFormulaSolverSat4j solver = new IntegerFormulaSolverSat4j(
-        constraint.getFormula(), VariableInitializer.RANDOM);
+    final BitVectorFormulaSolverSat4j solver = new BitVectorFormulaSolverSat4j(
+        constraint.getFormula(), BitVectorVariableInitializer.RANDOM);
 
     final SolverResult<Map<Variable, BitVector>> result = solver.solve(Solver.Mode.MAP);
     Assert.assertTrue(result.getErrors().toString(),

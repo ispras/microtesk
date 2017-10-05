@@ -27,7 +27,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilder;
+import ru.ispras.microtesk.basis.solver.integer.BitVectorFormulaBuilder;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
@@ -51,7 +51,7 @@ public final class SymbolicResult {
   private boolean hasConflict = false;
 
   /** Allows updating the formula, i.e. performing symbolic execution. */
-  private final IntegerFormulaBuilder builder;
+  private final BitVectorFormulaBuilder builder;
 
   /** Enables recursive memory calls. */
   private final Map<Integer, MemoryAccessContext> contexts;
@@ -73,7 +73,7 @@ public final class SymbolicResult {
   private final Map<Variable, BitVector> constants;
 
   private SymbolicResult(
-      final IntegerFormulaBuilder builder,
+      final BitVectorFormulaBuilder builder,
       final Map<Integer, MemoryAccessContext> contexts,
       final Collection<Variable> originals,
       final Map<String, Integer> versions,
@@ -94,7 +94,7 @@ public final class SymbolicResult {
     this.constants = constants;
   }
 
-  public SymbolicResult(final IntegerFormulaBuilder builder) {
+  public SymbolicResult(final BitVectorFormulaBuilder builder) {
     this(
         builder,
         new HashMap<Integer, MemoryAccessContext>(),
@@ -120,7 +120,7 @@ public final class SymbolicResult {
   }
 
   public SymbolicResult(
-      final IntegerFormulaBuilder builder,
+      final BitVectorFormulaBuilder builder,
       final SymbolicResult r) {
     this(
         builder,
@@ -144,7 +144,7 @@ public final class SymbolicResult {
     this.hasConflict = hasConflict;
   }
 
-  public IntegerFormulaBuilder getBuilder() {
+  public BitVectorFormulaBuilder getBuilder() {
     return builder;
   }
 

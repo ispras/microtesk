@@ -33,9 +33,9 @@ import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
-import ru.ispras.microtesk.basis.solver.integer.VariableInitializer;
+import ru.ispras.microtesk.basis.solver.integer.BitVectorConstraint;
+import ru.ispras.microtesk.basis.solver.integer.BitVectorEqualConstraint;
+import ru.ispras.microtesk.basis.solver.integer.BitVectorVariableInitializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
@@ -119,7 +119,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     accessConstraints.randomize();
 
-    final Collection<IntegerConstraint> constraints =
+    final Collection<BitVectorConstraint> constraints =
         accessConstraints.getVariateConstraints();
 
     // Refine the addresses (in particular, assign the intermediate addresses).
@@ -487,11 +487,11 @@ public final class MemoryDataGenerator implements DataGenerator {
   private Map<Variable, BitVector> refineAddr(
       final AddressObject addressObject,
       final Collection<Node> conditions,
-      final Collection<IntegerConstraint> constraints) {
+      final Collection<BitVectorConstraint> constraints) {
 
     Logger.debug("Refine address: conditions=%s", conditions);
 
-    final Collection<IntegerConstraint> allConstraints = new ArrayList<>(constraints);
+    final Collection<BitVectorConstraint> allConstraints = new ArrayList<>(constraints);
 
     // Fix known values of the data.
     final Map<Variable, BitVector> data = addressObject.getData();
@@ -500,7 +500,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final BitVector value = entry.getValue();
 
       allConstraints.add(
-          new IntegerEqualConstraint(FortressUtils.makeNodeVariable(variable), value));
+          new BitVectorEqualConstraint(FortressUtils.makeNodeVariable(variable), value));
     }
 
     // Fix known values of the addresses.
@@ -510,7 +510,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final BitVector value = entry.getValue();
 
       allConstraints.add(
-          new IntegerEqualConstraint(FortressUtils.makeNodeVariable(variable), value));
+          new BitVectorEqualConstraint(FortressUtils.makeNodeVariable(variable), value));
     }
 
     Logger.debug("Constraints for refinement: %s", allConstraints);
@@ -520,7 +520,7 @@ public final class MemoryDataGenerator implements DataGenerator {
             addressObject.getAccess(),
             conditions,
             allConstraints,
-            VariableInitializer.RANDOM
+            BitVectorVariableInitializer.RANDOM
         );
 
     // Cannot correct the address values.

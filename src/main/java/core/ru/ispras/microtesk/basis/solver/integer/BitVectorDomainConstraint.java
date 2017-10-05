@@ -29,11 +29,11 @@ import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link IntegerDomainConstraint} class represents a simple constraint.
+ * {@link BitVectorDomainConstraint} class represents a domain constraint.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerDomainConstraint implements IntegerConstraint {
+public final class BitVectorDomainConstraint implements BitVectorConstraint {
   /**
    * {@link Kind} contains domain constraint Kinds.
    */
@@ -48,7 +48,7 @@ public final class IntegerDomainConstraint implements IntegerConstraint {
 
   private final Node formula;
 
-  public IntegerDomainConstraint(
+  public BitVectorDomainConstraint(
       final Kind kind,
       final Node variable,
       final Set<BitVector> domain,
@@ -93,20 +93,20 @@ public final class IntegerDomainConstraint implements IntegerConstraint {
         operands);
   }
 
-  public IntegerDomainConstraint(
+  public BitVectorDomainConstraint(
       final Node variable,
       final Set<BitVector> domain,
       final Set<BitVector> values) {
     this(Kind.RETAIN, variable, domain, values);
   }
 
-  public IntegerDomainConstraint(
+  public BitVectorDomainConstraint(
       final Node variable,
       final Set<BitVector> values) {
     this(Kind.RETAIN, variable, null, values);
   }
 
-  public IntegerDomainConstraint(
+  public BitVectorDomainConstraint(
       final Node variable,
       final BitVector value) {
     this(variable, Collections.singleton(value));

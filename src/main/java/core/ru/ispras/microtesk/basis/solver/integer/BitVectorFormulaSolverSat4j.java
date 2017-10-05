@@ -32,16 +32,16 @@ import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 
 /**
- * {@link IntegerFormulaSolverSat4j} implements an integer-field-constraints solver.
+ * {@link BitVectorFormulaSolverSat4j} is a SAT-based bit-vector constraint solver.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerFormulaSolverSat4j implements Solver<Map<Variable, BitVector>> {
+public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, BitVector>> {
   /** Problem to be solved. */
-  private final IntegerFormulaProblemSat4j problem;
+  private final BitVectorFormulaProblemSat4j problem;
 
   /** Initializer used to fill the unused fields of the variables. */
-  private final VariableInitializer initializer;
+  private final BitVectorVariableInitializer initializer;
 
   /**
    * Constructs a solver.
@@ -49,14 +49,14 @@ public final class IntegerFormulaSolverSat4j implements Solver<Map<Variable, Bit
    * @param builder the builder of the problem to be solved.
    * @param initializer the initializer to be used to fill the unused fields. 
    */
-  public IntegerFormulaSolverSat4j(
-    final IntegerFormulaBuilder builder,
-    final VariableInitializer initializer) {
+  public BitVectorFormulaSolverSat4j(
+    final BitVectorFormulaBuilder builder,
+    final BitVectorVariableInitializer initializer) {
     InvariantChecks.checkNotNull(builder);
-    InvariantChecks.checkTrue(builder instanceof IntegerFormulaProblemSat4j);
+    InvariantChecks.checkTrue(builder instanceof BitVectorFormulaProblemSat4j);
     InvariantChecks.checkNotNull(initializer);
 
-    this.problem = (IntegerFormulaProblemSat4j) builder;
+    this.problem = (BitVectorFormulaProblemSat4j) builder;
     this.initializer = initializer;
   }
 
@@ -66,13 +66,13 @@ public final class IntegerFormulaSolverSat4j implements Solver<Map<Variable, Bit
    * @param formulae the constraints to be solved.
    * @param initializer the initializer to be used to fill the unused fields. 
    */
-  public IntegerFormulaSolverSat4j(
+  public BitVectorFormulaSolverSat4j(
     final Collection<Node> formulae,
-    final VariableInitializer initializer) {
+    final BitVectorVariableInitializer initializer) {
     InvariantChecks.checkNotNull(formulae);
     InvariantChecks.checkNotNull(initializer);
 
-    this.problem = new IntegerFormulaProblemSat4j();
+    this.problem = new BitVectorFormulaProblemSat4j();
     for (final Node formula : formulae) {
       problem.addFormula(formula);
     }
@@ -86,13 +86,13 @@ public final class IntegerFormulaSolverSat4j implements Solver<Map<Variable, Bit
    * @param formula the constraint to be solved.
    * @param initializer the initializer to be used to fill the unused fields. 
    */
-  public IntegerFormulaSolverSat4j(
+  public BitVectorFormulaSolverSat4j(
     final Node formula,
-    final VariableInitializer initializer) {
+    final BitVectorVariableInitializer initializer) {
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(initializer);
 
-    this.problem = new IntegerFormulaProblemSat4j();
+    this.problem = new BitVectorFormulaProblemSat4j();
     problem.addFormula(formula);
 
     this.initializer = initializer;

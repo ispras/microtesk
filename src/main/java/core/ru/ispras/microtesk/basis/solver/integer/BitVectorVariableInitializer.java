@@ -19,11 +19,11 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link VariableInitializer} defines strategies for initializing integer variables.
+ * {@link BitVectorVariableInitializer} defines strategies for initializing bit-vector variables.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public enum VariableInitializer {
+public enum BitVectorVariableInitializer {
   ZEROS() {
     @Override
     public BitVector getValue(final int width) {

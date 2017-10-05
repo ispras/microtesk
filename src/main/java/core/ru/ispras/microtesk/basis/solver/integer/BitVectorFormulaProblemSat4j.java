@@ -27,11 +27,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
- * {@link NodeOperationFormulaProblemSat4j} represents an integer problem.
+ * {@link BitVectorFormulaProblemSat4j} represents a bit-vector problem.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerFormulaProblemSat4j extends IntegerFormulaBuilder {
+public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder {
   /** Using directly ISolver instead of Sat4jFormula.Builder slows down performance. */
   private final Sat4jFormula.Builder builder;
 
@@ -42,14 +42,14 @@ public final class IntegerFormulaProblemSat4j extends IntegerFormulaBuilder {
   /** Contains the used/unused bits of the variables. */
   private final Map<Variable, BitVector> masks;
 
-  public IntegerFormulaProblemSat4j() {
+  public BitVectorFormulaProblemSat4j() {
     this.builder = new Sat4jFormula.Builder();
     this.indices = new LinkedHashMap<>();
     this.index = 1;
     this.masks = new LinkedHashMap<>();
   }
 
-  public IntegerFormulaProblemSat4j(final IntegerFormulaProblemSat4j r) {
+  public BitVectorFormulaProblemSat4j(final BitVectorFormulaProblemSat4j r) {
     this.builder = new Sat4jFormula.Builder(r.builder);
     this.indices = new LinkedHashMap<>(r.indices);
     this.index = r.index;
@@ -257,7 +257,7 @@ public final class IntegerFormulaProblemSat4j extends IntegerFormulaBuilder {
   }
 
   @Override
-  public IntegerFormulaProblemSat4j clone() {
-    return new IntegerFormulaProblemSat4j(this);
+  public BitVectorFormulaProblemSat4j clone() {
+    return new BitVectorFormulaProblemSat4j(this);
   }
 }
