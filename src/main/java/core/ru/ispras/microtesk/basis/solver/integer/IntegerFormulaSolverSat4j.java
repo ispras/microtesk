@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.basis.solver.integer;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -28,7 +27,6 @@ import org.sat4j.specs.TimeoutException;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
@@ -38,7 +36,7 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerFormulaSolverSat4j implements Solver<Map<Variable, BigInteger>> {
+public final class IntegerFormulaSolverSat4j implements Solver<Map<Variable, BitVector>> {
   /** Problem to be solved. */
   private final IntegerFormulaProblemSat4j problem;
 
@@ -101,7 +99,7 @@ public final class IntegerFormulaSolverSat4j implements Solver<Map<Variable, Big
   }
 
   @Override
-  public SolverResult<Map<Variable, BigInteger>> solve(final Mode mode) {
+  public SolverResult<Map<Variable, BitVector>> solve(final Mode mode) {
     InvariantChecks.checkNotNull(mode);
 
     final ISolver solver = Sat4jUtils.getSolver();
@@ -115,7 +113,7 @@ public final class IntegerFormulaSolverSat4j implements Solver<Map<Variable, Big
     } catch (final ContradictionException e) {
       return new SolverResult<>(
           SolverResult.Status.UNSAT,
-          Collections.<Variable, BigInteger>emptyMap(),
+          Collections.<Variable, BitVector>emptyMap(),
           Collections.<String>singletonList(
               String.format("Contradiction: %s", e.getMessage())));
     }
@@ -128,28 +126,28 @@ public final class IntegerFormulaSolverSat4j implements Solver<Map<Variable, Big
     } catch (final TimeoutException e) {
       return new SolverResult<>(
           SolverResult.Status.UNSAT,
-          Collections.<Variable, BigInteger>emptyMap(),
+          Collections.<Variable, BitVector>emptyMap(),
           Collections.<String>singletonList(
               String.format("Timeout: %s", e.getMessage())));
     }
 
     if (mode == Solver.Mode.SAT) {
-      return new SolverResult<>(Collections.<Variable, BigInteger>emptyMap());
+      return new SolverResult<>(Collections.<Variable, BitVector>emptyMap());
     }
 
     // Assign the variables with values.
-    final Map<Variable, BigInteger> solution =
+    final Map<Variable, BitVector> solution =
         Sat4jUtils.decodeSolution(solver, problem.getIndices());
 
     // Track unused fields of the variables.
     final Map<Variable, BitVector> masks = problem.getMasks();
 
     // Initialize unused fields of the variables.
-    for (final Map.Entry<Variable, BigInteger> entry : solution.entrySet()) {
+    for (final Map.Entry<Variable, BitVector> entry : solution.entrySet()) {
       final Variable variable = entry.getKey();
       final BitVector mask = masks.get(variable);
 
-      BigInteger value = entry.getValue();
+      BitVector value = entry.getValue();
 
       int lowUnusedFieldIndex = -1;
 
@@ -160,16 +158,17 @@ public final class IntegerFormulaSolverSat4j implements Solver<Map<Variable, Big
           }
         } else {
           if (lowUnusedFieldIndex != -1) {
-            value = BitUtils.setField(value, lowUnusedFieldIndex, i - 1,
-                initializer.getValue(i - lowUnusedFieldIndex));
+            final BitVector fieldValue = initializer.getValue(i - lowUnusedFieldIndex);
+
+            value.field(lowUnusedFieldIndex, i - 1).assign(fieldValue);
             lowUnusedFieldIndex = -1;
           }
         }
       }
 
       if (lowUnusedFieldIndex != -1) {
-        value = BitUtils.setField(value, lowUnusedFieldIndex, mask.getBitSize() - 1,
-            initializer.getValue(mask.getBitSize() - lowUnusedFieldIndex));
+        final BitVector fieldValue = initializer.getValue(mask.getBitSize() - lowUnusedFieldIndex);
+        value.field(lowUnusedFieldIndex, mask.getBitSize() - 1).assign(fieldValue);
       }
 
       solution.put(variable, value);

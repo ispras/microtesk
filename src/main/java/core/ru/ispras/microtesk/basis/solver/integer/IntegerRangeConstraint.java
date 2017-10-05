@@ -20,6 +20,7 @@ import java.util.List;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -58,7 +59,7 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
   private static void encodeGreaterThanOrEqualTo(
       final List<Node> formulaBuilder,
       final Variable x,
-      final BigInteger a) {
+      final BitVector a) {
     // Represent x >= a.
     encodeInequality(formulaBuilder, x, a, true);
   }
@@ -66,7 +67,7 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
   private static void encodeLessThanOrEqualTo(
       final List<Node> formulaBuilder,
       final Variable x,
-      final BigInteger b) {
+      final BitVector b) {
     // Represent x <= b.
     encodeInequality(formulaBuilder, x, b, false);
   }
@@ -74,28 +75,30 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
   private static void encodeInequality(
       final List<Node> formulaBuilder,
       final Variable x,
-      final BigInteger a,
+      final BitVector a,
       final boolean greaterThanOrEqualTo) {
 
     int lowerBit = 0;
-    while (lowerBit < x.getType().getSize() && greaterThanOrEqualTo != a.testBit(lowerBit)) {
+    while (lowerBit < x.getType().getSize() && greaterThanOrEqualTo != a.getBit(lowerBit)) {
       lowerBit++;
     }
 
     int upperBit = x.getType().getSize() - 1;
-    while (upperBit >= 0 && greaterThanOrEqualTo == a.testBit(upperBit)) {
+    while (upperBit >= 0 && greaterThanOrEqualTo == a.getBit(upperBit)) {
       upperBit--;
     }
 
     if (upperBit + 1 < x.getType().getSize()) {
+      final int sizeInBits = (x.getType().getSize() - upperBit) - 1;
+
       final BigInteger value = greaterThanOrEqualTo
-          ? BitUtils.getBigIntegerMask((x.getType().getSize() - upperBit) - 1)
+          ? BitUtils.getBigIntegerMask(sizeInBits)
           : BigInteger.ZERO;
 
       formulaBuilder.add(
           FortressUtils.makeNodeEqual(
               FortressUtils.makeNodeExtract(x, upperBit + 1, x.getType().getSize() - 1),
-              FortressUtils.makeNodeValueInteger(value)));
+              FortressUtils.makeNodeBitVector(BitVector.valueOf(value, sizeInBits))));
     }
 
     if (upperBit <= lowerBit) {
@@ -104,7 +107,7 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
 
     int numberOfBits = 0;
     for (int i = lowerBit; i <= upperBit; i++) {
-      if (greaterThanOrEqualTo != a.testBit(i)) {
+      if (greaterThanOrEqualTo != a.getBit(i)) {
         numberOfBits++;
       }
     }
@@ -128,7 +131,7 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
     clauseBuilder1.add(
         FortressUtils.makeNodeNotEqual(
             FortressUtils.makeNodeExtract(x, lowerBit, upperBit),
-            FortressUtils.makeNodeValueInteger(BitUtils.getField(a, lowerBit, upperBit))));
+            FortressUtils.makeNodeBitVector(a.field(lowerBit, upperBit))));
 
     clauseBuilder1.add(
         FortressUtils.makeNodeEqual(
@@ -142,7 +145,7 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
     clauseBuilder2.add(
         FortressUtils.makeNodeEqual(
             FortressUtils.makeNodeExtract(x, lowerBit, upperBit),
-            FortressUtils.makeNodeValueInteger(BitUtils.getField(a, lowerBit, upperBit))));
+            FortressUtils.makeNodeBitVector(a.field(lowerBit, upperBit))));
 
     clauseBuilder2.add(
         FortressUtils.makeNodeEqual(
@@ -153,7 +156,7 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
 
     int k = 1;
     for (int i = upperBit; i >= lowerBit; i--) {
-      if (greaterThanOrEqualTo == a.testBit(i)) {
+      if (greaterThanOrEqualTo == a.getBit(i)) {
         continue;
       }
 
@@ -170,14 +173,14 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
         clauseBuilder3.add(
             FortressUtils.makeNodeNotEqual(
                 FortressUtils.makeNodeExtract(x, j, upperBit),
-                FortressUtils.makeNodeValueInteger(BitUtils.getField(a, j, upperBit))));
+                FortressUtils.makeNodeBitVector(a.field(j, upperBit))));
 
         final List<Node> clauseBuilder4 = new ArrayList<>();
 
         clauseBuilder4.add(
             FortressUtils.makeNodeEqual(
                 FortressUtils.makeNodeExtract(x, j, upperBit),
-                FortressUtils.makeNodeValueInteger(BitUtils.getField(a, j, upperBit))));
+                FortressUtils.makeNodeBitVector(a.field(j, upperBit))));
 
         clauseBuilder4.add(
             FortressUtils.makeNodeEqual(

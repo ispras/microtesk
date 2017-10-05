@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -26,6 +25,7 @@ import java.util.TreeMap;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.StandardOperation;
@@ -134,7 +134,7 @@ public final class MmuAddressViewBuilder {
     }
   }
 
-  public AddressView<BigInteger> build() {
+  public AddressView<BitVector> build() {
     final int addressWidth = addressType.getWidth();
     final Variable addressVariable = addressType.getVariable();
 
@@ -151,21 +151,21 @@ public final class MmuAddressViewBuilder {
     final Node addressExpression =
         createAddressExpression(addressVariable, variables, expressions);
 
-    final AddressView<BigInteger> addressView = new AddressView<BigInteger>(
-        new Function<BigInteger, List<BigInteger>>() {
+    final AddressView<BitVector> addressView = new AddressView<BitVector>(
+        new Function<BitVector, List<BitVector>>() {
           @Override
-          public List<BigInteger> apply(final BigInteger addressValue) {
+          public List<BitVector> apply(final BitVector addressValue) {
             InvariantChecks.checkNotNull(addressValue);
 
-            final List<BigInteger> fields = new ArrayList<BigInteger>();
+            final List<BitVector> fields = new ArrayList<BitVector>();
 
             for (final Node expression : expressions) {
-              final BigInteger value = FortressUtils.evaluate(
+              final BitVector value = FortressUtils.evaluateBitVector(
                   expression,
                   new ValueProvider() {
                     @Override
                     public Data getVariableValue(final Variable variable) {
-                      return Data.newBitVector(addressValue, variable.getType().getSize());
+                      return Data.newBitVector(addressValue);
                     }
                   });
 
@@ -176,24 +176,24 @@ public final class MmuAddressViewBuilder {
             return fields;
           }
         },
-        new Function<List<BigInteger>, BigInteger>() {
+        new Function<List<BitVector>, BitVector>() {
           @Override
-          public BigInteger apply(final List<BigInteger> fields) {
+          public BitVector apply(final List<BitVector> fields) {
             InvariantChecks.checkNotNull(fields);
 
-            final Map<Variable, BigInteger> values = new LinkedHashMap<>();
+            final Map<Variable, BitVector> values = new LinkedHashMap<>();
 
             for (int i = 0; i < variables.size(); i++) {
               final Variable variable = variables.get(i);
               values.put(variable, fields.get(i));
             }
 
-            final BigInteger addressValue = FortressUtils.evaluate(
+            final BitVector addressValue = FortressUtils.evaluateBitVector(
                 addressExpression,
                 new ValueProvider() {
                   @Override
                   public Data getVariableValue(final Variable variable) {
-                    return Data.newBitVector(values.get(variable), variable.getType().getSize());
+                    return Data.newBitVector(values.get(variable));
                   }
                 });
 

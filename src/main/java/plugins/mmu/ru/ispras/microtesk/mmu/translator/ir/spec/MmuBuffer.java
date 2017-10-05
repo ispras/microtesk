@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.AddressView;
@@ -77,7 +78,7 @@ public class MmuBuffer extends MmuStruct {
   private final List<MmuBuffer> children = new ArrayList<>();
 
   /** The address view. */
-  private final AddressView<BigInteger> addressView;
+  private final AddressView<BitVector> addressView;
 
   public MmuBuffer(
       final String name,
@@ -205,7 +206,7 @@ public class MmuBuffer extends MmuStruct {
    * 
    * @return the address view.
    */
-  public final AddressView<BigInteger> getAddressView() {
+  public final AddressView<BitVector> getAddressView() {
     return addressView;
   }
 
@@ -215,7 +216,7 @@ public class MmuBuffer extends MmuStruct {
    * @param address the address.
    * @return the value of the tag.
    */
-  public final BigInteger getTag(final BigInteger address) {
+  public final BitVector getTag(final BitVector address) {
     return addressView.getTag(address);
   }
 
@@ -225,7 +226,7 @@ public class MmuBuffer extends MmuStruct {
    * @param address the address.
    * @return the value of the index.
    */
-  public final BigInteger getIndex(final BigInteger address) {
+  public final BitVector getIndex(final BitVector address) {
     return addressView.getIndex(address);
   }
 
@@ -235,7 +236,7 @@ public class MmuBuffer extends MmuStruct {
    * @param address the address.
    * @return the value of the offset.
    */
-  public final BigInteger getOffset(final BigInteger address) {
+  public final BitVector getOffset(final BitVector address) {
     return addressView.getOffset(address);
   }
 
@@ -247,23 +248,32 @@ public class MmuBuffer extends MmuStruct {
    * @param offset the offset.
    * @return the value of the address.
    */
-  public final BigInteger getAddress(
-      final BigInteger tag,
-      final BigInteger index,
-      final BigInteger offset) {
+  public final BitVector getAddress(
+      final BitVector tag,
+      final BitVector index,
+      final BitVector offset) {
     return addressView.getAddress(tag, index, offset);
   }
 
-  public final BigInteger getTagMask() {
-    return getAddress(getTag(BigInteger.valueOf(-1L)), BigInteger.ZERO, BigInteger.ZERO);
+  public final BitVector getTagMask() {
+    return getAddress(
+        getTag(BitVector.valueOf(BigInteger.valueOf(-1L), address.getWidth())),
+        getIndex(BitVector.valueOf(0, address.getWidth())),
+        getOffset(BitVector.valueOf(0, address.getWidth())));
   }
 
-  public final BigInteger getIndexMask() {
-    return getAddress(BigInteger.ZERO, getIndex(BigInteger.valueOf(-1L)), BigInteger.ZERO);
+  public final BitVector getIndexMask() {
+    return getAddress(
+        getTag(BitVector.valueOf(0, address.getWidth())),
+        getIndex(BitVector.valueOf(BigInteger.valueOf(-1L), address.getWidth())),
+        getOffset(BitVector.valueOf(0, address.getWidth())));
   }
 
-  public final BigInteger getOffsetMask() {
-    return getAddress(BigInteger.ZERO, BigInteger.ZERO, getOffset(BigInteger.valueOf(-1L)));
+  public final BitVector getOffsetMask() {
+    return getAddress(
+        getTag(BitVector.valueOf(0, address.getWidth())),
+        getIndex(BitVector.valueOf(0, address.getWidth())),
+        getOffset(BitVector.valueOf(BigInteger.valueOf(-1L), address.getWidth())));
   }
 
   public final boolean isFake() {

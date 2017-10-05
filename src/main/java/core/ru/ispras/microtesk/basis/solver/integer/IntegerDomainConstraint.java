@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.basis.solver.integer;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -22,12 +21,12 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link IntegerDomainConstraint} class represents a simple constraint.
@@ -45,15 +44,15 @@ public final class IntegerDomainConstraint implements IntegerConstraint {
 
   private final Kind kind;
   private final Node variable;
-  private final Set<BigInteger> values;
+  private final Set<BitVector> values;
 
   private final Node formula;
 
   public IntegerDomainConstraint(
       final Kind kind,
       final Node variable,
-      final Set<BigInteger> domain,
-      final Set<BigInteger> values) {
+      final Set<BitVector> domain,
+      final Set<BitVector> values) {
     InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(values);
@@ -67,7 +66,7 @@ public final class IntegerDomainConstraint implements IntegerConstraint {
     final boolean inverse = (domain != null) && (domain.size() < 2 * values.size());
 
     final Kind effectiveKind;
-    final Set<BigInteger> effectiveValues;
+    final Set<BitVector> effectiveValues;
 
     if (inverse) {
       effectiveKind = kind == Kind.RETAIN ? Kind.EXCLUDE : Kind.RETAIN;
@@ -80,11 +79,11 @@ public final class IntegerDomainConstraint implements IntegerConstraint {
 
     // Construct the constraint formula.
     final List<Node> operands = new ArrayList<>(effectiveValues.size());
-    for (final BigInteger value : effectiveValues) {
+    for (final BitVector value : effectiveValues) {
       final Node equality = new NodeOperation(
           effectiveKind == Kind.RETAIN ? StandardOperation.EQ : StandardOperation.NOTEQ,
           variable,
-          new NodeValue(Data.newBitVector(value, FortressUtils.getBitSize(variable))));
+          new NodeValue(Data.newBitVector(value)));
 
       operands.add(equality);
     }
@@ -96,20 +95,20 @@ public final class IntegerDomainConstraint implements IntegerConstraint {
 
   public IntegerDomainConstraint(
       final Node variable,
-      final Set<BigInteger> domain,
-      final Set<BigInteger> values) {
+      final Set<BitVector> domain,
+      final Set<BitVector> values) {
     this(Kind.RETAIN, variable, domain, values);
   }
 
   public IntegerDomainConstraint(
       final Node variable,
-      final Set<BigInteger> values) {
+      final Set<BitVector> values) {
     this(Kind.RETAIN, variable, null, values);
   }
 
   public IntegerDomainConstraint(
       final Node variable,
-      final BigInteger value) {
+      final BitVector value) {
     this(variable, Collections.singleton(value));
   }
 
@@ -121,7 +120,7 @@ public final class IntegerDomainConstraint implements IntegerConstraint {
     return variable;
   }
 
-  public Set<BigInteger> getValues() {
+  public Set<BitVector> getValues() {
     return values;
   }
 

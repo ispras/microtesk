@@ -107,11 +107,11 @@ public final class MemoryDataGenerator implements DataGenerator {
     final MemoryDataType dataType = accessType.getDataType();
 
     final MmuAddressInstance virtAddrType = memory.getVirtualAddress();
-    final BigInteger virtAddrValue = getRandomAddress(dataType);
+    final BitVector virtAddrValue = getRandomAddress(virtAddrType, dataType);
     solution.setAddress(virtAddrType, virtAddrValue);
 
     final Variable dataVariable = memory.getDataVariable();
-    final BigInteger dataValue = getRandomValue(dataVariable);
+    final BitVector dataValue = getRandomValue(dataVariable);
     solution.setData(dataVariable, dataValue);
 
     final Collection<Node> conditions = new ArrayList<>();
@@ -123,7 +123,7 @@ public final class MemoryDataGenerator implements DataGenerator {
         accessConstraints.getVariateConstraints();
 
     // Refine the addresses (in particular, assign the intermediate addresses).
-    Map<Variable, BigInteger> values = refineAddr(solution, conditions, constraints);
+    Map<Variable, BitVector> values = refineAddr(solution, conditions, constraints);
 
     if (values == null) {
       Logger.debug("Infeasible path: %s", access);
@@ -139,7 +139,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       refinedAddrObject.setAddress(virtAddrType, virtAddrValue);
       refinedAddrObject.setData(dataVariable, dataValue);
 
-      final Map<Variable, BigInteger> refinedValues =
+      final Map<Variable, BitVector> refinedValues =
           refineAddr(refinedAddrObject, conditions, constraints);
 
       if (refinedValues != null) {
@@ -159,7 +159,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
       if (tagEqualRelation.isEmpty()) {
         final MmuAddressInstance addrType = bufferAccess.getAddress();
-        final BigInteger addrValue = solution.getAddress(addrType);
+        final BitVector addrValue = solution.getAddress(addrType);
 
         if (addrValue == null) {
           // The address has been already processed.
@@ -198,7 +198,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       refinedAddrObject.setAddress(virtAddrType, virtAddrValue);
       refinedAddrObject.setData(dataVariable, dataValue);
 
-      final Map<Variable, BigInteger> refinedValues =
+      final Map<Variable, BitVector> refinedValues =
           refineAddr(refinedAddrObject, conditions, constraints);
 
       if (refinedValues != null) {
@@ -252,7 +252,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     // Allocate new entry.
     final MmuBuffer buffer = bufferAccess.getBuffer();
-    final BigInteger newEntryId = allocateEntryId(buffer, false);
+    final BitVector newEntryId = allocateEntryId(buffer, false);
     final MmuEntry newEntry = new MmuEntry(buffer.getFields());
     final EntryObject newEntryObject = new EntryObject(newEntryId, newEntry);
 
@@ -265,7 +265,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final AddressObject solution,
       final MmuBufferAccess bufferAccess,
       final EntryObject entryObject,
-      final Map<Variable, BigInteger> values) {
+      final Map<Variable, BitVector> values) {
 
     final MmuEntry entry = entryObject.getEntry();
 
@@ -284,7 +284,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
       // If an entry field is not used in the path, it remains unchanged.
       if (values.containsKey(fieldInstance) && !entry.isValid(field)) {
-        final BigInteger fieldValue = values.get(fieldInstance);
+        final BitVector fieldValue = values.get(fieldInstance);
         entry.setValue(field, fieldValue, true);
       }
     }
@@ -310,22 +310,22 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     final AbstractCall abstractCall1 = abstractSequence.getSequence().get(i);
     final AddressObject addressObject1 = getAddressObject(abstractCall1);
-    final BigInteger addrValue1 = addressObject1.getAddress(bufferAccess1);
+    final BitVector addrValue1 = addressObject1.getAddress(bufferAccess1);
 
     final String instanceId2 = bufferAccess2.getId();
     final MemoryAccessContext context2 = bufferAccess2.getContext();
 
     final Node lhs = context2.getInstance(instanceId2, expression);
-    final BigInteger rhs = FortressUtils.evaluate(
+    final BitVector rhs = FortressUtils.evaluateBitVector(
         expression,
         new ValueProvider() {
           @Override
           public Data getVariableValue(final Variable variable) {
-            return Data.newBitVector(addrValue1, variable.getType().getSize());
+            return Data.newBitVector(addrValue1);
           }
         });
 
-    return new NodeOperation(equality.getOperationId(), lhs, FortressUtils.makeNodeValueInteger(rhs));
+    return new NodeOperation(equality.getOperationId(), lhs, FortressUtils.makeNodeBitVector(rhs));
   }
 
   private Collection<Node> getHazardConditions(
@@ -380,37 +380,36 @@ public final class MemoryDataGenerator implements DataGenerator {
 
   private Node getIndexCondition(
       final MmuBufferAccess bufferAccess,
-      final BigInteger addressWithoutTag) {
+      final BitVector addressWithoutTag) {
     final Node lhs = bufferAccess.getIndexExpression();
-    final BigInteger rhs = bufferAccess.getBuffer().getIndex(addressWithoutTag);
+    final BitVector rhs = bufferAccess.getBuffer().getIndex(addressWithoutTag);
 
-    return FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeValueInteger(rhs));
+    return FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeBitVector(rhs));
   }
 
   private Node getHitCondition(
       final MmuBufferAccess bufferAccess,
-      final BigInteger addressWithoutTag) {
+      final BitVector addressWithoutTag) {
     final MmuModel model = MmuPlugin.getMmuModel();
 
     final MmuBuffer buffer = bufferAccess.getBuffer();
     final BufferObserver bufferObserver = model.getBufferObserver(buffer.getName());
 
-    final int bitSize = bufferAccess.getAddress().getBitSize();
-    final BitVector index = BitVector.valueOf(buffer.getIndex(addressWithoutTag), bitSize);
+    final BitVector index = buffer.getIndex(addressWithoutTag);
 
     final List<Node> atoms = new ArrayList<>();
     final Node lhs = bufferAccess.getTagExpression();
 
     // TAG == TAG[0] || ... || TAG == TAG[w-1].
     for (int i = 0; i < buffer.getWays(); i++) {
-      final BitVector way = BitVector.valueOf(i, bitSize);
+      final BitVector way = BitVector.valueOf(i, Integer.SIZE);
       final Pair<BitVector, BitVector> taggedData = bufferObserver.seeData(index, way);
 
       if (taggedData != null) {
-        final BigInteger address = taggedData.first.bigIntegerValue();
-        final BigInteger rhs = buffer.getTag(address);
+        final BitVector address = taggedData.first;
+        final BitVector rhs = buffer.getTag(address);
 
-        atoms.add(FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeValueInteger(rhs)));
+        atoms.add(FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeBitVector(rhs)));
       }
     }
 
@@ -419,28 +418,27 @@ public final class MemoryDataGenerator implements DataGenerator {
 
   private Node getMissCondition(
       final MmuBufferAccess bufferAccess,
-      final BigInteger addressWithoutTag) {
+      final BitVector addressWithoutTag) {
     final MmuModel model = MmuPlugin.getMmuModel();
 
     final MmuBuffer buffer = bufferAccess.getBuffer();
     final BufferObserver bufferObserver = model.getBufferObserver(buffer.getName());
 
-    final int bitSize = bufferAccess.getAddress().getBitSize();
-    final BitVector index = BitVector.valueOf(buffer.getIndex(addressWithoutTag), bitSize);
+    final BitVector index = buffer.getIndex(addressWithoutTag);
 
     final List<Node> atoms = new ArrayList<>();
     final Node lhs = bufferAccess.getTagExpression();
 
     // TAG != TAG[0] && ... && TAG != TAG[w-1].
     for (int i = 0; i < buffer.getWays(); i++) {
-      final BitVector way = BitVector.valueOf(i, bitSize);
+      final BitVector way = BitVector.valueOf(i, Integer.SIZE);
       final Pair<BitVector, BitVector> taggedData = bufferObserver.seeData(index, way);
 
       if (taggedData != null) {
-        final BigInteger address = taggedData.first.bigIntegerValue();
-        final BigInteger rhs = buffer.getTag(address);
+        final BitVector address = taggedData.first;
+        final BitVector rhs = buffer.getTag(address);
 
-        atoms.add(FortressUtils.makeNodeNotEqual(lhs, FortressUtils.makeNodeValueInteger(rhs)));
+        atoms.add(FortressUtils.makeNodeNotEqual(lhs, FortressUtils.makeNodeBitVector(rhs)));
       }
     }
 
@@ -449,12 +447,14 @@ public final class MemoryDataGenerator implements DataGenerator {
 
   private Node getReplaceCondition(
       final MmuBufferAccess bufferAccess,
-      final BigInteger addressWithoutTag) {
+      final BitVector addressWithoutTag) {
     // FIXME:
     return getMissCondition(bufferAccess, addressWithoutTag);
   }
 
-  private BigInteger getRandomAddress(final MemoryDataType dataType) {
+  private BitVector getRandomAddress(
+      final MmuAddressInstance addrType,
+      final MemoryDataType dataType) {
     final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     final GeneratorSettings settings = GeneratorSettings.get();
@@ -463,23 +463,28 @@ public final class MemoryDataGenerator implements DataGenerator {
     final BigInteger address =
         Randomizer.get().nextBigIntegerRange(region.getMin(), region.getMax());
 
-    return dataType.align(address);
+    final BigInteger alignedAddress = dataType.align(address);
+
+    return BitVector.valueOf(alignedAddress, addrType.getWidth());
   }
 
-  private BigInteger getRandomValue(final Variable variable) {
-    return Randomizer.get().nextBigIntegerField(variable.getType().getSize(), false);
+  private BitVector getRandomValue(final Variable variable) {
+    final BitVector value = BitVector.newEmpty(variable.getType().getSize());
+    Randomizer.get().fill(value);
+
+    return value;
   }
 
-  private BigInteger allocateEntryId(final MmuBuffer buffer, final boolean peek) {
+  private BitVector allocateEntryId(final MmuBuffer buffer, final boolean peek) {
     final EntryIdAllocator entryIdAllocator = new EntryIdAllocator(GeneratorSettings.get());
 
-    final BigInteger entryId = entryIdAllocator.allocate(buffer, peek, null);
-    Logger.debug("Allocate entry: buffer=%s, entryId=%s", buffer, entryId.toString(16));
+    final BitVector entryId = entryIdAllocator.allocate(buffer, peek, null);
+    Logger.debug("Allocate entry: buffer=%s, entryId=%s", buffer, entryId.toHexString());
 
     return entryId;
   }
 
-  private Map<Variable, BigInteger> refineAddr(
+  private Map<Variable, BitVector> refineAddr(
       final AddressObject addressObject,
       final Collection<Node> conditions,
       final Collection<IntegerConstraint> constraints) {
@@ -489,20 +494,20 @@ public final class MemoryDataGenerator implements DataGenerator {
     final Collection<IntegerConstraint> allConstraints = new ArrayList<>(constraints);
 
     // Fix known values of the data.
-    final Map<Variable, BigInteger> data = addressObject.getData();
-    for (final Map.Entry<Variable, BigInteger> entry : data.entrySet()) {
+    final Map<Variable, BitVector> data = addressObject.getData();
+    for (final Map.Entry<Variable, BitVector> entry : data.entrySet()) {
       final Variable variable = entry.getKey();
-      final BigInteger value = entry.getValue();
+      final BitVector value = entry.getValue();
 
       allConstraints.add(
           new IntegerEqualConstraint(FortressUtils.makeNodeVariable(variable), value));
     }
 
     // Fix known values of the addresses.
-    final Map<MmuAddressInstance, BigInteger> addresses = addressObject.getAddresses();
-    for (final Map.Entry<MmuAddressInstance, BigInteger> entry : addresses.entrySet()) {
+    final Map<MmuAddressInstance, BitVector> addresses = addressObject.getAddresses();
+    for (final Map.Entry<MmuAddressInstance, BitVector> entry : addresses.entrySet()) {
       final Variable variable = entry.getKey().getVariable();
-      final BigInteger value = entry.getValue();
+      final BitVector value = entry.getValue();
 
       allConstraints.add(
           new IntegerEqualConstraint(FortressUtils.makeNodeVariable(variable), value));
@@ -510,7 +515,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     Logger.debug("Constraints for refinement: %s", allConstraints);
 
-    final Map<Variable, BigInteger> values =
+    final Map<Variable, BitVector> values =
         MemoryEngineUtils.generateData(
             addressObject.getAccess(),
             conditions,
@@ -533,10 +538,10 @@ public final class MemoryDataGenerator implements DataGenerator {
     for (final MmuBufferAccess bufferAccess : bufferAccesses) {
       final MmuAddressInstance addrType = bufferAccess.getAddress();
       final Variable addrVar = addrType.getVariable(); 
-      final BigInteger addrValue = values.get(addrVar);
+      final BitVector addrValue = values.get(addrVar);
 
       if (addrValue != null) {
-        Logger.debug("Refine address: %s=0x%s", addrType, addrValue.toString(16));
+        Logger.debug("Refine address: %s=0x%s", addrType, addrValue.toHexString());
         addressObject.setAddress(addrType, addrValue);
       }
     }
@@ -545,10 +550,10 @@ public final class MemoryDataGenerator implements DataGenerator {
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     final MmuAddressInstance addrType = memory.getVirtualAddress();
     final Variable addrVar = addrType.getVariable(); 
-    final BigInteger addrValue = values.get(addrVar);
+    final BitVector addrValue = values.get(addrVar);
     InvariantChecks.checkNotNull(addrValue, "Cannot obtain the virtual address value");
 
-    Logger.debug("Refine address: %s=0x%s", addrType, addrValue.toString(16));
+    Logger.debug("Refine address: %s=0x%s", addrType, addrValue.toHexString());
     addressObject.setAddress(addrType, addrValue);
 
     return values;

@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -25,13 +24,13 @@ import java.util.Set;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ValueProvider;
-import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
@@ -203,7 +202,7 @@ public final class SymbolicExecutor {
         upperZeroBit);
 
     final IntegerConstraint constraint =
-        new IntegerDomainConstraint(field, BigInteger.ZERO);
+        new IntegerDomainConstraint(field, BitVector.valueOf(0, FortressUtils.getBitSize(field)));
 
     return executeFormula(result, defines, constraint.getFormula(), pathIndex);
   }
@@ -792,7 +791,7 @@ public final class SymbolicExecutor {
           @Override
           public Data getVariableValue(final Variable original) {
             final Variable version = result.getVersion(original);
-            return Data.newBitVector(result.getConstant(version), original.getType().getSize());
+            return Data.newBitVector(result.getConstant(version));
           }
         });
 
@@ -850,7 +849,7 @@ public final class SymbolicExecutor {
         boolean isTrue = false;
 
         final NodeValue rhsValue = (NodeValue) rhs;
-        final BigInteger rhsConst = rhsValue.getInteger();
+        final BitVector rhsConst = rhsValue.getBitVector();
 
         int offset = 0;
         for (final Node term : lhsExpr.getOperands()) {
@@ -858,16 +857,16 @@ public final class SymbolicExecutor {
           final int hi = offset + (FortressUtils.getBitSize(term) - 1);
 
           final Node field = result.getVersion(term, pathIndex);
-          final BigInteger value = BitUtils.getField(rhsConst, lo, hi);
+          final BitVector value = rhsConst.field(lo, hi);
 
           // Check whether the field's value is known (via constant propagation).
-          final BigInteger constant = result.getConstants().get(FortressUtils.getVariable(field));
+          final BitVector constant = result.getConstants().get(FortressUtils.getVariable(field));
   
           if (constant != null) {
             final int fieldlowerBit = FortressUtils.getLowerBit(field);
             final int fieldUpperBit = FortressUtils.getUpperBit(field);
 
-            final BigInteger fieldConst = BitUtils.getField(constant, fieldlowerBit, fieldUpperBit);
+            final BitVector fieldConst = constant.field(fieldlowerBit, fieldUpperBit);
 
             final boolean truthValue =
                 (value.equals(fieldConst) == (equality.getOperationId() == StandardOperation.EQ));
@@ -889,10 +888,10 @@ public final class SymbolicExecutor {
           if (!isTrue && constant == null) {
             if (equality.getOperationId() == StandardOperation.EQ) {
               clauseBuilder.add(
-                  FortressUtils.makeNodeEqual(field, FortressUtils.makeNodeValueInteger(value)));
+                  FortressUtils.makeNodeEqual(field, FortressUtils.makeNodeBitVector(value)));
             } else {
               clauseBuilder.add(
-                  FortressUtils.makeNodeNotEqual(field, FortressUtils.makeNodeValueInteger(value)));
+                  FortressUtils.makeNodeNotEqual(field, FortressUtils.makeNodeBitVector(value)));
             }
           }
 
@@ -1031,14 +1030,14 @@ public final class SymbolicExecutor {
       result.defineVersion(FortressUtils.getVariable(lhs), pathIndex);
 
       // Try to propagate constants.
-      final Map<Variable, BigInteger> constants = result.getConstants();
+      final Map<Variable, BitVector> constants = result.getConstants();
       final Node rhsExpr = FortressUtils.makeNodeConcat(rhsTerms);
 
-      final BigInteger constant = FortressUtils.evaluate(rhsExpr,
+      final BitVector constant = FortressUtils.evaluateBitVector(rhsExpr,
           new ValueProvider() {
             @Override
             public Data getVariableValue(final Variable variable) {
-              return Data.newBitVector(constants.get(variable), variable.getType().getSize());
+              return Data.newBitVector(constants.get(variable));
             }
           });
 

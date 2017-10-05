@@ -27,6 +27,7 @@ import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -382,22 +383,19 @@ public final class Sat4jUtils {
     return new Vec<>(clauses);
   }
 
-  public static Map<Variable, BigInteger> decodeSolution(
+  public static Map<Variable, BitVector> decodeSolution(
       final IProblem problem,
       final Map<Variable, Integer> indices) {
-    final Map<Variable, BigInteger> solution = new LinkedHashMap<>();
+    final Map<Variable, BitVector> solution = new LinkedHashMap<>();
 
     for (final Map.Entry<Variable, Integer> entry : indices.entrySet()) {
       final Variable variable = entry.getKey();
       final int x = entry.getValue();
 
-      BigInteger value = BigInteger.ZERO;
+      final BitVector value = BitVector.newEmpty(variable.getType().getSize());
       for (int i = 0; i < variable.getType().getSize(); i++) {
         final int xi = x + i;
-
-        if (problem.model(xi)) {
-          value = value.setBit(i);
-        }
+        value.setBit(i, problem.model(xi));
       }
 
       solution.put(variable, value);

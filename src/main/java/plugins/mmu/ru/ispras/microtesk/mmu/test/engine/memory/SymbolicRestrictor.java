@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
@@ -92,7 +93,9 @@ public final class SymbolicRestrictor {
     InvariantChecks.checkNotNull(addrType);
     InvariantChecks.checkNotNull(region);
 
-    final IntegerRange range = new IntegerRange(region.getMin(), region.getMax());
+    final IntegerRange range = new IntegerRange(
+        BitVector.valueOf(region.getMin(), addrType.getWidth()),
+        BitVector.valueOf(region.getMax(), addrType.getWidth()));
     Logger.debug("Range constraint: %s in %s", addrType, range);
 
     return Collections.<IntegerConstraint>singleton(

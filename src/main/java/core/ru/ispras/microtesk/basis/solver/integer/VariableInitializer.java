@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,8 @@
 
 package ru.ispras.microtesk.basis.solver.integer;
 
-import java.math.BigInteger;
-
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -28,26 +26,38 @@ import ru.ispras.fortress.util.InvariantChecks;
 public enum VariableInitializer {
   ZEROS() {
     @Override
-    public BigInteger getValue(final int width) {
+    public BitVector getValue(final int width) {
       InvariantChecks.checkGreaterThanZero(width);
-      return BigInteger.ZERO;
+
+      final BitVector value = BitVector.newEmpty(width);
+      value.reset();
+
+      return value;
     }
   },
   UNITS() {
     @Override
-    public BigInteger getValue(final int width) {
+    public BitVector getValue(final int width) {
       InvariantChecks.checkGreaterThanZero(width);
-      return BitUtils.getBigIntegerMask(width);
+
+      final BitVector value = BitVector.newEmpty(width);
+      value.setAll();
+
+      return value;
     }
   },
   RANDOM() {
     @Override
-    public BigInteger getValue(final int width) {
+    public BitVector getValue(final int width) {
       InvariantChecks.checkGreaterThanZero(width);
-      return Randomizer.get().nextBigIntegerField(width, false);
+
+      final BitVector value = BitVector.valueOf(
+          Randomizer.get().nextBigIntegerField(width, false), width);
+
+      return value;
     }
   };
 
-  public abstract BigInteger getValue(final int width);
+  public abstract BitVector getValue(final int width);
 }
 

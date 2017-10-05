@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
@@ -41,10 +41,10 @@ public final class AddressObject {
   private final Access access;
 
   /*** Contains the data values. */
-  private final Map<Variable, BigInteger> data = new LinkedHashMap<>();
+  private final Map<Variable, BitVector> data = new LinkedHashMap<>();
 
   /*** Contains the address values of the given memory access. */
-  private final Map<MmuAddressInstance, BigInteger> addresses = new LinkedHashMap<>();
+  private final Map<MmuAddressInstance, BitVector> addresses = new LinkedHashMap<>();
 
   /** Contains entries to be written into non-transparent buffers. */
   private final Map<MmuBufferAccess, EntryObject> entries = new LinkedHashMap<>();
@@ -58,41 +58,41 @@ public final class AddressObject {
     return access;
   }
 
-  public Map<Variable, BigInteger> getData() {
+  public Map<Variable, BitVector> getData() {
     return data; 
   }
 
-  public BigInteger getData(final Variable variable) {
+  public BitVector getData(final Variable variable) {
     InvariantChecks.checkNotNull(variable);
     return data.get(variable); 
   }
 
-  public void setData(final Variable variable, final BigInteger value) {
+  public void setData(final Variable variable, final BitVector value) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(value);
     data.put(variable, value);
   }
 
-  public Map<MmuAddressInstance, BigInteger> getAddresses() {
+  public Map<MmuAddressInstance, BitVector> getAddresses() {
     return addresses; 
   }
 
-  public BigInteger getAddress(final MmuAddressInstance addrType) {
+  public BitVector getAddress(final MmuAddressInstance addrType) {
     InvariantChecks.checkNotNull(addrType);
     return addresses.get(addrType); 
   }
 
-  public void setAddress(final MmuAddressInstance addrType, final BigInteger addrValue) {
+  public void setAddress(final MmuAddressInstance addrType, final BitVector addrValue) {
     InvariantChecks.checkNotNull(addrType);
     InvariantChecks.checkNotNull(addrValue);
     addresses.put(addrType, addrValue);
   }
 
-  public BigInteger getAddress(final MmuBufferAccess bufferAccess) {
+  public BitVector getAddress(final MmuBufferAccess bufferAccess) {
     return getAddress(bufferAccess.getAddress()); 
   }
 
-  public void setAddress(final MmuBufferAccess bufferAccess, final BigInteger addrValue) {
+  public void setAddress(final MmuBufferAccess bufferAccess, final BitVector addrValue) {
     setAddress(bufferAccess.getAddress(), addrValue);
   }
 
@@ -120,17 +120,17 @@ public final class AddressObject {
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     final MmuAddressInstance virtAddrType = memory.getVirtualAddress();
-    final BigInteger virtAddrValue = addresses.get(virtAddrType);
+    final BitVector virtAddrValue = addresses.get(virtAddrType);
 
-    builder.append(String.format("%s[0x%s]", memory.getName(), virtAddrValue.toString(16)));
+    builder.append(String.format("%s[0x%s]", memory.getName(), virtAddrValue.toHexString()));
 
     for (final MmuBufferAccess bufferAccess : access.getPath().getBufferReads()) {
       final MmuBuffer buffer = bufferAccess.getBuffer();
       final MmuAddressInstance addrType = bufferAccess.getAddress();
-      final BigInteger addrValue = addresses.get(addrType);
+      final BitVector addrValue = addresses.get(addrType);
 
       builder.append(separator);
-      builder.append(String.format("%s[0x%s]", buffer.getName(), addrValue.toString(16)));
+      builder.append(String.format("%s[0x%s]", buffer.getName(), addrValue.toHexString()));
 
       if (!buffer.isReplaceable()) {
         final EntryObject entryObject = getEntry(bufferAccess);

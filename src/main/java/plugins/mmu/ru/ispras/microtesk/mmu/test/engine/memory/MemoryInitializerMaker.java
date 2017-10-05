@@ -70,7 +70,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
   static final MemoryEngine.ParamPreparator PARAM_PREPARATOR = MemoryEngine.PARAM_PREPARATOR;
   private boolean isStaticPreparator = PARAM_PREPARATOR.getDefaultValue();
 
-  private final Set<BigInteger> entriesInDataSection = new HashSet<>();
+  private final Set<BitVector> entriesInDataSection = new HashSet<>();
 
   @Override
   public void configure(final Map<String, Object> attributes) {
@@ -144,7 +144,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       final MmuBufferAccess bufferAccess,
       final EntryObject entryObject,
       final EngineContext engineContext,
-      final Set<BigInteger> entriesInDataSection) {
+      final Set<BitVector> entriesInDataSection) {
     InvariantChecks.checkNotNull(bufferAccess);
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(entriesInDataSection);
@@ -158,29 +158,27 @@ public final class MemoryInitializerMaker implements InitializerMaker {
 
     final List<AbstractCall> preparation = new ArrayList<>();
 
-    final BigInteger index = entryObject.getId();
+    final BitVector index = entryObject.getId();
     final MmuEntry data = entryObject.getEntry();
-    final BigInteger bufferAccessAddress = data.getAddress();
+    final BitVector bufferAccessAddress = data.getAddress();
 
     Logger.debug("Entry preparation: index=0x%s, address=0x%s",
-        index.toString(16), bufferAccessAddress.toString(16));
+        index.toHexString(), bufferAccessAddress.toHexString());
 
     final Map<String, BitVector> entryFieldValues = new LinkedHashMap<>();
 
     for (final Variable field : data.getVariables()) {
       final String entryFieldName = field.getName();
-      final BigInteger entryFieldValue = data.getValue(field);
+      final BitVector entryFieldValue = data.getValue(field);
 
-      entryFieldValues.put(
-          entryFieldName,
-          BitVector.valueOf(entryFieldValue, field.getType().getSize()));
+      entryFieldValues.put(entryFieldName, entryFieldValue);
     }
 
     final boolean isMemoryMapped = buffer.getKind() == MmuBuffer.Kind.MEMORY;
     final boolean isEntryInDataSection = entriesInDataSection.contains(bufferAccessAddress);
 
     final String comment = String.format("%s[0x%s]=%s",
-        buffer.getName(), bufferAccessAddress.toString(16), data);
+        buffer.getName(), bufferAccessAddress.toHexString(), data);
 
     final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());
     Collections.reverse(fieldValues);
@@ -205,7 +203,8 @@ public final class MemoryInitializerMaker implements InitializerMaker {
           false /* Same file */
           );
 
-      dataSectionBuilder.setVirtualAddress(bufferAccessAddress);
+      // FIXME: BigInteger -> BitVector
+      dataSectionBuilder.setVirtualAddress(bufferAccessAddress.bigIntegerValue(false));
       dataSectionBuilder.addComment(comment);
 
       final int maxItemSizeInBits = dataDirectiveFactory.getMaxTypeBitSize();
@@ -223,7 +222,10 @@ public final class MemoryInitializerMaker implements InitializerMaker {
         dataValueBuilder.add(item.bigIntegerValue());
 
         // Static buffer initialization.
-        entriesInDataSection.add(bufferAccessAddress.add(BigInteger.valueOf(i >>> 3)));
+        final BigInteger entryAddress =
+            bufferAccessAddress.bigIntegerValue(false).add(BigInteger.valueOf(i >>> 3));
+
+        entriesInDataSection.add(BitVector.valueOf(entryAddress, bufferAccessAddress.getBitSize()));
       }
 
       dataValueBuilder.build();
@@ -235,10 +237,8 @@ public final class MemoryInitializerMaker implements InitializerMaker {
 
       if (isMemoryMapped) {
         // Memory-mapped buffer.
-        final BitVector addressValue = BitVector.valueOf(bufferAccessAddress, Long.SIZE);
-        initializer = prepareMemory(engineContext, addressValue, entryValue, sizeInBits);
+        initializer = prepareMemory(engineContext, bufferAccessAddress, entryValue, sizeInBits);
       } else if (buffer == memory.getTargetBuffer()) {
-        final BitVector addressValue = BitVector.valueOf(bufferAccessAddress, Long.SIZE);
         final MemoryAccessStack stack = bufferAccess.getContext().getMemoryAccessStack();
 
         if (stack.isEmpty()) {
@@ -255,23 +255,22 @@ public final class MemoryInitializerMaker implements InitializerMaker {
           final int lower = dataType.getLowerAddressBit();
           final int upper = entryType.getLowerAddressBit() - 1;
 
-          final int offset = lower > upper ? 0 : addressValue.field(lower, upper).intValue();
+          final int offset = lower > upper ? 0 : bufferAccessAddress.field(lower, upper).intValue();
 
           final int dataSizeInBits = dataType.getSizeInBytes() << 3;
 
           final BitVector dataValue =
               entryValue.field(offset * dataSizeInBits, (offset + 1) * dataSizeInBits - 1);
 
-          Logger.debug("Prepare memory: address=%s, data=%s", addressValue, dataValue);
-          initializer = prepareMemory(engineContext, addressValue, dataValue, dataSizeInBits);
+          Logger.debug("Prepare memory: address=%s, data=%s", bufferAccessAddress, dataValue);
+          initializer = prepareMemory(engineContext, bufferAccessAddress, dataValue, dataSizeInBits);
         } else {
           // Shadow of the memory-mapped buffer access.
           initializer = Collections.<AbstractCall>emptyList();
         }
       } else {
         // Buffer.
-        final BitVector indexValue = BitVector.valueOf(index, Long.SIZE);
-        initializer = prepareBuffer(buffer, engineContext, indexValue, entryFieldValues);
+        initializer = prepareBuffer(buffer, engineContext, index, entryFieldValues);
       }
 
       InvariantChecks.checkNotNull(initializer);
@@ -416,13 +415,13 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     final MmuAddressInstance virtualAddressType = memory.getVirtualAddress();
-    final BigInteger virtualAddressValue = addressObject.getAddress(virtualAddressType);
+    final BitVector virtualAddressValue = addressObject.getAddress(virtualAddressType);
 
     final Variable dataVariable = memory.getDataVariable();
-    final BigInteger dataValue = addressObject.getData(dataVariable);
+    final BitVector dataValue = addressObject.getData(dataVariable);
 
     return String.format("%s[0x%s]=[0x%s]",
-        memory.getName(), virtualAddressValue.toString(16), dataValue.toString(16));
+        memory.getName(), virtualAddressValue.toHexString(), dataValue.toHexString());
   }
 
   private String getBufferAccessComment(
@@ -440,7 +439,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     final MemoryAccessStack stack = context.getMemoryAccessStack();
 
     final MmuAddressInstance addressType = bufferAccess.getAddress();
-    final BigInteger addressValue = addressObject.getAddress(addressType);
+    final BitVector addressValue = addressObject.getAddress(addressType);
 
     for (int i = 0; i <= stack.size(); i++) {
       builder.append("  ");
@@ -448,7 +447,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
 
     // The address may be undefined for buffer writes.
     builder.append(String.format("%-5s %s[%s]", event, buffer.getName(),
-        addressValue != null ? String.format("0x%s", addressValue.toString(16)) : "<unknown>"));
+        addressValue != null ? String.format("0x%s", addressValue.toHexString()) : "<unknown>"));
 
     final EntryObject entryObject = addressObject.getEntry(bufferAccess);
 

@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.MmuPlugin;
@@ -40,7 +41,7 @@ import ru.ispras.microtesk.utils.function.Supplier;
 public final class EntryIdAllocator {
   private static final int MAX_EXPLICIT_DOMAIN = 1024;
 
-  private final Map<MmuBuffer, AllocationTable<BigInteger, ?>> allocators = new LinkedHashMap<>();
+  private final Map<MmuBuffer, AllocationTable<BitVector, ?>> allocators = new LinkedHashMap<>();
 
   public EntryIdAllocator(final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(settings);
@@ -68,28 +69,31 @@ public final class EntryIdAllocator {
 
       final BigInteger size = max.subtract(min).add(BigInteger.ONE);
 
-      final AllocationTable<BigInteger, ?> allocator;
+      final AllocationTable<BitVector, ?> allocator;
 
       if (size.compareTo(BigInteger.valueOf(MAX_EXPLICIT_DOMAIN)) < 0) {
         // Construct the set of possible entry identifiers.
-        final Set<BigInteger> entryIds = new LinkedHashSet<>();
+        final Set<BitVector> entryIds = new LinkedHashSet<>();
 
         for (long i = 0; i < size.longValue(); i++) {
-          final BigInteger value = min.add(BigInteger.valueOf(i));
+          final BitVector value =
+              BitVector.valueOf(
+                  min.add(BigInteger.valueOf(i)),
+                  buffer.getAddress().getWidth());
           entryIds.add(value);
         }
   
         // Construct the allocation table.
-        allocator = new AllocationTable<>(
-            AllocationStrategyId.TRY_FREE,
-            entryIds);
+        allocator = new AllocationTable<>(AllocationStrategyId.TRY_FREE, entryIds);
       } else {
         allocator = new AllocationTable<>(
             AllocationStrategyId.TRY_FREE,
-            new Supplier<BigInteger>() {
+            new Supplier<BitVector>() {
               @Override
-              public BigInteger get() {
-                return Randomizer.get().nextBigIntegerRange(min, max);
+              public BitVector get() {
+                return BitVector.valueOf(
+                    Randomizer.get().nextBigIntegerRange(min, max),
+                    buffer.getAddress().getWidth());
               }
             });
       }
@@ -98,22 +102,22 @@ public final class EntryIdAllocator {
     }
   }
 
-  public BigInteger allocate(
+  public BitVector allocate(
       final MmuBuffer buffer,
       final boolean peek,
-      final Set<BigInteger> exclude) {
+      final Set<BitVector> exclude) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkTrue(!buffer.isReplaceable());
     // Parameter exclude can be null.
 
-    final AllocationTable<BigInteger, ?> allocator = allocators.get(buffer);
+    final AllocationTable<BitVector, ?> allocator = allocators.get(buffer);
     return peek ?
         (exclude != null ? allocator.peek(exclude) : allocator.peek()) :
         (exclude != null ? allocator.allocate(exclude) : allocator.allocate());
   }
 
   public void reset() {
-    for (final AllocationTable<BigInteger, ?> allocator : allocators.values()) {
+    for (final AllocationTable<BitVector, ?> allocator : allocators.values()) {
       allocator.reset();
     }
   }

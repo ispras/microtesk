@@ -20,7 +20,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
  * Test for {@link IntegerRange}.
@@ -43,30 +43,70 @@ public class IntegerRangeTestCase {
   @Test
   public void runTest0() {
     final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(16, 25));
-    inRanges.add(new IntegerRange(0, 1));
-    inRanges.add(new IntegerRange(24, 53));
-    inRanges.add(new IntegerRange(12, 12));
-    inRanges.add(new IntegerRange(0, 2));
-    inRanges.add(new IntegerRange(1, 1));
-    inRanges.add(new IntegerRange(0, 63));
-    inRanges.add(new IntegerRange(15, 17));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(16, 32),
+        BitVector.valueOf(25, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(1, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(24, 32),
+        BitVector.valueOf(53, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(12, 32),
+        BitVector.valueOf(12, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(2, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(1, 32),
+        BitVector.valueOf(1, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(63, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(15, 32),
+        BitVector.valueOf(17, 32)));
     final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
     printRanges(outRanges, 0);
 
     final Set<IntegerRange> checkRanges = new HashSet<>();
-    checkRanges.add(new IntegerRange(0, 0));
-    checkRanges.add(new IntegerRange(1, 1));
-    checkRanges.add(new IntegerRange(2, 2));
-    checkRanges.add(new IntegerRange(3, 11));
-    checkRanges.add(new IntegerRange(12, 12));
-    checkRanges.add(new IntegerRange(13, 14));
-    checkRanges.add(new IntegerRange(15, 15));
-    checkRanges.add(new IntegerRange(16, 17));
-    checkRanges.add(new IntegerRange(18, 23));
-    checkRanges.add(new IntegerRange(24, 25));
-    checkRanges.add(new IntegerRange(26, 53));
-    checkRanges.add(new IntegerRange(54, 63));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(0, 32)));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(1, 32),
+        BitVector.valueOf(1, 32)));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(2, 32),
+        BitVector.valueOf(2, 32)));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(3, 32),
+        BitVector.valueOf(11, 32)));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(12, 32),
+        BitVector.valueOf(12, 32)));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(13, 32),
+        BitVector.valueOf(14, 32)));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(15, 32),
+        BitVector.valueOf(15, 32)));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(16, 32),
+        BitVector.valueOf(17, 32)));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(18, 32),
+        BitVector.valueOf(23, 32)));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(24, 32),
+        BitVector.valueOf(25, 32)));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(26, 32),
+        BitVector.valueOf(53, 32)));
+    checkRanges.add(new IntegerRange(
+        BitVector.valueOf(54, 32),
+        BitVector.valueOf(63, 32)));
 
     for (IntegerRange range : outRanges) {
       if (!checkRanges.contains(range)) {
@@ -81,15 +121,34 @@ public class IntegerRangeTestCase {
   @Test
   public void runTest1() {
     final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(0, 127));
-    inRanges.add(new IntegerRange(0, 55));
-    inRanges.add(new IntegerRange(3, 5));
-    inRanges.add(new IntegerRange(27, 63));
-    inRanges.add(new IntegerRange(12, 26));
-    inRanges.add(new IntegerRange(15, 30));
-    inRanges.add(new IntegerRange(31, 111));
-    inRanges.add(new IntegerRange(100, 101));
-    inRanges.add(new IntegerRange(91, 100));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(127, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(55, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(3, 32),
+        BitVector.valueOf(5, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(27, 32),
+        BitVector.valueOf(63, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(12, 32),
+        BitVector.valueOf(26, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(15, 32),
+        BitVector.valueOf(30, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(31, 32),
+        BitVector.valueOf(111, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(100, 32),
+        BitVector.valueOf(101, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(91, 32),
+        BitVector.valueOf(100, 32)));
+
     final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
     printRanges(outRanges, 1);
   }
@@ -100,9 +159,16 @@ public class IntegerRangeTestCase {
   @Test
   public void runTest2() {
     final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(0, 127));
-    inRanges.add(new IntegerRange(0, 55));
-    inRanges.add(new IntegerRange(44, 99));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(127, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(55, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(44, 32),
+        BitVector.valueOf(99, 32)));
+
     final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
     printRanges(outRanges, 2);
   }
@@ -113,10 +179,19 @@ public class IntegerRangeTestCase {
   @Test
   public void runTest3() {
     final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(0, 127));
-    inRanges.add(new IntegerRange(0, 55));
-    inRanges.add(new IntegerRange(44, 99));
-    inRanges.add(new IntegerRange(55, 111));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(127, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(55, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(44, 32),
+        BitVector.valueOf(99, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(55, 32),
+        BitVector.valueOf(111, 32)));
+
     final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
     printRanges(outRanges, 3);
   }
@@ -127,9 +202,16 @@ public class IntegerRangeTestCase {
   @Test
   public void runTest4() {
     final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(0, 127));
-    inRanges.add(new IntegerRange(0, 55));
-    inRanges.add(new IntegerRange(58, 99));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(127, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(0, 32),
+        BitVector.valueOf(55, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(58, 32),
+        BitVector.valueOf(99, 32)));
+
     final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
     printRanges(outRanges, 4);
   }
@@ -140,10 +222,19 @@ public class IntegerRangeTestCase {
   @Test
   public void runTest5() {
     final Set<IntegerRange> inRanges = new HashSet<>();
-    inRanges.add(new IntegerRange(23, 127));
-    inRanges.add(new IntegerRange(22, 55));
-    inRanges.add(new IntegerRange(44, 99));
-    inRanges.add(new IntegerRange(55, 111));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(23, 32),
+        BitVector.valueOf(127, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(22, 32),
+        BitVector.valueOf(55, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(44, 32),
+        BitVector.valueOf(99, 32)));
+    inRanges.add(new IntegerRange(
+        BitVector.valueOf(55, 32),
+        BitVector.valueOf(111, 32)));
+
     final List<IntegerRange> outRanges = IntegerRange.divide(inRanges);
     printRanges(outRanges, 5);
   }

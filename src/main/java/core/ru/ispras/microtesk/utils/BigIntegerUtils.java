@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class BigIntegerUtils {
@@ -86,5 +87,28 @@ public final class BigIntegerUtils {
 
   public static Set<Long> toLongSet(final Collection<BigInteger> values) {
     return new LinkedHashSet<>(toLongCollection(values));
+  }
+
+  public static Collection<BitVector> toBitVectorCollection(
+      final Collection<BigInteger> values, final int bitSize) {
+    InvariantChecks.checkNotNull(values);
+
+    final Collection<BitVector> result = new ArrayList<>(values.size());
+
+    for (final BigInteger value : values) {
+      result.add(BitVector.valueOf(value, bitSize));
+    }
+
+    return result;
+  }
+
+  public static List<BitVector> toBitVectorList(
+      final Collection<BigInteger> values, final int bitSize) {
+    return new ArrayList<>(toBitVectorCollection(values, bitSize));
+  }
+
+  public static Set<BitVector> toBitVectorSet(
+      final Collection<BigInteger> values, final int bitSize) {
+    return new LinkedHashSet<>(toBitVectorCollection(values, bitSize));
   }
 }

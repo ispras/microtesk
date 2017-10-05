@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
-import java.math.BigInteger;
-
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
 import ru.ispras.microtesk.utils.Range;
@@ -25,20 +24,20 @@ import ru.ispras.microtesk.utils.Range;
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class MmuSegment implements Range<BigInteger> {
+public class MmuSegment implements Range<BitVector> {
   private final String name;
   private final MmuAddressInstance vaType;
   private final MmuAddressInstance paType;
-  private final BigInteger startAddress;
-  private final BigInteger endAddress;
+  private final BitVector startAddress;
+  private final BitVector endAddress;
   private final IntegerRange range;
 
   public MmuSegment(
       final String name,
       final MmuAddressInstance vaType,
       final MmuAddressInstance paType,
-      final BigInteger startAddress,
-      final BigInteger endAddress) {
+      final BitVector startAddress,
+      final BitVector endAddress) {
     InvariantChecks.checkNotNull(name);
 
     this.name = name;
@@ -61,25 +60,25 @@ public class MmuSegment implements Range<BigInteger> {
     return paType;
   }
 
-  public final BigInteger getStartAddress() {
+  public final BitVector getStartAddress() {
     return startAddress;
   }
 
-  public final BigInteger getEndAddress() {
+  public final BitVector getEndAddress() {
     return endAddress;
   }
 
-  public final boolean checkVa(final BigInteger va) {
+  public final boolean checkVa(final BitVector va) {
     return range.contains(va);
   }
 
   @Override
-  public final BigInteger getMin() {
+  public final BitVector getMin() {
     return startAddress;
   }
 
   @Override
-  public final BigInteger getMax() {
+  public final BitVector getMax() {
     return endAddress;
   }
 

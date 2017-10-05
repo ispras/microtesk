@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
 
@@ -27,20 +27,20 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class EntryObject {
-  private final BigInteger id;
+  private final BitVector id;
   private final MmuEntry entry;
 
   /** Address objects that use this entry. */
   private final Collection<AddressObject> addrObjects = new LinkedHashSet<>();
 
-  public EntryObject(final BigInteger id, final MmuEntry entry) {
+  public EntryObject(final BitVector id, final MmuEntry entry) {
     InvariantChecks.checkNotNull(entry);
 
     this.id = id;
     this.entry = entry;
   }
 
-  public BigInteger getId() {
+  public BitVector getId() {
     return id;
   }
 

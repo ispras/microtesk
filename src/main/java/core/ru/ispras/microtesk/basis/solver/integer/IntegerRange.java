@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -60,7 +62,7 @@ public final class IntegerRange {
     }
 
     // Create a line of the range points.
-    final Map<BigInteger, RangePointType> line = new HashMap<>();
+    final Map<BitVector, RangePointType> line = new HashMap<>();
 
     for (final IntegerRange range : ranges) {
       // Add the starting point of the range into the line.
@@ -87,28 +89,34 @@ public final class IntegerRange {
 
     // Divide the line into disjoint ranges.
     final List<IntegerRange> dividedRanges = new ArrayList<>();
-    final SortedSet<BigInteger> keys = new TreeSet<BigInteger>(line.keySet());
+    final SortedSet<BitVector> keys = new TreeSet<BitVector>(line.keySet());
 
-    BigInteger minValue = keys.first();
-    BigInteger startValue = minValue;
+    BitVector minValue = keys.first();
+    BitVector startValue = minValue;
 
-    for (final BigInteger key : keys) {
+    for (final BitVector key : keys) {
       final RangePointType type = line.get(key);
       switch (type) {
         case ALL:
           if (!key.equals(minValue)) {
-            dividedRanges.add(new IntegerRange(minValue, key.subtract(BigInteger.ONE)));
+            dividedRanges.add(
+                new IntegerRange(
+                    minValue,
+                    BitVectorMath.sub(key, BitVector.valueOf(1, key.getBitSize()))));
           }
           dividedRanges.add(new IntegerRange(key, key));
-          minValue = key.add(BigInteger.ONE);
+          minValue = BitVectorMath.add(key, BitVector.valueOf(1, key.getBitSize()));
           break;
         case MAX:
           dividedRanges.add(new IntegerRange(minValue, key));
-          minValue = key.add(BigInteger.ONE);
+          minValue = BitVectorMath.add(key, BitVector.valueOf(1, key.getBitSize()));
           break;
         case MIN:
           if (!key.equals(startValue) && !minValue.equals(key)) {
-            dividedRanges.add(new IntegerRange(minValue, key.subtract(BigInteger.ONE)));
+            dividedRanges.add(
+                new IntegerRange(
+                    minValue,
+                    BitVectorMath.sub(key, BitVector.valueOf(1, key.getBitSize()))));
             minValue = key;
           }
           break;
@@ -144,9 +152,9 @@ public final class IntegerRange {
   }
 
   /** The lower bound of the range. */
-  private BigInteger min;
+  private BitVector min;
   /** The upper bound of the range. */
-  private BigInteger max;
+  private BitVector max;
 
   /**
    * Constructs a range with the given lower ({@code min}) and upper ({@code max}) bounds.
@@ -156,10 +164,10 @@ public final class IntegerRange {
    * @throws IllegalArgumentException if {@code min} or {@code max} is null.
    * @throws IllegalArgumentException if ({@code min > max}).
    */
-  public IntegerRange(final BigInteger min, final BigInteger max) {
+  public IntegerRange(final BitVector min, final BitVector max) {
     InvariantChecks.checkNotNull(min);
     InvariantChecks.checkNotNull(max);
-    InvariantChecks.checkGreaterOrEq(max, min);
+    InvariantChecks.checkGreaterOrEq(max.bigIntegerValue(false), min.bigIntegerValue(false));
 
     this.min = min;
     this.max = max;
@@ -170,27 +178,8 @@ public final class IntegerRange {
    * 
    * @param value the only value of the range.
    */
-  public IntegerRange(final BigInteger value) {
+  public IntegerRange(final BitVector value) {
     this(value, value);
-  }
-
-  /**
-   * Constructs a range with the given lower ({@code min}) and upper ({@code max}) bounds.
-   * 
-   * @param min the lower bound of the range.
-   * @param max the upper bound of the range.
-   */
-  public IntegerRange(final long min, final long max) {
-    this(BigInteger.valueOf(min), BigInteger.valueOf(max));
-  }
-
-  /**
-   * Constructs a single-value range.
-   * 
-   * @param value the only value of the range.
-   */
-  public IntegerRange(final long value) {
-    this(BigInteger.valueOf(value));
   }
 
   /**
@@ -198,7 +187,7 @@ public final class IntegerRange {
    * 
    * @return the lower bound of the range.
    */
-  public BigInteger getMin() {
+  public BitVector getMin() {
     return min;
   }
 
@@ -208,9 +197,9 @@ public final class IntegerRange {
    * @param min the lower bound to be set.
    * @throws IllegalArgumentException if {@code max} is null or ({@code min > max}).
    */
-  public void setMin(final BigInteger min) {
+  public void setMin(final BitVector min) {
     InvariantChecks.checkNotNull(min);
-    InvariantChecks.checkGreaterOrEq(this.max, min);
+    InvariantChecks.checkGreaterOrEq(this.max.bigIntegerValue(false), min.bigIntegerValue(false));
 
     this.min = min;
   }
@@ -220,7 +209,7 @@ public final class IntegerRange {
    * 
    * @return the upper bound of the range.
    */
-  public BigInteger getMax() {
+  public BitVector getMax() {
     return max;
   }
 
@@ -230,9 +219,9 @@ public final class IntegerRange {
    * @param max the upper bound to be set.
    * @throws IllegalArgumentException if {@code max} is null or ({@code min > max}).
    */
-  public void setMax(final BigInteger max) {
+  public void setMax(final BitVector max) {
     InvariantChecks.checkNotNull(max);
-    InvariantChecks.checkGreaterOrEq(max, this.min);
+    InvariantChecks.checkGreaterOrEq(max.bigIntegerValue(false), this.min.bigIntegerValue(false));
 
     this.max = max;
   }
@@ -243,16 +232,7 @@ public final class IntegerRange {
    * @return the size of the range.
    */
   public BigInteger size() {
-    return max.subtract(min).add(BigInteger.ONE);
-  }
-
-  /**
-   * Checks whether the range is singular (consists of a single value: {@code min == max}).
-   * 
-   * @return {@code true} if the range is singular; {@code false} otherwise.
-   */
-  public boolean isSingular() {
-    return min.compareTo(max) == 0;
+    return max.bigIntegerValue(false).subtract(min.bigIntegerValue(false)).add(BigInteger.ONE);
   }
 
   /**
@@ -286,19 +266,9 @@ public final class IntegerRange {
    * @return {@code true} if this range contains the given point; {@code false} otherwise.
    * @throws IllegalArgumentException if {@code value} is null.
    */
-  public boolean contains(final BigInteger value) {
+  public boolean contains(final BitVector value) {
     InvariantChecks.checkNotNull(value);
     return min.compareTo(value) <= 0 && max.compareTo(value) >= 0;
-  }
-
-  /**
-   * Returns the shifted variant of this range ({@code [min + value, max + value]}).
-   *  
-   * @param value the shift value.
-   * @return the shifted range.
-   */
-  public IntegerRange shift(final int value) {
-    return new IntegerRange(min.add(BigInteger.valueOf(value)), max.add(BigInteger.valueOf(value)));
   }
 
   /**
@@ -316,7 +286,12 @@ public final class IntegerRange {
       return null;
     }
 
-    return new IntegerRange(min.max(rhs.min), max.min(rhs.max));
+    final BigInteger minValue = min.bigIntegerValue(false).max(rhs.min.bigIntegerValue(false));
+    final BigInteger maxValue = max.bigIntegerValue(false).min(rhs.max.bigIntegerValue(false));
+
+    return new IntegerRange(
+        BitVector.valueOf(minValue, min.getBitSize()),
+        BitVector.valueOf(maxValue, max.getBitSize()));
   }
 
   /**
@@ -334,7 +309,12 @@ public final class IntegerRange {
       return null;
     }
 
-    return new IntegerRange(min.min(rhs.min), max.max(rhs.max));
+    final BigInteger minValue = min.bigIntegerValue(false).min(rhs.min.bigIntegerValue(false));
+    final BigInteger maxValue = max.bigIntegerValue(false).max(rhs.max.bigIntegerValue(false));
+
+    return new IntegerRange(
+        BitVector.valueOf(minValue, min.getBitSize()),
+        BitVector.valueOf(maxValue, max.getBitSize()));
   }
 
   /**
@@ -376,11 +356,11 @@ public final class IntegerRange {
     final List<IntegerRange> result = new ArrayList<IntegerRange>();
 
     if (overlaps(rhs)) {
-      final BigInteger min1 = min;
-      final BigInteger max1 = rhs.min.subtract(BigInteger.ONE);
+      final BitVector min1 = min;
+      final BitVector max1 = BitVectorMath.sub(rhs.min, BitVector.valueOf(1, min.getBitSize()));
 
-      final BigInteger min2 = rhs.max.add(BigInteger.ONE);
-      final BigInteger max2 = max;
+      final BitVector min2 = BitVectorMath.add(rhs.max, BitVector.valueOf(1, min.getBitSize()));
+      final BitVector max2 = max;
 
       if (min1.compareTo(max1) <= 0) {
         result.add(new IntegerRange(min1, max1));
@@ -418,6 +398,6 @@ public final class IntegerRange {
 
   @Override
   public String toString() {
-    return String.format("[0x%s, 0x%s]", min.toString(16), max.toString(16));
+    return String.format("[0x%s, 0x%s]", min.toHexString(), max.toHexString());
   }
 }

@@ -14,12 +14,9 @@
 
 package ru.ispras.microtesk.basis.solver.integer;
 
-import java.math.BigInteger;
-
-import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
-import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -31,12 +28,12 @@ import ru.ispras.microtesk.utils.FortressUtils;
  */
 public final class IntegerEqualConstraint implements IntegerConstraint {
   private final Node variable;
-  private final BigInteger value;
+  private final BitVector value;
   private final Node formula;
 
   public IntegerEqualConstraint(
       final Node variable,
-      final BigInteger value) {
+      final BitVector value) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(value);
 
@@ -46,14 +43,14 @@ public final class IntegerEqualConstraint implements IntegerConstraint {
     this.formula = new NodeOperation(
         StandardOperation.EQ,
         variable,
-        new NodeValue(Data.newBitVector(value, FortressUtils.getBitSize(variable))));
+        FortressUtils.makeNodeBitVector(value));
   }
 
   public Node getVariable() {
     return variable;
   }
 
-  public BigInteger getValue() {
+  public BitVector getValue() {
     return value;
   }
 
@@ -64,6 +61,6 @@ public final class IntegerEqualConstraint implements IntegerConstraint {
 
   @Override
   public String toString() {
-    return String.format("%s == %s", variable, value.toString(16));
+    return String.format("%s == %s", variable, value.toHexString());
   }
 }

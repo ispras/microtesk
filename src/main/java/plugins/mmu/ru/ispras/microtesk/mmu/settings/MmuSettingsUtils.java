@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
@@ -32,6 +33,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.AbstractSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
@@ -109,15 +111,24 @@ public final class MmuSettingsUtils {
       return null /* TRUE */;
     }
 
+    final IntegerDomainConstraint.Kind kind = include.isEmpty()
+        ? IntegerDomainConstraint.Kind.EXCLUDE
+        : IntegerDomainConstraint.Kind.RETAIN;
+
+    final Set<BigInteger> values = include.isEmpty()
+        ? exclude
+        : include;
+
+    final Set<BitVector> bvDomain =
+        BigIntegerUtils.toBitVectorSet(domain, variable.getType().getSize());
+    final Set<BitVector> bvValues =
+        BigIntegerUtils.toBitVectorSet(values, variable.getType().getSize());
+
     return new IntegerDomainConstraint(
-        include.isEmpty() ?
-            IntegerDomainConstraint.Kind.EXCLUDE :
-            IntegerDomainConstraint.Kind.RETAIN,
+        kind,
         FortressUtils.makeNodeVariable(variable),
-        domain,
-        include.isEmpty() ?
-            exclude :
-            include); 
+        bvDomain,
+        bvValues); 
   }
 
   /**
@@ -136,6 +147,7 @@ public final class MmuSettingsUtils {
 
     final Variable variable = memory.getVariable(settings.getName());
     InvariantChecks.checkNotNull(variable);
+    InvariantChecks.checkNotNull(variable.getType().getSize() == 1);
 
     final Set<Boolean> booleanValues = settings.getValues();
     InvariantChecks.checkTrue(booleanValues != null && !booleanValues.isEmpty());
@@ -144,10 +156,10 @@ public final class MmuSettingsUtils {
       return null /* TRUE */;
     }
 
-    final Set<BigInteger> values = new LinkedHashSet<>();
+    final Set<BitVector> values = new LinkedHashSet<>();
 
     for (final boolean value : booleanValues) {
-      values.add(value ? BigInteger.ONE : BigInteger.ZERO);
+      values.add(value ? BitVector.valueOf(1, 1) : BitVector.valueOf(0, 1));
     }
 
     return new IntegerDomainConstraint(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -22,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -30,10 +30,10 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuEntry {
-  private BigInteger address = BigInteger.ZERO;
+  private BitVector address;
 
   private final Set<Variable> validFields = new LinkedHashSet<>();
-  private final Map<Variable, BigInteger> fields = new LinkedHashMap<>();
+  private final Map<Variable, BitVector> fields = new LinkedHashMap<>();
   private final int sizeInBits;
 
   private boolean valid = false;
@@ -43,18 +43,18 @@ public final class MmuEntry {
 
     int sizeInBits = 0;
     for (final Variable variable : variables) {
-      fields.put(variable, BigInteger.ZERO);
+      fields.put(variable, BitVector.newEmpty(variable.getType().getSize()));
       sizeInBits += variable.getType().getSize();
     }
 
     this.sizeInBits = sizeInBits;
   }
 
-  public BigInteger getAddress() {
+  public BitVector getAddress() {
     return address;
   }
 
-  public void setAddress(final BigInteger address) {
+  public void setAddress(final BitVector address) {
     this.address = address;
   }
 
@@ -74,12 +74,12 @@ public final class MmuEntry {
     return validFields.contains(variable);
   }
 
-  public BigInteger getValue(final Variable variable) {
+  public BitVector getValue(final Variable variable) {
     InvariantChecks.checkNotNull(variable);
     return fields.get(variable);
   }
 
-  public void setValue(final Variable variable, final BigInteger value, final boolean valid) {
+  public void setValue(final Variable variable, final BitVector value, final boolean valid) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(value);
 
@@ -92,7 +92,7 @@ public final class MmuEntry {
     }
   }
 
-  public void setValue(final Variable variable, final BigInteger value) {
+  public void setValue(final Variable variable, final BitVector value) {
     setValue(variable, value, true);
   }
 
@@ -119,9 +119,9 @@ public final class MmuEntry {
     builder.append("[");
 
     boolean comma = false;
-    for (final Map.Entry<Variable, BigInteger> entry : fields.entrySet()) {
+    for (final Map.Entry<Variable, BitVector> entry : fields.entrySet()) {
       final String name = getShortName(entry.getKey());
-      final String value = entry.getValue().toString(16);
+      final String value = entry.getValue().toHexString();
 
       builder.append(comma ? separator : "");
       builder.append(name);

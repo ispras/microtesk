@@ -14,14 +14,15 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
 import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
@@ -69,7 +70,7 @@ public final class SymbolicResult {
   private final Map<String, Variable> cache;
 
   /** Maps a variable to the derived values (constant propagation). */
-  private final Map<Variable, BigInteger> constants;
+  private final Map<Variable, BitVector> constants;
 
   private SymbolicResult(
       final IntegerFormulaBuilder builder,
@@ -77,7 +78,7 @@ public final class SymbolicResult {
       final Collection<Variable> originals,
       final Map<String, Integer> versions,
       final Map<String, Variable> cache,
-      final Map<Variable, BigInteger> constants) {
+      final Map<Variable, BitVector> constants) {
     InvariantChecks.checkNotNull(builder);
     InvariantChecks.checkNotNull(contexts);
     InvariantChecks.checkNotNull(originals);
@@ -100,7 +101,7 @@ public final class SymbolicResult {
         new LinkedHashSet<Variable>(),
         new HashMap<String, Integer>(),
         new HashMap<String, Variable>(),
-        new HashMap<Variable, BigInteger>());
+        new HashMap<Variable, BitVector>());
   }
 
   public SymbolicResult(final SymbolicResult r) {
@@ -167,15 +168,15 @@ public final class SymbolicResult {
     originals.addAll(vars);
   }
 
-  public BigInteger getConstant(final Variable var) {
+  public BitVector getConstant(final Variable var) {
     return constants.get(var);
   }
 
-  public Map<Variable, BigInteger> getConstants() {
+  public Map<Variable, BitVector> getConstants() {
     return constants;
   }
 
-  public void addConstant(final Variable var, final BigInteger constant) {
+  public void addConstant(final Variable var, final BitVector constant) {
     constants.put(var, constant);
   }
 
@@ -251,7 +252,7 @@ public final class SymbolicResult {
           FortressUtils.makeNodeVariable(version)));
 
       // Propagate the constant if applicable.
-      final BigInteger constant = getConstant(version);
+      final BitVector constant = getConstant(version);
 
       if (constant != null) {
         addConstant(original, constant);
@@ -265,7 +266,9 @@ public final class SymbolicResult {
     final String originalName = getOriginalName(variable, pathIndex);
 
     return getVariable(
-        originalName, variable.getType().getSize(), variable.getData().getInteger());
+        originalName,
+        variable.getType().getSize(),
+        variable.getData().getBitVector());
   }
 
   public Variable getVersion(final Variable variable, final int pathIndex) {
@@ -276,7 +279,9 @@ public final class SymbolicResult {
     final String versionName = getVersionName(originalName, versionNumber);
 
     return getVariable(
-        versionName, variable.getType().getSize(), variable.getData().getInteger());
+        versionName,
+        variable.getType().getSize(),
+        variable.getData().getBitVector());
   }
 
   public Node getVersion(final Node node, final int pathIndex) {
@@ -298,7 +303,9 @@ public final class SymbolicResult {
     final String nextVersionName = getVersionName(originalName, versionNumber + 1);
 
     return getVariable(
-        nextVersionName, variable.getType().getSize(), variable.getData().getInteger());
+        nextVersionName,
+        variable.getType().getSize(),
+        variable.getData().getBitVector());
   }
 
   public void defineVersion(final Variable variable, final int pathIndex) {
@@ -320,7 +327,9 @@ public final class SymbolicResult {
     final String versionName = getVersionName(originalName, versionNumber);
 
     return getVariable(
-        versionName, originalVariable.getType().getSize(), originalVariable.getData().getInteger());
+        versionName,
+        originalVariable.getType().getSize(),
+        originalVariable.getData().getBitVector());
   }
 
   public int getVersionNumber(final Variable originalVariable) {
@@ -362,12 +371,17 @@ public final class SymbolicResult {
   }
 
   private Variable getVariable(
-      final String variableName, final int width, final BigInteger value) {
+      final String variableName, final int width, final BitVector value) {
     InvariantChecks.checkNotNull(variableName);
 
     Variable variable = cache.get(variableName);
+
     if (variable == null) {
-      cache.put(variableName, variable = new Variable(variableName, Data.newBitVector(value, width)));
+      variable = value != null
+          ? new Variable(variableName, Data.newBitVector(value))
+          : new Variable(variableName, DataType.BIT_VECTOR(width));
+
+      cache.put(variableName, variable);
     }
 
     return variable;

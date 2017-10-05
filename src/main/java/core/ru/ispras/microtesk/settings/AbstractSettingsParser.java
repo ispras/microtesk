@@ -22,6 +22,7 @@ import java.util.Stack;
 
 import org.xml.sax.Attributes;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -60,6 +61,10 @@ public abstract class AbstractSettingsParser<T extends AbstractSettings> {
 
   public static BigInteger getDecBigInteger(final String value) {
     return new BigInteger(clearString(value));
+  }
+
+  public static BitVector getHexBitVector(final String value) {
+    return BitVector.valueOf(value, 16, 4 * value.length());
   }
 
   public static boolean getBoolean(final String value) {

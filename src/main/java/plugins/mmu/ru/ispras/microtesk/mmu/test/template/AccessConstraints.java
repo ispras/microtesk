@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -28,6 +29,7 @@ import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
 import ru.ispras.microtesk.basis.solver.integer.IntegerEqualConstraint;
 import ru.ispras.microtesk.settings.RegionSettings;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
@@ -176,7 +178,10 @@ public final class AccessConstraints {
       final Set<BigInteger> values = variableConstraint.getValues();
 
       if ((1 << FortressUtils.getBitSize(variable)) != values.size()) {
-        generalConstraints.add(new IntegerDomainConstraint(variable, values));
+        generalConstraints.add(
+            new IntegerDomainConstraint(
+                variable,
+                BigIntegerUtils.toBitVectorSet(values, FortressUtils.getBitSize(variable))));
       }
     }
 
@@ -195,7 +200,10 @@ public final class AccessConstraints {
       final Node variable = variableConstraint.getVariable();
       final BigInteger value = variableConstraint.getVariate().getValue();
 
-      variateConstraints.add(new IntegerEqualConstraint(variable, value));
+      variateConstraints.add(
+          new IntegerEqualConstraint(
+              variable,
+              BitVector.valueOf(value, FortressUtils.getBitSize(variable))));
     }
 
     Logger.debug("Variate constraints: %s", variateConstraints);

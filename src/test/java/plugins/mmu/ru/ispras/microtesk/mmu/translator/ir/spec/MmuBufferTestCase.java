@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +23,7 @@ import org.junit.Test;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
@@ -79,7 +79,7 @@ public class MmuBufferTestCase {
   public static final MmuBuffer JTLB = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, 64, 1, VA_ADDR,
       FortressUtils.makeNodeExtract(VA, 13, 39), // Tag
-      FortressUtils.makeNodeInteger(0), // Index
+      FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)), // Index
       FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
@@ -107,7 +107,7 @@ public class MmuBufferTestCase {
   public static final MmuBuffer DTLB = new MmuBuffer(
       "DTLB", MmuBuffer.Kind.UNMAPPED, 4, 1, VA_ADDR,
       FortressUtils.makeNodeExtract(VA, 13, 39), // Tag
-      FortressUtils.makeNodeInteger(0), // Index
+      FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)), // Index
       FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
@@ -132,27 +132,27 @@ public class MmuBufferTestCase {
     DTLB.addField(PFN1);
   }
 
-  public static final AddressView<BigInteger> DTLB_ADDR_VIEW = new AddressView<BigInteger>(
-      new Function<BigInteger, List<BigInteger>>() {
+  public static final AddressView<BitVector> DTLB_ADDR_VIEW = new AddressView<>(
+      new Function<BitVector, List<BitVector>>() {
         @Override
-        public List<BigInteger> apply(final BigInteger address) {
-          final List<BigInteger> fields = new ArrayList<>();
+        public List<BitVector> apply(final BitVector address) {
+          final List<BitVector> fields = new ArrayList<>();
           // Tag = VPN2.
-          fields.add(BigInteger.valueOf((address.longValue() >>> 13) & 0x7FFffffL));
+          fields.add(BitVector.valueOf((address.longValue() >>> 13) & 0x7FFffffL, 27));
           // Index = 0.
-          fields.add(BigInteger.ZERO);
+          fields.add(BitVector.newEmpty(1));
           // Offset = Select | Offset.
-          fields.add(BigInteger.valueOf(address.longValue() & 0x1fffL));
+          fields.add(BitVector.valueOf(address.longValue() & 0x1fffL, 13));
           return fields;
         }
       },
-      new Function<List<BigInteger>, BigInteger>() {
+      new Function<List<BitVector>, BitVector>() {
         @Override
-        public BigInteger apply(final List<BigInteger> fields) {
+        public BitVector apply(final List<BitVector> fields) {
           final long tag = fields.get(0).longValue() & 0x7FFffffL;
           final long offset = fields.get(2).longValue() & 0x1fffL;
 
-          return BigInteger.valueOf((tag << 13) | offset);
+          return BitVector.valueOf((tag << 13) | offset, 64);
         }
       });
 
@@ -173,25 +173,25 @@ public class MmuBufferTestCase {
     L1.addField(L1_DATA);
   }
 
-  public static final AddressView<BigInteger> L1_ADDR_VIEW = new AddressView<BigInteger>(
-      new Function<BigInteger, List<BigInteger>>() {
+  public static final AddressView<BitVector> L1_ADDR_VIEW = new AddressView<BitVector>(
+      new Function<BitVector, List<BitVector>>() {
         @Override
-        public List<BigInteger> apply(final BigInteger address) {
-          final List<BigInteger> fields = new ArrayList<>();
-          fields.add(BigInteger.valueOf(((address.longValue() >>> 12) & 0xFFffffL)));
-          fields.add(BigInteger.valueOf((address.longValue() >>> 5) & 0x7fL));
-          fields.add(BigInteger.valueOf(address.longValue() & 0x1fL));
+        public List<BitVector> apply(final BitVector address) {
+          final List<BitVector> fields = new ArrayList<>();
+          fields.add(BitVector.valueOf(((address.longValue() >>> 12) & 0xFFffffL), 24));
+          fields.add(BitVector.valueOf((address.longValue() >>> 5) & 0x7fL, 7));
+          fields.add(BitVector.valueOf(address.longValue() & 0x1fL, 5));
           return fields;
         }
       },
-      new Function<List<BigInteger>, BigInteger>() {
+      new Function<List<BitVector>, BitVector>() {
         @Override
-        public BigInteger apply(final List<BigInteger> fields) {
+        public BitVector apply(final List<BitVector> fields) {
           final long tag = fields.get(0).longValue() & 0xFFffffL;
           final long index = fields.get(1).longValue() & 0x7fL;
           final long offset = fields.get(2).longValue() & 0x1fL;
 
-          return BigInteger.valueOf((tag << 12) | (index << 5) | offset);
+          return BitVector.valueOf((tag << 12) | (index << 5) | offset, 36);
         }
       });
 
@@ -213,31 +213,31 @@ public class MmuBufferTestCase {
     L2.addField(L2_DATA);
   }
 
-  public static final AddressView<BigInteger> L2_ADDR_VIEW = new AddressView<BigInteger>(
-      new Function<BigInteger, List<BigInteger>>() {
+  public static final AddressView<BitVector> L2_ADDR_VIEW = new AddressView<BitVector>(
+      new Function<BitVector, List<BitVector>>() {
         @Override
-        public List<BigInteger> apply(final BigInteger address) {
-          final List<BigInteger> fields = new ArrayList<BigInteger>();
-          fields.add(BigInteger.valueOf((address.longValue() >>> 17) & 0x7ffffL));
-          fields.add(BigInteger.valueOf((address.longValue() >>> 5) & 0xfffL));
-          fields.add(BigInteger.valueOf(address.longValue() & 0x1fL));
+        public List<BitVector> apply(final BitVector address) {
+          final List<BitVector> fields = new ArrayList<BitVector>();
+          fields.add(BitVector.valueOf((address.longValue() >>> 17) & 0x7ffffL, 19));
+          fields.add(BitVector.valueOf((address.longValue() >>> 5) & 0xfffL, 12));
+          fields.add(BitVector.valueOf(address.longValue() & 0x1fL, 5));
           return fields;
         }
       },
-      new Function<List<BigInteger>, BigInteger>() {
+      new Function<List<BitVector>, BitVector>() {
         @Override
-        public BigInteger apply(final List<BigInteger> fields) {
+        public BitVector apply(final List<BitVector> fields) {
           final long tag = fields.get(0).longValue() & 0x7ffffL;
           final long index = fields.get(1).longValue() & 0xfffL;
           final long offset = fields.get(2).longValue() & 0x1fL;
 
-          return BigInteger.valueOf((tag << 17) | (index << 5) | offset);
+          return BitVector.valueOf((tag << 17) | (index << 5) | offset, 36);
         }
       });
 
   public static final MmuBuffer MEM = new MmuBuffer(
       "MMU", MmuBuffer.Kind.UNMAPPED, 1, (1L << 36) / 32, PA_ADDR,
-      FortressUtils.makeNodeInteger(0), // Tag
+      FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)), // Tag
       FortressUtils.makeNodeExtract(PA, 5, 35), // Index
       FortressUtils.makeNodeExtract(PA, 0, 4), // Offset
       Collections.<MmuBinding>emptySet(),
@@ -250,41 +250,41 @@ public class MmuBufferTestCase {
 
   private void runTest(
       final MmuBuffer device,
-      final AddressView<BigInteger> addressView,
-      final BigInteger address) {
+      final AddressView<BitVector> addressView,
+      final BitVector address) {
     System.out.format("Test: %s, %x\n", device.getName(), address);
 
-    final BigInteger tagA = addressView.getTag(address);
-    final BigInteger indexA = addressView.getIndex(address);
-    final BigInteger offsetA = addressView.getOffset(address);
+    final BitVector tagA = addressView.getTag(address);
+    final BitVector indexA = addressView.getIndex(address);
+    final BitVector offsetA = addressView.getOffset(address);
 
-    final BigInteger tagD = device.getTag(address);
-    final BigInteger indexD = device.getIndex(address);
-    final BigInteger offsetD = device.getOffset(address);
+    final BitVector tagD = device.getTag(address);
+    final BitVector indexD = device.getIndex(address);
+    final BitVector offsetD = device.getOffset(address);
 
     System.out.format("Spec: tag=%x, index=%x, offset=%x%n", tagA, indexA, offsetA);
     System.out.format("Impl: tag=%x, index=%x, offset=%x%n", tagD, indexD, offsetD);
 
-    Assert.assertEquals(tagA.toString(16), tagD.toString(16));
-    Assert.assertEquals(indexA.toString(16), indexD.toString(16));
-    Assert.assertEquals(offsetA.toString(16), offsetD.toString(16));
+    Assert.assertEquals(tagA.toHexString(), tagD.toHexString());
+    Assert.assertEquals(indexA.toHexString(), indexD.toHexString());
+    Assert.assertEquals(offsetA.toHexString(), offsetD.toHexString());
 
-    final BigInteger addressA = addressView.getAddress(tagA, indexA, offsetA);
-    final BigInteger addressD = device.getAddress(tagD, indexD, offsetD);
+    final BitVector addressA = addressView.getAddress(tagA, indexA, offsetA);
+    final BitVector addressD = device.getAddress(tagD, indexD, offsetD);
 
     System.out.format("Spec: address=%x%n", addressA);
     System.out.format("Impl: address=%x%n", addressD);
 
-    Assert.assertEquals(addressA.toString(16), addressD.toString(16));
+    Assert.assertEquals(addressA.toHexString(), addressD.toHexString());
   }
 
   @Test
   public void runTest() {
     final int testCount = 1000;
     for (int i = 0; i < testCount; i++) {
-      runTest(DTLB, DTLB_ADDR_VIEW, BigInteger.valueOf(Randomizer.get().nextLong()));
-      runTest(L1, L1_ADDR_VIEW, BigInteger.valueOf(Randomizer.get().nextLong()));
-      runTest(L2, L2_ADDR_VIEW, BigInteger.valueOf(Randomizer.get().nextLong()));
+      runTest(DTLB, DTLB_ADDR_VIEW, BitVector.valueOf(Randomizer.get().nextLong(), 64));
+      runTest(L1, L1_ADDR_VIEW, BitVector.valueOf(Randomizer.get().nextLong(), 36));
+      runTest(L2, L2_ADDR_VIEW, BitVector.valueOf(Randomizer.get().nextLong(), 36));
     }
   }
 }

@@ -185,7 +185,7 @@ public final class FortressUtils {
     return (getUpperBit(node) - getLowerBit(node)) + 1;
   }
 
-  public static BigInteger evaluate(final Node node, final ValueProvider valueProvider) {
+  public static BigInteger evaluateInteger(final Node node, final ValueProvider valueProvider) {
     final Node result = Reducer.reduce(valueProvider, node);
     InvariantChecks.checkNotNull(result);
 
@@ -194,13 +194,12 @@ public final class FortressUtils {
     }
 
     final NodeValue value = (NodeValue) result;
-
     return value.getDataTypeId() == DataTypeId.BIT_VECTOR
         ? value.getBitVector().bigIntegerValue(false)
         : value.getInteger();
   }
 
-  public static BigInteger evaluate(final Node node) {
+  public static BigInteger evaluateInteger(final Node node) {
     final Node result = Reducer.reduce(node);
     InvariantChecks.checkNotNull(result);
 
@@ -209,7 +208,33 @@ public final class FortressUtils {
     }
 
     final NodeValue value = (NodeValue) result;
-    return value.getInteger();
+    return value.getDataTypeId() == DataTypeId.BIT_VECTOR
+        ? value.getBitVector().bigIntegerValue(false)
+        : value.getInteger();
+  }
+
+  public static BitVector evaluateBitVector(final Node node, final ValueProvider valueProvider) {
+    final Node result = Reducer.reduce(valueProvider, node);
+    InvariantChecks.checkNotNull(result);
+
+    if (result.getKind() != Node.Kind.VALUE) {
+      return null;
+    }
+
+    final NodeValue value = (NodeValue) result;
+    return value.getBitVector();
+  }
+
+  public static BitVector evaluateBitVector(final Node node) {
+    final Node result = Reducer.reduce(node);
+    InvariantChecks.checkNotNull(result);
+
+    if (result.getKind() != Node.Kind.VALUE) {
+      return null;
+    }
+
+    final NodeValue value = (NodeValue) result;
+    return value.getBitVector();
   }
 
   public static Boolean check(final Node node, final ValueProvider valueProvider) {

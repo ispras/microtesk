@@ -18,6 +18,7 @@ import java.util.Collections;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.engine.memory.Access;
@@ -34,7 +35,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.microtesk.utils.function.Predicate;
 
@@ -166,32 +166,32 @@ public final class MmuUnderTest {
       "XUSEG",
       vaAddr,
       paAddr,
-      BigIntegerUtils.valueOfUnsignedLong(0x0000000080000000L),
-      BigIntegerUtils.valueOfUnsignedLong(0x000000ffFFFFffffL)
+      BitVector.valueOf("0000000080000000", 16, 64),
+      BitVector.valueOf("000000ffFFFFffff", 16, 64)
       );
 
   public final MmuSegment kseg0 = new MmuSegment(
       "KSEG0",
       vaAddr,
       paAddr,
-      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFF80000000L),
-      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFF9fffFFFFL)
+      BitVector.valueOf("ffffFFFF80000000", 16, 64),
+      BitVector.valueOf("ffffFFFF9fffFFFF", 16, 64)
       );
 
   public final MmuSegment kseg1 = new MmuSegment(
       "KSEG1",
       vaAddr,
       paAddr,
-      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFFa0000000L),
-      BigIntegerUtils.valueOfUnsignedLong(0xffffFFFFbfffFFFFL)
+      BitVector.valueOf("ffffFFFFa0000000", 16, 64),
+      BitVector.valueOf("ffffFFFFbfffFFFF", 16, 64)
       );
 
   public final MmuSegment xkphys = new MmuSegment(
       "XKPHYS",
       vaAddr,
       paAddr,
-      BigIntegerUtils.valueOfUnsignedLong(0x8000000000000000L),
-      BigIntegerUtils.valueOfUnsignedLong(0xbfffFFFFffffFFFFL)
+      BitVector.valueOf("8000000000000000", 16, 64),
+      BitVector.valueOf("bfffFFFFffffFFFF", 16, 64)
       );
 
   //================================================================================================
@@ -201,7 +201,7 @@ public final class MmuUnderTest {
   public final MmuBuffer jtlb = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, JTLB_SIZE, 1, vaAddr,
       FortressUtils.makeNodeExtract(va, 13, 39), // Tag
-      FortressUtils.makeNodeInteger(0), // Index
+      FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)), // Index
       FortressUtils.makeNodeExtract(va, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
@@ -248,7 +248,7 @@ public final class MmuUnderTest {
   public final MmuBuffer dtlb = new MmuBuffer(
       "DTLB", MmuBuffer.Kind.UNMAPPED, MTLB_SIZE, 1, vaAddr,
       FortressUtils.makeNodeExtract(va, 13, 39), // Tag
-      FortressUtils.makeNodeInteger(0), // Index
+      FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)), // Index
       FortressUtils.makeNodeExtract(va, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
@@ -309,7 +309,7 @@ public final class MmuUnderTest {
   // -----------------------------------------------------------------------------------------------
   public final MmuBuffer mem = new MmuBuffer(
       "MEM", MmuBuffer.Kind.UNMAPPED, 1, (1L << PA_BITS) / 32, paAddr,
-      FortressUtils.makeNodeInteger(0), // Tag
+      FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)), // Tag
       FortressUtils.makeNodeExtract(pa, POS_BITS, PA_BITS - 1), // Index
       FortressUtils.makeNodeExtract(pa, 0, POS_BITS - 1), // Offset
       Collections.<MmuBinding>emptySet(),
@@ -478,7 +478,7 @@ public final class MmuUnderTest {
       new MmuGuard(
           FortressUtils.makeNodeEqual(
               FortressUtils.makeNodeExtract(va, 12),
-              FortressUtils.makeNodeInteger(0))));
+              FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifVpn1 = new MmuTransition(selectVpn, getLo1,
       new MmuGuard(
           FortressUtils.makeNodeEqual(
@@ -490,7 +490,7 @@ public final class MmuUnderTest {
       new MmuGuard(
           FortressUtils.makeNodeEqual(
               FortressUtils.makeNodeVariable(g),
-              FortressUtils.makeNodeInteger(0))));
+              FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifGlobal = new MmuTransition(checkG, global,
       new MmuGuard(
           FortressUtils.makeNodeEqual(
@@ -502,7 +502,7 @@ public final class MmuUnderTest {
       new MmuGuard(
           FortressUtils.makeNodeEqual(
               FortressUtils.makeNodeVariable(v),
-              FortressUtils.makeNodeInteger(0))));
+              FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifValid = new MmuTransition(checkV, checkD,
       new MmuGuard(
           FortressUtils.makeNodeEqual(
@@ -513,7 +513,7 @@ public final class MmuUnderTest {
           MemoryOperation.STORE,
           FortressUtils.makeNodeEqual(
               FortressUtils.makeNodeVariable(d),
-              FortressUtils.makeNodeInteger(0))));
+              FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifClean = new MmuTransition(checkD, getMpa,
       new MmuGuard(
           FortressUtils.makeNodeEqual(

@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -26,20 +27,23 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class EntryTracker {
-  private final BigInteger bufferBaseAddress;
+  private final BitVector bufferBaseAddress;
 
-  private final Map<BigInteger, EntryObject> entries = new LinkedHashMap<>();
+  private final Map<BitVector, EntryObject> entries = new LinkedHashMap<>();
 
-  public EntryTracker(final BigInteger bufferBaseAddress) {
+  public EntryTracker(final BitVector bufferBaseAddress) {
     this.bufferBaseAddress = bufferBaseAddress;
   }
 
-  public BigInteger getEntryAddress(final EntryObject entry) {
+  public BitVector getEntryAddress(final EntryObject entry) {
     InvariantChecks.checkNotNull(entry);
 
-    return bufferBaseAddress.add(
-        entry.getId().multiply(
-            BigInteger.valueOf(entry.getEntry().getSizeInBits() >>> 3)));
+    final BigInteger baseAddress = bufferBaseAddress.bigIntegerValue(false);
+    final BigInteger entryId = entry.getId().bigIntegerValue(false);
+    final BigInteger sizeInBytes = BigInteger.valueOf(entry.getEntry().getSizeInBits() >>> 3);
+
+    return BitVector.valueOf(
+        baseAddress.add(entryId.multiply(sizeInBytes)), bufferBaseAddress.getBitSize());
   }
 
   public boolean contains(final long id) {
@@ -55,7 +59,7 @@ public final class EntryTracker {
     return entries.size();
   }
 
-  public Map<BigInteger, EntryObject> getEntries() {
+  public Map<BitVector, EntryObject> getEntries() {
     return entries;
   }
 }
