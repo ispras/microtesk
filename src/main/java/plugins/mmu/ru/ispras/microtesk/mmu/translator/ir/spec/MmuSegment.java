@@ -16,7 +16,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.BitVectorRange;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRange;
 import ru.ispras.microtesk.utils.Range;
 
 /**

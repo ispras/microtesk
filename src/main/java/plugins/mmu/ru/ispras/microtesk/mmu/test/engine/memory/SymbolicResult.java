@@ -27,7 +27,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.BitVectorFormulaBuilder;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaBuilder;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;

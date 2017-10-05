@@ -24,6 +24,10 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaSolverSat4j;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRange;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRangeConstraint;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorVariableInitializer;
 
 /**
  * Test for {@link BitVectorRangeConstraint}.

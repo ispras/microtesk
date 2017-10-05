@@ -21,6 +21,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRange;
 
 /**
  * Test for {@link BitVectorRange}.
