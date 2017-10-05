@@ -1031,7 +1031,7 @@ public final class SymbolicExecutor {
 
       // Try to propagate constants.
       final Map<Variable, BitVector> constants = result.getConstants();
-      final Node rhsExpr = FortressUtils.makeNodeConcat(rhsTerms);
+      final Node rhsExpr = FortressUtils.makeNodeBigEndianConcat(rhsTerms);
 
       final BitVector constant = FortressUtils.evaluateBitVector(rhsExpr,
           new ValueProvider() {

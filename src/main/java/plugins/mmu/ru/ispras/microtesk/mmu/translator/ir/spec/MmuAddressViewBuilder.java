@@ -74,7 +74,7 @@ public final class MmuAddressViewBuilder {
       expectedIndex += FortressUtils.getBitSize(field);
     }
 
-    return FortressUtils.makeNodeConcat(operands);
+    return FortressUtils.makeNodeBigEndianConcat(operands);
   }
 
   /**
@@ -186,8 +186,10 @@ public final class MmuAddressViewBuilder {
             for (int i = 0; i < variables.size(); i++) {
               final Variable variable = variables.get(i);
               values.put(variable, fields.get(i));
+              System.out.println("Value: " + fields.get(i).toHexString());
             }
 
+            System.out.println(addressExpression);
             final BitVector addressValue = FortressUtils.evaluateBitVector(
                 addressExpression,
                 new ValueProvider() {

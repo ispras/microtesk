@@ -97,15 +97,15 @@ public final class FortressUtils {
     return makeNodeExtract(variable, bit, bit);
   }
 
-  public static Node makeNodeConcat(final List<Node> operands) {
+  public static Node makeNodeBigEndianConcat(final List<Node> operands) {
     return new NodeOperation(StandardOperation.BVCONCAT, operands);
   }
 
-  public static Node makeNodeReverseConcat(final Node... operands) {
+  public static Node makeNodeLittleEndianConcat(final Node... operands) {
     final List<Node> reversedOperands = Arrays.<Node>asList(operands);
     Collections.reverse(reversedOperands);
 
-    return makeNodeConcat(reversedOperands);
+    return makeNodeBigEndianConcat(reversedOperands);
   }
 
   public static Node makeNodeEqual(final Node lhs, final Node rhs) {

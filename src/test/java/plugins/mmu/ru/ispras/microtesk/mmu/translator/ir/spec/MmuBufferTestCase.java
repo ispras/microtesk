@@ -252,7 +252,7 @@ public class MmuBufferTestCase {
       final MmuBuffer device,
       final AddressView<BitVector> addressView,
       final BitVector address) {
-    System.out.format("Test: %s, %x\n", device.getName(), address);
+    System.out.format("Test: %s, %s\n", device.getName(), address.toHexString());
 
     final BitVector tagA = addressView.getTag(address);
     final BitVector indexA = addressView.getIndex(address);
@@ -262,8 +262,10 @@ public class MmuBufferTestCase {
     final BitVector indexD = device.getIndex(address);
     final BitVector offsetD = device.getOffset(address);
 
-    System.out.format("Spec: tag=%x, index=%x, offset=%x%n", tagA, indexA, offsetA);
-    System.out.format("Impl: tag=%x, index=%x, offset=%x%n", tagD, indexD, offsetD);
+    System.out.format("Spec: tag=%s, index=%s, offset=%s%n",
+        tagA.toHexString(), indexA.toHexString(), offsetA.toHexString());
+    System.out.format("Impl: tag=%s, index=%s, offset=%s%n",
+        tagD.toHexString(), indexD.toHexString(), offsetD.toHexString());
 
     Assert.assertEquals(tagA.toHexString(), tagD.toHexString());
     Assert.assertEquals(indexA.toHexString(), indexD.toHexString());
@@ -272,8 +274,8 @@ public class MmuBufferTestCase {
     final BitVector addressA = addressView.getAddress(tagA, indexA, offsetA);
     final BitVector addressD = device.getAddress(tagD, indexD, offsetD);
 
-    System.out.format("Spec: address=%x%n", addressA);
-    System.out.format("Impl: address=%x%n", addressD);
+    System.out.format("Spec: address=%s%n", addressA.toHexString());
+    System.out.format("Impl: address=%s%n", addressD.toHexString());
 
     Assert.assertEquals(addressA.toHexString(), addressD.toHexString());
   }
@@ -282,7 +284,7 @@ public class MmuBufferTestCase {
   public void runTest() {
     final int testCount = 1000;
     for (int i = 0; i < testCount; i++) {
-      runTest(DTLB, DTLB_ADDR_VIEW, BitVector.valueOf(Randomizer.get().nextLong(), 64));
+      runTest(DTLB, DTLB_ADDR_VIEW, BitVector.valueOf(/*Randomizer.get().nextLong()*/ 0x12345678deadbeefL, 64));
       runTest(L1, L1_ADDR_VIEW, BitVector.valueOf(Randomizer.get().nextLong(), 36));
       runTest(L2, L2_ADDR_VIEW, BitVector.valueOf(Randomizer.get().nextLong(), 36));
     }

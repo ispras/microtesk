@@ -410,7 +410,7 @@ public final class MmuUnderTest {
   public final MmuAction getMpa = new MmuAction("GET_MPA",
       new MmuBinding(
           FortressUtils.makeNodeVariable(pa),
-          FortressUtils.makeNodeReverseConcat(
+          FortressUtils.makeNodeLittleEndianConcat(
               FortressUtils.makeNodeVariable(pfn),
               FortressUtils.makeNodeExtract(va, 0, 11))));
   public final MmuAction checkSegment = new MmuAction("CHECK_SEGMENT");
