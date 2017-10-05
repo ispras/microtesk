@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis.solver.integer;
+package ru.ispras.microtesk.basis.solver.bitvector;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -27,22 +27,22 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
- * {@link IntegerRangeConstraint} class represents a range constraint.
+ * {@link BitVectorRangeConstraint} class represents a range constraint.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerRangeConstraint implements IntegerConstraint {
+public final class BitVectorRangeConstraint implements BitVectorConstraint {
   private static final String NEW_VARIABLE_PREFIX = "new$";
   private static int newVariableId = 0;
 
   private final Variable variable;
-  private final IntegerRange range;
+  private final BitVectorRange range;
 
   private final Node formula;
 
-  public IntegerRangeConstraint(
+  public BitVectorRangeConstraint(
       final Variable variable,
-      final IntegerRange range) {
+      final BitVectorRange range) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(range);
 
@@ -224,7 +224,7 @@ public final class IntegerRangeConstraint implements IntegerConstraint {
     return variable;
   }
 
-  public IntegerRange getRange() {
+  public BitVectorRange getRange() {
     return range;
   }
 

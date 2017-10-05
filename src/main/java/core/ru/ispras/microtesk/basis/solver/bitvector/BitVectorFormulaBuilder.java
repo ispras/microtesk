@@ -12,24 +12,24 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis.solver.integer;
+package ru.ispras.microtesk.basis.solver.bitvector;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link IntegerFormulaBuilder} represents an abstract formula builder.
+ * {@link BitVectorFormulaBuilder} represents an abstract formula builder.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class IntegerFormulaBuilder {
+public abstract class BitVectorFormulaBuilder {
   /**
    * Adds the constraint to the formula.
    * 
    * @param constraint the constraint to be added.
    * @throws IllegalArgumentException if {@code constraint} is null.
    */
-  public final void addConstraint(final IntegerConstraint constraint) {
+  public final void addConstraint(final BitVectorConstraint constraint) {
     InvariantChecks.checkNotNull(constraint);
     addFormula(constraint.getFormula());
   }
@@ -43,5 +43,5 @@ public abstract class IntegerFormulaBuilder {
   public abstract void addFormula(final Node formula);
 
   @Override
-  public abstract IntegerFormulaBuilder clone();
+  public abstract BitVectorFormulaBuilder clone();
 }

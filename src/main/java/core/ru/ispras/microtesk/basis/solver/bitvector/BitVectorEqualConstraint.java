@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis.solver.integer;
+package ru.ispras.microtesk.basis.solver.bitvector;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
@@ -22,16 +22,16 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
- * {@link IntegerEqualConstraint} class represents constraints of the kind {@code x == value}.
+ * {@link BitVectorEqualConstraint} class represents a constraint of the kind {@code x == value}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerEqualConstraint implements IntegerConstraint {
+public final class BitVectorEqualConstraint implements BitVectorConstraint {
   private final Node variable;
   private final BitVector value;
   private final Node formula;
 
-  public IntegerEqualConstraint(
+  public BitVectorEqualConstraint(
       final Node variable,
       final BitVector value) {
     InvariantChecks.checkNotNull(variable);

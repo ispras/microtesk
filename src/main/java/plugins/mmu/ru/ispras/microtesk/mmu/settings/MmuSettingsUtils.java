@@ -24,8 +24,8 @@ import java.util.Set;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorDomainConstraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.template.BufferEventConstraint;
@@ -44,18 +44,18 @@ import ru.ispras.microtesk.utils.FortressUtils;
 public final class MmuSettingsUtils {
   private MmuSettingsUtils() {}
 
-  public static List<IntegerConstraint> getIntegerConstraints() {
+  public static List<BitVectorConstraint> getIntegerConstraints() {
     final GeneratorSettings settings = GeneratorSettings.get();
     InvariantChecks.checkNotNull(settings);
 
-    final List<IntegerConstraint> integerConstraints = new ArrayList<>();
+    final List<BitVectorConstraint> integerConstraints = new ArrayList<>();
 
     final Collection<AbstractSettings> integerValuesSettings =
         settings.get(IntegerValuesSettings.TAG);
 
     if (integerValuesSettings != null) {
       for (final AbstractSettings section : integerValuesSettings) {
-        final IntegerConstraint constraint =
+        final BitVectorConstraint constraint =
             getIntegerConstraint((IntegerValuesSettings) section);
 
         if (constraint != null) {
@@ -69,7 +69,7 @@ public final class MmuSettingsUtils {
 
     if (booleanValuesSettings != null) {
       for (final AbstractSettings section : booleanValuesSettings) {
-        final IntegerConstraint constraint =
+        final BitVectorConstraint constraint =
             getIntegerConstraint((BooleanValuesSettings) section);
 
         if (constraint != null) {
@@ -88,7 +88,7 @@ public final class MmuSettingsUtils {
    * @param settings the values settings.
    * @return the constraint or {@code null}.
    */
-  public static IntegerConstraint getIntegerConstraint(
+  public static BitVectorConstraint getIntegerConstraint(
       final IntegerValuesSettings settings) {
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     InvariantChecks.checkNotNull(memory);
@@ -111,9 +111,9 @@ public final class MmuSettingsUtils {
       return null /* TRUE */;
     }
 
-    final IntegerDomainConstraint.Kind kind = include.isEmpty()
-        ? IntegerDomainConstraint.Kind.EXCLUDE
-        : IntegerDomainConstraint.Kind.RETAIN;
+    final BitVectorDomainConstraint.Kind kind = include.isEmpty()
+        ? BitVectorDomainConstraint.Kind.EXCLUDE
+        : BitVectorDomainConstraint.Kind.RETAIN;
 
     final Set<BigInteger> values = include.isEmpty()
         ? exclude
@@ -124,7 +124,7 @@ public final class MmuSettingsUtils {
     final Set<BitVector> bvValues =
         BigIntegerUtils.toBitVectorSet(values, variable.getType().getSize());
 
-    return new IntegerDomainConstraint(
+    return new BitVectorDomainConstraint(
         kind,
         FortressUtils.makeNodeVariable(variable),
         bvDomain,
@@ -138,7 +138,7 @@ public final class MmuSettingsUtils {
    * @param settings the values settings.
    * @return the constraint or {@code null}.
    */
-  public static IntegerConstraint getIntegerConstraint(
+  public static BitVectorConstraint getIntegerConstraint(
       final BooleanValuesSettings settings) {
     InvariantChecks.checkNotNull(settings);
 
@@ -162,8 +162,8 @@ public final class MmuSettingsUtils {
       values.add(value ? BitVector.valueOf(1, 1) : BitVector.valueOf(0, 1));
     }
 
-    return new IntegerDomainConstraint(
-        IntegerDomainConstraint.Kind.RETAIN,
+    return new BitVectorDomainConstraint(
+        BitVectorDomainConstraint.Kind.RETAIN,
         FortressUtils.makeNodeVariable(variable),
         null,
         values);

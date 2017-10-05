@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis.solver.integer;
+package ru.ispras.microtesk.basis.solver.bitvector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,16 +21,18 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
+ * {@link BitVectorFormulaBuilderSimple} implements a simple formula builder.
+ * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class IntegerFormulaBuilderSimple extends IntegerFormulaBuilder {
+public final class BitVectorFormulaBuilderSimple extends BitVectorFormulaBuilder {
   private final List<Node> nodes;
 
-  public IntegerFormulaBuilderSimple() {
+  public BitVectorFormulaBuilderSimple() {
     this.nodes = new ArrayList<>();
   }
 
-  public IntegerFormulaBuilderSimple(final IntegerFormulaBuilderSimple r) {
+  public BitVectorFormulaBuilderSimple(final BitVectorFormulaBuilderSimple r) {
     this.nodes = new ArrayList<>(r.nodes);
   }
 
@@ -44,7 +46,7 @@ public final class IntegerFormulaBuilderSimple extends IntegerFormulaBuilder {
   }
 
   @Override
-  public IntegerFormulaBuilderSimple clone() {
-    return new IntegerFormulaBuilderSimple(this);
+  public BitVectorFormulaBuilderSimple clone() {
+    return new BitVectorFormulaBuilderSimple(this);
   }
 }

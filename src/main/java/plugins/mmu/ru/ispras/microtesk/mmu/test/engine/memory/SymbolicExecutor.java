@@ -32,11 +32,11 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerDomainConstraint;
-import ru.ispras.microtesk.basis.solver.integer.IntegerFormulaBuilderSimple;
-import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
-import ru.ispras.microtesk.basis.solver.integer.IntegerRangeConstraint;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorDomainConstraint;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaBuilderSimple;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRange;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRangeConstraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -90,7 +90,7 @@ public final class SymbolicExecutor {
     return executeAlignment(result, null, dataType, -1);
   }
 
-  public Boolean execute(final IntegerConstraint constraint) {
+  public Boolean execute(final BitVectorConstraint constraint) {
     InvariantChecks.checkNotNull(constraint);
     return executeFormula(result, null, constraint.getFormula(), -1);
   }
@@ -201,8 +201,8 @@ public final class SymbolicExecutor {
         lowerZeroBit,
         upperZeroBit);
 
-    final IntegerConstraint constraint =
-        new IntegerDomainConstraint(field, BitVector.valueOf(0, FortressUtils.getBitSize(field)));
+    final BitVectorConstraint constraint =
+        new BitVectorDomainConstraint(field, BitVector.valueOf(0, FortressUtils.getBitSize(field)));
 
     return executeFormula(result, defines, constraint.getFormula(), pathIndex);
   }
@@ -319,10 +319,10 @@ public final class SymbolicExecutor {
     final MemoryAccessContext context = result.getContext(pathIndex);
 
     if (restrictor != null) {
-      final Collection<IntegerConstraint> constraints =
+      final Collection<BitVectorConstraint> constraints =
           restrictor.getConstraints(isStart, transition, context);
 
-      for (final IntegerConstraint constraint : constraints) {
+      for (final BitVectorConstraint constraint : constraints) {
         executeFormula(result, defines, constraint.getFormula(), pathIndex);
       }
     }
@@ -337,10 +337,10 @@ public final class SymbolicExecutor {
     final MemoryAccessContext context = result.getContext(pathIndex);
 
     if (restrictor != null) {
-      final Collection<IntegerConstraint> constraints =
+      final Collection<BitVectorConstraint> constraints =
           restrictor.getConstraints(isStart, program, context);
 
-      for (final IntegerConstraint constraint : constraints) {
+      for (final BitVectorConstraint constraint : constraints) {
         executeFormula(result, defines, constraint.getFormula(), pathIndex);
       }
     }
@@ -507,7 +507,7 @@ public final class SymbolicExecutor {
     final List<Set<Variable>> switchDefines = new ArrayList<>(statement.size());
 
     for (final MmuProgram program : statement) {
-      final IntegerFormulaBuilderSimple caseBuilder = new IntegerFormulaBuilderSimple();
+      final BitVectorFormulaBuilderSimple caseBuilder = new BitVectorFormulaBuilderSimple();
       final SymbolicResult caseResult = new SymbolicResult(caseBuilder, result);
       final Set<Variable> caseDefines = new LinkedHashSet<>();
 
@@ -577,8 +577,8 @@ public final class SymbolicExecutor {
     if (switchResults.size() == 1) {
       // There is only one control flow.
       final SymbolicResult caseResult = switchResults.get(0);
-      final IntegerFormulaBuilderSimple caseBuilder =
-          (IntegerFormulaBuilderSimple) caseResult.getBuilder();
+      final BitVectorFormulaBuilderSimple caseBuilder =
+          (BitVectorFormulaBuilderSimple) caseResult.getBuilder();
       final Node caseFormula = caseBuilder.build();
 
       result.addFormula(caseFormula);
@@ -600,8 +600,8 @@ public final class SymbolicExecutor {
 
       for (int i = 0; i < switchResults.size(); i++) {
         final SymbolicResult caseResult = switchResults.get(i);
-        final IntegerFormulaBuilderSimple caseBuilder =
-            (IntegerFormulaBuilderSimple) caseResult.getBuilder();
+        final BitVectorFormulaBuilderSimple caseBuilder =
+            (BitVectorFormulaBuilderSimple) caseResult.getBuilder();
         final Node caseFormula = caseBuilder.build();
 
         // Case: (PHI == i) -> CASE(i).
@@ -690,9 +690,9 @@ public final class SymbolicExecutor {
       if (guard.isHit()) {
         final MmuAddressInstance address = segment.getVaType().getInstance(null, context);
 
-        final IntegerRangeConstraint constraint =
-            new IntegerRangeConstraint(address.getVariable(),
-            new IntegerRange(segment.getMin(), segment.getMax()));
+        final BitVectorRangeConstraint constraint =
+            new BitVectorRangeConstraint(address.getVariable(),
+            new BitVectorRange(segment.getMin(), segment.getMax()));
 
         status = executeFormula(result, defines, constraint.getFormula(), pathIndex);
       } else {

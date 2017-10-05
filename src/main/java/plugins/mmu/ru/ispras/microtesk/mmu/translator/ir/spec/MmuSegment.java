@@ -16,7 +16,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.integer.IntegerRange;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRange;
 import ru.ispras.microtesk.utils.Range;
 
 /**
@@ -30,7 +30,7 @@ public class MmuSegment implements Range<BitVector> {
   private final MmuAddressInstance paType;
   private final BitVector startAddress;
   private final BitVector endAddress;
-  private final IntegerRange range;
+  private final BitVectorRange range;
 
   public MmuSegment(
       final String name,
@@ -45,7 +45,7 @@ public class MmuSegment implements Range<BitVector> {
     this.paType = paType;
     this.startAddress = startAddress;
     this.endAddress = endAddress;
-    this.range = new IntegerRange(startAddress, endAddress);
+    this.range = new BitVectorRange(startAddress, endAddress);
   }
 
   public final String getName() {
