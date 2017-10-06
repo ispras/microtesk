@@ -320,8 +320,9 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
           }
         }
 
-        opc = null == opc ? tokenOpc : BitVector.newMapping(tokenOpc, opc);
-        opcMask = null == opcMask ? tokenOpcMask : BitVector.newMapping(tokenOpcMask, opcMask);
+        // Operand order for BitVector.newMapping: [HI, LOW].
+        opc = null == opc ? tokenOpc : BitVector.newMapping(opc, tokenOpc);
+        opcMask = null == opcMask ? tokenOpcMask : BitVector.newMapping(opcMask, tokenOpcMask);
       }
 
       if (hasOpc) {
