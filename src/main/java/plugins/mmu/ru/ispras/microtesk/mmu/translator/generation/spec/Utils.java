@@ -23,6 +23,7 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.generation.sim.ExprPrinter;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
@@ -93,7 +94,7 @@ public final class Utils {
       final Data data = FortressUtils.getVariable(field).getData();
 
       if (data.isType(DataTypeId.BIT_VECTOR)) {
-        return toString(data.getBitVector().bigIntegerValue(false));
+        return ExprPrinter.bitVectorToString(data.getBitVector());
       } else if (data.isType(DataTypeId.LOGIC_INTEGER)) {
         return toString(data.getInteger());
       } else {
