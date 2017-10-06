@@ -230,7 +230,7 @@ public final class Location implements LocationAccessor {
     int newBitSize = 0;
     final List<LocationAtom> newAtoms = new ArrayList<>();
 
-    for (int index = locations.length - 1; index >= 0; index--) {
+    for (int index = 0; index < locations.length; index++) {
       final Location location = locations[index];
       InvariantChecks.checkNotNull(location);
 
