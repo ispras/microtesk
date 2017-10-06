@@ -55,7 +55,7 @@ public final class MmuTranslator extends Translator<Ir> {
     getSymbols().defineReserved(MmuSymbolKind.KEYWORD, ReservedKeywords.RUBY);
 
     addHandler(new SimGenerator(this));
-    addHandler(new SpecGenerator(this));
+    // addHandler(new SpecGenerator(this));
   }
 
   @Override
