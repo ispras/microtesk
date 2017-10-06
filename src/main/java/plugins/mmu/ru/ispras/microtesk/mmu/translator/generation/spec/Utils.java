@@ -17,7 +17,9 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import java.math.BigInteger;
 import java.util.List;
 
+import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -88,7 +90,15 @@ public final class Utils {
     InvariantChecks.checkNotNull(field);
 
     if (FortressUtils.getVariable(field).hasValue()) {
-      return Utils.toString(FortressUtils.getVariable(field).getData().getInteger());
+      final Data data = FortressUtils.getVariable(field).getData();
+
+      if (data.isType(DataTypeId.BIT_VECTOR)) {
+        return toString(data.getBitVector().bigIntegerValue(false));
+      } else if (data.isType(DataTypeId.LOGIC_INTEGER)) {
+        return toString(data.getInteger());
+      } else {
+        return data.getValue().toString();
+      }
     }
 
     final String name = getVariableName(context, FortressUtils.getVariable(field).getName());
