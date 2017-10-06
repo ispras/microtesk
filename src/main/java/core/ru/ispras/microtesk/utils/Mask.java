@@ -55,7 +55,13 @@ public final class Mask {
         }
       } else {
         if (null == hexText) {
+          final int hexLenght = value.getBitSize() / 4 + value.getBitSize() % 4;
           hexText = value.toHexString();
+
+          // Need all hexadecimal digits including trailing zeros.
+          if (hexLenght != hexText.length()) {
+            hexText = String.format("%0" + (hexLenght - hexText.length()) + "d%s", 0, hexText);
+          }
         }
       }
 
