@@ -181,8 +181,8 @@ public final class MemoryInitializerMaker implements InitializerMaker {
         buffer.getName(), bufferAccessAddress.toHexString(), data);
 
     final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());
-    Collections.reverse(fieldValues);
 
+    // Operand order for BitVector.newMapping: [HI, LOW].
     final BitVector entryValue =
         BitVector.newMapping(fieldValues.toArray(new BitVector[fieldValues.size()]));
 
