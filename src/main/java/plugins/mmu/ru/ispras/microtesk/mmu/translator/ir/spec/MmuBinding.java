@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -20,11 +20,11 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
 /**
  * {@link MmuBinding} describes an assignment, i.e. a pair of the kind {@code lhs = rhs},
- * where {@code lhs} is an {@link IntegerField} and {@code rhs} is an {@link Node}.
- * 
+ * where {@code lhs} is an {@link Node} and {@code rhs} is an {@link Node}.
+ *
  * <p>The right-hand side of the assignment is allowed to be {@code null}. It means that the
  * expression can be derived from the context.</p>
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuBinding {
