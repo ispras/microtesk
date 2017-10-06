@@ -14,7 +14,11 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 
@@ -46,6 +50,14 @@ public final class MmuBinding {
 
     this.lhs = lhs;
     this.rhs = null;
+  }
+
+  public MmuBinding(final Variable lhs, final BitVector rhs) {
+    InvariantChecks.checkNotNull(lhs);
+    InvariantChecks.checkNotNull(rhs);
+
+    this.lhs = new NodeVariable(lhs);
+    this.rhs = NodeValue.newBitVector(rhs);
   }
 
   public Node getLhs() {
