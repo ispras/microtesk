@@ -16,7 +16,7 @@ package ru.ispras.microtesk.translator.nml.coverage;
 
 import static ru.ispras.fortress.expression.ExprUtils.EQ;
 import static ru.ispras.fortress.expression.ExprUtils.NOT;
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.OR;
+import static ru.ispras.fortress.expression.ExprUtils.OR;
 
 import java.io.BufferedReader;
 import java.io.File;

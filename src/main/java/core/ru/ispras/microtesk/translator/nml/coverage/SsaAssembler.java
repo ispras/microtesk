@@ -15,8 +15,8 @@
 package ru.ispras.microtesk.translator.nml.coverage;
 
 import static ru.ispras.fortress.expression.ExprUtils.EQ;
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.AND;
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.OR;
+import static ru.ispras.fortress.expression.ExprUtils.AND;
+import static ru.ispras.fortress.expression.ExprUtils.OR;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.dotConc;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.literalOperand;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.variableOperand;

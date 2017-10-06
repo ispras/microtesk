@@ -51,22 +51,6 @@ final class Expression {
     return new NodeOperation(StandardOperation.BVCONCAT, args);
   }
 
-  public static NodeOperation AND(Node... args) {
-    return new NodeOperation(StandardOperation.AND, args);
-  }
-
-  public static NodeOperation AND(Collection<? extends Node> args) {
-    return new NodeOperation(StandardOperation.AND, new ArrayList<>(args));
-  }
-
-  public static NodeOperation OR(Node... args) {
-    return new NodeOperation(StandardOperation.OR, args);
-  }
-
-  public static NodeOperation OR(Collection<? extends Node> args) {
-    return new NodeOperation(StandardOperation.OR, new ArrayList<>(args));
-  }
-
   public static NodeOperation newOperation(Enum<?> opId, Collection<? extends Node> args) {
     return new NodeOperation(opId, new ArrayList<>(args));
   }
