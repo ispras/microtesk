@@ -39,7 +39,10 @@ final class STBBuffer implements STBuilder {
   public static final Class<?> STRUCT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct.class;
 
-  public static final Class<?> INTEGER_CLASS =
+  public static final Class<?> DATA_TYPE_CLASS =
+      ru.ispras.fortress.data.DataType.class;
+
+  public static final Class<?> VARIABLE_CLASS =
       ru.ispras.fortress.data.Variable.class;
 
   private final String packageName;
@@ -73,7 +76,8 @@ final class STBBuffer implements STBuilder {
     st.add("imps", Collections.class.getName());
     st.add("imps", Arrays.class.getName());
     st.add("imps", BigInteger.class.getName());
-    st.add("imps", INTEGER_CLASS.getName());
+    st.add("imps", DATA_TYPE_CLASS.getName());
+    st.add("imps", VARIABLE_CLASS.getName());
     st.add("imps", BINDING_CLASS.getName());
     st.add("imps", BUFFER_CLASS.getName());
     st.add("imps", STRUCT_CLASS.getName());
