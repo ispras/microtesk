@@ -52,6 +52,14 @@ public final class MmuBinding {
     this.rhs = null;
   }
 
+  public MmuBinding(final Variable lhs, final Variable rhs) {
+    InvariantChecks.checkNotNull(lhs);
+    InvariantChecks.checkNotNull(rhs);
+
+    this.lhs = new NodeVariable(lhs);
+    this.rhs = new NodeVariable(rhs);
+  }
+
   public MmuBinding(final Variable lhs, final BitVector rhs) {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
