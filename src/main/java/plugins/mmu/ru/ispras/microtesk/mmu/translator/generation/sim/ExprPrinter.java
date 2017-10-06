@@ -43,7 +43,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 
-final class ExprPrinter extends MapBasedPrinter {
+public final class ExprPrinter extends MapBasedPrinter {
   private static ExprPrinter instance = null;
 
   public static ExprPrinter get() {

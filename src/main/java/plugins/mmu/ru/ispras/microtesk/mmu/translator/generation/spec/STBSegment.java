@@ -17,7 +17,9 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.translator.generation.sim.ExprPrinter;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
@@ -36,8 +38,8 @@ final class STBSegment implements STBuilder {
   public static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 
-  public static final Class<?> BIG_INTEGER_UTILS_CLASS =
-      ru.ispras.microtesk.utils.BigIntegerUtils.class;
+  public static final Class<?> BIT_VECTOR_CLASS =
+      ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
   private final String packageName;
   private final Ir ir;
@@ -74,7 +76,7 @@ final class STBSegment implements STBuilder {
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", SEGMENT_CLASS.getName());
     st.add("imps", SPEC_CLASS.getName());
-    st.add("imps", BIG_INTEGER_UTILS_CLASS.getName());
+    st.add("imps", BIT_VECTOR_CLASS.getName());
   }
 
   private void buildArguments(final ST st, final STGroup group) {
@@ -91,11 +93,15 @@ final class STBSegment implements STBuilder {
     stConstructor.add("va", segment.getAddress().getId());
     stConstructor.add("pa", segment.getDataArgAddress().getId());
 
-    // FIXME:
-    stConstructor.add("start",
-        String.format("BigIntegerUtils.valueOfUnsignedLong(0x%xL)", segment.getMin().longValue()));
-    stConstructor.add("end",
-        String.format("BigIntegerUtils.valueOfUnsignedLong(0x%xL)", segment.getMax().longValue()));
+    final int addressBitSize = segment.getAddress().getAddressType().getBitSize();
+
+    stConstructor.add(
+        "start",
+        ExprPrinter.bitVectorToString(BitVector.valueOf(segment.getMin(), addressBitSize)));
+
+    stConstructor.add(
+        "end",
+        ExprPrinter.bitVectorToString(BitVector.valueOf(segment.getMax(), addressBitSize)));
 
     st.add("members", "");
     st.add("members", stConstructor);
