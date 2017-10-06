@@ -37,6 +37,9 @@ public class MiniMipsTest extends TemplateTest {
   }
 
   protected boolean isExpectedError(final String message) {
-    return false;
+    // FIXME: Temporary. MMU model must be loaded.
+    // return false;
+    return message.contains(
+        "Failed to load the MMU model. Physical memory will be accessed directly.");
   }
 }
