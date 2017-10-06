@@ -26,10 +26,6 @@ final class Expression {
   public static final Node TRUE = NodeValue.newBoolean(true);
   public static final Node FALSE = NodeValue.newBoolean(false);
 
-  public static NodeOperation EQ(Node lhs, Node rhs) {
-    return new NodeOperation(StandardOperation.EQ, lhs, rhs);
-  }
-
   public static NodeOperation EXTRACT(NodeValue bot, NodeValue top, Node bv) {
     return new NodeOperation(StandardOperation.BVEXTRACT, top, bot, bv);
   }
@@ -69,18 +65,6 @@ final class Expression {
 
   public static NodeOperation OR(Collection<? extends Node> args) {
     return new NodeOperation(StandardOperation.OR, new ArrayList<>(args));
-  }
-
-  public static NodeOperation STORE(Node array, Node key, Node value) {
-    return new NodeOperation(StandardOperation.STORE, array, key, value);
-  }
-
-  public static NodeOperation SELECT(Node array, Node key) {
-    return new NodeOperation(StandardOperation.SELECT, array, key);
-  }
-
-  public static NodeOperation NOT(Node e) {
-    return new NodeOperation(StandardOperation.NOT, e);
   }
 
   public static NodeOperation newOperation(Enum<?> opId, Collection<? extends Node> args) {
