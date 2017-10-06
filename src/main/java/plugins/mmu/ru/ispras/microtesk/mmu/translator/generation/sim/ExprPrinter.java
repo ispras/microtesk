@@ -78,6 +78,7 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.MUL,        "", ".multiply(", ")");
     addMapping(StandardOperation.DIV,        "", ".divide(", ")");
     addMapping(StandardOperation.POWER,      "", ".pow(", ".intValue())");
+    addMapping(StandardOperation.BVCONCAT,   "BitVector.newMapping(", ", ", ")");
 
     addBitVectorMathMapping(StandardOperation.BVADD,  "add");
     addBitVectorMathMapping(StandardOperation.BVSUB,  "sub");
@@ -92,9 +93,6 @@ final class ExprPrinter extends MapBasedPrinter {
     addBitVectorMathMapping(StandardOperation.BVASHL, "slh");
     addBitVectorMathMapping(StandardOperation.BVLSHR, "lshr");
     addBitVectorMathMapping(StandardOperation.BVASHR, "ashr");
-
-    // Handled in getOperationDescription because it requires a reverse order of operands.
-    // addMapping(StandardOperation.BVCONCAT, "BitVector.newMapping(", ", ", ")");
 
     // StandardOperation.BVREPEAT // TODO
     addBitVectorMathMapping(StandardOperation.BVROL, "rotl");
@@ -155,21 +153,6 @@ final class ExprPrinter extends MapBasedPrinter {
           new String[] {", "},
           ")",
           new int[] {1, 0}
-          );
-    }
-
-    if (expr.getOperationId() == StandardOperation.BVCONCAT) {
-      final int count = expr.getOperandCount();
-      final int[] order = new int[count];
-      for (int index = 0; index < count; index++) {
-        order[index] = count - index - 1;
-      }
-
-      return new OperationDescription(
-          "BitVector.newMapping(",
-          new String[] {", "},
-          ")",
-          order
           );
     }
 
