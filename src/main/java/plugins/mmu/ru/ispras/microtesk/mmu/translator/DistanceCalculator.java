@@ -28,7 +28,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.ReduceOptions;
-import ru.ispras.fortress.transformer.Transformer;
+import ru.ispras.fortress.transformer.Reducer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -69,7 +69,7 @@ final class DistanceCalculator {
         from
         );
 
-    final Node reduced = Transformer.reduce(ReduceOptions.NEW_INSTANCE, expr);
+    final Node reduced = Reducer.reduce(ReduceOptions.NEW_INSTANCE, expr);
     InvariantChecks.checkNotNull(reduced);
 
     if (isValue(reduced)) {

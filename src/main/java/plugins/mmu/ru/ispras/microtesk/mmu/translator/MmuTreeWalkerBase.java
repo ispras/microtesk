@@ -43,6 +43,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.ReduceOptions;
+import ru.ispras.fortress.transformer.Reducer;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.transformer.TypeConversion;
@@ -1484,7 +1485,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       folded[i] = castNode;
     }
 
-    return Transformer.reduce(
+    return Reducer.reduce(
         ReduceOptions.NEW_INSTANCE,
         new NodeOperation(fortressOp, folded)
         );
@@ -1565,8 +1566,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final Node from = propagator.get(fromExpr);
     final Node to = (null != toExpr) ? propagator.get(toExpr) : from;
 
-    final Node reducedFrom = Transformer.reduce(ReduceOptions.NEW_INSTANCE, from);
-    final Node reducedTo = Transformer.reduce(ReduceOptions.NEW_INSTANCE, to);
+    final Node reducedFrom = Reducer.reduce(ReduceOptions.NEW_INSTANCE, from);
+    final Node reducedTo = Reducer.reduce(ReduceOptions.NEW_INSTANCE, to);
     final Where w = this.where(where);
 
     if (!ExprUtils.isConstant(reducedFrom) || !ExprUtils.isConstant(reducedTo)) {

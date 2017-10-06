@@ -27,7 +27,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
-import ru.ispras.fortress.transformer.Transformer;
+import ru.ispras.fortress.transformer.Reducer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
@@ -138,7 +138,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       }
 
       final Node operation = new NodeOperation(operator, operandNodes);
-      node = Transformer.reduce(operation);
+      node = Reducer.reduce(operation);
 
       if (node == operation) {
         raiseError(w, "Failed to calculate the result of a constant expression.");

@@ -26,7 +26,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
-import ru.ispras.fortress.transformer.Transformer;
+import ru.ispras.fortress.transformer.Reducer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
@@ -304,12 +304,12 @@ public final class LocationFactory extends WalkerFactoryBase {
     final Node newNodeLow = new NodeOperation(StandardOperation.ADD, low.getNode(), oldNodeLow);
     final Node newNodeHigh = new NodeOperation(StandardOperation.ADD, high.getNode(), oldNodeLow);
 
-    final Expr newLow = new Expr(Transformer.reduce(newNodeLow));
+    final Expr newLow = new Expr(Reducer.reduce(newNodeLow));
     newLow.setNodeInfo(newLow.isConstant() ?
         NodeInfo.newConst(null) :
         NodeInfo.newOperator(Operator.PLUS, low.getNodeInfo().getType()));
 
-    final Expr newHigh = new Expr(Transformer.reduce(newNodeHigh));
+    final Expr newHigh = new Expr(Reducer.reduce(newNodeHigh));
     newHigh.setNodeInfo(newHigh.isConstant() ?
         NodeInfo.newConst(null) :
         NodeInfo.newOperator(Operator.PLUS, high.getNodeInfo().getType()));
