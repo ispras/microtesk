@@ -32,12 +32,6 @@ final class STBSegment implements STBuilder {
   public static final Class<?> SEGMENT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment.class;
 
-  public static final Class<?> INTEGER_CLASS =
-      ru.ispras.fortress.data.Variable.class;
-
-  public static final Class<?> SPEC_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
-
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
@@ -73,9 +67,7 @@ final class STBSegment implements STBuilder {
     st.add("ext", SEGMENT_CLASS.getSimpleName());
     st.add("instance", "INSTANCE");
 
-    st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", SEGMENT_CLASS.getName());
-    st.add("imps", SPEC_CLASS.getName());
     st.add("imps", BIT_VECTOR_CLASS.getName());
   }
 
