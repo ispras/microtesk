@@ -19,6 +19,7 @@ import java.util.Map;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
@@ -29,7 +30,10 @@ final class STBStruct implements STBuilder {
   public static final Class<?> STRUCT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct.class;
 
-  public static final Class<?> INTEGER_CLASS =
+  public static final Class<?> DATA_TYPE_CLASS =
+      ru.ispras.fortress.data.DataType.class;
+
+  public static final Class<?> VARIABLE_CLASS =
       ru.ispras.fortress.data.Variable.class;
 
   private final String packageName;
@@ -58,7 +62,8 @@ final class STBStruct implements STBuilder {
     st.add("pack", packageName);
     st.add("ext",  STRUCT_CLASS.getSimpleName());
 
-    st.add("imps", INTEGER_CLASS.getName());
+    st.add("imps", DATA_TYPE_CLASS.getName());
+    st.add("imps", VARIABLE_CLASS.getName());
     st.add("imps", STRUCT_CLASS.getName());
   }
 
@@ -110,7 +115,7 @@ final class STBStruct implements STBuilder {
     if (type.isStruct()) {
       fieldDecl.add("type", type.getId());
     } else {
-      fieldDecl.add("type", INTEGER_CLASS.getSimpleName());
+      fieldDecl.add("type", VARIABLE_CLASS.getSimpleName());
     }
     return fieldDecl;
   }
@@ -122,10 +127,11 @@ final class STBStruct implements STBuilder {
       fieldDef.add("type", type.getId());
     } else {
       fieldDef = group.getInstanceOf("field_def_var");
-      fieldDef.add("size", type.getBitSize());
+      fieldDef.add("type", String.format(
+          "%s.BIT_VECTOR(%d)", DATA_TYPE_CLASS.getSimpleName(), type.getBitSize()));
     }
-    fieldDef.add("name", name);
 
+    fieldDef.add("name", name);
     return fieldDef;
   }
 

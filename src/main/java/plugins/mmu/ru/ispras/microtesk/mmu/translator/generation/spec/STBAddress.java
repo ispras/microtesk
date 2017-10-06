@@ -27,7 +27,10 @@ final class STBAddress implements STBuilder {
   public static final Class<?> ADDRESS_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance.class;
 
-  public static final Class<?> INTEGER_CLASS =
+  public static final Class<?> DATA_TYPE_CLASS =
+      ru.ispras.fortress.data.DataType.class;
+
+  public static final Class<?> VARIABLE_CLASS =
       ru.ispras.fortress.data.Variable.class;
 
   private final String packageName;
@@ -57,7 +60,8 @@ final class STBAddress implements STBuilder {
     st.add("ext", ADDRESS_CLASS.getSimpleName());
     st.add("instance", "INSTANCE");
 
-    st.add("imps", INTEGER_CLASS.getName());
+    st.add("imps", DATA_TYPE_CLASS.getName());
+    st.add("imps", VARIABLE_CLASS.getName());
     st.add("imps", ADDRESS_CLASS.getName());
   }
 
