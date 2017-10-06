@@ -93,13 +93,12 @@ public final class BufferPreparator {
 
     if (!entryFieldValues.isEmpty()) {
       final List<BitVector> fieldValues = new ArrayList<>(entryFieldValues.values());
-      Collections.reverse(fieldValues);
 
+      // Operand order for BitVector.newMapping: [HI, LOW].
       final BitVector entryValue =
           BitVector.newMapping(fieldValues.toArray(new BitVector[fieldValues.size()]));
 
       entryData.setValue(entryValue);
-
       Logger.debug("Entry data: %s", entryValue);
     }
 
