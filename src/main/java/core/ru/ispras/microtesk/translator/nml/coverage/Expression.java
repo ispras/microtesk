@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
