@@ -520,7 +520,7 @@ op jal (addr: JUMP_IMM)
   }
 
 op jalr (rd: REG, rs: REG)
-  syntax = format("jalr %s, %s", rs.syntax, rd.syntax)
+  syntax = format("jalr %s, %s", rd.syntax, rs.syntax)
   image = format("000000%s00000%s00000001001", rs.image, rd.image)
   action = {
     rd = CIA + 4 + 4;
