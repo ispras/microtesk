@@ -126,7 +126,7 @@ public final class PathConstraintBuilder {
         for (final Node mark : ((NodeOperation) node).getOperands()) {
           specialMarks.add((NodeVariable) mark);
         }
-        return Expression.TRUE;
+        return Nodes.TRUE;
       }
     };
 

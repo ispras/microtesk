@@ -47,8 +47,4 @@ final class Expression {
     }
     return new NodeOperation(StandardOperation.BVCONCAT, args);
   }
-
-  public static NodeOperation newOperation(Enum<?> opId, Collection<? extends Node> args) {
-    return new NodeOperation(opId, new ArrayList<>(args));
-  }
 }

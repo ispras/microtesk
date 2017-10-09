@@ -22,6 +22,7 @@ import java.util.List;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 
 final class PathFilter {
@@ -92,7 +93,7 @@ final class PathFilter {
       final List<Node> operands =
           this.operands.subList(this.operands.size() - header.numOperands,
                                 this.operands.size());
-      final Node op = Expression.newOperation(header.opId, operands);
+      final Node op = new NodeOperation(header.opId, operands);
       operands.clear();
       addOperand(op);
     }
@@ -103,7 +104,7 @@ final class PathFilter {
     filter.push(StandardOperation.AND);
     filter.processNode(node);
     if (filter.operands.isEmpty()) {
-      return Expression.TRUE;
+      return Nodes.TRUE;
     }
     return filter.operands.get(0);
   }
