@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import static ru.ispras.fortress.expression.ExprUtils.EQ;
-import static ru.ispras.fortress.expression.ExprUtils.AND;
-import static ru.ispras.fortress.expression.ExprUtils.OR;
+import static ru.ispras.fortress.expression.Nodes.EQ;
+import static ru.ispras.fortress.expression.Nodes.AND;
+import static ru.ispras.fortress.expression.Nodes.OR;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.dotConc;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.literalOperand;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.variableOperand;
@@ -39,6 +39,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
@@ -434,7 +435,7 @@ public final class SsaAssembler {
           step(inner, literalOperand(1, call));
         }
         // Prune custom SSA operation
-        return Expression.TRUE;
+        return Nodes.TRUE;
       }
     };
 
@@ -448,7 +449,7 @@ public final class SsaAssembler {
       public Node apply(Node node) {
         step(prefix, literalOperand(0, node));
         // Prune custom SSA operation
-        return Expression.TRUE;
+        return Nodes.TRUE;
       }
     };
 
@@ -596,7 +597,7 @@ public final class SsaAssembler {
   }
 
   private boolean nodeIsTrue(Node node) {
-    if (node.equals(Expression.TRUE)) {
+    if (node.equals(Nodes.TRUE)) {
       return true;
     }
     if (!ExprUtils.isOperation(node, StandardOperation.AND)) {
@@ -604,7 +605,7 @@ public final class SsaAssembler {
     }
     final NodeOperation op = (NodeOperation) node;
     return op.getOperandCount() == 1 &&
-           op.getOperand(0).equals(Expression.TRUE);
+           op.getOperand(0).equals(Nodes.TRUE);
   }
 
   private void newBatch() {
@@ -622,7 +623,7 @@ public final class SsaAssembler {
                                 this.statements.size());
 
     if (operands.isEmpty()) {
-      return AND(Expression.TRUE);
+      return AND(Nodes.TRUE);
     }
     final NodeOperation batch = AND(operands);
     operands.clear();

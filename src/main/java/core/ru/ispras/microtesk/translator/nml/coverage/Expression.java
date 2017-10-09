@@ -23,9 +23,6 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 
 final class Expression {
-  public static final Node TRUE = NodeValue.newBoolean(true);
-  public static final Node FALSE = NodeValue.newBoolean(false);
-
   public static NodeOperation EXTRACT(NodeValue bot, NodeValue top, Node bv) {
     return new NodeOperation(StandardOperation.BVEXTRACT, top, bot, bv);
   }

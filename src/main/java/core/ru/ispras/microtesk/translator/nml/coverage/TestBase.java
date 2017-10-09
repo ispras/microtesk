@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import static ru.ispras.fortress.expression.ExprUtils.EQ;
-import static ru.ispras.fortress.expression.ExprUtils.NOT;
-import static ru.ispras.fortress.expression.ExprUtils.OR;
+import static ru.ispras.fortress.expression.Nodes.EQ;
+import static ru.ispras.fortress.expression.Nodes.NOT;
+import static ru.ispras.fortress.expression.Nodes.OR;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,6 +41,7 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.solver.SolverResult;
 import ru.ispras.fortress.solver.constraint.Constraint;
@@ -118,10 +119,10 @@ public final class TestBase {
         if (!marks.isEmpty()) {
           bindings.add(NOT(OR(marks)));
         }
-        bindings.add(EQ(findGuard(testCase, builder.getVariables()), Expression.TRUE));
+        bindings.add(EQ(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
       } else {
         // unrestrited access to all paths: same as above, but w/o mark filtering
-        bindings.add(EQ(findGuard(testCase, builder.getVariables()), Expression.TRUE));
+        bindings.add(EQ(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
       }
 
       final Constraint constraint = builder.build(bindings);

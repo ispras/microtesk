@@ -16,15 +16,15 @@ package ru.ispras.microtesk.translator.nml.coverage;
 
 import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.expression.ExprUtils.AND;
+import static ru.ispras.fortress.expression.Nodes.AND;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.CONCAT;
-import static ru.ispras.fortress.expression.ExprUtils.EQ;
+import static ru.ispras.fortress.expression.Nodes.EQ;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.EXTRACT;
-import static ru.ispras.fortress.expression.ExprUtils.NOT;
-import static ru.ispras.fortress.expression.ExprUtils.OR;
-import static ru.ispras.fortress.expression.ExprUtils.SELECT;
-import static ru.ispras.fortress.expression.ExprUtils.STORE;
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.TRUE;
+import static ru.ispras.fortress.expression.Nodes.NOT;
+import static ru.ispras.fortress.expression.Nodes.OR;
+import static ru.ispras.fortress.expression.Nodes.SELECT;
+import static ru.ispras.fortress.expression.Nodes.STORE;
+import static ru.ispras.fortress.expression.Nodes.TRUE;
 
 import java.math.BigInteger;
 import java.util.ArrayDeque;

@@ -26,6 +26,7 @@ import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
@@ -53,7 +54,7 @@ public final class PathConstraintBuilder {
     for (NodeVariable node : variables.values()) {
       this.builder.addVariable(node.getName(), node.getData());
     }
-    this.conditionExpr = PathFilter.filter(ExprUtils.AND(this.ssa));
+    this.conditionExpr = PathFilter.filter(Nodes.AND(this.ssa));
   }
 
   public Map<String, NodeVariable> getVariables() {
