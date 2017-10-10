@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -65,18 +64,6 @@ public final class FortressUtils {
     }
   }
 
-  public static Node makeNodeInteger(final int value) {
-    return new NodeValue(Data.newInteger(value));
-  }
-
-  public static Node makeNodeInteger(final BigInteger value) {
-    return new NodeValue(Data.newInteger(value));
-  }
-
-  public static Node makeNodeBitVector(final BitVector value) {
-    return new NodeValue(Data.newBitVector(value));
-  }
-
   public static Node makeNodeVariable(final Variable variable) {
     return new NodeVariable(variable);
   }
@@ -84,8 +71,8 @@ public final class FortressUtils {
   public static Node makeNodeExtract(final Variable variable, final int lower, final int upper) {
     return new NodeOperation(
         StandardOperation.BVEXTRACT,
-        makeNodeInteger(upper),
-        makeNodeInteger(lower),
+        NodeValue.newInteger(upper),
+        NodeValue.newInteger(lower),
         makeNodeVariable(variable));
   }
 

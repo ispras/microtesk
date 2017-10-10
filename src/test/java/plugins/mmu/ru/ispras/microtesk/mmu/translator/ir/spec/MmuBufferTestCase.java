@@ -24,6 +24,7 @@ import org.junit.Test;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
@@ -79,7 +80,7 @@ public class MmuBufferTestCase {
   public static final MmuBuffer JTLB = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, 64, 1, VA_ADDR,
       FortressUtils.makeNodeExtract(VA, 13, 39), // Tag
-      FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)), // Index
+      NodeValue.newBitVector(BitVector.newEmpty(1)), // Index
       FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
@@ -107,7 +108,7 @@ public class MmuBufferTestCase {
   public static final MmuBuffer DTLB = new MmuBuffer(
       "DTLB", MmuBuffer.Kind.UNMAPPED, 4, 1, VA_ADDR,
       FortressUtils.makeNodeExtract(VA, 13, 39), // Tag
-      FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)), // Index
+      NodeValue.newBitVector(BitVector.newEmpty(1)), // Index
       FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
@@ -237,7 +238,7 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer MEM = new MmuBuffer(
       "MMU", MmuBuffer.Kind.UNMAPPED, 1, (1L << 36) / 32, PA_ADDR,
-      FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)), // Tag
+      NodeValue.newBitVector(BitVector.newEmpty(1)), // Tag
       FortressUtils.makeNodeExtract(PA, 5, 35), // Index
       FortressUtils.makeNodeExtract(PA, 0, 4), // Offset
       Collections.<MmuBinding>emptySet(),

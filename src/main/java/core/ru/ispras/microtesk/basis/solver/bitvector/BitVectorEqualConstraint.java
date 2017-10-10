@@ -17,9 +17,9 @@ package ru.ispras.microtesk.basis.solver.bitvector;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link BitVectorEqualConstraint} class represents a constraint of the kind {@code x == value}.
@@ -43,7 +43,7 @@ public final class BitVectorEqualConstraint implements BitVectorConstraint {
     this.formula = new NodeOperation(
         StandardOperation.EQ,
         variable,
-        FortressUtils.makeNodeBitVector(value));
+        NodeValue.newBitVector(value));
   }
 
   public Node getVariable() {

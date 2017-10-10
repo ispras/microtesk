@@ -64,7 +64,7 @@ import ru.ispras.testbase.generator.DataGenerator;
 
 /**
  * {@link MemoryDataGenerator} implements a solver of memory-related constraints (hit, miss, etc.).
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryDataGenerator implements DataGenerator {
@@ -326,7 +326,7 @@ public final class MemoryDataGenerator implements DataGenerator {
           }
         });
 
-    return new NodeOperation(equality.getOperationId(), lhs, FortressUtils.makeNodeBitVector(rhs));
+    return new NodeOperation(equality.getOperationId(), lhs, NodeValue.newBitVector(rhs));
   }
 
   private Collection<Node> getHazardConditions(
@@ -385,7 +385,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     final Node lhs = bufferAccess.getIndexExpression();
     final BitVector rhs = bufferAccess.getBuffer().getIndex(addressWithoutTag);
 
-    return Nodes.EQ(lhs, FortressUtils.makeNodeBitVector(rhs));
+    return Nodes.EQ(lhs, NodeValue.newBitVector(rhs));
   }
 
   private Node getHitCondition(
@@ -410,7 +410,7 @@ public final class MemoryDataGenerator implements DataGenerator {
         final BitVector address = taggedData.first;
         final BitVector rhs = buffer.getTag(address);
 
-        atoms.add(Nodes.EQ(lhs, FortressUtils.makeNodeBitVector(rhs)));
+        atoms.add(Nodes.EQ(lhs, NodeValue.newBitVector(rhs)));
       }
     }
 
@@ -439,7 +439,7 @@ public final class MemoryDataGenerator implements DataGenerator {
         final BitVector address = taggedData.first;
         final BitVector rhs = buffer.getTag(address);
 
-        atoms.add(Nodes.NOTEQ(lhs, FortressUtils.makeNodeBitVector(rhs)));
+        atoms.add(Nodes.NOTEQ(lhs, NodeValue.newBitVector(rhs)));
       }
     }
 
