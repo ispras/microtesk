@@ -26,6 +26,7 @@ import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.randomizer.Randomizer;
@@ -384,7 +385,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     final Node lhs = bufferAccess.getIndexExpression();
     final BitVector rhs = bufferAccess.getBuffer().getIndex(addressWithoutTag);
 
-    return FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeBitVector(rhs));
+    return Nodes.EQ(lhs, FortressUtils.makeNodeBitVector(rhs));
   }
 
   private Node getHitCondition(
@@ -409,11 +410,11 @@ public final class MemoryDataGenerator implements DataGenerator {
         final BitVector address = taggedData.first;
         final BitVector rhs = buffer.getTag(address);
 
-        atoms.add(FortressUtils.makeNodeEqual(lhs, FortressUtils.makeNodeBitVector(rhs)));
+        atoms.add(Nodes.EQ(lhs, FortressUtils.makeNodeBitVector(rhs)));
       }
     }
 
-    return !atoms.isEmpty() ? FortressUtils.makeNodeOr(atoms) : NodeValue.newBoolean(true);
+    return !atoms.isEmpty() ? Nodes.OR(atoms) : NodeValue.newBoolean(true);
   }
 
   private Node getMissCondition(
@@ -438,11 +439,11 @@ public final class MemoryDataGenerator implements DataGenerator {
         final BitVector address = taggedData.first;
         final BitVector rhs = buffer.getTag(address);
 
-        atoms.add(FortressUtils.makeNodeNotEqual(lhs, FortressUtils.makeNodeBitVector(rhs)));
+        atoms.add(Nodes.NOTEQ(lhs, FortressUtils.makeNodeBitVector(rhs)));
       }
     }
 
-    return FortressUtils.makeNodeAnd(atoms);
+    return Nodes.AND(atoms);
   }
 
   private Node getReplaceCondition(
