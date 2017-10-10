@@ -414,14 +414,10 @@ final class SsaBuilder {
 
     addToContext(
         EQ(
-            BVEXTRACT(
-                new NodeOperation(StandardOperation.BVLSHR, newer, lvalue.minorBit),
-                0,
-                subtype.getSize()
-                ),
+            BVEXTRACT(subtype.getSize(), 0, Nodes.BVLSHR(newer, lvalue.minorBit)),
             subvector
-            )
-        );
+        )
+    );
 
     return subvector;
   }
