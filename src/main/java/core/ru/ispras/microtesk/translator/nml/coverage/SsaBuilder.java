@@ -18,8 +18,8 @@ import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.expression.Nodes.AND;
 import static ru.ispras.fortress.expression.Nodes.EQ;
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.EXTRACT;
 import static ru.ispras.fortress.expression.Nodes.BVCONCAT;
+import static ru.ispras.fortress.expression.Nodes.BVEXTRACT;
 import static ru.ispras.fortress.expression.Nodes.NOT;
 import static ru.ispras.fortress.expression.Nodes.OR;
 import static ru.ispras.fortress.expression.Nodes.SELECT;
@@ -217,16 +217,18 @@ final class SsaBuilder {
     }
 
     if (lvalue.hasStaticBitfield()) {
-      return EXTRACT(
+      return BVEXTRACT(root,
           (NodeValue) lvalue.minorBit,
-          (NodeValue) lvalue.majorBit,
-          root);
+          (NodeValue) lvalue.majorBit
+          );
     }
 
     if (lvalue.hasBitfield()) {
-      return EXTRACT(0,
-                     lvalue.targetType.getSize(),
-                     new NodeOperation(StandardOperation.BVLSHR, root, lvalue.minorBit));
+      return BVEXTRACT(
+          new NodeOperation(StandardOperation.BVLSHR, root, lvalue.minorBit),
+          0,
+          lvalue.targetType.getSize()
+          );
     }
     return root;
   }
@@ -367,14 +369,14 @@ final class SsaBuilder {
 
     final int lower = minor.getInteger().intValue() - 1;
     if (lower >= 0) {
-      addToContext(EQ(EXTRACT(0, lower, newer), EXTRACT(0, lower, older)));
+      addToContext(EQ(BVEXTRACT(newer, 0, lower), BVEXTRACT(older, 0, lower)));
     }
 
     final int upper = major.getInteger().intValue() + 1;
     if (upper <= hibit) {
-      addToContext(EQ(EXTRACT(upper, hibit, newer), EXTRACT(upper, hibit, older)));
+      addToContext(EQ(BVEXTRACT(newer, upper, hibit), BVEXTRACT(older, upper, hibit)));
     }
-    return EXTRACT(minor, major, newer);
+    return BVEXTRACT(newer, minor, major);
   }
 
   private Node updateDynamicSubvector(Node newer, Node older, LValue lvalue) {
@@ -407,11 +409,16 @@ final class SsaBuilder {
     final DataType subtype = lvalue.targetType;
     final NodeVariable subvector = createTemporary(subtype);
 
-    addToContext(EQ(
-        EXTRACT(0,
-                subtype.getSize(),
-                new NodeOperation(StandardOperation.BVLSHR, newer, lvalue.minorBit)),
-        subvector));
+    addToContext(
+        EQ(
+            BVEXTRACT(
+                new NodeOperation(StandardOperation.BVLSHR, newer, lvalue.minorBit),
+                0,
+                subtype.getSize()
+                ),
+            subvector
+            )
+        );
 
     return subvector;
   }
