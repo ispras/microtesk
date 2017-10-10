@@ -44,6 +44,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
@@ -217,19 +218,21 @@ final class SsaBuilder {
     }
 
     if (lvalue.hasStaticBitfield()) {
-      return BVEXTRACT(root,
+      return BVEXTRACT(
+          (NodeValue) lvalue.majorBit,
           (NodeValue) lvalue.minorBit,
-          (NodeValue) lvalue.majorBit
+          root
           );
     }
 
     if (lvalue.hasBitfield()) {
       return BVEXTRACT(
-          new NodeOperation(StandardOperation.BVLSHR, root, lvalue.minorBit),
+          lvalue.targetType.getSize(),
           0,
-          lvalue.targetType.getSize()
+          Nodes.BVLSHR(root, lvalue.minorBit)
           );
     }
+
     return root;
   }
 
@@ -366,17 +369,17 @@ final class SsaBuilder {
     final NodeValue minor = (NodeValue) lvalue.minorBit;
     final NodeValue major = (NodeValue) lvalue.majorBit;
 
-
     final int lower = minor.getInteger().intValue() - 1;
     if (lower >= 0) {
-      addToContext(EQ(BVEXTRACT(newer, 0, lower), BVEXTRACT(older, 0, lower)));
+      addToContext(EQ(BVEXTRACT(lower, 0, newer), BVEXTRACT(lower, 0, older)));
     }
 
     final int upper = major.getInteger().intValue() + 1;
     if (upper <= hibit) {
-      addToContext(EQ(BVEXTRACT(newer, upper, hibit), BVEXTRACT(older, upper, hibit)));
+      addToContext(EQ(BVEXTRACT(hibit, upper, newer), BVEXTRACT(hibit, upper, older)));
     }
-    return BVEXTRACT(newer, minor, major);
+
+    return BVEXTRACT(major, minor, newer);
   }
 
   private Node updateDynamicSubvector(Node newer, Node older, LValue lvalue) {

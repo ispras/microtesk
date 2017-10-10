@@ -358,7 +358,7 @@ public final class ExprTransformer {
       return newFieldForConcat((NodeOperation) expr, from, to);
     }
 
-    return Nodes.BVEXTRACT(expr, from, to);
+    return Nodes.BVEXTRACT(to, from, expr);
   }
 
   private static Node newNestedField(final NodeOperation op, final int from, final int to) {
