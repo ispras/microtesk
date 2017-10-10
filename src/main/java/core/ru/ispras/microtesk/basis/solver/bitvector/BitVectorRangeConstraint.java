@@ -1,11 +1,11 @@
 /*
  * Copyright 2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -22,13 +22,14 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link BitVectorRangeConstraint} class represents a range constraint.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BitVectorRangeConstraint implements BitVectorConstraint {
@@ -53,7 +54,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
     encodeGreaterThanOrEqualTo(formulaBuilder, variable, range.getMin());
     encodeLessThanOrEqualTo(formulaBuilder, variable, range.getMax());
 
-    this.formula = FortressUtils.makeNodeAnd(formulaBuilder);
+    this.formula = Nodes.AND(formulaBuilder);
   }
 
   private static void encodeGreaterThanOrEqualTo(
@@ -96,7 +97,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
           : BigInteger.ZERO;
 
       formulaBuilder.add(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeExtract(x, upperBit + 1, x.getType().getSize() - 1),
               FortressUtils.makeNodeBitVector(BitVector.valueOf(value, sizeInBits))));
     }
@@ -119,7 +120,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
 
     // (e[0] | ... | e[n-1]) == (e != 0).
     formulaBuilder.add(
-        FortressUtils.makeNodeNotEqual(
+        Nodes.NOTEQ(
             FortressUtils.makeNodeExtract(e, 0, e.getType().getSize() - 1),
             FortressUtils.makeNodeInteger(0)));
 
