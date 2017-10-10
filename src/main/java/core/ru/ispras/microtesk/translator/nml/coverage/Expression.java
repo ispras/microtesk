@@ -35,13 +35,4 @@ final class Expression {
   public static NodeOperation EXTRACT(int bot, int top, Node bv) {
     return EXTRACT(NodeValue.newInteger(bot), NodeValue.newInteger(top), bv);
   }
-
-  public static NodeOperation CONCAT(Node... args) {
-    for (int i = 0; i < args.length / 2; ++i) {
-      final Node tmp = args[i];
-      args[i] = args[args.length - i - 1];
-      args[args.length - i - 1] = tmp;
-    }
-    return new NodeOperation(StandardOperation.BVCONCAT, args);
-  }
 }

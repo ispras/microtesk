@@ -17,9 +17,9 @@ package ru.ispras.microtesk.translator.nml.coverage;
 import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
 import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.expression.Nodes.AND;
-import static ru.ispras.microtesk.translator.nml.coverage.Expression.CONCAT;
 import static ru.ispras.fortress.expression.Nodes.EQ;
 import static ru.ispras.microtesk.translator.nml.coverage.Expression.EXTRACT;
+import static ru.ispras.fortress.expression.Nodes.BVCONCAT;
 import static ru.ispras.fortress.expression.Nodes.NOT;
 import static ru.ispras.fortress.expression.Nodes.OR;
 import static ru.ispras.fortress.expression.Nodes.SELECT;
@@ -427,7 +427,7 @@ final class SsaBuilder {
         arg[i] = updateScalar(lvalues[i]);
       }
     }
-    addToContext(EQ(CONCAT(arg), value));
+    addToContext(EQ(BVCONCAT(arg), value));
   }
 
   private void convertCondition(StatementCondition s) {
