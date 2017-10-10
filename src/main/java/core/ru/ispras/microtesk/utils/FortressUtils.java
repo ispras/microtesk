@@ -108,30 +108,6 @@ public final class FortressUtils {
     return makeNodeBigEndianConcat(reversedOperands);
   }
 
-  public static Node makeNodeEqual(final Node lhs, final Node rhs) {
-    return new NodeOperation(StandardOperation.EQ, lhs, rhs);
-  }
-
-  public static Node makeNodeNotEqual(final Node lhs, final Node rhs) {
-    return new NodeOperation(StandardOperation.NOTEQ, lhs, rhs);
-  }
-
-  public static Node makeNodeAnd(final List<Node> operands) {
-    return new NodeOperation(StandardOperation.AND, operands);
-  }
-
-  public static Node makeNodeAnd(final Node... operands) {
-    return makeNodeAnd(Arrays.<Node>asList(operands));
-  }
-
-  public static Node makeNodeOr(final List<Node> operands) {
-    return new NodeOperation(StandardOperation.OR, operands);
-  }
-
-  public static Node makeNodeOr(final Node... operands) {
-    return makeNodeOr(Arrays.<Node>asList(operands));
-  }
-
   public static Variable getVariable(final Node node) {
     switch (node.getKind()) {
       case VARIABLE:
