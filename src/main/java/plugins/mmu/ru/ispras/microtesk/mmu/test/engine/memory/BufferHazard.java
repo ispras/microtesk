@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -20,14 +20,14 @@ import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link BufferHazard} describes a buffer access hazard.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BufferHazard {
@@ -40,9 +40,9 @@ public final class BufferHazard {
           final MmuBufferAccess bufferAccess2) {
 
         // Index1 != Index2.
-        return FortressUtils.makeNodeAnd(
+        return Nodes.AND(
             Collections.<Node>singletonList(
-                FortressUtils.makeNodeNotEqual(
+                Nodes.NOTEQ(
                     bufferAccess1.getIndexExpression(),
                     bufferAccess2.getIndexExpression())));
       }
@@ -58,17 +58,17 @@ public final class BufferHazard {
         final List<Node> atoms = new ArrayList<>();
 
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
-          atoms.add(FortressUtils.makeNodeEqual(
+          atoms.add(Nodes.EQ(
               bufferAccess1.getIndexExpression(),
               bufferAccess2.getIndexExpression()));
         }
 
-        atoms.add(FortressUtils.makeNodeNotEqual(
+        atoms.add(Nodes.NOTEQ(
             bufferAccess1.getTagExpression(),
             bufferAccess2.getTagExpression()));
 
         // Index1 == Index2 && Tag1 != Tag2.
-        return FortressUtils.makeNodeAnd(atoms);
+        return Nodes.AND(atoms);
       }
     },
 
@@ -82,17 +82,17 @@ public final class BufferHazard {
         final List<Node> atoms = new ArrayList<>();
 
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
-          atoms.add(FortressUtils.makeNodeEqual(
+          atoms.add(Nodes.EQ(
               bufferAccess1.getIndexExpression(),
               bufferAccess2.getIndexExpression()));
         }
 
-        atoms.add(FortressUtils.makeNodeEqual(
+        atoms.add(Nodes.EQ(
             bufferAccess1.getTagExpression(),
             bufferAccess2.getTagExpression()));
 
         // Index1 == Index2 && Tag1 == Tag2.
-        return FortressUtils.makeNodeAnd(atoms);
+        return Nodes.AND(atoms);
       }
     };
 
