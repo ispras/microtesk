@@ -29,6 +29,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -279,9 +280,9 @@ public final class SymbolicExecutor {
           final Node field2 = result.getVersion(instance2, pathIndex2);
 
           if (equality.getOperationId() == StandardOperation.EQ) {
-            clauseBuilder.add(FortressUtils.makeNodeEqual(field1, field2));
+            clauseBuilder.add(Nodes.EQ(field1, field2));
           } else {
-            clauseBuilder.add(FortressUtils.makeNodeNotEqual(field1, field2));
+            clauseBuilder.add(Nodes.NOTEQ(field1, field2));
           }
 
           result.addOriginalVariable(
@@ -292,9 +293,9 @@ public final class SymbolicExecutor {
       }
 
       if (condition.getOperationId() == StandardOperation.AND) {
-        result.addFormula(FortressUtils.makeNodeAnd(clauseBuilder));
+        result.addFormula(Nodes.AND(clauseBuilder));
       } else {
-        result.addFormula(FortressUtils.makeNodeOr(clauseBuilder));
+        result.addFormula(Nodes.OR(clauseBuilder));
       }
     }
 
@@ -565,7 +566,7 @@ public final class SymbolicExecutor {
           final Variable newVersion = caseResult.getVersion(originalVariable);
 
           caseResult.addFormula(
-              FortressUtils.makeNodeEqual(
+              Nodes.EQ(
                   FortressUtils.makeNodeVariable(newVersion),
                   FortressUtils.makeNodeVariable(oldVersion)));
         }
@@ -593,10 +594,10 @@ public final class SymbolicExecutor {
 
       // Switch: (PHI == 0) | ... | (PHI == N-1)
       for (int i = 0; i < switchResults.size(); i++) {
-        switchBuilder.add(FortressUtils.makeNodeEqual(phi, FortressUtils.makeNodeInteger(i)));
+        switchBuilder.add(Nodes.EQ(phi, FortressUtils.makeNodeInteger(i)));
       }
   
-      result.addFormula(FortressUtils.makeNodeOr(switchBuilder));
+      result.addFormula(Nodes.OR(switchBuilder));
 
       for (int i = 0; i < switchResults.size(); i++) {
         final SymbolicResult caseResult = switchResults.get(i);
@@ -814,9 +815,9 @@ public final class SymbolicExecutor {
 
     if (!clauseBuilder.isEmpty()) {
       if (clause.getOperationId() == StandardOperation.AND) {
-        result.addFormula(FortressUtils.makeNodeAnd(clauseBuilder));
+        result.addFormula(Nodes.AND(clauseBuilder));
       } else {
-        result.addFormula(FortressUtils.makeNodeOr(clauseBuilder));
+        result.addFormula(Nodes.OR(clauseBuilder));
       }
     }
 
@@ -888,10 +889,10 @@ public final class SymbolicExecutor {
           if (!isTrue && constant == null) {
             if (equality.getOperationId() == StandardOperation.EQ) {
               clauseBuilder.add(
-                  FortressUtils.makeNodeEqual(field, FortressUtils.makeNodeBitVector(value)));
+                  Nodes.EQ(field, FortressUtils.makeNodeBitVector(value)));
             } else {
               clauseBuilder.add(
-                  FortressUtils.makeNodeNotEqual(field, FortressUtils.makeNodeBitVector(value)));
+                  Nodes.NOTEQ(field, FortressUtils.makeNodeBitVector(value)));
             }
           }
 
@@ -914,10 +915,10 @@ public final class SymbolicExecutor {
 
           if (equality.getOperationId() == StandardOperation.EQ) {
             clauseBuilder.add(
-                FortressUtils.makeNodeEqual(lhsField, rhsField));
+                Nodes.EQ(lhsField, rhsField));
           } else {
             clauseBuilder.add(
-                FortressUtils.makeNodeNotEqual(lhsField, rhsField));
+                Nodes.NOTEQ(lhsField, rhsField));
           }
 
           result.addOriginalVariable(
@@ -970,7 +971,7 @@ public final class SymbolicExecutor {
         final Node oldLhsPre = FortressUtils.makeNodeExtract(oldLhsVar, 0, lhsLowerBit - 1);
         final Node newLhsPre = FortressUtils.makeNodeExtract(newLhsVar, 0, lhsLowerBit - 1);
 
-        clauseBuilder.add(FortressUtils.makeNodeEqual(newLhsPre, oldLhsPre));
+        clauseBuilder.add(Nodes.EQ(newLhsPre, oldLhsPre));
         rhsTerms.add(oldLhsPre);
       }
 
@@ -997,7 +998,7 @@ public final class SymbolicExecutor {
                 FortressUtils.getUpperBit(field) - (upper - trunc)
               );
 
-        clauseBuilder.add(FortressUtils.makeNodeEqual(lhsField, rhsField));
+        clauseBuilder.add(Nodes.EQ(lhsField, rhsField));
         rhsTerms.add(rhsField);
 
         offset += FortressUtils.getBitSize(field);
@@ -1010,7 +1011,7 @@ public final class SymbolicExecutor {
 
       if (offset <= lhsUpperBit) {
         clauseBuilder.add(
-            FortressUtils.makeNodeEqual(
+            Nodes.EQ(
                 FortressUtils.makeNodeExtract(newLhsVar, offset, lhsUpperBit),
                 FortressUtils.makeNodeInteger(0)));
       }
@@ -1022,7 +1023,7 @@ public final class SymbolicExecutor {
         final Node newLhsPost =
             FortressUtils.makeNodeExtract(newLhsVar, lhsUpperBit, newLhsVar.getType().getSize() - 1);
 
-        clauseBuilder.add(FortressUtils.makeNodeEqual(newLhsPost, oldLhsPost));
+        clauseBuilder.add(Nodes.EQ(newLhsPost, oldLhsPost));
         rhsTerms.add(oldLhsPost);
       }
 
@@ -1048,7 +1049,7 @@ public final class SymbolicExecutor {
     } // For each binding.
 
     if (!clauseBuilder.isEmpty()) {
-      result.addFormula(FortressUtils.makeNodeAnd(clauseBuilder));
+      result.addFormula(Nodes.AND(clauseBuilder));
     }
 
     return Boolean.TRUE;
@@ -1094,17 +1095,17 @@ public final class SymbolicExecutor {
     final Node condition = getIfThenField(FortressUtils.getVariable(phi), i);
 
     clauseBuilder1.add(
-        FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeInteger(1)));
+        Nodes.EQ(condition, FortressUtils.makeNodeInteger(1)));
     clauseBuilder1.add(
-        FortressUtils.makeNodeNotEqual(phi, FortressUtils.makeNodeInteger(i)));
+        Nodes.NOTEQ(phi, FortressUtils.makeNodeInteger(i)));
 
     clauseBuilder2.add(
-        FortressUtils.makeNodeNotEqual(condition, FortressUtils.makeNodeInteger(1)));
+        Nodes.NOTEQ(condition, FortressUtils.makeNodeInteger(1)));
     clauseBuilder2.add(
-        FortressUtils.makeNodeEqual(phi, FortressUtils.makeNodeInteger(i)));
+        Nodes.EQ(phi, FortressUtils.makeNodeInteger(i)));
 
-    ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder1));
-    ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder2));
+    ifThenBuilder.add(Nodes.OR(clauseBuilder1));
+    ifThenBuilder.add(Nodes.OR(clauseBuilder2));
 
     // Transform the formula according to the rule:
     // C -> (x[1] & ... & x[n]) == (~C | x[1]) & ... & (~C | x[n]).
@@ -1120,22 +1121,22 @@ public final class SymbolicExecutor {
       if (clause.getOperationId() == StandardOperation.OR) {
         final List<Node> clauseBuilder = new ArrayList<>();
 
-        clauseBuilder.add(FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeInteger(0)));
+        clauseBuilder.add(Nodes.EQ(condition, FortressUtils.makeNodeInteger(0)));
         clauseBuilder.addAll(clause.getOperands());
 
-        ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder));
+        ifThenBuilder.add(Nodes.OR(clauseBuilder));
       } else {
         for (final Node equation : clause.getOperands()) {
           final List<Node> clauseBuilder = new ArrayList<>();
 
-          clauseBuilder.add(FortressUtils.makeNodeEqual(condition, FortressUtils.makeNodeInteger(0)));
+          clauseBuilder.add(Nodes.EQ(condition, FortressUtils.makeNodeInteger(0)));
           clauseBuilder.add(equation);
 
-          ifThenBuilder.add(FortressUtils.makeNodeOr(clauseBuilder));
+          ifThenBuilder.add(Nodes.OR(clauseBuilder));
         }
       }
     }
 
-    return FortressUtils.makeNodeAnd(ifThenBuilder);
+    return Nodes.AND(ifThenBuilder);
   }
 }
