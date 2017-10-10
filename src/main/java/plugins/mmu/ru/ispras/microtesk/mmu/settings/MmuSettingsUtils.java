@@ -35,7 +35,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.AbstractSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.utils.BigIntegerUtils;
-import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link MmuSettingsUtils} implements utilities for handing MMU settings.

@@ -23,7 +23,6 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
-import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * The {@link MmuStruct} class describes a variable represented
