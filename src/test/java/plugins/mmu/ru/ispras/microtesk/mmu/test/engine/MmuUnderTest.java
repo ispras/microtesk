@@ -19,6 +19,7 @@ import java.util.Collections;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.engine.memory.Access;
@@ -476,47 +477,47 @@ public final class MmuUnderTest {
   public final MmuTransition afterJtlb = new MmuTransition(hitJtlb, selectVpn);
   public final MmuTransition ifVpn0 = new MmuTransition(selectVpn, getLo0,
       new MmuGuard(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeExtract(va, 12),
               FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifVpn1 = new MmuTransition(selectVpn, getLo1,
       new MmuGuard(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeExtract(va, 12),
               FortressUtils.makeNodeInteger(1))));
   public final MmuTransition afterLo0 = new MmuTransition(getLo0, checkG);
   public final MmuTransition afterLo1 = new MmuTransition(getLo1, checkG);
   public final MmuTransition ifLocal = new MmuTransition(checkG, local,
       new MmuGuard(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeVariable(g),
               FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifGlobal = new MmuTransition(checkG, global,
       new MmuGuard(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeVariable(g),
               FortressUtils.makeNodeInteger(1))));
   public final MmuTransition afterLocal = new MmuTransition(local, checkV);
   public final MmuTransition afterGlobal = new MmuTransition(global, checkV);
   public final MmuTransition ifInvalid = new MmuTransition(checkV, tlbInvalid,
       new MmuGuard(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeVariable(v),
               FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifValid = new MmuTransition(checkV, checkD,
       new MmuGuard(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeVariable(v),
               FortressUtils.makeNodeInteger(1))));
   public final MmuTransition ifDirty = new MmuTransition(checkD, tlbModified,
       new MmuGuard(
           MemoryOperation.STORE,
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeVariable(d),
               FortressUtils.makeNodeBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifClean = new MmuTransition(checkD, getMpa,
       new MmuGuard(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeVariable(d),
               FortressUtils.makeNodeInteger(1))));
   public final MmuTransition afterMpa = new MmuTransition(getMpa, checkSegment);
@@ -532,12 +533,12 @@ public final class MmuUnderTest {
   public final MmuTransition afterXkphys = new MmuTransition(startXkphys, startCache);
   public final MmuTransition ifUncached = new MmuTransition(startCache, startMem,
       new MmuGuard(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeExtract(c, 0, 1),
               FortressUtils.makeNodeInteger(0x2))));
   public final MmuTransition ifCached = new MmuTransition(startCache, startL1,
       new MmuGuard(
-          FortressUtils.makeNodeNotEqual(
+          Nodes.NOTEQ(
               FortressUtils.makeNodeExtract(c, 0, 1),
               FortressUtils.makeNodeInteger(0x2))));
   public final MmuTransition ifL1Miss = new MmuTransition(startL1, checkL2,
@@ -547,20 +548,20 @@ public final class MmuUnderTest {
   public final MmuTransition afterL1 = new MmuTransition(hitL1, stop);
   public final MmuTransition ifL2Bypass = new MmuTransition(checkL2, startMem,
       new MmuGuard(
-          FortressUtils.makeNodeAnd(
-              FortressUtils.makeNodeNotEqual(
+          Nodes.AND(
+              Nodes.NOTEQ(
                   FortressUtils.makeNodeExtract(c, 0, 1),
                   FortressUtils.makeNodeInteger(0x2)),
-              FortressUtils.makeNodeNotEqual(
+              Nodes.NOTEQ(
                   FortressUtils.makeNodeExtract(c, 0, 1),
                   FortressUtils.makeNodeInteger(0x3)))));
   public final MmuTransition ifL2Used = new MmuTransition(checkL2, startL2,
       new MmuGuard(
-          FortressUtils.makeNodeAnd(
-              FortressUtils.makeNodeNotEqual(
+          Nodes.AND(
+              Nodes.NOTEQ(
                   FortressUtils.makeNodeExtract(c, 0, 1),
                   FortressUtils.makeNodeInteger(0x0)),
-              FortressUtils.makeNodeNotEqual(
+              Nodes.NOTEQ(
                   FortressUtils.makeNodeExtract(c, 0, 1),
                   FortressUtils.makeNodeInteger(0x1)))));
   public final MmuTransition ifL2Miss = new MmuTransition(startL2, startMem,
