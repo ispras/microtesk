@@ -26,6 +26,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
@@ -357,12 +358,7 @@ public final class ExprTransformer {
       return newFieldForConcat((NodeOperation) expr, from, to);
     }
 
-    return new NodeOperation(
-        StandardOperation.BVEXTRACT,
-        NodeValue.newInteger(to),
-        NodeValue.newInteger(from),
-        expr
-        );
+    return Nodes.BVEXTRACT(expr, from, to);
   }
 
   private static Node newNestedField(final NodeOperation op, final int from, final int to) {
@@ -453,6 +449,6 @@ public final class ExprTransformer {
       }
     }
 
-    return new NodeOperation(StandardOperation.BVCONCAT, newFields);
+    return Nodes.BVCONCAT(newFields);
   }
 }
