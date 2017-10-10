@@ -31,6 +31,7 @@ import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
@@ -390,12 +391,12 @@ final class ControlFlowBuilder {
         buildTransition(branchStop, join);
       }
 
-      final Node elseCondition = new NodeOperation(StandardOperation.NOT, condition);
+      final Node elseCondition = Nodes.NOT(condition);
       if (ExprUtils.isOperation(condition, StandardOperation.EQ) ||
           ExprUtils.isOperation(condition, StandardOperation.NOTEQ)) {
         jointElseCondition = null == jointElseCondition ?
             elseCondition :
-            new NodeOperation(StandardOperation.AND, jointElseCondition, elseCondition);
+            Nodes.AND(jointElseCondition, elseCondition);
       } else {
         elseConditions.add(elseCondition);
       }
