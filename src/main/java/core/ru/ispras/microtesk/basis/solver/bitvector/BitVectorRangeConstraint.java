@@ -130,30 +130,30 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
     final List<Node> clauseBuilder1 = new ArrayList<>();
 
     clauseBuilder1.add(
-        FortressUtils.makeNodeNotEqual(
+        Nodes.NOTEQ(
             FortressUtils.makeNodeExtract(x, lowerBit, upperBit),
             FortressUtils.makeNodeBitVector(a.field(lowerBit, upperBit))));
 
     clauseBuilder1.add(
-        FortressUtils.makeNodeEqual(
+        Nodes.EQ(
             FortressUtils.makeNodeExtract(e, 0, 0),
             FortressUtils.makeNodeInteger(1)));
 
-    formulaBuilder.add(FortressUtils.makeNodeOr(clauseBuilder1));
+    formulaBuilder.add(Nodes.OR(clauseBuilder1));
 
     final List<Node> clauseBuilder2 = new ArrayList<>();
 
     clauseBuilder2.add(
-        FortressUtils.makeNodeEqual(
+        Nodes.EQ(
             FortressUtils.makeNodeExtract(x, lowerBit, upperBit),
             FortressUtils.makeNodeBitVector(a.field(lowerBit, upperBit))));
 
     clauseBuilder2.add(
-        FortressUtils.makeNodeEqual(
+        Nodes.EQ(
             FortressUtils.makeNodeExtract(e, 0, 0),
             FortressUtils.makeNodeInteger(0)));
 
-    formulaBuilder.add(FortressUtils.makeNodeOr(clauseBuilder2));
+    formulaBuilder.add(Nodes.OR(clauseBuilder2));
 
     int k = 1;
     for (int i = upperBit; i >= lowerBit; i--) {
@@ -172,50 +172,50 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
         final int j = i + 1;
 
         clauseBuilder3.add(
-            FortressUtils.makeNodeNotEqual(
+            Nodes.NOTEQ(
                 FortressUtils.makeNodeExtract(x, j, upperBit),
                 FortressUtils.makeNodeBitVector(a.field(j, upperBit))));
 
         final List<Node> clauseBuilder4 = new ArrayList<>();
 
         clauseBuilder4.add(
-            FortressUtils.makeNodeEqual(
+            Nodes.EQ(
                 FortressUtils.makeNodeExtract(x, j, upperBit),
                 FortressUtils.makeNodeBitVector(a.field(j, upperBit))));
 
         clauseBuilder4.add(
-            FortressUtils.makeNodeEqual(
+            Nodes.EQ(
                 FortressUtils.makeNodeExtract(e, k, k),
                 FortressUtils.makeNodeInteger(0)));
 
-        formulaBuilder.add(FortressUtils.makeNodeOr(clauseBuilder4));
+        formulaBuilder.add(Nodes.OR(clauseBuilder4));
       }
 
       clauseBuilder3.add(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeExtract(x, i, i),
               FortressUtils.makeNodeInteger(greaterThanOrEqualTo ? 0 : 1)));
 
       clauseBuilder3.add(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeExtract(e, k, k),
               FortressUtils.makeNodeInteger(1)));
 
-      formulaBuilder.add(FortressUtils.makeNodeOr(clauseBuilder3));
+      formulaBuilder.add(Nodes.OR(clauseBuilder3));
 
       final List<Node> clauseBuilder5 = new ArrayList<>();
 
       clauseBuilder5.add(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeExtract(x, i, i),
               FortressUtils.makeNodeInteger(greaterThanOrEqualTo ? 1 : 0)));
 
       clauseBuilder5.add(
-          FortressUtils.makeNodeEqual(
+          Nodes.EQ(
               FortressUtils.makeNodeExtract(e, k, k),
               FortressUtils.makeNodeInteger(0)));
 
-      formulaBuilder.add(FortressUtils.makeNodeOr(clauseBuilder5));
+      formulaBuilder.add(Nodes.OR(clauseBuilder5));
 
       k++;
     }
