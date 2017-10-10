@@ -64,16 +64,12 @@ public final class FortressUtils {
     }
   }
 
-  public static Node makeNodeVariable(final Variable variable) {
-    return new NodeVariable(variable);
-  }
-
   public static Node makeNodeExtract(final Variable variable, final int lower, final int upper) {
     return new NodeOperation(
         StandardOperation.BVEXTRACT,
         NodeValue.newInteger(upper),
         NodeValue.newInteger(lower),
-        makeNodeVariable(variable));
+        new NodeVariable(variable));
   }
 
   public static Node makeNodeExtract(final Variable variable) {

@@ -22,6 +22,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -101,7 +102,7 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
             // Generate n clauses (c[i] ? x[i] : ~x[i]).
             builder.addAllClauses(
                 Sat4jUtils.encodeVarEqualConst(
-                    FortressUtils.makeNodeVariable(variable), x, variable.getData().getInteger()));
+                    new NodeVariable(variable), x, variable.getData().getInteger()));
           }
         }
       }

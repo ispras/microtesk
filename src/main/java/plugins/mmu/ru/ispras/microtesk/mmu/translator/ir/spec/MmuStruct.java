@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -168,8 +169,8 @@ public class MmuStruct {
 
       InvariantChecks.checkTrue(thisVar.getType().getSize() == otherVar.getType().getSize());
       result.add(new MmuBinding(
-          FortressUtils.makeNodeVariable(thisVar),
-          FortressUtils.makeNodeVariable(otherVar)));
+          new NodeVariable(thisVar),
+          new NodeVariable(otherVar)));
     }
 
     return result;

@@ -29,6 +29,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -501,7 +502,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final BitVector value = entry.getValue();
 
       allConstraints.add(
-          new BitVectorEqualConstraint(FortressUtils.makeNodeVariable(variable), value));
+          new BitVectorEqualConstraint(new NodeVariable(variable), value));
     }
 
     // Fix known values of the addresses.
@@ -511,7 +512,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final BitVector value = entry.getValue();
 
       allConstraints.add(
-          new BitVectorEqualConstraint(FortressUtils.makeNodeVariable(variable), value));
+          new BitVectorEqualConstraint(new NodeVariable(variable), value));
     }
 
     Logger.debug("Constraints for refinement: %s", allConstraints);

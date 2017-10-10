@@ -82,7 +82,7 @@ final class BufferExprAnalyzer {
     }
 
     fieldTrackerForAddress.excludeAll();
-    return FortressUtils.makeNodeVariable(variableForAddress);
+    return new NodeVariable(variableForAddress);
   }
 
   private class VisitorIndex extends ExprTreeVisitorDefault {

@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateCollection;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -214,7 +215,7 @@ public final class ConstraintFactory {
     }
 
     if (null == variableField) {
-      return FortressUtils.makeNodeVariable(variable);
+      return new NodeVariable(variable);
     }
 
     final Pair<Integer, Integer> fieldRange = parseRange(variableField);

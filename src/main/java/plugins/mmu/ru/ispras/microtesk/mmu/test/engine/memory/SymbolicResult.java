@@ -24,6 +24,7 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
@@ -249,8 +250,8 @@ public final class SymbolicResult {
           String.format("Version of %s has not been found", original.getName()));
 
       addFormula(Nodes.EQ(
-          FortressUtils.makeNodeVariable(original),
-          FortressUtils.makeNodeVariable(version)));
+          new NodeVariable(original),
+          new NodeVariable(version)));
 
       // Propagate the constant if applicable.
       final BitVector constant = getConstant(version);

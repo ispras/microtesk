@@ -25,6 +25,7 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
@@ -84,7 +85,7 @@ public class MmuBufferTestCase {
       FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
-              FortressUtils.makeNodeVariable(VPN2),
+              new NodeVariable(VPN2),
               FortressUtils.makeNodeExtract(VA, 13, 39))),
       false, null
       );
@@ -112,7 +113,7 @@ public class MmuBufferTestCase {
       FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
-              FortressUtils.makeNodeVariable(VPN2),
+              new NodeVariable(VPN2),
               FortressUtils.makeNodeExtract(VA, 13, 39))),
       true, JTLB
       );
@@ -164,7 +165,7 @@ public class MmuBufferTestCase {
       FortressUtils.makeNodeExtract(PA, 0, 4), // Offset
       Collections.singleton(
           new MmuBinding(
-              FortressUtils.makeNodeVariable(L1_TAG),
+              new NodeVariable(L1_TAG),
               FortressUtils.makeNodeExtract(PA, 12, 35))),
       true, null
       );
@@ -204,7 +205,7 @@ public class MmuBufferTestCase {
       FortressUtils.makeNodeExtract(PA, 0, 4), // Offset
       Collections.singleton(
           new MmuBinding(
-              FortressUtils.makeNodeVariable(L2_TAG),
+              new NodeVariable(L2_TAG),
               FortressUtils.makeNodeExtract(PA, 17, 35))),
       true, null
       );

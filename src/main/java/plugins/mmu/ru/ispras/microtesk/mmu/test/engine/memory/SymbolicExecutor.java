@@ -567,8 +567,8 @@ public final class SymbolicExecutor {
 
           caseResult.addFormula(
               Nodes.EQ(
-                  FortressUtils.makeNodeVariable(newVersion),
-                  FortressUtils.makeNodeVariable(oldVersion)));
+                  new NodeVariable(newVersion),
+                  new NodeVariable(oldVersion)));
         }
       }
 
@@ -1075,13 +1075,13 @@ public final class SymbolicExecutor {
   private static Node getPhiField(final int width) {
     final Variable variable = new Variable(
         String.format("phi_%d", uniqueId++), DataType.BIT_VECTOR(width));
-    return FortressUtils.makeNodeVariable(variable);
+    return new NodeVariable(variable);
   }
 
   private static Node getIfThenField(final Variable phi, final int i) {
     final Variable variable = new Variable(
         String.format("%s_%d", phi.getName(), i), DataType.BIT_VECTOR(1));
-    return FortressUtils.makeNodeVariable(variable);
+    return new NodeVariable(variable);
   }
 
   private static Node getIfThenFormula(

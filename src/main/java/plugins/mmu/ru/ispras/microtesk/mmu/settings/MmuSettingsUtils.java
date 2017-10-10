@@ -23,6 +23,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorDomainConstraint;
@@ -126,7 +127,7 @@ public final class MmuSettingsUtils {
 
     return new BitVectorDomainConstraint(
         kind,
-        FortressUtils.makeNodeVariable(variable),
+        new NodeVariable(variable),
         bvDomain,
         bvValues); 
   }
@@ -164,7 +165,7 @@ public final class MmuSettingsUtils {
 
     return new BitVectorDomainConstraint(
         BitVectorDomainConstraint.Kind.RETAIN,
-        FortressUtils.makeNodeVariable(variable),
+        new NodeVariable(variable),
         null,
         values);
   }

@@ -20,6 +20,7 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
@@ -207,7 +208,7 @@ public final class MmuUnderTest {
       FortressUtils.makeNodeExtract(va, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
-              FortressUtils.makeNodeVariable(vpn2),
+              new NodeVariable(vpn2),
               FortressUtils.makeNodeExtract(va, 13, 39))),
       false, null);
 
@@ -254,7 +255,7 @@ public final class MmuUnderTest {
       FortressUtils.makeNodeExtract(va, 0, 12), // Offset
       Collections.singleton(
           new MmuBinding(
-              FortressUtils.makeNodeVariable(vpn2),
+              new NodeVariable(vpn2),
               FortressUtils.makeNodeExtract(va, 13, 39))),
       true, jtlb
       );
@@ -282,7 +283,7 @@ public final class MmuUnderTest {
       FortressUtils.makeNodeExtract(pa, 0, POS_BITS - 1), // Offset
       Collections.singleton(
           new MmuBinding(
-              FortressUtils.makeNodeVariable(l1Tag),
+              new NodeVariable(l1Tag),
               FortressUtils.makeNodeExtract(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1))),
       true, null
       );
@@ -299,7 +300,7 @@ public final class MmuUnderTest {
       FortressUtils.makeNodeExtract(pa, 0, POS_BITS - 1), // Offset
       Collections.singleton(
           new MmuBinding(
-              FortressUtils.makeNodeVariable(l2Tag),
+              new NodeVariable(l2Tag),
               FortressUtils.makeNodeExtract(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1))),
       true, null
       );
@@ -327,83 +328,83 @@ public final class MmuUnderTest {
 
   public final MmuAction root = new MmuAction("ROOT",
       new MmuBinding(
-          FortressUtils.makeNodeVariable(va)));
+          new NodeVariable(va)));
   public final MmuAction start = new MmuAction("START");
   public final MmuAction getUpaKseg = new MmuAction("GET_UPA_KSEG",
       new MmuBinding(
-          FortressUtils.makeNodeVariable(pa),
+          new NodeVariable(pa),
           FortressUtils.makeNodeExtract(va, 0, 28)));
   public final MmuAction getUpaXkphys = new MmuAction("GET_UPA_XKPHYS",
       new MmuBinding(
-          FortressUtils.makeNodeVariable(pa),
+          new NodeVariable(pa),
           FortressUtils.makeNodeExtract(va, 0, 35)));
   public final MmuAction startDtlb = new MmuAction("START_DTLB");
   public final MmuAction hitDtlb = new MmuAction(
       "HIT_DTLB",
       defaultAccess(dtlb, BufferAccessEvent.READ),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(v0)),
+          new NodeVariable(v0)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(d0)),
+          new NodeVariable(d0)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(c0)),
+          new NodeVariable(c0)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(pfn0)),
+          new NodeVariable(pfn0)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(v1)),
+          new NodeVariable(v1)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(d1)),
+          new NodeVariable(d1)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(c1)),
+          new NodeVariable(c1)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(pfn1)));
+          new NodeVariable(pfn1)));
   public final MmuAction startJtlb = new MmuAction("START_JTLB");
   public final MmuAction hitJtlb = new MmuAction(
       "HIT_JTLB",
       defaultAccess(jtlb, BufferAccessEvent.READ),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(v0)),
+          new NodeVariable(v0)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(d0)),
+          new NodeVariable(d0)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(c0)),
+          new NodeVariable(c0)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(pfn0)),
+          new NodeVariable(pfn0)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(v1)),
+          new NodeVariable(v1)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(d1)),
+          new NodeVariable(d1)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(c1)),
+          new NodeVariable(c1)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(pfn1)));
+          new NodeVariable(pfn1)));
   public final MmuAction selectVpn = new MmuAction("SELECT_VPN");
   public final MmuAction getLo0 = new MmuAction("GET_LO0",
       new MmuBinding(
-          FortressUtils.makeNodeVariable(v),
-          FortressUtils.makeNodeVariable(v0)),
+          new NodeVariable(v),
+          new NodeVariable(v0)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(d),
-          FortressUtils.makeNodeVariable(d0)),
+          new NodeVariable(d),
+          new NodeVariable(d0)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(c),
-          FortressUtils.makeNodeVariable(c0)),
+          new NodeVariable(c),
+          new NodeVariable(c0)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(pfn),
-          FortressUtils.makeNodeVariable(pfn0)));
+          new NodeVariable(pfn),
+          new NodeVariable(pfn0)));
   public final MmuAction getLo1 = new MmuAction("GET_LO1",
       new MmuBinding(
-          FortressUtils.makeNodeVariable(v),
-          FortressUtils.makeNodeVariable(v1)),
+          new NodeVariable(v),
+          new NodeVariable(v1)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(d),
-          FortressUtils.makeNodeVariable(d1)),
+          new NodeVariable(d),
+          new NodeVariable(d1)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(c),
-          FortressUtils.makeNodeVariable(c1)),
+          new NodeVariable(c),
+          new NodeVariable(c1)),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(pfn),
-          FortressUtils.makeNodeVariable(pfn1)));
+          new NodeVariable(pfn),
+          new NodeVariable(pfn1)));
   public final MmuAction checkV = new MmuAction("CHECK_V");
   public final MmuAction checkD = new MmuAction("CHECK_D");
   public final MmuAction checkG = new MmuAction("CHECK_G");
@@ -411,18 +412,18 @@ public final class MmuUnderTest {
   public final MmuAction global = new MmuAction("GLOBAL");
   public final MmuAction getMpa = new MmuAction("GET_MPA",
       new MmuBinding(
-          FortressUtils.makeNodeVariable(pa),
+          new NodeVariable(pa),
           FortressUtils.makeNodeLittleEndianConcat(
-              FortressUtils.makeNodeVariable(pfn),
+              new NodeVariable(pfn),
               FortressUtils.makeNodeExtract(va, 0, 11))));
   public final MmuAction checkSegment = new MmuAction("CHECK_SEGMENT");
   public final MmuAction startKseg0 = new MmuAction("START_KSEG0",
       new MmuBinding(
-          FortressUtils.makeNodeVariable(c),
-          FortressUtils.makeNodeVariable(kseg0Cp)));
+          new NodeVariable(c),
+          new NodeVariable(kseg0Cp)));
   public final MmuAction startXkphys = new MmuAction("START_XKPHYS",
       new MmuBinding(
-          FortressUtils.makeNodeVariable(c),
+          new NodeVariable(c),
           FortressUtils.makeNodeExtract(va, 59, 61)));
   public final MmuAction startCache = new MmuAction("START_CACHE");
   public final MmuAction startL1 = new MmuAction("START_L1");
@@ -430,19 +431,19 @@ public final class MmuUnderTest {
       "HIT_L1",
       defaultAccess(l1, BufferAccessEvent.READ),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(data)));
+          new NodeVariable(data)));
   public final MmuAction checkL2 = new MmuAction("CHECK_L2");
   public final MmuAction startL2 = new MmuAction("START_L2");
   public final MmuAction hitL2 = new MmuAction(
       "HIT_L2",
       defaultAccess(l2, BufferAccessEvent.READ),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(data)));
+          new NodeVariable(data)));
   public final MmuAction startMem = new MmuAction(
       "START_MEM",
       defaultAccess(mem, BufferAccessEvent.READ),
       new MmuBinding(
-          FortressUtils.makeNodeVariable(data)));
+          new NodeVariable(data)));
   public final MmuAction tlbRefill = new MmuAction("TLB_REFILL");
   public final MmuAction tlbInvalid = new MmuAction("TLB_INVALID");
   public final MmuAction tlbModified = new MmuAction("TLB_MODIFIED");
@@ -491,35 +492,35 @@ public final class MmuUnderTest {
   public final MmuTransition ifLocal = new MmuTransition(checkG, local,
       new MmuGuard(
           Nodes.EQ(
-              FortressUtils.makeNodeVariable(g),
+              new NodeVariable(g),
               NodeValue.newBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifGlobal = new MmuTransition(checkG, global,
       new MmuGuard(
           Nodes.EQ(
-              FortressUtils.makeNodeVariable(g),
+              new NodeVariable(g),
               NodeValue.newInteger(1))));
   public final MmuTransition afterLocal = new MmuTransition(local, checkV);
   public final MmuTransition afterGlobal = new MmuTransition(global, checkV);
   public final MmuTransition ifInvalid = new MmuTransition(checkV, tlbInvalid,
       new MmuGuard(
           Nodes.EQ(
-              FortressUtils.makeNodeVariable(v),
+              new NodeVariable(v),
               NodeValue.newBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifValid = new MmuTransition(checkV, checkD,
       new MmuGuard(
           Nodes.EQ(
-              FortressUtils.makeNodeVariable(v),
+              new NodeVariable(v),
               NodeValue.newInteger(1))));
   public final MmuTransition ifDirty = new MmuTransition(checkD, tlbModified,
       new MmuGuard(
           MemoryOperation.STORE,
           Nodes.EQ(
-              FortressUtils.makeNodeVariable(d),
+              new NodeVariable(d),
               NodeValue.newBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifClean = new MmuTransition(checkD, getMpa,
       new MmuGuard(
           Nodes.EQ(
-              FortressUtils.makeNodeVariable(d),
+              new NodeVariable(d),
               NodeValue.newInteger(1))));
   public final MmuTransition afterMpa = new MmuTransition(getMpa, checkSegment);
   public final MmuTransition ifKseg0 = new MmuTransition(checkSegment, startKseg0,
