@@ -24,6 +24,7 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -247,7 +248,7 @@ public final class SymbolicResult {
       InvariantChecks.checkNotNull(version,
           String.format("Version of %s has not been found", original.getName()));
 
-      addFormula(FortressUtils.makeNodeEqual(
+      addFormula(Nodes.EQ(
           FortressUtils.makeNodeVariable(original),
           FortressUtils.makeNodeVariable(version)));
 
