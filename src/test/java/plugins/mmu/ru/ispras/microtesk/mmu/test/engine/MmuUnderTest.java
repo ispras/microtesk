@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -43,9 +43,9 @@ import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
  * {@link MmuUnderTest} represents a simplified MMU of a MIPS-compatible microprocessor.
- * 
+ *
  * <p>The logic is as follows.</p>
- * 
+ *
  * <pre>{@code
  * if (!XUSEG(VA).hit) {
  *   PA = translate(VA)
@@ -85,7 +85,7 @@ import ru.ispras.microtesk.utils.function.Predicate;
  *   }
  * }
  * }</pre>
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuUnderTest {
@@ -203,13 +203,13 @@ public final class MmuUnderTest {
 
   public final MmuBuffer jtlb = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, JTLB_SIZE, 1, vaAddr,
-      FortressUtils.makeNodeExtract(va, 13, 39), // Tag
+      Nodes.BVEXTRACT(39, 13, va), // Tag
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Index
-      FortressUtils.makeNodeExtract(va, 0, 12), // Offset
+      Nodes.BVEXTRACT(12, 0, va), // Offset
       Collections.singleton(
           new MmuBinding(
               new NodeVariable(vpn2),
-              FortressUtils.makeNodeExtract(va, 13, 39))),
+              Nodes.BVEXTRACT(39, 13, va))),
       false, null);
 
   {
@@ -250,13 +250,13 @@ public final class MmuUnderTest {
 
   public final MmuBuffer dtlb = new MmuBuffer(
       "DTLB", MmuBuffer.Kind.UNMAPPED, MTLB_SIZE, 1, vaAddr,
-      FortressUtils.makeNodeExtract(va, 13, 39), // Tag
+      Nodes.BVEXTRACT(39, 13, va), // Tag
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Index
-      FortressUtils.makeNodeExtract(va, 0, 12), // Offset
+      Nodes.BVEXTRACT(12, 0, va), // Offset
       Collections.singleton(
           new MmuBinding(
               new NodeVariable(vpn2),
-              FortressUtils.makeNodeExtract(va, 13, 39))),
+              Nodes.BVEXTRACT(39, 13, va))),
       true, jtlb
       );
   {
@@ -278,13 +278,13 @@ public final class MmuUnderTest {
   // -----------------------------------------------------------------------------------------------
   public final MmuBuffer l1 = new MmuBuffer(
       "L1", MmuBuffer.Kind.UNMAPPED, L1_WAYS, L1_SETS, paAddr,
-      FortressUtils.makeNodeExtract(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1), // Tag
-      FortressUtils.makeNodeExtract(pa, POS_BITS, POS_BITS + L1_ROW_BITS - 1), // Index
-      FortressUtils.makeNodeExtract(pa, 0, POS_BITS - 1), // Offset
+      Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS + L1_ROW_BITS, pa), // Tag
+      Nodes.BVEXTRACT(POS_BITS + L1_ROW_BITS - 1, POS_BITS, pa), // Index
+      Nodes.BVEXTRACT(POS_BITS - 1, 0, pa), // Offset
       Collections.singleton(
           new MmuBinding(
               new NodeVariable(l1Tag),
-              FortressUtils.makeNodeExtract(pa, POS_BITS + L1_ROW_BITS, PA_BITS - 1))),
+              Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS + L1_ROW_BITS, pa))),
       true, null
       );
   {
@@ -295,13 +295,13 @@ public final class MmuUnderTest {
   // -----------------------------------------------------------------------------------------------
   public final MmuBuffer l2 = new MmuBuffer(
       "L2", MmuBuffer.Kind.UNMAPPED, L1_WAYS, L1_SETS, paAddr,
-      FortressUtils.makeNodeExtract(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1), // Tag
-      FortressUtils.makeNodeExtract(pa, POS_BITS, POS_BITS + L2_ROW_BITS - 1), // Index
-      FortressUtils.makeNodeExtract(pa, 0, POS_BITS - 1), // Offset
+      Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS + L2_ROW_BITS, pa), // Tag
+      Nodes.BVEXTRACT(POS_BITS + L2_ROW_BITS - 1, POS_BITS, pa), // Index
+      Nodes.BVEXTRACT(POS_BITS - 1, 0, pa), // Offset
       Collections.singleton(
           new MmuBinding(
               new NodeVariable(l2Tag),
-              FortressUtils.makeNodeExtract(pa, POS_BITS + L2_ROW_BITS, PA_BITS - 1))),
+              Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS + L2_ROW_BITS, pa))),
       true, null
       );
   {
@@ -313,8 +313,8 @@ public final class MmuUnderTest {
   public final MmuBuffer mem = new MmuBuffer(
       "MEM", MmuBuffer.Kind.UNMAPPED, 1, (1L << PA_BITS) / 32, paAddr,
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Tag
-      FortressUtils.makeNodeExtract(pa, POS_BITS, PA_BITS - 1), // Index
-      FortressUtils.makeNodeExtract(pa, 0, POS_BITS - 1), // Offset
+      Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS, pa), // Index
+      Nodes.BVEXTRACT(POS_BITS - 1, 0, pa), // Offset
       Collections.<MmuBinding>emptySet(),
       false, null
       );
@@ -333,11 +333,11 @@ public final class MmuUnderTest {
   public final MmuAction getUpaKseg = new MmuAction("GET_UPA_KSEG",
       new MmuBinding(
           new NodeVariable(pa),
-          FortressUtils.makeNodeExtract(va, 0, 28)));
+          Nodes.BVEXTRACT(28, 0, va)));
   public final MmuAction getUpaXkphys = new MmuAction("GET_UPA_XKPHYS",
       new MmuBinding(
           new NodeVariable(pa),
-          FortressUtils.makeNodeExtract(va, 0, 35)));
+          Nodes.BVEXTRACT(35, 0, va)));
   public final MmuAction startDtlb = new MmuAction("START_DTLB");
   public final MmuAction hitDtlb = new MmuAction(
       "HIT_DTLB",
@@ -415,7 +415,7 @@ public final class MmuUnderTest {
           new NodeVariable(pa),
           FortressUtils.makeNodeLittleEndianConcat(
               new NodeVariable(pfn),
-              FortressUtils.makeNodeExtract(va, 0, 11))));
+              Nodes.BVEXTRACT(11, 0, va))));
   public final MmuAction checkSegment = new MmuAction("CHECK_SEGMENT");
   public final MmuAction startKseg0 = new MmuAction("START_KSEG0",
       new MmuBinding(
@@ -424,7 +424,7 @@ public final class MmuUnderTest {
   public final MmuAction startXkphys = new MmuAction("START_XKPHYS",
       new MmuBinding(
           new NodeVariable(c),
-          FortressUtils.makeNodeExtract(va, 59, 61)));
+          Nodes.BVEXTRACT(61, 59, va)));
   public final MmuAction startCache = new MmuAction("START_CACHE");
   public final MmuAction startL1 = new MmuAction("START_L1");
   public final MmuAction hitL1 = new MmuAction(
@@ -536,12 +536,12 @@ public final class MmuUnderTest {
   public final MmuTransition ifUncached = new MmuTransition(startCache, startMem,
       new MmuGuard(
           Nodes.EQ(
-              FortressUtils.makeNodeExtract(c, 0, 1),
+              Nodes.BVEXTRACT(1, 0, c),
               NodeValue.newInteger(0x2))));
   public final MmuTransition ifCached = new MmuTransition(startCache, startL1,
       new MmuGuard(
           Nodes.NOTEQ(
-              FortressUtils.makeNodeExtract(c, 0, 1),
+              Nodes.BVEXTRACT(1, 0, c),
               NodeValue.newInteger(0x2))));
   public final MmuTransition ifL1Miss = new MmuTransition(startL1, checkL2,
       new MmuGuard(defaultAccess(l1, BufferAccessEvent.MISS)));
@@ -552,19 +552,19 @@ public final class MmuUnderTest {
       new MmuGuard(
           Nodes.AND(
               Nodes.NOTEQ(
-                  FortressUtils.makeNodeExtract(c, 0, 1),
+                  Nodes.BVEXTRACT(1, 0, c),
                   NodeValue.newInteger(0x2)),
               Nodes.NOTEQ(
-                  FortressUtils.makeNodeExtract(c, 0, 1),
+                  Nodes.BVEXTRACT(1, 0, c),
                   NodeValue.newInteger(0x3)))));
   public final MmuTransition ifL2Used = new MmuTransition(checkL2, startL2,
       new MmuGuard(
           Nodes.AND(
               Nodes.NOTEQ(
-                  FortressUtils.makeNodeExtract(c, 0, 1),
+                  Nodes.BVEXTRACT(1, 0, c),
                   NodeValue.newInteger(0x0)),
               Nodes.NOTEQ(
-                  FortressUtils.makeNodeExtract(c, 0, 1),
+                  Nodes.BVEXTRACT(1, 0, c),
                   NodeValue.newInteger(0x1)))));
   public final MmuTransition ifL2Miss = new MmuTransition(startL2, startMem,
       new MmuGuard(defaultAccess(l2, BufferAccessEvent.MISS)));
