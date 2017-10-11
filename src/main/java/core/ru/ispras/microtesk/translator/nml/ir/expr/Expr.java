@@ -20,6 +20,7 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -272,10 +273,9 @@ public final class Expr {
         return new Reduced(constant, right.polynomial);
       }
 
-      final Node polynomial = new NodeOperation(
-          StandardOperation.MINUS, right.polynomial.getNode());
-
+      final Node polynomial = Nodes.MINUS(right.polynomial.getNode());
       polynomial.setUserData(expr.getNodeInfo());
+
       return new Reduced(constant, new Expr(polynomial));
     }
  
