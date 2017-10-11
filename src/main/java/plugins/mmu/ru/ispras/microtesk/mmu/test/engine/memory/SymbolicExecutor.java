@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -58,7 +58,7 @@ import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link SymbolicExecutor} implements a simple symbolic executor of memory access structures.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class SymbolicExecutor {
@@ -197,10 +197,10 @@ public final class SymbolicExecutor {
 
     final MmuAddressInstance addrType = MmuPlugin.getSpecification().getVirtualAddress();
 
-    final Node field = FortressUtils.makeNodeExtract(
-        addrType.getVariable(),
+    final Node field = Nodes.BVEXTRACT(
+        upperZeroBit,
         lowerZeroBit,
-        upperZeroBit);
+        addrType.getVariable());
 
     final BitVectorConstraint constraint =
         new BitVectorDomainConstraint(field, BitVector.valueOf(0, FortressUtils.getBitSize(field)));
@@ -968,8 +968,8 @@ public final class SymbolicExecutor {
       final int lhsUpperBit = FortressUtils.getUpperBit(lhs);
 
       if (lhsLowerBit > 0) {
-        final Node oldLhsPre = FortressUtils.makeNodeExtract(oldLhsVar, 0, lhsLowerBit - 1);
-        final Node newLhsPre = FortressUtils.makeNodeExtract(newLhsVar, 0, lhsLowerBit - 1);
+        final Node oldLhsPre = Nodes.BVEXTRACT(lhsLowerBit - 1, 0, oldLhsVar);
+        final Node newLhsPre = Nodes.BVEXTRACT(lhsLowerBit - 1, 0, newLhsVar);
 
         clauseBuilder.add(Nodes.EQ(newLhsPre, oldLhsPre));
         rhsTerms.add(oldLhsPre);
@@ -989,14 +989,14 @@ public final class SymbolicExecutor {
         final int upper = offset + (FortressUtils.getBitSize(field) - 1);
         final int trunc = upper > lhsUpperBit ? lhsUpperBit : upper;
 
-        final Node lhsField = FortressUtils.makeNodeExtract(newLhsVar, offset, trunc);
+        final Node lhsField = Nodes.BVEXTRACT(trunc, offset, newLhsVar);
         final Node rhsField = trunc == upper
             ? field
-            : FortressUtils.makeNodeExtract(
-                FortressUtils.getVariable(field),
-                FortressUtils.getLowerBit(field),
-                FortressUtils.getUpperBit(field) - (upper - trunc)
-              );
+            : Nodes.BVEXTRACT(
+                  FortressUtils.getUpperBit(field) - (upper - trunc),
+                  FortressUtils.getLowerBit(field),
+                  FortressUtils.getVariable(field)
+                  );
 
         clauseBuilder.add(Nodes.EQ(lhsField, rhsField));
         rhsTerms.add(rhsField);
@@ -1012,16 +1012,16 @@ public final class SymbolicExecutor {
       if (offset <= lhsUpperBit) {
         clauseBuilder.add(
             Nodes.EQ(
-                FortressUtils.makeNodeExtract(newLhsVar, offset, lhsUpperBit),
+                Nodes.BVEXTRACT(lhsUpperBit, offset, newLhsVar),
                 NodeValue.newInteger(0)));
       }
 
       // Equation for the suffix part.
       if (lhsUpperBit < oldLhsVar.getType().getSize() - 1) {
         final Node oldLhsPost =
-            FortressUtils.makeNodeExtract(oldLhsVar, lhsUpperBit, oldLhsVar.getType().getSize() - 1);
+            Nodes.BVEXTRACT(oldLhsVar.getType().getSize() - 1, lhsUpperBit, oldLhsVar);
         final Node newLhsPost =
-            FortressUtils.makeNodeExtract(newLhsVar, lhsUpperBit, newLhsVar.getType().getSize() - 1);
+            Nodes.BVEXTRACT(newLhsVar.getType().getSize() - 1, lhsUpperBit, newLhsVar);
 
         clauseBuilder.add(Nodes.EQ(newLhsPost, oldLhsPost));
         rhsTerms.add(oldLhsPost);
