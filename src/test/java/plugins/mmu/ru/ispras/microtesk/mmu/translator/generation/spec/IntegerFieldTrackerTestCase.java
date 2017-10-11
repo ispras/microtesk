@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
-import ru.ispras.microtesk.utils.FortressUtils;
+import ru.ispras.fortress.expression.Nodes;
 
 public class IntegerFieldTrackerTestCase {
   @Test
@@ -33,35 +33,35 @@ public class IntegerFieldTrackerTestCase {
 
     assertEquals(
         Collections.singletonList(
-            FortressUtils.makeNodeExtract(var, 0, 31)),
+            Nodes.BVEXTRACT(31, 0, var)),
         tracker.getFields());
 
     tracker.exclude(8, 15);
     assertEquals(
         Arrays.asList(
-            FortressUtils.makeNodeExtract(var, 0, 7),
-            FortressUtils.makeNodeExtract(var, 16, 31)),
+            Nodes.BVEXTRACT(7, 0, var),
+            Nodes.BVEXTRACT(31, 16, var)),
         tracker.getFields());
 
     tracker.exclude(12, 23);
     assertEquals(
         Arrays.asList(
-            FortressUtils.makeNodeExtract(var, 0, 7),
-            FortressUtils.makeNodeExtract(var, 24, 31)),
+            Nodes.BVEXTRACT(7, 0, var),
+            Nodes.BVEXTRACT(31, 24, var)),
         tracker.getFields());
 
     tracker.exclude(31, 31);
     assertEquals(
         Arrays.asList(
-            FortressUtils.makeNodeExtract(var, 0, 7),
-            FortressUtils.makeNodeExtract(var, 24, 30)),
+            Nodes.BVEXTRACT(7, 0, var),
+            Nodes.BVEXTRACT(30, 24, var)),
         tracker.getFields());
 
     tracker.exclude(0, 0);
     assertEquals(
         Arrays.asList(
-            FortressUtils.makeNodeExtract(var, 1, 7),
-            FortressUtils.makeNodeExtract(var, 24, 30)),
+            Nodes.BVEXTRACT(7, 1, var),
+            Nodes.BVEXTRACT(30, 24, var)),
         tracker.getFields());
 
     tracker.excludeAll();
@@ -78,7 +78,7 @@ public class IntegerFieldTrackerTestCase {
 
     assertEquals(
         Collections.singletonList(
-            FortressUtils.makeNodeExtract(var, 0, 4)),
+            Nodes.BVEXTRACT(4, 0, var)),
         tracker.getFields());
   }
 
@@ -92,7 +92,7 @@ public class IntegerFieldTrackerTestCase {
 
     assertEquals(
         Collections.singletonList(
-            FortressUtils.makeNodeExtract(var, 0, 4)),
+            Nodes.BVEXTRACT(4, 0, var)),
         tracker.getFields());
   }
 }
