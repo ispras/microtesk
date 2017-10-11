@@ -41,7 +41,7 @@ final class IntegerFieldTracker {
     InvariantChecks.checkNotNull(variable);
 
     this.variable = variable;
-    this.fields = Collections.singletonList(Nodes.BVEXTRACT(variable));
+    this.fields = Collections.<Node>singletonList(Nodes.BVEXTRACT(variable));
   }
 
   public void exclude(final int lo, final int hi) {
