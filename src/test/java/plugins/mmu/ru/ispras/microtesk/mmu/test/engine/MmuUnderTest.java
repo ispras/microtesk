@@ -38,7 +38,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.microtesk.utils.function.Predicate;
 
 /**
@@ -413,7 +412,7 @@ public final class MmuUnderTest {
   public final MmuAction getMpa = new MmuAction("GET_MPA",
       new MmuBinding(
           new NodeVariable(pa),
-          FortressUtils.makeNodeLittleEndianConcat(
+          Nodes.BVCONCAT(
               new NodeVariable(pfn),
               Nodes.BVEXTRACT(11, 0, va))));
   public final MmuAction checkSegment = new MmuAction("CHECK_SEGMENT");
