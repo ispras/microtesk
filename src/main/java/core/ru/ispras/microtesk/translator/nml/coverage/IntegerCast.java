@@ -30,6 +30,7 @@ import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.TransformerRule;
 
@@ -113,9 +114,7 @@ public final class IntegerCast {
 
   private static Node extendBitVector(Node origin, DataType typeOf, DataType type) {
     final int extsize = type.getSize() - typeOf.getSize();
-    return new NodeOperation(StandardOperation.BVZEROEXT,
-                             NodeValue.newInteger(extsize),
-                             origin);
+    return Nodes.BVZEROEXT(extsize, origin);
   }
 
   public static int getIntegerOperandIndex(Node node, int start) {
