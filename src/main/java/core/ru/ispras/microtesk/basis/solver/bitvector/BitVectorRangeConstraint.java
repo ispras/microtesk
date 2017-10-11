@@ -26,7 +26,6 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link BitVectorRangeConstraint} class represents a range constraint.
@@ -99,7 +98,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
 
       formulaBuilder.add(
           Nodes.EQ(
-              FortressUtils.makeNodeExtract(x, upperBit + 1, x.getType().getSize() - 1),
+              Nodes.BVEXTRACT(x.getType().getSize() - 1, upperBit + 1, x),
               NodeValue.newBitVector(BitVector.valueOf(value, sizeInBits))));
     }
 
@@ -122,7 +121,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
     // (e[0] | ... | e[n-1]) == (e != 0).
     formulaBuilder.add(
         Nodes.NOTEQ(
-            FortressUtils.makeNodeExtract(e, 0, e.getType().getSize() - 1),
+            Nodes.BVEXTRACT(e),
             NodeValue.newInteger(0)));
 
     // u[0] == (x[upper] = a[upper]).
@@ -132,12 +131,12 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
 
     clauseBuilder1.add(
         Nodes.NOTEQ(
-            FortressUtils.makeNodeExtract(x, lowerBit, upperBit),
+            Nodes.BVEXTRACT(upperBit, lowerBit, x),
             NodeValue.newBitVector(a.field(lowerBit, upperBit))));
 
     clauseBuilder1.add(
         Nodes.EQ(
-            FortressUtils.makeNodeExtract(e, 0, 0),
+            Nodes.BVEXTRACT(0, e),
             NodeValue.newInteger(1)));
 
     formulaBuilder.add(Nodes.OR(clauseBuilder1));
@@ -146,12 +145,12 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
 
     clauseBuilder2.add(
         Nodes.EQ(
-            FortressUtils.makeNodeExtract(x, lowerBit, upperBit),
+            Nodes.BVEXTRACT(upperBit, lowerBit, x),
             NodeValue.newBitVector(a.field(lowerBit, upperBit))));
 
     clauseBuilder2.add(
         Nodes.EQ(
-            FortressUtils.makeNodeExtract(e, 0, 0),
+            Nodes.BVEXTRACT(0, e),
             NodeValue.newInteger(0)));
 
     formulaBuilder.add(Nodes.OR(clauseBuilder2));
@@ -174,19 +173,19 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
 
         clauseBuilder3.add(
             Nodes.NOTEQ(
-                FortressUtils.makeNodeExtract(x, j, upperBit),
+                Nodes.BVEXTRACT(upperBit, j, x),
                 NodeValue.newBitVector(a.field(j, upperBit))));
 
         final List<Node> clauseBuilder4 = new ArrayList<>();
 
         clauseBuilder4.add(
             Nodes.EQ(
-                FortressUtils.makeNodeExtract(x, j, upperBit),
+                Nodes.BVEXTRACT(upperBit, j, x),
                 NodeValue.newBitVector(a.field(j, upperBit))));
 
         clauseBuilder4.add(
             Nodes.EQ(
-                FortressUtils.makeNodeExtract(e, k, k),
+                Nodes.BVEXTRACT(k, e),
                 NodeValue.newInteger(0)));
 
         formulaBuilder.add(Nodes.OR(clauseBuilder4));
@@ -194,12 +193,12 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
 
       clauseBuilder3.add(
           Nodes.EQ(
-              FortressUtils.makeNodeExtract(x, i, i),
+              Nodes.BVEXTRACT(i, x),
               NodeValue.newInteger(greaterThanOrEqualTo ? 0 : 1)));
 
       clauseBuilder3.add(
           Nodes.EQ(
-              FortressUtils.makeNodeExtract(e, k, k),
+              Nodes.BVEXTRACT(k, e),
               NodeValue.newInteger(1)));
 
       formulaBuilder.add(Nodes.OR(clauseBuilder3));
@@ -208,12 +207,12 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
 
       clauseBuilder5.add(
           Nodes.EQ(
-              FortressUtils.makeNodeExtract(x, i, i),
+              Nodes.BVEXTRACT(i, x),
               NodeValue.newInteger(greaterThanOrEqualTo ? 1 : 0)));
 
       clauseBuilder5.add(
           Nodes.EQ(
-              FortressUtils.makeNodeExtract(e, k, k),
+              Nodes.BVEXTRACT(k, e),
               NodeValue.newInteger(0)));
 
       formulaBuilder.add(Nodes.OR(clauseBuilder5));
