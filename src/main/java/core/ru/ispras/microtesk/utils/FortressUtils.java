@@ -64,14 +64,6 @@ public final class FortressUtils {
     }
   }
 
-  public static Node makeNodeExtract(final Variable variable, final int lower, final int upper) {
-    return new NodeOperation(
-        StandardOperation.BVEXTRACT,
-        NodeValue.newInteger(upper),
-        NodeValue.newInteger(lower),
-        new NodeVariable(variable));
-  }
-
   public static Node makeNodeBigEndianConcat(final List<Node> operands) {
     return new NodeOperation(StandardOperation.BVCONCAT, operands);
   }

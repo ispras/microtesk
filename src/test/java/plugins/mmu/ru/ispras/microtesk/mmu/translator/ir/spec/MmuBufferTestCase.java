@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -26,16 +26,16 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.mmu.basis.AddressView;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
-import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.microtesk.utils.function.Function;
 
 /**
  * Test for {@link MmuBuffer}.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class MmuBufferTestCase {
@@ -80,13 +80,13 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer JTLB = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, 64, 1, VA_ADDR,
-      FortressUtils.makeNodeExtract(VA, 13, 39), // Tag
+      Nodes.BVEXTRACT(39, 13, VA), // Tag
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Index
-      FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
+      Nodes.BVEXTRACT(12, 0, VA), // Offset
       Collections.singleton(
           new MmuBinding(
               new NodeVariable(VPN2),
-              FortressUtils.makeNodeExtract(VA, 13, 39))),
+              Nodes.BVEXTRACT(39, 13, VA))),
       false, null
       );
 
@@ -108,13 +108,13 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer DTLB = new MmuBuffer(
       "DTLB", MmuBuffer.Kind.UNMAPPED, 4, 1, VA_ADDR,
-      FortressUtils.makeNodeExtract(VA, 13, 39), // Tag
+      Nodes.BVEXTRACT(39, 13, VA), // Tag
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Index
-      FortressUtils.makeNodeExtract(VA, 0, 12), // Offset
+      Nodes.BVEXTRACT(12, 0, VA), // Offset
       Collections.singleton(
           new MmuBinding(
               new NodeVariable(VPN2),
-              FortressUtils.makeNodeExtract(VA, 13, 39))),
+              Nodes.BVEXTRACT(39, 13, VA))),
       true, JTLB
       );
 
@@ -160,13 +160,13 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer L1 = new MmuBuffer(
       "L1", MmuBuffer.Kind.UNMAPPED, 4, 128, PA_ADDR,
-      FortressUtils.makeNodeExtract(PA, 12, 35), // Tag
-      FortressUtils.makeNodeExtract(PA, 5, 11), // Index
-      FortressUtils.makeNodeExtract(PA, 0, 4), // Offset
+      Nodes.BVEXTRACT(35, 12, PA), // Tag
+      Nodes.BVEXTRACT(11, 5, PA), // Index
+      Nodes.BVEXTRACT(4, 0, PA), // Offset
       Collections.singleton(
           new MmuBinding(
               new NodeVariable(L1_TAG),
-              FortressUtils.makeNodeExtract(PA, 12, 35))),
+              Nodes.BVEXTRACT(35, 12, PA))),
       true, null
       );
 
@@ -200,13 +200,13 @@ public class MmuBufferTestCase {
   // -----------------------------------------------------------------------------------------------
   public static final MmuBuffer L2 = new MmuBuffer(
       "L2", MmuBuffer.Kind.UNMAPPED, 4, 4096, PA_ADDR,
-      FortressUtils.makeNodeExtract(PA, 17, 35), // Tag
-      FortressUtils.makeNodeExtract(PA, 5, 16), // Index
-      FortressUtils.makeNodeExtract(PA, 0, 4), // Offset
+      Nodes.BVEXTRACT(35, 17, PA), // Tag
+      Nodes.BVEXTRACT(16, 5, PA), // Index
+      Nodes.BVEXTRACT(4, 0, PA), // Offset
       Collections.singleton(
           new MmuBinding(
               new NodeVariable(L2_TAG),
-              FortressUtils.makeNodeExtract(PA, 17, 35))),
+              Nodes.BVEXTRACT(35, 17, PA))),
       true, null
       );
 
@@ -240,8 +240,8 @@ public class MmuBufferTestCase {
   public static final MmuBuffer MEM = new MmuBuffer(
       "MMU", MmuBuffer.Kind.UNMAPPED, 1, (1L << 36) / 32, PA_ADDR,
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Tag
-      FortressUtils.makeNodeExtract(PA, 5, 35), // Index
-      FortressUtils.makeNodeExtract(PA, 0, 4), // Offset
+      Nodes.BVEXTRACT(35, 5, PA), // Index
+      Nodes.BVEXTRACT(4, 0, PA), // Offset
       Collections.<MmuBinding>emptySet(),
       false, null
       );
