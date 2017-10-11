@@ -75,7 +75,7 @@ public final class MmuAddressViewBuilder {
       expectedIndex += FortressUtils.getBitSize(field);
     }
 
-    return FortressUtils.makeNodeLittleEndianConcat(operands);
+    return Nodes.reverseBVCONCAT(operands);
   }
 
   /**

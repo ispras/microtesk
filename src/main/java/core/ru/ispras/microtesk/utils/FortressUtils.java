@@ -14,12 +14,7 @@
 
 package ru.ispras.microtesk.utils;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
@@ -28,7 +23,6 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.Reducer;
 import ru.ispras.fortress.transformer.ValueProvider;
@@ -59,17 +53,10 @@ public final class FortressUtils {
   }
 
   private static void checkConstantValue(final Node expr) {
-    checkNotNull(expr);
+    InvariantChecks.checkNotNull(expr);
     if (expr.getKind() != Node.Kind.VALUE) {
       throw new IllegalStateException(String.format("%s is not a constant value.", expr));
     }
-  }
-
-  // [LOW, ... , HIGH]
-  public static Node makeNodeLittleEndianConcat(final List<Node> operands) {
-    final List<Node> reversedOperands = new ArrayList<>(operands);
-    Collections.reverse(reversedOperands);
-    return Nodes.BVCONCAT(reversedOperands);
   }
 
   public static Variable getVariable(final Node node) {
