@@ -392,32 +392,29 @@ final class SsaBuilder {
     final int bitsize = olderSize;
 
     final NodeOperation shLeftAmount =
-        new NodeOperation(StandardOperation.BVSUB,
+        Nodes.BVSUB(
             NodeValue.newBitVector(BitVector.valueOf(bitsize, bitsize)),
             lvalue.minorBit);
 
     addToContext(EQ(
-        new NodeOperation(StandardOperation.BVLSHL, older, shLeftAmount),
-        new NodeOperation(StandardOperation.BVLSHL, newer, shLeftAmount)));
+        Nodes.BVLSHL(older, shLeftAmount),
+        Nodes.BVLSHL(newer, shLeftAmount)));
 
     final NodeOperation shRightAmount =
-        new NodeOperation(StandardOperation.BVADD,
-                          lvalue.majorBit,
-                          NodeValue.newBitVector(BitVector.valueOf(1, bitsize)));
+        Nodes.BVADD(
+            lvalue.majorBit,
+            NodeValue.newBitVector(BitVector.valueOf(1, bitsize)));
 
     addToContext(EQ(
-        new NodeOperation(StandardOperation.BVLSHR, older, shRightAmount),
-        new NodeOperation(StandardOperation.BVLSHR, newer, shRightAmount)));
+        Nodes.BVLSHR(older, shRightAmount),
+        Nodes.BVLSHR(newer, shRightAmount)));
 
     final DataType subtype = lvalue.targetType;
     final NodeVariable subvector = createTemporary(subtype);
 
-    addToContext(
-        EQ(
-            BVEXTRACT(subtype.getSize(), 0, Nodes.BVLSHR(newer, lvalue.minorBit)),
-            subvector
-        )
-    );
+    addToContext(EQ(
+        BVEXTRACT(subtype.getSize(), 0, Nodes.BVLSHR(newer, lvalue.minorBit)),
+        subvector));
 
     return subvector;
   }
