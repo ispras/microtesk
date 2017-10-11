@@ -480,12 +480,12 @@ public final class MmuUnderTest {
   public final MmuTransition ifVpn0 = new MmuTransition(selectVpn, getLo0,
       new MmuGuard(
           Nodes.EQ(
-              FortressUtils.makeNodeExtract(va, 12),
+              Nodes.BVEXTRACT(12, va),
               NodeValue.newBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifVpn1 = new MmuTransition(selectVpn, getLo1,
       new MmuGuard(
           Nodes.EQ(
-              FortressUtils.makeNodeExtract(va, 12),
+              Nodes.BVEXTRACT(12, va),
               NodeValue.newInteger(1))));
   public final MmuTransition afterLo0 = new MmuTransition(getLo0, checkG);
   public final MmuTransition afterLo1 = new MmuTransition(getLo1, checkG);

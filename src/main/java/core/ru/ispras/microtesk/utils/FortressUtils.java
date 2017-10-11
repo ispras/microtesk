@@ -72,10 +72,6 @@ public final class FortressUtils {
         new NodeVariable(variable));
   }
 
-  public static Node makeNodeExtract(final Variable variable, final int bit) {
-    return makeNodeExtract(variable, bit, bit);
-  }
-
   public static Node makeNodeBigEndianConcat(final List<Node> operands) {
     return new NodeOperation(StandardOperation.BVCONCAT, operands);
   }
