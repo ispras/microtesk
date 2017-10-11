@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -28,6 +28,7 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -37,7 +38,7 @@ import ru.ispras.microtesk.utils.function.Function;
 
 /**
  * {@link MmuAddressViewBuilder} implements an address view builder.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuAddressViewBuilder {
@@ -79,7 +80,7 @@ public final class MmuAddressViewBuilder {
 
   /**
    * Reverses the assignment {@code variable = expression} and fills the {@code fields} map.
-   * 
+   *
    * @param fields the map to be filled.
    * @param expression the right-hand-side expression.
    * @param variable the left-hand-side variable.
@@ -109,8 +110,8 @@ public final class MmuAddressViewBuilder {
 
     int offset = 0;
     for (final Node addressField : addressFields) {
-      final Node field = FortressUtils.makeNodeExtract(
-          variable, offset, (offset + FortressUtils.getBitSize(addressField)) - 1);
+      final Node field = Nodes.BVEXTRACT(
+          (offset + FortressUtils.getBitSize(addressField)) - 1, offset, variable);
 
       fields.put(FortressUtils.getLowerBit(addressField), field);
       offset += FortressUtils.getBitSize(addressField);
