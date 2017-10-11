@@ -20,6 +20,7 @@ import java.util.List;
 
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
 
@@ -28,7 +29,6 @@ import ru.ispras.microtesk.utils.FortressUtils;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 final class IntegerFieldTracker {
   private final Variable variable;
   private List<Node> fields;
@@ -41,7 +41,7 @@ final class IntegerFieldTracker {
     InvariantChecks.checkNotNull(variable);
 
     this.variable = variable;
-    this.fields = Collections.singletonList(FortressUtils.makeNodeExtract(variable));
+    this.fields = Collections.singletonList(Nodes.BVEXTRACT(variable));
   }
 
   public void exclude(final int lo, final int hi) {

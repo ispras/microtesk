@@ -72,10 +72,6 @@ public final class FortressUtils {
         new NodeVariable(variable));
   }
 
-  public static Node makeNodeExtract(final Variable variable) {
-    return makeNodeExtract(variable, 0, variable.getType().getSize() - 1);
-  }
-
   public static Node makeNodeExtract(final Variable variable, final int bit) {
     return makeNodeExtract(variable, bit, bit);
   }
