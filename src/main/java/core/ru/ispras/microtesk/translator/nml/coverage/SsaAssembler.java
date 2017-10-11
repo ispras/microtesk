@@ -249,7 +249,7 @@ public final class SsaAssembler {
         final Node fallback = getJointFallback(entry.getKey(), repo, diff);
         if (!fallback.equals(entry.getValue()) ||
             fallback.getUserData() != entry.getValue().getUserData()) {
-          final Node ite = ITE(guard, entry.getValue(), fallback);
+          final Node ite = Nodes.ITE(guard, entry.getValue(), fallback);
           repo.getSummary().put(entry.getKey(), ite);
         }
       }
@@ -265,10 +265,6 @@ public final class SsaAssembler {
       return base;
     }
     return branch.getLatest(name);
-  }
-
-  private static NodeOperation ITE(Node cond, Node lhs, Node rhs) {
-    return new NodeOperation(StandardOperation.ITE, cond, lhs, rhs);
   }
 
   private static <T> T sameNotNull(T stored, T input) {
@@ -517,8 +513,7 @@ public final class SsaAssembler {
         final Node amount = operands.get(1);
         final Node origin = operands.get(0);
 
-        if (amount.getKind() == Node.Kind.VALUE &&
-            amount.isType(DataType.INTEGER)) {
+        if (ExprUtils.isValue(amount) && amount.isType(DataType.INTEGER)) {
           // reverse argument order
           return new NodeOperation(rotate.getOperationId(), amount, origin);
         }
@@ -533,23 +528,18 @@ public final class SsaAssembler {
         final Node n = castBitVector(amount, origin);
         final Node size = NodeValue.newBitVector(BitVector.valueOf(bitsize, bitsize));
 
-        final Node sizeMinusN = new NodeOperation(StandardOperation.BVSUB, size, n);
+        final Node sizeMinusN = Nodes.BVSUB(size, n);
+        final Node pow2n = Nodes.BVLSHL(one, n);
+        final Node mask = Nodes.BVSUB(pow2n, one);
+        final Node shrX = Nodes.BVLSHR(origin, n);
+        final Node maskX = Nodes.BVAND(origin, mask);
+        final Node shlMasked = Nodes.BVLSHL(maskX, sizeMinusN);
 
-        final Node pow2n =
-            new NodeOperation(StandardOperation.BVLSHL, one, n);
-
-        final Node mask = new NodeOperation(StandardOperation.BVSUB, pow2n, one);
-
-        final Node shrX = new NodeOperation(StandardOperation.BVLSHR, origin, n);
-        final Node maskX = new NodeOperation(StandardOperation.BVAND, origin, mask);
-
-        final Node shlMasked = new NodeOperation(StandardOperation.BVLSHL, maskX, sizeMinusN);
-
-        return new NodeOperation(StandardOperation.BVOR, shrX, shlMasked);
+        return Nodes.BVOR(shrX, shlMasked);
       }
     };
-    rules.put(StandardOperation.BVROR, rotate);
 
+    rules.put(StandardOperation.BVROR, rotate);
     return rules;
   }
 
@@ -558,16 +548,13 @@ public final class SsaAssembler {
     final int dstSize = dst.getDataType().getSize();
 
     if (srcSize < dstSize) {
-      return new NodeOperation(StandardOperation.BVZEROEXT,
-                               NodeValue.newInteger(dstSize - srcSize),
-                               src);
+      return Nodes.BVZEROEXT(dstSize - srcSize, src);
     }
+
     if (srcSize > dstSize) {
-      return new NodeOperation(StandardOperation.BVEXTRACT,
-                               NodeValue.newInteger(0),
-                               NodeValue.newInteger(dstSize - 1),
-                               src);
+      return Nodes.BVEXTRACT(dstSize - 1, 0, src);
     }
+
     return src;
   }
 
