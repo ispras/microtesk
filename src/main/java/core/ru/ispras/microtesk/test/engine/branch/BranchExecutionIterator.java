@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2009-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -27,6 +27,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 public final class BranchExecutionIterator implements Iterator<List<BranchEntry>> {
   private final int maxBranchExecutions;
+  private final int maxBlockExecutions;
   private final int maxExecutionTraces;
 
   private final Iterator<List<BranchEntry>> branchStructureIterator;
@@ -37,13 +38,17 @@ public final class BranchExecutionIterator implements Iterator<List<BranchEntry>
   public BranchExecutionIterator(
       final Iterator<List<BranchEntry>> branchStructureIterator,
       final int maxBranchExecutions,
+      final int maxBlockExecutions,
       final int maxExecutionTraces) {
     InvariantChecks.checkNotNull(branchStructureIterator);
-    InvariantChecks.checkTrue(maxBranchExecutions >= 0);
-    InvariantChecks.checkTrue(maxExecutionTraces >= 0 || maxExecutionTraces == -1);
+    InvariantChecks.checkTrue(maxBranchExecutions >= 0  || maxBranchExecutions == -1);
+    InvariantChecks.checkTrue(maxBlockExecutions >= 0   || maxBlockExecutions == -1);
+    InvariantChecks.checkTrue(maxExecutionTraces >= 0   || maxExecutionTraces == -1);
+    InvariantChecks.checkTrue(maxBranchExecutions != -1 || maxBlockExecutions != -1);
 
     this.branchStructureIterator = branchStructureIterator;
     this.maxBranchExecutions = maxBranchExecutions;
+    this.maxBlockExecutions = maxBlockExecutions;
     this.maxExecutionTraces = maxExecutionTraces;
 
     hasValue = false;
@@ -65,7 +70,10 @@ public final class BranchExecutionIterator implements Iterator<List<BranchEntry>
 
   private boolean initBranchTraceIterator() {
     branchTraceIterator = new BranchTraceIterator(
-        branchStructureIterator.value(), maxBranchExecutions, maxExecutionTraces);
+        branchStructureIterator.value(),
+        maxBranchExecutions,
+        maxBlockExecutions,
+        maxExecutionTraces);
 
     branchTraceIterator.init();
 
