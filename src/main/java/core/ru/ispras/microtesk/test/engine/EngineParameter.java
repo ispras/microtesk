@@ -63,6 +63,14 @@ public class EngineParameter<T> {
     this.defaultOption = null;
   }
 
+  public EngineParameter(final String name, final T defaultOption) {
+    InvariantChecks.checkNotNull(name);
+
+    this.name = name;
+    this.options = null;
+    this.defaultOption = defaultOption;
+  }
+
   @SafeVarargs
   public EngineParameter(final String name, final Option<T> ...options) {
     InvariantChecks.checkNotNull(name);

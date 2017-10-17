@@ -28,15 +28,19 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 public final class BranchExecutionIteratorTestCase {
   public BranchExecutionIteratorTestCase() {}
 
-  private void runTest(final List<BranchEntry> branchStructure, final int maxBranchExecution) {
+  private void runTest(
+      final List<BranchEntry> branchStructure,
+      final int maxBranchExecution,
+      final int maxBlockExecution) {
     System.out.format("Branch structure: %s%n", branchStructure);
-    System.out.format("Max trace length: %d%n", maxBranchExecution);
+    System.out.format("Max branch execution: %d%n", maxBranchExecution);
+    System.out.format("Max block execution: %d%n", maxBlockExecution);
 
     final Iterator<List<BranchEntry>> i =
         new SingleValueIterator<>(branchStructure);
 
     final BranchExecutionIterator j =
-        new BranchExecutionIterator(i, maxBranchExecution, -1);
+        new BranchExecutionIterator(i, maxBranchExecution, maxBlockExecution, -1);
 
     for (j.init(); j.hasValue(); j.next()) {
       final List<BranchEntry> v = j.value();
@@ -87,6 +91,6 @@ public final class BranchExecutionIteratorTestCase {
     final BranchEntry branchEntry8 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, 0, -1);
     branchStructure.add(branchEntry8);
 
-    runTest(branchStructure, 2);
+    runTest(branchStructure, 2, 2);
   }
 }

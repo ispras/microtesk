@@ -32,6 +32,7 @@ import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.engine.AbstractSequence;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
+import ru.ispras.microtesk.test.engine.EngineParameterInteger;
 import ru.ispras.microtesk.test.engine.SequenceSelector;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.BlockId;
@@ -44,7 +45,7 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
  * {@link BranchEngine} implements a test engine that constructs test cases by enumerating
- * feasible execution traces of bounded length.
+ * feasible execution traces of the bounded length.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -53,16 +54,21 @@ public final class BranchEngine implements Engine {
   public static final boolean USE_DELAY_SLOTS = true;
 
   /** Maximum number of executions of a single branch instruction. */
-  public static final String PARAM_BRANCH_LIMIT = "branch_exec_limit";
-  public static final int PARAM_BRANCH_LIMIT_DEFAULT = 1;
+  static final EngineParameterInteger PARAM_BRANCH_LIMIT =
+      new EngineParameterInteger("branch_exec_limit", 1);
+
+  /** Maximum number of executions of a single basic block. */
+  static final EngineParameterInteger PARAM_BLOCK_LIMIT =
+      new EngineParameterInteger("block_exec_limit", 1);
 
   /** Maximum number of execution traces to be enumerated. */
-  public static final String PARAM_TRACE_LIMIT = "trace_count_limit";
-  public static final int PARAM_TRACE_LIMIT_DEFAULT = -1;
+  static final EngineParameterInteger PARAM_TRACE_LIMIT =
+      new EngineParameterInteger("trace_count_limit", -1);
 
   public static final String IF_THEN_SITUATION_SUFFIX = "if-then";
   public static final String GOTO_SITUATION_SUFFIX = "goto";
 
+  /** Attribute {@code executed} is used to mark executed and non-taken code. */
   public static final String ATTR_EXECUTED = "executed";
 
   static boolean isIfThen(final AbstractCall abstractCall) {
@@ -123,9 +129,11 @@ public final class BranchEngine implements Engine {
   }
 
   /** Branch execution limit: default value is 1. */
-  private int maxBranchExecutions = PARAM_BRANCH_LIMIT_DEFAULT;
+  private int maxBranchExecutions = PARAM_BRANCH_LIMIT.getDefaultValue();
+  /** Block execution limit: default value is 1. */
+  private int maxBlockExecutions = PARAM_BLOCK_LIMIT.getDefaultValue();
   /** Trace count limit: default value is -1 (no limitations). */
-  private int maxExecutionTraces = PARAM_TRACE_LIMIT_DEFAULT;
+  private int maxExecutionTraces = PARAM_TRACE_LIMIT.getDefaultValue();
 
   private final SequenceSelector sequenceSelector = new SequenceSelector(ID, false);
 
@@ -143,13 +151,9 @@ public final class BranchEngine implements Engine {
   public void configure(final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(attributes);
 
-    final Object branchExecLimit = attributes.get(PARAM_BRANCH_LIMIT);
-    maxBranchExecutions = branchExecLimit != null ?
-        Integer.parseInt(branchExecLimit.toString()) : PARAM_BRANCH_LIMIT_DEFAULT;
-
-    final Object traceCountLimit = attributes.get(PARAM_TRACE_LIMIT);
-    maxExecutionTraces = traceCountLimit != null ?
-        Integer.parseInt(traceCountLimit.toString()) : PARAM_TRACE_LIMIT_DEFAULT;
+    maxBranchExecutions = PARAM_BRANCH_LIMIT.parse(attributes.get(PARAM_BRANCH_LIMIT.getName()));
+    maxBlockExecutions = PARAM_BLOCK_LIMIT.parse(attributes.get(PARAM_BLOCK_LIMIT.getName()));
+    maxExecutionTraces = PARAM_TRACE_LIMIT.parse(attributes.get(PARAM_TRACE_LIMIT.getName()));
   }
 
   @Override
@@ -269,6 +273,7 @@ public final class BranchEngine implements Engine {
           new BranchExecutionIterator(
               branchStructureIterator,
               maxBranchExecutions,
+              maxBlockExecutions,
               maxExecutionTraces
           );
 
@@ -393,8 +398,7 @@ public final class BranchEngine implements Engine {
           step.addAll(controlCode);
         }
 
-        // Block coverage is allowed to be empty (in this case, no additional code is required).
-        // Do nothing.
+        // Do nothing: block coverage is allowed to be empty (no additional code is required).
 
         branchEntry.setControlCodeInBasicBlock(true);
       }
@@ -546,7 +550,7 @@ public final class BranchEngine implements Engine {
       if (null != branchEntry && branchEntry.isIfThen()) {
         abstractSequence.addPrologue(i,
             AbstractCall.newComment(
-                String.format("Execution trace: $s", branchEntry.getBranchTrace())));
+                String.format("Execution trace: %s", branchEntry.getBranchTrace())));
       }
     }
 
