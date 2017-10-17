@@ -200,6 +200,10 @@ class Template
     set_attributes(:executed => false, &contents)
   end
 
+  def branches(&contents)
+    set_attributes(:branches => true, &contents)
+  end
+
   def set_attributes(attributes, &contents)
     mapBuilder = set_builder_attributes @template.newMapBuilder, attributes
     @template.beginAttibutes mapBuilder
