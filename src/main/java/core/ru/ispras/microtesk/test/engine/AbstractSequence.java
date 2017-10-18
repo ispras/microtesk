@@ -119,6 +119,10 @@ public final class AbstractSequence {
     return positions;
   }
 
+  public List<Boolean> getFlags() {
+    return flags;
+  }
+
   public Map<Integer, List<AbstractCall>> getPrologues() {
     return prologues;
   }

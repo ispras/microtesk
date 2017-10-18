@@ -53,6 +53,10 @@ public final class BranchEngine implements Engine {
   public static final String ID = "branch";
   public static final boolean USE_DELAY_SLOTS = true;
 
+  /** Percentage of branch instructions in the stream. */
+  static final EngineParameterInteger PARAM_BRANCH_PERCENTAGE =
+      new EngineParameterInteger("branch_percentage", 10);
+
   /** Maximum number of executions of a single branch instruction. */
   static final EngineParameterInteger PARAM_BRANCH_LIMIT =
       new EngineParameterInteger("branch_exec_limit", 1);
@@ -70,6 +74,8 @@ public final class BranchEngine implements Engine {
 
   /** Attribute {@code executed} is used to mark executed and non-taken code. */
   public static final String ATTR_EXECUTED = "executed";
+  /** Attribute {@code branches} is used to mark branch instructions to be used. */
+  public static final String ATTR_BRANCHES = "branches";
 
   static boolean isIfThen(final AbstractCall abstractCall) {
     // Self check.
@@ -128,12 +134,14 @@ public final class BranchEngine implements Engine {
     return testDataStream.toString();
   }
 
+  /** Branch percentage: default value is 10%. */
+  private int branchPercentage = PARAM_BRANCH_PERCENTAGE.getDefaultValue();
   /** Branch execution limit: default value is 1. */
-  private int maxBranchExecutions = PARAM_BRANCH_LIMIT.getDefaultValue();
+  private int branchExecutionLimit = PARAM_BRANCH_LIMIT.getDefaultValue();
   /** Block execution limit: default value is 1. */
-  private int maxBlockExecutions = PARAM_BLOCK_LIMIT.getDefaultValue();
+  private int blockExecutionLimit = PARAM_BLOCK_LIMIT.getDefaultValue();
   /** Trace count limit: default value is -1 (no limitations). */
-  private int maxExecutionTraces = PARAM_TRACE_LIMIT.getDefaultValue();
+  private int traceCountLimit = PARAM_TRACE_LIMIT.getDefaultValue();
 
   private final SequenceSelector sequenceSelector = new SequenceSelector(ID, false);
 
@@ -151,9 +159,22 @@ public final class BranchEngine implements Engine {
   public void configure(final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(attributes);
 
-    maxBranchExecutions = PARAM_BRANCH_LIMIT.parse(attributes.get(PARAM_BRANCH_LIMIT.getName()));
-    maxBlockExecutions = PARAM_BLOCK_LIMIT.parse(attributes.get(PARAM_BLOCK_LIMIT.getName()));
-    maxExecutionTraces = PARAM_TRACE_LIMIT.parse(attributes.get(PARAM_TRACE_LIMIT.getName()));
+    branchPercentage = PARAM_BRANCH_PERCENTAGE.parse(
+        attributes.get(PARAM_BRANCH_PERCENTAGE.getName()));
+    InvariantChecks.checkTrue(0 <= branchPercentage && branchPercentage < 100);
+
+    branchExecutionLimit = PARAM_BRANCH_LIMIT.parse(
+        attributes.get(PARAM_BRANCH_LIMIT.getName()));
+    InvariantChecks.checkTrue(branchExecutionLimit >= 0 || branchExecutionLimit == -1);
+
+    blockExecutionLimit = PARAM_BLOCK_LIMIT.parse(
+        attributes.get(PARAM_BLOCK_LIMIT.getName()));
+    InvariantChecks.checkTrue(blockExecutionLimit >= 0   || blockExecutionLimit == -1);
+    InvariantChecks.checkTrue(branchExecutionLimit != -1 || blockExecutionLimit != -1);
+
+    traceCountLimit = PARAM_TRACE_LIMIT.parse(
+        attributes.get(PARAM_TRACE_LIMIT.getName()));
+    InvariantChecks.checkTrue(traceCountLimit >= 0 || traceCountLimit == -1);
   }
 
   @Override
@@ -163,22 +184,21 @@ public final class BranchEngine implements Engine {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
-    final AbstractSequence processedSequence = new AbstractSequence(abstractSequence);
-    final List<AbstractCall> sequence = processedSequence.getSequence();
-
-    // Collect information about labels and executed/non-executed calls.
-    final LabelManager labelManager = new LabelManager();
+    final List<AbstractCall> oldSequence = abstractSequence.getSequence();
+    final List<AbstractCall> newSequence = new ArrayList<>();
 
     final List<AbstractCall> executedCode = new ArrayList<>();
     final List<AbstractCall> nontakenCode = new ArrayList<>();
+    final List<AbstractCall> branchesCode = new ArrayList<>();
 
-    int branchStructureSize = 0;
-    for (int i = 0; i < sequence.size(); i++) {
-      final AbstractCall abstractCall = sequence.get(i);
+    // Take special-purpose code from the sequence.
+    for (int i = 0; i < oldSequence.size(); i++) {
+      final AbstractCall abstractCall = oldSequence.get(i);
       final Map<String, Object> attributes = abstractCall.getAttributes();
 
       // Do not add executed/non-executed calls to the branch structure.
       final Boolean isExecuted = (Boolean) attributes.get(ATTR_EXECUTED);
+      final Boolean isBranches = (Boolean) attributes.get(ATTR_BRANCHES);
 
       if (isExecuted != null) {
         if (isExecuted) {
@@ -186,17 +206,43 @@ public final class BranchEngine implements Engine {
         } else {
           nontakenCode.add(abstractCall);
         }
-
-        // Replace this call with the empty one.
-        sequence.set(i, AbstractCall.newEmpty());
         continue;
       }
 
-      for (final Label label : abstractCall.getLabels()) {
-        labelManager.addLabel(label, branchStructureSize);
+      if (isBranches != null) {
+        // The attribute value is not of importance.
+        branchesCode.add(abstractCall);
+        continue;
       }
 
-      branchStructureSize++;
+      newSequence.add(abstractCall);
+    }
+
+    // Add the required number of branches to the sequence.
+    if (!branchesCode.isEmpty()) {
+      final int sequenceSize = newSequence.size() + executedCode.size() + nontakenCode.size();
+      final int branchNumber = (branchPercentage * sequenceSize) / (100 - branchPercentage);
+
+      for (int i = 0; i < branchNumber; i++) {
+        final AbstractCall branchCall = Randomizer.get().choose(branchesCode);
+        final int branchIndex = Randomizer.get().nextIntRange(0, newSequence.size() - 1);
+
+        // Add a randomly chosen branch.
+        newSequence.add(branchIndex, branchCall);
+        // Add an empty basic block before the branch (this is a place for control code).
+        newSequence.add(branchIndex, AbstractCall.newEmpty());
+      }
+    }
+
+    // Collect information about labels.
+    final LabelManager labelManager = new LabelManager();
+
+    for (int i = 0; i < newSequence.size(); i++) {
+      final AbstractCall abstractCall = newSequence.get(i);
+
+      for (final Label label : abstractCall.getLabels()) {
+        labelManager.addLabel(label, i);
+      }
     }
 
     // Transform the abstract sequence into the branch structure.
@@ -204,7 +250,8 @@ public final class BranchEngine implements Engine {
 
     int autoLabel = 0;
     int delaySlot = 0;
-    for (final AbstractCall abstractCall : sequence) {
+
+    for (final AbstractCall abstractCall : newSequence) {
       final boolean isIfThen = isIfThen(abstractCall);
       final boolean isGoto = isGoto(abstractCall);
 
@@ -242,8 +289,8 @@ public final class BranchEngine implements Engine {
           final Label targetLabel = new Label(name, blockId);
 
           // Put the label in a random position.
-          final int targetIndex = Randomizer.get().nextIntRange(0, branchStructureSize - 1);
-          final AbstractCall targetCall = sequence.get(targetIndex);
+          final int targetIndex = Randomizer.get().nextIntRange(0, newSequence.size() - 1);
+          final AbstractCall targetCall = newSequence.get(targetIndex);
           targetCall.getLabels().add(targetLabel);
 
           // Patch the label in the call.
@@ -272,9 +319,9 @@ public final class BranchEngine implements Engine {
       private final BranchExecutionIterator branchStructureExecutionIterator =
           new BranchExecutionIterator(
               branchStructureIterator,
-              maxBranchExecutions,
-              maxBlockExecutions,
-              maxExecutionTraces
+              branchExecutionLimit,
+              blockExecutionLimit,
+              traceCountLimit
           );
 
       @Override
@@ -295,17 +342,11 @@ public final class BranchEngine implements Engine {
         final List<Integer> executionTrace = branchStructureExecutionIterator.trace();
         Logger.debug("Execution trace: %s", executionTrace);
 
-        int index = 0;
-        for (final AbstractCall abstractCall : sequence) {
-          final Map<String, Object> attributes = abstractCall.getAttributes();
-          if (attributes.containsKey(ATTR_EXECUTED)) {
-            continue;
-          }
+        for (int i = 0; i < newSequence.size(); i++) {
+          final AbstractCall abstractCall = newSequence.get(i);
+          final BranchEntry branchEntry = branchStructure.get(i);
 
-          final BranchEntry branchEntry = branchStructure.get(index);
           setBranchEntry(abstractCall, branchEntry);
-
-          index++;
         }
 
         return insertComments(
@@ -317,7 +358,9 @@ public final class BranchEngine implements Engine {
                 executionTrace,
                 insertControlCode(
                     engineContext,
-                    new AbstractSequence(processedSequence)
+                    new AbstractSequence(
+                        abstractSequence.getSection(),
+                        new ArrayList<>(newSequence))
                 )
             )
         );
