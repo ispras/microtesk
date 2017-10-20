@@ -15,10 +15,6 @@
 import java.text.SimpleDateFormat
 import java.util.regex.Matcher
 
-def repoUrlStr = 'http://forge.ispras.ru:8082/nexus/content/repositories/'
-def repoUserStr = hasProperty('repoUser') ? repoUser : "$System.env._REPO_USER"
-def repoPasswordStr = hasProperty('repoPassword') ? repoPassword : "$System.env._REPO_PASSWORD"
-
 buildscript {
   repositories {
     ivy {
@@ -52,6 +48,10 @@ apply plugin: 'jacoco'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'eclipse'
+
+def repoUrlStr = 'http://forge.ispras.ru:8082/nexus/content/repositories/'
+def repoUserStr = hasProperty('repoUser') ? repoUser : "$System.env._REPO_USER"
+def repoPasswordStr = hasProperty('repoPassword') ? repoPassword : "$System.env._REPO_PASSWORD"
 
 repositories {
   maven {
