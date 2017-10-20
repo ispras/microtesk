@@ -86,7 +86,7 @@ public final class AbstractSequence {
     this(section, sequence, null, null);
   }
 
-  private AbstractSequence(
+  public AbstractSequence(
       final Section section,
       final List<AbstractCall> sequence,
       final Map<Integer, Integer> positions,

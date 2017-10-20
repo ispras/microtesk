@@ -360,7 +360,9 @@ public final class BranchEngine implements Engine {
                     engineContext,
                     new AbstractSequence(
                         abstractSequence.getSection(),
-                        new ArrayList<>(newSequence))
+                        new ArrayList<>(newSequence),
+                        abstractSequence.getPositions(),
+                        abstractSequence.getFlags())
                 )
             )
         );
