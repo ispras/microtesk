@@ -158,12 +158,22 @@ public final class Executor {
     }
 
     public boolean canFetch() {
-      return null != fetch() && !isNextAfterNull;
+      return (null != getCall() || null != invalidCall) && !isNextAfterNull;
     }
 
     public ConcreteCall fetch() {
       final ConcreteCall call = getCall();
-      return null != call ? call : invalidCall;
+
+      if (null != call) {
+        return call;
+      }
+
+      Logger.debug("Unable to fetch a call. No executable code at 0x%016x.", getAddress());
+      if (null != invalidCall) {
+        Logger.debug("The 'invalid_instruction' handler will be executed.");
+      }
+
+      return invalidCall;
     }
 
     private ConcreteCall getCall() {
@@ -319,11 +329,11 @@ public final class Executor {
   /**
    * Executes code starting from the specified address until: (1) a break point is reached or
    * (2) an attempt to jump to an undefined label is made.
-   * 
+   *
    * @param code Code to be executed.
    * @param startAddress Start address.
    * @return Execution status (address or label).
-   * 
+   *
    * @throws ConfigurationException if an error related to interaction with the model occurs.
    * @throws GenerationAbortedException (1) if an endless loop is detected; (2) if execution
    *         jumped to an address that holds no executable instructions and no handling is provided
@@ -423,6 +433,11 @@ public final class Executor {
 
         fetcher.jump(labelAddress);
       } else {
+        if (address == fetcher.getAddress()) {
+          throw new GenerationAbortedException(String.format(
+              "Program counter was not updated: 0x%016x.", address));
+        }
+
         // If no label references are found within the delay slot we try to use PC to jump
         logJump(address, null);
         fetcher.jump(address);
