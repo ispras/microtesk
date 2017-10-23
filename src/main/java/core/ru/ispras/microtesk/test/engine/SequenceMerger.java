@@ -109,11 +109,13 @@ final class SequenceMerger implements Iterator<AbstractSequence> {
     final List<AbstractCall> epilogue = new ArrayList<>();
 
     for (final AbstractSequence sequence : sequences) {
-      final Map<Integer, Integer> positions = sequence.getPositions();
+      final Map<Integer, List<Integer>> positions = sequence.getPositions();
       InvariantChecks.checkNotNull(positions);
 
-      final Integer index = positions.get(position);
-      if (null != index) {
+      final List<Integer> indexes = positions.get(position);
+      if (null != indexes) {
+        final int index = indexes.get(0);
+
         final List<AbstractCall> sequencePrologue = null != sequence.getPrologues() ?
             sequence.getPrologues().get(index) : null;
 
