@@ -1,11 +1,11 @@
 /*
  * Copyright 2012-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -25,11 +25,11 @@ import ru.ispras.microtesk.utils.SparseArray;
 /**
  * This is an abstract representation of a partially associative cache memory. A cache unit is
  * characterized by the following parameters (except the data and address types):
- * <ol><li><code>length</code> - the number of sets in the cache,
- * <li><code>associativity</code> - the number of lines in each set,
- * <li><code>policyId</code> - the data replacement policy,
- * <li><code>indexer</code> - the set indexer, and
- * <li><code>matcher</code> - the line matcher.</ol>
+ * <ol><li>{@code length} - the number of sets in the cache,
+ * <li>{@code associativity} - the number of lines in each set,
+ * <li>{@code policyId} - the data replacement policy,
+ * <li>{@code indexer} - the set indexer, and
+ * <li>{@code matcher} - the line matcher.</ol>
  *
  * @param <D> the data type.
  * @param <A> the address type.
@@ -69,9 +69,10 @@ public abstract class Cache<D extends Data, A extends Address>
 
   /**
    * Constructs a buffer of the given length and associativity.
-   * 
+   *
    * @param length the number of sets in the buffer.
    * @param associativity the number of lines in each set.
+   * @param policyId the data replacement policy.
    * @param indexer the set indexer.
    * @param matcher the line matcher.
    */
