@@ -1,12 +1,12 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
- * 
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES or CONDITIONS OF ANY KIND, either express or implied. See the
@@ -31,16 +31,16 @@ let REG_INDEX_SIZE = 3 // in bits
 type   BIT = card(1)
 type  BYTE = card(8)
 type SBYTE = int(8)
-type  SIZE = card(3)
+type  SIZE = card(4)
 type  addR = card(20)
 type  WORD = card(16)
 type SWORD = int(16)
 type DWORD = card(32)
 type INDEX = card(REG_INDEX_SIZE)
 
-reg program_counter[1, addR] // Program counter
+reg program_counter[addR] // Program counter
 
-// Informs that IP is a program counter. This information 
+// Informs that IP is a program counter. This information
 // is needed to handle control transfer ops.
 let PC = "program_counter"
 
@@ -150,8 +150,8 @@ var tmpw_res[card(17)]
 // An addressing mode for a register access
 
 mode R16(i: INDEX) = GPR[i]
-  syntax = format("%s", if i == 0 then "AX" 
-                      elif i == 1 then "CX" 
+  syntax = format("%s", if i == 0 then "AX"
+                      elif i == 1 then "CX"
                       elif i == 2 then "DX"
                       elif i == 3 then "BX"
                       elif i == 4 then "SP"
@@ -160,8 +160,8 @@ mode R16(i: INDEX) = GPR[i]
                       elif i == 7 then "DI"
                       else "AX"
                       endif)
-  image = format("%s", if i == 0 then "000" 
-                      elif i == 1 then "001" 
+  image = format("%s", if i == 0 then "000"
+                      elif i == 1 then "001"
                       elif i == 2 then "010"
                       elif i == 3 then "011"
                       elif i == 4 then "100"
@@ -172,14 +172,14 @@ mode R16(i: INDEX) = GPR[i]
                       endif)
 
 mode RSEG16(i: INDEX) = RSEG[i]
-  syntax = format("%s", if i == 0 then "ES" 
-                      elif i == 1 then "CS" 
+  syntax = format("%s", if i == 0 then "ES"
+                      elif i == 1 then "CS"
                       elif i == 2 then "SS"
                       elif i == 3 then "DS"
                       else "ES"
                       endif)
-  image = format("%s", if i == 0 then "00" 
-                     elif i == 1 then "01" 
+  image = format("%s", if i == 0 then "00"
+                     elif i == 1 then "01"
                      elif i == 2 then "10"
                      elif i == 3 then "11"
                      else "000"
@@ -188,24 +188,24 @@ mode RSEG16(i: INDEX) = RSEG[i]
 mode R8(i: INDEX, j: BIT) = if j == 0 then GPR[i]<0..7>
                           else GPR[i]<8..15>
                           endif
-  syntax = format("%s", if i == 0 && j == 0 then "AL" 
-                      elif i == 0 && j == 1 then "AH" 
-                      elif i == 1 && j == 0 then "CL" 
+  syntax = format("%s", if i == 0 && j == 0 then "AL"
+                      elif i == 0 && j == 1 then "AH"
+                      elif i == 1 && j == 0 then "CL"
                       elif i == 1 && j == 1 then "CH"
-                      elif i == 2 && j == 0 then "DL" 
+                      elif i == 2 && j == 0 then "DL"
                       elif i == 2 && j == 1 then "DH"
-                      elif i == 3 && j == 0 then "BL" 
-                      elif i == 3 && j == 1 then "BH" 
+                      elif i == 3 && j == 0 then "BL"
+                      elif i == 3 && j == 1 then "BH"
                       else "AL"
                       endif)
-  image = format("%s", if i == 0 && j == 0 then "000" 
-                     elif i == 0 && j == 1 then "100" 
-                     elif i == 1 && j == 0 then "001" 
+  image = format("%s", if i == 0 && j == 0 then "000"
+                     elif i == 0 && j == 1 then "100"
+                     elif i == 1 && j == 0 then "001"
                      elif i == 1 && j == 1 then "101"
-                     elif i == 2 && j == 0 then "010" 
+                     elif i == 2 && j == 0 then "010"
                      elif i == 2 && j == 1 then "110"
-                     elif i == 3 && j == 0 then "011" 
-                     elif i == 3 && j == 1 then "111" 
+                     elif i == 3 && j == 0 then "011"
+                     elif i == 3 && j == 1 then "111"
                      else "000"
                      endif)
 
@@ -326,7 +326,7 @@ mode IAM_BP_D8(disp: SBYTE) = coerce(addR, cast(SWORD, coerce(WORD, disp) + BP))
   image = format("%s", disp)
   init = {
     mod = 0b01;
-    rm = 0b110; 
+    rm = 0b110;
   }
   action = {
     instruction_image_size = 1;
@@ -337,7 +337,7 @@ mode IAM_SI_D8(disp: SBYTE) = coerce(addR, cast(SWORD, coerce(WORD, disp) + SI))
   image = format("%s", disp)
   init = {
     mod = 0b01;
-    rm = 0b100; 
+    rm = 0b100;
   }
   action = {
     instruction_image_size = 1;
@@ -348,7 +348,7 @@ mode IAM_DI_D8(disp: SBYTE) = coerce(addR, cast(SWORD, coerce(WORD, disp) + DI))
   image = format("%s", disp)
   init = {
     mod = 0b01;
-    rm = 0b101; 
+    rm = 0b101;
   }
   action = {
     instruction_image_size = 1;
@@ -363,7 +363,7 @@ mode BIDAM_BX_SI_D8(disp: SBYTE) = coerce(addR, cast(SWORD, BX + SI + coerce(WOR
   image = format("%s", disp)
   init = {
     mod = 0b01;
-    rm = 0b000; 
+    rm = 0b000;
   }
   action = {
     instruction_image_size = 1;
@@ -374,7 +374,7 @@ mode BIDAM_BX_DI_D8(disp: SBYTE) = coerce(addR, cast(SWORD, BX + DI + coerce(WOR
   image = format("%s", disp)
   init = {
     mod = 0b01;
-    rm = 0b001; 
+    rm = 0b001;
   }
   action = {
     instruction_image_size = 1;
@@ -396,7 +396,7 @@ mode BIDAM_BP_DI_D8(disp: SBYTE) = coerce(addR, cast(SWORD, BP + DI + coerce(WOR
   image = format("%s", disp)
   init = {
     mod = 0b01;
-    rm = 0b011; 
+    rm = 0b011;
   }
   action = {
     instruction_image_size = 1;
@@ -411,7 +411,7 @@ mode IAM_BX_D16(disp: WORD) = coerce(addR, cast(SWORD, BX + disp))
   image = format("%s", disp<0..7>::disp<8..15>)
   init = {
     mod = 0b11;
-    rm = 0b111; 
+    rm = 0b111;
   }
   action = {
     instruction_image_size = 2;
@@ -422,7 +422,7 @@ mode IAM_BP_D16(disp: WORD) = coerce(addR, cast(SWORD, BP + disp))
   image = format("%s", disp<0..7>::disp<8..15>)
   init = {
     mod = 0b11;
-    rm = 0b110; 
+    rm = 0b110;
   }
   action = {
     instruction_image_size = 2;
@@ -433,7 +433,7 @@ mode IAM_SI_D16(disp: WORD) = coerce(addR, cast(SWORD, SI + disp))
   image = format("%s", disp<0..7>::disp<8..15>)
   init = {
     mod = 0b11;
-    rm = 0b100; 
+    rm = 0b100;
   }
   action = {
     instruction_image_size = 2;
@@ -444,7 +444,7 @@ mode IAM_DI_D16(disp: WORD) = coerce(addR, cast(SWORD, DI + disp))
   image = format("%s", disp<0..7>::disp<8..15>)
   init = {
     mod = 0b11;
-    rm = 0b101; 
+    rm = 0b101;
   }
   action = {
     instruction_image_size = 2;
@@ -459,7 +459,7 @@ mode BIDAM_BX_SI_D16(disp: WORD) = coerce(addR, cast(SWORD, BX + SI + disp))
   image = format("%s", disp<0..7>::disp<8..15>)
   init = {
     mod = 0b11;
-    rm = 0b000; 
+    rm = 0b000;
   }
   action = {
     instruction_image_size = 2;
@@ -470,7 +470,7 @@ mode BIDAM_BX_DI_D16(disp: WORD) = coerce(addR, cast(SWORD, BX + DI + disp))
   image = format("%s", disp<0..7>::disp<8..15>)
   init = {
     mod = 0b11;
-    rm = 0b001; 
+    rm = 0b001;
   }
   action = {
     instruction_image_size = 2;
@@ -481,7 +481,7 @@ mode BIDAM_BP_SI_D16(disp: WORD) = coerce(addR, cast(SWORD, BP + SI + disp))
   image = format("%s", disp<0..7>::disp<8..15>)
   init = {
     mod = 0b11;
-    rm = 0b010; 
+    rm = 0b010;
   }
   action = {
     instruction_image_size = 2;
@@ -492,7 +492,7 @@ mode BIDAM_BP_DI_D16(disp: WORD) = coerce(addR, cast(SWORD, BP + DI + disp))
   image = format("%s", disp<0..7>::disp<8..15>)
   init = {
     mod = 0b11;
-    rm = 0b011; 
+    rm = 0b011;
   }
   action = {
     instruction_image_size = 2;
@@ -501,7 +501,7 @@ mode BIDAM_BP_DI_D16(disp: WORD) = coerce(addR, cast(SWORD, BP + DI + disp))
 mode MOFFS = RIAM_BX | BIAM_BX_SI | IAM_BX_D8 | BIDAM_BX_SI_D8 | IAM_BX_D16 | BIDAM_BX_SI_D16
            | RIAM_SI | BIAM_BX_DI | IAM_BP_D8 | BIDAM_BX_DI_D8 | IAM_BP_D16 | BIDAM_BX_DI_D16
            | RIAM_DI | BIAM_BP_SI | IAM_SI_D8 | BIDAM_BP_SI_D8 | IAM_SI_D16 | BIDAM_BP_SI_D16
-           | DOAM    | BIAM_BP_DI | IAM_DI_D8 | BIDAM_BP_DI_D8 | IAM_DI_D16 | BIDAM_BP_DI_D16 
+           | DOAM    | BIAM_BP_DI | IAM_DI_D8 | BIDAM_BP_DI_D8 | IAM_DI_D16 | BIDAM_BP_DI_D16
 
 // ==================================================================================
 // Move ops
@@ -514,7 +514,7 @@ op mov_m8r8 (seg_ovrd: RSEG16, dst: MOFFS, src: R8)
     base = coerce(addR, seg_ovrd) << 4;
     MEM[base + dst] = src;
     dst.action;
-    instruction_image_size = 3;  
+    instruction_image_size = 3;
   }
 
 op mov_r8m8 (seg_ovrd: RSEG16, dst: R8, src: MOFFS)
@@ -725,7 +725,7 @@ op xchg_r16m16 (seg_ovrd: RSEG16, dst: R16, src: MOFFS)
     instruction_image_size = 3;
   }
 
-op xchg = xchg_r8r8 | xchg_r16r16  
+op xchg = xchg_r8r8 | xchg_r16r16
         | xchg_r8m8 | xchg_r16m16
 
 
@@ -1022,7 +1022,7 @@ op add_m16i16 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
     instruction_image_size = 5;
   }
 
-op add = add_m8r8   | add_r8r8   | add_r8m8   | add_r8i8   | add_m8i8 
+op add = add_m8r8   | add_r8r8   | add_r8m8   | add_r8i8   | add_m8i8
        | add_r16r16 | add_r16m16 | add_r16i16 | add_m16i16 | add_m16r16
 
 // ==================================================================================
@@ -1140,7 +1140,7 @@ op adc_m16i16 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
     instruction_image_size = 5;
   }
 
-op adc = adc_m8r8   | adc_r8r8   | adc_r8m8   | adc_r8i8   | adc_m8i8 
+op adc = adc_m8r8   | adc_r8r8   | adc_r8m8   | adc_r8i8   | adc_m8i8
        | adc_r16r16 | adc_r16m16 | adc_r16i16 | adc_m16i16 | adc_m16r16
 
 // ==================================================================================
@@ -1156,7 +1156,10 @@ internal op sub_proc_byte(op1: BYTE, op2: BYTE)
 
     CF = tmpb_res<8>;
 
-    AF = (~op1<4> & ~op2<4> & tmpb_res<4>) | (~op1<4> & op2<4> & ~tmpb_res<4>) | (op1<4> & ~op2<4> & ~tmpb_res<4>) | (op1<4> & op2<4> & tmpb_res<4>);
+    AF = (~op1<4> & ~op2<4> & tmpb_res<4>)
+       | (~op1<4> & op2<4> & ~tmpb_res<4>)
+       | (op1<4> & ~op2<4> & ~tmpb_res<4>)
+       | (op1<4> & op2<4> & tmpb_res<4>);
 
     ZF = tmpb_res<0..7> == 0;
 
@@ -1166,7 +1169,10 @@ internal op sub_proc_byte(op1: BYTE, op2: BYTE)
 internal op sub_proc_word(op1: WORD, op2: WORD)
   action = {
     tmpw_res = coerce(card(17), op1) - coerce(card(17), op2);
-    AF = (~op1<4> & ~op2<4> & tmpw_res<4>) | (~op1<4> & op2<4> & ~tmpw_res<4>) | (op1<4> & ~op2<4> & ~tmpw_res<4>) | (op1<4> & op2<4> & tmpw_res<4>);
+    AF = (~op1<4> & ~op2<4> & tmpw_res<4>)
+       | (~op1<4> & op2<4> & ~tmpw_res<4>)
+       | (op1<4> & ~op2<4> & ~tmpw_res<4>)
+       | (op1<4> & op2<4> & tmpw_res<4>);
 
     temp_bit = op2<15> != 1;
     OF = op1<15> == temp_bit && op1<15> != tmpw_res<15>;
@@ -1290,7 +1296,7 @@ op sub_m16i16 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
     instruction_image_size = 5;
   }
 
-op sub = sub_m8r8   | sub_r8r8   | sub_r8m8   | sub_r8i8   | sub_m8i8 
+op sub = sub_m8r8   | sub_r8r8   | sub_r8m8   | sub_r8i8   | sub_m8i8
        | sub_r16r16 | sub_r16m16 | sub_r16i16 | sub_m16i16 | sub_m16r16
 
 // ==================================================================================
@@ -1597,7 +1603,7 @@ op mul_r16(op1: R16)
   syntax = format("mul %s", op1.syntax)
   image = format("1111011111000%s", op1.image)
   action = {
-    tmpdw_op1 = coerce(DWORD, AX) * coerce(DWORD, op1); 
+    tmpdw_op1 = coerce(DWORD, AX) * coerce(DWORD, op1);
     instruction_image_size = 2;
     AX = tmpdw_op1<0..15>;
     DX = tmpdw_op1<16..31>;
@@ -1641,11 +1647,11 @@ op imul_r8(op1: R8)
   image = format("1111011011000%s", op1.image)
   action = {
     AX = coerce(WORD, cast(SBYTE, AL)) * coerce(WORD, cast(SBYTE, op1));
-    instruction_image_size = 2; 
+    instruction_image_size = 2;
     if AH == 0 || AH == 0xff then 
       OF = 0; 
       CF = 0;
-    else                            
+    else
       OF = 1; 
       CF = 1;
     endif;
@@ -1657,14 +1663,14 @@ op imul_m8(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110110%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
-    AX = coerce(WORD, cast(SBYTE, AL)) * coerce(WORD, cast(SBYTE, MEM[base+op1])); 
+    AX = coerce(WORD, cast(SBYTE, AL)) * coerce(WORD, cast(SBYTE, MEM[base+op1]));
     instruction_image_size = 3;
     op1.action;
-    if AH == 0 || AH == 0xff then 
-      OF = 0; 
+    if AH == 0 || AH == 0xff then
+      OF = 0;
       CF = 0;
-    else                            
-      OF = 1; 
+    else
+      OF = 1;
       CF = 1;
     endif;
   }
@@ -1674,14 +1680,14 @@ op imul_r16(op1: R16)
   syntax = format("imul %s", op1.syntax)
   image = format("1111011111000%s", op1.image)
   action = {
-    tmpdw_op1 = coerce(DWORD, cast(SWORD, AX)) * coerce(DWORD, cast(SWORD, op1)); 
+    tmpdw_op1 = coerce(DWORD, cast(SWORD, AX)) * coerce(DWORD, cast(SWORD, op1));
     instruction_image_size = 2;
     AX = tmpdw_op1<0..15>;
     DX = tmpdw_op1<16..31>;
     if DX == 0 || DX == 0xff then 
       OF = 0; 
       CF = 0;
-    else                            
+    else
       OF = 1; 
       CF = 1;
     endif;
@@ -1693,7 +1699,8 @@ op imul_m16(seg_ovrd: RSEG16, op1: MOFFS)
   image = format("001%s11011110111%s000%s%s", seg_ovrd.image, mod, rm, op1.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
-    tmpdw_op1 = coerce(DWORD, cast(SWORD, AX)) * coerce(DWORD, cast(SWORD, MEM[base+op1+1]::MEM[base+op1]));  
+    tmpdw_op1 = coerce(DWORD, cast(SWORD, AX)) *
+                coerce(DWORD, cast(SWORD, MEM[base+op1+1]::MEM[base+op1]));
     instruction_image_size = 3;
     op1.action;
     AX = tmpdw_op1<0..15>;
@@ -1701,7 +1708,7 @@ op imul_m16(seg_ovrd: RSEG16, op1: MOFFS)
     if DX == 0 || DX == 0xff then 
       OF = 0; 
       CF = 0;
-    else                            
+    else
       OF = 1; 
       CF = 1;
     endif;
@@ -1770,7 +1777,7 @@ op div_m16(seg_ovrd: RSEG16, op1: MOFFS)
     op1.action;
     if tmpdw_op1 <= 0xffff then
       AX = coerce(WORD, tmpdw_op2);
-      DX = coerce(WORD, tmpdw_op1 % coerce(DWORD, tmpw_op1));  
+      DX = coerce(WORD, tmpdw_op1 % coerce(DWORD, tmpw_op1));
     endif;
   }
 
@@ -3058,7 +3065,7 @@ op instruction (operation: x86)
   image = operation.image
   init = {
     instruction_image_size = 0;
-  }  
+  }
   action = {
     BRANCH = 0;
 
@@ -3074,6 +3081,6 @@ op instruction (operation: x86)
       IP = IP + coerce(WORD, instruction_image_size);
       program_counter = (coerce(addR, CS) << 4) + coerce(addR, IP);
     endif;
-  } 
+  }
 
 // ==================================================================================
