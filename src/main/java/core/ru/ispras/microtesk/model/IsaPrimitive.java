@@ -1,11 +1,11 @@
 /*
  * Copyright 2016 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -26,7 +26,7 @@ import ru.ispras.microtesk.model.memory.Location;
 /**
  * The {@link IsaPrimitive} class implements base functionality of addressing modes
  * and operations.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public abstract class IsaPrimitive {
@@ -38,9 +38,9 @@ public abstract class IsaPrimitive {
 
   /**
    * Constructs a primitive and saves the table of its arguments.
-   * 
+   *
    * @param arguments Primitive arguments.
-   * 
+   *
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
   public IsaPrimitive(final Map<String, IsaPrimitive> arguments) {
@@ -58,7 +58,7 @@ public abstract class IsaPrimitive {
   /**
    * Returns the name of the currently executed primitive or an empty
    * string if no primitive is being executed.
-   * 
+   *
    * @return Name of the executed primitive.
    */
   public static String getCurrentOperation() {
@@ -67,7 +67,7 @@ public abstract class IsaPrimitive {
 
   /**
    * Returns the primitive name.
-   * 
+   *
    * @return Primitive name.
    */
   public final String getName() {
@@ -76,7 +76,7 @@ public abstract class IsaPrimitive {
 
   /**
    * Returns the primitive argument table.
-   * 
+   *
    * @return Primitive arguments.
    */
   public final Map<String, IsaPrimitive> getArguments() {
@@ -85,10 +85,10 @@ public abstract class IsaPrimitive {
 
   /**
    * Registers an argument in the argument table.
-   * 
-   * @param name Argument name. 
+   *
+   * @param name Argument name.
    * @param value Argument.
-   * 
+   *
    * @throws IllegalArgumentException if any of the parameters is {@code null}.
    */
   protected final void addArgument(final String name, final IsaPrimitive value) {
@@ -101,19 +101,21 @@ public abstract class IsaPrimitive {
    * Perform initialization of temporary variables that can be used in other attributes
    * (action, syntax, image). This attribute is implicitly called inside of the above mentioned
    * attributes. When needed, it can be called explicitly by other primitives.
+   *
+   * @param temporaryVariables temporary variables.
    */
-  public void init(final TemporaryVariables tempVars) {
+  public void init(final TemporaryVariables temporaryVariables) {
     // By default, do nothing.
   }
 
   /**
    * Returns assembly format of the specified primitive.
-   * 
-   * <p>Default implementation is provided to allow using primitives that
-   * have no explicitly specified syntax attribute. This method does not do any
-   * useful work and should never be called. It is needed only to let inherited
-   * classes compile.
-   * 
+   *
+   * <p>Default implementation is provided to allow using primitives that have no explicitly
+   * specified syntax attribute. This method does not do any useful work and should never be called.
+   * It is needed only to let inherited classes compile.
+   *
+   * @param temporaryVariables temporary variables.
    * @return Assembly text.
    */
   public String syntax(final TemporaryVariables temporaryVariables) {
@@ -123,12 +125,12 @@ public abstract class IsaPrimitive {
 
   /**
    * Returns binary representation of the specified primitive.
-   * 
-   * <p>Default implementation is provided to allow using primitives that
-   * have no explicitly specified image attribute. This method does not do any
-   * useful work and should never be called. It is needed only to let inherited
-   * classes compile.
-   * 
+   *
+   * <p>Default implementation is provided to allow using primitives that have no explicitly
+   * specified image attribute. This method does not do any useful work and should never be called.
+   * It is needed only to let inherited classes compile.
+   *
+   * @param temporaryVariables temporary variables.
    * @return Binary text.
    */
   public String image(final TemporaryVariables temporaryVariables) {
@@ -138,6 +140,9 @@ public abstract class IsaPrimitive {
 
   /**
    * Runs execution of the current primitive's action.
+   *
+   * @param processingElement processing element instance.
+   * @param temporaryVariables temporary variables.
    */
   public final void execute(
       final ProcessingElement processingElement,
@@ -152,10 +157,13 @@ public abstract class IsaPrimitive {
 
   /**
    * Runs the action associated with the primitive.
-   * 
-   * <p>Default implementation is provided to allow using primitives that have no
-   * explicitly specified action attribute. This method does not do any useful work
-   * and should never be called. It is needed only to let inherited classes compile.
+   *
+   * <p>Default implementation is provided to allow using primitives that have no explicitly
+   * specified action attribute. This method does not do any useful work and should never be called.
+   * It is needed only to let inherited classes compile.
+   *
+   * @param processingElement processing element instance.
+   * @param temporaryVariables temporary variables.
    */
   protected void action(
       final ProcessingElement processingElement,
@@ -166,11 +174,13 @@ public abstract class IsaPrimitive {
   /**
    * Returns the location the primitive object points to (when initialized with specific
    * parameters). Applicable only to addressing modes that have a return expression.
-   * 
-   * <p>Default implementation is provided to allow using primitives that do not have
-   * a return expression. This method does not do any useful work and should never be called.
-   * It is needed only to let inherited classes compile.
-   * 
+   *
+   * <p>Default implementation is provided to allow using primitives that do not have a return
+   * expression. This method does not do any useful work and should never be called. It is needed
+   * only to let inherited classes compile.
+   *
+   * @param processingElement processing element instance.
+   * @param temporaryVariables temporary variables.
    * @return Memory location.
    */
   public Location access(
