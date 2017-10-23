@@ -16,8 +16,10 @@ package ru.ispras.microtesk.test.engine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -28,9 +30,9 @@ import ru.ispras.microtesk.utils.StringUtils;
 public final class AbstractSequence {
   public static final class Builder {
     private final Section section;
-    private final List<AbstractCall> sequence;
-    private final List<Boolean> flags;
-    private final List<Integer> indexes; // index -> position
+    private final ArrayList<AbstractCall> sequence;
+    private final ArrayList<Boolean> flags;
+    private final ArrayList<Integer> indexes; // index -> position
     private final Map<Integer, List<Integer>> positions; // position -> [indexes]
 
     public Builder(final Section section) {
@@ -187,6 +189,44 @@ public final class AbstractSequence {
 
     final List<AbstractCall> oldCalls = epilogues.get(index);
     epilogues.put(index, null == oldCalls ? calls : CollectionUtils.appendToList(oldCalls, calls));
+  }
+
+  public void insert(final int index, final List<AbstractCall> calls) {
+    InvariantChecks.checkBounds(index, sequence.size());
+    InvariantChecks.checkNotNull(calls);
+
+    final int size = calls.size();
+    final int position = indexes.get(index);
+
+    increasePositionIndexes(index, size);
+
+    sequence.addAll(index, calls);
+    final List<Integer> positionIndexes = positions.get(position);
+
+    for (int i = 0; i < size; ++i) {
+      final int insertionIndex = index + i;
+      flags.add(insertionIndex, true);
+      indexes.add(insertionIndex, position);
+      positionIndexes.add(insertionIndex);
+    }
+  }
+
+  private void increasePositionIndexes(final int startIndex, final int amount) {
+    final Set<Integer> positionSet = new HashSet<>();
+
+    for (int i = startIndex; i < indexes.size(); ++i) {
+      final int position = indexes.get(i);
+      if (positionSet.contains(position)) {
+        continue;
+      }
+
+      final List<Integer> positionIndexes = positions.get(position);
+      for (int j = 0; j < positionIndexes.size(); ++j) {
+        positionIndexes.set(j, positionIndexes.get(j) + amount);
+      }
+
+      positionSet.add(position);
+    }
   }
 
   @Override
