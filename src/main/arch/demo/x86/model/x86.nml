@@ -3069,6 +3069,9 @@ op instruction (operation: x86)
   action = {
     BRANCH = 0;
 
+    // IP must be synchonized with PC as PC can be externally modified.
+    IP = program_counter<15..0>;
+
     operation.action;
 
     jump_address = NEXTPC;
