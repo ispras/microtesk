@@ -29,16 +29,18 @@ public final class AbstractSequence {
   public static final class Builder {
     private final Section section;
     private final List<AbstractCall> sequence;
-    private final Map<Integer, List<Integer>> positions;
     private final List<Boolean> flags;
+    private final List<Integer> indexes; // index -> position
+    private final Map<Integer, List<Integer>> positions; // position -> [indexes]
 
     public Builder(final Section section) {
       InvariantChecks.checkNotNull(section);
 
       this.section = section;
       this.sequence = new ArrayList<>();
-      this.positions = new HashMap<>();
       this.flags = new ArrayList<>();
+      this.indexes = new ArrayList<>();
+      this.positions = new HashMap<>();
     }
 
     public void addCall(final AbstractCall call, final int position) {
@@ -51,26 +53,29 @@ public final class AbstractSequence {
 
       sequence.add(call);
       flags.add(significant);
+      indexes.add(position);
 
-      final List<Integer> indexes = new ArrayList<>();
-      indexes.add(sequence.size() - 1);
+      final int index = sequence.size() - 1;
+      final List<Integer> callIndexes = new ArrayList<>();
 
-      positions.put(position, indexes);
+      callIndexes.add(index);
+      positions.put(position, callIndexes);
     }
 
     public boolean isEmpty() {
-      return sequence.isEmpty() && positions.isEmpty() && flags.isEmpty();
+      return sequence.isEmpty()  && flags.isEmpty() && indexes.isEmpty() && positions.isEmpty();
     }
 
     public AbstractSequence build() {
-      return new AbstractSequence(section, sequence, positions, flags);
+      return new AbstractSequence(section, sequence, flags, indexes, positions);
     }
   }
 
   private final Section section;
   private final List<AbstractCall> sequence;
-  private final Map<Integer, List<Integer>> positions;
   private final List<Boolean> flags;
+  private final List<Integer> indexes;
+  private final Map<Integer, List<Integer>> positions;
 
   private Map<Integer, List<AbstractCall>> prologues;
   private Map<Integer, List<AbstractCall>> epilogues;
@@ -78,30 +83,33 @@ public final class AbstractSequence {
   public AbstractSequence(final AbstractSequence other) {
     InvariantChecks.checkNotNull(other);
 
-    this.section = other.section;
-    this.sequence = new ArrayList<>(other.sequence);
-    this.positions = new HashMap<>(other.positions);
-    this.flags = other.flags;
-    this.prologues = null != other.prologues ? new HashMap<>(other.prologues) : null;
-    this.epilogues = null != other.epilogues ? new HashMap<>(other.epilogues) : null;
+    this.section   = other.section;
+    this.sequence  = null != other.sequence  ? new ArrayList<>(other.sequence) : null;
+    this.indexes   = null != other.indexes   ? new ArrayList<>(other.indexes)  : null;
+    this.flags     = null != other.flags     ? new ArrayList<>(other.flags)    : null;
+    this.positions = null != other.positions ? new HashMap<>(other.positions)  : null;
+    this.prologues = null != other.prologues ? new HashMap<>(other.prologues)  : null;
+    this.epilogues = null != other.epilogues ? new HashMap<>(other.epilogues)  : null;
   }
 
   public AbstractSequence(final Section section, final List<AbstractCall> sequence) {
-    this(section, sequence, null, null);
+    this(section, sequence, null, null, null);
   }
 
   public AbstractSequence(
       final Section section,
       final List<AbstractCall> sequence,
-      final Map<Integer, List<Integer>> positions,
-      final List<Boolean> flags) {
+      final List<Boolean> flags,
+      final List<Integer> indexes,
+      final Map<Integer, List<Integer>> positions) {
     InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(sequence);
 
     this.section = section;
     this.sequence = sequence;
-    this.positions = positions;
     this.flags = flags;
+    this.indexes = indexes;
+    this.positions = positions;
 
     this.prologues = null;
     this.epilogues = null;
@@ -115,16 +123,20 @@ public final class AbstractSequence {
     return sequence;
   }
 
+  public List<Boolean> getFlags() {
+    return flags;
+  }
+
   public boolean isSignificant(final int index) {
     return null != flags ? flags.get(index) : true;
   }
 
-  public Map<Integer, List<Integer>> getPositions() {
-    return positions;
+  public List<Integer> getIndexes() {
+    return indexes;
   }
 
-  public List<Boolean> getFlags() {
-    return flags;
+  public Map<Integer, List<Integer>> getPositions() {
+    return positions;
   }
 
   public Map<Integer, List<AbstractCall>> getPrologues() {
