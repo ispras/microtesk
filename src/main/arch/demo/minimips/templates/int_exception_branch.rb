@@ -96,6 +96,7 @@ class IntExceptionBranchTemplate < MiniMipsBaseTemplate
     sequence(
         :engines => {
             :branch => {:branch_exec_limit => 3,
+                        :block_exec_limit => 3,
                         :trace_count_limit => -1}}) {
       label :start
         nop

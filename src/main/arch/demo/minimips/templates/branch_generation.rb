@@ -120,6 +120,7 @@ class BranchGenerationTemplate < MiniMipsBaseTemplate
     sequence(
         :engines => {
             :branch => {:branch_exec_limit => 3,
+                        :block_exec_limit => 3,
                         :trace_count_limit => -1}}) {
       label :label0
         nop  # A basic block should contain at least one instruction
