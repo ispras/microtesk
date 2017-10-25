@@ -193,6 +193,33 @@ public final class SequenceProcessor {
     return Preparator.expandPreparators(null, context.getPreparators(), abstractSequence);
   }
 
+  private static AbstractSequence expandProloguesAndEpilogues(
+      final AbstractSequence abstractSequence) {
+    InvariantChecks.checkNotNull(abstractSequence);
+    final List<AbstractCall> abstractCalls = new ArrayList<>();
+
+    for (int index = 0; index < abstractSequence.getSequence().size(); ++index) {
+      if (null != abstractSequence.getPrologues()) {
+        final List<AbstractCall> prologue = abstractSequence.getPrologues().get(index);
+        if (null != prologue) {
+          abstractCalls.addAll(prologue);
+        }
+      }
+
+      final AbstractCall call = abstractSequence.getSequence().get(index);
+      abstractCalls.add(call);
+
+      if (null != abstractSequence.getEpilogues()) {
+        final List<AbstractCall> epilogue = abstractSequence.getEpilogues().get(index);
+        if (null != epilogue) {
+          abstractCalls.addAll(epilogue);
+        }
+      }
+    }
+
+    return new AbstractSequence(abstractSequence.getSection(), abstractCalls);
+  }
+
   private static <T> Iterator<List<T>> makeCombinator(
       final String combinatorName,
       final List<Iterator<T>> iterators) {
