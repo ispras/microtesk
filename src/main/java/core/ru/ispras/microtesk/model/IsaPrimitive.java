@@ -141,8 +141,8 @@ public abstract class IsaPrimitive {
   /**
    * Runs execution of the current primitive's action.
    *
-   * @param processingElement processing element instance.
-   * @param temporaryVariables temporary variables.
+   * @param processingElement Processing element instance.
+   * @param temporaryVariables Temporary variables.
    */
   public final void execute(
       final ProcessingElement processingElement,
@@ -162,8 +162,8 @@ public abstract class IsaPrimitive {
    * specified action attribute. This method does not do any useful work and should never be called.
    * It is needed only to let inherited classes compile.
    *
-   * @param processingElement processing element instance.
-   * @param temporaryVariables temporary variables.
+   * @param processingElement Processing element instance.
+   * @param temporaryVariables Temporary variables.
    */
   protected void action(
       final ProcessingElement processingElement,
@@ -179,8 +179,8 @@ public abstract class IsaPrimitive {
    * expression. This method does not do any useful work and should never be called. It is needed
    * only to let inherited classes compile.
    *
-   * @param processingElement processing element instance.
-   * @param temporaryVariables temporary variables.
+   * @param processingElement Processing element instance.
+   * @param temporaryVariables Temporary variables.
    * @return Memory location.
    */
   public Location access(
