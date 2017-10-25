@@ -304,7 +304,7 @@ public class MetaOperation implements MetaData {
   /**
    * Returns the list of operation exceptions.
    *
-   * @return
+   * @return a list of exceptions.
    */
   public final Collection<String> getExceptions() {
     // TODO:
@@ -314,7 +314,7 @@ public class MetaOperation implements MetaData {
   /**
    * Returns the list of operation marks.
    *
-   * @return
+   * @return a list of marks.
    */
   public final Collection<String> getMarks() {
     // TODO:
@@ -324,7 +324,7 @@ public class MetaOperation implements MetaData {
   /**
    * Returns the operation arguments.
    *
-   * @return
+   * @return the operation signature.
    */
   public final Object getSignature() {
     // TODO: Object -> Signature
