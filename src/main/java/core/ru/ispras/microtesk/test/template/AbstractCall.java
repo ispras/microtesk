@@ -24,7 +24,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.SharedObject;
 
-public final class AbstractCall {
+public final class AbstractCall extends SharedObject<AbstractCall> {
   private final Where where;
   private final String text;
   private final Primitive rootOperation;
@@ -265,6 +265,7 @@ public final class AbstractCall {
   }
 
   public AbstractCall(final AbstractCall other) {
+    super(other);
     InvariantChecks.checkNotNull(other);
 
     this.where = other.where;
@@ -452,5 +453,10 @@ public final class AbstractCall {
         isAtomicSequence(),
         isModeToFree() ? modeToFree.getName() : "null"
         );
+  }
+
+  @Override
+  public AbstractCall newCopy() {
+    return new AbstractCall(this);
   }
 }
