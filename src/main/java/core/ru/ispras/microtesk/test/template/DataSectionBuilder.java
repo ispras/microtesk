@@ -1,11 +1,11 @@
 /*
  * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -24,7 +24,7 @@ import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
 
 /**
  * The {@link DataSectionBuilder} class builds data sections.
- *  
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class DataSectionBuilder {
@@ -82,15 +82,18 @@ public final class DataSectionBuilder {
 
   /**
    * Sets allocation origin. Inserts the ".org" directive in the test program.
+   *
+   * @param origin Origin value.
    */
   public void setOrigin(final BigInteger origin) {
     addDirective(directiveFactory.newOrigin(origin));
   }
 
   /**
-   * Sets allocation origin related to the current address. The origin
-   * value is calculated depending on the context. Inserts the ".org"
-   * directive in the test program.
+   * Sets allocation origin related to the current address. The origin value is calculated
+   * depending on the context. Inserts the ".org" directive in the test program.
+   *
+   * @param delta Relative origin value.
    */
   public void setRelativeOrigin(final BigInteger delta) {
     addDirective(directiveFactory.newOriginRelative(delta));
@@ -100,6 +103,8 @@ public final class DataSectionBuilder {
    * Sets allocation origin that corresponds to the specified virtual address.
    * The origin value is calculated depending on the context. Inserts the ".org"
    * directive in the test program.
+   *
+   * @param address Virtual address.
    */
   public void setVirtualAddress(final BigInteger address) {
     final BigInteger origin = section.virtualToOrigin(address);
@@ -107,7 +112,10 @@ public final class DataSectionBuilder {
   }
 
   /**
+   * Adds an alignment directive.
+   *
    * @param value Alignment amount in addressable units.
+   * @param valueInBytes Alignment amount in bytes.
    */
   public void align(final BigInteger value, final BigInteger valueInBytes) {
     addDirective(directiveFactory.newAlign(value, valueInBytes));
