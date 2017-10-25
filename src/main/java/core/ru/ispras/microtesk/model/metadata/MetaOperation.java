@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.model.metadata;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -239,6 +240,16 @@ public class MetaOperation implements MetaData {
   }
 
   /**
+   * Checks the operation has a delay slot.
+   *
+   * @return count of delay slots.
+   */
+  public final int getDelaySlotSize() {
+    // TODO:
+    return 0;
+  }
+
+  /**
    * Checks whether the current operation can throw an exception.
    * 
    * @return {@code true} if the operation can throw an exception
@@ -288,5 +299,35 @@ public class MetaOperation implements MetaData {
    */
   public final int getBlockSize() {
     return blockSize;
+  }
+
+  /**
+   * Returns the list of operation exceptions.
+   *
+   * @return
+   */
+  public final Collection<String> getExceptions() {
+    // TODO:
+    return null;
+  }
+
+  /**
+   * Returns the list of operation marks.
+   *
+   * @return
+   */
+  public final Collection<String> getMarks() {
+    // TODO:
+    return null;
+  }
+
+  /**
+   * Returns the operation arguments.
+   *
+   * @return
+   */
+  public final Object getSignature() {
+    // TODO: Object -> Signature
+    return null;
   }
 }
