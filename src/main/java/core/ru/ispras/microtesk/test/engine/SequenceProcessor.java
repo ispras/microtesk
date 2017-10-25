@@ -85,11 +85,25 @@ public final class SequenceProcessor {
     }
 
     final Map<String, Object> engineAttributeMap = toMap(enginesAttribute);
+    final Iterator<AbstractSequence> abstractSequenceIterator =
+        processSequenceWithEngines(engineContext, engineAttributeMap, abstractSequence);
+
+    return new SequenceConcretizer(engineContext, isPresimulation, abstractSequenceIterator);
+  }
+
+  private static Iterator<AbstractSequence> processSequenceWithEngines(
+      final EngineContext engineContext,
+      final Map<String, Object> engineAttributes,
+      final AbstractSequence abstractSequence) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(engineAttributes);
+    InvariantChecks.checkNotNull(abstractSequence);
+
     final List<Iterator<AbstractSequence>> iterators = new ArrayList<>();
 
     for (final Engine engine : EngineConfig.get().getEngines()) {
       final Iterator<AbstractSequence> iterator =
-          processSequenceWithEngine(engine, engineContext, engineAttributeMap, abstractSequence);
+          processSequenceWithEngine(engine, engineContext, engineAttributes, abstractSequence);
 
       if (null != iterator) {
         iterators.add(iterator);
@@ -97,16 +111,14 @@ public final class SequenceProcessor {
     }
 
     if (iterators.isEmpty()) {
-      return new SequenceConcretizer(
-          engineContext, isPresimulation, new SingleValueIterator<>(abstractSequence));
+      return new SingleValueIterator<>(abstractSequence);
     }
 
-    final Object combinatorId = engineAttributeMap.get("combinator");
+    final Object combinatorId = engineAttributes.get("combinator");
     final Iterator<List<AbstractSequence>> combinator =
         makeCombinator(null != combinatorId ? combinatorId.toString() : "diagonal", iterators);
 
-    final Iterator<AbstractSequence> merger = new SequenceMerger(abstractSequence, combinator);
-    return new SequenceConcretizer(engineContext, isPresimulation, merger);
+    return new SequenceMerger(abstractSequence, combinator);
   }
 
   private static Iterator<AbstractSequence> processSequenceWithEngine(
