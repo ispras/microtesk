@@ -25,6 +25,7 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
+import ru.ispras.microtesk.test.engine.branch.BranchEngine;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.microtesk.test.template.AbstractCall;
@@ -85,10 +86,96 @@ public final class SequenceProcessor {
     }
 
     final Map<String, Object> engineAttributeMap = toMap(enginesAttribute);
-    final Iterator<AbstractSequence> abstractSequenceIterator =
-        processSequenceWithEngines(engineContext, engineAttributeMap, abstractSequence);
 
-    return new SequenceConcretizer(engineContext, isPresimulation, abstractSequenceIterator);
+    final Engine branchEngine = EngineConfig.get().getEngine(BranchEngine.ID);
+    final Iterator<AbstractSequence> branchEngineIterator =
+        processSequenceWithEngine(
+            branchEngine,
+            engineContext,
+            engineAttributeMap,
+            abstractSequence
+            );
+
+    final Iterator<AbstractSequence> sequenceIterator = null != branchEngineIterator ?
+        branchEngineIterator :
+        new SingleValueIterator<>(abstractSequence);
+
+    return new ConcreteSequenceIterator(
+        engineContext, engineAttributeMap, isPresimulation, sequenceIterator);
+  }
+
+  private static final class ConcreteSequenceIterator implements Iterator<ConcreteSequence> {
+    private final EngineContext engineContext;
+    private final Map<String, Object> engineAttributes;
+    private final boolean isPresimulation;
+    private final Iterator<AbstractSequence> abstractSequenceIterator;
+    private Iterator<ConcreteSequence> concreteSequenceIterator;
+
+    public ConcreteSequenceIterator(
+        final EngineContext engineContext,
+        final Map<String, Object> engineAttributes,
+        final boolean isPresimulation,
+        final Iterator<AbstractSequence> abstractSequenceIterator) {
+      this.engineContext = engineContext;
+      this.engineAttributes = engineAttributes;
+      this.isPresimulation = isPresimulation;
+      this.abstractSequenceIterator = abstractSequenceIterator;
+      this.concreteSequenceIterator = null;
+    }
+
+    @Override
+    public void init() {
+      abstractSequenceIterator.init();
+      concreteSequenceIterator = nextConcreteSequenceIterator();
+    }
+
+    @Override
+    public boolean hasValue() {
+      return concreteSequenceIterator != null && concreteSequenceIterator.hasValue();
+    }
+
+    @Override
+    public ConcreteSequence value() {
+      return concreteSequenceIterator.value();
+    }
+
+    @Override
+    public void next() {
+      concreteSequenceIterator.next();
+      if (!concreteSequenceIterator.hasValue()) {
+        concreteSequenceIterator = nextConcreteSequenceIterator();
+      }
+    }
+
+    @Override
+    public void stop() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Iterator<ConcreteSequence> clone() {
+      throw new UnsupportedOperationException();
+    }
+
+    private Iterator<ConcreteSequence> nextConcreteSequenceIterator() {
+      if (!abstractSequenceIterator.hasValue()) {
+        return null;
+      }
+
+      final AbstractSequence abstractSequence =
+          expandProloguesAndEpilogues(abstractSequenceIterator.value());
+
+      abstractSequenceIterator.next();
+
+      final Iterator<AbstractSequence> abstractSequenceEngineIterator =
+          processSequenceWithEngines(engineContext, engineAttributes, abstractSequence);
+
+      final Iterator<ConcreteSequence> result = new SequenceConcretizer(
+          engineContext, isPresimulation, abstractSequenceEngineIterator);
+
+      result.init();
+      return result;
+    }
   }
 
   private static Iterator<AbstractSequence> processSequenceWithEngines(
@@ -102,6 +189,10 @@ public final class SequenceProcessor {
     final List<Iterator<AbstractSequence>> iterators = new ArrayList<>();
 
     for (final Engine engine : EngineConfig.get().getEngines()) {
+      if (BranchEngine.ID.equals(engine.getId())) {
+        continue;
+      }
+
       final Iterator<AbstractSequence> iterator =
           processSequenceWithEngine(engine, engineContext, engineAttributes, abstractSequence);
 
