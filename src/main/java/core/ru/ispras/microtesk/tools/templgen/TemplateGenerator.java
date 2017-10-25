@@ -20,6 +20,9 @@ import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.options.Options;
+import ru.ispras.microtesk.tools.templgen.printers.RubyTemplatePrinter;
+import ru.ispras.microtesk.tools.templgen.templates.GroupTemplate;
+import ru.ispras.microtesk.tools.templgen.templates.SimpleTemplate;
 
 public final class TemplateGenerator {
   public static boolean generate(final Options options, final String modelName) {
@@ -27,15 +30,17 @@ public final class TemplateGenerator {
     InvariantChecks.checkNotNull(modelName);
 
     final Model model = loadModel(modelName);
-    if (null == model) {
-      return false;
-    }
-
     final MetaModel metaModel = model.getMetaData();
-    // TODO
 
-    Logger.error("Templates generation is not currently supported.");
-    return false;
+    boolean generatedResult = true;
+
+    SimpleTemplate simpleTemplate = new SimpleTemplate(metaModel, new RubyTemplatePrinter("simple"));
+    generatedResult = generatedResult & simpleTemplate.generate();
+
+    GroupTemplate groupTemplate = new GroupTemplate(metaModel, new RubyTemplatePrinter("group"));
+    generatedResult = generatedResult & groupTemplate.generate();
+
+    return generatedResult;
   }
 
   private static Model loadModel(final String modelName) {
