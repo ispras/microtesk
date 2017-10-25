@@ -26,6 +26,7 @@ import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.engine.branch.BranchEngine;
+import ru.ispras.microtesk.test.engine.branch.BranchEntry;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.microtesk.test.template.AbstractCall;
@@ -126,7 +127,7 @@ public final class SequenceProcessor {
     @Override
     public void init() {
       abstractSequenceIterator.init();
-      concreteSequenceIterator = nextConcreteSequenceIterator();
+      concreteSequenceIterator = newConcreteSequenceIterator();
     }
 
     @Override
@@ -143,7 +144,8 @@ public final class SequenceProcessor {
     public void next() {
       concreteSequenceIterator.next();
       if (!concreteSequenceIterator.hasValue()) {
-        concreteSequenceIterator = nextConcreteSequenceIterator();
+        abstractSequenceIterator.next();
+        concreteSequenceIterator = newConcreteSequenceIterator();
       }
     }
 
@@ -157,15 +159,13 @@ public final class SequenceProcessor {
       throw new UnsupportedOperationException();
     }
 
-    private Iterator<ConcreteSequence> nextConcreteSequenceIterator() {
+    private Iterator<ConcreteSequence> newConcreteSequenceIterator() {
       if (!abstractSequenceIterator.hasValue()) {
         return null;
       }
 
       final AbstractSequence abstractSequence =
           expandProloguesAndEpilogues(abstractSequenceIterator.value());
-
-      abstractSequenceIterator.next();
 
       final Iterator<AbstractSequence> abstractSequenceEngineIterator =
           processSequenceWithEngines(engineContext, engineAttributes, abstractSequence);
