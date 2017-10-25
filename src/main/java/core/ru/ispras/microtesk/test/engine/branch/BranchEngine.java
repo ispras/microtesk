@@ -109,6 +109,10 @@ public final class BranchEngine implements Engine {
     return flag;
   }
 
+  static boolean isBranch(final AbstractCall abstractCall) {
+    return isIfThen(abstractCall) || isGoto(abstractCall);
+  }
+
   static BranchEntry getBranchEntry(final AbstractCall abstractCall) {
     final Map<String, Object> attributes = abstractCall.getAttributes();
     return (BranchEntry) attributes.get("branchEntry");
@@ -225,10 +229,14 @@ public final class BranchEngine implements Engine {
 
       for (int i = 0; i < branchNumber; i++) {
         final AbstractCall branchCall = Randomizer.get().choose(branchesCode);
-        final int branchIndex = Randomizer.get().nextIntRange(0, newSequence.size() - 1);
+        final int randomIndex = Randomizer.get().nextIntRange(0, newSequence.size());
+        // Do not break appended block-branch pairs.
+        final int branchIndex =
+            randomIndex < newSequence.size() && isBranch(newSequence.get(randomIndex))
+                ? randomIndex + 1 : randomIndex;
 
         // Add a randomly chosen branch.
-        newSequence.add(branchIndex, branchCall);
+        newSequence.add(branchIndex, new AbstractCall(branchCall));
         // Add an empty basic block before the branch (this is a place for control code).
         newSequence.add(branchIndex, AbstractCall.newEmpty());
       }
@@ -274,6 +282,12 @@ public final class BranchEngine implements Engine {
       }
 
       final BranchEntry branchEntry = new BranchEntry(type);
+
+      if (branchEntry.isIfThen()) {
+        // Initialize the register identifier.
+        branchEntry.setRegisterId(0);
+      }
+
       branchStructure.add(branchEntry);
 
       // Set the target label and start the delay slot.
@@ -289,7 +303,11 @@ public final class BranchEngine implements Engine {
           final Label targetLabel = new Label(name, blockId);
 
           // Put the label in a random position.
-          final int targetIndex = Randomizer.get().nextIntRange(0, newSequence.size() - 1);
+          final int randomIndex = Randomizer.get().nextIntRange(0, newSequence.size() - 1);
+          // Jump to a basic block to be able to update the next branch register.
+          final int targetIndex = randomIndex > 0 && isBranch(newSequence.get(randomIndex))
+              ? randomIndex - 1 : randomIndex;
+
           final AbstractCall targetCall = newSequence.get(targetIndex);
           targetCall.getLabels().add(targetLabel);
 
@@ -407,10 +425,13 @@ public final class BranchEngine implements Engine {
 
     // Construct the control code to enforce the given execution trace.
     final List<AbstractCall> sequence = abstractSequence.getSequence();
+
     for (int i = 0; i < sequence.size(); i++) {
+      // Get the branch entry stored in the call attribute.
       final AbstractCall abstractCall = sequence.get(i);
       final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
 
+      // Only conditional branches are taken into account.
       if (branchEntry == null || !branchEntry.isIfThen()) {
         continue;
       }
@@ -420,6 +441,7 @@ public final class BranchEngine implements Engine {
 
       final String testDataStream = getTestDataStream(abstractCall);
       final List<AbstractCall> controlCode = makeStreamRead(engineContext, testDataStream);
+
       if (!controlCode.isEmpty()) {
         controlCode.get(0).getAttributes().put("dependsOn", abstractCall);
       }
@@ -470,6 +492,7 @@ public final class BranchEngine implements Engine {
       if (!branchEntry.isControlCodeInBasicBlock() && !branchEntry.isControlCodeInDelaySlot()) {
         Logger.debug("Cannot construct the control code %d: blockCoverage=%s, slotCoverage=%s",
             i, blockCoverage, slotCoverage);
+        InvariantChecks.checkTrue(false);
         return null;
       }
     }

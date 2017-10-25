@@ -46,14 +46,14 @@ final class BranchTraceConstructor {
     /** Contains an execution trace. */
     private List<Integer> trace = new ArrayList<>();
 
-    /** Contains a set of basic blocks having been executed. */
+    /** Contains a set of basic blocks having been executed (with counters). */
     private Map<Integer, Integer> preBlocks = new LinkedHashMap<>();
     /** Contains a set of delay slots having been executed. */
     private Map<Integer, Integer> preSlots = new LinkedHashMap<>();
 
-    /** Maps a branch index into the current basic block segment. */
+    /** Maps a register identifier into the current basic block segment. */
     private Map<Integer, Map<Integer, Integer>> postBlocks = new LinkedHashMap<>();
-    /** Maps a branch index into the current delay slot segment. */
+    /** Maps a register identifier into the current delay slot segment. */
     private Map<Integer, Map<Integer, Integer>> postSlots = new LinkedHashMap<>();
 
     public List<Integer> getTrace() {
@@ -68,29 +68,31 @@ final class BranchTraceConstructor {
 
       trace.add(index);
 
+      final int registerId = entry.getRegisterId();
+
       // Previous basic blocks.
-      if (!postBlocks.containsKey(index)) {
+      if (!postBlocks.containsKey(registerId)) {
         execution.setPreBlocks(new LinkedHashMap<>(preBlocks));
       } else {
-        execution.setPreBlocks(postBlocks.get(index));
+        execution.setPreBlocks(postBlocks.get(registerId));
       }
 
       // Previous delay slots.
-      if (!postSlots.containsKey(index)) {
+      if (!postSlots.containsKey(registerId)) {
         execution.setPreSlots(new LinkedHashMap<>(preSlots));
       } else {
-        execution.setPreSlots(postSlots.get(index));
+        execution.setPreSlots(postSlots.get(registerId));
       }
 
       // Next basic blocks.
       final Map<Integer, Integer> newPostBlocks = new LinkedHashMap<>();
       execution.setPostBlocks(newPostBlocks);
-      postBlocks.put(index, newPostBlocks);
+      postBlocks.put(registerId, newPostBlocks);
 
       // Next delay slots.
       final Map<Integer, Integer> newPostSlots = new LinkedHashMap<>();
       execution.setPostSlots(newPostSlots);
-      postSlots.put(index, newPostSlots);
+      postSlots.put(registerId, newPostSlots);
     }
 
     @Override

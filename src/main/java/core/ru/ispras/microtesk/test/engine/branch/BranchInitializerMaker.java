@@ -168,19 +168,26 @@ public final class BranchInitializerMaker implements InitializerMaker {
     // If the control code is not executed before the first branch execution,
     // the registers of the branch instruction should be initialized.
     boolean initNeeded = !branchTrace.isEmpty();
-    // Data stream is not used if the trace is empty or consists of one execution.
+    // Data stream is not used if the trace is empty or consists of the same condition values.
     boolean streamUsed = false;
 
+    // It cannot be guaranteed that two branches do not share a register.
+    final boolean sharedRegisters = true;
+
     // There is no need to construct the control code if the branch condition does not change.
-    if (branchTrace.getChangeNumber() > 0) {
+    // However, if multiple branches shares the same register, it makes sense.
+    @SuppressWarnings("unused")
+    final boolean streamBasedInitialization = sharedRegisters || branchTrace.getChangeNumber() > 0;
+
+    if (streamBasedInitialization) {
       for (int i = 0; i < branchTrace.size(); i++) {
         final BranchExecution execution = branchTrace.get(i);
         final boolean branchCondition = execution.value();
 
         // Count defines how many times the control code is executed before calling the branch.
         final int count = getCount(branchEntry, execution);
-        Logger.debug(String.format(
-            "Branch execution: i=%d, condition=%b, count=%d", i, branchCondition, count));
+        Logger.debug(String.format("Branch execution: i=%d, condition=%b, count=%d",
+            i, branchCondition, count));
 
         if(i == 0 && count > 0) {
           initNeeded = false;

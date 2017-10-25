@@ -120,7 +120,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
       if (null != dependencyAbstractCall) {
         final int dependencyIndex = abstractCalls.get(dependencyAbstractCall);
-        abstractCall.getAttributes().put("dependsOn", dependencyIndex);
+        abstractCall.getAttributes().put("dependsOnIndex", dependencyIndex);
       }
     }
 
@@ -359,8 +359,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         final ConcreteCall concreteCall = concreteCalls.get(index);
         InvariantChecks.checkNotNull(concreteCall);
 
-        if (abstractCall.getAttributes().containsKey("dependsOn")) {
-          final int dependencyIndex = (int) abstractCall.getAttributes().get("dependsOn");
+        if (abstractCall.getAttributes().containsKey("dependsOnIndex")) {
+          final int dependencyIndex = (int) abstractCall.getAttributes().get("dependsOnIndex");
 
           final AbstractCall dependencyAbstractCall = abstractCalls.get(dependencyIndex);
           InvariantChecks.checkNotNull(dependencyAbstractCall);

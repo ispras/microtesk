@@ -36,6 +36,9 @@ public final class BranchEntry {
   /** Entry type. */
   private Type type;
 
+  /** The register identifier (for branches only) */
+  private int registerId;
+
   /** Group identifier of the entry. */
   private int groupId;
 
@@ -64,19 +67,22 @@ public final class BranchEntry {
   private boolean controlCodeInBasicBlock = false;
   private boolean controlCodeInDelaySlot = false;
 
-  public BranchEntry(final Type type, final int groupId, final int branchLabel) {
+  public BranchEntry(
+      final Type type, final int registerId, final int groupId, final int branchLabel) {
     this.type = type;
+    this.registerId = registerId;
     this.groupId = groupId;
     this.branchLabel = branchLabel;
     branchTrace = new BranchTrace();
   }
 
   public BranchEntry(final Type type) {
-    this(type, -1, -1);
+    this(type, -1, -1, -1);
   }
 
   private BranchEntry(final BranchEntry r) {
     type = r.type;
+    registerId = r.registerId;
     groupId = r.groupId;
     branchLabel = r.branchLabel;
     branchTrace = r.branchTrace.clone();
@@ -143,6 +149,24 @@ public final class BranchEntry {
    */
   public boolean isBranch() {
     return type == Type.IF_THEN || type == Type.GOTO;
+  }
+
+  /**
+   * Returns the register identifier of the branch entry.
+   * 
+   * @return the register identifier.
+   */
+  public int getRegisterId() {
+    return registerId;
+  }
+
+  /**
+   * Sets the register identifier of the branch entry.
+   * 
+   * @param registerId the register identifier to be set.
+   */
+  public void setRegisterId(final int registerId) {
+    this.registerId = registerId;
   }
 
   /**
