@@ -123,6 +123,7 @@ public final class EngineUtils {
 
   public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final int processingCount,
       final AbstractCall abstractCall,
       final AbstractSequence abstractSequence,
       final Primitive primitive,
@@ -130,6 +131,7 @@ public final class EngineUtils {
       final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
     return makeInitializer(
         engineContext,
+        processingCount,
         abstractCall,
         abstractSequence,
         primitive,
@@ -141,6 +143,7 @@ public final class EngineUtils {
 
   public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final int processingCount,
       final AbstractCall abstractCall,
       final AbstractSequence abstractSequence,
       final Primitive primitive,
