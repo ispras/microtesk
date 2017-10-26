@@ -392,15 +392,27 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         if (abstractCall.getAttributes().containsKey("dependsOnIndex")) {
           final int dependencyIndex = (int) abstractCall.getAttributes().get("dependsOnIndex");
 
-          final AbstractCall dependencyAbstractCall = abstractCalls.get(dependencyIndex);
-          InvariantChecks.checkNotNull(dependencyAbstractCall);
-
           final ConcreteCall dependencyConcreteCall = concreteCalls.get(dependencyIndex);
           InvariantChecks.checkNotNull(dependencyConcreteCall);
 
-          callMap.put(concreteCall, new CallEntry(dependencyAbstractCall, dependencyConcreteCall));
+          if (callMap.containsKey(dependencyConcreteCall)) {
+            final CallEntry callEntry = callMap.get(dependencyConcreteCall);
+            InvariantChecks.checkNotNull(callEntry);
+            callMap.put(concreteCall, callEntry);
+          } else {
+            final AbstractCall dependencyAbstractCall = abstractCalls.get(dependencyIndex);
+            InvariantChecks.checkNotNull(dependencyAbstractCall);
+
+            final CallEntry callEntry =
+                new CallEntry(dependencyAbstractCall, dependencyConcreteCall);
+
+            callMap.put(dependencyConcreteCall, callEntry);
+            callMap.put(concreteCall, callEntry);
+          }
         } else {
-          callMap.put(concreteCall, new CallEntry(abstractCall, concreteCall));
+          if (!callMap.containsKey(concreteCall)) {
+            callMap.put(concreteCall, new CallEntry(abstractCall, concreteCall));
+          }
         }
 
         this.testSequenceBuilder.add(concreteCall);
