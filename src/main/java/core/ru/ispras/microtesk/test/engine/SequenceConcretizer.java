@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.InstructionCall;
@@ -324,7 +325,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
   private static final class CallEntry {
     private final AbstractCall abstractCall;
     private final ConcreteCall concreteCall;
-    private int executionCount;
+    private int processingCount;
 
     public CallEntry(final AbstractCall abstractCall, final ConcreteCall concreteCall) {
       InvariantChecks.checkNotNull(abstractCall);
@@ -332,7 +333,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
       this.abstractCall = abstractCall;
       this.concreteCall = concreteCall;
-      this.executionCount = 0;
+      this.processingCount = 0;
     }
 
     public AbstractCall getAbstractCall() {
@@ -343,12 +344,12 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       return concreteCall;
     }
 
-    public int getExecutionCount() {
-      return executionCount;
+    public int getProcessingCount() {
+      return processingCount;
     }
 
-    public void incExecutionCount() {
-      executionCount++;
+    public void incProcessingCount() {
+      processingCount++;
     }
   }
 
@@ -421,17 +422,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       final CallEntry callEntry = callMap.get(concreteCall);
       InvariantChecks.checkNotNull(callEntry);
 
-      if (callEntry.getExecutionCount() > 0) {
+      if (callEntry.getProcessingCount() > 0) {
         return; // Already processed
-      }
-
-      if (concreteCall != callEntry.getConcreteCall()) {
-        final CallEntry dependencyCallEntry = callMap.get(callEntry.getConcreteCall());
-        InvariantChecks.checkNotNull(dependencyCallEntry);
-
-        if (dependencyCallEntry.getExecutionCount() > 0) {
-          return; // Already processed
-        }
       }
 
       try {
@@ -440,13 +432,14 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         throw new GenerationAbortedException(
             "Failed to generate test data for " + concreteCall.getText(), e);
       } finally {
-        callEntry.incExecutionCount();
+        callEntry.incProcessingCount();
       }
     }
 
     private void processCall(
         final EngineContext engineContext,
-        final CallEntry callEntry) throws ConfigurationException {
+        final CallEntry callEntry
+        ) throws ConfigurationException {
       InvariantChecks.checkNotNull(engineContext);
       InvariantChecks.checkNotNull(callEntry);
 
