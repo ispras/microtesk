@@ -261,6 +261,9 @@ public final class EngineUtils {
     final Map<String, Argument> modes = queryCreator.getModes();
     Logger.debug("Modes used as arguments: " + modes);
 
+    Logger.debug("Processing count: %s", processingCount);
+    query.getContext().put("count", processingCount);
+
     final TestBase testBase = engineContext.getTestBase();
     final TestBaseQueryResult queryResult = testBase.executeQuery(query);
 
