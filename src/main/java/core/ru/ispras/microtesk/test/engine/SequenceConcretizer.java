@@ -182,6 +182,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         sequenceIndex
         );
 
+    creator.finishProcessing();
     engineContext.setCodeAllocationAddress(creator.getAllocationAddress());
     final ConcreteSequence result = creator.createTestSequence();
 
@@ -347,6 +348,10 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       return processingCount;
     }
 
+    public void setProcessingCount(final int processingCount) {
+      this.processingCount = processingCount;
+    }
+
     public void incProcessingCount() {
       processingCount++;
     }
@@ -355,6 +360,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
   private final class ConcreteSequenceCreator extends ExecutorListener {
     private final int sequenceIndex;
     private final AbstractSequence abstractSequence;
+    private final ConcreteSequence concreteSequence;
     private final Map<ConcreteCall, CallEntry> callMap;
     private final Set<AddressingModeWrapper> initializedModes;
     private final ExecutorListener listenerForInitializers;
@@ -369,6 +375,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
       this.sequenceIndex = sequenceIndex;
       this.abstractSequence = abstractSequence;
+      this.concreteSequence = concreteSequence;
       this.callMap = new IdentityHashMap<>();
       this.initializedModes = new HashSet<>();
       this.listenerForInitializers = new ExecutorListener();
@@ -590,6 +597,18 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         programCounter.setValue(programCounterValue);
         setAllocationAddress(listenerForInitializers.getAllocationAddress());
         Logger.debug("");
+      }
+    }
+
+    public void finishProcessing() throws ConfigurationException {
+      for (final ConcreteCall concreteCall : concreteSequence.getAll()) {
+        final CallEntry callEntry = callMap.get(concreteCall);
+        InvariantChecks.checkNotNull(callEntry);
+
+        if (callEntry.getProcessingCount() != -1) {
+          callEntry.setProcessingCount(-1);
+          processCall(engineContext, callEntry);
+        }
       }
     }
   }
