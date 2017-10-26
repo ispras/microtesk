@@ -420,13 +420,19 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       InvariantChecks.checkNotNull(engineContext);
 
       final CallEntry callEntry = callMap.get(concreteCall);
-      if (null == callEntry) {
+      InvariantChecks.checkNotNull(callEntry);
+
+      if (callEntry.getExecutionCount() > 0) {
         return; // Already processed
       }
 
-      if (concreteCall != callEntry.getConcreteCall() &&
-          null == callMap.get(callEntry.getConcreteCall())) {
-        return; // Already processed
+      if (concreteCall != callEntry.getConcreteCall()) {
+        final CallEntry dependencyCallEntry = callMap.get(callEntry.getConcreteCall());
+        InvariantChecks.checkNotNull(dependencyCallEntry);
+
+        if (dependencyCallEntry.getExecutionCount() > 0) {
+          return; // Already processed
+        }
       }
 
       try {
@@ -436,10 +442,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
             "Failed to generate test data for " + concreteCall.getText(), e);
       } finally {
         callEntry.incExecutionCount();
-        callMap.put(concreteCall, null);
-        if (concreteCall != callEntry.getConcreteCall()) {
-          callMap.put(callEntry.getConcreteCall(), null);
-        }
       }
     }
 
