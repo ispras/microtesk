@@ -163,8 +163,14 @@ public final class SequenceProcessor {
         return null;
       }
 
-      final AbstractSequence abstractSequence =
-          expandProloguesAndEpilogues(abstractSequenceIterator.value());
+      AbstractSequence abstractSequence =
+          abstractSequenceIterator.value();
+
+      abstractSequence = new AbstractSequence(
+          abstractSequence.getSection(), AbstractCall.copyAll(abstractSequence.getSequence()));
+
+      abstractSequence =
+          expandProloguesAndEpilogues(abstractSequence);
 
       final Iterator<AbstractSequence> abstractSequenceEngineIterator =
           processSequenceWithEngines(engineContext, engineAttributes, abstractSequence);
@@ -289,14 +295,22 @@ public final class SequenceProcessor {
     final List<AbstractCall> abstractCalls = new ArrayList<>();
 
     for (int index = 0; index < abstractSequence.getSequence().size(); ++index) {
+      AbstractCall call = abstractSequence.getSequence().get(index);
+
       if (null != abstractSequence.getPrologues()) {
         final List<AbstractCall> prologue = abstractSequence.getPrologues().get(index);
         if (null != prologue) {
+         if (!call.getLabels().isEmpty()) {
+            final AbstractCall labelCall = AbstractCall.newEmpty();
+            labelCall.getLabels().addAll(call.getLabels());
+            abstractCalls.add(labelCall);
+            call.getLabels().clear();
+          }
+
           abstractCalls.addAll(prologue);
         }
       }
 
-      final AbstractCall call = abstractSequence.getSequence().get(index);
       abstractCalls.add(call);
 
       if (null != abstractSequence.getEpilogues()) {
