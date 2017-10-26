@@ -271,7 +271,15 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     this.where = other.where;
     this.text = other.text;
     this.rootOperation = null != other.rootOperation ? other.rootOperation.newCopy() : null;
-    this.attributes = new LinkedHashMap<>(other.attributes);
+    this.attributes = new LinkedHashMap<>();
+
+    for (final Map.Entry<String, Object> e : other.attributes.entrySet()) {
+      if (e.getValue() instanceof SharedObject) {
+        this.attributes.put(e.getKey(), ((SharedObject<?>) e.getValue()).getCopy());
+      } else {
+        this.attributes.put(e.getKey(), e.getValue());
+      }
+    }
 
     this.labels = Label.copyAll(other.labels);
     this.labelRefs = LabelReference.copyAll(other.labelRefs);
@@ -305,7 +313,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
 
     final List<AbstractCall> result = new ArrayList<>(calls.size());
     for (final AbstractCall call : calls) {
-      result.add(new AbstractCall(call));
+      result.add(call.getCopy());
     }
 
     SharedObject.freeSharedCopies();
