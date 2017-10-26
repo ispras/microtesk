@@ -44,17 +44,20 @@ final class BranchTraceConstructor {
    */
   private static final class BranchTraceConstructorVisitor extends BranchEntryVisitor {
     /** Contains an execution trace. */
-    private List<Integer> trace = new ArrayList<>();
+    final private List<Integer> trace = new ArrayList<>();
 
     /** Contains a set of basic blocks having been executed (with counters). */
-    private Map<Integer, Integer> preBlocks = new LinkedHashMap<>();
+    final private Map<Integer, Integer> preBlocks = new LinkedHashMap<>();
     /** Contains a set of delay slots having been executed. */
-    private Map<Integer, Integer> preSlots = new LinkedHashMap<>();
+    final private Map<Integer, Integer> preSlots = new LinkedHashMap<>();
 
     /** Maps a register identifier into the current basic block segment. */
-    private Map<Integer, Map<Integer, Integer>> postBlocks = new LinkedHashMap<>();
+    final private Map<Integer, Map<Integer, Integer>> postBlocks = new LinkedHashMap<>();
     /** Maps a register identifier into the current delay slot segment. */
-    private Map<Integer, Map<Integer, Integer>> postSlots = new LinkedHashMap<>();
+    final private Map<Integer, Map<Integer, Integer>> postSlots = new LinkedHashMap<>();
+
+    /** Contains a set of used branch registers. */
+    final private Set<Integer> branchRegisters = new LinkedHashSet<>();
 
     public List<Integer> getTrace() {
       return trace;
@@ -69,6 +72,9 @@ final class BranchTraceConstructor {
       trace.add(index);
 
       final int registerId = entry.getRegisterId();
+      final boolean newRegisterId = branchRegisters.add(registerId);
+
+      entry.setRegisterFirstUse(newRegisterId);
 
       // Previous basic blocks.
       if (!postBlocks.containsKey(registerId)) {

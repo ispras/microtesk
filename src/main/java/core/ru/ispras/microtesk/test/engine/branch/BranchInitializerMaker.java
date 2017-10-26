@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.engine.branch;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ import ru.ispras.testbase.TestData;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchInitializerMaker implements InitializerMaker {
-  public static final boolean USE_DELAY_SLOTS = true;
+  public static final boolean USE_DELAY_SLOTS = BranchEngine.USE_DELAY_SLOTS;
 
   @Override
   public void configure(final Map<String, Object> attributes) {}
@@ -53,21 +54,116 @@ public final class BranchInitializerMaker implements InitializerMaker {
   @Override
   public void onEndProgram() {}
 
-
   @Override
   public List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final int processingCount,
       final AbstractCall abstractCall,
       final Primitive primitive,
       final Situation situation,
-      final TestData testData, /* Not in use */
+      final TestData testData, /* Unused */
       final Map<String, Argument> modes,
       final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
-    return makeInitializer(engineContext, abstractCall, primitive, situation);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(abstractCall);
+    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkNotNull(situation);
+
+    final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
+    InvariantChecks.checkNotNull(branchEntry);
+
+    final BranchTrace branchTrace = branchEntry.getBranchTrace();
+    InvariantChecks.checkNotNull(branchTrace);
+    InvariantChecks.checkTrue(processingCount == -1 /* The final pass */
+        || (0 <= processingCount && processingCount < branchTrace.size()));
+
+    // It cannot be guaranteed that two branches do not share a register.
+    final boolean sharedRegisters = true;
+
+    // There is no need to construct the control code if the branch condition does not change.
+    // However, if multiple branches shares the same register, it makes sense.
+    @SuppressWarnings("unused")
+    final boolean streamBasedInitialization = sharedRegisters || branchTrace.getChangeNumber() > 0;
+
+    // The final pass.
+    if (processingCount == -1) {
+      if (branchTrace.isEmpty() || !branchEntry.isRegisterFirstUse()) {
+        return Collections.<AbstractCall>emptyList();
+      }
+
+      final List<AbstractCall> initializer = new ArrayList<>();
+
+      // Reset the stream if is used.
+      if (streamBasedInitialization) {
+        final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
+        initializer.addAll(EngineUtils.makeStreamInit(engineContext, testDataStream));
+      }
+
+      final BranchExecution execution = branchTrace.get(0);
+      final int executionCount = getControlCodeExecutionCount(branchEntry, execution);
+
+      // If the control code is not invoked before the first branch execution and
+      // this is the first use of the branch register, the register should be initialized.
+      if (executionCount == 0) {
+        final List<AbstractCall> initRegisters =
+            makeInitializer(
+                engineContext,
+                processingCount,
+                abstractCall,
+                primitive,
+                situation,
+                true /* Branch is taken */,
+                execution.value(),
+                false /* Write into the registers */);
+
+        initializer.addAll(initRegisters);
+      }
+
+      return initializer;
+    }
+
+    if (streamBasedInitialization) {
+      final List<AbstractCall> initializer = new ArrayList<>();
+
+      final BranchExecution execution = branchTrace.get(processingCount);
+      final boolean branchCondition = execution.value();
+
+      // Calculate how many times the control code is executed before calling the branch.
+      final int executionCount = getControlCodeExecutionCount(branchEntry, execution);
+
+      Logger.debug(
+          String.format("Branch execution: processingCount=%d, condition=%b, executionCount=%d",
+              processingCount, branchCondition, executionCount));
+
+      // The data stream should be initialized before writing into it. 
+      if (processingCount == 0 && branchEntry.isRegisterFirstUse()) {
+        final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
+        initializer.addAll(EngineUtils.makeStreamInit(engineContext, testDataStream));
+      }
+
+      for (int i = 0; i < executionCount; i++) {
+        initializer.addAll(
+            makeInitializer(
+                engineContext,
+                processingCount,
+                abstractCall,
+                primitive,
+                situation,
+                true /* Branch is taken */,
+                branchCondition,
+                true /* Write into the stream */)
+            );
+      }
+
+      return initializer;
+    } // If stream-based initialization is used.
+
+    return Collections.<AbstractCall>emptyList();
   }
 
   private List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final int processingCount,
       final AbstractCall abstractCall,
       final Primitive primitive,
       final Situation situation,
@@ -102,8 +198,8 @@ public final class BranchInitializerMaker implements InitializerMaker {
             primitive
          );
 
-    final TestData testData =
-        EngineUtils.getTestData(engineContext, primitive, newSituation, queryCreator);
+    final TestData testData = EngineUtils.getTestData(
+        engineContext, processingCount, primitive, newSituation, queryCreator);
     Logger.debug("Test data: %s", testData);
 
     // Set unknown immediate values (if there are any).
@@ -135,118 +231,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
     return initializer;
   }
 
-  private List<AbstractCall> makeInitializer(
-      final EngineContext engineContext,
-      final AbstractCall abstractCall,
-      final Primitive primitive,
-      final Situation situation) throws ConfigurationException {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(abstractCall);
-    InvariantChecks.checkNotNull(primitive);
-    InvariantChecks.checkNotNull(situation);
-
-    final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
-    InvariantChecks.checkNotNull(branchEntry);
-
-    final BranchTrace branchTrace = branchEntry.getBranchTrace();
-    InvariantChecks.checkNotNull(branchTrace);
-
-    // If the branch is not executed, initialize immediate arguments.
-    if (branchTrace.isEmpty()) {
-      return makeInitializer(
-          engineContext,
-          abstractCall,
-          primitive,
-          situation,
-          false /* Branch is not taken */,
-          false /* Branch condition is ignored */,
-          true  /* Write into the stream */);
-    }
-
-    final List<AbstractCall> initializer = new ArrayList<>();
-
-    // If the control code is not executed before the first branch execution,
-    // the registers of the branch instruction should be initialized.
-    boolean initNeeded = !branchTrace.isEmpty();
-    // Data stream is not used if the trace is empty or consists of the same condition values.
-    boolean streamUsed = false;
-
-    // It cannot be guaranteed that two branches do not share a register.
-    final boolean sharedRegisters = true;
-
-    // There is no need to construct the control code if the branch condition does not change.
-    // However, if multiple branches shares the same register, it makes sense.
-    @SuppressWarnings("unused")
-    final boolean streamBasedInitialization = sharedRegisters || branchTrace.getChangeNumber() > 0;
-
-    if (streamBasedInitialization) {
-      for (int i = 0; i < branchTrace.size(); i++) {
-        final BranchExecution execution = branchTrace.get(i);
-        final boolean branchCondition = execution.value();
-
-        // Count defines how many times the control code is executed before calling the branch.
-        final int count = getCount(branchEntry, execution);
-        Logger.debug(String.format("Branch execution: i=%d, condition=%b, count=%d",
-            i, branchCondition, count));
-
-        if(i == 0 && count > 0) {
-          initNeeded = false;
-        }
-
-        for (int j = 0; j < count; j++) {
-          // Data stream should be initialized before the first write. 
-          if (!streamUsed) {
-            final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
-            final List<AbstractCall> initDataStream =
-                EngineUtils.makeStreamInit(engineContext, testDataStream);
-
-            initializer.addAll(initDataStream);
-            streamUsed = true;
-          }
-
-          initializer.addAll(
-              makeInitializer(
-                  engineContext,
-                  abstractCall,
-                  primitive,
-                  situation,
-                  true /* Branch is taken */,
-                  branchCondition,
-                  true /* Write into the stream */)
-              );
-        }
-      }
-
-      // Initialize the data stream if it was used. 
-      if (streamUsed) {
-        final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
-        final List<AbstractCall> initDataStream =
-            EngineUtils.makeStreamInit(engineContext, testDataStream);
-
-        initializer.addAll(initDataStream);
-      }
-    }
-
-    // Initialize the registers if it is needed. 
-    if (initNeeded) {
-      final BranchExecution execution = branchTrace.get(0);
-      final boolean branchCondition = execution.value();
-      final List<AbstractCall> initRegisters = makeInitializer(
-          engineContext,
-          abstractCall,
-          primitive,
-          situation,
-          true /* Branch is taken */,
-          branchCondition,
-          false /* Write into the registers */);
-
-      initializer.addAll(initRegisters);
-    }
-
-    return initializer;
-  }
-
-  private int getCount(
+  private int getControlCodeExecutionCount(
       final BranchEntry entry,
       final BranchExecution execution) {
     InvariantChecks.checkNotNull(entry);

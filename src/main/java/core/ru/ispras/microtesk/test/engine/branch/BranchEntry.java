@@ -39,6 +39,9 @@ public final class BranchEntry {
   /** The register identifier (for branches only) */
   private int registerId;
 
+  /** The flag that shows whether the register is used for the first time in the execution. */
+  private boolean isRegisterFirstUse;
+
   /** Group identifier of the entry. */
   private int groupId;
 
@@ -167,6 +170,24 @@ public final class BranchEntry {
    */
   public void setRegisterId(final int registerId) {
     this.registerId = registerId;
+  }
+
+  /**
+   * Checks whether the register is used for the first time.
+   * 
+   * @return {@code} if the register is used for the first time; {@code false} otherwise.
+   */
+  public boolean isRegisterFirstUse() {
+    return isRegisterFirstUse;
+  }
+
+  /**
+   * Specifies whether the register is used for the first time.
+   * 
+   * @param isRegisterFirstUse the value to be set.
+   */
+  public void setRegisterFirstUse(final boolean isRegisterFirstUse) {
+    this.isRegisterFirstUse = isRegisterFirstUse;
   }
 
   /**

@@ -81,6 +81,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
   @Override
   public List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final int processingCount,
       final AbstractCall abstractCall,
       final Primitive primitive,
       final Situation situation,
@@ -88,6 +89,10 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       final Map<String, Argument> modes,
       final Set<AddressingModeWrapper> initializedModes /* OUT */) {
     InvariantChecks.checkTrue(MemoryEngine.ID.equals(testData.getId()));
+
+    if (processingCount != 0) {
+      return Collections.<AbstractCall>emptyList();
+    }
 
     final AddressObject addressObject =
         (AddressObject) testData.getBindings().get(MemoryDataGenerator.SOLUTION);
@@ -394,6 +399,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     try {
       final List<AbstractCall> abstractInitializer = EngineUtils.makeInitializer(
           engineContext,
+          0,   /* Processing count */
           null /* Abstract call */,
           null /* Abstract sequence */,
           primitive,

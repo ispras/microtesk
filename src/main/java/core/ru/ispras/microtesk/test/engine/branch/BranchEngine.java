@@ -71,6 +71,7 @@ public final class BranchEngine implements Engine {
 
   public static final String IF_THEN_SITUATION_SUFFIX = "if-then";
   public static final String GOTO_SITUATION_SUFFIX = "goto";
+  public static final String AUTO_LABEL_PREFIX = "auto_label";
 
   /** Attribute {@code executed} is used to mark executed and non-taken code. */
   public static final String ATTR_EXECUTED = "executed";
@@ -138,12 +139,25 @@ public final class BranchEngine implements Engine {
     return testDataStream.toString();
   }
 
+  static int getRegisterId(final AbstractCall abstractBranchCall) {
+    InvariantChecks.checkNotNull(abstractBranchCall);
+
+    final Primitive primitive = abstractBranchCall.getRootOperation();
+    InvariantChecks.checkNotNull(primitive);
+
+    // TODO:
+    return 0;
+  }
+
   /** Branch percentage: default value is 10%. */
   private int branchPercentage = PARAM_BRANCH_PERCENTAGE.getDefaultValue();
+
   /** Branch execution limit: default value is 1. */
   private int branchExecutionLimit = PARAM_BRANCH_LIMIT.getDefaultValue();
+
   /** Block execution limit: default value is 1. */
   private int blockExecutionLimit = PARAM_BLOCK_LIMIT.getDefaultValue();
+
   /** Trace count limit: default value is -1 (no limitations). */
   private int traceCountLimit = PARAM_TRACE_LIMIT.getDefaultValue();
 
@@ -188,56 +202,65 @@ public final class BranchEngine implements Engine {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
+    // The branch engine may modify the original sequence.
     final List<AbstractCall> oldSequence = abstractSequence.getSequence();
     final List<AbstractCall> newSequence = new ArrayList<>();
 
-    final List<AbstractCall> executedCode = new ArrayList<>();
-    final List<AbstractCall> nontakenCode = new ArrayList<>();
-    final List<AbstractCall> branchesCode = new ArrayList<>();
+    // Branches to be injected into test cases.
+    final List<AbstractCall> branchesBlock = new ArrayList<>();
+    // Code to be put along an execution trace.
+    final List<AbstractCall> executedBlock = new ArrayList<>();
+    // Code to be put into non-executed basic blocks.
+    final List<AbstractCall> nontakenBlock = new ArrayList<>();
 
-    // Take special-purpose code from the sequence.
+    // Take the above-mentioned blocks from the sequence.
     for (int i = 0; i < oldSequence.size(); i++) {
       final AbstractCall abstractCall = oldSequence.get(i);
       final Map<String, Object> attributes = abstractCall.getAttributes();
 
-      // Do not add executed/non-executed calls to the branch structure.
       final Boolean isExecuted = (Boolean) attributes.get(ATTR_EXECUTED);
       final Boolean isBranches = (Boolean) attributes.get(ATTR_BRANCHES);
 
       if (isExecuted != null) {
         if (isExecuted) {
-          executedCode.add(abstractCall);
+          executedBlock.add(abstractCall);
         } else {
-          nontakenCode.add(abstractCall);
+          nontakenBlock.add(abstractCall);
         }
         continue;
       }
 
       if (isBranches != null) {
         // The attribute value is not of importance.
-        branchesCode.add(abstractCall);
+        branchesBlock.add(abstractCall);
         continue;
       }
 
+      // The rest code is added to the sequence without changes.
       newSequence.add(abstractCall);
     }
 
     // Add the required number of branches to the sequence.
-    if (!branchesCode.isEmpty()) {
-      final int sequenceSize = newSequence.size() + executedCode.size() + nontakenCode.size();
+    if (!branchesBlock.isEmpty()) {
+      final int sequenceSize = newSequence.size() + executedBlock.size() + nontakenBlock.size();
       final int branchNumber = (branchPercentage * sequenceSize) / (100 - branchPercentage);
 
       for (int i = 0; i < branchNumber; i++) {
-        final AbstractCall branchCall = Randomizer.get().choose(branchesCode);
-        final int randomIndex = Randomizer.get().nextIntRange(0, newSequence.size());
-        // Do not break appended block-branch pairs.
-        final int branchIndex =
-            randomIndex < newSequence.size() && isBranch(newSequence.get(randomIndex))
-                ? randomIndex + 1 : randomIndex;
+        // Choose a random branch from the branches block.
+        final AbstractCall branchCall = Randomizer.get().choose(branchesBlock);
 
-        // Add a randomly chosen branch.
+        // Insert the chosen branch into a random position.
+        final int randomIndex = Randomizer.get().nextIntRange(0, newSequence.size());
+        final AbstractCall randomCall = randomIndex < newSequence.size()
+            ? newSequence.get(randomIndex) : null;
+
+        // Do not break the block-branch pairs.
+        final int branchIndex = randomCall != null && isBranch(randomCall)
+            ? randomIndex + 1 : randomIndex;
+
+        // Add the chosen branch.
         newSequence.add(branchIndex, new AbstractCall(branchCall));
-        // Add an empty basic block before the branch (this is a place for control code).
+        // Insert an empty basic block before the branch (place for control code).
         newSequence.add(branchIndex, AbstractCall.newEmpty());
       }
     }
@@ -253,7 +276,7 @@ public final class BranchEngine implements Engine {
       }
     }
 
-    // Transform the abstract sequence into the branch structure.
+    // Transform the sequence into the branch structure.
     final List<BranchEntry> branchStructure = new ArrayList<>();
 
     int autoLabel = 0;
@@ -283,9 +306,9 @@ public final class BranchEngine implements Engine {
 
       final BranchEntry branchEntry = new BranchEntry(type);
 
+      // To create initialization code, the engine needs to know branch registers.
       if (branchEntry.isIfThen()) {
-        // Initialize the register identifier.
-        branchEntry.setRegisterId(0);
+        branchEntry.setRegisterId(getRegisterId(abstractCall));
       }
 
       branchStructure.add(branchEntry);
@@ -298,14 +321,16 @@ public final class BranchEngine implements Engine {
         // Branching to any place in the sequence (_label).
         if (targetReference.getReference() == null) {
           // Generate the label name.
-          final String name = String.format("auto_label_%d", autoLabel++);
+          final String name = String.format("%s_%d", AUTO_LABEL_PREFIX, autoLabel++);
           final BlockId blockId = new BlockId();
           final Label targetLabel = new Label(name, blockId);
 
           // Put the label in a random position.
           final int randomIndex = Randomizer.get().nextIntRange(0, newSequence.size() - 1);
+          final AbstractCall randomCall = newSequence.get(randomIndex);
+
           // Jump to a basic block to be able to update the next branch register.
-          final int targetIndex = randomIndex > 0 && isBranch(newSequence.get(randomIndex))
+          final int targetIndex = randomIndex > 0 && isBranch(randomCall)
               ? randomIndex - 1 : randomIndex;
 
           final AbstractCall targetCall = newSequence.get(targetIndex);
@@ -370,8 +395,8 @@ public final class BranchEngine implements Engine {
         return insertComments(
             insertExecutedCode(
                 engineContext,
-                executedCode,
-                nontakenCode,
+                executedBlock,
+                nontakenBlock,
                 branchStructure,
                 executionTrace,
                 insertControlCode(
