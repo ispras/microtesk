@@ -159,7 +159,9 @@ public final class EngineUtils {
     final TestBaseQueryCreator queryCreator =
         new TestBaseQueryCreator(engineContext, abstractSequence, situation, primitive);
 
-    final TestData testData = getTestData(engineContext, primitive, situation, queryCreator);
+    final TestData testData =
+        getTestData(engineContext, processingCount, primitive, situation, queryCreator);
+
     Logger.debug(testData.toString());
 
     if (null != situation) {
@@ -236,6 +238,7 @@ public final class EngineUtils {
 
   public static TestData getTestData(
       final EngineContext engineContext,
+      final int processingCount,
       final Primitive primitive,
       final Situation situation,
       final TestBaseQueryCreator queryCreator) {
