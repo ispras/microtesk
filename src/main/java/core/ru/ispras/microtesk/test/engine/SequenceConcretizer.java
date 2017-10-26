@@ -433,7 +433,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       final CallEntry callEntry = callMap.get(concreteCall);
       InvariantChecks.checkNotNull(callEntry);
 
-      if (callEntry.getProcessingCount() > 0) {
+      if (callEntry.getProcessingCount() != concreteCall.getExecutionCount()) {
         return; // Already processed
       }
 
@@ -456,6 +456,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
       final AbstractCall abstractCall = callEntry.getAbstractCall();
       final ConcreteCall concreteCall = callEntry.getConcreteCall();
+      final int processingCount = callEntry.getProcessingCount();
 
       // Not executable calls do not need test data
       if (!abstractCall.isExecutable()) {
@@ -475,11 +476,18 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       final IsaPrimitive concretePrimitive = instructionCall.getRootPrimitive();
       InvariantChecks.checkNotNull(concretePrimitive);
 
-      processPrimitive(engineContext, abstractCall, abstractPrimitive, concretePrimitive);
+      processPrimitive(
+          engineContext,
+          processingCount,
+          abstractCall,
+          abstractPrimitive,
+          concretePrimitive
+          );
     }
 
     private void processPrimitive(
         final EngineContext engineContext,
+        final int processingCount,
         final AbstractCall abstractCall,
         final Primitive abstractPrimitive,
         final IsaPrimitive concretePrimitive) throws ConfigurationException {
@@ -487,7 +495,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       InvariantChecks.checkNotNull(abstractPrimitive);
       InvariantChecks.checkNotNull(concretePrimitive);
 
-      // Unrolls shortcuts to establish correspondence between abstract and concrete primitives
+      // Unrolls shortcuts to establish correspondence between abstract and concrete primitives.
       final IsaPrimitive fixedConcretePrimitive =
           findConcretePrimitive(abstractPrimitive, concretePrimitive);
 
@@ -502,7 +510,13 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           final IsaPrimitive concreteArgument =
               fixedConcretePrimitive.getArguments().get(argumentName);
 
-          processPrimitive(engineContext, abstractCall, abstractArgument, concreteArgument);
+          processPrimitive(
+              engineContext,
+              processingCount,
+              abstractCall,
+              abstractArgument,
+              concreteArgument
+              );
         }
       }
 
