@@ -166,13 +166,15 @@ public final class EngineUtils {
       situation.setTestData(testData);
     }
 
-    if (testData != NO_TEST_DATA) {
-      setUnknownImmValues(
-          queryCreator.getUnknownImmValues(),
-          testData,
-          null != concretePrimitive ? concretePrimitive.getArguments() : null
-          );
+    if (testData == NO_TEST_DATA) {
+      return Collections.emptyList();
     }
+
+    setUnknownImmValues(
+        queryCreator.getUnknownImmValues(),
+        testData,
+        null != concretePrimitive ? concretePrimitive.getArguments() : null
+        );
 
     final InitializerMaker initializerMaker = 
         EngineConfig.get().getInitializerMaker(testData.getId());
