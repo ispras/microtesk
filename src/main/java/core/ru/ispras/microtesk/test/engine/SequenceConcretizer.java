@@ -436,7 +436,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       }
 
       try {
-        processCall(engineContext, callEntry.getAbstractCall(), callEntry.getConcreteCall());
+        processCall(engineContext, callEntry);
       } catch (final ConfigurationException e) {
         throw new GenerationAbortedException(
             "Failed to generate test data for " + concreteCall.getText(), e);
@@ -447,11 +447,12 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
     private void processCall(
         final EngineContext engineContext,
-        final AbstractCall abstractCall,
-        final ConcreteCall concreteCall) throws ConfigurationException {
+        final CallEntry callEntry) throws ConfigurationException {
       InvariantChecks.checkNotNull(engineContext);
-      InvariantChecks.checkNotNull(abstractCall);
-      InvariantChecks.checkNotNull(concreteCall);
+      InvariantChecks.checkNotNull(callEntry);
+
+      final AbstractCall abstractCall = callEntry.getAbstractCall();
+      final ConcreteCall concreteCall = callEntry.getConcreteCall();
 
       // Not executable calls do not need test data
       if (!abstractCall.isExecutable()) {
