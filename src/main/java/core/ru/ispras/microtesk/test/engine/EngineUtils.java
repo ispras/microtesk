@@ -182,6 +182,7 @@ public final class EngineUtils {
 
     return initializerMaker.makeInitializer(
         engineContext,
+        processingCount,
         abstractCall,
         primitive,
         situation,

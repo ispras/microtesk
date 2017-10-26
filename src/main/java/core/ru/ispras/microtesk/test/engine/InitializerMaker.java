@@ -37,6 +37,7 @@ public interface InitializerMaker {
 
   List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
+      final int processingCount,
       final AbstractCall abstractCall,
       final Primitive primitive,
       final Situation situation,
