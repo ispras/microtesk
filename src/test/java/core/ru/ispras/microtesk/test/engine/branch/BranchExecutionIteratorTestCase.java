@@ -64,31 +64,32 @@ public final class BranchExecutionIteratorTestCase {
     final int size = 9;
     final List<BranchEntry> branchStructure = new ArrayList<>(size);
 
-    final BranchEntry branchEntry0 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, 0, -1);
+    int regId = 0;
+    final BranchEntry branchEntry0 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, 0, -1);
     branchStructure.add(branchEntry0);
 
-    final BranchEntry branchEntry1 = new BranchEntry(BranchEntry.Type.IF_THEN, 0, 0);
+    final BranchEntry branchEntry1 = new BranchEntry(BranchEntry.Type.IF_THEN, regId++, 0, 0);
     branchStructure.add(branchEntry1);
 
-    final BranchEntry branchEntry2 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, 0, -1);
+    final BranchEntry branchEntry2 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, 0, -1);
     branchStructure.add(branchEntry2);
 
-    final BranchEntry branchEntry3 = new BranchEntry(BranchEntry.Type.IF_THEN, 0, 2);
+    final BranchEntry branchEntry3 = new BranchEntry(BranchEntry.Type.IF_THEN, regId++, 0, 2);
     branchStructure.add(branchEntry3);
 
-    final BranchEntry branchEntry4 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, 0, -1);
+    final BranchEntry branchEntry4 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, 0, -1);
     branchStructure.add(branchEntry4);
 
-    final BranchEntry branchEntry5 = new BranchEntry(BranchEntry.Type.IF_THEN, 0, 8);
+    final BranchEntry branchEntry5 = new BranchEntry(BranchEntry.Type.IF_THEN, regId++, 0, 8);
     branchStructure.add(branchEntry5);
 
-    final BranchEntry branchEntry6 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, 0, -1);
+    final BranchEntry branchEntry6 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, 0, -1);
     branchStructure.add(branchEntry6);
 
-    final BranchEntry branchEntry7 = new BranchEntry(BranchEntry.Type.GOTO, 0, 0);
+    final BranchEntry branchEntry7 = new BranchEntry(BranchEntry.Type.GOTO, -1, 0, 0);
     branchStructure.add(branchEntry7);
 
-    final BranchEntry branchEntry8 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, 0, -1);
+    final BranchEntry branchEntry8 = new BranchEntry(BranchEntry.Type.BASIC_BLOCK, -1, 0, -1);
     branchStructure.add(branchEntry8);
 
     runTest(branchStructure, 2, 2);
