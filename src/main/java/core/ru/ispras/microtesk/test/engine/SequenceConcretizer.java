@@ -322,10 +322,41 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     }
   }
 
+  private static final class CallEntry {
+    private final AbstractCall abstractCall;
+    private final ConcreteCall concreteCall;
+    private int executionCount;
+
+    public CallEntry(final AbstractCall abstractCall, final ConcreteCall concreteCall) {
+      InvariantChecks.checkNotNull(abstractCall);
+      InvariantChecks.checkNotNull(concreteCall);
+
+      this.abstractCall = abstractCall;
+      this.concreteCall = concreteCall;
+      this.executionCount = 0;
+    }
+
+    public AbstractCall getAbstractCall() {
+      return abstractCall;
+    }
+
+    public ConcreteCall getConcreteCall() {
+      return concreteCall;
+    }
+
+    public int getExecutionCount() {
+      return executionCount;
+    }
+
+    public void incExecutionCount() {
+      executionCount++;
+    }
+  }
+
   private final class ConcreteSequenceCreator extends ExecutorListener {
     private final int sequenceIndex;
     private final AbstractSequence abstractSequence;
-    private final Map<ConcreteCall, Pair<AbstractCall, ConcreteCall>> callMap;
+    private final Map<ConcreteCall, CallEntry> callMap;
     private final Set<AddressingModeWrapper> initializedModes;
     private final ExecutorListener listenerForInitializers;
     private final ConcreteSequence.Builder testSequenceBuilder;
@@ -368,9 +399,9 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           final ConcreteCall dependencyConcreteCall = concreteCalls.get(dependencyIndex);
           InvariantChecks.checkNotNull(dependencyConcreteCall);
 
-          callMap.put(concreteCall, new Pair<>(dependencyAbstractCall, dependencyConcreteCall));
+          callMap.put(concreteCall, new CallEntry(dependencyAbstractCall, dependencyConcreteCall));
         } else {
-          callMap.put(concreteCall, new Pair<>(abstractCall, concreteCall));
+          callMap.put(concreteCall, new CallEntry(abstractCall, concreteCall));
         }
 
         this.testSequenceBuilder.add(concreteCall);
@@ -388,24 +419,26 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       InvariantChecks.checkNotNull(concreteCall);
       InvariantChecks.checkNotNull(engineContext);
 
-      final Pair<AbstractCall, ConcreteCall> callEntry = callMap.get(concreteCall);
+      final CallEntry callEntry = callMap.get(concreteCall);
       if (null == callEntry) {
         return; // Already processed
       }
 
-      if (concreteCall != callEntry.second && null == callMap.get(callEntry.second)) {
+      if (concreteCall != callEntry.getConcreteCall() &&
+          null == callMap.get(callEntry.getConcreteCall())) {
         return; // Already processed
       }
 
       try {
-        processCall(engineContext, callEntry.first, callEntry.second);
+        processCall(engineContext, callEntry.getAbstractCall(), callEntry.getConcreteCall());
       } catch (final ConfigurationException e) {
         throw new GenerationAbortedException(
             "Failed to generate test data for " + concreteCall.getText(), e);
       } finally {
+        callEntry.incExecutionCount();
         callMap.put(concreteCall, null);
-        if (concreteCall != callEntry.second) {
-          callMap.put(callEntry.second, null);
+        if (concreteCall != callEntry.getConcreteCall()) {
+          callMap.put(callEntry.getConcreteCall(), null);
         }
       }
     }
