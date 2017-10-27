@@ -190,16 +190,16 @@ public final class BranchInitializerMaker implements InitializerMaker {
 
     final Situation newSituation = new Situation(situation.getName(), newAttributes);
 
-    final TestBaseQueryCreator queryCreator =
-        new TestBaseQueryCreator(
-            engineContext,
-            null /* Abstract sequence */,
-            newSituation,
-            primitive
-         );
+    final TestBaseQueryCreator queryCreator = new TestBaseQueryCreator(
+        engineContext,
+        processingCount,
+        null /* Abstract sequence */,
+        newSituation,
+        primitive
+        );
 
-    final TestData testData = EngineUtils.getTestData(
-        engineContext, processingCount, primitive, newSituation, queryCreator);
+    final TestData testData =
+        EngineUtils.getTestData(engineContext, primitive, newSituation, queryCreator);
     Logger.debug("Test data: %s", testData);
 
     // Set unknown immediate values (if there are any).
