@@ -74,6 +74,9 @@ public final class BranchInitializerMaker implements InitializerMaker {
 
     final BranchTrace branchTrace = branchEntry.getBranchTrace();
     InvariantChecks.checkNotNull(branchTrace);
+
+    Logger.debug("Processing count: %d, branch trace: %d", processingCount, branchTrace.size());
+
     InvariantChecks.checkTrue(processingCount == -1 /* The final pass */
         || (0 <= processingCount && processingCount < branchTrace.size()));
 
@@ -131,9 +134,8 @@ public final class BranchInitializerMaker implements InitializerMaker {
       // Calculate how many times the control code is executed before calling the branch.
       final int executionCount = getControlCodeExecutionCount(branchEntry, execution);
 
-      Logger.debug(
-          String.format("Branch execution: processingCount=%d, condition=%b, executionCount=%d",
-              processingCount, branchCondition, executionCount));
+      Logger.debug("Branch execution: processingCount=%d, condition=%b, executionCount=%d",
+          processingCount, branchCondition, executionCount);
 
       // The data stream should be initialized before writing into it. 
       if (processingCount == 0 && branchEntry.isRegisterFirstUse()) {

@@ -38,7 +38,6 @@ import ru.ispras.microtesk.test.engine.SequenceSelector;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.BlockId;
-import ru.ispras.microtesk.test.template.FixedValue;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Primitive;
