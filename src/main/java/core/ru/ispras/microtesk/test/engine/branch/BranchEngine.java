@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.engine.branch;
 import static ru.ispras.microtesk.test.engine.EngineUtils.getSituationName;
 import static ru.ispras.microtesk.test.engine.EngineUtils.makeStreamRead;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,11 +36,14 @@ import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineParameterInteger;
 import ru.ispras.microtesk.test.engine.SequenceSelector;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.BlockId;
+import ru.ispras.microtesk.test.template.FixedValue;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.microtesk.test.template.Value;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
@@ -145,8 +149,34 @@ public final class BranchEngine implements Engine {
     final Primitive primitive = abstractBranchCall.getRootOperation();
     InvariantChecks.checkNotNull(primitive);
 
-    // TODO:
-    return 0;
+    for (final Argument argument : primitive.getArguments().values()) {
+      if (argument.getKind() != Argument.Kind.MODE) {
+        continue;
+      }
+
+      InvariantChecks.checkTrue(argument.getValue() instanceof Primitive);
+      final Primitive mode = (Primitive) argument.getValue();
+
+      InvariantChecks.checkTrue(mode.getArguments().size() == 1);
+      for (final Argument index : mode.getArguments().values()) {
+        final Object value = index.getValue();
+
+        if (value instanceof BigInteger) {
+          final BigInteger integerValue = (BigInteger) value;
+          return integerValue.intValue();
+        }
+
+        if (value instanceof Value) {
+          final Value lazyValue = (Value) value;
+          final BigInteger integerValue = lazyValue.getValue();
+          return integerValue.intValue();
+        }
+
+        InvariantChecks.checkTrue(false, "Unknown argument type: " + index);
+      }
+    }
+
+    return -1;
   }
 
   /** Branch percentage: default value is 10%. */
@@ -308,7 +338,10 @@ public final class BranchEngine implements Engine {
 
       // To create initialization code, the engine needs to know branch registers.
       if (branchEntry.isIfThen()) {
-        branchEntry.setRegisterId(getRegisterId(abstractCall));
+        final int registerId = getRegisterId(abstractCall);
+
+        Logger.debug("Register ID: %d", registerId);
+        branchEntry.setRegisterId(registerId);
       }
 
       branchStructure.add(branchEntry);
