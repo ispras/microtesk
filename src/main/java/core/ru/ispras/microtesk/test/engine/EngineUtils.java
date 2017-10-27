@@ -156,12 +156,15 @@ public final class EngineUtils {
     // Parameter {@code situation} can be null.
     // Parameter {@code concretePrimitive} can be null.
 
-    final TestBaseQueryCreator queryCreator =
-        new TestBaseQueryCreator(engineContext, abstractSequence, situation, primitive);
+    final TestBaseQueryCreator queryCreator = new TestBaseQueryCreator(
+        engineContext,
+        processingCount,
+        abstractSequence,
+        situation,
+        primitive
+        );
 
-    final TestData testData =
-        getTestData(engineContext, processingCount, primitive, situation, queryCreator);
-
+    final TestData testData = getTestData(engineContext, primitive, situation, queryCreator);
     Logger.debug(testData.toString());
 
     if (null != situation) {
@@ -238,7 +241,6 @@ public final class EngineUtils {
 
   public static TestData getTestData(
       final EngineContext engineContext,
-      final int processingCount,
       final Primitive primitive,
       final Situation situation,
       final TestBaseQueryCreator queryCreator) {
@@ -260,9 +262,6 @@ public final class EngineUtils {
 
     final Map<String, Argument> modes = queryCreator.getModes();
     Logger.debug("Modes used as arguments: " + modes);
-
-    Logger.debug("Processing count: %s", processingCount);
-    query.getContext().put("count", processingCount);
 
     final TestBase testBase = engineContext.getTestBase();
     final TestBaseQueryResult queryResult = testBase.executeQuery(query);
