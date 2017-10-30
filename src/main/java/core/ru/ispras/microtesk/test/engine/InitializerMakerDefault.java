@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.engine;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +52,10 @@ public class InitializerMakerDefault implements InitializerMaker {
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(testData);
     InvariantChecks.checkNotNull(initializedModes);
+
+    if (processingCount != 0) {
+      return Collections.<AbstractCall>emptyList();
+    }
 
     final List<AbstractCall> result = new ArrayList<>();
     for (final Map.Entry<String, Object> e : testData.getBindings().entrySet()) {
