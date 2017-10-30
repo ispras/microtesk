@@ -78,8 +78,9 @@ public final class BranchInitializerMaker implements InitializerMaker {
 
     Logger.debug("Processing count: %d, branch trace: %d", processingCount, branchTrace.size());
 
-    InvariantChecks.checkTrue(processingCount == -1 /* The final pass */
-        || (0 <= processingCount && processingCount < branchTrace.size()));
+    InvariantChecks.checkTrue(
+        terminate /* The final pass */ ||
+        (0 <= processingCount && processingCount < branchTrace.size()));
 
     // It cannot be guaranteed that two branches do not share a register.
     final boolean sharedRegisters = true;
@@ -90,7 +91,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
     final boolean streamBasedInitialization = sharedRegisters || branchTrace.getChangeNumber() > 0;
 
     // The final pass.
-    if (processingCount == -1) {
+    if (terminate) {
       if (branchTrace.isEmpty() || !branchEntry.isRegisterFirstUse()) {
         return Collections.<AbstractCall>emptyList();
       }

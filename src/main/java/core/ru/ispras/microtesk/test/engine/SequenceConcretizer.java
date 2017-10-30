@@ -607,12 +607,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     public void finishProcessing() throws ConfigurationException {
       for (final ConcreteCall concreteCall : concreteSequence.getAll()) {
         final CallEntry callEntry = callMap.get(concreteCall);
-        InvariantChecks.checkNotNull(callEntry);
-
-        if (callEntry.getProcessingCount() != -1) {
-          callEntry.setProcessingCount(-1);
-          processCall(engineContext, callEntry, true);
-        }
+        processCall(engineContext, callEntry, true);
       }
     }
   }
