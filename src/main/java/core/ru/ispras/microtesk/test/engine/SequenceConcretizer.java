@@ -445,7 +445,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       }
 
       try {
-        processCall(engineContext, callEntry);
+        processCall(engineContext, callEntry, false);
       } catch (final ConfigurationException e) {
         throw new GenerationAbortedException(
             "Failed to generate test data for " + concreteCall.getText(), e);
@@ -456,8 +456,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
     private void processCall(
         final EngineContext engineContext,
-        final CallEntry callEntry
-        ) throws ConfigurationException {
+        final CallEntry callEntry,
+        final boolean terminate) throws ConfigurationException {
       InvariantChecks.checkNotNull(engineContext);
       InvariantChecks.checkNotNull(callEntry);
 
@@ -486,6 +486,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       processPrimitive(
           engineContext,
           processingCount,
+          terminate,
           abstractCall,
           abstractPrimitive,
           concretePrimitive
@@ -495,6 +496,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     private void processPrimitive(
         final EngineContext engineContext,
         final int processingCount,
+        final boolean terminate,
         final AbstractCall abstractCall,
         final Primitive abstractPrimitive,
         final IsaPrimitive concretePrimitive) throws ConfigurationException {
@@ -520,6 +522,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           processPrimitive(
               engineContext,
               processingCount,
+              terminate,
               abstractCall,
               abstractArgument,
               concreteArgument
@@ -607,7 +610,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
         if (callEntry.getProcessingCount() != -1) {
           callEntry.setProcessingCount(-1);
-          processCall(engineContext, callEntry);
+          processCall(engineContext, callEntry, true);
         }
       }
     }
