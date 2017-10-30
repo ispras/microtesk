@@ -175,11 +175,14 @@ public final class EngineUtils {
       return Collections.emptyList();
     }
 
-    setUnknownImmValues(
-        queryCreator.getUnknownImmValues(),
-        testData,
-        null != concretePrimitive ? concretePrimitive.getArguments() : null
-        );
+    // Immediates are assigned only once.
+    if (0 == processingCount) {
+      setUnknownImmValues(
+          queryCreator.getUnknownImmValues(),
+          testData,
+          null != concretePrimitive ? concretePrimitive.getArguments() : null
+          );
+    }
 
     final InitializerMaker initializerMaker = 
         EngineConfig.get().getInitializerMaker(testData.getId());
