@@ -399,7 +399,8 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     try {
       final List<AbstractCall> abstractInitializer = EngineUtils.makeInitializer(
           engineContext,
-          0,   /* Processing count */
+          0 /* Processing count */,
+          false /* Terminate (final processing after presimulation) */,
           null /* Abstract call */,
           null /* Abstract sequence */,
           primitive,

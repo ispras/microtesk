@@ -533,6 +533,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       final List<AbstractCall> initializer = EngineUtils.makeInitializer(
           engineContext,
           processingCount,
+          terminate,
           abstractCall,
           abstractSequence,
           abstractPrimitive,

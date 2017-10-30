@@ -124,6 +124,7 @@ public final class EngineUtils {
   public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
       final int processingCount,
+      final boolean terminate,
       final AbstractCall abstractCall,
       final AbstractSequence abstractSequence,
       final Primitive primitive,
@@ -132,6 +133,7 @@ public final class EngineUtils {
     return makeInitializer(
         engineContext,
         processingCount,
+        terminate,
         abstractCall,
         abstractSequence,
         primitive,
@@ -144,6 +146,7 @@ public final class EngineUtils {
   public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
       final int processingCount,
+      final boolean terminate,
       final AbstractCall abstractCall,
       final AbstractSequence abstractSequence,
       final Primitive primitive,
