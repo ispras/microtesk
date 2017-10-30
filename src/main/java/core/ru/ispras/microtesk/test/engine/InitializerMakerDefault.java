@@ -40,6 +40,7 @@ public class InitializerMakerDefault implements InitializerMaker {
   public List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
       final int processingCount,
+      final boolean terminate,
       final AbstractCall abstractCall,
       final Primitive primitive,
       final Situation situation,
