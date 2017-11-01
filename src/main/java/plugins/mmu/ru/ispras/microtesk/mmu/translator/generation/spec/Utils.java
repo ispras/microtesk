@@ -111,8 +111,8 @@ public final class Utils {
       return name;
     }
 
-    return String.format(
-        "%s.field(%d, %d)", name, FortressUtils.getLowerBit(field), FortressUtils.getUpperBit(field));
+    return String.format("%s.field(%d, %d)",
+        name, FortressUtils.getLowerBit(field), FortressUtils.getUpperBit(field));
   }
 
   public static String toMmuExpressionText(final String context, final List<Node> fields) {
@@ -134,10 +134,7 @@ public final class Utils {
   }
 
   @SuppressWarnings("unchecked")
-  public static String toString(
-      final Ir ir,
-      final String context,
-      final Atom atom) {
+  public static String toString(final Ir ir, final String context, final Atom atom) {
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(atom);
@@ -145,15 +142,13 @@ public final class Utils {
     final Object object = atom.getObject();
     switch (atom.getKind()) {
       case VALUE:
-        return new JavaPrinter(context, ir).toString(NodeValue.newInteger((BigInteger) object));
+        return toString(ir, context, NodeValue.newInteger((BigInteger) object));
 
       case VARIABLE:
         return getVariableName(ir, context, (Variable) object);
 
-      case FIELD: {
-        final Node field = (Node) object;
-        return new JavaPrinter(context, ir).toString(field);
-      }
+      case FIELD:
+        return toString(ir, context, (Node) object);
 
       case GROUP:
         return getVariableName(context, ((Var) object).getName());
@@ -164,6 +159,10 @@ public final class Utils {
       default:
         throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
     }
+  }
+
+  public static String toString(final Ir ir, final String context, final Node node) {
+    return new JavaPrinter(context, ir).toString(node);
   }
 
   private static final class JavaPrinter extends JavaExprPrinter {
