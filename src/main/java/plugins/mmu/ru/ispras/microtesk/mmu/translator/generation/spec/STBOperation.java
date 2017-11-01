@@ -66,6 +66,8 @@ public final class STBOperation implements STBuilder {
     st.add("name", operation.getId()); 
     st.add("pack", packageName);
     st.add("imps", BigInteger.class.getName());
+    st.add("imps", ru.ispras.fortress.expression.Nodes.class.getName());
+    st.add("imps", ru.ispras.fortress.expression.NodeValue.class.getName());
     st.add("imps", BINDING_CLASS.getName());
     st.add("imps", OPERATION_CLASS.getName());
   }

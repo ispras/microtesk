@@ -130,7 +130,7 @@ public final class Utils {
   }
 
   public static String toMmuExpressionText(final String context, final Node field) {
-    return new JavaPrinter(context).toString(field);
+    return new JavaPrinter(context, null).toString(field);
   }
 
   @SuppressWarnings("unchecked")
@@ -145,19 +145,14 @@ public final class Utils {
     final Object object = atom.getObject();
     switch (atom.getKind()) {
       case VALUE:
-        return toString((BigInteger) object);
+        return new JavaPrinter(context, ir).toString(NodeValue.newInteger((BigInteger) object));
 
       case VARIABLE:
         return getVariableName(ir, context, (Variable) object);
 
       case FIELD: {
         final Node field = (Node) object;
-        final Variable variable = FortressUtils.getVariable(field);
-        return String.format("%s.field(%d, %d)",
-            getVariableName(ir, context, variable),
-            FortressUtils.getLowerBit(field),
-            FortressUtils.getUpperBit(field)
-            );
+        return new JavaPrinter(context, ir).toString(field);
       }
 
       case GROUP:
@@ -173,22 +168,26 @@ public final class Utils {
 
   private static final class JavaPrinter extends JavaExprPrinter {
     private final String context;
+    private final Ir ir;
 
     private final class JavaVisitor extends Visisor {
       @Override
       public void onVariable(final NodeVariable variable) {
         if (variable.getVariable().hasValue()) {
           onValue(new NodeValue(variable.getData()));
+        } else if (null != ir) {
+          appendText(getVariableName(ir, context, variable.getVariable()));
         } else {
           appendText(getVariableName(context, variable.getName()));
         }
       }
     }
 
-    public JavaPrinter(final String context) {
+    public JavaPrinter(final String context, final Ir ir) {
       setVisitor(new JavaVisitor());
       InvariantChecks.checkNotNull(context);
       this.context = context;
+      this.ir = ir;
     }
   }
 }
