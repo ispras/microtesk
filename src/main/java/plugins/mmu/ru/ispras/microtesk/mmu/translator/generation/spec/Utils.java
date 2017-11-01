@@ -22,6 +22,10 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.Nodes;
+import ru.ispras.fortress.expression.printer.JavaExprPrinter;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.generation.sim.ExprPrinter;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
@@ -114,73 +118,19 @@ public final class Utils {
   public static String toMmuExpressionText(final String context, final List<Node> fields) {
     InvariantChecks.checkNotNull(context);
 
-    if (null == fields) {
+    if (null == fields || fields.isEmpty()) {
       return "null";
-    }
-
-    if (fields.isEmpty()) {
-      return "MmuExpression.empty()";
     }
 
     if (fields.size() == 1) {
       return toMmuExpressionText(context, fields.get(0));
     }
 
-    final StringBuilder sb = new StringBuilder();
-    sb.append("MmuExpression.rcat(");
-
-    boolean isFirst = true;
-    for (final Node field : fields) {
-      if (isFirst) {
-        isFirst = false;
-      } else {
-        sb.append(", ");
-      }
-
-      final Variable variable = FortressUtils.getVariable(field);
-      final String variableText;
-
-      if (variable.hasValue()) {
-        variableText = String.format("new Variable(%d, %s)",
-            variable.getType().getSize(), toString(variable.getData().getInteger()));
-      } else {
-        variableText =
-            getVariableName(context, variable.getName());
-      }
-
-      final String text = String.format("%s.field(%d, %d)",
-          variableText, FortressUtils.getLowerBit(field), FortressUtils.getUpperBit(field));
-
-      sb.append(text);
-    }
-
-    sb.append(')');
-    return sb.toString();
+    return toMmuExpressionText(context, Nodes.reverseBVCONCAT(fields));
   }
 
   public static String toMmuExpressionText(final String context, final Node field) {
-    InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(field);
-
-    final StringBuilder sb = new StringBuilder();
-    sb.append("MmuExpression.");
-
-    if (FortressUtils.getVariable(field).hasValue()) {
-      sb.append(String.format(
-          "val(%s, %d",
-          toString(FortressUtils.getVariable(field).getData().getInteger()),
-          FortressUtils.getBitSize(field)));
-    } else {
-      final String name = getVariableName(context, FortressUtils.getVariable(field).getName());
-      sb.append(String.format("var(%s", name));
-
-      if (field.getKind() != Node.Kind.VARIABLE) {
-        sb.append(String.format(", %d, %d", FortressUtils.getLowerBit(field), FortressUtils.getUpperBit(field)));
-      }
-    }
-
-    sb.append(')');
-    return sb.toString();
+    return new JavaPrinter(context).toString(field);
   }
 
   @SuppressWarnings("unchecked")
@@ -218,6 +168,27 @@ public final class Utils {
 
       default:
         throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
+    }
+  }
+
+  private static final class JavaPrinter extends JavaExprPrinter {
+    private final String context;
+
+    private final class JavaVisitor extends Visisor {
+      @Override
+      public void onVariable(final NodeVariable variable) {
+        if (variable.getVariable().hasValue()) {
+          onValue(new NodeValue(variable.getData()));
+        } else {
+          appendText(getVariableName(context, variable.getName()));
+        }
+      }
+    }
+
+    public JavaPrinter(final String context) {
+      setVisitor(new JavaVisitor());
+      InvariantChecks.checkNotNull(context);
+      this.context = context;
     }
   }
 }

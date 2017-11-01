@@ -171,7 +171,7 @@ final class STBBuffer implements STBuilder {
       sb.append("    ");
 
       final String leftText = Utils.toString(buffer.getId(), binding.first);
-      final String rightText = Utils.toString(buffer.getId(), binding.second);
+      final String rightText = Utils.toMmuExpressionText(buffer.getId(), binding.second);
 
       sb.append(String.format("new MmuBinding(%s, %s)", leftText, rightText));
     }
