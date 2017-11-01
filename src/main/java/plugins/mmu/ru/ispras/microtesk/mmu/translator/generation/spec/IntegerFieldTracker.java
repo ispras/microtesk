@@ -60,13 +60,11 @@ final class IntegerFieldTracker {
       final boolean isHiInField = inField(field, hi);
 
       if (isLoInField && lo > FortressUtils.getLowerBit(field)) {
-        newFields.add(
-            Nodes.BVEXTRACT(lo - 1, FortressUtils.getLowerBit(field), variable));
+        newFields.add(Nodes.BVEXTRACT(lo - 1, FortressUtils.getLowerBit(field), variable));
       }
 
       if (isHiInField && hi < FortressUtils.getUpperBit(field)) {
-        newFields.add(
-            Nodes.BVEXTRACT(FortressUtils.getUpperBit(field), hi + 1, variable));
+        newFields.add(Nodes.BVEXTRACT(FortressUtils.getUpperBit(field), hi + 1, variable));
       }
 
       if (!isLoInField && !isHiInField) {
@@ -87,7 +85,7 @@ final class IntegerFieldTracker {
 
   @Override
   public String toString() {
-    return String.format("%s(%d), available fields: %s",
-        variable, variable.getType().getSize(), fields);
+    return String.format(
+        "%s(%d), available fields: %s", variable, variable.getType().getSize(), fields);
   }
 }
