@@ -24,7 +24,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 
 public class STBConstant implements STBuilder{
   public static final Class<?> CONSTANT_CLASS =
-      ru.ispras.fortress.data.Variable.class;
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuDynamicConst.class;
 
   private final String packageName;
   private final String simulatorPackageName;
@@ -65,7 +65,6 @@ public class STBConstant implements STBuilder{
   private void buildBody(final ST st, final STGroup group) {
     final ST stBody = group.getInstanceOf("constant_body");
 
-    stBody.add("name", constant.getId());
     stBody.add("width", constant.getVariable().getDataType().getSize());
     stBody.add("value", String.format("%s.%s.get()", simulatorPackageName, constant.getId()));
     stBody.add("fixed_width", constant.getVariable().isType(DataTypeId.BIT_VECTOR));

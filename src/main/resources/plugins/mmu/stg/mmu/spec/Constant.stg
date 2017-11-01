@@ -14,7 +14,7 @@
 
 group Constant;
 
-constant_body(name, width, value, fixed_width) ::= <<
+constant_body(width, value, fixed_width) ::= <<
 <if(fixed_width)>private static MmuDynamicConst constant = null;<\n>
 public static MmuDynamicConst get() {
   if (null == constant) {
@@ -29,9 +29,8 @@ private static final Map\<Integer, MmuDynamicConst> constants = new HashMap\<>()
 
   if (null == result) {
     result = new MmuDynamicConst(
-        "<name>",
-        width,
-        <value>
+        <value>,
+        width
         );
     constants.put(width, result);
   }

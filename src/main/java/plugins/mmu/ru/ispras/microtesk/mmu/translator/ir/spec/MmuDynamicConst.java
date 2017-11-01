@@ -24,7 +24,7 @@ import ru.ispras.fortress.util.Value;
  * The {@link MmuDynamicConst} class implements a dynamic constant that describes
  * a bit vector of the specified size. The constant value is read on request from
  * an external provider and is cast to the specified type. 
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class MmuDynamicConst implements Value<Data> {

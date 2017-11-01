@@ -23,7 +23,7 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 
 public class STBExtern implements STBuilder{
   public static final Class<?> CONSTANT_CLASS =
-      ru.ispras.fortress.data.Variable.class;
+      ru.ispras.microtesk.mmu.translator.ir.spec.MmuDynamicConst.class;
 
   private final String packageName;
   private final String simulatorPackageName;
@@ -64,7 +64,6 @@ public class STBExtern implements STBuilder{
   private void buildBody(final ST st, final STGroup group) {
     final ST stBody = group.getInstanceOf("constant_body");
 
-    stBody.add("name", extern.getName());
     stBody.add("width", extern.getBitSize());
     stBody.add("value", String.format("%s.Extern.get().%s", simulatorPackageName, extern.getName()));
     stBody.add("fixed_width", true);

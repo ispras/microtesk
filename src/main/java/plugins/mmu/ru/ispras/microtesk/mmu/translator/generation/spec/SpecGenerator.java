@@ -55,12 +55,12 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
       processConstants(ir, factory);
       processStructs(ir, factory);
       processAddresses(ir, factory);
-      processOperations(ir, factory);
-      processFunctions(ir, factory);
-      processBuffers(ir, factory);
-      processSegments(ir, factory);
-      processMemories(ir, factory);
-      processSpecification(ir, factory);
+      // processOperations(ir, factory);
+      // processFunctions(ir, factory);
+      // processBuffers(ir, factory);
+      // processSegments(ir, factory);
+      // processMemories(ir, factory);
+      // processSpecification(ir, factory);
     } catch (final IOException e) {
       throw new RuntimeException(e);
     }
