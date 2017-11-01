@@ -82,6 +82,10 @@ final class STBBuffer implements STBuilder {
     st.add("imps", DATA_TYPE_CLASS.getName());
     st.add("imps", VARIABLE_CLASS.getName());
     st.add("imps", BIT_VECTOR_CLASS.getName());
+
+    st.add("imps", ru.ispras.fortress.expression.Nodes.class.getName());
+    st.add("imps", ru.ispras.fortress.expression.NodeValue.class.getName());
+
     st.add("imps", BINDING_CLASS.getName());
     st.add("imps", BUFFER_CLASS.getName());
     st.add("imps", STRUCT_CLASS.getName());
@@ -114,13 +118,14 @@ final class STBBuffer implements STBuilder {
   private void buildConstructor(final ST st, final STGroup group) {
     final ST stConstructor = group.getInstanceOf("buffer_constructor");
 
+    st.add("members", "");
     STBStruct.buildFieldDecls(buffer.getEntry(), st, stConstructor, group);
     stConstructor.add("stmts", "");
     STBStruct.buildAddField(buffer.getEntry(), stConstructor, group);
 
     final BufferExprAnalyzer analyzer = new BufferExprAnalyzer(
         buffer.getAddress(), buffer.getAddressArg(), buffer.getIndex(), buffer.getMatch());
- 
+
     stConstructor.add("name", buffer.getId());
     stConstructor.add("kind", buffer.getKind().name());
     stConstructor.add("ways", String.format("%dL", buffer.getWays().longValue()));
