@@ -154,7 +154,7 @@ public final class Utils {
         return getVariableName(context, ((Var) object).getName());
 
       case CONCAT:
-        return toMmuExpressionText(context, (List<Node>) object);
+        return toString(ir, context, (Node) object);
 
       default:
         throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
