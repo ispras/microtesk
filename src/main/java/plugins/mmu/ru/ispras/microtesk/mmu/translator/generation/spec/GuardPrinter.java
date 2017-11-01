@@ -26,6 +26,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
@@ -83,12 +84,7 @@ final class GuardPrinter {
         final Node variable = new NodeVariable(variableName, DataType.BIT_VECTOR(1));
         variable.setUserData(atom.getUserData());
 
-        final Node equality = new NodeOperation(
-            StandardOperation.NOTEQ,
-            variable,
-            NodeValue.newBitVector(BitVector.FALSE)
-            );
-
+        final Node equality = Nodes.NOTEQ(variable, NodeValue.newBitVector(BitVector.FALSE));
         equalities.add(equality);
       } else if (isNegatedBooleanVariable(atom)) {
         final NodeOperation op = (NodeOperation) atom;
@@ -97,12 +93,7 @@ final class GuardPrinter {
         final Node variable = new NodeVariable(var.getName(), DataType.BIT_VECTOR(1));
         variable.setUserData(var.getUserData());
 
-        final Node equality = new NodeOperation(
-            StandardOperation.EQ,
-            variable,
-            NodeValue.newBitVector(BitVector.FALSE)
-            );
-
+        final Node equality = Nodes.EQ(variable, NodeValue.newBitVector(BitVector.FALSE));
         equalities.add(equality);
       } else {
         throw new IllegalStateException("Illegal atomic condition: " + atom);
