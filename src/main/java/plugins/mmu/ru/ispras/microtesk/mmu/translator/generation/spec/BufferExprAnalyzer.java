@@ -32,6 +32,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
@@ -72,7 +73,7 @@ final class BufferExprAnalyzer {
     final int hi = FortressUtils.extractInt(node.getOperand(0));
 
     fieldTrackerForAddress.exclude(lo, hi);
-    return node;
+    return Nodes.BVEXTRACT(hi, lo, variableForAddress);
   }
 
   private Node newAddressField(final NodeVariable node) {
