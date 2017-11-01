@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -28,7 +28,7 @@ import ru.ispras.microtesk.model.memory.Section;
  * The {@link ConcreteCall} class describes an instruction call with fixed arguments
  * which can be simulated. It also can hold objects are used by processing logic
  * to do some housekeeping job.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class ConcreteCall {
@@ -142,7 +142,7 @@ public final class ConcreteCall {
    * Checks whether the instruction call corresponds to a printable instruction
    * (executable instruction or pseudo instruction). This method is used to
    * calculate statistics on instruction number.
-   * 
+   *
    * @return {@code true} if the call corresponds to a printable instruction or
    *         {@code false} if it is used to housekeeping purposes.
    */
@@ -152,7 +152,8 @@ public final class ConcreteCall {
 
   /**
    * Executes the instruction call on the specified processing element.
-   * 
+   *
+   * @param processingElement Processing element instance to be used for execution.
    * @return exception name if was interrupted.
    */
   public String execute(final ProcessingElement processingElement) {
