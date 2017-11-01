@@ -104,23 +104,14 @@ final class GuardPrinter {
         equalities.isEmpty() && segments.isEmpty() && buffers.isEmpty());
 
     if (!equalities.isEmpty() && segments.isEmpty() && buffers.isEmpty()) {
-      if (equalities.size() == 1) {
-        final String condition = extractEqualityCondition(equalities.get(0));
-        return String.format("new MmuGuard(%s)", condition);
+      if (1 == equalities.size()) {
+        return String.format("new MmuGuard(%s)", Utils.toString(ir, context, equalities.get(0)));
       }
 
-      final List<String> conditionAtoms = extractEqualityConditionAtoms(equalities);
-      InvariantChecks.checkNotEmpty(conditionAtoms);
+      final Node node = cond.getType() == Condition.Type.AND ?
+          Nodes.AND(equalities) : Nodes.OR(equalities);
 
-      if (conditionAtoms.size() == 1) {
-        return String.format("new MmuGuard(%s)", conditionAtoms.get(0));
-      }
-
-      final String operation =
-          cond.getType() == Condition.Type.AND ? "and" : "or";
-
-      return String.format("new MmuGuard(MmuCondition.%s(%s))",
-          operation, StringUtils.toString(conditionAtoms, ", "));
+      return String.format("new MmuGuard(%s)", Utils.toString(ir, context, node));
     }
 
     if (equalities.isEmpty() && !segments.isEmpty() && buffers.isEmpty()) {
@@ -268,35 +259,11 @@ final class GuardPrinter {
           "Comparing multi-field variables is not allowed in compound equalities."
           );
 
-      final String lhsText = toString(equality.getLhs());
-      final String rhsText = toString(equality.getRhs());
-
-      final String conditionAtom = String.format(
-          "MmuConditionAtom.%s(%s, %s)", equality.getOperationText(), lhsText, rhsText);
-
+      final String conditionAtom = Utils.toString(ir, context, node);
       result.add(conditionAtom);
     }
 
     return result;
-  }
-
-  private String extractEqualityCondition(final Node node) {
-    final Equality equality = Equality.newEquality(node);
-
-    final String lhsText = toString(equality.getLhs());
-    final String rhsText = toString(equality.getRhs());
-
-    return String.format(
-        "%s.%s(%s, %s)",
-        equality.isStruct() ? "MmuCondition" : "MmuConditionAtom",
-        equality.getOperationText(),
-        lhsText,
-        rhsText
-        );
-   }
-
-  private String toString(final Atom atom) {
-    return Utils.toString(ir, context, atom);
   }
 
   private static final class Equality {
