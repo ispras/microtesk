@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -14,15 +14,12 @@
 
 package ru.ispras.microtesk.translator.nml.ir.analysis;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveUtils.isJunction;
-import static ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveUtils.isLeaf;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.antlrex.log.LogWriter;
@@ -36,15 +33,15 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveReference;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 
 /**
- * The PrimitiveSyntesizer class provides facilities to analyze information on relations between
- * operations and to synthesize on its basis the following elements:
- * 
+ * The {@link PrimitiveSyntesizer} class provides facilities to analyze information on relations
+ * between operations and to synthesize on its basis the following elements:
+ *
  * <p>Shortcuts for leaf (have no child operations) and junction (have more than one child
  * operations) operations that allow addressing (instantiating with all required parent operations)
  * these operation in various contexts. A shortcut can be synthesized if there is an unambiguous way
  * to resolve all dependencies of parent operations on the way from an entry operation to a target
  * operation. Shortcuts are added to IR of corresponding target operations.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class PrimitiveSyntesizer extends LogWriter implements TranslatorHandler<Ir> {
@@ -62,12 +59,13 @@ public final class PrimitiveSyntesizer extends LogWriter implements TranslatorHa
 
   /**
    * Constructs a PrimitiveSyntesizer object.
-   * 
+   *
+   * @param translator Translator that constructed the internal representation.
    * @throws IllegalArgumentException if any of the parameters equals null.
    */
   public PrimitiveSyntesizer(final Translator<Ir> translator) {
     super(SenderKind.EMITTER, "", translator != null ? translator.getLog() : null);
-    checkNotNull(translator);
+    InvariantChecks.checkNotNull(translator);
   }
 
   @Override
@@ -77,7 +75,7 @@ public final class PrimitiveSyntesizer extends LogWriter implements TranslatorHa
 
   @Override
   public void processIr(final Ir ir) {
-    checkNotNull(ir);
+    InvariantChecks.checkNotNull(ir);
     this.ir = ir;
 
     if (ir.getOps().isEmpty()) {
@@ -92,9 +90,9 @@ public final class PrimitiveSyntesizer extends LogWriter implements TranslatorHa
    * Synthesizes shortcuts for leaf and junction operations and adds the them to the corresponding
    * operations. Only leafs (no childs) and junctions (more than one child) are considered
    * interesting because there is no need to create shortcuts for intermediate nodes.
-   * 
+   *
    * <p>Implementation details:
-   * 
+   *
    * <p>The method iterates over the collection of operations provided by the client and uses the
    * ShortcutBuilder class to build shortcuts for leaf (no childs) and junction (more than one
    * child) primitives. Other operations are ignored as they are considered intermediate (they are
@@ -111,7 +109,7 @@ public final class PrimitiveSyntesizer extends LogWriter implements TranslatorHa
 
     for (final Primitive op : ir.getOps().values()) {
       // Only leafs and junctions: shortcuts for other nodes are redundant.
-      if (isLeaf(op) || isJunction(op)) {
+      if (PrimitiveUtils.isLeaf(op) || PrimitiveUtils.isJunction(op)) {
         final PrimitiveAND target = (PrimitiveAND) op;
         new ShortcutBuilder(root, target, pathCounter).build();
       }
@@ -126,8 +124,8 @@ public final class PrimitiveSyntesizer extends LogWriter implements TranslatorHa
 /**
  * The ShortcutBuilder class creates all possible shortcuts for the target operation and registers
  * them into the corresponding object.
- * 
- * @author Andrei Tatarnikov
+ *
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class ShortcutBuilder {
   /**
@@ -170,9 +168,9 @@ final class ShortcutBuilder {
    * @throws NullPointerException if any of the parameters equals null.
    */
   public ShortcutBuilder(final PrimitiveOR root, final PrimitiveAND target, final PathCounter pathCounter) {
-    checkNotNull(root);
-    checkNotNull(target);
-    checkNotNull(pathCounter);
+    InvariantChecks.checkNotNull(root);
+    InvariantChecks.checkNotNull(target);
+    InvariantChecks.checkNotNull(pathCounter);
 
     this.root = root;
     this.target = target;
@@ -193,9 +191,9 @@ final class ShortcutBuilder {
   /**
    * Creates shortcuts to the target primitive starting from the entry primitive. Entry is the
    * topmost point of the shortcut path.
-   * 
+   *
    * <p>Algorithm description:
-   * 
+   *
    * <p>The method uses the ShortcutCreator class to create and register shortcuts that describe the
    * path from the entry node to the target node. A shortcut can be used in one or more contexts. In
    * the are no suitable contexts, there is no need to create the shortcut. There can be two
@@ -208,7 +206,7 @@ final class ShortcutBuilder {
    * there is only one path from them to the target. If a parent is not a junction (a node with
    * multiple arguments than can unite paths to several targets), we invoke the build method
    * recursively for this parent to build shortcuts that start from it.
-   * 
+   *
    * @param entry Entry point of the shortcuts to be created.
    */
   private void build(final PrimitiveAND entry) {
@@ -223,7 +221,7 @@ final class ShortcutBuilder {
           continue;
         }
 
-        if (!isJunction(ref.getSource())) {
+        if (!PrimitiveUtils.isJunction(ref.getSource())) {
           build(ref.resolve());
         }
 
@@ -239,13 +237,13 @@ final class ShortcutBuilder {
    * Checks if the given Primitive has multiple parents (more than one). If it has, adds it to the
    * set of the set of primitives with multiple parents (opsWithMultipleParents) that can cause
    * ambiguity.
-   * 
+   *
    * <p>This check is performed because if there are no primitives with multiple parents on the way
    * from the target to the source, there can be only one path from the source to the target and
    * there is no need to perform a check for multiple paths. Otherwise, there are multiple paths and
    * we need to look for the point where they start and exclude this point (node) from the shortcut
    * path to avoid ambiguities.
-   * 
+   *
    * @param entry Primitive to be checked.
    */
   private void checkForMultipleParents(final PrimitiveAND entry) {
@@ -260,7 +258,7 @@ final class ShortcutBuilder {
    * present in other subpaths at all. Therefore, there is no need use them in further checks. If
    * they appear on the path again, the will be added to set a new and all corresponding checks will
    * be performed.
-   * 
+   *
    * @param entry Primitive to be removed.
    */
   private void checkForMultipleParentsFinalize(final PrimitiveAND entry) {
@@ -277,11 +275,11 @@ final class ShortcutBuilder {
    * nodes with multiple parents is likely to present on a greater number of paths than terminal
    * nodes (targets). Because the previous results are cached by the path counter, it works faster
    * for such (more "popular") nodes.
-   * 
+   *
    * @param source Source primitive.
-   * @return <code>true</code> it there is a single path from the source to the target or false
+   * @return {@code true} it there is a single path from the source to the target or {@code false}
    *         otherwise.
-   * 
+   *
    * @throws IllegalStateException if the number of possible paths from the source to the target is
    *         less than 1. This is an invariant. At least one path always exists (because the build
    *         method passes it before checking that there is only one path).
@@ -325,10 +323,10 @@ final class ShortcutBuilder {
   }
 
   /**
-   * The ShortcutCreator class responsible for creating and registering shortcuts that describe
-   * paths starting from a common entry primitive.
-   * 
-   * @author Andrei Tatarnikov
+   * The {@link ShortcutCreator} class responsible for creating and registering shortcuts that
+   * describe paths starting from a common entry primitive.
+   *
+   * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   private final class ShortcutCreator {
     private final PrimitiveAND entry;
@@ -336,7 +334,7 @@ final class ShortcutBuilder {
 
     /**
      * Constructs a shortcut creator for the given entry.
-     * 
+     *
      * @param entry Entry primitive for the shortcut to be created.
      */
     private ShortcutCreator(final PrimitiveAND entry) {
@@ -348,7 +346,7 @@ final class ShortcutBuilder {
      * Add a context in which the shortcut can be used. If the entry refers to the same primitive as
      * the target, no context is added since there is no need for such a shortcut (in this case, the
      * path consists only of the target).
-     * 
+     *
      * @param name Context name.
      */
     private void addShortcutContext(final String name) {
