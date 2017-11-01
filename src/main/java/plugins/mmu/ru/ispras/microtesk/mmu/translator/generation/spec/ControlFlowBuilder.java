@@ -27,6 +27,8 @@ import java.util.Set;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -624,8 +626,8 @@ final class ControlFlowBuilder {
     if (type.isStruct()) {
       temporary.add("type", type.getId());
     } else {
-      temporary.add("type", "IntegerVariable");
-      temporary.add("size", String.valueOf(type.getBitSize()));
+      temporary.add("type", "Variable");
+      temporary.add("size", String.format("DataType.BIT_VECTOR(%d)", type.getBitSize()));
     }
     stDef.add("stmts", temporary);
 
@@ -684,11 +686,18 @@ final class ControlFlowBuilder {
   }
 
   private static String integerLiteral(final Type type, final NodeValue node) {
-    final Atom value = AtomExtractor.extract(node);
+    final Atom atom = AtomExtractor.extract(node);
+
+    final int width = type.getBitSize();
+    final BigInteger value = (BigInteger) atom.getObject();
+    final String name = String.format("const:%d=%x", width, value);
+
     return String.format(
-        "new IntegerVariable(%d, %s)",
-        type.getBitSize(),
-        Utils.toString((BigInteger) value.getObject()));
+        "new Variable(\"%s\", Data.newBitVector(%s, %d))",
+        name,
+        Utils.toString(value),
+        width
+        );
   }
 
   private final class CallBuilder implements TransformerRule {

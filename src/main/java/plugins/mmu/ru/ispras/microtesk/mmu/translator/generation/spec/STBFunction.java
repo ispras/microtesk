@@ -68,6 +68,8 @@ final class STBFunction implements STBuilder {
     st.add("imps", java.util.ArrayList.class.getName());
     st.add("imps", java.util.List.class.getName());
     st.add("imps", ru.ispras.fortress.data.types.bitvector.BitVector.class.getName());
+    st.add("imps", ru.ispras.fortress.data.Data.class.getName());
+    st.add("imps", ru.ispras.fortress.data.DataType.class.getName());
     st.add("imps", INTEGER_CLASS.getName());
     st.add("imps", ru.ispras.fortress.expression.Nodes.class.getName());
     st.add("imps", ru.ispras.fortress.expression.NodeValue.class.getName());
