@@ -60,6 +60,14 @@ public final class MmuBinding {
     this.rhs = rhs;
   }
 
+  public MmuBinding(final Node lhs, final Variable rhs) {
+    InvariantChecks.checkNotNull(lhs);
+    InvariantChecks.checkNotNull(rhs);
+
+    this.lhs = lhs;
+    this.rhs = new NodeVariable(rhs);
+  }
+
   public MmuBinding(final Variable lhs, final Variable rhs) {
     InvariantChecks.checkNotNull(lhs);
     InvariantChecks.checkNotNull(rhs);
