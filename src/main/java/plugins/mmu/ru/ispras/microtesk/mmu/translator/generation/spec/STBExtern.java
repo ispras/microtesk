@@ -58,12 +58,15 @@ public class STBExtern implements STBuilder{
     st.add("imps", java.util.Map.class.getName());
     st.add("imps", java.util.HashMap.class.getName());
     st.add("imps", InvariantChecks.class.getName());
+    st.add("imps", ru.ispras.fortress.data.Variable.class.getName());
+    st.add("imps", ru.ispras.fortress.expression.NodeVariable.class.getName());
     st.add("imps", CONSTANT_CLASS.getName());
   }
 
   private void buildBody(final ST st, final STGroup group) {
     final ST stBody = group.getInstanceOf("constant_body");
 
+    stBody.add("name", extern.getName());
     stBody.add("width", extern.getBitSize());
     stBody.add("value", String.format("%s.Extern.get().%s", simulatorPackageName, extern.getName()));
     stBody.add("fixed_width", true);

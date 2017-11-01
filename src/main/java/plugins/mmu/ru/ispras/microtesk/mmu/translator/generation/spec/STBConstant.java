@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -38,9 +38,7 @@ public class STBConstant implements STBuilder{
 
     this.packageName = packageName;
     this.constant = constant;
-
-    this.simulatorPackageName =
-        packageName.substring(0, packageName.lastIndexOf('.')) + ".sim";
+    this.simulatorPackageName = packageName.substring(0, packageName.lastIndexOf('.')) + ".sim";
   }
 
   @Override
@@ -49,7 +47,7 @@ public class STBConstant implements STBuilder{
 
     buildHeader(st);
     buildBody(st, group);
-    
+
     return st;
   }
 
@@ -59,12 +57,15 @@ public class STBConstant implements STBuilder{
     st.add("imps", java.util.Map.class.getName());
     st.add("imps", java.util.HashMap.class.getName());
     st.add("imps", InvariantChecks.class.getName());
+    st.add("imps", ru.ispras.fortress.data.Variable.class.getName());
+    st.add("imps", ru.ispras.fortress.expression.NodeVariable.class.getName());
     st.add("imps", CONSTANT_CLASS.getName());
   }
 
   private void buildBody(final ST st, final STGroup group) {
     final ST stBody = group.getInstanceOf("constant_body");
 
+    stBody.add("name", constant.getId());
     stBody.add("width", constant.getVariable().getDataType().getSize());
     stBody.add("value", String.format("%s.%s.get()", simulatorPackageName, constant.getId()));
     stBody.add("fixed_width", constant.getVariable().isType(DataTypeId.BIT_VECTOR));
