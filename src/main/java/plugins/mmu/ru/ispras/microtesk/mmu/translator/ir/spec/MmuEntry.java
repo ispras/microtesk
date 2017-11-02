@@ -20,8 +20,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -32,19 +32,19 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class MmuEntry {
   private BitVector address;
 
-  private final Set<Variable> validFields = new LinkedHashSet<>();
-  private final Map<Variable, BitVector> fields = new LinkedHashMap<>();
+  private final Set<NodeVariable> validFields = new LinkedHashSet<>();
+  private final Map<NodeVariable, BitVector> fields = new LinkedHashMap<>();
   private final int sizeInBits;
 
   private boolean valid = false;
 
-  public MmuEntry(final Collection<Variable> variables) {
+  public MmuEntry(final Collection<NodeVariable> variables) {
     InvariantChecks.checkNotNull(variables);
 
     int sizeInBits = 0;
-    for (final Variable variable : variables) {
-      fields.put(variable, BitVector.newEmpty(variable.getType().getSize()));
-      sizeInBits += variable.getType().getSize();
+    for (final NodeVariable variable : variables) {
+      fields.put(variable, BitVector.newEmpty(variable.getDataType().getSize()));
+      sizeInBits += variable.getDataType().getSize();
     }
 
     this.sizeInBits = sizeInBits;
@@ -58,7 +58,7 @@ public final class MmuEntry {
     this.address = address;
   }
 
-  public Collection<Variable> getVariables() {
+  public Collection<NodeVariable> getVariables() {
     return fields.keySet();
   }
 
@@ -70,16 +70,16 @@ public final class MmuEntry {
     return valid;
   }
 
-  public boolean isValid(final Variable variable) {
+  public boolean isValid(final NodeVariable variable) {
     return validFields.contains(variable);
   }
 
-  public BitVector getValue(final Variable variable) {
+  public BitVector getValue(final NodeVariable variable) {
     InvariantChecks.checkNotNull(variable);
     return fields.get(variable);
   }
 
-  public void setValue(final Variable variable, final BitVector value, final boolean valid) {
+  public void setValue(final NodeVariable variable, final BitVector value, final boolean valid) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(value);
 
@@ -92,7 +92,7 @@ public final class MmuEntry {
     }
   }
 
-  public void setValue(final Variable variable, final BitVector value) {
+  public void setValue(final NodeVariable variable, final BitVector value) {
     setValue(variable, value, true);
   }
 
@@ -104,7 +104,7 @@ public final class MmuEntry {
     }
   }
 
-  private static String getShortName(final Variable variable) {
+  private static String getShortName(final NodeVariable variable) {
     final String fullName = variable.getName();
     final int lastIndex = fullName.lastIndexOf('.');
 
@@ -119,7 +119,7 @@ public final class MmuEntry {
     builder.append("[");
 
     boolean comma = false;
-    for (final Map.Entry<Variable, BitVector> entry : fields.entrySet()) {
+    for (final Map.Entry<NodeVariable, BitVector> entry : fields.entrySet()) {
       final String name = getShortName(entry.getKey());
       final String value = entry.getValue().toHexString();
 

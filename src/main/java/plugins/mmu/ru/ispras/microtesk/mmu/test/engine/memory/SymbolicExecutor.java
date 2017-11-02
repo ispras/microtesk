@@ -408,7 +408,7 @@ public final class SymbolicExecutor {
 
     case RETURN:
       // The entry read from the buffer is the data read from the memory.
-      final Variable preVariable = context.getInstance(null, memory.getDataVariable());
+      final NodeVariable preVariable = context.getInstance(null, memory.getDataVariable());
 
       // Return.
       final MemoryAccessStack.Frame frame = result.updateStack(entry, pathIndex);
@@ -419,25 +419,21 @@ public final class SymbolicExecutor {
       final MmuBufferAccess postBufferAccess = callAction.getBufferAccess(context);
 
       final MmuStruct postEntry = postBufferAccess.getEntry();
-      final List<Variable> postFields = postEntry.getFields();
+      final List<NodeVariable> postFields = postEntry.getFields();
 
       int bit = 0;
       final Collection<MmuBinding> bindings = new ArrayList<>();
 
       // Reverse order.
       for (int i = postFields.size() - 1; i >= 0; i--) {
-        final Variable postVariable = postFields.get(i);
-        final int sizeInBits = postVariable.getType().getSize() - 1;
+        final NodeVariable postVariable = postFields.get(i);
+        final int sizeInBits = postVariable.getDataType().getSize() - 1;
 
-        final NodeOperation postField = new NodeOperation(
-            StandardOperation.BVEXTRACT,
-            new NodeVariable(postVariable),
-            new NodeValue(Data.newInteger(0)),
-            new NodeValue(Data.newInteger(sizeInBits - 1)));
+        final NodeOperation postField = Nodes.BVEXTRACT(sizeInBits - 1, 0, postVariable);
 
         final NodeOperation preField = new NodeOperation(
             StandardOperation.BVEXTRACT,
-            new NodeVariable(preVariable),
+            preVariable,
             new NodeValue(Data.newInteger(0)),
             new NodeValue(Data.newInteger((bit + sizeInBits) - 1)));
 
@@ -692,7 +688,7 @@ public final class SymbolicExecutor {
         final MmuAddressInstance address = segment.getVaType().getInstance(null, context);
 
         final BitVectorRangeConstraint constraint =
-            new BitVectorRangeConstraint(address.getVariable(),
+            new BitVectorRangeConstraint(address.getVariable().getVariable(),
             new BitVectorRange(segment.getMin(), segment.getMax()));
 
         status = executeFormula(result, defines, constraint.getFormula(), pathIndex);

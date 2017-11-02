@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
@@ -207,7 +206,7 @@ public final class ConstraintFactory {
     final String variableField = field.second;
 
     final MmuSubsystem spec = getSpecification();
-    final Variable variable = spec.getVariable(variableName);
+    final NodeVariable variable = spec.getVariable(variableName);
 
     if (null == variable) {
       throw new GenerationAbortedException(String.format(
@@ -215,7 +214,7 @@ public final class ConstraintFactory {
     }
 
     if (null == variableField) {
-      return new NodeVariable(variable);
+      return variable;
     }
 
     final Pair<Integer, Integer> fieldRange = parseRange(variableField);

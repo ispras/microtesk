@@ -1,11 +1,11 @@
 /*
  * Copyright 2006-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -17,8 +17,8 @@ package ru.ispras.microtesk.mmu.test.engine.memory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
@@ -28,20 +28,20 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 
 /**
  * {@link AddressObject} represents test data for an individual {@link Access}.
- * 
+ *
  * <p>
  * Test data include addresses (virtual, physical and intermediate ones), auxiliary attributes
  * (cache policy, control bits, etc.), sequences of addresses to be accessed to prepare hit/miss
  * situations, and sets of entries to be written into the buffers.
  * </p>
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AddressObject {
   private final Access access;
 
   /*** Contains the data values. */
-  private final Map<Variable, BitVector> data = new LinkedHashMap<>();
+  private final Map<NodeVariable, BitVector> data = new LinkedHashMap<>();
 
   /*** Contains the address values of the given memory access. */
   private final Map<MmuAddressInstance, BitVector> addresses = new LinkedHashMap<>();
@@ -58,16 +58,16 @@ public final class AddressObject {
     return access;
   }
 
-  public Map<Variable, BitVector> getData() {
+  public Map<NodeVariable, BitVector> getData() {
     return data; 
   }
 
-  public BitVector getData(final Variable variable) {
+  public BitVector getData(final NodeVariable variable) {
     InvariantChecks.checkNotNull(variable);
     return data.get(variable); 
   }
 
-  public void setData(final Variable variable, final BitVector value) {
+  public void setData(final NodeVariable variable, final BitVector value) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkNotNull(value);
     data.put(variable, value);

@@ -1,11 +1,11 @@
 /*
  * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -18,13 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
  * {@link MemoryAccessStack} represents a memory access stack.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessStack {
@@ -36,7 +36,7 @@ public final class MemoryAccessStack {
   public  static final class Frame {
     private final String id;
     private final MmuTransition transition;
-    private final Map<Variable, Variable> frame = new HashMap<>();
+    private final Map<NodeVariable, NodeVariable> frame = new HashMap<>();
 
     private Frame(final String id, final MmuTransition transition) {
       InvariantChecks.checkNotNull(id);
@@ -53,19 +53,19 @@ public final class MemoryAccessStack {
       return transition;
     }
 
-    public Variable getInstance(final Variable variable) {
+    public NodeVariable getInstance(final NodeVariable variable) {
       InvariantChecks.checkNotNull(variable);
 
       // Constants are not duplicated in stack frames.
-      if (variable.hasValue()) {
+      if (variable.getVariable().hasValue()) {
         return variable;
       }
 
-      Variable frameVariable = frame.get(variable);
+      NodeVariable frameVariable = frame.get(variable);
 
       if (frameVariable == null) {
         final String name = String.format("%s$%s", id, variable.getName());
-        frame.put(variable, frameVariable = new Variable(name, variable.getType()));
+        frame.put(variable, frameVariable = new NodeVariable(name, variable.getDataType()));
       }
 
       return frameVariable;
@@ -132,7 +132,7 @@ public final class MemoryAccessStack {
     return stack.peek();
   }
 
-  public Variable getInstance(Variable variable) {
+  public NodeVariable getInstance(final NodeVariable variable) {
     InvariantChecks.checkNotNull(variable);
 
     if (stack.isEmpty()) {

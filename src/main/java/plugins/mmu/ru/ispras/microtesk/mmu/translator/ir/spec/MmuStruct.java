@@ -34,7 +34,7 @@ public class MmuStruct {
   protected final String name;
 
   protected MmuBuffer buffer = null;
-  protected final List<Variable> fields = new ArrayList<>();
+  protected final List<NodeVariable> fields = new ArrayList<>();
   protected int bitSize = 0;
 
   /**
@@ -48,11 +48,11 @@ public class MmuStruct {
    */
   public MmuStruct(
       final String name,
-      final Variable... variables) {
+      final NodeVariable... variables) {
     InvariantChecks.checkNotNull(name);
     this.name = name;
 
-    for (final Variable variable : variables) {
+    for (final NodeVariable variable : variables) {
       addField(variable);
     }
   }
@@ -93,7 +93,7 @@ public class MmuStruct {
    * 
    * @return the list of structure fields.
    */
-  public final List<Variable> getFields() {
+  public final List<NodeVariable> getFields() {
     return Collections.unmodifiableList(fields);
   }
 
@@ -104,10 +104,10 @@ public class MmuStruct {
    * 
    * @throws IllegalArgumentException if {@code field == null}.
    */
-  public final void addField(final Variable field) {
+  public final void addField(final NodeVariable field) {
     InvariantChecks.checkNotNull(field);
     fields.add(field);
-    bitSize += field.getType().getSize();
+    bitSize += field.getDataType().getSize();
   }
 
   /**
@@ -119,7 +119,7 @@ public class MmuStruct {
    */
   public final void addField(final MmuStruct struct) {
     InvariantChecks.checkNotNull(struct);
-    for (final Variable field : struct.getFields()) {
+    for (final NodeVariable field : struct.getFields()) {
       addField(field);
     }
   }
@@ -159,17 +159,15 @@ public class MmuStruct {
 
     final List<MmuBinding> result = new ArrayList<MmuBinding>();
 
-    final Iterator<Variable> thisIt = this.fields.iterator();
-    final Iterator<Variable> otherIt = other.fields.iterator();
+    final Iterator<NodeVariable> thisIt = this.fields.iterator();
+    final Iterator<NodeVariable> otherIt = other.fields.iterator();
 
     while(thisIt.hasNext() && otherIt.hasNext()) {
-      final Variable thisVar = thisIt.next();
-      final Variable otherVar = otherIt.next();
+      final NodeVariable thisVar = thisIt.next();
+      final NodeVariable otherVar = otherIt.next();
 
-      InvariantChecks.checkTrue(thisVar.getType().getSize() == otherVar.getType().getSize());
-      result.add(new MmuBinding(
-          new NodeVariable(thisVar),
-          new NodeVariable(otherVar)));
+      InvariantChecks.checkTrue(thisVar.getDataType().getSize() == otherVar.getDataType().getSize());
+      result.add(new MmuBinding(thisVar, otherVar));
     }
 
     return result;
@@ -178,7 +176,7 @@ public class MmuStruct {
   public MmuStruct getInstance(final String instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
-    final Variable[] fieldInstances = new Variable[fields.size()];
+    final NodeVariable[] fieldInstances = new NodeVariable[fields.size()];
 
     for (int i = 0; i < fields.size(); i++) {
       fieldInstances[i] = context.getInstance(instanceId, fields.get(i));

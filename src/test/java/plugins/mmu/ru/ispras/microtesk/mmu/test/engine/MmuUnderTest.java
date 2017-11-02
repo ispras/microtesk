@@ -17,7 +17,6 @@ package ru.ispras.microtesk.mmu.test.engine;
 import java.util.Collections;
 
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -123,7 +122,7 @@ public final class MmuUnderTest {
     return new MmuAddressInstance(
         name,
         new Var(name, type),
-        new Variable(name + ".value", DataType.BIT_VECTOR(width)));
+        new NodeVariable(name + ".value", DataType.BIT_VECTOR(width)));
   }
 
   //================================================================================================
@@ -133,32 +132,32 @@ public final class MmuUnderTest {
   public final MmuAddressInstance vaAddr = newAddress("VA", 64);
   public final MmuAddressInstance paAddr = newAddress("PA", 36);
 
-  public final Variable va = vaAddr.getVariable();
-  public final Variable pa = paAddr.getVariable();
+  public final NodeVariable va = vaAddr.getVariable();
+  public final NodeVariable pa = paAddr.getVariable();
 
-  public final Variable kseg0Cp = new Variable("KSEG0_CP", DataType.BIT_VECTOR(3));
+  public final NodeVariable kseg0Cp = new NodeVariable("KSEG0_CP", DataType.BIT_VECTOR(3));
 
-  public final Variable vpn2 = new Variable("VPN2", DataType.BIT_VECTOR(27));
-  public final Variable v0 = new Variable("V0", DataType.BIT_VECTOR(1));
-  public final Variable d0 = new Variable("D0", DataType.BIT_VECTOR(1));
-  public final Variable g0 = new Variable("G0", DataType.BIT_VECTOR(1));
-  public final Variable c0 = new Variable("C0", DataType.BIT_VECTOR(3));
-  public final Variable pfn0 = new Variable("PFN0", DataType.BIT_VECTOR(24));
-  public final Variable v1 = new Variable("V1", DataType.BIT_VECTOR(1));
-  public final Variable d1 = new Variable("D1", DataType.BIT_VECTOR(1));
-  public final Variable g1 = new Variable("G1", DataType.BIT_VECTOR(1));
-  public final Variable c1 = new Variable("C1", DataType.BIT_VECTOR(3));
-  public final Variable pfn1 = new Variable("PFN1", DataType.BIT_VECTOR(24));
-  public final Variable v = new Variable("V", DataType.BIT_VECTOR(1));
-  public final Variable d = new Variable("D", DataType.BIT_VECTOR(1));
-  public final Variable g = new Variable("G", DataType.BIT_VECTOR(1));
-  public final Variable c = new Variable("C", DataType.BIT_VECTOR(3));
-  public final Variable pfn = new Variable("PFN", DataType.BIT_VECTOR(24));
-  public final Variable l1Tag = new Variable("TAG1", DataType.BIT_VECTOR(24));
-  public final Variable l2Tag = new Variable("TAG2", DataType.BIT_VECTOR(19));
-  public final Variable l1Data = new Variable("DATA1", DataType.BIT_VECTOR(8 * 32));
-  public final Variable l2Data = new Variable("DATA2", DataType.BIT_VECTOR(8 * 32));
-  public final Variable data = new Variable("DATA", DataType.BIT_VECTOR(8 * 32));
+  public final NodeVariable vpn2 = new NodeVariable("VPN2", DataType.BIT_VECTOR(27));
+  public final NodeVariable v0 = new NodeVariable("V0", DataType.BIT_VECTOR(1));
+  public final NodeVariable d0 = new NodeVariable("D0", DataType.BIT_VECTOR(1));
+  public final NodeVariable g0 = new NodeVariable("G0", DataType.BIT_VECTOR(1));
+  public final NodeVariable c0 = new NodeVariable("C0", DataType.BIT_VECTOR(3));
+  public final NodeVariable pfn0 = new NodeVariable("PFN0", DataType.BIT_VECTOR(24));
+  public final NodeVariable v1 = new NodeVariable("V1", DataType.BIT_VECTOR(1));
+  public final NodeVariable d1 = new NodeVariable("D1", DataType.BIT_VECTOR(1));
+  public final NodeVariable g1 = new NodeVariable("G1", DataType.BIT_VECTOR(1));
+  public final NodeVariable c1 = new NodeVariable("C1", DataType.BIT_VECTOR(3));
+  public final NodeVariable pfn1 = new NodeVariable("PFN1", DataType.BIT_VECTOR(24));
+  public final NodeVariable v = new NodeVariable("V", DataType.BIT_VECTOR(1));
+  public final NodeVariable d = new NodeVariable("D", DataType.BIT_VECTOR(1));
+  public final NodeVariable g = new NodeVariable("G", DataType.BIT_VECTOR(1));
+  public final NodeVariable c = new NodeVariable("C", DataType.BIT_VECTOR(3));
+  public final NodeVariable pfn = new NodeVariable("PFN", DataType.BIT_VECTOR(24));
+  public final NodeVariable l1Tag = new NodeVariable("TAG1", DataType.BIT_VECTOR(24));
+  public final NodeVariable l2Tag = new NodeVariable("TAG2", DataType.BIT_VECTOR(19));
+  public final NodeVariable l1Data = new NodeVariable("DATA1", DataType.BIT_VECTOR(8 * 32));
+  public final NodeVariable l2Data = new NodeVariable("DATA2", DataType.BIT_VECTOR(8 * 32));
+  public final NodeVariable data = new NodeVariable("DATA", DataType.BIT_VECTOR(8 * 32));
 
   //================================================================================================
   // Segments
@@ -207,7 +206,7 @@ public final class MmuUnderTest {
       Nodes.BVEXTRACT(12, 0, va), // Offset
       Collections.singleton(
           new MmuBinding(
-              new NodeVariable(vpn2),
+              vpn2,
               Nodes.BVEXTRACT(39, 13, va))),
       false, null);
 
@@ -254,24 +253,24 @@ public final class MmuUnderTest {
       Nodes.BVEXTRACT(12, 0, va), // Offset
       Collections.singleton(
           new MmuBinding(
-              new NodeVariable(vpn2),
+              vpn2,
               Nodes.BVEXTRACT(39, 13, va))),
       true, jtlb
       );
   {
-    dtlb.addField(new Variable("VPN2", DataType.BIT_VECTOR(27)));
+    dtlb.addField(new NodeVariable("VPN2", DataType.BIT_VECTOR(27)));
 
-    dtlb.addField(new Variable("V0", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new Variable("D0", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new Variable("G0", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new Variable("C0", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new Variable("PFN0", DataType.BIT_VECTOR(24)));
+    dtlb.addField(new NodeVariable("V0", DataType.BIT_VECTOR(1)));
+    dtlb.addField(new NodeVariable("D0", DataType.BIT_VECTOR(1)));
+    dtlb.addField(new NodeVariable("G0", DataType.BIT_VECTOR(1)));
+    dtlb.addField(new NodeVariable("C0", DataType.BIT_VECTOR(1)));
+    dtlb.addField(new NodeVariable("PFN0", DataType.BIT_VECTOR(24)));
 
-    dtlb.addField(new Variable("V1", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new Variable("D1", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new Variable("G1", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new Variable("C1", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new Variable("PFN1", DataType.BIT_VECTOR(24)));
+    dtlb.addField(new NodeVariable("V1", DataType.BIT_VECTOR(1)));
+    dtlb.addField(new NodeVariable("D1", DataType.BIT_VECTOR(1)));
+    dtlb.addField(new NodeVariable("G1", DataType.BIT_VECTOR(1)));
+    dtlb.addField(new NodeVariable("C1", DataType.BIT_VECTOR(1)));
+    dtlb.addField(new NodeVariable("PFN1", DataType.BIT_VECTOR(24)));
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -282,7 +281,7 @@ public final class MmuUnderTest {
       Nodes.BVEXTRACT(POS_BITS - 1, 0, pa), // Offset
       Collections.singleton(
           new MmuBinding(
-              new NodeVariable(l1Tag),
+              l1Tag,
               Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS + L1_ROW_BITS, pa))),
       true, null
       );
@@ -299,7 +298,7 @@ public final class MmuUnderTest {
       Nodes.BVEXTRACT(POS_BITS - 1, 0, pa), // Offset
       Collections.singleton(
           new MmuBinding(
-              new NodeVariable(l2Tag),
+              l2Tag,
               Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS + L2_ROW_BITS, pa))),
       true, null
       );
@@ -327,83 +326,51 @@ public final class MmuUnderTest {
 
   public final MmuAction root = new MmuAction("ROOT",
       new MmuBinding(
-          new NodeVariable(va)));
+          va));
   public final MmuAction start = new MmuAction("START");
   public final MmuAction getUpaKseg = new MmuAction("GET_UPA_KSEG",
       new MmuBinding(
-          new NodeVariable(pa),
+          pa,
           Nodes.BVEXTRACT(28, 0, va)));
   public final MmuAction getUpaXkphys = new MmuAction("GET_UPA_XKPHYS",
       new MmuBinding(
-          new NodeVariable(pa),
+          pa,
           Nodes.BVEXTRACT(35, 0, va)));
   public final MmuAction startDtlb = new MmuAction("START_DTLB");
   public final MmuAction hitDtlb = new MmuAction(
       "HIT_DTLB",
       defaultAccess(dtlb, BufferAccessEvent.READ),
-      new MmuBinding(
-          new NodeVariable(v0)),
-      new MmuBinding(
-          new NodeVariable(d0)),
-      new MmuBinding(
-          new NodeVariable(c0)),
-      new MmuBinding(
-          new NodeVariable(pfn0)),
-      new MmuBinding(
-          new NodeVariable(v1)),
-      new MmuBinding(
-          new NodeVariable(d1)),
-      new MmuBinding(
-          new NodeVariable(c1)),
-      new MmuBinding(
-          new NodeVariable(pfn1)));
+      new MmuBinding(v0),
+      new MmuBinding(d0),
+      new MmuBinding(c0),
+      new MmuBinding(pfn0),
+      new MmuBinding(v1),
+      new MmuBinding(d1),
+      new MmuBinding(c1),
+      new MmuBinding(pfn1));
   public final MmuAction startJtlb = new MmuAction("START_JTLB");
   public final MmuAction hitJtlb = new MmuAction(
       "HIT_JTLB",
       defaultAccess(jtlb, BufferAccessEvent.READ),
-      new MmuBinding(
-          new NodeVariable(v0)),
-      new MmuBinding(
-          new NodeVariable(d0)),
-      new MmuBinding(
-          new NodeVariable(c0)),
-      new MmuBinding(
-          new NodeVariable(pfn0)),
-      new MmuBinding(
-          new NodeVariable(v1)),
-      new MmuBinding(
-          new NodeVariable(d1)),
-      new MmuBinding(
-          new NodeVariable(c1)),
-      new MmuBinding(
-          new NodeVariable(pfn1)));
+      new MmuBinding(v0),
+      new MmuBinding(d0),
+      new MmuBinding(c0),
+      new MmuBinding(pfn0),
+      new MmuBinding(v1),
+      new MmuBinding(d1),
+      new MmuBinding(c1),
+      new MmuBinding(pfn1));
   public final MmuAction selectVpn = new MmuAction("SELECT_VPN");
   public final MmuAction getLo0 = new MmuAction("GET_LO0",
-      new MmuBinding(
-          new NodeVariable(v),
-          new NodeVariable(v0)),
-      new MmuBinding(
-          new NodeVariable(d),
-          new NodeVariable(d0)),
-      new MmuBinding(
-          new NodeVariable(c),
-          new NodeVariable(c0)),
-      new MmuBinding(
-          new NodeVariable(pfn),
-          new NodeVariable(pfn0)));
+      new MmuBinding(v, v0),
+      new MmuBinding(d, d0),
+      new MmuBinding(c, c0),
+      new MmuBinding(pfn, pfn0));
   public final MmuAction getLo1 = new MmuAction("GET_LO1",
-      new MmuBinding(
-          new NodeVariable(v),
-          new NodeVariable(v1)),
-      new MmuBinding(
-          new NodeVariable(d),
-          new NodeVariable(d1)),
-      new MmuBinding(
-          new NodeVariable(c),
-          new NodeVariable(c1)),
-      new MmuBinding(
-          new NodeVariable(pfn),
-          new NodeVariable(pfn1)));
+      new MmuBinding(v, v1),
+      new MmuBinding(d, d1),
+      new MmuBinding(c, c1),
+      new MmuBinding(pfn, pfn1));
   public final MmuAction checkV = new MmuAction("CHECK_V");
   public final MmuAction checkD = new MmuAction("CHECK_D");
   public final MmuAction checkG = new MmuAction("CHECK_G");
@@ -411,38 +378,33 @@ public final class MmuUnderTest {
   public final MmuAction global = new MmuAction("GLOBAL");
   public final MmuAction getMpa = new MmuAction("GET_MPA",
       new MmuBinding(
-          new NodeVariable(pa),
+          pa,
           Nodes.BVCONCAT(
-              new NodeVariable(pfn),
+              pfn,
               Nodes.BVEXTRACT(11, 0, va))));
   public final MmuAction checkSegment = new MmuAction("CHECK_SEGMENT");
   public final MmuAction startKseg0 = new MmuAction("START_KSEG0",
-      new MmuBinding(
-          new NodeVariable(c),
-          new NodeVariable(kseg0Cp)));
+      new MmuBinding(c, kseg0Cp));
   public final MmuAction startXkphys = new MmuAction("START_XKPHYS",
       new MmuBinding(
-          new NodeVariable(c),
+          c,
           Nodes.BVEXTRACT(61, 59, va)));
   public final MmuAction startCache = new MmuAction("START_CACHE");
   public final MmuAction startL1 = new MmuAction("START_L1");
   public final MmuAction hitL1 = new MmuAction(
       "HIT_L1",
       defaultAccess(l1, BufferAccessEvent.READ),
-      new MmuBinding(
-          new NodeVariable(data)));
+      new MmuBinding(data));
   public final MmuAction checkL2 = new MmuAction("CHECK_L2");
   public final MmuAction startL2 = new MmuAction("START_L2");
   public final MmuAction hitL2 = new MmuAction(
       "HIT_L2",
       defaultAccess(l2, BufferAccessEvent.READ),
-      new MmuBinding(
-          new NodeVariable(data)));
+      new MmuBinding(data));
   public final MmuAction startMem = new MmuAction(
       "START_MEM",
       defaultAccess(mem, BufferAccessEvent.READ),
-      new MmuBinding(
-          new NodeVariable(data)));
+      new MmuBinding(data));
   public final MmuAction tlbRefill = new MmuAction("TLB_REFILL");
   public final MmuAction tlbInvalid = new MmuAction("TLB_INVALID");
   public final MmuAction tlbModified = new MmuAction("TLB_MODIFIED");
@@ -491,35 +453,35 @@ public final class MmuUnderTest {
   public final MmuTransition ifLocal = new MmuTransition(checkG, local,
       new MmuGuard(
           Nodes.EQ(
-              new NodeVariable(g),
+              g,
               NodeValue.newBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifGlobal = new MmuTransition(checkG, global,
       new MmuGuard(
           Nodes.EQ(
-              new NodeVariable(g),
+              g,
               NodeValue.newInteger(1))));
   public final MmuTransition afterLocal = new MmuTransition(local, checkV);
   public final MmuTransition afterGlobal = new MmuTransition(global, checkV);
   public final MmuTransition ifInvalid = new MmuTransition(checkV, tlbInvalid,
       new MmuGuard(
           Nodes.EQ(
-              new NodeVariable(v),
+              v,
               NodeValue.newBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifValid = new MmuTransition(checkV, checkD,
       new MmuGuard(
           Nodes.EQ(
-              new NodeVariable(v),
+              v,
               NodeValue.newInteger(1))));
   public final MmuTransition ifDirty = new MmuTransition(checkD, tlbModified,
       new MmuGuard(
           MemoryOperation.STORE,
           Nodes.EQ(
-              new NodeVariable(d),
+              d,
               NodeValue.newBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifClean = new MmuTransition(checkD, getMpa,
       new MmuGuard(
           Nodes.EQ(
-              new NodeVariable(d),
+              d,
               NodeValue.newInteger(1))));
   public final MmuTransition afterMpa = new MmuTransition(getMpa, checkSegment);
   public final MmuTransition ifKseg0 = new MmuTransition(checkSegment, startKseg0,

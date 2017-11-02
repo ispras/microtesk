@@ -1,11 +1,11 @@
 /*
  * Copyright 2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -14,26 +14,26 @@
 
 package ru.ispras.microtesk.mmu.translator.ir.spec;
 
-import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 /**
  * {@link MmuAddressInstance} describes an address, i.e. a parameter used to access a buffer.
- * 
+ *
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public class MmuAddressInstance extends MmuStruct {
   /** Address description (the variable contains the name and the bit length). */
   private final Var addrStruct;
-  private Variable address;
+  private NodeVariable address;
 
   public MmuAddressInstance(
       final String name,
       final Var addrStruct,
-      final Variable address) {
+      final NodeVariable address) {
     super(name);
 
     this.addrStruct = addrStruct;
@@ -47,19 +47,19 @@ public class MmuAddressInstance extends MmuStruct {
     this.address = null;
   }
 
-  protected void setVariable(final Variable variable) {
+  protected void setVariable(final NodeVariable variable) {
     InvariantChecks.checkNotNull(variable);
     InvariantChecks.checkTrue(address == null);
 
     this.address = variable;
   }
 
-  public final Variable getVariable() {
+  public final NodeVariable getVariable() {
     return address;
   }
 
   public final int getWidth() {
-    return getVariable().getType().getSize();
+    return getVariable().getDataType().getSize();
   }
 
   public final Var getStruct() {
@@ -71,7 +71,7 @@ public class MmuAddressInstance extends MmuStruct {
 
     final MmuAddressInstance instance = new MmuAddressInstance(name, addrStruct, address);
 
-    for (final Variable field : fields) {
+    for (final NodeVariable field : fields) {
       instance.fields.add(context.getInstance(instanceId, field));
     }
 
@@ -84,7 +84,7 @@ public class MmuAddressInstance extends MmuStruct {
 
   @Override
   public String toString() {
-    return String.format("%s:%s[%d]", name, address.getName(), address.getType().getSize());
+    return String.format("%s:%s[%d]", name, address.getName(), address.getDataType().getSize());
   }
 
   @Override

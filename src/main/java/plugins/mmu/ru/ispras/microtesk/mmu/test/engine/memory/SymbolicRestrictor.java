@@ -99,7 +99,7 @@ public final class SymbolicRestrictor {
     Logger.debug("Range constraint: %s in %s", addrType, range);
 
     return Collections.<BitVectorConstraint>singleton(
-        new BitVectorRangeConstraint(addrType.getVariable(), range));
+        new BitVectorRangeConstraint(addrType.getVariable().getVariable(), range));
   }
 
   public Collection<BitVectorConstraint> getConstraints(

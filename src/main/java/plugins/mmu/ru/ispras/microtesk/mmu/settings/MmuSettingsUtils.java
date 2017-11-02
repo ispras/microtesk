@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -21,7 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -38,7 +37,7 @@ import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 /**
  * {@link MmuSettingsUtils} implements utilities for handing MMU settings.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MmuSettingsUtils {
@@ -84,7 +83,7 @@ public final class MmuSettingsUtils {
   /**
    * Returns the constraint corresponding to the values settings or {@code null} if no constraint is
    * specified (the constraint is identical to TRUE).
-   * 
+   *
    * @param settings the values settings.
    * @return the constraint or {@code null}.
    */
@@ -93,7 +92,7 @@ public final class MmuSettingsUtils {
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     InvariantChecks.checkNotNull(memory);
 
-    final Variable variable = memory.getVariable(settings.getName());
+    final NodeVariable variable = memory.getVariable(settings.getName());
     InvariantChecks.checkNotNull(variable);
 
     final Set<BigInteger> domain = settings.getPossibleValues();
@@ -120,21 +119,21 @@ public final class MmuSettingsUtils {
         : include;
 
     final Set<BitVector> bvDomain =
-        BigIntegerUtils.toBitVectorSet(domain, variable.getType().getSize());
+        BigIntegerUtils.toBitVectorSet(domain, variable.getDataType().getSize());
     final Set<BitVector> bvValues =
-        BigIntegerUtils.toBitVectorSet(values, variable.getType().getSize());
+        BigIntegerUtils.toBitVectorSet(values, variable.getDataType().getSize());
 
     return new BitVectorDomainConstraint(
         kind,
-        new NodeVariable(variable),
+        variable,
         bvDomain,
-        bvValues); 
+        bvValues);
   }
 
   /**
    * Returns the constraint corresponding to the values settings or {@code null} if no constraint is
    * specified (the constraint is identical to TRUE).
-   * 
+   *
    * @param settings the values settings.
    * @return the constraint or {@code null}.
    */
@@ -145,9 +144,9 @@ public final class MmuSettingsUtils {
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     InvariantChecks.checkNotNull(memory);
 
-    final Variable variable = memory.getVariable(settings.getName());
+    final NodeVariable variable = memory.getVariable(settings.getName());
     InvariantChecks.checkNotNull(variable);
-    InvariantChecks.checkNotNull(variable.getType().getSize() == 1);
+    InvariantChecks.checkNotNull(variable.getDataType().getSize() == 1);
 
     final Set<Boolean> booleanValues = settings.getValues();
     InvariantChecks.checkTrue(booleanValues != null && !booleanValues.isEmpty());
@@ -164,7 +163,7 @@ public final class MmuSettingsUtils {
 
     return new BitVectorDomainConstraint(
         BitVectorDomainConstraint.Kind.RETAIN,
-        new NodeVariable(variable),
+        variable,
         null,
         values);
   }

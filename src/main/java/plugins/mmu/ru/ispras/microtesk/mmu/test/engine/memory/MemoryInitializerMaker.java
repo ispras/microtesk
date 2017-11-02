@@ -1,11 +1,11 @@
 /*
  * Copyright 2006-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.MmuPlugin;
@@ -62,7 +62,7 @@ import ru.ispras.testbase.TestData;
 
 /**
  * {@link MemoryInitializerMaker} implements the memory engine initializer maker.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryInitializerMaker implements InitializerMaker {
@@ -173,7 +173,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
 
     final Map<String, BitVector> entryFieldValues = new LinkedHashMap<>();
 
-    for (final Variable field : data.getVariables()) {
+    for (final NodeVariable field : data.getVariables()) {
       final String entryFieldName = field.getName();
       final BitVector entryFieldValue = data.getValue(field);
 
@@ -425,7 +425,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     final MmuAddressInstance virtualAddressType = memory.getVirtualAddress();
     final BitVector virtualAddressValue = addressObject.getAddress(virtualAddressType);
 
-    final Variable dataVariable = memory.getDataVariable();
+    final NodeVariable dataVariable = memory.getDataVariable();
     final BitVector dataValue = addressObject.getData(dataVariable);
 
     return String.format("%s[0x%s]=[0x%s]",

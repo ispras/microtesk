@@ -22,7 +22,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -45,38 +44,38 @@ public class MmuBufferTestCase {
     return new MmuAddressInstance(
         name,
         new Var(name, type),
-        new Variable(name + ".value", DataType.BIT_VECTOR(width)));
+        new NodeVariable(name + ".value", DataType.BIT_VECTOR(width)));
   }
 
   public static final MmuAddressInstance VA_ADDR = newAddress("VA", 64);
   public static final MmuAddressInstance PA_ADDR = newAddress("PA", 36);
 
-  public static final Variable VA = VA_ADDR.getVariable();
-  public static final Variable PA = PA_ADDR.getVariable();
+  public static final NodeVariable VA = VA_ADDR.getVariable();
+  public static final NodeVariable PA = PA_ADDR.getVariable();
 
-  public static final Variable isMapped = new Variable("isMapped", DataType.BIT_VECTOR(1));
-  public static final Variable isCached = new Variable("isCached", DataType.BIT_VECTOR(1));
-  public static final Variable VPN2 = new Variable("VPN2", DataType.BIT_VECTOR(27));
-  public static final Variable V0 = new Variable("V0", DataType.BIT_VECTOR(1));
-  public static final Variable D0 = new Variable("D0", DataType.BIT_VECTOR(1));
-  public static final Variable G0 = new Variable("G0", DataType.BIT_VECTOR(1));
-  public static final Variable C0 = new Variable("C0", DataType.BIT_VECTOR(3));
-  public static final Variable PFN0 = new Variable("PFN0", DataType.BIT_VECTOR(24));
-  public static final Variable V1 = new Variable("V1", DataType.BIT_VECTOR(1));
-  public static final Variable D1 = new Variable("D1", DataType.BIT_VECTOR(1));
-  public static final Variable G1 = new Variable("G1", DataType.BIT_VECTOR(1));
-  public static final Variable C1 = new Variable("C1", DataType.BIT_VECTOR(3));
-  public static final Variable PFN1 = new Variable("PFN1", DataType.BIT_VECTOR(24));
-  public static final Variable V = new Variable("V", DataType.BIT_VECTOR(1));
-  public static final Variable D = new Variable("D", DataType.BIT_VECTOR(1));
-  public static final Variable G = new Variable("G", DataType.BIT_VECTOR(1));
-  public static final Variable C = new Variable("C", DataType.BIT_VECTOR(3));
-  public static final Variable PFN = new Variable("PFN", DataType.BIT_VECTOR(24));
-  public static final Variable L1_TAG = new Variable("TAG1", DataType.BIT_VECTOR(24));
-  public static final Variable L2_TAG = new Variable("TAG2", DataType.BIT_VECTOR(24));
-  public static final Variable L1_DATA = new Variable("DATA1", DataType.BIT_VECTOR(8 * 32));
-  public static final Variable L2_DATA = new Variable("DATA2", DataType.BIT_VECTOR(8 * 32));
-  public static final Variable DATA = new Variable("DATA", DataType.BIT_VECTOR(8 * 32));
+  public static final NodeVariable isMapped = new NodeVariable("isMapped", DataType.BIT_VECTOR(1));
+  public static final NodeVariable isCached = new NodeVariable("isCached", DataType.BIT_VECTOR(1));
+  public static final NodeVariable VPN2 = new NodeVariable("VPN2", DataType.BIT_VECTOR(27));
+  public static final NodeVariable V0 = new NodeVariable("V0", DataType.BIT_VECTOR(1));
+  public static final NodeVariable D0 = new NodeVariable("D0", DataType.BIT_VECTOR(1));
+  public static final NodeVariable G0 = new NodeVariable("G0", DataType.BIT_VECTOR(1));
+  public static final NodeVariable C0 = new NodeVariable("C0", DataType.BIT_VECTOR(3));
+  public static final NodeVariable PFN0 = new NodeVariable("PFN0", DataType.BIT_VECTOR(24));
+  public static final NodeVariable V1 = new NodeVariable("V1", DataType.BIT_VECTOR(1));
+  public static final NodeVariable D1 = new NodeVariable("D1", DataType.BIT_VECTOR(1));
+  public static final NodeVariable G1 = new NodeVariable("G1", DataType.BIT_VECTOR(1));
+  public static final NodeVariable C1 = new NodeVariable("C1", DataType.BIT_VECTOR(3));
+  public static final NodeVariable PFN1 = new NodeVariable("PFN1", DataType.BIT_VECTOR(24));
+  public static final NodeVariable V = new NodeVariable("V", DataType.BIT_VECTOR(1));
+  public static final NodeVariable D = new NodeVariable("D", DataType.BIT_VECTOR(1));
+  public static final NodeVariable G = new NodeVariable("G", DataType.BIT_VECTOR(1));
+  public static final NodeVariable C = new NodeVariable("C", DataType.BIT_VECTOR(3));
+  public static final NodeVariable PFN = new NodeVariable("PFN", DataType.BIT_VECTOR(24));
+  public static final NodeVariable L1_TAG = new NodeVariable("TAG1", DataType.BIT_VECTOR(24));
+  public static final NodeVariable L2_TAG = new NodeVariable("TAG2", DataType.BIT_VECTOR(24));
+  public static final NodeVariable L1_DATA = new NodeVariable("DATA1", DataType.BIT_VECTOR(8 * 32));
+  public static final NodeVariable L2_DATA = new NodeVariable("DATA2", DataType.BIT_VECTOR(8 * 32));
+  public static final NodeVariable DATA = new NodeVariable("DATA", DataType.BIT_VECTOR(8 * 32));
 
   public static final MmuBuffer JTLB = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, 64, 1, VA_ADDR,
@@ -85,7 +84,7 @@ public class MmuBufferTestCase {
       Nodes.BVEXTRACT(12, 0, VA), // Offset
       Collections.singleton(
           new MmuBinding(
-              new NodeVariable(VPN2),
+              VPN2,
               Nodes.BVEXTRACT(39, 13, VA))),
       false, null
       );
@@ -113,7 +112,7 @@ public class MmuBufferTestCase {
       Nodes.BVEXTRACT(12, 0, VA), // Offset
       Collections.singleton(
           new MmuBinding(
-              new NodeVariable(VPN2),
+              VPN2,
               Nodes.BVEXTRACT(39, 13, VA))),
       true, JTLB
       );
@@ -165,7 +164,7 @@ public class MmuBufferTestCase {
       Nodes.BVEXTRACT(4, 0, PA), // Offset
       Collections.singleton(
           new MmuBinding(
-              new NodeVariable(L1_TAG),
+              L1_TAG,
               Nodes.BVEXTRACT(35, 12, PA))),
       true, null
       );
@@ -205,7 +204,7 @@ public class MmuBufferTestCase {
       Nodes.BVEXTRACT(4, 0, PA), // Offset
       Collections.singleton(
           new MmuBinding(
-              new NodeVariable(L2_TAG),
+              L2_TAG,
               Nodes.BVEXTRACT(35, 17, PA))),
       true, null
       );

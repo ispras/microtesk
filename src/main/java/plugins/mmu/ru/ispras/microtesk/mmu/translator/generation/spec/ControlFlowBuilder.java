@@ -27,8 +27,6 @@ import java.util.Set;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.fortress.data.Data;
-import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -626,7 +624,7 @@ final class ControlFlowBuilder {
     if (type.isStruct()) {
       temporary.add("type", type.getId());
     } else {
-      temporary.add("type", "Variable");
+      temporary.add("type", "NodeVariable");
       temporary.add("size", String.format("DataType.BIT_VECTOR(%d)", type.getBitSize()));
     }
     stDef.add("stmts", temporary);
@@ -693,7 +691,7 @@ final class ControlFlowBuilder {
     final String name = String.format("const:%d=%x", width, value);
 
     return String.format(
-        "new Variable(\"%s\", Data.newBitVector(%s, %d))",
+        "new NodeVariable(new Variable(\"%s\", Data.newBitVector(%s, %d)))",
         name,
         Utils.toString(value),
         width

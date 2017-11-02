@@ -28,6 +28,7 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ValueProvider;
@@ -43,7 +44,7 @@ import ru.ispras.microtesk.utils.function.Function;
  */
 public final class MmuAddressViewBuilder {
   private static Node createAddressExpression(
-      final Variable addressVariable,
+      final NodeVariable addressVariable,
       final List<Variable> variables,
       final List<Node> expressions) {
     InvariantChecks.checkNotNull(addressVariable);
@@ -137,7 +138,7 @@ public final class MmuAddressViewBuilder {
 
   public AddressView<BitVector> build() {
     final int addressWidth = addressType.getWidth();
-    final Variable addressVariable = addressType.getVariable();
+    final NodeVariable addressVariable = addressType.getVariable();
 
     // Create the auxiliary variables to represent the address calculation function.
     final String variableNamePrefix = "var";

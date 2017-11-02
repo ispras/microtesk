@@ -36,7 +36,7 @@ field_decl(type, name, is_public) ::= <<
 >>
 
 field_def_var(name, type, value) ::= <<
-this.<name> = new Variable(name + ".<name>", <type><if(value)>, <value><endif>);
+this.<name> = new NodeVariable(name + ".<name>", <type><if(value)>, <value><endif>);
 >>
 
 field_def_struct(name, type) ::= <<

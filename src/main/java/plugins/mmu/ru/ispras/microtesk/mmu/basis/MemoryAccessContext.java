@@ -1,11 +1,11 @@
 /*
  * Copyright 2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -19,6 +19,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -28,7 +29,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
  * {@link MemoryAccessContext} contains data required for buffer access instantiation.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class MemoryAccessContext {
@@ -99,10 +100,10 @@ public final class MemoryAccessContext {
     return memoryAccessStack.ret();
   }
 
-  public Variable getInstance(final String instanceId, final Variable variable) {
+  public NodeVariable getInstance(final String instanceId, final NodeVariable variable) {
     InvariantChecks.checkNotNull(variable);
 
-    final Variable instance = getVariable(instanceId, variable);
+    final NodeVariable instance = getVariable(instanceId, variable);
     return memoryAccessStack.getInstance(instance);
   }
 
@@ -114,18 +115,18 @@ public final class MemoryAccessContext {
     return Transformer.substitute(node, new VariableProvider() {
       @Override
       public Variable getVariable(final Variable variable) {
-        return getInstance(instanceId, variable);
+        return getInstance(instanceId, new NodeVariable(variable)).getVariable();
       }
     });
   }
 
-  private static Variable getVariable(final String instanceId, final Variable variable) {
+  private static NodeVariable getVariable(final String instanceId, final NodeVariable variable) {
     if (instanceId == null) {
       return variable;
     }
 
     final String instanceName = String.format("%s_%s", variable.getName(), instanceId);
-    return new Variable(instanceName, variable.getType());
+    return new NodeVariable(instanceName, variable.getDataType());
   }
 
   @Override

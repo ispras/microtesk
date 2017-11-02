@@ -112,8 +112,8 @@ public final class MemoryDataGenerator implements DataGenerator {
     final BitVector virtAddrValue = getRandomAddress(virtAddrType, dataType);
     solution.setAddress(virtAddrType, virtAddrValue);
 
-    final Variable dataVariable = memory.getDataVariable();
-    final BitVector dataValue = getRandomValue(dataVariable);
+    final NodeVariable dataVariable = memory.getDataVariable();
+    final BitVector dataValue = getRandomValue(dataVariable.getVariable());
     solution.setData(dataVariable, dataValue);
 
     final Collection<Node> conditions = new ArrayList<>();
@@ -280,8 +280,8 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     Logger.debug("Fill entry: values=%s", values);
 
-    for (final Variable field : entry.getVariables()) {
-      final Variable fieldInstance = context.getInstance(bufferAccessId, field);
+    for (final NodeVariable field : entry.getVariables()) {
+      final NodeVariable fieldInstance = context.getInstance(bufferAccessId, field);
       Logger.debug("Fill entry: fieldInstance=%s", fieldInstance);
 
       // If an entry field is not used in the path, it remains unchanged.
@@ -496,23 +496,21 @@ public final class MemoryDataGenerator implements DataGenerator {
     final Collection<BitVectorConstraint> allConstraints = new ArrayList<>(constraints);
 
     // Fix known values of the data.
-    final Map<Variable, BitVector> data = addressObject.getData();
-    for (final Map.Entry<Variable, BitVector> entry : data.entrySet()) {
-      final Variable variable = entry.getKey();
+    final Map<NodeVariable, BitVector> data = addressObject.getData();
+    for (final Map.Entry<NodeVariable, BitVector> entry : data.entrySet()) {
+      final NodeVariable variable = entry.getKey();
       final BitVector value = entry.getValue();
 
       allConstraints.add(
-          new BitVectorEqualConstraint(new NodeVariable(variable), value));
+          new BitVectorEqualConstraint(variable, value));
     }
 
     // Fix known values of the addresses.
     final Map<MmuAddressInstance, BitVector> addresses = addressObject.getAddresses();
     for (final Map.Entry<MmuAddressInstance, BitVector> entry : addresses.entrySet()) {
-      final Variable variable = entry.getKey().getVariable();
+      final NodeVariable variable = entry.getKey().getVariable();
       final BitVector value = entry.getValue();
-
-      allConstraints.add(
-          new BitVectorEqualConstraint(new NodeVariable(variable), value));
+      allConstraints.add(new BitVectorEqualConstraint(variable, value));
     }
 
     Logger.debug("Constraints for refinement: %s", allConstraints);
@@ -539,7 +537,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     // Set the intermediate addresses used along the memory access path.
     for (final MmuBufferAccess bufferAccess : bufferAccesses) {
       final MmuAddressInstance addrType = bufferAccess.getAddress();
-      final Variable addrVar = addrType.getVariable(); 
+      final NodeVariable addrVar = addrType.getVariable();
       final BitVector addrValue = values.get(addrVar);
 
       if (addrValue != null) {
@@ -551,7 +549,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     // Get the virtual address value.
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     final MmuAddressInstance addrType = memory.getVirtualAddress();
-    final Variable addrVar = addrType.getVariable(); 
+    final NodeVariable addrVar = addrType.getVariable();
     final BitVector addrValue = values.get(addrVar);
     InvariantChecks.checkNotNull(addrValue, "Cannot obtain the virtual address value");
 

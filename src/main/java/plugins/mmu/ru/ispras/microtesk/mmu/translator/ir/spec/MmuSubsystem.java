@@ -1,11 +1,11 @@
 /*
  * Copyright 2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -22,17 +22,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 
 /**
  * {@link MmuSubsystem} describes a memory management unit (MMU).
- * 
+ *
  * <p>The description includes a set of buffers and a network (directed acyclic graph with one
  * source and multiple sink nodes) of actions.</p>
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -41,10 +41,10 @@ public final class MmuSubsystem {
   private final String name;
 
   /** Stores available variables. */
-  private final Map<String, Variable> variables;
+  private final Map<String, NodeVariable> variables;
 
   /** Refers to the data variable type of the MMU. */
-  private final Variable dataVariable;
+  private final NodeVariable dataVariable;
 
   /**
    * Stores available address types.
@@ -90,8 +90,8 @@ public final class MmuSubsystem {
    */
   private MmuSubsystem(
       final String name,
-      final Map<String, Variable> variables,
-      final Variable dataVariable,
+      final Map<String, NodeVariable> variables,
+      final NodeVariable dataVariable,
       final Map<String, MmuAddressInstance> addresses,
       final List<MmuAddressInstance> sortedAddresses,
       final MmuAddressInstance virtualAddress,
@@ -154,11 +154,11 @@ public final class MmuSubsystem {
     }
   }
 
-  public Variable getVariable(final String name) {
+  public NodeVariable getVariable(final String name) {
     return variables.get(name);
   }
 
-  public Variable getDataVariable() {
+  public NodeVariable getDataVariable() {
     return dataVariable;
   }
 
@@ -196,7 +196,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns the target buffer (the main memory device).
-   * 
+   *
    * @return the target buffer.
    */
   public MmuBuffer getTargetBuffer() {
@@ -205,7 +205,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns the collection of operations registered in the MMU.
-   * 
+   *
    * @return the collection of operations.
    */
   public Collection<MmuOperation> getOperations() {
@@ -214,7 +214,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns an operation registered in the MMU by its name.
-   * 
+   *
    * @param name the name of the operation.
    * @return operation or {@code null} if it is undefined.
    */
@@ -224,7 +224,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns the collection of segments registered in the MMU.
-   * 
+   *
    * @return the collection of segments.
    */
   public Collection<MmuSegment> getSegments() {
@@ -233,7 +233,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns a segment registered in the MMU by its name.
-   * 
+   *
    * @param name the name of the segment.
    * @return segment or {@code null} if it is undefined.
    */
@@ -251,7 +251,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns the collection of buffers registered in the MMU.
-   * 
+   *
    * @return the collection of buffers.
    */
   public Collection<MmuBuffer> getBuffers() {
@@ -265,7 +265,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns a buffer registered in the MMU by its name.
-   * 
+   *
    * @param name the name of the buffer.
    * @return buffer or {@code null} if it is undefined.
    */
@@ -275,7 +275,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns the set of actions registered in the memory management unit.
-   * 
+   *
    * @return the set of actions.
    */
   public Set<MmuAction> getActions() {
@@ -284,7 +284,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns the list of transitions for the given action of the memory management unit.
-   * 
+   *
    * @param action the action.
    * @return the list of transitions.
    * @throws IllegalArgumentException if {@code action} is null.
@@ -297,7 +297,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns the list of all transitions.
-   * 
+   *
    * @return List of transitions.
    */
   public List<MmuTransition> getTransitions() {
@@ -312,7 +312,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns the initial (root) action of the memory management unit.
-   * 
+   *
    * @return the initial action.
    */
   public MmuAction getStartAction() {
@@ -379,9 +379,9 @@ public final class MmuSubsystem {
     private String name = null;
 
     /** Stores available address types. */
-    private Map<String, Variable> variables = new LinkedHashMap<>();
+    private Map<String, NodeVariable> variables = new LinkedHashMap<>();
 
-    private Variable dataVariable = null;
+    private NodeVariable dataVariable = null;
 
     /**
      * Stores available address types.
@@ -443,19 +443,19 @@ public final class MmuSubsystem {
       this.name = name;
     }
 
-    public void registerVariable(final Variable variable) {
+    public void registerVariable(final NodeVariable variable) {
       InvariantChecks.checkNotNull(variable);
-      variables.put(variable.getName(), variable);
+      variables.put(variable.getVariable().getName(), variable);
     }
 
     public void registerVariable(final MmuStruct struct) {
       InvariantChecks.checkNotNull(struct);
-      for (final Variable variable : struct.getFields()) {
+      for (final NodeVariable variable : struct.getFields()) {
         registerVariable(variable);
       }
     }
 
-    public void setDataVariable(final Variable variable) {
+    public void setDataVariable(final NodeVariable variable) {
       InvariantChecks.checkNotNull(variable);
       dataVariable = variable;
     }
@@ -463,7 +463,7 @@ public final class MmuSubsystem {
     /**
      * Registers the address type in the MMU. Address that have the same 
      * name are considered as duplicates and ignored.
-     * 
+     *
      * @param address the address to be registered.
      * @throws IllegalArgumentException if {@code address} is {@code null}.
      */
@@ -491,7 +491,7 @@ public final class MmuSubsystem {
 
     /**
      * Sets the target buffer (the main memory device).
-     * 
+     *
      * @param buffer the buffer to be set.
      * @throws IllegalArgumentException if {@code buffer} is {@code null}.
      */
@@ -502,7 +502,7 @@ public final class MmuSubsystem {
 
     /**
      * Registers an operation in the MMU.
-     * 
+     *
      * @param operation the operation to be registered.
      * @throws IllegalArgumentException if {@code operation} is {@code null}.
      */
@@ -513,7 +513,7 @@ public final class MmuSubsystem {
 
     /**
      * Registers a segment in the MMU.
-     * 
+     *
      * @param segment the segment to be registered.
      * @throws IllegalArgumentException if {@code segment} is {@code null}.
      */
@@ -524,10 +524,10 @@ public final class MmuSubsystem {
 
     /**
      * Registers a buffer in the MMU.
-     * 
+     *
      * <p>Buffers are identified by their name. Buffers with equal names are considered duplicates
      * and ignored.</p>
-     * 
+     *
      * @param buffer the buffer to be registered.
      * @throws IllegalArgumentException if {@code buffer} is {@code null}.
      */
@@ -545,9 +545,9 @@ public final class MmuSubsystem {
 
     /**
      * Registers the action in the memory management unit.
-     * 
+     *
      * <p>Actions should be registered before transitions.</p>
-     * 
+     *
      * @param action the action to be registered.
      * @throws IllegalArgumentException if {@code action} is null.
      */
@@ -559,9 +559,9 @@ public final class MmuSubsystem {
 
     /**
      * Registers the transition in the memory management unit.
-     * 
+     *
      * <p>Transitions should be registered after actions.</p>
-     * 
+     *
      * @param transition the transition to be registered.
      * @throws IllegalArgumentException if {@code transition} is null.
      */
@@ -574,7 +574,7 @@ public final class MmuSubsystem {
 
     /**
      * Sets the initial (root) action of the memory management unit.
-     * 
+     *
      * @param action the initial action.
      * @throws IllegalArgumentException if {@code action} is null.
      */

@@ -33,7 +33,7 @@ final class STBStruct implements STBuilder {
       ru.ispras.fortress.data.DataType.class;
 
   public static final Class<?> VARIABLE_CLASS =
-      ru.ispras.fortress.data.Variable.class;
+      ru.ispras.fortress.expression.NodeVariable.class;
 
   private final String packageName;
   private final Type type;
