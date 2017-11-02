@@ -173,7 +173,19 @@ public final class Utils {
       public void onVariable(final NodeVariable variable) {
         if (variable.getVariable().hasValue()) {
           onValue(new NodeValue(variable.getData()));
-        } else if (null != ir) {
+          return;
+        }
+
+        if (null != variable.getUserData()) {
+          final Atom atom = AtomExtractor.extract(variable);
+          if (atom.getKind() == Atom.Kind.GROUP) {
+            final String name = getVariableName(context, ((Var) atom.getObject()).getName());
+            appendText(String.format("Nodes.BVCONCAT(%s.getFields())", name));
+            return;
+          }
+        }
+
+        if (null != ir) {
           appendText(getVariableName(ir, context, variable.getVariable()));
         } else {
           appendText(getVariableName(context, variable.getName()));
