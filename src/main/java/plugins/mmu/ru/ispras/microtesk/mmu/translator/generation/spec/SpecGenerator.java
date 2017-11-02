@@ -56,7 +56,7 @@ public final class SpecGenerator implements TranslatorHandler<Ir> {
       processStructs(ir, factory);
       processAddresses(ir, factory);
       processOperations(ir, factory);
-      // processFunctions(ir, factory);
+      processFunctions(ir, factory);
       processBuffers(ir, factory);
       // processSegments(ir, factory);
       // processMemories(ir, factory);
