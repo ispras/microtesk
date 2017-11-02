@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.translator.ir.spec;
 
 import java.math.BigInteger;
 import ru.ispras.fortress.data.Data;
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Value;
@@ -41,7 +42,23 @@ public final class MmuDynamicConst implements Value<Data> {
   @Override
   public Data value() {
     final Object object = value.value();
+    return bitSize == DataType.LOGIC_TYPE_SIZE ? toLogicType(object) : toBitVector(object, bitSize);
+  }
 
+  private Data toLogicType(final Object object) {
+    if (object instanceof BigInteger) {
+      return Data.newInteger((BigInteger) object);
+    }
+
+    if (object instanceof Boolean) {
+      return Data.newBoolean((Boolean) object);
+    }
+
+    throw new ClassCastException(String.format(
+        "Type conversion from %s to a logic type is not supported.", object.getClass().getName()));
+  }
+
+  private static Data toBitVector(final Object object, final int bitSize) {
     if (object instanceof BigInteger) {
       return Data.newBitVector((BigInteger) object, bitSize);
     }
@@ -57,7 +74,7 @@ public final class MmuDynamicConst implements Value<Data> {
       return Data.newBitVector(((Boolean) object) ? 1 : 0, bitSize);
     }
 
-    throw new ClassCastException(
-        String.format("Type %s is not supported.", object.getClass().getName()));
+    throw new ClassCastException(String.format(
+        "Type conversion from %s to a bit vector is not supported.", object.getClass().getName()));
   }
 }
