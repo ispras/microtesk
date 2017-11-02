@@ -133,7 +133,6 @@ public final class Utils {
     return new JavaPrinter(context, null).toString(field);
   }
 
-  @SuppressWarnings("unchecked")
   public static String toString(final Ir ir, final String context, final Atom atom) {
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(context);
