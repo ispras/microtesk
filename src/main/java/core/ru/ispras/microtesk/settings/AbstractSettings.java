@@ -1,11 +1,11 @@
 /*
  * Copyright 2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -23,7 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link AbstractSettings} represents abstract settings.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class AbstractSettings {
@@ -31,7 +31,7 @@ public abstract class AbstractSettings {
 
   /**
    * Contains the settings' sections (standard and generator-specific ones).
-   * 
+   *
    * <p>The key is the section tag; the value is the list of the settings' sections.</p>
    */
   private Map<String, Collection<AbstractSettings>> sections = new HashMap<>();
@@ -46,7 +46,7 @@ public abstract class AbstractSettings {
 
   /**
    * Returns the name of the settings (to be overridden in subclasses).
-   * 
+   *
    * @return the settings name.
    */
   public String getName() {
@@ -90,8 +90,9 @@ public abstract class AbstractSettings {
 
   /**
    * Default implementation (to be overridden in subclasses).
-   * 
+   *
    * @param tag the tag of the sections to be returned.
+   * @return Sections that correspond to the specified section tag.
    */
   public Collection<AbstractSettings> get(final String tag) {
     InvariantChecks.checkNotNull(tag);
@@ -100,7 +101,7 @@ public abstract class AbstractSettings {
 
   /**
    * Default implementation (to be overridden in subclasses).
-   * 
+   *
    * @param section the settings's section to be added.
    */
   public void add(final AbstractSettings section) {
