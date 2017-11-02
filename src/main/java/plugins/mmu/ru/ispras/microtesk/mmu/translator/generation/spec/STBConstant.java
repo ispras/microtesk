@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -57,6 +57,7 @@ public class STBConstant implements STBuilder{
     st.add("imps", java.util.Map.class.getName());
     st.add("imps", java.util.HashMap.class.getName());
     st.add("imps", InvariantChecks.class.getName());
+    st.add("imps", ru.ispras.fortress.data.DataType.class.getName());
     st.add("imps", ru.ispras.fortress.data.Variable.class.getName());
     st.add("imps", ru.ispras.fortress.expression.NodeVariable.class.getName());
     st.add("imps", CONSTANT_CLASS.getName());
@@ -65,10 +66,10 @@ public class STBConstant implements STBuilder{
   private void buildBody(final ST st, final STGroup group) {
     final ST stBody = group.getInstanceOf("constant_body");
 
-    stBody.add("name", constant.getId());
-    stBody.add("width", constant.getVariable().getDataType().getSize());
+    final DataType type = constant.getVariable().getDataType();
+    stBody.add("name",  constant.getId());
+    stBody.add("width", type.getTypeId().isLogic() ? "DataType.LOGIC_TYPE_SIZE" : type.getSize());
     stBody.add("value", String.format("%s.%s.get()", simulatorPackageName, constant.getId()));
-    stBody.add("fixed_width", constant.getVariable().isType(DataTypeId.BIT_VECTOR));
 
     st.add("members", stBody);
   }

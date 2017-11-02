@@ -67,7 +67,6 @@ public class STBExtern implements STBuilder{
     stBody.add("name", extern.getName());
     stBody.add("width", extern.getBitSize());
     stBody.add("value", String.format("%s.Extern.get().%s", simulatorPackageName, extern.getName()));
-    stBody.add("fixed_width", true);
 
     st.add("members", stBody);
   }
