@@ -67,8 +67,14 @@ final class STBSegment implements STBuilder {
     st.add("ext", SEGMENT_CLASS.getSimpleName());
     st.add("instance", "INSTANCE");
 
-    st.add("imps", SEGMENT_CLASS.getName());
     st.add("imps", BIT_VECTOR_CLASS.getName());
+    st.add("imps", ru.ispras.fortress.data.Data.class.getName());
+    st.add("imps", ru.ispras.fortress.data.DataType.class.getName());
+    st.add("imps", ru.ispras.fortress.expression.Nodes.class.getName());
+    st.add("imps", ru.ispras.fortress.expression.NodeValue.class.getName());
+    st.add("imps", ru.ispras.fortress.expression.NodeVariable.class.getName());
+    st.add("imps", SEGMENT_CLASS.getName());
+    st.add("imps", ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class.getName());
   }
 
   private void buildArguments(final ST st, final STGroup group) {
