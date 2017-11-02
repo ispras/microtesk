@@ -31,9 +31,6 @@ import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBMemory implements STBuilder {
-  public static final Class<?> INTEGER_CLASS =
-      ru.ispras.fortress.data.Variable.class;
-
   public static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 
@@ -68,7 +65,15 @@ final class STBMemory implements STBuilder {
     st.add("name", memory.getId()); 
     st.add("pack", packageName);
     st.add("instance", false);
-    st.add("imps", INTEGER_CLASS.getName());
+
+    st.add("imps", ru.ispras.fortress.data.Data.class.getName());
+    st.add("imps", ru.ispras.fortress.data.DataType.class.getName());
+    st.add("imps", ru.ispras.fortress.data.Variable.class.getName());
+    st.add("imps", ru.ispras.fortress.data.types.bitvector.BitVector.class.getName());
+    st.add("imps", ru.ispras.fortress.expression.Nodes.class.getName());
+    st.add("imps", ru.ispras.fortress.expression.NodeValue.class.getName());
+    st.add("imps", ru.ispras.fortress.expression.NodeVariable.class.getName());
+
     st.add("imps", OPERATION_CLASS.getName());
     st.add("imps", SPEC_CLASS.getName());
   }
