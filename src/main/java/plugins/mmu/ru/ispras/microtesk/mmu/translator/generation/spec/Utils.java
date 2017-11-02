@@ -119,7 +119,7 @@ public final class Utils {
     InvariantChecks.checkNotNull(context);
 
     if (null == fields || fields.isEmpty()) {
-      return "null";
+      return "Nodes.FALSE";
     }
 
     if (fields.size() == 1) {
