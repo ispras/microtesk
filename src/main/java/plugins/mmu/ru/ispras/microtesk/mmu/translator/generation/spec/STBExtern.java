@@ -55,7 +55,6 @@ public class STBExtern implements STBuilder{
     st.add("pack", packageName);
     st.add("imps", java.util.Map.class.getName());
     st.add("imps", java.util.HashMap.class.getName());
-    st.add("imps", InvariantChecks.class.getName());
     st.add("imps", ru.ispras.fortress.data.Variable.class.getName());
     st.add("imps", ru.ispras.fortress.expression.NodeVariable.class.getName());
     st.add("imps", CONSTANT_CLASS.getName());

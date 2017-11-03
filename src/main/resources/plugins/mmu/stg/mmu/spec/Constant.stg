@@ -24,7 +24,6 @@ public static NodeVariable get() {
 }<\n>
 private static final Map\<Integer, NodeVariable> constants = new HashMap\<>();<\n>
 public static NodeVariable get(final int width) {
-  InvariantChecks.checkGreaterThanZero(width);
   NodeVariable result = constants.get(width);
 
   if (null == result) {
