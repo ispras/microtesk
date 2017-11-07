@@ -37,7 +37,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
-import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
  * {@link SymbolicExecutor} represents a result of symbolic execution.
@@ -266,11 +265,7 @@ public final class SymbolicResult {
     InvariantChecks.checkNotNull(variable);
 
     final String originalName = getOriginalName(variable, pathIndex);
-
-    return getVariable(
-        originalName,
-        variable.getType().getSize(),
-        variable.getData().getBitVector());
+    return getVariable(originalName, variable.getType(), variable.getData());
   }
 
   public Variable getVersion(final Variable variable, final int pathIndex) {
@@ -280,10 +275,7 @@ public final class SymbolicResult {
     final int versionNumber = getVersionNumber(originalName);
     final String versionName = getVersionName(originalName, versionNumber);
 
-    return getVariable(
-        versionName,
-        variable.getType().getSize(),
-        variable.getData().getBitVector());
+    return getVariable(versionName, variable.getType(), variable.getData());
   }
 
   public Node getVersion(final Node node, final int pathIndex) {
@@ -304,10 +296,7 @@ public final class SymbolicResult {
     final int versionNumber = getVersionNumber(originalName);
     final String nextVersionName = getVersionName(originalName, versionNumber + 1);
 
-    return getVariable(
-        nextVersionName,
-        variable.getType().getSize(),
-        variable.getData().getBitVector());
+    return getVariable(nextVersionName, variable.getType(), variable.getData());
   }
 
   public void defineVersion(final Variable variable, final int pathIndex) {
@@ -328,10 +317,7 @@ public final class SymbolicResult {
     final int versionNumber = getVersionNumber(originalName);
     final String versionName = getVersionName(originalName, versionNumber);
 
-    return getVariable(
-        versionName,
-        originalVariable.getType().getSize(),
-        originalVariable.getData().getBitVector());
+    return getVariable(versionName, originalVariable.getType(), originalVariable.getData());
   }
 
   public int getVersionNumber(final Variable originalVariable) {
@@ -372,16 +358,15 @@ public final class SymbolicResult {
     return cache.get(versionName);
   }
 
-  private Variable getVariable(
-      final String variableName, final int width, final BitVector value) {
+  private Variable getVariable(final String variableName, final DataType type, final Data data) {
     InvariantChecks.checkNotNull(variableName);
 
     Variable variable = cache.get(variableName);
 
     if (variable == null) {
-      variable = value != null
-          ? new Variable(variableName, Data.newBitVector(value))
-          : new Variable(variableName, DataType.BIT_VECTOR(width));
+      variable = (data != null)
+          ? new Variable(variableName, data)
+          : new Variable(variableName, type);
 
       cache.put(variableName, variable);
     }

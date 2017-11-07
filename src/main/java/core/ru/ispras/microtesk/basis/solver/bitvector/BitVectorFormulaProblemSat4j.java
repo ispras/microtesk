@@ -19,12 +19,15 @@ import java.util.Map;
 
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
+import ru.ispras.fortress.expression.ExprTreeWalker;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
@@ -71,140 +74,159 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
   @Override
   public void addFormula(final Node formula) {
-    final NodeOperation operation = (NodeOperation) formula;
-    InvariantChecks.checkTrue(
-           operation.getOperationId() == StandardOperation.AND
-        || operation.getOperationId() == StandardOperation.OR);
+    Logger.debug("Formula: %s", formula);
 
-    // Handle constants.
+    handleConstants(formula);
+
+    final NodeOperation operation = (NodeOperation) formula;
+    final Enum<?> operationId = operation.getOperationId();
+
+    if (operationId == StandardOperation.EQ || operationId == StandardOperation.NOTEQ) {
+      handleEq(operation);
+    } else if (operationId == StandardOperation.AND) {
+      handleAnd(operation);
+    } else if (operationId == StandardOperation.OR) {
+      handleOr(operation);
+    }
+  }
+
+  private void handleConstants(final Node node) {
+    final ExprTreeWalker walker = new ExprTreeWalker(
+        new ExprTreeVisitorDefault() {
+          @Override
+          public void onVariable(final NodeVariable nodeVariable) {
+            final int i = index;
+            final int x = getVarIndex(nodeVariable);
+
+            // If the variable is new.
+            if (x >= i) {
+              final Variable variable = nodeVariable.getVariable();
+
+              if (variable.hasValue()) {
+                setUsedBits(variable);
+
+                // Generate n unit clauses (c[i] ? x[i] : ~x[i]).
+                builder.addAllClauses(
+                    Sat4jUtils.encodeVarEqualConst(
+                        new NodeVariable(variable), x, FortressUtils.getInteger(variable.getData())));
+              }
+            }
+          }
+        });
+
+    walker.visit(node);
+  }
+
+  private void handleEq(final NodeOperation equation) {
+    final Node lhs = equation.getOperand(0);
+    final Node rhs = equation.getOperand(1);
+
+    final int n = FortressUtils.getBitSize(lhs);
+    final int x = getVarIndex(lhs);
+    final int y = getVarIndex(rhs);
+
+    setUsedBits(lhs);
+    setUsedBits(rhs);
+
+    if (equation.getOperationId() == StandardOperation.EQ) {
+      if (rhs.getKind() == Node.Kind.VALUE) {
+        final NodeValue value = (NodeValue) rhs;
+
+        // Equality x == c.
+        builder.addAllClauses(
+            Sat4jUtils.encodeVarEqualConst(lhs, x, FortressUtils.getInteger(value)));
+      } else {
+        // Equality x == y.
+        builder.addAllClauses(
+            Sat4jUtils.encodeVarEqualVar(lhs, x, rhs, y));
+      }
+    } else {
+      if (rhs.getKind() == Node.Kind.VALUE) {
+        final NodeValue value = (NodeValue) rhs;
+
+        // Inequality x != c.
+        builder.addAllClauses(
+            Sat4jUtils.encodeVarNotEqualConst(lhs, x, FortressUtils.getInteger(value)));
+      } else {
+        // Inequality x != y.
+        builder.addAllClauses(
+            Sat4jUtils.encodeVarNotEqualVar(lhs, x, rhs, y, index));
+
+        index += 2 * n;
+      }
+    }
+  }
+
+  private void handleAnd(final NodeOperation operation) {
+    for (final Node operand : operation.getOperands()) {
+      final NodeOperation clause = (NodeOperation) operand;
+      final Enum<?> clauseId = clause.getOperationId();
+
+      if (clauseId == StandardOperation.EQ || clauseId == StandardOperation.NOTEQ) {
+        handleEq(clause);
+      } else if (clauseId == StandardOperation.AND) {
+        handleAnd(clause);
+      } else if (clauseId == StandardOperation.OR) {
+        handleOr(clause);
+      }
+    }
+  }
+
+  private void handleOr(final NodeOperation operation) {
+    int ej = index;
+
+    builder.addClause(Sat4jUtils.createClause(index, operation.getOperandCount()));
+    index += operation.getOperandCount();
+
     for (final Node operand : operation.getOperands()) {
       final NodeOperation equation = (NodeOperation) operand;
+
       InvariantChecks.checkTrue(
           equation.getOperationId() == StandardOperation.EQ
        || equation.getOperationId() == StandardOperation.NOTEQ);
 
-      final Node lhs = equation.getOperand(1);
-      final Node rhs = equation.getOperand(2);
+      final Node lhs = equation.getOperand(0);
+      final Node rhs = equation.getOperand(1);
 
-      final Node[] fields = new Node[] { lhs, rhs };
+      final int n = FortressUtils.getBitSize(lhs);
+      final int x = getVarIndex(lhs);
+      final int y = getVarIndex(rhs);
 
-      for (final Node field : fields) {
-        final int i = index;
-        final int x = getVarIndex(field);
+      setUsedBits(lhs);
+      setUsedBits(rhs);
 
-        // If the variable is new.
-        if (x >= i) {
-          final Variable variable = FortressUtils.getVariable(field);
+      if (equation.getOperationId() == StandardOperation.EQ) {
+        if (rhs.getKind() == Node.Kind.VALUE) {
+          final NodeValue value = (NodeValue) rhs;
 
-          if (variable.hasValue()) {
-            setUsedBits(variable);
+          // Equality x == c.
+          builder.addAllClauses(
+              Sat4jUtils.encodeVarEqualConst(ej, lhs, x, FortressUtils.getInteger(value)));
+        } else {
+          // Equality x == y.
+          builder.addAllClauses(
+              Sat4jUtils.encodeVarEqualVar(ej, lhs, x, rhs, y, index));
 
-            // Generate n clauses (c[i] ? x[i] : ~x[i]).
-            builder.addAllClauses(
-                Sat4jUtils.encodeVarEqualConst(
-                    new NodeVariable(variable), x, variable.getData().getInteger()));
-          }
+          index += 2 * n;
+        }
+      } else {
+        if (rhs.getKind() == Node.Kind.VALUE) {
+          final NodeValue value = (NodeValue) rhs;
+
+          // Inequality x != c.
+          builder.addAllClauses(
+              Sat4jUtils.encodeVarNotEqualConst(ej, lhs, x, FortressUtils.getInteger(value)));
+        } else {
+          // Inequality x != y.
+          builder.addAllClauses(
+              Sat4jUtils.encodeVarNotEqualVar(ej, lhs, x, rhs, y, index));
+
+          index += 2 * n;
         }
       }
-    }
 
-    // Handle equations.
-    if (operation.getOperationId() == StandardOperation.AND || operation.getOperandCount() == 1) {
-      // Handle an AND-clause.
-      for (final Node operand : operation.getOperands()) {
-        final NodeOperation equation = (NodeOperation) operand;
-
-        final Node lhs = equation.getOperand(1);
-        final Node rhs = equation.getOperand(2);
-
-        final int n = FortressUtils.getBitSize(lhs);
-        final int x = getVarIndex(lhs);
-        final int y = getVarIndex(rhs);
-
-        setUsedBits(lhs);
-        setUsedBits(rhs);
-
-        if (equation.getOperationId() == StandardOperation.EQ) {
-          if (rhs.getKind() == Node.Kind.VALUE) {
-            final NodeValue value = (NodeValue) rhs;
-
-            // Equality x == c.
-            builder.addAllClauses(
-                Sat4jUtils.encodeVarEqualConst(lhs, x, value.getInteger()));
-          } else {
-            // Equality x == y.
-            builder.addAllClauses(
-                Sat4jUtils.encodeVarEqualVar(lhs, x, rhs, y));
-          }
-        } else {
-          if (rhs.getKind() == Node.Kind.VALUE) {
-            final NodeValue value = (NodeValue) rhs;
-
-            // Inequality x != c.
-            builder.addAllClauses(
-                Sat4jUtils.encodeVarNotEqualConst(lhs, x, value.getInteger()));
-          } else {
-            // Inequality x != y.
-            builder.addAllClauses(
-                Sat4jUtils.encodeVarNotEqualVar(lhs, x, rhs, y, index));
-
-            index += 2 * n;
-          }
-        }
-      } // for equation.
-    } else {
-      // Handle an OR-clause.
-      int ej = index;
-
-      builder.addClause(Sat4jUtils.createClause(index, operation.getOperandCount()));
-      index += operation.getOperandCount();
-
-      for (final Node operand : operation.getOperands()) {
-        final NodeOperation equation = (NodeOperation) operand;
-
-        final Node lhs = equation.getOperand(1);
-        final Node rhs = equation.getOperand(2);
-
-        final int n = FortressUtils.getBitSize(lhs);
-        final int x = getVarIndex(lhs);
-        final int y = getVarIndex(rhs);
-
-        setUsedBits(lhs);
-        setUsedBits(rhs);
-
-        if (equation.getOperationId() == StandardOperation.EQ) {
-          if (rhs.getKind() == Node.Kind.VALUE) {
-            final NodeValue value = (NodeValue) rhs;
-
-            // Equality x == c.
-            builder.addAllClauses(
-                Sat4jUtils.encodeVarEqualConst(ej, lhs, x, value.getInteger()));
-          } else {
-            // Equality x == y.
-            builder.addAllClauses(
-                Sat4jUtils.encodeVarEqualVar(ej, lhs, x, rhs, y, index));
-
-            index += 2 * n;
-          }
-        } else {
-          if (rhs.getKind() == Node.Kind.VALUE) {
-            final NodeValue value = (NodeValue) rhs;
-
-            // Inequality x != c.
-            builder.addAllClauses(
-                Sat4jUtils.encodeVarNotEqualConst(ej, lhs, x, value.getInteger()));
-          } else {
-            // Inequality x != y.
-            builder.addAllClauses(
-                Sat4jUtils.encodeVarNotEqualVar(ej, lhs, x, rhs, y, index));
-
-            index += 2 * n;
-          }
-        }
-
-        ej++;
-      } // for equation.
-    } // if clause type.
+      ej++;
+    } // for equation.
   }
 
   private int getVarIndex(final Node node) {

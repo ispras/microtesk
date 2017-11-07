@@ -16,6 +16,7 @@ package ru.ispras.microtesk.utils;
 
 import java.math.BigInteger;
 
+import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -30,6 +31,21 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 public final class FortressUtils {
   private FortressUtils() {}
+
+  public static BigInteger getInteger(final Data data) {
+    return data.getType().getTypeId() == DataTypeId.BIT_VECTOR
+        ? data.getBitVector().bigIntegerValue(false)
+        : data.getInteger();
+  }
+
+  public static BigInteger getInteger(final Node expr) {
+    checkConstantValue(expr);
+
+    final NodeValue value = (NodeValue) expr;
+    return value.getDataTypeId() == DataTypeId.BIT_VECTOR
+        ? value.getBitVector().bigIntegerValue(false)
+        : value.getInteger();
+  }
 
   public static int extractInt(final Node expr) {
     checkConstantValue(expr);
@@ -68,8 +84,7 @@ public final class FortressUtils {
         final NodeOperation operation = (NodeOperation) node;
         InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.BVEXTRACT);
 
-        final NodeVariable vector = (NodeVariable) operation.getOperand(2);
-        return vector.getVariable();
+        return getVariable(operation.getOperand(2));
       default:
         return null;
     }
@@ -77,6 +92,8 @@ public final class FortressUtils {
 
   public static int getLowerBit(final Node node) {
     switch (node.getKind()) {
+      case VALUE:
+        return 0;
       case VARIABLE:
         return 0;
       case OPERATION:
@@ -93,6 +110,9 @@ public final class FortressUtils {
 
   public static int getUpperBit(final Node node) {
     switch (node.getKind()) {
+      case VALUE:
+        final NodeValue value = (NodeValue) node;
+        return value.getDataType().getSize() - 1;
       case VARIABLE:
         final NodeVariable variable = (NodeVariable) node;
         return variable.getVariable().getType().getSize() - 1;
@@ -100,8 +120,8 @@ public final class FortressUtils {
         final NodeOperation operation = (NodeOperation) node;
         InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.BVEXTRACT);
 
-        final NodeValue lowerBitValue = (NodeValue) operation.getOperand(0);
-        return lowerBitValue.getInteger().intValue();
+        final NodeValue upperBitValue = (NodeValue) operation.getOperand(0);
+        return upperBitValue.getInteger().intValue();
       default:
         InvariantChecks.checkTrue(false);
         return -1;
@@ -116,28 +136,14 @@ public final class FortressUtils {
     final Node result = Reducer.reduce(valueProvider, node);
     InvariantChecks.checkNotNull(result);
 
-    if (result.getKind() != Node.Kind.VALUE) {
-      return null;
-    }
-
-    final NodeValue value = (NodeValue) result;
-    return value.getDataTypeId() == DataTypeId.BIT_VECTOR
-        ? value.getBitVector().bigIntegerValue(false)
-        : value.getInteger();
+    return result.getKind() == Node.Kind.VALUE ? getInteger(result) : null;
   }
 
   public static BigInteger evaluateInteger(final Node node) {
     final Node result = Reducer.reduce(node);
     InvariantChecks.checkNotNull(result);
 
-    if (result.getKind() != Node.Kind.VALUE) {
-      return null;
-    }
-
-    final NodeValue value = (NodeValue) result;
-    return value.getDataTypeId() == DataTypeId.BIT_VECTOR
-        ? value.getBitVector().bigIntegerValue(false)
-        : value.getInteger();
+    return result.getKind() == Node.Kind.VALUE ? getInteger(result) : null;
   }
 
   public static BitVector evaluateBitVector(final Node node, final ValueProvider valueProvider) {

@@ -33,6 +33,7 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorDomainConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaBuilderSimple;
@@ -430,12 +431,7 @@ public final class SymbolicExecutor {
         final int sizeInBits = postVariable.getDataType().getSize() - 1;
 
         final NodeOperation postField = Nodes.BVEXTRACT(sizeInBits - 1, 0, postVariable);
-
-        final NodeOperation preField = new NodeOperation(
-            StandardOperation.BVEXTRACT,
-            preVariable,
-            new NodeValue(Data.newInteger(0)),
-            new NodeValue(Data.newInteger((bit + sizeInBits) - 1)));
+        final NodeOperation preField = Nodes.BVEXTRACT((bit + sizeInBits) - 1, 0, preVariable);
 
         // Buffer.Entry = Memory.DATA.
         final MmuBinding binding = new MmuBinding(postField, preField);
@@ -774,9 +770,13 @@ public final class SymbolicExecutor {
       final Node condition,
       final int pathIndex) {
     final NodeOperation clause = (NodeOperation) condition;
+    final Enum<?> clauseId = clause.getOperationId();
+
     InvariantChecks.checkTrue(
-           clause.getOperationId() == StandardOperation.AND
-        || clause.getOperationId() == StandardOperation.OR);
+           clauseId == StandardOperation.AND
+        || clauseId == StandardOperation.OR
+        || clauseId == StandardOperation.EQ
+        || clauseId == StandardOperation.NOTEQ);
 
     if (result.hasConflict()) {
       return Boolean.FALSE;
@@ -788,7 +788,9 @@ public final class SymbolicExecutor {
           @Override
           public Data getVariableValue(final Variable original) {
             final Variable version = result.getVersion(original);
-            return Data.newBitVector(result.getConstant(version));
+            final BitVector value = result.getConstant(version);
+
+            return value != null ? Data.newBitVector(value) : null;
           }
         });
 
@@ -799,18 +801,28 @@ public final class SymbolicExecutor {
       return value;
     }
 
+    final Enum<?> clauseBuilderId = clauseId == StandardOperation.OR
+        ? StandardOperation.OR
+        : StandardOperation.AND;
+
     final List<Node> clauseBuilder = new ArrayList<>();
 
-    for (final Node atom : clause.getOperands()) {
-      if (result.hasConflict()) {
-        return Boolean.FALSE;
-      }
+    if (clauseId == StandardOperation.OR || clauseId == StandardOperation.AND) {
+      // Multiple equations.
+      for (final Node atom : clause.getOperands()) {
+        if (result.hasConflict()) {
+          return Boolean.FALSE;
+        }
 
-      executeConditionAtom(result, defines, clause.getOperationId(), clauseBuilder, atom, pathIndex);
+        executeConditionAtom(result, defines, clauseBuilderId, clauseBuilder, atom, pathIndex);
+      }
+    } else {
+      // Single equation.
+      executeConditionAtom(result, defines, clauseBuilderId, clauseBuilder, clause, pathIndex);
     }
 
     if (!clauseBuilder.isEmpty()) {
-      if (clause.getOperationId() == StandardOperation.AND) {
+      if (clauseBuilderId == StandardOperation.AND) {
         result.addFormula(Nodes.AND(clauseBuilder));
       } else {
         result.addFormula(Nodes.OR(clauseBuilder));
@@ -827,6 +839,8 @@ public final class SymbolicExecutor {
       final List<Node> clauseBuilder,
       final Node atom,
       final int pathIndex) {
+    Logger.debug("Condition atom: %s", atom);
+
     final NodeOperation equality = (NodeOperation) atom;
     InvariantChecks.checkTrue(
            equality.getOperationId() == StandardOperation.EQ
@@ -839,8 +853,7 @@ public final class SymbolicExecutor {
     final Node lhs = equality.getOperand(0);
     final Node rhs = equality.getOperand(1);
 
-    final NodeOperation lhsExpr = (NodeOperation) lhs;
-    InvariantChecks.checkTrue(lhsExpr.getOperationId() == StandardOperation.BVCONCAT);
+    final NodeOperation lhsExpr = getConcatOperation(lhs);
 
     if (rhs.getKind() == Node.Kind.VALUE) {
         boolean isTrue = false;
@@ -896,32 +909,31 @@ public final class SymbolicExecutor {
           result.addOriginalVariable(result.getOriginal(FortressUtils.getVariable(term), pathIndex));
         }
     } else {
-      final NodeOperation rhsExpr = (NodeOperation) rhs;
-        InvariantChecks.checkTrue(rhsExpr.getOperationId() == StandardOperation.BVCONCAT);
-        InvariantChecks.checkTrue(rhsExpr.getOperandCount() == rhsExpr.getOperandCount());
+      final NodeOperation rhsExpr = getConcatOperation(rhs);
+      InvariantChecks.checkTrue(rhsExpr.getOperandCount() == rhsExpr.getOperandCount());
 
-        for (int i = 0; i < lhsExpr.getOperandCount(); i++) {
-          final Node lhsTerm = lhsExpr.getOperand(i);
-          final Node rhsTerm = rhsExpr.getOperand(i);
-          InvariantChecks.checkTrue(
-              FortressUtils.getBitSize(lhsTerm) == FortressUtils.getBitSize(rhsTerm));
+      for (int i = 0; i < lhsExpr.getOperandCount(); i++) {
+        final Node lhsTerm = lhsExpr.getOperand(i);
+        final Node rhsTerm = rhsExpr.getOperand(i);
+        InvariantChecks.checkTrue(
+            FortressUtils.getBitSize(lhsTerm) == FortressUtils.getBitSize(rhsTerm));
 
-          final Node lhsField = result.getVersion(lhsTerm, pathIndex);
-          final Node rhsField = result.getVersion(rhsTerm, pathIndex);
+        final Node lhsField = result.getVersion(lhsTerm, pathIndex);
+        final Node rhsField = result.getVersion(rhsTerm, pathIndex);
 
-          if (equality.getOperationId() == StandardOperation.EQ) {
-            clauseBuilder.add(
-                Nodes.EQ(lhsField, rhsField));
-          } else {
-            clauseBuilder.add(
-                Nodes.NOTEQ(lhsField, rhsField));
-          }
-
-          result.addOriginalVariable(
-              result.getOriginal(FortressUtils.getVariable(lhsTerm), pathIndex));
-          result.addOriginalVariable(
-              result.getOriginal(FortressUtils.getVariable(rhsTerm), pathIndex));
+        if (equality.getOperationId() == StandardOperation.EQ) {
+          clauseBuilder.add(
+              Nodes.EQ(lhsField, rhsField));
+        } else {
+          clauseBuilder.add(
+              Nodes.NOTEQ(lhsField, rhsField));
         }
+
+        result.addOriginalVariable(
+            result.getOriginal(FortressUtils.getVariable(lhsTerm), pathIndex));
+        result.addOriginalVariable(
+            result.getOriginal(FortressUtils.getVariable(rhsTerm), pathIndex));
+      }
     }
 
     return null;
@@ -974,19 +986,26 @@ public final class SymbolicExecutor {
       int offset = lhsLowerBit;
 
       // Equations for the middle part.
-      final NodeOperation terms = (NodeOperation) rhs;
-      InvariantChecks.checkNotNull(terms.getOperationId() == StandardOperation.BVCONCAT);
+      final NodeOperation terms = getConcatOperation(rhs);
 
       for (final Node term : terms.getOperands()) {
         final Node field = result.getVersion(term, pathIndex);
+        final Variable variable = FortressUtils.getVariable(term);
 
-        result.addOriginalVariable(result.getOriginal(FortressUtils.getVariable(term), pathIndex));
+        if (variable != null) {
+          result.addOriginalVariable(result.getOriginal(variable, pathIndex));
+        }
 
-        final int upper = offset + (FortressUtils.getBitSize(field) - 1);
+        // FIXME: if field is an integer constant, the bit size seems to be zero.
+        final int fieldBitSize = FortressUtils.getBitSize(field) > 0
+            ? FortressUtils.getBitSize(field)
+            : FortressUtils.getBitSize(lhs);
+
+        final int upper = offset + (fieldBitSize - 1);
         final int trunc = upper > lhsUpperBit ? lhsUpperBit : upper;
 
         final Node lhsField = Nodes.BVEXTRACT(trunc, offset, newLhsVar);
-        final Node rhsField = trunc == upper
+        final Node rhsField = (trunc == upper)
             ? field
             : Nodes.BVEXTRACT(
                   FortressUtils.getUpperBit(field) - (upper - trunc),
@@ -1034,7 +1053,8 @@ public final class SymbolicExecutor {
           new ValueProvider() {
             @Override
             public Data getVariableValue(final Variable variable) {
-              return Data.newBitVector(constants.get(variable));
+              final BitVector value = constants.get(variable);
+              return value != null ? Data.newBitVector(value) : null;
             }
           });
 
@@ -1049,6 +1069,26 @@ public final class SymbolicExecutor {
     }
 
     return Boolean.TRUE;
+  }
+
+  private static NodeOperation getConcatOperation(final Node node) {
+    if (node.getKind() == Node.Kind.VARIABLE || node.getKind() == Node.Kind.VALUE) {
+      return Nodes.BVCONCAT(node);
+    }
+
+    final NodeOperation operation = (NodeOperation) node;
+    final Enum<?> operationId = operation.getOperationId();
+
+    if (operationId == StandardOperation.BVCONCAT) {
+      return operation;
+    }
+
+    if (operationId == StandardOperation.BVEXTRACT) {
+      return Nodes.BVCONCAT(node);
+    }
+
+    InvariantChecks.checkTrue(false);
+    return null;
   }
 
   private static int uniqueId = 0;
