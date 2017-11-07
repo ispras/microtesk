@@ -21,16 +21,75 @@ package ru.ispras.microtesk.tools.templgen.printers;
  */
 
 public interface TemplatePrinter {
+  /**
+   * Adds a header to template file.
+   */
   public abstract void templateBegin();
 
-  public abstract void addOperation(String operationName);
-  public abstract void addString(String addString);
-  public abstract void addText(String addText);
-  public abstract void addComment(String addText);
+  /**
+   * Adds the operation to template file.
+   *
+   * @param opName Operation name.
+   * @param opArguments Operation arguments.
+   */
+  public abstract void addOperation(String opName, String opArguments);
 
-  public abstract void startSequence(String addText);
-  public abstract void closeSequence(String addText);
-  
+  /**
+   * Adds the string to template file.
+   *
+   * @param addString string.
+   */
+  public abstract void addString(String addString);
+
+  /**
+   * Adds the text to template file.
+   *
+   * @param addText text.
+   */
+  public abstract void addText(String addText);
+
+  /**
+   * Adds the comment to template file.
+   *
+   * @param addComment text.
+   */
+  public abstract void addComment(String addComment);
+
+  /**
+   * Opens the sequence in template file.
+   *
+   * @param sequenceTitle sequence title.
+   */
+  public abstract void startSequence(String sequenceTitle);
+
+  /**
+   * Closes the sequence in template file.
+   *
+   * @param sequenceEnd sequence end title.
+   */
+  public abstract void closeSequence(String sequenceEnd);
+
+  /**
+   * Adds end title for template.
+   */
   public abstract void templateEnd();
+
+  /**
+   * Closes the template file.
+   */
   public abstract void templateClose();
+
+  /**
+   * Opens the block in template file.
+   *
+   * @param sequenceTitle sequence title.
+   */
+  public abstract void startBlock();
+
+  /**
+   * Closes the block in template file.
+   *
+   * @param sequenceEnd sequence end title.
+   */
+  public abstract void closeBlock();
 }

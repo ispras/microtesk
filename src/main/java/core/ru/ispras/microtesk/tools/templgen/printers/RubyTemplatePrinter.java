@@ -36,21 +36,20 @@ public class RubyTemplatePrinter implements TemplatePrinter {
 
   private int NowLevel;
 
-  private static String formtOperation(String operationName) {
-    for(String rubyKeywords: RUBY_KEYWORDS)
-    {
-      if (rubyKeywords == operationName) return operationName.toUpperCase();
+  private static String formatOperation(String operationName) {
+    for (String rubyKeywords : RUBY_KEYWORDS) {
+      if (rubyKeywords == operationName)
+        return operationName.toUpperCase();
     }
     return operationName;
   }
 
-  static final String TEMPLATENAME = "_autogentemplate.rb";
+  static final String TEMPLATE_NAME = "_autogentemplate.rb";
 
-  /* Writer to template output file. */
   private PrintWriter printWriter;
 
   public RubyTemplatePrinter(String templateName) {
-    final File templateFile = new File(templateName + TEMPLATENAME);
+    final File templateFile = new File(templateName + TEMPLATE_NAME);
 
     printWriter = newPrintWriter(templateFile);
   }
@@ -72,55 +71,67 @@ public class RubyTemplatePrinter implements TemplatePrinter {
   }
 
   public void templateBegin() {
-    // Write xml data
-    this.printWriter.print("require_relative 'minimips_base'\r\n\n" + 
-                             "class MiniMipsGenTemplate < MiniMipsBaseTemplate\r\n");
-    NowLevel ++;
+    // Adds xml data
+    this.printWriter.print("require_relative 'minimips_base'\r\n\n"
+        + "class MiniMipsGenTemplate < MiniMipsBaseTemplate\r\n");
+    NowLevel++;
     this.addTab(NowLevel);
     this.printWriter.print("def run\r\n");
-    NowLevel ++;
+    NowLevel++;
     this.addTab(NowLevel);
     this.printWriter.print("org 0x00020000\n");
   }
 
   private void addTab(int tabCount) {
-    for(int i=0; i < tabCount; i++) {
+    for (int i = 0; i < tabCount; i++) {
       this.printWriter.print(RUBY_TAB);
     }
   }
-  
+
   public void addOperation(String operationName) {
     InvariantChecks.checkNotNull(operationName);
     this.addTab(NowLevel);
-    this.printWriter.format("%s ", formtOperation(operationName));
+    this.printWriter.format("%s ", formatOperation(operationName));
   }
 
+  @Override
+  public void addOperation(String opName, String opArguments) {
+    InvariantChecks.checkNotNull(opName);
+    this.addTab(NowLevel);
+    this.printWriter.format("%s %s", formatOperation(opName), opArguments);
+  }
+
+  @Override
   public void addString(String addString) {
     InvariantChecks.checkNotNull(addString);
     this.addTab(NowLevel);
     this.printWriter.format("%s\n", addString);
   }
 
+  @Override
   public void addText(String addText) {
     InvariantChecks.checkNotNull(addText);
     this.printWriter.format("%s", addText);
   }
 
+  @Override
   public void addComment(String addText) {
     InvariantChecks.checkNotNull(addText);
     this.addTab(NowLevel);
     this.printWriter.format("# %s\n", addText);
   }
 
+  @Override
   public void templateEnd() {
-    NowLevel --;
+    NowLevel--;
     this.addTab(NowLevel);
     this.printWriter.println("end");
-    NowLevel --;
+    NowLevel--;
     this.addTab(NowLevel);
     this.printWriter.println("end");
   }
 
+  @Override
   public void templateClose() {
     this.printWriter.close();
   }
@@ -137,5 +148,15 @@ public class RubyTemplatePrinter implements TemplatePrinter {
     InvariantChecks.checkNotNull(addText);
     NowLevel--;
     this.addString(addText);
+  }
+
+  public void startBlock() {
+    this.addString("block(:combinator => 'product', :compositor => 'random') {");
+    NowLevel++;
+  }
+
+  public void closeBlock() {
+    NowLevel--;
+    this.addString("}.run");
   }
 }

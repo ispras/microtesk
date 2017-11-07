@@ -34,10 +34,12 @@ public final class TemplateGenerator {
 
     boolean generatedResult = true;
 
-    SimpleTemplate simpleTemplate = new SimpleTemplate(metaModel, new RubyTemplatePrinter("simple"));
+    SimpleTemplate simpleTemplate =
+        new SimpleTemplate(metaModel, new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME));
     generatedResult = generatedResult & simpleTemplate.generate();
 
-    GroupTemplate groupTemplate = new GroupTemplate(metaModel, new RubyTemplatePrinter("group"));
+    GroupTemplate groupTemplate =
+        new GroupTemplate(metaModel, new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME));
     generatedResult = generatedResult & groupTemplate.generate();
 
     return generatedResult;

@@ -25,34 +25,33 @@ import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 
-public class SimpleTemplate extends GeneratedTemplate{
+public class SimpleTemplate extends GeneratedTemplate {
+  public static final String SIMPLE_TEMPLATE_NAME = "simple";
+
   private final MetaModel templateMetaModel;
   private final TemplatePrinter templatePrinter;
 
   public SimpleTemplate(final MetaModel metaModel, final TemplatePrinter printer) {
     InvariantChecks.checkNotNull(metaModel);
+    InvariantChecks.checkNotNull(printer);
 
     this.templateMetaModel = metaModel;
 
     this.templatePrinter = printer;
   }
 
-  public boolean generate()
-  {
-    //RubyTemplatePrinter templatePrinter = new RubyTemplatePrinter();
+  public boolean generate() {
     templatePrinter.templateBegin();
-    
+
     Iterable<MetaOperation> operationsIterator = templateMetaModel.getOperations();
-    
+
     for (MetaOperation operation : operationsIterator) {
-      //System.out.format("Operation: %s \n", operation.getName());
-      if (operation.hasRootShortcuts()) printMetaOperation(templatePrinter, operation);
+      if (operation.hasRootShortcuts())
+        printMetaOperation(templatePrinter, operation);
     }
 
     templatePrinter.templateEnd();
     templatePrinter.templateClose();
-
-    //System.out.println(templateMetaModel.getOperationGroups());
 
     return true;
   }

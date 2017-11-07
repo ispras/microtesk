@@ -1,4 +1,22 @@
+/*
+ * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package ru.ispras.microtesk.tools.templgen.templates;
+
+/**
+ * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
+ */
 
 import java.util.Collection;
 
@@ -20,9 +38,8 @@ public abstract class GeneratedTemplate implements BaseTemplate {
     InvariantChecks.checkNotNull(type);
     int argumentNumbers = 0;
     for (MetaArgument argument : arguments) {
-      if (argument.getKind() == type)
-      {
-        argumentNumbers ++;
+      if (argument.getKind() == type) {
+        argumentNumbers++;
       }
     }
     return argumentNumbers;
@@ -36,7 +53,7 @@ public abstract class GeneratedTemplate implements BaseTemplate {
         for (String tempType : tempTypes) {
           return tempType;
         }
-    }    
+    }
     return null;
   }
 
@@ -53,20 +70,19 @@ public abstract class GeneratedTemplate implements BaseTemplate {
     Iterable<MetaArgument> arguments = operation.getArguments();
 
     // Conditions for use preparator
-    if (getArgumentNumbers(arguments, IsaPrimitiveKind.IMM) == 0 & getArgumentNumbers(arguments, IsaPrimitiveKind.MODE) > 0) {
+    if (getArgumentNumbers(arguments, IsaPrimitiveKind.IMM) == 0
+        & getArgumentNumbers(arguments, IsaPrimitiveKind.MODE) > 0) {
       String regTitle = getLastArgument(arguments, IsaPrimitiveKind.MODE);
-      
+
       templatePrinter.addString(createPreparatorFor(regTitle, JUMP_REG, branchLabel));
       templatePrinter.addString("nop");
     }
 
     // Print operation name
-    templatePrinter.addOperation(operation.getName());
-
-//    System.out.format("(size: %s)", TemplateGeneratorUtils.getArgumentsNumber(arguments));
+    templatePrinter.addOperation(operation.getName(), ""); // TODO
 
     printOperationArguments(templatePrinter, arguments, branchLabel, JUMP_REG);
-    
+
     templatePrinter.addString("");
 
     templatePrinter.addString("nop");
@@ -75,14 +91,13 @@ public abstract class GeneratedTemplate implements BaseTemplate {
 
   }
 
-  protected static void printOperation(TemplatePrinter templatePrinter,
-      MetaOperation operation) {
+  protected static void printOperation(TemplatePrinter templatePrinter, MetaOperation operation) {
 
     // Get arguments list
     Iterable<MetaArgument> arguments = operation.getArguments();
 
     // Print operation name
-    templatePrinter.addOperation(operation.getName());
+    templatePrinter.addOperation(operation.getName(), ""); // TODO
 
     printOperationArguments(templatePrinter, arguments);
 
@@ -104,9 +119,10 @@ public abstract class GeneratedTemplate implements BaseTemplate {
 
       if (argument.getKind() == IsaPrimitiveKind.MODE)
         for (String tempType : tempTypes) {
-          //if (jumpReg == NOT_JUMP || getArgumentNumbers(arguments, IsaPrimitiveKind.IMM) > 0)
-         //   templatePrinter.addText(String.format("%s(_)", tempType.toLowerCase()));
-          if (argument.getMode() == ArgumentMode.IN && jumpReg != NOT_JUMP && getArgumentNumbers(arguments, IsaPrimitiveKind.IMM) == 0)
+          // if (jumpReg == NOT_JUMP || getArgumentNumbers(arguments, IsaPrimitiveKind.IMM) > 0)
+          // templatePrinter.addText(String.format("%s(_)", tempType.toLowerCase()));
+          if (argument.getMode() == ArgumentMode.IN && jumpReg != NOT_JUMP
+              && getArgumentNumbers(arguments, IsaPrimitiveKind.IMM) == 0)
             templatePrinter.addText(String.format("%s(%x)", tempType.toLowerCase(), jumpReg));
           else
             templatePrinter.addText(String.format("%s(_)", tempType.toLowerCase()));
@@ -115,27 +131,21 @@ public abstract class GeneratedTemplate implements BaseTemplate {
       if (argument.getKind() == IsaPrimitiveKind.IMM) {
         // TODO:
         if (label == null)
-        templatePrinter.addText(String.format("rand(%s, %s)", 0,
-            (long) Math.pow(2, argument.getDataType().getBitSize() / 2) - 1));
+          templatePrinter.addText(String.format("rand(%s, %s)", 0,
+              (long) Math.pow(2, argument.getDataType().getBitSize() / 2) - 1));
         else
           templatePrinter.addText(label);
       }
       commaIndicator = true;
-
-     // System.out.format("%s \n", argument.toString());
     }
   }
 
-  protected static void printMetaOperation(final TemplatePrinter templatePrinter, final MetaOperation operation) {
-   // System.out.format("isBranch = %s, isConditionalBranch = %s, isLoad = %s, isStore = %s\n",
-    //    operation.isBranch(), operation.isConditionalBranch(), operation.isLoad(), operation.isStore());
-
+  protected static void printMetaOperation(final TemplatePrinter templatePrinter,
+      final MetaOperation operation) {
     if (TemplateUtils.isBranchOperation(operation)) {
       printBranchOperation(templatePrinter, operation);
     } else {
       printOperation(templatePrinter, operation);
     }
-
-    System.out.println();
   }
 }
