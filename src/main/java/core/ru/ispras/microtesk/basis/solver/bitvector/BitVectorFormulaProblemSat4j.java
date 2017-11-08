@@ -17,6 +17,7 @@ package ru.ispras.microtesk.basis.solver.bitvector;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
@@ -26,6 +27,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.transformer.Reducer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -49,6 +51,7 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
   public BitVectorFormulaProblemSat4j() {
     this.builder = new Sat4jFormula.Builder();
     this.indices = new LinkedHashMap<>();
+    // Variable identifier should be positive.
     this.index = 1;
     this.masks = new LinkedHashMap<>();
   }
@@ -74,7 +77,7 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
   @Override
   public void addFormula(final Node formula) {
-    Logger.debug("Formula: %s", formula);
+    Logger.debug("Add formula: %s", formula);
 
     handleConstants(formula);
 
@@ -108,7 +111,9 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
                 // Generate n unit clauses (c[i] ? x[i] : ~x[i]).
                 builder.addAllClauses(
                     Sat4jUtils.encodeVarEqualConst(
-                        new NodeVariable(variable), x, FortressUtils.getInteger(variable.getData())));
+                        nodeVariable,
+                        x,
+                        FortressUtils.getInteger(variable.getData())));
               }
             }
           }
@@ -118,12 +123,18 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
   }
 
   private void handleEq(final NodeOperation equation) {
-    final Node lhs = equation.getOperand(0);
-    final Node rhs = equation.getOperand(1);
+    final Node lhs = FortressUtils.getVariable(equation.getOperand(0)) != null
+        ? equation.getOperand(0)
+        : equation.getOperand(1);
+
+    final Node rhs = FortressUtils.getVariable(equation.getOperand(0)) != null
+        ? equation.getOperand(1)
+        : equation.getOperand(0);
+
+    Logger.debug("Handle equation: %s", equation);
 
     final int n = FortressUtils.getBitSize(lhs);
     final int x = getVarIndex(lhs);
-    final int y = getVarIndex(rhs);
 
     setUsedBits(lhs);
     setUsedBits(rhs);
@@ -136,6 +147,8 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
         builder.addAllClauses(
             Sat4jUtils.encodeVarEqualConst(lhs, x, FortressUtils.getInteger(value)));
       } else {
+        final int y = getVarIndex(rhs);
+
         // Equality x == y.
         builder.addAllClauses(
             Sat4jUtils.encodeVarEqualVar(lhs, x, rhs, y));
@@ -148,6 +161,8 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
         builder.addAllClauses(
             Sat4jUtils.encodeVarNotEqualConst(lhs, x, FortressUtils.getInteger(value)));
       } else {
+        final int y = getVarIndex(rhs);
+
         // Inequality x != y.
         builder.addAllClauses(
             Sat4jUtils.encodeVarNotEqualVar(lhs, x, rhs, y, index));
@@ -172,6 +187,7 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
     }
   }
 
+  // TODO: call handleEq inside
   private void handleOr(final NodeOperation operation) {
     int ej = index;
 
@@ -185,12 +201,16 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
           equation.getOperationId() == StandardOperation.EQ
        || equation.getOperationId() == StandardOperation.NOTEQ);
 
-      final Node lhs = equation.getOperand(0);
-      final Node rhs = equation.getOperand(1);
+      final Node lhs = FortressUtils.getVariable(equation.getOperand(0)) != null
+          ? equation.getOperand(0)
+          : equation.getOperand(1);
+
+      final Node rhs = FortressUtils.getVariable(equation.getOperand(0)) != null
+          ? equation.getOperand(1)
+          : equation.getOperand(0);
 
       final int n = FortressUtils.getBitSize(lhs);
       final int x = getVarIndex(lhs);
-      final int y = getVarIndex(rhs);
 
       setUsedBits(lhs);
       setUsedBits(rhs);
@@ -203,6 +223,8 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
           builder.addAllClauses(
               Sat4jUtils.encodeVarEqualConst(ej, lhs, x, FortressUtils.getInteger(value)));
         } else {
+          final int y = getVarIndex(rhs);
+
           // Equality x == y.
           builder.addAllClauses(
               Sat4jUtils.encodeVarEqualVar(ej, lhs, x, rhs, y, index));
@@ -217,6 +239,8 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
           builder.addAllClauses(
               Sat4jUtils.encodeVarNotEqualConst(ej, lhs, x, FortressUtils.getInteger(value)));
         } else {
+          final int y = getVarIndex(rhs);
+
           // Inequality x != y.
           builder.addAllClauses(
               Sat4jUtils.encodeVarNotEqualVar(ej, lhs, x, rhs, y, index));
@@ -231,10 +255,7 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
   private int getVarIndex(final Node node) {
     final Variable variable = FortressUtils.getVariable(node);
-
-    if (variable == null) {
-      return -1;
-    }
+    InvariantChecks.checkNotNull(variable);
 
     final Integer oldIndex = indices.get(variable);
 
@@ -254,7 +275,7 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
     BitVector mask = masks.get(variable);
 
     if (mask == null) {
-      masks.put(variable, mask = BitVector.newEmpty(variable.getType().getSize()));
+      masks.put(variable, mask = BitVector.newEmpty(FortressUtils.getBitSize(variable)));
     }
 
     return mask;

@@ -259,17 +259,13 @@ public final class SymbolicExecutor {
                equality.getOperationId() == StandardOperation.EQ
             || equality.getOperationId() == StandardOperation.NOTEQ);
 
-        final NodeOperation lhs = (NodeOperation) equality.getOperand(0);
-        InvariantChecks.checkTrue(lhs.getOperationId() == StandardOperation.BVCONCAT);
-
-        final NodeOperation rhs = (NodeOperation) equality.getOperand(1);
-        InvariantChecks.checkTrue(rhs.getOperationId() == StandardOperation.BVCONCAT);
-
+        final NodeOperation lhs = getConcatOperation(equality.getOperand(0));
+        final NodeOperation rhs = getConcatOperation(equality.getOperand(1));
         InvariantChecks.checkTrue(lhs.getOperandCount() == rhs.getOperandCount());
 
         for (int i = 0; i < lhs.getOperandCount(); i++) {
-          final NodeOperation term1 = (NodeOperation) lhs.getOperand(i);
-          final NodeOperation term2 = (NodeOperation) rhs.getOperand(i);
+          final Node term1 = lhs.getOperand(i);
+          final Node term2 = rhs.getOperand(i);
 
           final String instanceId1 = MmuBufferAccess.getId(buffer, context1);
           final String instanceId2 = MmuBufferAccess.getId(buffer, context2);
@@ -286,10 +282,15 @@ public final class SymbolicExecutor {
             clauseBuilder.add(Nodes.NOTEQ(field1, field2));
           }
 
-          result.addOriginalVariable(
-              result.getOriginal(FortressUtils.getVariable(instance1), pathIndex1));
-          result.addOriginalVariable(
-              result.getOriginal(FortressUtils.getVariable(instance2), pathIndex2));
+          final Variable variable1 = FortressUtils.getVariable(instance1);
+          final Variable variable2 = FortressUtils.getVariable(instance2);
+
+          if (variable1 != null) {
+            result.addOriginalVariable(result.getOriginal(variable1, pathIndex1));
+          }
+          if (variable2 != null) {
+            result.addOriginalVariable(result.getOriginal(variable2, pathIndex2));
+          }
         }
       }
 
@@ -858,8 +859,7 @@ public final class SymbolicExecutor {
     if (rhs.getKind() == Node.Kind.VALUE) {
         boolean isTrue = false;
 
-        final NodeValue rhsValue = (NodeValue) rhs;
-        final BitVector rhsConst = rhsValue.getBitVector();
+        final BitVector rhsConst = FortressUtils.getBitVector(rhs);
 
         int offset = 0;
         for (final Node term : lhsExpr.getOperands()) {
@@ -906,7 +906,12 @@ public final class SymbolicExecutor {
           }
 
           offset += FortressUtils.getBitSize(term);
-          result.addOriginalVariable(result.getOriginal(FortressUtils.getVariable(term), pathIndex));
+
+          final Variable termVariable = FortressUtils.getVariable(term);
+
+          if (termVariable != null) {
+            result.addOriginalVariable(result.getOriginal(termVariable, pathIndex));
+          }
         }
     } else {
       final NodeOperation rhsExpr = getConcatOperation(rhs);
@@ -929,10 +934,15 @@ public final class SymbolicExecutor {
               Nodes.NOTEQ(lhsField, rhsField));
         }
 
-        result.addOriginalVariable(
-            result.getOriginal(FortressUtils.getVariable(lhsTerm), pathIndex));
-        result.addOriginalVariable(
-            result.getOriginal(FortressUtils.getVariable(rhsTerm), pathIndex));
+        final Variable lhsVariable = FortressUtils.getVariable(lhsTerm);
+        final Variable rhsVariable = FortressUtils.getVariable(rhsTerm);
+
+        if (lhsVariable != null) {
+          result.addOriginalVariable(result.getOriginal(lhsVariable, pathIndex));
+        }
+        if (rhsVariable != null) {
+          result.addOriginalVariable(result.getOriginal(rhsVariable, pathIndex));
+        }
       }
     }
 
@@ -996,24 +1006,23 @@ public final class SymbolicExecutor {
           result.addOriginalVariable(result.getOriginal(variable, pathIndex));
         }
 
-        // FIXME: if field is an integer constant, the bit size seems to be zero.
-        final int fieldBitSize = FortressUtils.getBitSize(field) > 0
-            ? FortressUtils.getBitSize(field)
-            : FortressUtils.getBitSize(lhs);
-
-        final int upper = offset + (fieldBitSize - 1);
+        final int upper = offset + (FortressUtils.getBitSize(field) - 1);
         final int trunc = upper > lhsUpperBit ? lhsUpperBit : upper;
 
         final Node lhsField = Nodes.BVEXTRACT(trunc, offset, newLhsVar);
-        final Node rhsField = (trunc == upper)
+        final Node rhsField = (trunc == upper || field.getKind() == Node.Kind.VALUE)
             ? field
             : Nodes.BVEXTRACT(
                   FortressUtils.getUpperBit(field) - (upper - trunc),
                   FortressUtils.getLowerBit(field),
-                  FortressUtils.getVariable(field)
+                  (field.getKind() == Node.Kind.VARIABLE)
+                      ? field
+                      : ((NodeOperation) field).getOperand(2) // BVEXTRACT's operand
                   );
 
         clauseBuilder.add(Nodes.EQ(lhsField, rhsField));
+        Logger.debug("Clause builder: %s", clauseBuilder);
+
         rhsTerms.add(rhsField);
 
         offset += FortressUtils.getBitSize(field);
@@ -1028,7 +1037,8 @@ public final class SymbolicExecutor {
         clauseBuilder.add(
             Nodes.EQ(
                 Nodes.BVEXTRACT(lhsUpperBit, offset, newLhsVar),
-                NodeValue.newInteger(0)));
+                NodeValue.newBitVector(BitVector.valueOf(0, (lhsUpperBit - offset) + 1))));
+        Logger.debug("Clause builder: %s", clauseBuilder);
       }
 
       // Equation for the suffix part.
@@ -1120,25 +1130,21 @@ public final class SymbolicExecutor {
     return new NodeVariable(variable);
   }
 
-  private static Node getIfThenFormula(
-      final Node phi, final int i, final Node formula) {
+  private static Node getIfThenFormula(final Node phi, final int i, final Node formula) {
     final List<Node> ifThenBuilder = new ArrayList<>();
-
     final List<Node> clauseBuilder1 = new ArrayList<>();
     final List<Node> clauseBuilder2 = new ArrayList<>();
+
+    Logger.debug("Get if-then formula: %s", formula);
 
     // Introduce a Boolean variable: C == (PHI == i).
     final Node condition = getIfThenField(FortressUtils.getVariable(phi), i);
 
-    clauseBuilder1.add(
-        Nodes.EQ(condition, NodeValue.newInteger(1)));
-    clauseBuilder1.add(
-        Nodes.NOTEQ(phi, NodeValue.newInteger(i)));
+    clauseBuilder1.add(Nodes.EQ(condition, NodeValue.newBitVector(BitVector.valueOf(true))));
+    clauseBuilder1.add(Nodes.NOTEQ(phi, NodeValue.newInteger(i)));
 
-    clauseBuilder2.add(
-        Nodes.NOTEQ(condition, NodeValue.newInteger(1)));
-    clauseBuilder2.add(
-        Nodes.EQ(phi, NodeValue.newInteger(i)));
+    clauseBuilder2.add(Nodes.NOTEQ(condition, NodeValue.newBitVector(BitVector.valueOf(true))));
+    clauseBuilder2.add(Nodes.EQ(phi, NodeValue.newInteger(i)));
 
     ifThenBuilder.add(Nodes.OR(clauseBuilder1));
     ifThenBuilder.add(Nodes.OR(clauseBuilder2));
@@ -1150,26 +1156,34 @@ public final class SymbolicExecutor {
 
     for (final Node operand : clauses.getOperands()) {
       final NodeOperation clause = (NodeOperation) operand;
-      InvariantChecks.checkTrue(
-          clause.getOperationId() == StandardOperation.AND
-       || clause.getOperationId() == StandardOperation.OR);
+      Logger.debug("Clause: %s", clause);
 
       if (clause.getOperationId() == StandardOperation.OR) {
+        // C -> (A | B) == (~C | A | B).
         final List<Node> clauseBuilder = new ArrayList<>();
 
-        clauseBuilder.add(Nodes.EQ(condition, NodeValue.newInteger(0)));
+        clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBitVector(BitVector.valueOf(false))));
         clauseBuilder.addAll(clause.getOperands());
 
         ifThenBuilder.add(Nodes.OR(clauseBuilder));
-      } else {
+      } else if (clause.getOperationId() == StandardOperation.AND) {
+        // C -> (A & B) == (~C | A) & (~C | B).
         for (final Node equation : clause.getOperands()) {
           final List<Node> clauseBuilder = new ArrayList<>();
 
-          clauseBuilder.add(Nodes.EQ(condition, NodeValue.newInteger(0)));
+          clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBitVector(BitVector.valueOf(false))));
           clauseBuilder.add(equation);
 
           ifThenBuilder.add(Nodes.OR(clauseBuilder));
         }
+      } else {
+        // C -> A == (~C | A).
+        final List<Node> clauseBuilder = new ArrayList<>();
+
+        clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBitVector(BitVector.valueOf(false))));
+        clauseBuilder.add(clause);
+
+        ifThenBuilder.add(Nodes.OR(clauseBuilder));
       }
     }
 
