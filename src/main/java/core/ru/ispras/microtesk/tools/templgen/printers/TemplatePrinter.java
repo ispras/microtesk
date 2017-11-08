@@ -81,15 +81,11 @@ public interface TemplatePrinter {
 
   /**
    * Opens the block in template file.
-   *
-   * @param sequenceTitle sequence title.
    */
   public abstract void startBlock();
 
   /**
    * Closes the block in template file.
-   *
-   * @param sequenceEnd sequence end title.
    */
   public abstract void closeBlock();
 }
