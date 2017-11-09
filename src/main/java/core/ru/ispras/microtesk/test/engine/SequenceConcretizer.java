@@ -471,7 +471,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       }
 
       if (Logger.isDebug()) {
-        Logger.debug("%nGenerating test data for %s...", concreteCall.getText());
+        Logger.debug("%nGenerating test data for %s (processing count is %d)...",
+            concreteCall.getText(), processingCount);
       }
 
       final Primitive abstractPrimitive = abstractCall.getRootOperation();
@@ -607,7 +608,11 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     public void finishProcessing() throws ConfigurationException {
       for (final ConcreteCall concreteCall : concreteSequence.getAll()) {
         final CallEntry callEntry = callMap.get(concreteCall);
-        processCall(engineContext, callEntry, true);
+
+        // FIXME
+        if (callEntry != null) {
+          processCall(engineContext, callEntry, true);
+        }
       }
     }
   }

@@ -70,8 +70,13 @@ public final class BranchInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(situation);
 
+    Logger.setDebug(true);
+    Logger.debug("Make initializer for call: %s", abstractCall);
+
     final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
     InvariantChecks.checkNotNull(branchEntry);
+
+    Logger.debug("Make initializer for entry: %s", branchEntry);
 
     final BranchTrace branchTrace = branchEntry.getBranchTrace();
     InvariantChecks.checkNotNull(branchTrace);
@@ -92,6 +97,8 @@ public final class BranchInitializerMaker implements InitializerMaker {
 
     // The final pass.
     if (terminate) {
+      Logger.debug("Terminate");
+
       if (branchTrace.isEmpty() || !branchEntry.isRegisterFirstUse()) {
         return Collections.<AbstractCall>emptyList();
       }
