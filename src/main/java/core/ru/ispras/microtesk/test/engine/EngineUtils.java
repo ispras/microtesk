@@ -427,6 +427,37 @@ public final class EngineUtils {
     return new ConcreteCall(executable);
   }
 
+  public static boolean isStreamBased(final AbstractCall abstractCall) {
+    checkNotNull(abstractCall);
+
+    final Primitive rootOp = abstractCall.getRootOperation();
+    checkRootOp(rootOp);
+
+    return isStreamBased(rootOp);
+  }
+
+  public static boolean isStreamBased(final Primitive primitive) {
+    checkNotNull(primitive);
+
+    final Situation situation = primitive.getSituation();
+    if (null != situation && null != situation.getAttribute("stream")) {
+      return true;
+    }
+
+    for (final Argument argument : primitive.getArguments().values()) {
+      if (argument.getKind() == Argument.Kind.OP) {
+        final Primitive argumentPrimitive = (Primitive) argument.getValue();
+        checkNotNull(argumentPrimitive);
+
+        if (isStreamBased(argumentPrimitive)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   public static BigInteger makeImm(final Argument argument) {
     checkArgKind(argument, Argument.Kind.IMM);
     return (BigInteger) argument.getValue();
