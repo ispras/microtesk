@@ -1,11 +1,11 @@
 /*
  * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -30,7 +30,7 @@ import ru.ispras.microtesk.model.memory.LocationAccessor;
 /**
  * The {@link IsaPrimitiveBuilder} class is responsible for creating and initializing
  * instances of nML primitives (addressing modes and operations).
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public class IsaPrimitiveBuilder {
@@ -39,7 +39,7 @@ public class IsaPrimitiveBuilder {
 
   /**
    * Creates a builder for a primitive described with the specified parameters.
-   * 
+   *
    * @param info Information on the primitive to be built.
    */
   public IsaPrimitiveBuilder(final IsaPrimitiveInfoAnd info) {
@@ -50,10 +50,13 @@ public class IsaPrimitiveBuilder {
   }
 
   /**
-   * Initializes the specified argument with an integer value.
-   * 
+   * Initializes the specified immediate argument with an integer value.
+   *
    * @param name Argument name.
    * @param value Argument integer value.
+   * @return Accessor for the argument value.
+   *
+   * @throws ConfigurationException if the specified argument is not an immediate value.
    */
   public LocationAccessor setArgument(
       final String name,
@@ -100,7 +103,7 @@ public class IsaPrimitiveBuilder {
 
   /**
    * Returns an primitive (addressing mode or operation) created by the builder.
-   * 
+   *
    * @return The created and initialized primitive (addressing mode or operation).
    * @throws ConfigurationException Exception that informs of an error that occurs on attempt to
    *         build an object due to incorrect configuration.
