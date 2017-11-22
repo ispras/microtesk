@@ -182,7 +182,10 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         sequenceIndex
         );
 
-    creator.finishProcessing();
+    if (isPresimulation) {
+      creator.finishProcessing();
+    }
+
     engineContext.setCodeAllocationAddress(creator.getAllocationAddress());
     final ConcreteSequence result = creator.createTestSequence();
 
