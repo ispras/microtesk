@@ -22,12 +22,16 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class Stream {
   private final String startLabelName;
   private final int length;
+  private final Primitive dataSource;
+  private final Primitive indexSource;
   private final List<AbstractCall> init;
   private final List<AbstractCall> read;
   private final List<AbstractCall> write;
 
   protected Stream(
       final String startLabelName,
+      final Primitive dataSource,
+      final Primitive indexSource,
       final List<AbstractCall> init,
       final List<AbstractCall> read,
       final List<AbstractCall> write,
@@ -41,6 +45,9 @@ public final class Stream {
     this.startLabelName = startLabelName;
     this.length = length;
 
+    this.dataSource = dataSource;
+    this.indexSource = indexSource;
+
     this.init = Collections.unmodifiableList(init);
     this.read = Collections.unmodifiableList(read);
     this.write = Collections.unmodifiableList(write);
@@ -52,6 +59,14 @@ public final class Stream {
 
   public int getLength() {
     return length;
+  }
+
+  public Primitive getDataSource() {
+    return dataSource;
+  }
+
+  public Primitive getIndexSource() {
+    return indexSource;
   }
 
   public List<AbstractCall> getInit() {

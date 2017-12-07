@@ -90,6 +90,8 @@ public final class StreamPreparator {
 
     return new Stream(
         label.getName(),
+        dataSource,
+        indexSource,
         AbstractCall.copyAll(init),
         AbstractCall.copyAll(read),
         AbstractCall.copyAll(write),
