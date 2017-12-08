@@ -14,6 +14,12 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestDataProvider;
 import ru.ispras.testbase.generator.DataGenerator;
@@ -30,6 +36,24 @@ public abstract class BranchDataGenerator implements DataGenerator {
   public static final String PARAM_CONDITION_THEN = "true";
   public static final String PARAM_CONDITION_ELSE = "false";
   public static final String PARAM_STREAM = "stream";
+
+  public static Map<String, Node> extractUnknown(final TestBaseQuery query) {
+    InvariantChecks.checkNotNull(query);
+
+    final Map<String, Node> result =  new LinkedHashMap<>();
+    for (final Map.Entry<String, Node> e : query.getBindings().entrySet()) {
+      final Node value = e.getValue();
+
+      if (/* Known registers are considered to be unknown (stream based initialization) */
+          value.getDataType().getTypeId() != DataTypeId.LOGIC_INTEGER
+          /* Known immediate values are considered to be known */
+        || Utils.isUnknownVariable(value)) { 
+        result.put(e.getKey(), value);
+      }
+    }
+
+    return result;
+  }
 
   @Override
   public final boolean isSuitable(final TestBaseQuery query) {
