@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.engine;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -42,6 +43,8 @@ import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
@@ -534,6 +537,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         }
       }
 
+      final Situation situation = abstractPrimitive.getSituation();
+
       final List<AbstractCall> initializer = EngineUtils.makeInitializer(
           engineContext,
           processingCount,
@@ -541,12 +546,32 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           abstractCall,
           abstractSequence,
           abstractPrimitive,
-          abstractPrimitive.getSituation(),
+          situation,
           initializedModes,
           fixedConcretePrimitive
           );
 
-      processInitializer(engineContext, initializer);
+      final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
+      final String streamId = (String) situation.getAttributes().get("stream");
+      final LocationAccessor[] locationsToBeRestored;
+
+      if (streamId != null) {
+        final Stream stream = engineContext.getStreams().getStream(streamId);
+        final Primitive indexSource = stream.getIndexSource();
+        final Collection<Argument> indexSourceArguments = indexSource.getArguments().values();
+
+        final LocationAccessor streamIndex = indexSourceArguments.isEmpty()
+            ? engineContext.getModel().getPE().accessLocation(
+                indexSource.getName())
+            : engineContext.getModel().getPE().accessLocation(
+                indexSource.getName(), indexSourceArguments.iterator().next().getImmediateValue());
+
+        locationsToBeRestored = new LocationAccessor[] { programCounter, streamIndex };
+      } else {
+        locationsToBeRestored = new LocationAccessor[] { programCounter };
+      }
+
+      processInitializer(engineContext, initializer, locationsToBeRestored);
     }
 
     private IsaPrimitive findConcretePrimitive(
@@ -571,7 +596,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
     private void processInitializer(
         final EngineContext engineContext,
-        final List<AbstractCall> abstractCalls) throws ConfigurationException {
+        final List<AbstractCall> abstractCalls,
+        final LocationAccessor[] locationsToBeRestored) throws ConfigurationException {
       InvariantChecks.checkNotNull(engineContext);
       InvariantChecks.checkNotNull(abstractCalls);
 
@@ -586,8 +612,15 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
       testSequenceBuilder.addToPrologue(concreteCalls);
 
-      final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
-      final BigInteger programCounterValue = programCounter.getValue();
+      final int length = locationsToBeRestored.length;
+      final BigInteger[] savedValues = new BigInteger[length];
+
+      for (int i = 0; i < length; i++) {
+        savedValues[i] = locationsToBeRestored[i].getValue();
+      }
+
+      //final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
+      //final BigInteger programCounterValue = programCounter.getValue();
 
       if (!concreteCalls.isEmpty()) {
         Logger.debug("Executing initializing code...");
@@ -602,7 +635,12 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
             sequenceIndex
             );
       } finally {
-        programCounter.setValue(programCounterValue);
+        //programCounter.setValue(programCounterValue);
+
+        for (int i = 0; i < length; i++) {
+          locationsToBeRestored[i].setValue(savedValues[i]);
+        }
+
         setAllocationAddress(listenerForInitializers.getAllocationAddress());
         Logger.debug("");
       }
