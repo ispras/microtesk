@@ -557,14 +557,12 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
       if (streamId != null) {
         final Stream stream = engineContext.getStreams().getStream(streamId);
-        final Primitive indexSource = stream.getIndexSource();
-        final Collection<Argument> indexSourceArguments = indexSource.getArguments().values();
 
-        final LocationAccessor streamIndex = indexSourceArguments.isEmpty()
-            ? engineContext.getModel().getPE().accessLocation(
-                indexSource.getName())
-            : engineContext.getModel().getPE().accessLocation(
-                indexSource.getName(), indexSourceArguments.iterator().next().getImmediateValue());
+        final IsaPrimitive indexSource =
+            EngineUtils.makeMode(engineContext, stream.getIndexSource());
+
+        final LocationAccessor streamIndex = indexSource.access(
+            engineContext.getModel().getPE(), engineContext.getModel().getTempVars());
 
         locationsToBeRestored = new LocationAccessor[] { programCounter, streamIndex };
       } else {
