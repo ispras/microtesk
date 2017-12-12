@@ -176,6 +176,10 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     final ConcreteSequenceCreator creator =
         new ConcreteSequenceCreator(sequenceIndex, abstractSequence, concreteSequence);
 
+    if (isPresimulation) {
+      creator.startProcessing();
+    }
+
     execute(
         engineContext,
         creator,
@@ -450,7 +454,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       }
 
       try {
-        processCall(engineContext, callEntry, false);
+        processCall(engineContext, callEntry, InitializerMaker.Stage.MAIN);
       } catch (final ConfigurationException e) {
         throw new GenerationAbortedException(
             "Failed to generate test data for " + concreteCall.getText(), e);
@@ -462,7 +466,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     private void processCall(
         final EngineContext engineContext,
         final CallEntry callEntry,
-        final boolean terminate) throws ConfigurationException {
+        final InitializerMaker.Stage stage) throws ConfigurationException {
       InvariantChecks.checkNotNull(engineContext);
       InvariantChecks.checkNotNull(callEntry);
 
@@ -492,7 +496,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       processPrimitive(
           engineContext,
           processingCount,
-          terminate,
+          stage,
           abstractCall,
           abstractPrimitive,
           concretePrimitive
@@ -502,7 +506,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     private void processPrimitive(
         final EngineContext engineContext,
         final int processingCount,
-        final boolean terminate,
+        final InitializerMaker.Stage stage,
         final AbstractCall abstractCall,
         final Primitive abstractPrimitive,
         final IsaPrimitive concretePrimitive) throws ConfigurationException {
@@ -528,7 +532,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           processPrimitive(
               engineContext,
               processingCount,
-              terminate,
+              stage,
               abstractCall,
               abstractArgument,
               concreteArgument
@@ -541,7 +545,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       final List<AbstractCall> initializer = EngineUtils.makeInitializer(
           engineContext,
           processingCount,
-          terminate,
+          stage,
           abstractCall,
           abstractSequence,
           abstractPrimitive,
@@ -614,8 +618,10 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       final int length = locationsToBeRestored.length;
       final BigInteger[] savedValues = new BigInteger[length];
 
+      Logger.debug("Saved values:");
       for (int i = 0; i < length; i++) {
         savedValues[i] = locationsToBeRestored[i].getValue();
+        Logger.debug("0x%016X", locationsToBeRestored[i].getValue());
       }
 
       //final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
@@ -636,12 +642,25 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       } finally {
         //programCounter.setValue(programCounterValue);
 
+        Logger.debug("Restored values:");
         for (int i = 0; i < length; i++) {
           locationsToBeRestored[i].setValue(savedValues[i]);
+          Logger.debug("0x%016X", locationsToBeRestored[i].getValue());
         }
 
         setAllocationAddress(listenerForInitializers.getAllocationAddress());
         Logger.debug("");
+      }
+    }
+
+    public void startProcessing() throws ConfigurationException {
+      for (final ConcreteCall concreteCall : concreteSequence.getAll()) {
+        final CallEntry callEntry = callMap.get(concreteCall);
+
+        // FIXME
+        if (callEntry != null) {
+          processCall(engineContext, callEntry, InitializerMaker.Stage.PRE);
+        }
       }
     }
 
@@ -651,7 +670,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
         // FIXME
         if (callEntry != null) {
-          processCall(engineContext, callEntry, true);
+          processCall(engineContext, callEntry, InitializerMaker.Stage.POST);
         }
       }
     }

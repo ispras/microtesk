@@ -58,7 +58,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
   public List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
       final int processingCount,
-      final boolean terminate,
+      final Stage stage,
       final AbstractCall abstractCall,
       final Primitive primitive,
       final Situation situation,
@@ -84,7 +84,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
     Logger.debug("Processing count: %d, branch trace: %d", processingCount, branchTrace.size());
 
     InvariantChecks.checkTrue(
-        terminate /* The final pass */ ||
+        stage == Stage.POST /* The final pass */ ||
         (0 <= processingCount && processingCount < branchTrace.size()));
 
     // It cannot be guaranteed that two branches do not share a register.
@@ -96,7 +96,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
     final boolean streamBasedInitialization = sharedRegisters || branchTrace.getChangeNumber() > 0;
 
     // The final pass.
-    if (terminate) {
+    if (stage == Stage.POST) {
       Logger.debug("Terminate");
 
       if (branchTrace.isEmpty() || !branchEntry.isRegisterFirstUse()) {

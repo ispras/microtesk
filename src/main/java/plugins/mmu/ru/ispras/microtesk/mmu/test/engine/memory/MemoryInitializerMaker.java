@@ -82,7 +82,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
   public List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
       final int processingCount,
-      final boolean terminate,
+      final Stage stage,
       final AbstractCall abstractCall,
       final Primitive primitive,
       final Situation situation,
@@ -401,7 +401,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       final List<AbstractCall> abstractInitializer = EngineUtils.makeInitializer(
           engineContext,
           0 /* Processing count */,
-          false /* Terminate (final processing after presimulation) */,
+          InitializerMaker.Stage.POST /* Terminate (final processing after presimulation) */,
           null /* Abstract call */,
           null /* Abstract sequence */,
           primitive,

@@ -168,7 +168,7 @@ public final class Utils {
     private final String context;
     private final Ir ir;
 
-    private final class JavaVisitor extends Visisor {
+    private final class JavaVisitor extends Visitor {
       @Override
       public void onVariable(final NodeVariable variable) {
         if (variable.getVariable().hasValue()) {

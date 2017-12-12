@@ -29,16 +29,20 @@ import ru.ispras.testbase.TestData;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public interface InitializerMaker {
+  public static enum Stage {
+    PRE,
+    MAIN,
+    POST
+  }
+
   void configure(Map<String, Object> attributes);
-
   void onStartProgram();
-
   void onEndProgram();
 
   List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
       final int processingCount,
-      final boolean terminate,
+      final Stage stage,
       final AbstractCall abstractCall,
       final Primitive primitive,
       final Situation situation,
