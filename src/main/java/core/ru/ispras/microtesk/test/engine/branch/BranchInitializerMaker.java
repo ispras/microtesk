@@ -54,6 +54,84 @@ public final class BranchInitializerMaker implements InitializerMaker {
   @Override
   public void onEndProgram() {}
 
+  private List<AbstractCall> makePreInitializer(
+    final EngineContext engineContext,
+    final AbstractCall abstractCall,
+    final Primitive primitive,
+    final Situation situation,
+    final boolean isStreamBased) throws ConfigurationException {
+    final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
+    InvariantChecks.checkNotNull(branchEntry);
+
+    final BranchTrace branchTrace = branchEntry.getBranchTrace();
+    InvariantChecks.checkNotNull(branchTrace);
+
+    if (branchTrace.isEmpty() || !branchEntry.isRegisterFirstUse()) {
+      return Collections.<AbstractCall>emptyList();
+    }
+
+    final List<AbstractCall> initializer = new ArrayList<>();
+
+    // Reset the stream if it is used.
+    if (isStreamBased) {
+      if (branchEntry.isRegisterFirstUse()) {
+        final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
+        initializer.addAll(EngineUtils.makeStreamInit(engineContext, testDataStream));
+      }
+    }
+
+    return initializer;
+  }
+
+  private List<AbstractCall> makePostInitializer(
+      final EngineContext engineContext,
+      final AbstractCall abstractCall,
+      final Primitive primitive,
+      final Situation situation,
+      final boolean isStreamBased) throws ConfigurationException {
+    final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
+    InvariantChecks.checkNotNull(branchEntry);
+
+    final BranchTrace branchTrace = branchEntry.getBranchTrace();
+    InvariantChecks.checkNotNull(branchTrace);
+
+    if (branchTrace.isEmpty() || !branchEntry.isRegisterFirstUse()) {
+      return Collections.<AbstractCall>emptyList();
+    }
+
+    final List<AbstractCall> initializer = new ArrayList<>();
+
+    // Reset the stream if is used.
+    if (isStreamBased) {
+      if (branchEntry.isRegisterFirstUse()) {
+        final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
+        initializer.addAll(EngineUtils.makeStreamInit(engineContext, testDataStream));
+      }
+    }
+
+    final BranchExecution execution = branchTrace.get(0);
+    final int executionCount = getControlCodeExecutionCount(branchEntry, execution);
+
+    // If the control code is not invoked before the first branch execution and
+    // this is the first use of the branch register, the register should be initialized.
+    if (executionCount == 0) {
+      final List<AbstractCall> initRegisters =
+          makeInitializer(
+              engineContext,
+              0 /* Processing count */,
+              abstractCall,
+              primitive,
+              situation,
+              true /* Branch is taken */,
+              execution.value(),
+              false /* Write into the registers */);
+
+      initializer.addAll(initRegisters);
+    }
+
+    return initializer;
+  }
+
   @Override
   public List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
@@ -71,70 +149,35 @@ public final class BranchInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(situation);
 
     Logger.setDebug(true);
-    Logger.debug("Make initializer for call: %s", abstractCall);
 
     final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
     InvariantChecks.checkNotNull(branchEntry);
 
-    Logger.debug("Make initializer for entry: %s", branchEntry);
+    Logger.debug("Make initializer: %s, %s", abstractCall, branchEntry);
 
     final BranchTrace branchTrace = branchEntry.getBranchTrace();
     InvariantChecks.checkNotNull(branchTrace);
 
-    Logger.debug("Processing count: %d, branch trace: %d", processingCount, branchTrace.size());
+    Logger.debug("Initializer stage: stage=%s, count=%d", stage, processingCount);
 
-    InvariantChecks.checkTrue(
-        stage == Stage.POST /* The final pass */ ||
-        (0 <= processingCount && processingCount < branchTrace.size()));
-
-    // It cannot be guaranteed that two branches do not share a register.
-    final boolean sharedRegisters = true;
+    InvariantChecks.checkTrue(stage == Stage.PRE || stage == Stage.POST
+        || (0 <= processingCount && processingCount < branchTrace.size()));
 
     // There is no need to construct the control code if the branch condition does not change.
     // However, if multiple branches shares the same register, it makes sense.
-    @SuppressWarnings("unused")
-    final boolean streamBasedInitialization = sharedRegisters || branchTrace.getChangeNumber() > 0;
+    final boolean isStreamBased = true;
 
-    // The final pass.
-    if (stage == Stage.POST) {
-      Logger.debug("Terminate");
-
-      if (branchTrace.isEmpty() || !branchEntry.isRegisterFirstUse()) {
-        return Collections.<AbstractCall>emptyList();
-      }
-
-      final List<AbstractCall> initializer = new ArrayList<>();
-
-      // Reset the stream if is used.
-      if (streamBasedInitialization) {
-        final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
-        initializer.addAll(EngineUtils.makeStreamInit(engineContext, testDataStream));
-      }
-
-      final BranchExecution execution = branchTrace.get(0);
-      final int executionCount = getControlCodeExecutionCount(branchEntry, execution);
-
-      // If the control code is not invoked before the first branch execution and
-      // this is the first use of the branch register, the register should be initialized.
-      if (executionCount == 0) {
-        final List<AbstractCall> initRegisters =
-            makeInitializer(
-                engineContext,
-                processingCount,
-                abstractCall,
-                primitive,
-                situation,
-                true /* Branch is taken */,
-                execution.value(),
-                false /* Write into the registers */);
-
-        initializer.addAll(initRegisters);
-      }
-
-      return initializer;
+    if (stage == Stage.PRE) {
+      return makePreInitializer(
+          engineContext, abstractCall, primitive, situation, isStreamBased);
     }
 
-    if (streamBasedInitialization) {
+    if (stage == Stage.POST) {
+      return makePostInitializer(
+          engineContext, abstractCall, primitive, situation, isStreamBased);
+    }
+
+    if (isStreamBased) {
       final List<AbstractCall> initializer = new ArrayList<>();
 
       final BranchExecution execution = branchTrace.get(processingCount);
@@ -145,12 +188,6 @@ public final class BranchInitializerMaker implements InitializerMaker {
 
       Logger.debug("Branch execution: processingCount=%d, condition=%b, executionCount=%d",
           processingCount, branchCondition, executionCount);
-
-      // The data stream should be initialized before writing into it. 
-      if (processingCount == 0 && branchEntry.isRegisterFirstUse()) {
-        final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
-        initializer.addAll(EngineUtils.makeStreamInit(engineContext, testDataStream));
-      }
 
       for (int i = 0; i < executionCount; i++) {
         initializer.addAll(
@@ -167,7 +204,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
       }
 
       return initializer;
-    } // If stream-based initialization is used.
+    } // Stream based.
 
     return Collections.<AbstractCall>emptyList();
   }
