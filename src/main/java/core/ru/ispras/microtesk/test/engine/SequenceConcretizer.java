@@ -16,7 +16,6 @@ package ru.ispras.microtesk.test.engine;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -552,8 +551,10 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           );
 
       final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
-      final String streamId = (String) situation.getAttributes().get("stream");
       final LocationAccessor[] locationsToBeRestored;
+
+      final String streamId =
+          null != situation ? (String) situation.getAttributes().get("stream") : null;
 
       if (streamId != null) {
         final Stream stream = engineContext.getStreams().getStream(streamId);
