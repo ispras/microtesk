@@ -164,13 +164,10 @@ public final class SequenceProcessor {
       }
 
       AbstractSequence abstractSequence =
-          abstractSequenceIterator.value();
+          expandProloguesAndEpilogues(abstractSequenceIterator.value());
 
       abstractSequence = new AbstractSequence(
           abstractSequence.getSection(), AbstractCall.copyAll(abstractSequence.getSequence()));
-
-      abstractSequence =
-          expandProloguesAndEpilogues(abstractSequence);
 
       final Iterator<AbstractSequence> abstractSequenceEngineIterator =
           processSequenceWithEngines(engineContext, engineAttributes, abstractSequence);
