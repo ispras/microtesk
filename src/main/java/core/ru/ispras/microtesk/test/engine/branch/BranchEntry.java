@@ -96,9 +96,9 @@ public final class BranchEntry extends SharedObject<BranchEntry> {
     this.branchTrace = other.branchTrace.clone();
 
     this.blockCoverage =
-        null != this.blockCoverage ? new LinkedHashSet<>(other.blockCoverage) : null;
+        null != other.blockCoverage ? new LinkedHashSet<>(other.blockCoverage) : null;
     this.slotCoverage =
-        null != this.slotCoverage ? new LinkedHashSet<>(other.slotCoverage) : null;
+        null != other.slotCoverage ? new LinkedHashSet<>(other.slotCoverage) : null;
   }
 
   /**
