@@ -17,12 +17,14 @@ package ru.ispras.microtesk.test.engine.branch;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import ru.ispras.microtesk.utils.SharedObject;
+
 /**
  * {@link BranchEntry} represents a node of the internal representation of a branch structure.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BranchEntry {
+public final class BranchEntry extends SharedObject<BranchEntry> {
   public static enum Type {
     /** Conditional branch instruction. */
     IF_THEN,
@@ -85,6 +87,8 @@ public final class BranchEntry {
   }
 
   private BranchEntry(final BranchEntry other) {
+    super(other);
+
     this.type = other.type;
     this.registerId = other.registerId;
     this.groupId = other.groupId;
@@ -307,6 +311,11 @@ public final class BranchEntry {
 
   @Override
   public BranchEntry clone() {
+    return newCopy();
+  }
+
+  @Override
+  public BranchEntry newCopy() {
     return new BranchEntry(this);
   }
 }
