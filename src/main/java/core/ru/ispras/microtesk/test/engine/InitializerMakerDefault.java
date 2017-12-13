@@ -53,6 +53,10 @@ public class InitializerMakerDefault implements InitializerMaker {
     InvariantChecks.checkNotNull(testData);
     InvariantChecks.checkNotNull(initializedModes);
 
+    if (stage == Stage.PRE) {
+      return Collections.<AbstractCall>emptyList();
+    }
+
     if (processingCount != 0) {
       return Collections.<AbstractCall>emptyList();
     }
