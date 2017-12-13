@@ -1,11 +1,11 @@
 /*
  * Copyright 2009-2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -14,11 +14,12 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
  * {@link BranchEntry} represents a node of the internal representation of a branch structure.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchEntry {
@@ -53,7 +54,7 @@ public final class BranchEntry {
 
   /**
    * Basic block coverage.
-   * 
+   *
    * <p>Block coverage is a set of basic blocks that cover all segments of the branch instruction,
    * where a segment is a sequence of blocks between two executions of the branch.</p>
    */
@@ -61,7 +62,7 @@ public final class BranchEntry {
 
   /**
    * Delay slot coverage.
-   * 
+   *
    * <p>Slot coverage is a set of slots that are included in all segments of the branch instruction,
    * where a segment is a sequence of slots between two executions of the branch.</p>
    */
@@ -83,17 +84,22 @@ public final class BranchEntry {
     this(type, -1, -1, -1);
   }
 
-  private BranchEntry(final BranchEntry r) {
-    type = r.type;
-    registerId = r.registerId;
-    groupId = r.groupId;
-    branchLabel = r.branchLabel;
-    branchTrace = r.branchTrace.clone();
+  private BranchEntry(final BranchEntry other) {
+    this.type = other.type;
+    this.registerId = other.registerId;
+    this.groupId = other.groupId;
+    this.branchLabel = other.branchLabel;
+    this.branchTrace = other.branchTrace.clone();
+
+    this.blockCoverage =
+        null != this.blockCoverage ? new LinkedHashSet<>(other.blockCoverage) : null;
+    this.slotCoverage =
+        null != this.slotCoverage ? new LinkedHashSet<>(other.slotCoverage) : null;
   }
 
   /**
    * Returns the type of the entry.
-   * 
+   *
    * @return the entry type.
    */
   public Type getType() {
@@ -102,7 +108,7 @@ public final class BranchEntry {
 
   /**
    * Sets the type of the entry.
-   * 
+   *
    * @param type the type to be set.
    */
   public void setType(final Type type) {
@@ -111,7 +117,7 @@ public final class BranchEntry {
 
   /**
    * Checks whether the entry is a conditional branch.
-   * 
+   *
    * @return {@code true} if the entry is a conditional branch; {@code false} otherwise.
    */
   public boolean isIfThen() {
@@ -120,7 +126,7 @@ public final class BranchEntry {
 
   /**
    * Checks whether the entry is an unconditional branch.
-   * 
+   *
    * @return {@code true} if the entry is a unconditional branch; {@code false} otherwise.
    */
   public boolean isGoto() {
@@ -129,7 +135,7 @@ public final class BranchEntry {
 
   /**
    * Checks whether the entry is a delay slot.
-   * 
+   *
    * @return {@code true} if the entry is a delay slot; {@code false} otherwise.
    */
   public boolean isDelaySlot() {
@@ -138,7 +144,7 @@ public final class BranchEntry {
 
   /**
    * Checks if the entry is a basic block.
-   * 
+   *
    * @return {@code true} if the entry is a basic block; {@code false} otherwise.
    */
   public boolean isBasicBlock() {
@@ -147,7 +153,7 @@ public final class BranchEntry {
 
   /**
    * Checks whether the entry is a conditional or an unconditional branch.
-   * 
+   *
    * @return {@code true} if the entry is a branch; {@code false} otherwise.
    */
   public boolean isBranch() {
@@ -156,7 +162,7 @@ public final class BranchEntry {
 
   /**
    * Returns the register identifier of the branch entry.
-   * 
+   *
    * @return the register identifier.
    */
   public int getRegisterId() {
@@ -165,7 +171,7 @@ public final class BranchEntry {
 
   /**
    * Sets the register identifier of the branch entry.
-   * 
+   *
    * @param registerId the register identifier to be set.
    */
   public void setRegisterId(final int registerId) {
@@ -174,7 +180,7 @@ public final class BranchEntry {
 
   /**
    * Checks whether the register is used for the first time.
-   * 
+   *
    * @return {@code} if the register is used for the first time; {@code false} otherwise.
    */
   public boolean isRegisterFirstUse() {
@@ -183,7 +189,7 @@ public final class BranchEntry {
 
   /**
    * Specifies whether the register is used for the first time.
-   * 
+   *
    * @param isRegisterFirstUse the value to be set.
    */
   public void setRegisterFirstUse(final boolean isRegisterFirstUse) {
@@ -192,7 +198,7 @@ public final class BranchEntry {
 
   /**
    * Returns the group identifier of the entry.
-   * 
+   *
    * @return the group identifier.
    */
   public int getGroupId() {
@@ -201,7 +207,7 @@ public final class BranchEntry {
 
   /**
    * Sets the group identifier of the entry.
-   * 
+   *
    * @param groupId the group identifier to be set.
    */
   public void setGroupId(final int groupId) {
@@ -210,7 +216,7 @@ public final class BranchEntry {
 
   /**
    * Returns the branch label (index of the target instruction in the branch structure).
-   * 
+   *
    * @return the branch label.
    */
   public int getBranchLabel() {
@@ -219,7 +225,7 @@ public final class BranchEntry {
 
   /**
    * Sets the branch label (index of the target instruction in the branch structure).
-   * 
+   *
    * @param branchLabel the branch label to be set.
    */
   public void setBranchLabel(final int branchLabel) {
@@ -228,7 +234,7 @@ public final class BranchEntry {
 
   /**
    * Returns the execution trace of the branch instruction.
-   * 
+   *
    * @return the execution trace.
    */
   public BranchTrace getBranchTrace() {
@@ -237,7 +243,7 @@ public final class BranchEntry {
 
   /**
    * Returns the block coverage of the branch instruction.
-   * 
+   *
    * @return the block coverage.
    */
   public Set<Integer> getBlockCoverage() {
@@ -246,7 +252,7 @@ public final class BranchEntry {
 
   /**
    * Sets the block coverage of the branch instruction.
-   * 
+   *
    * @param blockCoverage the block coverage to be set.
    */
   public void setBlockCoverage(final Set<Integer> blockCoverage) {
@@ -255,7 +261,7 @@ public final class BranchEntry {
 
   /**
    * Returns the slot coverage of the branch instruction.
-   * 
+   *
    * @return the slot coverage.
    */
   public Set<Integer> getSlotCoverage() {
@@ -264,7 +270,7 @@ public final class BranchEntry {
 
   /**
    * Sets the slot coverage of the branch instruction.
-   * 
+   *
    * @param slotCoverage the slot coverage to be set.
    */
   public void setSlotCoverage(final Set<Integer> slotCoverage) {
