@@ -37,6 +37,7 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.Printer;
 import ru.ispras.microtesk.test.SelfCheck;
+import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -557,19 +558,23 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
       final LocationAccessor[] locationsToBeRestored;
 
-      final String streamId =
-          null != situation ? (String) situation.getAttributes().get("stream") : null;
+      if (stage == InitializerMaker.Stage.MAIN) {
+        final String streamId =
+            null != situation ? (String) situation.getAttributes().get("stream") : null;
 
-      if (streamId != null) {
-        final Stream stream = engineContext.getStreams().getStream(streamId);
+        if (streamId != null) {
+          final Stream stream = engineContext.getStreams().getStream(streamId);
 
-        final IsaPrimitive indexSource =
-            EngineUtils.makeMode(engineContext, stream.getIndexSource());
+          final IsaPrimitive indexSource =
+              EngineUtils.makeMode(engineContext, stream.getIndexSource());
 
-        final LocationAccessor streamIndex = indexSource.access(
-            engineContext.getModel().getPE(), engineContext.getModel().getTempVars());
+          final LocationAccessor streamIndex = indexSource.access(
+              engineContext.getModel().getPE(), engineContext.getModel().getTempVars());
 
-        locationsToBeRestored = new LocationAccessor[] { programCounter, streamIndex };
+          locationsToBeRestored = new LocationAccessor[] { programCounter, streamIndex };
+        } else {
+          locationsToBeRestored = new LocationAccessor[] { programCounter };
+        }
       } else {
         locationsToBeRestored = new LocationAccessor[] { programCounter };
       }
