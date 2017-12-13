@@ -91,6 +91,7 @@ public final class BranchEntry extends SharedObject<BranchEntry> {
 
     this.type = other.type;
     this.registerId = other.registerId;
+    this.isRegisterFirstUse = other.isRegisterFirstUse;
     this.groupId = other.groupId;
     this.branchLabel = other.branchLabel;
     this.branchTrace = other.branchTrace.clone();
@@ -99,6 +100,9 @@ public final class BranchEntry extends SharedObject<BranchEntry> {
         null != other.blockCoverage ? new LinkedHashSet<>(other.blockCoverage) : null;
     this.slotCoverage =
         null != other.slotCoverage ? new LinkedHashSet<>(other.slotCoverage) : null;
+
+    this.controlCodeInBasicBlock = other.controlCodeInBasicBlock;
+    this.controlCodeInDelaySlot = other.controlCodeInDelaySlot;
   }
 
   /**
