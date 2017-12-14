@@ -23,6 +23,7 @@ import java.util.Set;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ArgumentMode;
@@ -122,7 +123,6 @@ public final class BranchInitializerMaker implements InitializerMaker {
               abstractCall,
               primitive,
               situation,
-              true /* Branch is taken */,
               execution.value(),
               false /* Write into the registers */);
 
@@ -159,9 +159,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(branchTrace);
 
     Logger.debug("Initializer stage: stage=%s, count=%d", stage, processingCount);
-
-    InvariantChecks.checkTrue(stage == Stage.PRE || stage == Stage.POST
-        || (0 <= processingCount && processingCount < branchTrace.size()));
+    InvariantChecks.checkTrue(stage == Stage.PRE || stage == Stage.POST || 0 <= processingCount);
 
     // There is no need to construct the control code if the branch condition does not change.
     // However, if multiple branches shares the same register, it makes sense.
@@ -180,8 +178,22 @@ public final class BranchInitializerMaker implements InitializerMaker {
     if (isStreamBased) {
       final List<AbstractCall> initializer = new ArrayList<>();
 
-      final BranchExecution execution = branchTrace.get(processingCount);
-      final boolean branchCondition = execution.value();
+      // The initializer maker is called every time the control code is simulated.
+      // The control code can be executed more times than the corresponding branch, e.g.
+      //
+      //   START: control code
+      //          if (something) goto STOP
+      //          target branch
+      //          goto START
+      //   STOP:
+      //
+      // If processingCount > branchTrace.size(), we can write everything into the stream.
+
+      final BranchExecution execution =
+          processingCount < branchTrace.size() ? branchTrace.get(processingCount) : null;
+
+      final Boolean branchCondition =
+          execution != null ? execution.value() : Randomizer.get().nextBoolean();
 
       // Calculate how many times the control code is executed before calling the branch.
       final int executionCount = getControlCodeExecutionCount(branchEntry, execution);
@@ -197,7 +209,6 @@ public final class BranchInitializerMaker implements InitializerMaker {
                 abstractCall,
                 primitive,
                 situation,
-                true /* Branch is taken */,
                 branchCondition,
                 true /* Write into the stream */)
             );
@@ -215,7 +226,6 @@ public final class BranchInitializerMaker implements InitializerMaker {
       final AbstractCall abstractCall,
       final Primitive primitive,
       final Situation situation,
-      final boolean branchTaken,
       final boolean branchCondition,
       final boolean writeIntoStream) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
@@ -253,26 +263,24 @@ public final class BranchInitializerMaker implements InitializerMaker {
     // Set unknown immediate values (if there are any).
     EngineUtils.setUnknownImmValues(queryCreator.getUnknownImmValues(), testData);
 
-    if (branchTaken) {
-      // Initialize test data to ensure branch execution.
-      for (final Map.Entry<String, Object> testDatum : testData.getBindings().entrySet()) {
-        final String name = testDatum.getKey();
-        final Argument arg = queryCreator.getModes().get(name);
+    // Initialize test data to ensure branch execution.
+    for (final Map.Entry<String, Object> testDatum : testData.getBindings().entrySet()) {
+      final String name = testDatum.getKey();
+      final Argument arg = queryCreator.getModes().get(name);
 
-        if (arg == null
-            || arg.getKind() != Argument.Kind.MODE
-            || arg.getMode() == ArgumentMode.OUT) {
-          continue;
-        }
+      if (arg == null
+          || arg.getKind() != Argument.Kind.MODE
+          || arg.getMode() == ArgumentMode.OUT) {
+        continue;
+      }
 
-        final Primitive mode = (Primitive) arg.getValue();
-        final BitVector value = FortressUtils.extractBitVector((Node) testDatum.getValue());
+      final Primitive mode = (Primitive) arg.getValue();
+      final BitVector value = FortressUtils.extractBitVector((Node) testDatum.getValue());
 
-        initializer.addAll(EngineUtils.makeInitializer(engineContext, mode, value));
-        if (writeIntoStream) {
-          final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
-          initializer.addAll(EngineUtils.makeStreamWrite(engineContext, testDataStream));
-        }
+      initializer.addAll(EngineUtils.makeInitializer(engineContext, mode, value));
+      if (writeIntoStream) {
+        final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
+        initializer.addAll(EngineUtils.makeStreamWrite(engineContext, testDataStream));
       }
     }
 
