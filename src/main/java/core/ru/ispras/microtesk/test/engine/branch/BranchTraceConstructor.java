@@ -74,7 +74,7 @@ final class BranchTraceConstructor {
       final int registerId = entry.getRegisterId();
       final boolean newRegisterId = branchRegisters.add(registerId);
 
-      entry.setRegisterFirstUse(newRegisterId);
+      entry.setRegisterFirstUse(entry.isRegisterFirstUse() || newRegisterId);
 
       // Previous basic blocks.
       if (!postBlocks.containsKey(registerId)) {
