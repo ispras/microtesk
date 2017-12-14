@@ -79,7 +79,7 @@ public final class BranchEntry extends SharedObject<BranchEntry> {
     this.registerId = registerId;
     this.groupId = groupId;
     this.branchLabel = branchLabel;
-    branchTrace = new BranchTrace();
+    this.branchTrace = new BranchTrace();
   }
 
   public BranchEntry(final Type type) {

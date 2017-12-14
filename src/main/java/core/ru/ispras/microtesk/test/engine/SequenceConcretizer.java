@@ -663,7 +663,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         final CallEntry callEntry = callMap.get(concreteCall);
 
         // Dependencies are ignored. Calls are processed according to their order in the collection.
-        if (callEntry.getConcreteCall() == concreteCall) {
+        if (null != callEntry && callEntry.getConcreteCall() == concreteCall) {
           processCall(engineContext, callEntry, InitializerMaker.Stage.PRE);
         }
       }
@@ -674,7 +674,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         final CallEntry callEntry = callMap.get(concreteCall);
 
         // Dependencies are ignored. Calls are processed according to their order in the collection.
-        if (callEntry.getConcreteCall() == concreteCall) {
+        if (null != callEntry && callEntry.getConcreteCall() == concreteCall) {
           processCall(engineContext, callEntry, InitializerMaker.Stage.POST);
         }
       }
