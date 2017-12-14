@@ -192,7 +192,8 @@ public final class BranchInitializerMaker implements InitializerMaker {
           execution != null ? execution.value() : Randomizer.get().nextBoolean();
 
       // Calculate how many times the control code is executed before calling the branch.
-      final int executionCount = getControlCodeExecutionCount(branchEntry, execution);
+      final int executionCount = 
+          execution != null ? getControlCodeExecutionCount(branchEntry, execution) : 1; // FIXME: how many times the control code is executed after the last execution of the branch.
 
       Logger.debug("Branch execution: processingCount=%d, condition=%b, executionCount=%d",
           processingCount, branchCondition, executionCount);
