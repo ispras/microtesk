@@ -435,7 +435,7 @@ public final class BranchEngine implements Engine {
                     engineContext,
                     new AbstractSequence(
                         abstractSequence.getSection(),
-                        new ArrayList<>(newSequence),
+                        AbstractCall.copyAll(newSequence),
                         abstractSequence.getFlags(),
                         abstractSequence.getIndexes(),
                         abstractSequence.getPositions())
