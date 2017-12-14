@@ -75,10 +75,8 @@ public final class BranchInitializerMaker implements InitializerMaker {
 
     // Reset the stream if it is used.
     if (isStreamBased) {
-      if (branchEntry.isRegisterFirstUse()) {
-        final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
-        initializer.addAll(EngineUtils.makeStreamInit(engineContext, testDataStream));
-      }
+      final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
+      initializer.addAll(EngineUtils.makeStreamInit(engineContext, testDataStream));
     }
 
     return initializer;
@@ -104,10 +102,8 @@ public final class BranchInitializerMaker implements InitializerMaker {
 
     // Reset the stream if is used.
     if (isStreamBased) {
-      if (branchEntry.isRegisterFirstUse()) {
-        final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
-        initializer.addAll(EngineUtils.makeStreamInit(engineContext, testDataStream));
-      }
+      final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
+      initializer.addAll(EngineUtils.makeStreamInit(engineContext, testDataStream));
     }
 
     final BranchExecution execution = branchTrace.get(0);
