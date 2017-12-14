@@ -131,7 +131,7 @@ public abstract class MipsBranchDataGenerator extends BranchDataGenerator {
     InvariantChecks.checkNotNull(query);
     InvariantChecks.checkNotNull(values);
 
-    final Map<String, Node> unknowns = Utils.extractUnknown(query);
+    final Map<String, Node> unknowns = extractUnknown(query);
     final Map<String, Object> bindings = new LinkedHashMap<>();
 
     for (final Map.Entry<String, Node> entry : unknowns.entrySet()) {
