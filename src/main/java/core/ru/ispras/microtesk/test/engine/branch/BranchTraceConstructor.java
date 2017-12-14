@@ -33,6 +33,17 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class BranchTraceConstructor {
+
+  /**
+   * {@link ControlCodeLocation} manages the control code execution code.
+   */
+  public enum ControlCodeExecution {
+    /** Control code is executed before the corresponding branch. */
+    PRE,
+    /** Control code is executed after the corresponding branch. */
+    POST
+  }
+
   /**
    * {@link BranchTraceConstructorVisitor} implements a segment constructor.
    * 
@@ -184,10 +195,11 @@ final class BranchTraceConstructor {
    * Returns the union of the basic-block segments of the branch entry executions.
    * 
    * @param entry the branch entry.
-   * @param pre the flag used to choose between pre- and post-segments
+   * @param controlCodeExecution the control code execution mode.
    * @return the union of the basic-block segments.
    */
-  private Set<Integer> getBlockUnion(final BranchEntry entry, final boolean pre) {
+  private Set<Integer> getBlockUnion(
+      final BranchEntry entry, final ControlCodeExecution controlCodeExecution) {
     InvariantChecks.checkNotNull(entry);
 
     final Set<Integer> segment = new LinkedHashSet<>();
@@ -195,7 +207,7 @@ final class BranchTraceConstructor {
 
     for (int i = 0; i < trace.size(); i++) {
       final BranchExecution execution = trace.get(i);
-      segment.addAll(pre
+      segment.addAll(controlCodeExecution == ControlCodeExecution.PRE
               ? execution.getPreBlocks().keySet()
               : execution.getPostBlocks().keySet());
     }
@@ -207,10 +219,11 @@ final class BranchTraceConstructor {
    * Returns the intersection of the slots in the segments of the branch entry.
    * 
    * @param entry the branch entry.
-   * @param pre the flag used to choose between pre- and post-segments
+   * @param controlCodeExecution the control code execution mode.
    * @return the intersection of the slot segments.
    */
-  private Set<Integer> getSlotIntersection(final BranchEntry entry, final boolean pre) {
+  private Set<Integer> getSlotIntersection(
+      final BranchEntry entry, final ControlCodeExecution controlCodeExecution) {
     InvariantChecks.checkNotNull(entry);
 
     final BranchTrace trace = entry.getBranchTrace();
@@ -220,15 +233,17 @@ final class BranchTraceConstructor {
     }
 
     final BranchExecution first = trace.get(0);
-    final Set<Integer> intersection = new LinkedHashSet<>(pre
-        ? first.getPreSlots().keySet()
-        : first.getPostSlots().keySet());
+    final Set<Integer> intersection = new LinkedHashSet<>(
+        controlCodeExecution == ControlCodeExecution.PRE
+          ? first.getPreSlots().keySet()
+          : first.getPostSlots().keySet());
 
     for (int i = 1; i < trace.size() && !intersection.isEmpty(); i++) {
       final BranchExecution execution = trace.get(i);
-      final Map<Integer, Integer> segment = pre
-          ? execution.getPreSlots()
-          : execution.getPostSlots();
+      final Map<Integer, Integer> segment =
+          controlCodeExecution == ControlCodeExecution.PRE
+            ? execution.getPreSlots()
+            : execution.getPostSlots();
 
       intersection.retainAll(segment.keySet());
     }
@@ -240,11 +255,11 @@ final class BranchTraceConstructor {
    * Returns all basic-block segments executed before or after the branch entry.
    * 
    * @param entry the branch entry.
-   * @param pre the flag used to choose between pre- and post-segments
+   * @param controlCodeExecution the control code execution mode.
    * @return the list of trace segments.
    */
   private List<Map<Integer, Integer>> getSegmentsToCover(
-      final BranchEntry entry, final boolean pre) {
+      final BranchEntry entry, final ControlCodeExecution controlCodeExecution) {
     InvariantChecks.checkNotNull(entry);
 
     final List<Map<Integer, Integer>> segments = new ArrayList<>();
@@ -254,13 +269,17 @@ final class BranchTraceConstructor {
     // if the condition does not change between two consequent executions,
     // the segment is not added to the set of segments to be covered.
     // However, it does not work if branches share registers.
-    final int size = pre ? trace.size() : trace.size() - 1;
+    final int size = controlCodeExecution == ControlCodeExecution.PRE
+        ? trace.size()
+        : trace.size() - 1;
+
     for (int i = 0; i < size; i++) {
       final BranchExecution execution = trace.get(i);
 
-      final Map<Integer, Integer> segment = pre
-          ? execution.getPreBlocks()
-          : execution.getPostBlocks();
+      final Map<Integer, Integer> segment =
+          controlCodeExecution == ControlCodeExecution.PRE
+            ? execution.getPreBlocks()
+            : execution.getPostBlocks();
 
       segments.add(segment);
     }
@@ -272,16 +291,17 @@ final class BranchTraceConstructor {
    * Constructs the block and the slot coverage of the branch entry.
    * 
    * @param entry the branch entry.
-   * @param pre the flag used to choose between pre- and post-segments
+   * @param controlCodeExecution the control code execution mode.
    * @return {@code true} if the construction is successful; {@code false} otherwise.
    */
-  private boolean constructCoverage(final BranchEntry entry, final boolean pre) {
+  private boolean constructCoverage(
+      final BranchEntry entry, final ControlCodeExecution controlCodeExecution) {
     InvariantChecks.checkNotNull(entry);
 
     // Get all blocks from all segments of the branch entry.
-    final Set<Integer> blocks = getBlockUnion(entry, pre);
+    final Set<Integer> blocks = getBlockUnion(entry, controlCodeExecution);
     // Get the set of segments to be covered.
-    final List<Map<Integer, Integer>> segments = getSegmentsToCover(entry, pre);
+    final List<Map<Integer, Integer>> segments = getSegmentsToCover(entry, controlCodeExecution);
 
     // Reset the block and the slot coverage.
     entry.setBlockCoverage(null);
@@ -299,7 +319,7 @@ final class BranchTraceConstructor {
         if (flags.contains(Flags.DO_NOT_USE_DELAY_SLOTS)) {
           return false;
         } else {
-          entry.setSlotCoverage(getSlotIntersection(entry, pre));
+          entry.setSlotCoverage(getSlotIntersection(entry, controlCodeExecution));
           return true;
         }
       }
@@ -393,7 +413,7 @@ final class BranchTraceConstructor {
         continue;
       }
 
-      if (!constructCoverage(entry, true)) {
+      if (!constructCoverage(entry, ControlCodeExecution.PRE)) {
         return null;
       }
     }

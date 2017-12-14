@@ -106,8 +106,9 @@ public final class BranchInitializerMaker implements InitializerMaker {
       initializer.addAll(EngineUtils.makeStreamInit(engineContext, testDataStream));
     }
 
-    final BranchExecution execution = branchTrace.get(0);
-    final int executionCount = getControlCodeExecutionCount(branchEntry, execution);
+    final int processingCount = 0;
+    final BranchExecution execution = branchTrace.get(processingCount);
+    final int executionCount = getControlCodeExecutionCount(branchEntry, processingCount);
 
     // If the control code is not invoked before the first branch execution and
     // this is the first use of the branch register, the register should be initialized.
@@ -115,7 +116,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
       final List<AbstractCall> initRegisters =
           makeInitializer(
               engineContext,
-              0 /* Processing count */,
+              processingCount,
               abstractCall,
               primitive,
               situation,
@@ -188,12 +189,11 @@ public final class BranchInitializerMaker implements InitializerMaker {
       final BranchExecution execution =
           processingCount < branchTrace.size() ? branchTrace.get(processingCount) : null;
 
-      final Boolean branchCondition =
-          execution != null ? execution.value() : Randomizer.get().nextBoolean();
-
       // Calculate how many times the control code is executed before calling the branch.
-      final int executionCount = 
-          execution != null ? getControlCodeExecutionCount(branchEntry, execution) : 1; // FIXME: how many times the control code is executed after the last execution of the branch.
+      final int executionCount = getControlCodeExecutionCount(branchEntry, processingCount);
+
+      final boolean branchCondition =
+          processingCount < branchTrace.size() ? execution.value() : Randomizer.get().nextBoolean();
 
       Logger.debug("Branch execution: processingCount=%d, condition=%b, executionCount=%d",
           processingCount, branchCondition, executionCount);
@@ -285,20 +285,33 @@ public final class BranchInitializerMaker implements InitializerMaker {
   }
 
   private int getControlCodeExecutionCount(
-      final BranchEntry entry,
-      final BranchExecution execution) {
-    InvariantChecks.checkNotNull(entry);
-    InvariantChecks.checkNotNull(execution);
-
+      final BranchEntry branchEntry,
+      final int processingCount) {
     int result = 0;
 
-    final Set<Integer> coverage = entry.isControlCodeInBasicBlock()
-        ? entry.getBlockCoverage()
-        : entry.getSlotCoverage();
+    final BranchTrace branchTrace = branchEntry.getBranchTrace();
 
-    final Map<Integer, Integer> segment = entry.isControlCodeInBasicBlock()
-        ? execution.getPreBlocks()
-        : execution.getPreSlots();
+    final BranchExecution execution = processingCount < branchTrace.size()
+        ? branchTrace.get(processingCount)
+        : branchTrace.getLastExecution();
+
+    final Set<Integer> coverage = branchEntry.isControlCodeInBasicBlock()
+        ? branchEntry.getBlockCoverage()
+        : branchEntry.getSlotCoverage();
+
+    final Map<Integer, Integer> segment;
+
+    if (processingCount < branchTrace.size()) {
+      // Blocks executed before the branch's current execution.
+      segment = branchEntry.isControlCodeInBasicBlock()
+          ? execution.getPreBlocks()
+          : execution.getPreSlots();
+    } else {
+      // Blocks executed after the branch's last execution.
+      segment = branchEntry.isControlCodeInBasicBlock()
+          ? execution.getPostBlocks()
+          : execution.getPostSlots();
+    }
 
     for (final int item : coverage) {
       final Integer count = segment.get(item);
