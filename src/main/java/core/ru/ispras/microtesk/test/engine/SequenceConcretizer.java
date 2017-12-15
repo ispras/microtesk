@@ -450,7 +450,14 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       final CallEntry callEntry = callMap.get(concreteCall);
       InvariantChecks.checkNotNull(callEntry);
 
-      if (callEntry.getProcessingCount() != callEntry.concreteCall.getExecutionCount()) {
+      Logger.debug(
+          "%s: processing count = %d, execution count = %d",
+          callEntry.getConcreteCall().getText(),
+          callEntry.getProcessingCount(),
+          callEntry.getConcreteCall().getExecutionCount());
+
+      if (callEntry.getProcessingCount() != callEntry.getConcreteCall().getExecutionCount()) {
+        Logger.debug("NO PROCESSING");
         return; // Already processed
       }
 
