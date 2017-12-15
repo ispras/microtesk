@@ -510,7 +510,7 @@ public final class BranchEngine implements Engine {
       if (blockCoverage != null) {
         for (final int block : blockCoverage) {
           // Add the control code just after the basic block (the code should follow the label).
-          final int codePosition = block + 1;
+          final int codePosition = block;
 
           List<AbstractCall> step = steps.get(codePosition);
           if (step == null) {
