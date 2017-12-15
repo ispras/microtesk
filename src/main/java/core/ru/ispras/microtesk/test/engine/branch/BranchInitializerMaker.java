@@ -150,12 +150,9 @@ public final class BranchInitializerMaker implements InitializerMaker {
     final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
     InvariantChecks.checkNotNull(branchEntry);
 
-    Logger.debug("Make initializer: %s, %s", abstractCall, branchEntry);
+    Logger.debug("Make initializer (stage=%s, count=%d): %s, %s",
+        stage, processingCount, abstractCall, branchEntry);
 
-    final BranchTrace branchTrace = branchEntry.getBranchTrace();
-    InvariantChecks.checkNotNull(branchTrace);
-
-    Logger.debug("Initializer stage: stage=%s, count=%d", stage, processingCount);
     InvariantChecks.checkTrue(stage == Stage.PRE || stage == Stage.POST || 0 <= processingCount);
 
     // There is no need to construct the control code if the branch condition does not change.
@@ -171,6 +168,9 @@ public final class BranchInitializerMaker implements InitializerMaker {
       return makePostInitializer(
           engineContext, abstractCall, primitive, situation, isStreamBased);
     }
+
+    final BranchTrace branchTrace = branchEntry.getBranchTrace();
+    InvariantChecks.checkTrue(branchTrace != null && !branchTrace.isEmpty());
 
     if (isStreamBased) {
       final List<AbstractCall> initializer = new ArrayList<>();
