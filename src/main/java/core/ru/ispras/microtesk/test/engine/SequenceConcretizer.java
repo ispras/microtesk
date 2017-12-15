@@ -451,8 +451,9 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       InvariantChecks.checkNotNull(callEntry);
 
       Logger.debug(
-          "%s: processing count = %d, execution count = %d",
+          "%s (%d): processing count = %d, execution count = %d",
           callEntry.getConcreteCall().getText(),
+          System.identityHashCode(callEntry.getConcreteCall()),
           callEntry.getProcessingCount(),
           callEntry.getConcreteCall().getExecutionCount());
 
