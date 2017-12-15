@@ -497,7 +497,8 @@ public final class BranchEngine implements Engine {
       final Set<Integer> slotCoverage = branchEntry.getSlotCoverage();
 
       final String testDataStream = getTestDataStream(abstractCall);
-      final List<AbstractCall> controlCode = makeStreamRead(engineContext, testDataStream);
+      final List<AbstractCall> controlCode =
+          AbstractCall.copyAll(makeStreamRead(engineContext, testDataStream));
 
       if (!controlCode.isEmpty()) {
         controlCode.get(0).getAttributes().put("dependsOn", abstractCall);
