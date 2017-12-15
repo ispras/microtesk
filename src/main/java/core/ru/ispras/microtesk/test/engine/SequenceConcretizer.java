@@ -434,6 +434,10 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
         this.testSequenceBuilder.add(concreteCall);
       }
+
+      for (final ConcreteCall call : concreteSequence.getAll()) {
+        Logger.debug("(%d) %s", System.identityHashCode(call), call.getText());
+      }
     }
 
     public ConcreteSequence createTestSequence() {
