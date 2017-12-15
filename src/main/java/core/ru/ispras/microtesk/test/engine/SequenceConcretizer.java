@@ -406,6 +406,16 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         final ConcreteCall concreteCall = concreteCalls.get(index);
         InvariantChecks.checkNotNull(concreteCall);
 
+        Logger.debug(
+            "%3d (%10d) %s %s",
+            index,
+            System.identityHashCode(concreteCall),
+            abstractCall.getAttributes().containsKey("dependsOnIndex") ?
+                String.format("Ref=%3d", abstractCall.getAttributes().get("dependsOnIndex")) :
+                "       ",
+            concreteCall.getText()
+            );
+
         if (abstractCall.getAttributes().containsKey("dependsOnIndex")) {
           final int dependencyIndex = (int) abstractCall.getAttributes().get("dependsOnIndex");
 
@@ -433,10 +443,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
         }
 
         this.testSequenceBuilder.add(concreteCall);
-      }
-
-      for (final ConcreteCall call : concreteSequence.getAll()) {
-        Logger.debug("(%d) %s", System.identityHashCode(call), call.getText());
       }
     }
 
