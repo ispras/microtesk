@@ -559,10 +559,11 @@ public final class BranchEngine implements Engine {
       final List<AbstractCall> controlCode = entry.getValue();
 
       abstractSequence.addPrologue(position, controlCode);
+
       if (delaySlots.contains(position)) {
         // Remove the old delay slot.
         for (int i = 0; i < controlCode.size(); i++) {
-          abstractSequence.getPrologues().put(position + 1, null);
+          abstractSequence.getSequence().set(position + i, AbstractCall.newEmpty());
         }
       }
     }
