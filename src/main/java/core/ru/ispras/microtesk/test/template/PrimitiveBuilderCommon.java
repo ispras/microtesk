@@ -309,8 +309,17 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final Argument arg;
 
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final PrimitiveBuilder builder = newModeBuilder(metaArg);
+      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg);
+
+      final PrimitiveBuilder builder = modeBuilderInfo.first;
+      final int argumentCount = modeBuilderInfo.second;
+
       builder.addArgument(value);
+      if (argumentCount > 1) {
+        // TODO: Add special argument for allocation address.
+        addArgument(new UnknownImmediateValue());
+      }
+
       arg = newModeArgument(name, builder.build(), metaArg);
     } else {
       arg = new Argument(
@@ -342,8 +351,17 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final Argument arg;
 
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final PrimitiveBuilder builder = newModeBuilder(metaArg);
+      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg);
+
+      final PrimitiveBuilder builder = modeBuilderInfo.first;
+      final int argumentCount = modeBuilderInfo.second;
+
       builder.addArgument(value);
+      if (argumentCount > 1) {
+        // TODO: Add special argument for allocation address.
+        addArgument(new UnknownImmediateValue());
+      }
+
       arg = newModeArgument(name, builder.build(), metaArg);
     } else {
       arg = new Argument(
@@ -391,8 +409,17 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
     final Argument arg;
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final PrimitiveBuilder builder = newModeBuilder(metaArg);
+      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg);
+
+      final PrimitiveBuilder builder = modeBuilderInfo.first;
+      final int argumentCount = modeBuilderInfo.second;
+
       builder.addArgument(value);
+      if (argumentCount > 1) {
+        // TODO: Add special argument for allocation address.
+        addArgument(new UnknownImmediateValue());
+      }
+
       arg = newModeArgument(name, builder.build(), metaArg);
     } else {
       arg = new Argument(
@@ -412,8 +439,17 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final Argument arg;
 
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final PrimitiveBuilder builder = newModeBuilder(metaArg);
+      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg);
+
+      final PrimitiveBuilder builder = modeBuilderInfo.first;
+      final int argumentCount = modeBuilderInfo.second;
+
       builder.addArgument(value);
+      if (argumentCount > 1) {
+        // TODO: Add special argument for allocation address.
+        addArgument(new UnknownImmediateValue());
+      }
+
       arg = newModeArgument(name, builder.build(), metaArg);
     } else {
       arg = new Argument(
@@ -434,8 +470,17 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final Argument arg;
 
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final PrimitiveBuilder builder = newModeBuilder(metaArg);
+      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg);
+
+      final PrimitiveBuilder builder = modeBuilderInfo.first;
+      final int argumentCount = modeBuilderInfo.second;
+
       builder.addArgument(value);
+      if (argumentCount > 1) {
+        // TODO: Add special argument for allocation address.
+        addArgument(new UnknownImmediateValue());
+      }
+
       arg = newModeArgument(name, builder.build(), metaArg);
     } else {
       arg = new Argument(
@@ -491,12 +536,15 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     return metaArgument.getTypeNames().iterator().next();
   }
 
-  private PrimitiveBuilder newModeBuilder(final String modeName) {
+  private Pair<PrimitiveBuilder, Integer> newModeBuilder(final String modeName) {
     final MetaAddressingMode mode = metaModel.getAddressingMode(modeName);
-    return new PrimitiveBuilderCommon(metaModel, callBuilder, mode);
+    final int argumentCount = mode.getArguments().size();
+    return new Pair<PrimitiveBuilder, Integer>(
+        new PrimitiveBuilderCommon(metaModel, callBuilder, mode),
+        argumentCount);
   }
 
-  private PrimitiveBuilder newModeBuilder(final MetaArgument metaArgument) {
+  private Pair<PrimitiveBuilder, Integer> newModeBuilder(final MetaArgument metaArgument) {
     return newModeBuilder(getModeName(metaArgument));
   }
 
