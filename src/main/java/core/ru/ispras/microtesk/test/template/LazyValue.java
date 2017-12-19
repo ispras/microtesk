@@ -20,8 +20,30 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.utils.SharedObject;
 
-public final class LazyValue extends SharedObject<LazyValue> implements Value {
-  public static final LazyValue ADDRESS = new LazyValue(new LazyData());
+public class LazyValue extends SharedObject<LazyValue> implements Value {
+  private static final LazyData DATA = new LazyData();
+  static {
+    DATA.setValue(BitVector.valueOf(0, 1));
+  }
+
+  private static class LazyAddress extends LazyValue {
+    @Override
+    public LazyValue newCopy() {
+      publishSharedCopy(this, this);
+      return this;
+    }
+
+    @Override
+    public Value copy() {
+      return newCopy();
+    }
+
+    protected LazyAddress() {
+      super(DATA);
+    }
+  }
+
+  public static final LazyValue ADDRESS = new LazyAddress();
 
   private final LazyData data;
   private final int start;

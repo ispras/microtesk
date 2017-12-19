@@ -162,7 +162,7 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * 
    * @throws IllegalArgumentException if any of the arguments is {@code null}.
    */
-  private static void publishSharedCopy(final Object original, final Object copy) {
+  protected static void publishSharedCopy(final Object original, final Object copy) {
     InvariantChecks.checkNotNull(original);
     InvariantChecks.checkNotNull(copy);
 
