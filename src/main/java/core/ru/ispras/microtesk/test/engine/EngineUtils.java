@@ -535,7 +535,10 @@ public final class EngineUtils {
         }
 
         case LABEL:
-          builder.setArgument(argName, makeLabel(arg));
+          labelRefs.add(new LabelReference(
+              (LabelValue) arg.getValue(),
+              builder.setArgument(argName, makeLabel(arg))
+              ));
           break;
 
         default:
@@ -593,7 +596,6 @@ public final class EngineUtils {
         }
 
         case LABEL:
-          //builder.setArgument(argName, makeLabel(arg));
           labelRefs.add(new LabelReference(
               (LabelValue) arg.getValue(),
               builder.setArgument(argName, makeLabel(arg))
