@@ -316,7 +316,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       builder.addArgument(value);
       if (argumentCount > 1) {
-        addArgument(LazyValue.ADDRESS);
+        builder.addArgument(LazyValue.ADDRESS);
       }
 
       arg = newModeArgument(name, builder.build(), metaArg);
@@ -357,7 +357,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       builder.addArgument(value);
       if (argumentCount > 1) {
-        addArgument(LazyValue.ADDRESS);
+        builder.addArgument(LazyValue.ADDRESS);
       }
 
       arg = newModeArgument(name, builder.build(), metaArg);
@@ -414,7 +414,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       builder.addArgument(value);
       if (argumentCount > 1) {
-        addArgument(LazyValue.ADDRESS);
+        builder.addArgument(LazyValue.ADDRESS);
       }
 
       arg = newModeArgument(name, builder.build(), metaArg);
@@ -443,7 +443,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       builder.addArgument(value);
       if (argumentCount > 1) {
-        addArgument(LazyValue.ADDRESS);
+        builder.addArgument(LazyValue.ADDRESS);
       }
 
       arg = newModeArgument(name, builder.build(), metaArg);
@@ -473,7 +473,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       builder.addArgument(value);
       if (argumentCount > 1) {
-        addArgument(LazyValue.ADDRESS);
+        builder.addArgument(LazyValue.ADDRESS);
       }
 
       arg = newModeArgument(name, builder.build(), metaArg);
@@ -536,7 +536,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final int argumentCount = mode.getArguments().size();
     return new Pair<PrimitiveBuilder, Integer>(
         new PrimitiveBuilderCommon(metaModel, callBuilder, mode),
-        argumentCount);
+        argumentCount
+        );
   }
 
   private Pair<PrimitiveBuilder, Integer> newModeBuilder(final MetaArgument metaArgument) {
