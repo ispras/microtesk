@@ -316,8 +316,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       builder.addArgument(value);
       if (argumentCount > 1) {
-        // TODO: Add special argument for allocation address.
-        addArgument(new UnknownImmediateValue());
+        addArgument(LazyValue.ADDRESS);
       }
 
       arg = newModeArgument(name, builder.build(), metaArg);
@@ -358,8 +357,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       builder.addArgument(value);
       if (argumentCount > 1) {
-        // TODO: Add special argument for allocation address.
-        addArgument(new UnknownImmediateValue());
+        addArgument(LazyValue.ADDRESS);
       }
 
       arg = newModeArgument(name, builder.build(), metaArg);
@@ -416,8 +414,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       builder.addArgument(value);
       if (argumentCount > 1) {
-        // TODO: Add special argument for allocation address.
-        addArgument(new UnknownImmediateValue());
+        addArgument(LazyValue.ADDRESS);
       }
 
       arg = newModeArgument(name, builder.build(), metaArg);
@@ -446,8 +443,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       builder.addArgument(value);
       if (argumentCount > 1) {
-        // TODO: Add special argument for allocation address.
-        addArgument(new UnknownImmediateValue());
+        addArgument(LazyValue.ADDRESS);
       }
 
       arg = newModeArgument(name, builder.build(), metaArg);
@@ -477,8 +473,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       builder.addArgument(value);
       if (argumentCount > 1) {
-        // TODO: Add special argument for allocation address.
-        addArgument(new UnknownImmediateValue());
+        addArgument(LazyValue.ADDRESS);
       }
 
       arg = newModeArgument(name, builder.build(), metaArg);

@@ -526,9 +526,13 @@ public final class EngineUtils {
           builder.setArgument(argName, makeImmUnknown(arg));
           break;
 
-        case IMM_LAZY:
-          builder.setArgument(argName, makeImmLazy(arg));
+        case IMM_LAZY: {
+          final LocationAccessor locationAccessor = builder.setArgument(argName, makeImmLazy(arg));
+          if (arg.getValue() == LazyValue.ADDRESS) {
+            addressRefs.add(locationAccessor);
+          }
           break;
+        }
 
         case LABEL:
           builder.setArgument(argName, makeLabel(arg));
@@ -580,9 +584,13 @@ public final class EngineUtils {
           builder.setArgument(argName, makeImmUnknown(arg));
           break;
 
-        case IMM_LAZY:
-          builder.setArgument(argName, makeImmLazy(arg));
+        case IMM_LAZY: {
+          final LocationAccessor locationAccessor = builder.setArgument(argName, makeImmLazy(arg));
+          if (arg.getValue() == LazyValue.ADDRESS) {
+            addressRefs.add(locationAccessor);
+          }
           break;
+        }
 
         case LABEL:
           //builder.setArgument(argName, makeLabel(arg));

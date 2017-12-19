@@ -21,6 +21,8 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public final class LazyValue extends SharedObject<LazyValue> implements Value {
+  public static final LazyValue ADDRESS = new LazyValue(new LazyData());
+
   private final LazyData data;
   private final int start;
   private final int size;
