@@ -528,18 +528,19 @@ public final class EngineUtils {
 
         case IMM_LAZY: {
           final LocationAccessor locationAccessor = builder.setArgument(argName, makeImmLazy(arg));
-          if (arg.getValue() == LazyValue.ADDRESS) {
+          if (arg.getValue() == LazyValue.ADDRESS && addressRefs != null) {
             addressRefs.add(locationAccessor);
           }
           break;
         }
 
-        case LABEL:
-          labelRefs.add(new LabelReference(
-              (LabelValue) arg.getValue(),
-              builder.setArgument(argName, makeLabel(arg))
-              ));
+        case LABEL: {
+          final LocationAccessor locationAccessor = builder.setArgument(argName, makeLabel(arg));
+          if (null != labelRefs) {
+            labelRefs.add(new LabelReference((LabelValue) arg.getValue(), locationAccessor));
+          }
           break;
+        }
 
         default:
           throw new IllegalArgumentException(String.format(
@@ -589,18 +590,19 @@ public final class EngineUtils {
 
         case IMM_LAZY: {
           final LocationAccessor locationAccessor = builder.setArgument(argName, makeImmLazy(arg));
-          if (arg.getValue() == LazyValue.ADDRESS) {
+          if (arg.getValue() == LazyValue.ADDRESS && addressRefs != null) {
             addressRefs.add(locationAccessor);
           }
           break;
         }
 
-        case LABEL:
-          labelRefs.add(new LabelReference(
-              (LabelValue) arg.getValue(),
-              builder.setArgument(argName, makeLabel(arg))
-              ));
+        case LABEL: {
+          final LocationAccessor locationAccessor = builder.setArgument(argName, makeLabel(arg));
+          if (null != labelRefs) {
+            labelRefs.add(new LabelReference((LabelValue) arg.getValue(), locationAccessor));
+          }
           break;
+        }
 
         case MODE:
           builder.setArgument(argName, makeMode(engineContext, arg));
