@@ -25,7 +25,7 @@ import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-
+import ru.ispras.microtesk.model.IsaPrimitiveKind;
 import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.model.metadata.MetaModel;
@@ -306,9 +306,16 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     InvariantChecks.checkNotNull(name);
 
     final MetaArgument metaArg = getMetaArgument(name);
+    final Argument arg;
 
-    final Argument arg = new Argument(
-        name, Argument.Kind.IMM, value, metaArg.getMode(), metaArg.getDataType());
+    if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
+      final PrimitiveBuilder builder = newModeBuilder(metaArg);
+      builder.addArgument(value);
+      arg = newModeArgument(name, builder.build(), metaArg);
+    } else {
+      arg = new Argument(
+          name, Argument.Kind.IMM, value, metaArg.getMode(), metaArg.getDataType());
+    }
 
     checkValidArgument(arg);
     putArgument(arg);
@@ -332,9 +339,16 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     InvariantChecks.checkNotNull(value);
 
     final MetaArgument metaArg = getMetaArgument(name);
+    final Argument arg;
 
-    final Argument arg = new Argument(
-        name, Argument.Kind.IMM_RANDOM, value, metaArg.getMode(), metaArg.getDataType());
+    if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
+      final PrimitiveBuilder builder = newModeBuilder(metaArg);
+      builder.addArgument(value);
+      arg = newModeArgument(name, builder.build(), metaArg);
+    } else {
+      arg = new Argument(
+          name, Argument.Kind.IMM_RANDOM, value, metaArg.getMode(), metaArg.getDataType());
+    }
 
     checkValidArgument(arg);
     putArgument(arg);
@@ -375,22 +389,36 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final MetaArgument metaArg = getMetaArgument(name);
     value.setType(metaArg.getDataType());
 
-    final Argument arg = new Argument(
-        name, Argument.Kind.IMM_UNKNOWN, value, metaArg.getMode(), metaArg.getDataType());
+    final Argument arg;
+    if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
+      final PrimitiveBuilder builder = newModeBuilder(metaArg);
+      builder.addArgument(value);
+      arg = newModeArgument(name, builder.build(), metaArg);
+    } else {
+      arg = new Argument(
+          name, Argument.Kind.IMM_UNKNOWN, value, metaArg.getMode(), metaArg.getDataType());
+    }
 
     checkValidArgument(arg);
     putArgument(arg);
   }
-  
+
   @Override
   public void setArgument(final String name, final LazyValue value) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(value);
 
     final MetaArgument metaArg = getMetaArgument(name);
+    final Argument arg;
 
-    final Argument arg = new Argument(
-        name, Argument.Kind.IMM_LAZY, value, metaArg.getMode(), metaArg.getDataType());
+    if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
+      final PrimitiveBuilder builder = newModeBuilder(metaArg);
+      builder.addArgument(value);
+      arg = newModeArgument(name, builder.build(), metaArg);
+    } else {
+      arg = new Argument(
+          name, Argument.Kind.IMM_LAZY, value, metaArg.getMode(), metaArg.getDataType());
+    }
 
     checkValidArgument(arg);
     putArgument(arg);
@@ -403,9 +431,16 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     InvariantChecks.checkNotNull(value);
 
     final MetaArgument metaArg = getMetaArgument(name);
+    final Argument arg;
 
-    final Argument arg = new Argument(
-        name, Argument.Kind.LABEL, value, metaArg.getMode(), metaArg.getDataType());
+    if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
+      final PrimitiveBuilder builder = newModeBuilder(metaArg);
+      builder.addArgument(value);
+      arg = newModeArgument(name, builder.build(), metaArg);
+    } else {
+      arg = new Argument(
+          name, Argument.Kind.LABEL, value, metaArg.getMode(), metaArg.getDataType());
+    }
 
     checkValidArgument(arg);
     putArgument(arg);
@@ -446,6 +481,36 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final MetaOperation metaOp = metaModel.getOperation(getName());
     final MetaShortcut metaShortcut = metaOp.getShortcut(contextName);
     return (null != metaShortcut) ? metaShortcut.getOperation() : metaOp;
+  }
+
+  private static String getModeName(final MetaArgument metaArgument) {
+    InvariantChecks.checkTrue(metaArgument.getKind() == IsaPrimitiveKind.MODE,
+                              "The argument must be an addressing mode!");
+    InvariantChecks.checkTrue(metaArgument.getTypeNames().size() == 1,
+                              "The argument must not be an OR-rule!");
+    return metaArgument.getTypeNames().iterator().next();
+  }
+
+  private PrimitiveBuilder newModeBuilder(final String modeName) {
+    final MetaAddressingMode mode = metaModel.getAddressingMode(modeName);
+    return new PrimitiveBuilderCommon(metaModel, callBuilder, mode);
+  }
+
+  private PrimitiveBuilder newModeBuilder(final MetaArgument metaArgument) {
+    return newModeBuilder(getModeName(metaArgument));
+  }
+
+  private static Argument newModeArgument(
+      final String argumentName,
+      final Primitive argumentPrimitive,
+      final MetaArgument metaArgument) {
+    return new Argument(
+        argumentName,
+        Argument.Kind.MODE,
+        argumentPrimitive,
+        metaArgument.getMode(),
+        metaArgument.getDataType()
+        );
   }
 
   private static final String ERR_UNASSIGNED_ARGUMENT = 
