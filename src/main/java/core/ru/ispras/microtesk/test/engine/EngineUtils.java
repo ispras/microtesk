@@ -363,7 +363,8 @@ public final class EngineUtils {
     return situation.getName();
   }
 
-  private static List<LabelReference> labelRefs = null; 
+  private static List<LabelReference> labelRefs = null;
+  private static List<LocationAccessor> addressRefs = null;
 
   public static List<ConcreteCall> makeConcreteCalls(
       final EngineContext engineContext,
@@ -396,6 +397,7 @@ public final class EngineUtils {
 
     try {
       labelRefs = new ArrayList<>();
+      addressRefs = new ArrayList<>();
 
       final Primitive rootOp = abstractCall.getRootOperation();
       checkRootOp(rootOp);
@@ -404,9 +406,14 @@ public final class EngineUtils {
       final InstructionCall executable = engineContext.getModel().newCall(op);
 
       return new ConcreteCall(
-          abstractCall, executable, labelRefs, Collections.<LocationAccessor>emptyList());
+          abstractCall,
+          executable,
+          labelRefs.isEmpty() ? Collections.<LabelReference>emptyList() : labelRefs,
+          addressRefs.isEmpty() ? Collections.<LocationAccessor>emptyList() : addressRefs
+          );
     } finally {
       labelRefs = null;
+      addressRefs = null;
     }
   }
 
