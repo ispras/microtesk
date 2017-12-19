@@ -22,6 +22,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ExecutionException;
 import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.ProcessingElement;
+import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.model.memory.Section;
 
 /**
@@ -42,6 +43,7 @@ public final class ConcreteCall {
   private final BigInteger alignmentInBytes;
   private final DataSection data;
 
+  private final List<LocationAccessor> addressRefs;
   private long address = 0;
   private String text = null;
   private int executionCount = 0;
@@ -64,29 +66,13 @@ public final class ConcreteCall {
 
   public ConcreteCall(
       final AbstractCall abstractCall,
-      final InstructionCall executable) {
-    InvariantChecks.checkNotNull(abstractCall);
-    InvariantChecks.checkNotNull(executable);
-
-    this.text = abstractCall.getText();
-    this.labels = Label.copyAll(abstractCall.getLabels());
-    this.labelRefs = abstractCall.getLabelReferences();
-    this.outputs = abstractCall.getOutputs();
-    this.executable = executable;
-    this.relativeOrigin = abstractCall.isRelativeOrigin();
-    this.origin = abstractCall.getOrigin();
-    this.alignment = abstractCall.getAlignment();
-    this.alignmentInBytes = abstractCall.getAlignmentInBytes();
-    this.data = null;
-  }
-
-  public ConcreteCall(
-      final AbstractCall abstractCall,
       final InstructionCall executable,
-      final List<LabelReference> labelRefs) {
+      final List<LabelReference> labelRefs,
+      final List<LocationAccessor> addressRefs) {
     InvariantChecks.checkNotNull(abstractCall);
     InvariantChecks.checkNotNull(executable);
     InvariantChecks.checkNotNull(labelRefs);
+    InvariantChecks.checkNotNull(addressRefs);
 
     this.text = abstractCall.getText();
     this.labels = Label.copyAll(abstractCall.getLabels());
@@ -98,6 +84,7 @@ public final class ConcreteCall {
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = null;
+    this.addressRefs = addressRefs;
   }
 
   public ConcreteCall(final AbstractCall abstractCall) {
@@ -113,6 +100,7 @@ public final class ConcreteCall {
     this.alignment = abstractCall.getAlignment();
     this.alignmentInBytes = abstractCall.getAlignmentInBytes();
     this.data = abstractCall.hasData() ? new DataSection(abstractCall.getData()) : null;
+    this.addressRefs = Collections.emptyList();
   }
 
   public ConcreteCall(final InstructionCall executable) {
@@ -128,6 +116,7 @@ public final class ConcreteCall {
     this.alignment = null;
     this.alignmentInBytes = null;
     this.data = null;
+    this.addressRefs = Collections.emptyList();
   }
 
   public boolean isExecutable() {
@@ -241,6 +230,10 @@ public final class ConcreteCall {
     }
 
     this.address = thisAddress;
+    for (final LocationAccessor locationAccessor : addressRefs) {
+      locationAccessor.setValue(BigInteger.valueOf(address));
+    }
+
     return thisAddress + getByteSize();
   }
 

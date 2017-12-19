@@ -47,6 +47,7 @@ import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.IsaPrimitiveBuilder;
 import ru.ispras.microtesk.model.Model;
+import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
@@ -75,7 +76,7 @@ import ru.ispras.testbase.generator.DataGenerator;
 
 /**
  * {@link EngineUtils} implements functions shared among test data generators.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -402,7 +403,8 @@ public final class EngineUtils {
       final IsaPrimitive op = makeOp(engineContext, rootOp);
       final InstructionCall executable = engineContext.getModel().newCall(op);
 
-      return new ConcreteCall(abstractCall, executable, labelRefs);
+      return new ConcreteCall(
+          abstractCall, executable, labelRefs, Collections.<LocationAccessor>emptyList());
     } finally {
       labelRefs = null;
     }
