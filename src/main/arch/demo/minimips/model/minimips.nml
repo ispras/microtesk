@@ -29,8 +29,6 @@ type SHORT = int(16)
 type INDEX = card(5)
 type   BIT = card(1)
 
-type JUMP_IMM = card(26)
-
 ////////////////////////////////////////////////////////////////////////////////
 // Registers and Memory
 
@@ -358,9 +356,13 @@ op mtc0 (rt: REG, cs: RCOP0)
 ////////////////////////////////////////////////////////////////////////////////
 // Branching Instructions
 
-op beq (rs: REG, rt: REG, offset: SHORT)
-  syntax = format("beq %s, %s, %<label>d", rs.syntax, rt.syntax, offset)
-  image = format("000100%s%s%s", rs.image, rt.image, offset)
+mode BRANCH_IMM(target: WORD, current: WORD) = target<17..2> - current<17..2> - 1
+  syntax = format("%<label>d", target<17..2> - current<17..2> - 1)
+  image = format("%s", target<17..2> - current<17..2> - 1)
+
+op beq (rs: REG, rt: REG, offset: BRANCH_IMM)
+  syntax = format("beq %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
+  image = format("000100%s%s%s", rs.image, rt.image, offset.image)
   action = {
     if rs == rt then
       BRANCH = 1;
@@ -368,9 +370,9 @@ op beq (rs: REG, rt: REG, offset: SHORT)
     endif;
   }
 
-op bgez (rs: REG, offset: SHORT)
-  syntax = format("bgez %s, %<label>d", rs.syntax, offset)
-  image = format("000001%s00001%s", rs.image, offset)
+op bgez (rs: REG, offset: BRANCH_IMM)
+  syntax = format("bgez %s, %s", rs.syntax, offset.syntax)
+  image = format("000001%s00001%s", rs.image, offset.image)
   action = {
     if rs >= 0 then
       BRANCH = 1;
@@ -378,9 +380,9 @@ op bgez (rs: REG, offset: SHORT)
     endif;
   }
 
-op bgezal (rs: REG, offset: SHORT)
-  syntax = format("bgezal %s, %<label>d", rs.syntax, offset)
-  image = format("000001%s10001%s", rs.image, offset)
+op bgezal (rs: REG, offset: BRANCH_IMM)
+  syntax = format("bgezal %s, %s", rs.syntax, offset.syntax)
+  image = format("000001%s10001%s", rs.image, offset.image)
   action = {
     if rs >= 0 then
       GPR[31] = CIA + 4 + 4;
@@ -389,9 +391,9 @@ op bgezal (rs: REG, offset: SHORT)
     endif;
   }
 
-op bgtz (rs: REG, offset: SHORT)
-  syntax = format("bgtz %s, %<label>d", rs.syntax, offset)
-  image = format("000111%s00000%s", rs.image, offset)
+op bgtz (rs: REG, offset: BRANCH_IMM)
+  syntax = format("bgtz %s, %s", rs.syntax, offset.syntax)
+  image = format("000111%s00000%s", rs.image, offset.image)
   action = {
     if rs > 0 then
       BRANCH = 1;
@@ -399,9 +401,9 @@ op bgtz (rs: REG, offset: SHORT)
     endif;
   }
 
-op blez (rs: REG, offset: SHORT)
-  syntax = format("blez %s, %<label>d", rs.syntax, offset)
-  image = format("000110%s00000%s", rs.image, offset)
+op blez (rs: REG, offset: BRANCH_IMM)
+  syntax = format("blez %s, %s", rs.syntax, offset.syntax)
+  image = format("000110%s00000%s", rs.image, offset.image)
   action = {
     if rs <= 0 then
       BRANCH = 1;
@@ -409,9 +411,9 @@ op blez (rs: REG, offset: SHORT)
     endif;
   }
 
-op bltz (rs: REG, offset: SHORT)
-  syntax = format("bltz %s, %<label>d", rs.syntax, offset)
-  image = format("000001%s00000%s", rs.image, offset)
+op bltz (rs: REG, offset: BRANCH_IMM)
+  syntax = format("bltz %s, %s", rs.syntax, offset.syntax)
+  image = format("000001%s00000%s", rs.image, offset.image)
   action = {
     if rs < 0 then
       BRANCH = 1;
@@ -419,9 +421,9 @@ op bltz (rs: REG, offset: SHORT)
     endif;
   }
 
-op bltzal (rs: REG, offset: SHORT)
-  syntax = format("bltzal %s, %<label>d", rs.syntax, offset)
-  image = format("000001%s10000%s", rs.image, offset)
+op bltzal (rs: REG, offset: BRANCH_IMM)
+  syntax = format("bltzal %s, %s", rs.syntax, offset.syntax)
+  image = format("000001%s10000%s", rs.image, offset.image)
   action = {
     if rs < 0 then
       GPR[31] = CIA + 4 + 4;
@@ -430,9 +432,9 @@ op bltzal (rs: REG, offset: SHORT)
     endif;
   }
 
-op bne (rs: REG, rt: REG, offset: SHORT)
-  syntax = format("bne %s, %s, %<label>d", rs.syntax, rt.syntax, offset)
-  image = format("000101%s%s%s", rs.image, rt.image, offset)
+op bne (rs: REG, rt: REG, offset: BRANCH_IMM)
+  syntax = format("bne %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
+  image = format("000101%s%s%s", rs.image, rt.image, offset.image)
   action = {
     if rs != rt then
       BRANCH = 1;
@@ -490,9 +492,13 @@ op sltu (rd: REG, rs: REG, rt: REG)
 ////////////////////////////////////////////////////////////////////////////////
 // Jump Instructions
 
+mode JUMP_IMM(target: WORD) = target<27..2>
+  syntax = format("%<label>d", target<27..2>)
+  image = format("%s", target<27..2>)
+
 op j (addr: JUMP_IMM)
-  syntax = format("j %<label>d", addr)
-  image = format("000010%s", addr)
+  syntax = format("j %s", addr.syntax)
+  image = format("000010%s", addr.image)
   action = {
     nia = CIA + 4;
     temp_jump = coerce(card(28), addr) << 2;
@@ -509,8 +515,8 @@ op jr (addr: REG)
   }
 
 op jal (addr: JUMP_IMM)
-  syntax = format("jal %<label>d", addr)
-  image = format("000011%s", addr)
+  syntax = format("jal %s", addr.syntax)
+  image = format("000011%s", addr.image)
   action = {
     GPR[31] = CIA + 4 + 4;
     nia = CIA + 4;
