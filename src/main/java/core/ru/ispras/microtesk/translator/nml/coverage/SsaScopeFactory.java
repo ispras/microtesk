@@ -27,28 +27,7 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.utils.StringUtils;
 
 public final class SsaScopeFactory {
-  private static final SsaScope EMPTY_SCOPE = new SsaScope() {
-    @Override
-    public boolean contains(String name) {
-      return false;
-    }
-
-    @Override
-    public NodeVariable create(String name, Data data) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public NodeVariable fetch(String name) {
-      throw new IllegalArgumentException();
-    }
-
-    @Override
-    public NodeVariable update(String name) {
-      throw new IllegalArgumentException();
-    }
-  };
-
+  private static final SsaScope EMPTY_SCOPE = SsaScopeEmpty.get();
   private SsaScopeFactory() {}
 
   public static SsaScope createScope() {
