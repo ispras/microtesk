@@ -190,7 +190,7 @@ final class SsaConverter {
       return blocks.get(name);
     }
     Block block = null;
-    final BlockBuilder builder = new BlockBuilder();
+    final Block.Builder builder = new Block.Builder();
     final Formulas formulas = (Formulas) constraints.get(name).getInnerRep();
 
     for (Node node : formulas.exprs()) {

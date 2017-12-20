@@ -14,15 +14,18 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 
-public final class Block {
+final class Block {
   private static final List<NodeOperation> PHI_STATEMENTS =
       Collections.singletonList(new NodeOperation(SsaOperation.PHI));
 
@@ -38,14 +41,46 @@ public final class Block {
     return new Block(Collections.<NodeOperation>emptyList());
   }
 
+  public static final class Builder {
+    private List<NodeOperation> statements;
+    private Map<String, NodeVariable> inputs;
+    private Map<String, NodeVariable> outputs;
+    private List<NodeVariable> intermediates;
+
+    public Builder() {
+      this.statements = new ArrayList<>();
+      this.inputs = new TreeMap<>();
+      this.outputs = new TreeMap<>();
+      this.intermediates = new ArrayList<>();
+    }
+
+    void add(final NodeOperation s) {
+      statements.add(s);
+    }
+
+    void addAll(final Collection<NodeOperation> nodes) {
+      statements.addAll(nodes);
+    }
+
+    public Block build() {
+      collectData(statements);
+      return new Block(statements, inputs, outputs, intermediates);
+    }
+
+    private void collectData(final List<NodeOperation> statements) {
+      /* TODO populate input/output maps and intermediates list */
+    }
+  }
+
   private final List<NodeOperation> statements;
   private final Map<String, NodeVariable> inputs;
   private final Map<String, NodeVariable> outputs;
   private final List<NodeVariable> intermediates;
+
   private List<GuardedBlock> children;
   private Block successor;
 
-  Block(
+  private Block(
       final List<NodeOperation> statements,
       final Map<String, NodeVariable> inputs,
       final Map<String, NodeVariable> outputs,
@@ -55,10 +90,11 @@ public final class Block {
     InvariantChecks.checkNotNull(outputs);
     InvariantChecks.checkNotNull(intermediates);
 
-    this.statements = statements;
-    this.inputs = inputs;
-    this.outputs = outputs;
-    this.intermediates = intermediates;
+    this.statements = Collections.unmodifiableList(statements);
+    this.inputs = Collections.unmodifiableMap(inputs);
+    this.outputs = Collections.unmodifiableMap(outputs);
+    this.intermediates = Collections.unmodifiableList(intermediates);
+
     this.children = Collections.emptyList();
     this.successor = null;
   }
@@ -68,19 +104,20 @@ public final class Block {
     this.inputs = Collections.emptyMap();
     this.outputs = Collections.emptyMap();
     this.intermediates = Collections.emptyList();
+
     this.children = Collections.emptyList();
     this.successor = null;
   }
 
-  void setChildren(final List<GuardedBlock> children) {
-    this.children = children;
+  public void setChildren(final List<GuardedBlock> children) {
+    this.children = Collections.unmodifiableList(children);
   }
 
   public List<GuardedBlock> getChildren() {
-    return Collections.unmodifiableList(children);
+    return children;
   }
 
-  void setSuccessor(final Block block) {
+  public void setSuccessor(final Block block) {
     this.successor = block;
   }
 
@@ -89,18 +126,18 @@ public final class Block {
   }
 
   public List<NodeOperation> getStatements() {
-    return Collections.unmodifiableList(statements);
+    return statements;
   }
 
   public Map<String, NodeVariable> getInputs() {
-    return Collections.unmodifiableMap(inputs);
+    return inputs;
   }
 
   public Map<String, NodeVariable> getOutputs() {
-    return Collections.unmodifiableMap(outputs);
+    return outputs;
   }
 
   public List<NodeVariable> getIntermediates() {
-    return Collections.unmodifiableList(intermediates);
+    return intermediates;
   }
 }

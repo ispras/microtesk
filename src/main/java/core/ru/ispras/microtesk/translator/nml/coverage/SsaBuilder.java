@@ -84,7 +84,7 @@ final class SsaBuilder {
 
   private int numBlocks;
   private int numTemps;
-  private BlockBuilder blockBuilder;
+  private Block.Builder blockBuilder;
   private Deque<Block> stack;
   private List<Block> blocks;
 
@@ -629,7 +629,7 @@ final class SsaBuilder {
 
   private void acquireBlockBuilder() {
     if (blockBuilder == null) {
-      blockBuilder = new BlockBuilder();
+      blockBuilder = new Block.Builder();
       scope = SsaScopeFactory.createScope();
       numTemps = 0;
     }
