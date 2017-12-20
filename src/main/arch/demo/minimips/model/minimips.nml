@@ -356,7 +356,7 @@ op mtc0 (rt: REG, cs: RCOP0)
 ////////////////////////////////////////////////////////////////////////////////
 // Branching Instructions
 
-mode BRANCH_IMM(target: WORD, current: WORD) = target<17..2> - current<17..2> - 1
+label mode BRANCH_IMM(target: WORD, current: WORD) = target<17..2> - current<17..2> - 1
   syntax = format("%<label>d", target<17..2> - current<17..2> - 1)
   image = format("%s", target<17..2> - current<17..2> - 1)
 
@@ -492,7 +492,7 @@ op sltu (rd: REG, rs: REG, rt: REG)
 ////////////////////////////////////////////////////////////////////////////////
 // Jump Instructions
 
-mode JUMP_IMM(target: WORD) = target<27..2>
+label mode JUMP_IMM(target: WORD) = target<27..2>
   syntax = format("%<label>d", target<27..2>)
   image = format("%s", target<27..2>)
 

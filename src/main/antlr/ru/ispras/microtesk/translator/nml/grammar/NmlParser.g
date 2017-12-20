@@ -214,7 +214,7 @@ aliasExpr
 /*===============================================================================================*/
 
 modeDef
-    :  MODE^ id=ID {declareAndPushSymbolScope($id, NmlSymbolKind.MODE);}
+    :  LABEL? MODE^ id=ID {declareAndPushSymbolScope($id, NmlSymbolKind.MODE);}
        modeSpecPart {popSymbolScope();}
     ;
 

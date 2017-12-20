@@ -77,6 +77,7 @@ MODE      : 'mode'      { pp(); };
 OP        : 'op'        { pp(); };
 PSEUDO    : 'pseudo'    { pp(); };
 INTERNAL  : 'internal'  { pp(); };
+LABEL     : 'label'     { pp(); };
 STRUCT    : 'struct'    { pp(); };
 
 /* Standard Attributes */
