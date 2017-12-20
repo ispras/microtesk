@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,42 +15,46 @@
 package ru.ispras.microtesk.translator.nml.coverage;
 
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.utils.StringUtils;
 
 final class Version {
-  public static boolean hasVersion(Node node) {
-    return node.getKind() == Node.Kind.VARIABLE &&
+  public static boolean hasVersion(final Node node) {
+    return ExprUtils.isVariable(node) &&
            node.getUserData() != null &&
            node.getUserData() instanceof Integer;
   }
 
-  public static int getVersion(Node node) {
+  public static int getVersion(final Node node) {
     return (Integer) node.getUserData();
   }
 
-  public static NodeVariable bakeVersion(NodeVariable node) {
+  public static NodeVariable bakeVersion(final NodeVariable node) {
     final String name = String.format("%s!%d", node.getName(), getVersion(node));
     return new NodeVariable(new Variable(name, node.getData()));
   }
 
-  public static boolean hasBakedVersion(Node node) {
-    if (node.getKind() != Node.Kind.VARIABLE) {
+  public static boolean hasBakedVersion(final Node node) {
+    if (!ExprUtils.isVariable(node)) {
       return false;
     }
+
     final NodeVariable var = (NodeVariable) node;
     final Pair<String, String> pair = StringUtils.splitOnLast(var.getName(), '!');
+
     try {
       /*final int version = */Integer.valueOf(pair.second);
-    } catch (NumberFormatException e) {
+    } catch (final NumberFormatException e) {
       return false;
     }
+
     return true;
   }
 
-  public static NodeVariable undoVersion(NodeVariable node) {
+  public static NodeVariable undoVersion(final NodeVariable node) {
     final Pair<String, Integer> pair = splitVersionedName(node.getName());
 
     final NodeVariable out = new NodeVariable(new Variable(pair.first, node.getData()));
@@ -59,7 +63,7 @@ final class Version {
     return out;
   }
 
-  private static Pair<String, Integer> splitVersionedName(String name) {
+  private static Pair<String, Integer> splitVersionedName(final String name) {
     final Pair<String, String> pair = StringUtils.splitOnLast(name, '!');
     return new Pair<>(pair.first, Integer.valueOf(pair.second));
   }
