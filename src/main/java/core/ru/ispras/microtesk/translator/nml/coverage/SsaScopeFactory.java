@@ -23,8 +23,6 @@ import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.utils.StringUtils;
 
 public final class SsaScopeFactory {
   private static final SsaScope EMPTY_SCOPE = SsaScopeEmpty.get();
@@ -34,22 +32,19 @@ public final class SsaScopeFactory {
     return new SsaVariableScope(EMPTY_SCOPE);
   }
 
-  public static SsaScope createInnerScope(SsaScope scope) {
-    InvariantChecks.checkNotNull(scope);
-    return new SsaVariableScope(scope);
-  }
-
   public static SsaScope collapse(SsaScope input) {
     InvariantChecks.checkNotNull(input);
 
     if (input.getClass() != SsaVariableScope.class) {
       return input;
     }
+
     final SsaVariableScope scope = (SsaVariableScope) input;
-    if (scope.getParentScope() == EMPTY_SCOPE) {
+    if (scope.getParent() == EMPTY_SCOPE) {
       return scope;
     }
-    final SsaVariableScope parent = (SsaVariableScope) scope.getParentScope();
+
+    final SsaVariableScope parent = (SsaVariableScope) scope.getParent();
     parent.getVersions().putAll(scope.getVersions());
 
     final Set<String> locals = new HashSet<>(scope.getOuters().keySet());
@@ -63,15 +58,18 @@ public final class SsaScopeFactory {
     for (String name : outers) {
       parent.getOuters().put(name, scope.getOuters().get(name));
     }
+
     return parent;
   }
 
   public static SsaScope collapseAll(SsaScope scope) {
     SsaScope current = null;
+
     do {
       current = scope;
       scope = collapse(scope);
     } while (current != scope);
+
     return scope;
   }
 }
@@ -84,46 +82,75 @@ class SsaVariableScope implements SsaScope {
   protected final Map<String, NodeVariable> locals;
   protected final Map<String, NodeVariable> outers;
 
-  SsaVariableScope(SsaScope parent) {
+  SsaVariableScope(final SsaScope parent) {
     this.parent = parent;
     this.versions = new HashMap<>();
     this.locals = new HashMap<>();
     this.outers = new HashMap<>();
   }
 
-  Map<String, Integer> getVersions() {
+  public SsaScope getParent() {
+    return parent;
+  }
+
+  public Map<String, Integer> getVersions() {
     return versions;
   }
 
-  Map<String, NodeVariable> getLocals() {
+  public Map<String, NodeVariable> getLocals() {
     return locals;
   }
 
-  Map<String, NodeVariable> getOuters() {
+  public Map<String, NodeVariable> getOuters() {
     return outers;
   }
 
   @Override
-  public boolean contains(String name) {
-    return locals.containsKey(name) ||
-           outers.containsKey(name) ||
-           parent.contains(name);
+  public boolean contains(final String name) {
+    return locals.containsKey(name) || outers.containsKey(name) || parent.contains(name);
   }
 
   @Override
-  public NodeVariable create(String name, Data data) {
+  public NodeVariable create(final String name, final Data data) {
     InvariantChecks.checkNotNull(data);
 
     if (locals.containsKey(name)) {
       throw new IllegalArgumentException("Overriding variable " + name);
     }
+
     return createUpdate(new Variable(name, data), locals);
   }
 
-  protected NodeVariable createUpdate(Variable var,
-                                      Map<String, NodeVariable> map) {
+  @Override
+  public NodeVariable fetch(final String name) {
+    if (locals.containsKey(name)) {
+      return locals.get(name);
+    }
+
+    if (outers.containsKey(name)) {
+      return outers.get(name);
+    }
+
+    return parent.fetch(name);
+  }
+
+  @Override
+  public NodeVariable update(final String name) {
+    if (!this.contains(name)) {
+      throw new IllegalArgumentException("Updating non-existing variable " + name);
+    }
+
+    if (locals.containsKey(name)) {
+      return createUpdate(locals.get(name).getVariable(), locals);
+    }
+
+    return createUpdate(fetch(name).getVariable(), outers);
+  }
+
+  private NodeVariable createUpdate(final Variable var, final Map<String, NodeVariable> map) {
     final String name = var.getName();
     final int version = getVersion(name) + 1;
+
     final NodeVariable node = new NodeVariable(var);
     node.setUserData(version);
 
@@ -133,47 +160,15 @@ class SsaVariableScope implements SsaScope {
     return node;
   }
 
-  @Override
-  public NodeVariable fetch(String name) {
-    if (locals.containsKey(name)) {
-      return locals.get(name);
-    }
-    if (outers.containsKey(name)) {
-      return outers.get(name);
-    }
-    return parent.fetch(name);
-  }
-
-  @Override
-  public NodeVariable update(String name) {
-    if (!this.contains(name)) {
-      throw new IllegalArgumentException("Updating non-existing variable " + name);
-    }
-    if (locals.containsKey(name)) {
-      return createUpdate(locals.get(name).getVariable(), locals);
-    }
-    return createUpdate(fetch(name).getVariable(), outers);
-  }
-
-  public int getVersion(String name) {
+  private int getVersion(final String name) {
     if (versions.containsKey(name)) {
       return versions.get(name);
     }
+
     if (parent instanceof SsaVariableScope) {
       return ((SsaVariableScope) parent).getVersion(name);
     }
+
     return 0;
-  }
-
-  public SsaScope getParentScope() {
-    return parent;
-  }
-
-  public static Pair<String, Integer> splitName(String name) {
-    final Pair<String, String> splitted = StringUtils.splitOnLast(name, '!');
-    if (splitted.second.isEmpty()) {
-      return new Pair<>(splitted.first, 1);
-    }
-    return new Pair<>(splitted.first, Integer.valueOf(splitted.second));
   }
 }
