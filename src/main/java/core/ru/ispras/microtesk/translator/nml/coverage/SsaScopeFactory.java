@@ -22,6 +22,7 @@ import java.util.Set;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.utils.StringUtils;
 
@@ -55,16 +56,13 @@ public final class SsaScopeFactory {
   }
 
   public static SsaScope createInnerScope(SsaScope scope) {
-    if (scope == null) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(scope);
     return new SsaVariableScope(scope);
   }
 
   public static SsaScope collapse(SsaScope input) {
-    if (input == null) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(input);
+
     if (input.getClass() != SsaVariableScope.class) {
       return input;
     }
@@ -135,9 +133,8 @@ class SsaVariableScope implements SsaScope {
 
   @Override
   public NodeVariable create(String name, Data data) {
-    if (data == null) {
-      throw new NullPointerException();
-    }
+    InvariantChecks.checkNotNull(data);
+
     if (locals.containsKey(name)) {
       throw new IllegalArgumentException("Overriding variable " + name);
     }
