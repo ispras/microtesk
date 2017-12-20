@@ -18,9 +18,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -72,7 +70,6 @@ public final class Analyzer implements TranslatorHandler<Ir> {
     processPrimitives(ir.getOps().values());
 
     final String modelName = ir.getModelName();
-    final List<Constraint> constraints = new ArrayList<>();
 
     try {
       final File genDir = new File(FileUtils.getNormalizedPath(targetDir));
@@ -89,7 +86,6 @@ public final class Analyzer implements TranslatorHandler<Ir> {
         out.println(entry.getKey());
         for (final Constraint c :
           BlockConverter.convert(entry.getKey(), entry.getValue().getEntryPoint())) {
-          constraints.add(c);
 
           final XMLConstraintSaver saver = new XMLConstraintSaver(c);
 
