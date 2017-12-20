@@ -18,10 +18,6 @@ import static ru.ispras.fortress.expression.Nodes.EQ;
 import static ru.ispras.fortress.expression.Nodes.NOT;
 import static ru.ispras.fortress.expression.Nodes.OR;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -45,8 +41,6 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.solver.SolverResult;
 import ru.ispras.fortress.solver.constraint.Constraint;
-import ru.ispras.fortress.solver.xml.XMLConstraintLoader;
-import ru.ispras.fortress.solver.xml.XMLNotLoadedException;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
@@ -299,42 +293,10 @@ public final class TestBase {
     if (storage.containsKey(model)) {
       return storage.get(model);
     }
-    final Map<String, SsaForm> ssa = loadStorage(model);
+
+    final Map<String, SsaForm> ssa = SsaStorage.load(model, path);
     storage.put(model, ssa);
 
-    return ssa;
-  }
-
-  private Map<String, SsaForm> loadStorage(String model) {
-    final String dirName = String.format("%s%sgen", this.path, File.separator);
-    final File dir = new File(String.format("%s%s%s", dirName, File.separator, model));
-    final Collection<Constraint> constraints = new ArrayList<>();
-
-    for (final File file : dir.listFiles()) {
-      try {
-        constraints.add(XMLConstraintLoader.loadFromFile(file.getPath()));
-      } catch (final XMLNotLoadedException e) {
-        System.err.println(e.getMessage());
-      }
-    }
-
-    final SsaConverter converter = new SsaConverter(constraints);
-    final Map<String, SsaForm> ssa = new HashMap<>();
-
-    try {
-      final BufferedReader reader = new BufferedReader(
-          new FileReader(String.format("%s%s%s.list", dirName, File.separator, model)));
-
-      String line = reader.readLine();
-      while (line != null) {
-        ssa.put(line, converter.convert(line));
-        line = reader.readLine();
-      }
-
-      reader.close();
-    } catch (final IOException e) {
-      System.err.println(e.getMessage());
-    }
     return ssa;
   }
 
