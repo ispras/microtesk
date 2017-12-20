@@ -54,11 +54,11 @@ final class Block {
       this.intermediates = new ArrayList<>();
     }
 
-    void add(final NodeOperation s) {
+    public void add(final NodeOperation s) {
       statements.add(s);
     }
 
-    void addAll(final Collection<NodeOperation> nodes) {
+    public void addAll(final Collection<NodeOperation> nodes) {
       statements.addAll(nodes);
     }
 
