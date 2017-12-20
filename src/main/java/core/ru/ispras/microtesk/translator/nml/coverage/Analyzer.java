@@ -60,13 +60,11 @@ public final class Analyzer implements TranslatorHandler<Ir> {
     processPrimitives(ir.getModes().values());
     processPrimitives(ir.getOps().values());
 
-    final String modelName = ir.getModelName();
-
-    SsaStorage.store(targetDir, modelName, ssa);
+    SsaStorage.store(targetDir, ir.getModelName(), ssa);
   }
 
-  private void processPrimitives(Collection<Primitive> primitives) {
-    for (Primitive p : primitives) {
+  private void processPrimitives(final Collection<Primitive> primitives) {
+    for (final Primitive p : primitives) {
       if (!p.isOrRule()) {
         processParameters((PrimitiveAND) p);
         processAttributes((PrimitiveAND) p);
@@ -74,8 +72,8 @@ public final class Analyzer implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processAttributes(PrimitiveAND op) {
-    for (Attribute a : op.getAttributes().values()) {
+  private void processAttributes(final PrimitiveAND op) {
+    for (final Attribute a : op.getAttributes().values()) {
       if (a.getKind() == Attribute.Kind.ACTION) {
         final SsaBuilder builder =
             new SsaBuilder(inquirer, op.getName(), a.getName(), a.getStatements());
@@ -84,12 +82,12 @@ public final class Analyzer implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processParameters(PrimitiveAND op) {
+  private void processParameters(final PrimitiveAND op) {
     ssa.put(op.getName() + ".parameters", SsaBuilder.parametersList(inquirer, op));
   }
 
-  private void processModes(Collection<Primitive> modes) {
-    for (Primitive p : modes) {
+  private void processModes(final Collection<Primitive> modes) {
+    for (final Primitive p : modes) {
       if (!p.isOrRule() && p.getReturnType() != null) {
         final PrimitiveAND mode = (PrimitiveAND) p;
         ssa.put(mode.getName() + ".expand",
