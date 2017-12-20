@@ -16,7 +16,6 @@ package ru.ispras.microtesk.translator.nml.coverage;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,9 +24,6 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 
 final class BlockBuilder {
-  private static final List<NodeOperation> PHI_STATEMENTS =
-      Collections.singletonList(new NodeOperation(SsaOperation.PHI));
-
   private List<NodeOperation> statements;
   private Map<String, NodeVariable> inputs;
   private Map<String, NodeVariable> outputs;
@@ -59,17 +55,5 @@ final class BlockBuilder {
 
   private void collectData(final List<NodeOperation> statements) {
     /* TODO populate input/output maps and intermediates list */
-  }
-
-  public static Block createSingleton(final NodeOperation node) {
-    return new Block(Collections.singletonList(node));
-  }
-
-  public static Block createPhi() {
-    return new Block(PHI_STATEMENTS);
-  }
-
-  public static Block createEmpty() {
-    return new Block(Collections.<NodeOperation>emptyList());
   }
 }

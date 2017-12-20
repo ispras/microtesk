@@ -23,6 +23,21 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Block {
+  private static final List<NodeOperation> PHI_STATEMENTS =
+      Collections.singletonList(new NodeOperation(SsaOperation.PHI));
+
+  public static Block newSingleton(final NodeOperation node) {
+    return new Block(Collections.singletonList(node));
+  }
+
+  public static Block newPhi() {
+    return new Block(PHI_STATEMENTS);
+  }
+
+  public static Block newEmpty() {
+    return new Block(Collections.<NodeOperation>emptyList());
+  }
+
   private final List<NodeOperation> statements;
   private final Map<String, NodeVariable> inputs;
   private final Map<String, NodeVariable> outputs;
@@ -48,7 +63,7 @@ public final class Block {
     this.successor = null;
   }
 
-  Block(final List<NodeOperation> statements) {
+  private Block(final List<NodeOperation> statements) {
     this.statements = statements;
     this.inputs = Collections.emptyMap();
     this.outputs = Collections.emptyMap();

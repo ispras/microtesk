@@ -438,7 +438,7 @@ final class SsaBuilder {
     final BranchPoint branchPoint = collectConditions(s);
     finalizeBlock();
 
-    final Block phi = BlockBuilder.createPhi();
+    final Block phi = Block.newPhi();
     final String phiName = generateBlockName();
     final List<GuardedBlock> mergePoint =
         Collections.singletonList(new GuardedBlock(phiName, TRUE, phi));
@@ -575,7 +575,7 @@ final class SsaBuilder {
                                newNamed(s.getAttributeName()));
     }
     finalizeBlock();
-    pushConsecutiveBlock(BlockBuilder.createSingleton(node));
+    pushConsecutiveBlock(Block.newSingleton(node));
   }
 
   private Node instanceReference(final Instance instance) {
@@ -851,7 +851,7 @@ final class SsaBuilder {
     }
     // still empty?
     if (blocks.isEmpty()) {
-      final Block empty = BlockBuilder.createEmpty();
+      final Block empty = Block.newEmpty();
       return new SsaForm(empty, empty, Collections.singleton(empty));
     }
     return new SsaForm(blocks.get(0),

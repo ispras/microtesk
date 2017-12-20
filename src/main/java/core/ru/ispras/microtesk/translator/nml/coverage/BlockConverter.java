@@ -196,12 +196,12 @@ final class SsaConverter {
     for (Node node : formulas.exprs()) {
       final NodeOperation op = (NodeOperation) node;
       if (ExprUtils.isOperation(op, SsaOperation.THIS_CALL)) {
-        block = BlockBuilder.createSingleton(op);
+        block = Block.newSingleton(op);
       } else if (ExprUtils.isOperation(op, SsaOperation.CALL)) {
         final NodeOperation call = BlockConverter.convertCall(op, this.xform);
-        block = BlockBuilder.createSingleton(call);
+        block = Block.newSingleton(call);
       } else if (ExprUtils.isOperation(op, SsaOperation.PHI)) {
-        block = BlockBuilder.createPhi();
+        block = Block.newPhi();
       } else if (!ExprUtils.isOperation(op, SsaOperation.BLOCK)) {
         builder.add((NodeOperation) Utility.transform(op, this.xform));
       }
