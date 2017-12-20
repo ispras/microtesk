@@ -24,7 +24,7 @@ public final class SsaForm {
   private final Block exit;
   private final Collection<Block> blocks;
 
-  SsaForm(Block entry, Block exit, Collection<Block> blocks) {
+  SsaForm(final Block entry, final Block exit, final Collection<Block> blocks) {
     InvariantChecks.checkNotNull(entry);
     InvariantChecks.checkNotNull(exit);
     InvariantChecks.checkNotNull(blocks);
