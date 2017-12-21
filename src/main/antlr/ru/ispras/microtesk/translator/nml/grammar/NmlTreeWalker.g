@@ -250,7 +250,8 @@ $res = factory.createAlias(where($id), $id.text, $min.res, $max.res);
 /*======================================================================================*/
 
 modeDef 
-    :  ^(MODE LABEL? id=ID {pushSymbolScope(id);} sp=modeSpecPart[where($id), $id.text]
+    :  ^(MODE label=LABEL? id=ID {pushSymbolScope(id);}
+        sp=modeSpecPart[where($id), $id.text, $label !=null]
 {
 checkNotNull($id, $sp.res, $modeDef.text);
 getIR().add($id.text, $sp.res);
@@ -262,7 +263,7 @@ popSymbolScope();
 resetThisArgs();
 }
 
-modeSpecPart [Where w, String name] returns [Primitive res]
+modeSpecPart [Where w, String name, boolean isLabel] returns [Primitive res]
     :  andRes=andRule
 {
 checkNotNull(w, $andRes.res, $andRes.text);
@@ -272,7 +273,7 @@ setThisArgs($andRes.res);
        attrRes=attrDefList
 {
 checkNotNull($attrRes.start, $attrRes.res, $attrRes.text);
-$res = getPrimitiveFactory().createMode($w, $name, $andRes.res, $attrRes.res, $mr.res);
+$res = getPrimitiveFactory().createMode($w, $name, isLabel, $andRes.res, $attrRes.res, $mr.res);
 }
     |  orRes=orRule
 {

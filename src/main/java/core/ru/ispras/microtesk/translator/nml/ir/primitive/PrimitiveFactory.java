@@ -44,10 +44,10 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
   public Primitive createMode(
       final Where where,
       final String name,
+      final boolean isLabel,
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs,
       final Expr retExpr) throws SemanticException {
-
     for (final Map.Entry<String, Primitive> e : args.entrySet()) {
       if (Primitive.Kind.IMM != e.getValue().getKind()) {
         raiseError(where, new UnsupportedParameterType(
