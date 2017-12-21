@@ -1,11 +1,11 @@
 /*
  * Copyright 2016 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -56,7 +56,7 @@ import ru.ispras.microtesk.utils.FormatMarker;
 /**
  * The {@link ImageAnalyzer} class analyzes the image format of addressing modes
  * and operations to find out how to decode instructions.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class ImageAnalyzer implements TranslatorHandler<Ir> {
@@ -73,7 +73,9 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
-      if (item.getModifier() == Primitive.Modifier.PSEUDO || visited.containsKey(item)) {
+      if (item.getModifier() == Primitive.Modifier.PSEUDO ||
+          item.getModifier() == Primitive.Modifier.LABEL ||
+          visited.containsKey(item)) {
         setStatus(Status.SKIP);
         return;
       }
@@ -96,7 +98,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
     @Override
     public void onAlternativeBegin(final PrimitiveOR orRule, final Primitive item) {
-      if (item.getModifier() == Primitive.Modifier.PSEUDO) {
+      if (item.getModifier() == Primitive.Modifier.PSEUDO ||
+          item.getModifier() == Primitive.Modifier.LABEL) {
         setStatus(Status.SKIP);
         return;
       }
