@@ -89,11 +89,13 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
             "Argument %s of %s is not allowed to be internal.", argName, name));
       }
 
-      if (modifier != Primitive.Modifier.PSEUDO && argModifier == Primitive.Modifier.LABEL) {
+      if (modifier != Primitive.Modifier.PSEUDO &&
+         (argModifier == Primitive.Modifier.PSEUDO || argModifier == Primitive.Modifier.LABEL)) {
         final String argName = entry.getKey();
         raiseError(where, String.format(
-            "Argument %s of %s is not allowed to be a label. " +
-            "Although it can be an OR-rule containing a label.", argName, name));
+            "Argument %s of %s is not allowed to be a %s. " +
+            "Although it can be an OR-rule containing a %3$s.",
+            argName, name, argModifier.name().toLowerCase()));
       }
     }
 
