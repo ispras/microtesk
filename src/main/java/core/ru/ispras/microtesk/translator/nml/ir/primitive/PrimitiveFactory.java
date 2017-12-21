@@ -81,19 +81,19 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         Primitive.Modifier.NORMAL :
         Primitive.Modifier.valueOf(modifierName.toUpperCase());
 
-    if (modifier != Primitive.Modifier.INTERNAL) {
-      for (final Map.Entry<String, Primitive> entry : args.entrySet()) {
-        final Primitive.Modifier argModifier = entry.getValue().getModifier();
-        if (argModifier == Primitive.Modifier.INTERNAL) {
-          final String argName = entry.getKey();
-          raiseError(where, String.format(
-              "Argument %s of %s is not allowed to be internal.", argName, name));
-        } else if (argModifier == Primitive.Modifier.LABEL) {
-          final String argName = entry.getKey();
-          raiseError(where, String.format(
-              "Argument %s of %s is not allowed to be a label. " +
-              "Although it can be an OR-rule containing a label.", argName, name));
-        }
+    for (final Map.Entry<String, Primitive> entry : args.entrySet()) {
+      final Primitive.Modifier argModifier = entry.getValue().getModifier();
+      if (modifier != Primitive.Modifier.INTERNAL && argModifier == Primitive.Modifier.INTERNAL) {
+        final String argName = entry.getKey();
+        raiseError(where, String.format(
+            "Argument %s of %s is not allowed to be internal.", argName, name));
+      }
+
+      if (modifier != Primitive.Modifier.PSEUDO && argModifier == Primitive.Modifier.LABEL) {
+        final String argName = entry.getKey();
+        raiseError(where, String.format(
+            "Argument %s of %s is not allowed to be a label. " +
+            "Although it can be an OR-rule containing a label.", argName, name));
       }
     }
 
