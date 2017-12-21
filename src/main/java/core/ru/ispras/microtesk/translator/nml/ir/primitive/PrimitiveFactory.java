@@ -1,11 +1,11 @@
 /*
  * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -63,7 +63,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     return new PrimitiveAND(
         name,
         Primitive.Kind.MODE,
-        Primitive.Modifier.NORMAL,
+        isLabel ? Primitive.Modifier.LABEL : Primitive.Modifier.NORMAL,
         retExpr,
         args,
         attrs
@@ -88,6 +88,11 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
           final String argName = entry.getKey();
           raiseError(where, String.format(
               "Argument %s of %s is not allowed to be internal.", argName, name));
+        } else if (argModifier == Primitive.Modifier.LABEL) {
+          final String argName = entry.getKey();
+          raiseError(where, String.format(
+              "Argument %s of %s is not allowed to be a label. " +
+              "Although it can be an OR-rule containing a label.", argName, name));
         }
       }
     }
