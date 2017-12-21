@@ -71,6 +71,9 @@ final class STBAddressingMode implements STBuilder {
     stConstructor.add("args",
         primitive.getReturnType() != null ? primitive.getReturnType().getJavaText() : "null");
 
+    stConstructor.add("args",
+        primitive.getModifier() == Primitive.Modifier.LABEL);
+
     buildFlags(info, stConstructor);
     buildArguments(group, stConstructor, primitive);
 
