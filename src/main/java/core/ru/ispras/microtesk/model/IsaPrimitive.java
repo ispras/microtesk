@@ -118,6 +118,17 @@ public abstract class IsaPrimitive {
   }
 
   /**
+   * Returns assembly text of the specified primitive. Takes into account labels
+   * that might be associated with a specific primitive (mode).
+   *
+   * @param temporaryVariables temporary variables.
+   * @return Assembly text.
+   */
+  public final String text(final TemporaryVariables temporaryVariables) {
+    return null != labelReference ? labelReference.getName() : syntax(temporaryVariables);
+  }
+
+  /**
    * Returns assembly format of the specified primitive.
    *
    * <p>Default implementation is provided to allow using primitives that have no explicitly
@@ -127,7 +138,7 @@ public abstract class IsaPrimitive {
    * @param temporaryVariables temporary variables.
    * @return Assembly text.
    */
-  public String syntax(final TemporaryVariables temporaryVariables) {
+  protected String syntax(final TemporaryVariables temporaryVariables) {
     reportUndefined("syntax", "Empty string will be returned");
     return "";
   }

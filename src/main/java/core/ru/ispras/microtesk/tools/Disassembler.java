@@ -129,8 +129,7 @@ public final class Disassembler {
 
     @Override
     public void add(final IsaPrimitive primitive) {
-      final String syntax = primitive.syntax(tempVars);
-      final String text = syntax.replaceAll("<label>", "");
+      final String text = primitive.text(tempVars);
       Logger.debug(text);
       writer.println(text);
     }

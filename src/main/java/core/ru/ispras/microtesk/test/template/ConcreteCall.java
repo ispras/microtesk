@@ -169,11 +169,7 @@ public final class ConcreteCall {
   }
 
   public String getText() {
-    if (null == text) {
-      return isExecutable() ? executable.getText() : null;
-    }
-
-    return text;
+    return isExecutable() ? executable.getText() : null;
   }
 
   public void setText(final String text) {

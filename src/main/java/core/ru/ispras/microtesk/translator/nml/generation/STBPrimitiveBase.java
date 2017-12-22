@@ -167,15 +167,19 @@ final class StatementBuilder {
     final boolean usePE = !attrName.equals(Attribute.INIT_NAME) &&
                           !attrName.equals(Attribute.IMAGE_NAME) &&
                           !attrName.equals(Attribute.SYNTAX_NAME);
+
     final boolean isAction = attrName.equals(Attribute.ACTION_NAME);
+    final boolean isSyntax = attrName.equals(Attribute.SYNTAX_NAME);
 
     final String methodName;
     if (null != stmt.getCalleeName()) {
       methodName = String.format("%s.%s",
-          stmt.getCalleeName(), isAction ? "execute" : attrName);
+          stmt.getCalleeName(),
+          isAction ? "execute" : (isSyntax ? "text" : attrName));
     } else if(null != stmt.getCalleeInstance()) {
       methodName = String.format("%s.%s",
-          PrinterInstance.toString(stmt.getCalleeInstance()), isAction ? "execute" : attrName);
+          PrinterInstance.toString(stmt.getCalleeInstance()),
+          isAction ? "execute" : (isSyntax ? "text" : attrName));
     } else {
       methodName = attrName;
     }

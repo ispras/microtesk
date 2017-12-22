@@ -40,6 +40,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
@@ -370,7 +371,10 @@ public final class ExprPrinter extends MapBasedPrinter {
           sb.append(String.format("%s.", PrinterInstance.toString(callInfo.getCalleeInstance())));
         }
 
-        sb.append(String.format("%s(vars__)", callInfo.getAttributeName()));
+        final String attrName = callInfo.getAttributeName();
+        final boolean isSyntax = Attribute.SYNTAX_NAME.equals(attrName);
+
+        sb.append(String.format("%s(vars__)", isSyntax ? "text" : attrName));
         appendText(sb.toString());
 
         return;
