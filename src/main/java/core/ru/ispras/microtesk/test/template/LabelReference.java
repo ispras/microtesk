@@ -1,11 +1,11 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
- * 
+ * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -24,13 +24,13 @@ import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.test.LabelManager;
 
 /**
- * The LabelReference class describes a reference to a label. This means a label specified as an
- * argument of a control-transfer instruction. The important point is that a reference is not linked
- * to a specific label, it just provides information used for label lookup during simulation. There
- * may be several labels with the same name located in different blocks. Which one will be chosen
- * for control transfer will be chosen depending on the context (see
+ * The {@link LabelReference} class describes a reference to a label. This means a label specified
+ * as an argument of a control-transfer instruction. The important point is that a reference
+ * is not linked to a specific label, it just provides information used for label lookup during
+ * simulation. There may be several labels with the same name located in different blocks.
+ * Which one will be chosen for control transfer will be chosen depending on the context (see
  * {@link ru.ispras.microtesk.test.LabelManager}).
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class LabelReference {
@@ -85,7 +85,7 @@ public final class LabelReference {
    * from a specific block. There is no correspondence between the returned label and the actual
    * label that will be chosen for control transfer. It just provides context that helps choose the
    * most suitable label.
-   * 
+   *
    * @return Label object describing a reference to a label.
    */
   public Label getReference() {
@@ -97,9 +97,9 @@ public final class LabelReference {
   }
 
   /**
-   * Returns the value assigned (instead of a real address or offset) to the primitive (OP or MODE)
-   * argument the label reference is associated with.
-   * 
+   * Returns the value assigned (instead of a real address or offset) to the primitive
+   * (OP or MODE) argument the label reference is associated with.
+   *
    * @return Value assigned to the associated primitive argument.
    */
   public BigInteger getArgumentValue() {
@@ -108,6 +108,18 @@ public final class LabelReference {
 
   public LabelManager.Target getTarget() {
     return target;
+  }
+
+  /**
+   * Returns the unique name of the target label.
+   *
+   * @return Unique name of the target label.
+   *
+   * @throws IllegalArgumentException if the target has not been assigned yet.
+   */
+  public String getTargetName() {
+    InvariantChecks.checkNotNull(target, "Target is not assigned yet.");
+    return target.getLabel().getUniqueName();
   }
 
   public void setTarget(final LabelManager.Target target) {
