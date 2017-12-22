@@ -123,8 +123,7 @@ public class IsaPrimitiveBuilder {
 
     final IsaPrimitive result = info.create(args);
     if (null != labelReference) {
-      // TODO: Not implemented yet.
-      // result.setLabelReference(labelReference);
+      result.setLabelReference(labelReference);
     }
 
     return result;

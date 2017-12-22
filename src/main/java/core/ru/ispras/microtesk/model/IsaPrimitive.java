@@ -22,6 +22,7 @@ import java.util.Map;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.memory.Location;
+import ru.ispras.microtesk.test.template.LabelReference;
 
 /**
  * The {@link IsaPrimitive} class implements base functionality of addressing modes
@@ -35,6 +36,8 @@ public abstract class IsaPrimitive {
 
   /** Stores arguments of the primitive. */
   private final Map<String, IsaPrimitive> arguments;
+
+  private LabelReference labelReference = null;
 
   /**
    * Constructs a primitive and saves the table of its arguments.
@@ -95,6 +98,12 @@ public abstract class IsaPrimitive {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(value);
     arguments.put(name, value);
+  }
+
+  protected final void setLabelReference(final LabelReference labelReference) {
+    InvariantChecks.checkNotNull(labelReference);
+    InvariantChecks.checkTrue(null == this.labelReference);
+    this.labelReference = labelReference;
   }
 
   /**
