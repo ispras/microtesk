@@ -85,8 +85,8 @@ public class MetaAddressingMode implements MetaData {
   protected MetaAddressingMode(
       final String name,
       final Type dataType,
-      final boolean exception,
       final boolean label,
+      final boolean exception,
       final boolean memoryReference,
       final boolean load,
       final boolean store,
