@@ -48,6 +48,11 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs,
       final Expr retExpr) throws SemanticException {
+    if (isLabel && args.size() != 1 && args.size() != 2) {
+      raiseError(where, String.format(
+          "Label-based addressing mode %s must have 1 or 2 arguments.", name));
+    }
+
     for (final Map.Entry<String, Primitive> e : args.entrySet()) {
       if (Primitive.Kind.IMM != e.getValue().getKind()) {
         raiseError(where, new UnsupportedParameterType(
