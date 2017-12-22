@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test;
 
 import java.math.BigInteger;
-import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -37,7 +36,7 @@ import ru.ispras.microtesk.test.template.Output;
  * (concrete calls). It executes instruction by instruction, perform control transfers by labels
  * (if needed) and prints information about important events to the simulator log (currently,
  * the console).
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Executor {
@@ -91,51 +90,12 @@ public final class Executor {
   /**
    * The {@link Listener} interface is to be implemented by classes that monitor
    * execution of instruction calls.
-   * 
+   *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   public interface Listener {
     void onBeforeExecute(EngineContext context, ConcreteCall call);
     void onAfterExecute(EngineContext context, ConcreteCall call);
-  }
-
-  private static final class LabelTracker {
-    private final int delaySlotSize;
-    private List<LabelReference> labels;
-    private int distance;
-
-    public LabelTracker(final int delaySlotSize) {
-      InvariantChecks.checkGreaterOrEqZero(delaySlotSize);
-      this.delaySlotSize = delaySlotSize;
-      reset();
-    }
-
-    public void track(final ConcreteCall call) {
-      if (!call.isExecutable()) {
-        return;
-      }
-
-      if (labels != null) {
-        distance++;
-        if (distance > delaySlotSize) {
-          reset();
-        }
-      }
-
-      if (!call.getLabelReferences().isEmpty()) {
-        labels = call.getLabelReferences();
-        distance = 0;
-      }
-    }
-
-    public void reset() {
-      this.labels = null;
-      this.distance = 0;
-    }
-
-    public LabelReference getLabel() {
-      return null != labels ? labels.get(0) : null;
-    }
   }
 
   private final class Fetcher {
@@ -239,11 +199,11 @@ public final class Executor {
 
   /**
    * Constructs an Executor object.
-   * 
+   *
    * @param context Generation engine context.
    * @param labelManager Label manager that stores all refined labels.
    * @param isPresimulation Flag that specifies whether the presimulation mode is on.
-   * 
+   *
    * @throws IllegalArgumentException if the argument is {@code null}.
    */
   public Executor(
@@ -288,11 +248,11 @@ public final class Executor {
    * Executes code starting from the specified address until (1) a break point is reached
    * and no executable code follows after this point or (2) an attempt to jump to an undefined
    * label is made.
-   * 
+   *
    * @param code Code to be executed.
    * @param startAddress Start address.
    * @return Execution status (address or label).
-   * 
+   *
    * @throws GenerationAbortedException (1) if an endless loop is detected; (2) if execution jumped
    *         to an address that holds no executable instructions and no handling is provided for
    *         this situation; (3) if an error related to interaction with the model occurs.
@@ -342,7 +302,6 @@ public final class Executor {
   private Status executeToBreak(
       final Code code,
       final long startAddress) throws ConfigurationException {
-    final LabelTracker labelTracker = new LabelTracker(context.getDelaySlotSize());
     final Fetcher fetcher = new Fetcher(code, startAddress);
 
     while (fetcher.canFetch() && !fetcher.isBreakReached()) {
@@ -383,15 +342,12 @@ public final class Executor {
         }
       }
 
-      labelTracker.track(call);
       final String exception = executeCall(call);
 
       // EXCEPTION
       if (null != exception) {
         final Long handlerAddress = getExceptionHandlerAddress(code, exception);
         if (null != handlerAddress) {
-          labelTracker.reset(); // Resets labels to jump (no longer needed after jump to handler).
-
           logJumpExceptionHandler(exception, handlerAddress);
           fetcher.jump(handlerAddress);
 
@@ -417,35 +373,20 @@ public final class Executor {
         continue;
       }
 
+
       // JUMP
-      final LabelReference reference = labelTracker.getLabel();
-      labelTracker.reset(); // Resets labels to jump (no longer needed after being used).
+      if (address == fetcher.getAddress()) {
+        throw new GenerationAbortedException(String.format(
+            "Program counter was not updated: 0x%016x.", address));
+      }
 
-      if (null != reference) {
-        final LabelManager.Target target = reference.getTarget();
-        if (null == target) {
-          throw new GenerationAbortedException(String.format(
-              "Jump to undefined label %s.", reference.getReference().getName()));
-        }
+      // If no label references are found within the delay slot we try to use PC to jump
+      logJump(address, null);
+      fetcher.jump(address);
 
-        final long labelAddress = target.getAddress();
-        logJump(labelAddress, target.getLabel());
-
-        fetcher.jump(labelAddress);
-      } else {
-        if (address == fetcher.getAddress()) {
-          throw new GenerationAbortedException(String.format(
-              "Program counter was not updated: 0x%016x.", address));
-        }
-
-        // If no label references are found within the delay slot we try to use PC to jump
-        logJump(address, null);
-        fetcher.jump(address);
-
-        // For presimulation, a break point is set on a jump to an unallocated address
-        if (isPresimulation && !fetcher.code.hasAddress(address)) {
-          fetcher.code.addBreakAddress(address);
-        }
+      // For presimulation, a break point is set on a jump to an unallocated address
+      if (isPresimulation && !fetcher.code.hasAddress(address)) {
+        fetcher.code.addBreakAddress(address);
       }
     }
 
