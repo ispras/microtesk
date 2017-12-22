@@ -1,12 +1,12 @@
 /*
  * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -356,11 +356,17 @@ op mtc0 (rt: REG, cs: RCOP0)
 ////////////////////////////////////////////////////////////////////////////////
 // Branching Instructions
 
-label mode BRANCH_IMM(target: WORD, current: WORD) = target<17..2> - current<17..2> - 1
-  syntax = format("%<label>d", target<17..2> - current<17..2> - 1)
+label mode BRANCH_LABEL(target: WORD, current: WORD) = target<17..2> - current<17..2> - 1
+  syntax = ""
   image = format("%s", target<17..2> - current<17..2> - 1)
 
-op beq (rs: REG, rt: REG, offset: BRANCH_IMM)
+mode BRANCH_IMM(imm: SHORT) = imm
+  syntax = format("0x%X", imm)
+  image = format("%s", imm)
+
+mode BRANCH_OFFSET = BRANCH_LABEL | BRANCH_IMM
+
+op beq (rs: REG, rt: REG, offset: BRANCH_OFFSET)
   syntax = format("beq %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
   image = format("000100%s%s%s", rs.image, rt.image, offset.image)
   action = {
@@ -370,7 +376,7 @@ op beq (rs: REG, rt: REG, offset: BRANCH_IMM)
     endif;
   }
 
-op bgez (rs: REG, offset: BRANCH_IMM)
+op bgez (rs: REG, offset: BRANCH_OFFSET)
   syntax = format("bgez %s, %s", rs.syntax, offset.syntax)
   image = format("000001%s00001%s", rs.image, offset.image)
   action = {
@@ -380,7 +386,7 @@ op bgez (rs: REG, offset: BRANCH_IMM)
     endif;
   }
 
-op bgezal (rs: REG, offset: BRANCH_IMM)
+op bgezal (rs: REG, offset: BRANCH_OFFSET)
   syntax = format("bgezal %s, %s", rs.syntax, offset.syntax)
   image = format("000001%s10001%s", rs.image, offset.image)
   action = {
@@ -391,7 +397,7 @@ op bgezal (rs: REG, offset: BRANCH_IMM)
     endif;
   }
 
-op bgtz (rs: REG, offset: BRANCH_IMM)
+op bgtz (rs: REG, offset: BRANCH_OFFSET)
   syntax = format("bgtz %s, %s", rs.syntax, offset.syntax)
   image = format("000111%s00000%s", rs.image, offset.image)
   action = {
@@ -401,7 +407,7 @@ op bgtz (rs: REG, offset: BRANCH_IMM)
     endif;
   }
 
-op blez (rs: REG, offset: BRANCH_IMM)
+op blez (rs: REG, offset: BRANCH_OFFSET)
   syntax = format("blez %s, %s", rs.syntax, offset.syntax)
   image = format("000110%s00000%s", rs.image, offset.image)
   action = {
@@ -411,7 +417,7 @@ op blez (rs: REG, offset: BRANCH_IMM)
     endif;
   }
 
-op bltz (rs: REG, offset: BRANCH_IMM)
+op bltz (rs: REG, offset: BRANCH_OFFSET)
   syntax = format("bltz %s, %s", rs.syntax, offset.syntax)
   image = format("000001%s00000%s", rs.image, offset.image)
   action = {
@@ -421,7 +427,7 @@ op bltz (rs: REG, offset: BRANCH_IMM)
     endif;
   }
 
-op bltzal (rs: REG, offset: BRANCH_IMM)
+op bltzal (rs: REG, offset: BRANCH_OFFSET)
   syntax = format("bltzal %s, %s", rs.syntax, offset.syntax)
   image = format("000001%s10000%s", rs.image, offset.image)
   action = {
@@ -432,7 +438,7 @@ op bltzal (rs: REG, offset: BRANCH_IMM)
     endif;
   }
 
-op bne (rs: REG, rt: REG, offset: BRANCH_IMM)
+op bne (rs: REG, rt: REG, offset: BRANCH_OFFSET)
   syntax = format("bne %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
   image = format("000101%s%s%s", rs.image, rt.image, offset.image)
   action = {
@@ -492,11 +498,17 @@ op sltu (rd: REG, rs: REG, rt: REG)
 ////////////////////////////////////////////////////////////////////////////////
 // Jump Instructions
 
-label mode JUMP_IMM(target: WORD) = target<27..2>
-  syntax = format("%<label>d", target<27..2>)
+label mode JUMP_LABEL(target: WORD) = target<27..2>
+  syntax = ""
   image = format("%s", target<27..2>)
 
-op j (addr: JUMP_IMM)
+mode JUMP_IMM(imm: int(26)) = imm
+  syntax = format("0x%X", imm)
+  image = format("%s", imm)
+
+mode JUMP_ADDR = JUMP_LABEL | JUMP_IMM
+
+op j (addr: JUMP_ADDR)
   syntax = format("j %s", addr.syntax)
   image = format("000010%s", addr.image)
   action = {
@@ -514,7 +526,7 @@ op jr (addr: REG)
     JMPADDR = addr;
   }
 
-op jal (addr: JUMP_IMM)
+op jal (addr: JUMP_ADDR)
   syntax = format("jal %s", addr.syntax)
   image = format("000011%s", addr.image)
   action = {
@@ -694,13 +706,17 @@ internal op instruction (command: Operations)
 ////////////////////////////////////////////////////////////////////////////////
 // Pseudo Instructions
 
-pseudo op la(rd : REG, addr : WORD)
-  syntax = format("la %s, %<label>d", rd.syntax, addr)
-  image  = format("%s%s", lui(rd, addr<16..31>).image,
-                          ori(rd, rd, addr<0..15>).image)
+label mode LA_ADDR(value: WORD) = value
+  syntax = ""
+  image = format("%s", value)
+
+pseudo op la(rd : REG, addr : LA_ADDR)
+  syntax = format("la %s, %s", rd.syntax, addr.syntax)
+  image  = format("%s%s", lui(rd, addr.value<16..31>).image,
+                          ori(rd, rd, addr.value<0..15>).image)
   action = {
-    instruction(lui(rd, addr<16..31>)).action;
-    instruction(ori(rd, rd, addr<0..15>)).action;
+    instruction(lui(rd, addr.value<16..31>)).action;
+    instruction(ori(rd, rd, addr.value<0..15>)).action;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
