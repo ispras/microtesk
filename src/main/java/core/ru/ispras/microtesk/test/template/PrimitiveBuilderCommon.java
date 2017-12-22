@@ -25,6 +25,7 @@ import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.IsaPrimitiveKind;
 import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.metadata.MetaArgument;
@@ -309,7 +310,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final Argument arg;
 
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg);
+      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, false);
 
       final PrimitiveBuilder builder = modeBuilderInfo.first;
       final int argumentCount = modeBuilderInfo.second;
@@ -350,7 +351,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final Argument arg;
 
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg);
+      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, false);
 
       final PrimitiveBuilder builder = modeBuilderInfo.first;
       final int argumentCount = modeBuilderInfo.second;
@@ -407,7 +408,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
     final Argument arg;
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg);
+      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, false);
 
       final PrimitiveBuilder builder = modeBuilderInfo.first;
       final int argumentCount = modeBuilderInfo.second;
@@ -436,7 +437,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final Argument arg;
 
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg);
+      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, false);
 
       final PrimitiveBuilder builder = modeBuilderInfo.first;
       final int argumentCount = modeBuilderInfo.second;
@@ -466,7 +467,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final Argument arg;
 
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg);
+      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, true);
 
       final PrimitiveBuilder builder = modeBuilderInfo.first;
       final int argumentCount = modeBuilderInfo.second;
@@ -523,12 +524,32 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     return (null != metaShortcut) ? metaShortcut.getOperation() : metaOp;
   }
 
-  private static String getModeName(final MetaArgument metaArgument) {
+  private String getModeName(final MetaArgument metaArgument, final boolean isLabel) {
     InvariantChecks.checkTrue(metaArgument.getKind() == IsaPrimitiveKind.MODE,
                               "The argument must be an addressing mode!");
-    InvariantChecks.checkTrue(metaArgument.getTypeNames().size() == 1,
-                              "The argument must not be an OR-rule!");
-    return metaArgument.getTypeNames().iterator().next();
+    String modeName = null;
+    for (final String name : metaArgument.getTypeNames()) {
+      final MetaAddressingMode metaAddressingMode = metaModel.getAddressingMode(name);
+      if (metaAddressingMode.isLabel() == isLabel) {
+        if (modeName == null) {
+          modeName = name;
+        } else {
+          Logger.warning(
+              "Ambiguous conversion of the %s argument: addressing mode %s is selected, " + 
+              "but %s is equally possible.", metaArgument.getName(), modeName, name
+              );
+        }
+      }
+    }
+
+    if (null == modeName) {
+      throw new IllegalArgumentException(String.format(
+          "No suitable addressing mode is found for implicit conversion of the %s argument.",
+          metaArgument.getName()
+          ));
+    }
+
+    return modeName;
   }
 
   private Pair<PrimitiveBuilder, Integer> newModeBuilder(final String modeName) {
@@ -540,8 +561,11 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
         );
   }
 
-  private Pair<PrimitiveBuilder, Integer> newModeBuilder(final MetaArgument metaArgument) {
-    return newModeBuilder(getModeName(metaArgument));
+  private Pair<PrimitiveBuilder, Integer> newModeBuilder(
+      final MetaArgument metaArgument,
+      final boolean isLabel) {
+    final String modeName = getModeName(metaArgument, isLabel);
+    return newModeBuilder(modeName);
   }
 
   private static Argument newModeArgument(
@@ -557,13 +581,13 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
         );
   }
 
-  private static final String ERR_UNASSIGNED_ARGUMENT = 
+  private static final String ERR_UNASSIGNED_ARGUMENT =
       "The %s argument of %s is not assigned.";
 
   private static final String ERR_NO_MORE_ARGUMENTS =
       "Too many arguments: %s has only %d arguments.";
 
-  private static final String ERR_UNDEFINED_ARGUMENT = 
+  private static final String ERR_UNDEFINED_ARGUMENT =
       "The %s argument is not defined for %s.";
 
   private static final String ERR_TYPE_NOT_ACCEPTED =
