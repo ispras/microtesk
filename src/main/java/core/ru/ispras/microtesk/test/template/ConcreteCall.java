@@ -45,7 +45,7 @@ public final class ConcreteCall {
 
   private final List<LocationAccessor> addressRefs;
   private long address = 0;
-  private String text = null;
+  private final String text;
   private int executionCount = 0;
   private BigInteger originFromRelative = null;
 
@@ -169,12 +169,7 @@ public final class ConcreteCall {
   }
 
   public String getText() {
-    return isExecutable() ? executable.getText() : null;
-  }
-
-  public void setText(final String text) {
-    InvariantChecks.checkNotNull(text);
-    this.text = text;
+    return isExecutable() ? executable.getText() : text;
   }
 
   public String getImage() {

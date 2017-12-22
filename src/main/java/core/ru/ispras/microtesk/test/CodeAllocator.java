@@ -251,25 +251,9 @@ public final class CodeAllocator {
         source.setSequenceIndex(sequenceIndex);
 
         final LabelManager.Target target = labelManager.resolve(source);
-
-        final String uniqueName;
-        final String searchPattern;
-        final String patchedText;
-
         if (null != target) { // Label is found
           labelRef.setTarget(target);
-
-          uniqueName = target.getLabel().getUniqueName();
           final long address = target.getAddress();
-
-          if (null != labelRef.getArgumentValue()) {
-            searchPattern = String.format("<label>%d", labelRef.getArgumentValue());
-          } else {
-            labelRef.getPatcher().setValue(BigInteger.ZERO);
-            searchPattern = "<label>0";
-          }
-
-          patchedText = call.getText().replace(searchPattern, uniqueName);
           labelRef.getPatcher().setValue(BigInteger.valueOf(address));
         } else { // Label is not found
           if (abortOnUndefined) {
@@ -278,22 +262,6 @@ public final class CodeAllocator {
                 "is not accessible in the scope of the current test sequence.",
                 source.getName(), call.getText(), call.getAddress()));
           }
-
-          uniqueName = source.getName();
-          searchPattern = "<label>0";
-
-          patchedText = call.getText().replace(searchPattern, uniqueName);
-        }
-
-        call.setText(patchedText);
-      }
-
-      // Clean all unused "<label>" markers.
-      final String text = call.getText();
-      if (null != text) {
-        final String cleanText = text.replace("<label>", "");
-        if (cleanText.length() != text.length()) {
-          call.setText(cleanText);
         }
       }
     }
