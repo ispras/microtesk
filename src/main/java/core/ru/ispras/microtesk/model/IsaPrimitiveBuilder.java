@@ -26,6 +26,7 @@ import ru.ispras.microtesk.model.data.Type;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.Location;
 import ru.ispras.microtesk.model.memory.LocationAccessor;
+import ru.ispras.microtesk.test.template.LabelReference;
 
 /**
  * The {@link IsaPrimitiveBuilder} class is responsible for creating and initializing
@@ -36,6 +37,7 @@ import ru.ispras.microtesk.model.memory.LocationAccessor;
 public class IsaPrimitiveBuilder {
   private final IsaPrimitiveInfoAnd info;
   private final Map<String, IsaPrimitive> args;
+  private LabelReference labelReference = null;
 
   /**
    * Creates a builder for a primitive described with the specified parameters.
@@ -101,6 +103,14 @@ public class IsaPrimitiveBuilder {
     args.put(name, value);
   }
 
+  public void setLabelReference(final LabelReference labelReference) throws ConfigurationException {
+    if (null != this.labelReference) {
+      throw new ConfigurationException(
+          "The label reference for %s is already assigned.", info.getName());
+    }
+    this.labelReference = labelReference;
+  }
+
   /**
    * Returns an primitive (addressing mode or operation) created by the builder.
    *
@@ -110,7 +120,14 @@ public class IsaPrimitiveBuilder {
    */
   public IsaPrimitive build() throws ConfigurationException {
     checkInitialized();
-    return info.create(args);
+
+    final IsaPrimitive result = info.create(args);
+    if (null != labelReference) {
+      // TODO: Not implemented yet.
+      // result.setLabelReference(labelReference);
+    }
+
+    return result;
   }
 
   private IsaPrimitiveInfo getArgumentInfo(final String name) throws ConfigurationException {
