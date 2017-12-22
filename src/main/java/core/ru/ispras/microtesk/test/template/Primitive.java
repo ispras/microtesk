@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -14,14 +14,13 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.SharedObject;
 
 public interface Primitive {
@@ -94,10 +93,10 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
       final boolean load,
       final boolean store,
       final int blockSize) {
-    checkNotNull(kind);
-    checkNotNull(name);
-    checkNotNull(typeName);
-    checkNotNull(args);
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(typeName);
+    InvariantChecks.checkNotNull(args);
 
     this.kind = kind;
     this.name = name;
@@ -258,9 +257,9 @@ final class LazyPrimitive extends SharedObject<LazyPrimitive>
       final Kind kind,
       final String name,
       final String typeName) {
-    checkNotNull(kind);
-    checkNotNull(name);
-    checkNotNull(typeName);
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(typeName);
 
     this.source = null;
     this.kind = kind;
