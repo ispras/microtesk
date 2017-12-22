@@ -111,15 +111,13 @@ public final class LabelReference {
   }
 
   /**
-   * Returns the unique name of the target label.
+   * Returns the unique name of the target or referenced label if the target is not assigned.
    *
-   * @return Unique name of the target label.
-   *
-   * @throws IllegalArgumentException if the target has not been assigned yet.
+   * @return Unique name of the target or referenced label if the target is not assigned.
    */
-  public String getTargetName() {
-    InvariantChecks.checkNotNull(target, "Target is not assigned yet.");
-    return target.getLabel().getUniqueName();
+  public String getName() {
+    final Label label = null != target? target.getLabel() : reference.getLabel();
+    return label.getUniqueName();
   }
 
   public void setTarget(final LabelManager.Target target) {
