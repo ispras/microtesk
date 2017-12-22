@@ -530,12 +530,18 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     String modeName = null;
     for (final String name : metaArgument.getTypeNames()) {
       final MetaAddressingMode metaAddressingMode = metaModel.getAddressingMode(name);
+
+      // Immediate-based addressing modes must have strictly one argument.
+      if (!isLabel && metaAddressingMode.getArguments().size() != 1) {
+        continue;
+      }
+
       if (metaAddressingMode.isLabel() == isLabel) {
         if (modeName == null) {
           modeName = name;
         } else {
           Logger.warning(
-              "Ambiguous conversion of the %s argument: addressing mode %s is selected, " + 
+              "Ambiguous conversion of the %s argument: addressing mode %s is selected, " +
               "but %s is equally possible.", metaArgument.getName(), modeName, name
               );
         }
