@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
-
 import java.io.File;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -154,9 +150,9 @@ public final class EngineUtils {
       final Situation situation,
       final Set<AddressingModeWrapper> initializedModes,
       final IsaPrimitive concretePrimitive) throws ConfigurationException {
-    checkNotNull(engineContext);
-    checkNotNull(primitive);
-    checkNotNull(initializedModes);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkNotNull(initializedModes);
     // Parameter {@code situation} can be null.
     // Parameter {@code concretePrimitive} can be null.
 
@@ -211,9 +207,9 @@ public final class EngineUtils {
       final EngineContext engineContext,
       final Primitive primitive,
       final TestBaseQueryCreator queryCreator) {
-    checkNotNull(engineContext);
-    checkNotNull(primitive);
-    checkNotNull(queryCreator);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkNotNull(queryCreator);
 
     final Map<String, Argument> args = new HashMap<>();
     args.putAll(queryCreator.getUnknownImmValues());
@@ -252,9 +248,9 @@ public final class EngineUtils {
       final Primitive primitive,
       final Situation situation,
       final TestBaseQueryCreator queryCreator) {
-    checkNotNull(engineContext);
-    checkNotNull(primitive);
-    checkNotNull(queryCreator);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkNotNull(queryCreator);
 
     Logger.debug("Processing situation %s for %s...", situation, primitive.getSignature());
     if (situation == null) {
@@ -291,9 +287,9 @@ public final class EngineUtils {
       final Argument argument,
       final Node value,
       final Immediate argumentToPatch) {
-    checkNotNull(argument);
-    checkNotNull(value);
-    checkTrue(value.getKind() == Node.Kind.VALUE);
+    InvariantChecks.checkNotNull(argument);
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkTrue(value.getKind() == Node.Kind.VALUE);
 
     final Data data = ((NodeValue) value).getData();
     final BigInteger dataValue;
@@ -324,8 +320,8 @@ public final class EngineUtils {
       final Map<String, Argument> unknownImmValues,
       final TestData testData,
       final Map<String, IsaPrimitive> argumentsToPatch) {
-    checkNotNull(unknownImmValues);
-    checkNotNull(testData);
+    InvariantChecks.checkNotNull(unknownImmValues);
+    InvariantChecks.checkNotNull(testData);
 
     for (final Map.Entry<String, Argument> e : unknownImmValues.entrySet()) {
       final Argument argument = e.getValue();
@@ -338,7 +334,7 @@ public final class EngineUtils {
       final Immediate argumentToPatch;
       if (null != argumentsToPatch) {
         argumentToPatch = (Immediate) argumentsToPatch.get(argument.getName());
-        checkNotNull(argumentToPatch);
+        InvariantChecks.checkNotNull(argumentToPatch);
       } else {
         argumentToPatch = null;
       }
@@ -348,7 +344,7 @@ public final class EngineUtils {
   }
 
   public static String getSituationName(final AbstractCall abstractCall) {
-    checkNotNull(abstractCall);
+    InvariantChecks.checkNotNull(abstractCall);
 
     final Primitive primitive = abstractCall.getRootOperation();
     if (primitive == null) {
@@ -369,8 +365,8 @@ public final class EngineUtils {
   public static List<ConcreteCall> makeConcreteCalls(
       final EngineContext engineContext,
       final List<AbstractCall> abstractSequence) throws ConfigurationException {
-    checkNotNull(engineContext);
-    checkNotNull(abstractSequence);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(abstractSequence);
 
     final List<ConcreteCall> concreteSequence = new ArrayList<>();
 
@@ -385,11 +381,12 @@ public final class EngineUtils {
   public static ConcreteCall makeConcreteCall(
       final EngineContext engineContext,
       final AbstractCall abstractCall) throws ConfigurationException {
-    checkNotNull(engineContext);
-    checkNotNull(abstractCall);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(abstractCall);
 
     // A preparator call must be expanded when the preparator containing this call is instantiated.
-    checkFalse(abstractCall.isPreparatorCall() , "Unexpanded preparator invocation.");
+    InvariantChecks.checkFalse(
+        abstractCall.isPreparatorCall() , "Unexpanded preparator invocation.");
 
     if (!abstractCall.isExecutable()) {
       return new ConcreteCall(abstractCall);
@@ -420,8 +417,8 @@ public final class EngineUtils {
   public static ConcreteCall makeSpecialConcreteCall(
       final EngineContext engineContext,
       final String instructionName) {
-    checkNotNull(engineContext);
-    checkNotNull(instructionName);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(instructionName);
 
     final Model model = engineContext.getModel();
     final IsaPrimitive operation;
@@ -437,7 +434,7 @@ public final class EngineUtils {
   }
 
   public static boolean isStreamBased(final AbstractCall abstractCall) {
-    checkNotNull(abstractCall);
+    InvariantChecks.checkNotNull(abstractCall);
 
     final Primitive rootOp = abstractCall.getRootOperation();
     checkRootOp(rootOp);
@@ -446,7 +443,7 @@ public final class EngineUtils {
   }
 
   public static boolean isStreamBased(final Primitive primitive) {
-    checkNotNull(primitive);
+    InvariantChecks.checkNotNull(primitive);
 
     final Situation situation = primitive.getSituation();
     if (null != situation && null != situation.getAttribute("stream")) {
@@ -456,7 +453,7 @@ public final class EngineUtils {
     for (final Argument argument : primitive.getArguments().values()) {
       if (argument.getKind() == Argument.Kind.OP) {
         final Primitive argumentPrimitive = (Primitive) argument.getValue();
-        checkNotNull(argumentPrimitive);
+        InvariantChecks.checkNotNull(argumentPrimitive);
 
         if (isStreamBased(argumentPrimitive)) {
           return true;
@@ -495,7 +492,7 @@ public final class EngineUtils {
   public static IsaPrimitive makeMode(
       final EngineContext engineContext,
       final Argument argument) throws ConfigurationException {
-    checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(engineContext);
     checkArgKind(argument, Argument.Kind.MODE);
 
     final Primitive abstractMode = (Primitive) argument.getValue();
@@ -505,7 +502,7 @@ public final class EngineUtils {
   public static IsaPrimitive makeMode(
       final EngineContext engineContext,
       final Primitive abstractMode) throws ConfigurationException {
-    checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(engineContext);
     checkMode(abstractMode);
 
     final IsaPrimitiveBuilder builder =
@@ -563,7 +560,7 @@ public final class EngineUtils {
   public static IsaPrimitive makeOp(
       final EngineContext engineContext,
       final Argument argument) throws ConfigurationException {
-    checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(engineContext);
     checkArgKind(argument, Argument.Kind.OP);
 
     final Primitive abstractOp = (Primitive) argument.getValue();
@@ -573,7 +570,7 @@ public final class EngineUtils {
   public static IsaPrimitive makeOp(
       final EngineContext engineContext,
       final Primitive abstractOp) throws ConfigurationException {
-    checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(engineContext);
     checkOp(abstractOp);
 
     final String name = abstractOp.getName();
@@ -634,9 +631,9 @@ public final class EngineUtils {
       final EngineContext engineContext,
       final Primitive mode,
       final BitVector value) {
-    checkNotNull(engineContext);
-    checkNotNull(mode);
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(mode);
+    InvariantChecks.checkNotNull(value);
 
     final PreparatorStore preparators = engineContext.getPreparators();
     final Preparator preparator = preparators.getPreparator(mode, value, null);
@@ -651,8 +648,8 @@ public final class EngineUtils {
 
   public static List<AbstractCall> makeStreamInit(
       final EngineContext engineContext, final String streamId) {
-    checkNotNull(engineContext);
-    checkNotNull(streamId);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(streamId);
 
     final StreamStore streams = engineContext.getStreams();
     final Stream stream = streams.getStream(streamId);
@@ -663,8 +660,8 @@ public final class EngineUtils {
 
   public static List<AbstractCall> makeStreamRead(
       final EngineContext engineContext, final String streamId) {
-    checkNotNull(engineContext);
-    checkNotNull(streamId);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(streamId);
 
     final StreamStore streams = engineContext.getStreams();
     final Stream stream = streams.getStream(streamId);
@@ -675,8 +672,8 @@ public final class EngineUtils {
 
   public static List<AbstractCall> makeStreamWrite(
       final EngineContext engineContext, final String streamId) {
-    checkNotNull(engineContext);
-    checkNotNull(streamId);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(streamId);
 
     final StreamStore streams = engineContext.getStreams();
     final Stream stream = streams.getStream(streamId);
@@ -686,7 +683,7 @@ public final class EngineUtils {
   }
 
   public static String makeErrorMessage(final TestBaseQueryResult queryResult) {
-    checkNotNull(queryResult);
+    InvariantChecks.checkNotNull(queryResult);
 
     final StringBuilder sb = new StringBuilder(String.format(
       "Failed to execute the query. Status: %s.", queryResult.getStatus()));
@@ -706,9 +703,9 @@ public final class EngineUtils {
       final TestBaseQueryBuilder builder,
       final String prefix,
       final Primitive p) {
-    checkNotNull(builder);
-    checkNotNull(prefix);
-    checkNotNull(p);
+    InvariantChecks.checkNotNull(builder);
+    InvariantChecks.checkNotNull(prefix);
+    InvariantChecks.checkNotNull(p);
 
     for (final Argument arg : p.getArguments().values()) {
       final String ctxArgName = (prefix.isEmpty())
@@ -727,7 +724,7 @@ public final class EngineUtils {
   }
 
   public static Set<AddressingModeWrapper> getOutAddressingModes(final List<AbstractCall> calls) {
-    checkNotNull(calls);
+    InvariantChecks.checkNotNull(calls);
 
     final Set<AddressingModeWrapper> modes = new LinkedHashSet<>();
     for (final AbstractCall call : calls) {
@@ -759,16 +756,16 @@ public final class EngineUtils {
   }
 
   public static void checkOp(final Primitive op) {
-    checkNotNull(op);
-    checkTrue(
+    InvariantChecks.checkNotNull(op);
+    InvariantChecks.checkTrue(
         Primitive.Kind.OP == op.getKind(),
         String.format("%s is not an operation.", op.getName())
         );
   }
 
   public static void checkMode(final Primitive mode) {
-    checkNotNull(mode);
-    checkTrue(
+    InvariantChecks.checkNotNull(mode);
+    InvariantChecks.checkTrue(
         Primitive.Kind.MODE == mode.getKind(),
         String.format("%s is not an addressing mode.", mode.getName())
         );
@@ -776,12 +773,12 @@ public final class EngineUtils {
 
   public static void checkRootOp(final Primitive op) {
     checkOp(op);
-    checkTrue(op.isRoot(), op.getName() + " is not a root operation!");
+    InvariantChecks.checkTrue(op.isRoot(), op.getName() + " is not a root operation!");
   }
 
   public static void checkArgKind(final Argument arg, final Argument.Kind expected) {
-    checkNotNull(arg);
-    checkTrue(
+    InvariantChecks.checkNotNull(arg);
+    InvariantChecks.checkTrue(
         arg.getKind() == expected,
         String.format("Argument %s has kind %s while %s is expected.",
             arg.getName(), arg.getKind(), expected)
