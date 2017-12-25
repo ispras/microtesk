@@ -535,15 +535,19 @@ public final class EngineUtils {
         }
 
         case LABEL: {
-          final LocationAccessor locationAccessor = builder.setArgument(argName, makeLabel(arg));
-          if (null != labelRefs) {
-            final LabelReference labelReference =
-                new LabelReference((LabelValue) arg.getValue(), locationAccessor);
+          final LocationAccessor locationAccessor =
+              builder.setArgument(argName, makeLabel(arg));
+          final LabelReference labelReference =
+              new LabelReference((LabelValue) arg.getValue(), locationAccessor);
 
+          if (null != labelRefs) {
             labelRefs.add(labelReference);
-            // TODO: Need to check whether constructed mode is defined as a label.
+          }
+
+          if (abstractMode.isLabel()) {
             builder.setLabelReference(labelReference);
           }
+
           break;
         }
 

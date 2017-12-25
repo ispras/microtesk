@@ -125,6 +125,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
         situation,
         branchInfo.first,
         branchInfo.second,
+        isLabel(),
         canThrowException(),
         memAccessStatus.isLoad(),
         memAccessStatus.isStore(),
@@ -133,6 +134,10 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
     lazyPrimitive.setSource(primitive);
     return primitive;
+  }
+
+  private boolean isLabel() {
+    return kind == Kind.MODE ? metaModel.getAddressingMode(getName()).isLabel() : false;
   }
 
   private boolean canThrowException() {

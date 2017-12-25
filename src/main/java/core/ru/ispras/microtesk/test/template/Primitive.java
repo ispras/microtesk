@@ -52,6 +52,7 @@ public interface Primitive {
   void setSituation(Situation situation);
   String getSignature();
 
+  boolean isLabel();
   boolean canThrowException();
   boolean isBranch();
   boolean isConditionalBranch();
@@ -73,6 +74,7 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
 
   private final boolean branch;
   private final boolean conditionalBranch;
+  private final boolean label;
   private final boolean exception;
 
   private final boolean load;
@@ -89,6 +91,7 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
       final Variate<Situation> situation,
       final boolean branch,
       final boolean conditionalBranch,
+      final boolean label,
       final boolean exception,
       final boolean load,
       final boolean store,
@@ -108,6 +111,7 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
 
     this.branch = branch;
     this.conditionalBranch = conditionalBranch;
+    this.label = label;
     this.exception = exception;
 
     this.load = load;
@@ -128,6 +132,7 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
 
     this.branch = other.branch;
     this.conditionalBranch = other.conditionalBranch;
+    this.label = other.label;
     this.exception = other.exception;
 
     this.load = other.load;
@@ -210,6 +215,11 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
     // The rest attributes make sense only for OPs.
     return signature + String.format(
       ":[context=%s, type=%s, root=%b]", contextName, typeName, isRoot);
+  }
+
+  @Override
+  public boolean isLabel() {
+    return label;
   }
 
   @Override
@@ -366,6 +376,12 @@ final class LazyPrimitive extends SharedObject<LazyPrimitive>
   public String getSignature() {
     checkSourceAssigned();
     return source.getSignature();
+  }
+
+  @Override
+  public boolean isLabel() {
+    checkSourceAssigned();
+    return source.isLabel();
   }
 
   @Override
