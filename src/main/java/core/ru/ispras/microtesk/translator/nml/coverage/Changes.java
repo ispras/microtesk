@@ -101,7 +101,7 @@ final class Changes {
     return rebase(new Variable(name, data), relVer);
   }
 
-  private NodeVariable rebase(Variable var, int relative) {
+  private NodeVariable rebase(final Variable var, final int relative) {
     final Batch batch = getBatch(var);
     if (relative == 1) {
       return batch.load;
@@ -120,7 +120,7 @@ final class Changes {
     return node;
   }
 
-  private Batch getBatch(Variable var) {
+  private Batch getBatch(final Variable var) {
     final Batch batch = fetchInsertBatch(var.getName());
     if (batch.isSet()) {
       return batch;
@@ -149,7 +149,7 @@ final class Changes {
     return batch;
   }
 
-  private Batch fetchInsertBatch(String name) {
+  private Batch fetchInsertBatch(final String name) {
     Batch batch = diff.get(name);
     if (batch == null) {
       batch = new Batch(name);
@@ -158,7 +158,7 @@ final class Changes {
     return batch;
   }
 
-  public Collection<Changes> fork(int n) {
+  public Collection<Changes> fork(final int n) {
     final Map<String, NodeVariable> slice =
         Collections.unmodifiableMap(new HashMap<>(this.store));
     final List<Changes> branches = new ArrayList<>(n);
