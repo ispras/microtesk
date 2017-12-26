@@ -79,6 +79,10 @@ final class SsaStorage {
       final String targetDir,
       final String modelName,
       final Map<String, SsaForm> ssa) {
+    InvariantChecks.checkNotNull(targetDir);
+    InvariantChecks.checkNotNull(modelName);
+    InvariantChecks.checkNotNull(ssa);
+
     try {
       final File genDir = new File(FileUtils.getNormalizedPath(targetDir));
 

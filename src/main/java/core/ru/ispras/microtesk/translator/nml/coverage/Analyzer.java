@@ -32,7 +32,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
  */
 public final class Analyzer implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;
-  private Ir ir;
   private IrInquirer inquirer;
   private Map<String, SsaForm> ssa;
 
@@ -45,22 +44,14 @@ public final class Analyzer implements TranslatorHandler<Ir> {
   public void processIr(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
 
-    this.ir = ir;
     this.inquirer = new IrInquirer(ir);
     this.ssa = new TreeMap<>();
-
-    generateOutput(translator.getOutDir());
-  }
-
-  private void generateOutput(final String targetDir) {
-    InvariantChecks.checkTrue(ssa.isEmpty());
-    InvariantChecks.checkNotNull(targetDir);
 
     processModes(ir.getModes().values());
     processPrimitives(ir.getModes().values());
     processPrimitives(ir.getOps().values());
 
-    SsaStorage.store(targetDir, ir.getModelName(), ssa);
+    SsaStorage.store(translator.getOutDir(), ir.getModelName(), ssa);
   }
 
   private void processPrimitives(final Collection<Primitive> primitives) {
