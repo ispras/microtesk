@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkFalse;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import static ru.ispras.fortress.expression.Nodes.AND;
 import static ru.ispras.fortress.expression.Nodes.EQ;
 import static ru.ispras.fortress.expression.Nodes.BVCONCAT;
@@ -48,6 +46,8 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
+import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.translator.nml.ir.analysis.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
@@ -816,13 +816,17 @@ final class SsaBuilder {
     return null;
   }
 
-  public SsaBuilder(final IrInquirer inquirer, final String prefix, final String attribute, final List<Statement> code) {
+  public SsaBuilder(
+      final IrInquirer inquirer,
+      final String prefix,
+      final String attribute,
+      final List<Statement> code) {
     this(inquirer, prefix, attribute, Utility.dotConc(prefix, attribute), code);
 
-    checkNotNull(prefix);
-    checkNotNull(attribute);
-    checkFalse(attribute.isEmpty());
-    checkNotNull(code);
+    InvariantChecks.checkNotNull(prefix);
+    InvariantChecks.checkNotNull(attribute);
+    InvariantChecks.checkFalse(attribute.isEmpty());
+    InvariantChecks.checkNotNull(code);
   }
 
   private SsaBuilder(final IrInquirer inquirer,
