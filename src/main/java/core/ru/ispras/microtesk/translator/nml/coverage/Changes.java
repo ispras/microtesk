@@ -27,40 +27,40 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 
-final class Batch {
-  public final String key;
-  public final List<NodeVariable> batch;
-
-  public NodeVariable load;
-  public NodeVariable store;
-
-  public Batch(String key) {
-    InvariantChecks.checkNotNull(key);
-
-    this.key = key;
-    this.batch = new ArrayList<>();
-    this.load = null;
-    this.store = null;
-  }
-
-  public void clear() {
-    this.batch.clear();
-    this.load = null;
-    this.store = null;
-  }
-
-  public boolean isSet() {
-    return this.load != null;
-  }
-}
-
 final class Changes {
+  private static final class Batch {
+    public final String key;
+    public final List<NodeVariable> batch;
+
+    public NodeVariable load;
+    public NodeVariable store;
+
+    public Batch(final String key) {
+      InvariantChecks.checkNotNull(key);
+
+      this.key = key;
+      this.batch = new ArrayList<>();
+      this.load = null;
+      this.store = null;
+    }
+
+    public void clear() {
+      this.batch.clear();
+      this.load = null;
+      this.store = null;
+    }
+
+    public boolean isSet() {
+      return this.load != null;
+    }
+  }
+
   private final Map<String, NodeVariable> base;
   private final Map<String, NodeVariable> store;
   private final Map<String, Batch> diff;
   private final Map<String, Node> summary;
 
-  public Changes(Map<String, NodeVariable> base, Map<String, NodeVariable> store) {
+  public Changes(final Map<String, NodeVariable> base, final Map<String, NodeVariable> store) {
     this.base = base;
     this.store = store;
     this.diff = new HashMap<>();
@@ -71,11 +71,11 @@ final class Changes {
     return this.summary;
   }
 
-  public NodeVariable getBase(String name) {
+  public NodeVariable getBase(final String name) {
     return this.base.get(name);
   }
 
-  public NodeVariable getLatest(String name) {
+  public NodeVariable getLatest(final String name) {
     final Batch diff = this.diff.get(name);
     if (diff != null && diff.isSet()) {
       return (diff.batch.isEmpty()) ? diff.store : findLatest(diff.batch);
@@ -83,7 +83,7 @@ final class Changes {
     return store.get(name);
   }
 
-  public NodeVariable newLatest(String name) {
+  public NodeVariable newLatest(final String name) {
     final NodeVariable prev = getLatest(name);
     final NodeVariable latest = new NodeVariable(prev.getVariable());
     latest.setUserData(getVersion(prev) + 1);
@@ -93,11 +93,11 @@ final class Changes {
     return latest;
   }
 
-  public NodeVariable rebase(NodeVariable node) {
+  public NodeVariable rebase(final NodeVariable node) {
     return rebase(node.getVariable(), getVersion(node));
   }
 
-  public NodeVariable rebase(String name, Data data, int relVer) {
+  public NodeVariable rebase(final String name, final Data data, final int relVer) {
     return rebase(new Variable(name, data), relVer);
   }
 
@@ -169,7 +169,7 @@ final class Changes {
   }
 
   public void commit() {
-    for (Batch batch : diff.values()) {
+    for (final Batch batch : diff.values()) {
       if (!batch.batch.isEmpty()) {
         final NodeVariable latest = findLatest(batch.batch);
         store.put(latest.getName(), latest);
@@ -181,8 +181,8 @@ final class Changes {
     }
   }
 
-  private static NodeVariable find(Collection<NodeVariable> vars, int version) {
-    for (NodeVariable node : vars) {
+  private static NodeVariable find(final Collection<NodeVariable> vars, int version) {
+    for (final NodeVariable node : vars) {
       if (getVersion(node) == version) {
         return node;
       }
@@ -190,10 +190,10 @@ final class Changes {
     return null;
   }
 
-  private static NodeVariable findLatest(Collection<NodeVariable> vars) {
+  private static NodeVariable findLatest(final Collection<NodeVariable> vars) {
     int version = -1;
     NodeVariable variable = null;
-    for (NodeVariable node : vars) {
+    for (final NodeVariable node : vars) {
       if (getVersion(node) > version) {
         version = getVersion(node);
         variable = node;
@@ -202,7 +202,7 @@ final class Changes {
     return variable;
   }
 
-  private static int getVersion(Node node) {
+  private static int getVersion(final Node node) {
     return (node != null) ? (Integer) node.getUserData() : 0;
   }
 }
