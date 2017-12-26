@@ -36,15 +36,15 @@ final class PathFilter {
     }
   }
 
-  final Deque<OpHeader> headers;
-  final List<Node> operands;
+  private final Deque<OpHeader> headers;
+  private final List<Node> operands;
 
   private PathFilter() {
     this.headers = new ArrayDeque<>();
     this.operands = new ArrayList<>();
   }
 
-  private void processNode(Node node) {
+  private void processNode(final Node node) {
     if (ExprUtils.isOperation(node, StandardOperation.AND)) {
       processConjunction(node);
     } else if (ExprUtils.isOperation(node, StandardOperation.OR)) {
@@ -52,35 +52,41 @@ final class PathFilter {
     }
   }
 
-  private void processConjunction(Node node) {
+  private void processConjunction(final Node node) {
     final NodeOperation op = (NodeOperation) node;
     push(StandardOperation.AND);
-    for (Node child : op.getOperands()) {
+
+    for (final Node child : op.getOperands()) {
       processNode(child);
     }
+
     pop();
   }
 
-  private void processDisjunction(Node node) {
+  private void processDisjunction(final Node node) {
     final NodeOperation op = (NodeOperation) node;
     push(StandardOperation.OR);
-    for (Node child : op.getOperands()) {
+
+    for (final Node child : op.getOperands()) {
       final NodeOperation branch = (NodeOperation) child;
       push(StandardOperation.AND);
+
       addOperand(branch.getOperand(0));
       for (int i = 1; i < branch.getOperandCount(); ++i) {
         processNode(branch.getOperand(i));
       }
+
       pop();
     }
+
     pop();
   }
 
-  private void push(Enum<?> op) {
+  private void push(final Enum<?> op) {
     this.headers.push(new OpHeader(op));
   }
 
-  private void addOperand(Node operand) {
+  private void addOperand(final Node operand) {
     this.operands.add(operand);
     this.headers.peek().numOperands++;
   }
@@ -99,13 +105,13 @@ final class PathFilter {
     }
   }
 
-  public static Node filter(Node node) {
+  public static Node filter(final Node node) {
     final PathFilter filter = new PathFilter();
+
     filter.push(StandardOperation.AND);
     filter.processNode(node);
-    if (filter.operands.isEmpty()) {
-      return Nodes.TRUE;
-    }
-    return filter.operands.get(0);
+
+    return filter.operands.isEmpty() ?
+        Nodes.TRUE : filter.operands.get(0);
   }
 }
