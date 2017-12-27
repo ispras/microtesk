@@ -37,11 +37,11 @@ import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public final class PathConstraintBuilder {
-  final Map<String, NodeVariable> variables = new HashMap<>();
-  final ConstraintBuilder builder = new ConstraintBuilder();
-  final List<Node> ssa;
-  final List<NodeVariable> specialMarks = new ArrayList<>();
-  final Node conditionExpr;
+  private final Map<String, NodeVariable> variables = new HashMap<>();
+  private final ConstraintBuilder builder = new ConstraintBuilder();
+  private final List<Node> ssa;
+  private final List<NodeVariable> specialMarks = new ArrayList<>();
+  private final Node conditionExpr;
 
   public PathConstraintBuilder(final Node node) {
     this(ExprUtils.isOperation(node, StandardOperation.AND)
@@ -51,6 +51,7 @@ public final class PathConstraintBuilder {
 
   public PathConstraintBuilder(final Collection<? extends Node> formulas) {
     InvariantChecks.checkNotNull(formulas);
+
     this.ssa = Transformer.transformAll(formulas, setUpTransformer());
     for (NodeVariable node : variables.values()) {
       this.builder.addVariable(node.getName(), node.getData());
@@ -78,11 +79,11 @@ public final class PathConstraintBuilder {
     return build(Collections.<Node>emptyList());
   }
 
-  public Constraint build(Node condition) {
+  public Constraint build(final Node condition) {
     return build(Collections.singleton(condition));
   }
 
-  public Constraint build(Collection<? extends Node> conditions) {
+  public Constraint build(final Collection<? extends Node> conditions) {
     final Formulas formulas = new Formulas();
     formulas.addAll(this.ssa);
     formulas.addAll(conditions);
@@ -96,12 +97,12 @@ public final class PathConstraintBuilder {
 
     final TransformerRule bake = new TransformerRule() {
       @Override
-      public boolean isApplicable(Node node) {
+      public boolean isApplicable(final Node node) {
         return node.getKind() == Node.Kind.VARIABLE;
       }
 
       @Override
-      public Node apply(Node node) {
+      public Node apply(final Node node) {
         final NodeVariable var = (NodeVariable) node;
         final String name =
             String.format("%s!%d", var.getName(), var.getUserData());
