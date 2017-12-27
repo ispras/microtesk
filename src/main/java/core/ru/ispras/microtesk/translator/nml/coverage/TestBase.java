@@ -81,7 +81,7 @@ public final class TestBase {
     this(SysUtils.getHomeDir());
   }
 
-  public TestBaseQueryResult executeQuery(TestBaseQuery query) {
+  public TestBaseQueryResult executeQuery(final TestBaseQuery query) {
     final TestBaseQueryResult rc = testBase.executeQuery(query);
     if (rc.getStatus() == TestBaseQueryResult.Status.OK ||
         rc.getStatus() == TestBaseQueryResult.Status.ERROR) {
@@ -120,7 +120,7 @@ public final class TestBase {
 
       final Constraint constraint = builder.build(bindings);
       result = solverId.getSolver().solve(constraint);
-    } catch (Throwable e) {
+    } catch (final Throwable e) {
       final List<String> errors = new ArrayList<>(rc.getErrors().size() + 1);
 
       final StringWriter sw = new StringWriter();
@@ -135,9 +135,11 @@ public final class TestBase {
     return fromSolverResult(query, result);
   }
 
-  private static Node findGuard(final String testCase,
-                                final Map<String, NodeVariable> variables) {
+  private static Node findGuard(
+      final String testCase,
+      final Map<String, NodeVariable> variables) {
     final Map<String, List<String>> components = new TreeMap<>();
+
     for (final NodeVariable var : variables.values()) {
       if (var.isType(DataType.BOOLEAN)) {
         final int pos = var.getName().indexOf('!');
@@ -147,6 +149,7 @@ public final class TestBase {
         }
       }
     }
+
     final List<String> subset = splitInverse(testCase);
     for (final Map.Entry<String, List<String>> entry : components.entrySet()) {
       if (isOrderedSubset(subset, entry.getValue())) {
@@ -156,11 +159,13 @@ public final class TestBase {
         }
       }
     }
+
     throw new IllegalArgumentException(testCase);
   }
 
-  private static boolean isOrderedSubset(final List<String> parts,
-                                         final List<String> path) {
+  private static boolean isOrderedSubset(
+      final List<String> parts,
+      final List<String> path) {
     final Iterator<String> pathIt = path.iterator();
     final Iterator<String> partsIt = parts.iterator();
 
@@ -187,13 +192,16 @@ public final class TestBase {
     return tokens;
   }
 
-  private Node findPathSpec(TestBaseQuery query, Map<String, NodeVariable> variables) {
+  private Node findPathSpec(
+      final TestBaseQuery query,
+      final Map<String, NodeVariable> variables) {
     final Map<String, Object> context = query.getContext();
+
     final String name = (String) context.get(TestBaseContext.INSTRUCTION);
     final String situation = (String) context.get(TestBaseContext.TESTCASE);
     final Pair<String, String> pair = StringUtils.splitOnFirst(situation, '.');
 
-    for (Map.Entry<String, Object> entry : context.entrySet()) {
+    for (final Map.Entry<String, Object> entry : context.entrySet()) {
       if (entry.getValue().equals(name)) {
         final String varName = entry.getKey() + pair.second + "!1";
         if (variables.containsKey(varName)) {
@@ -201,6 +209,7 @@ public final class TestBase {
         }
       }
     }
+
     return NodeValue.newBoolean(true);
   }
 
@@ -275,15 +284,18 @@ public final class TestBase {
         }
       }
     }
+
     return bindings;
   }
 
   private PathConstraintBuilder constraintBuilder(final TestBaseQuery query) {
     final Map<String, Object> context = query.getContext();
+
     final String model = (String) context.get(TestBaseContext.PROCESSOR);
-    final String instr = (String) context.get(TestBaseContext.INSTRUCTION);
+    final String instruction = (String) context.get(TestBaseContext.INSTRUCTION);
+
     final SsaAssembler assembler = new SsaAssembler(getStorage(model));
-    final Node formula = assembler.assemble(context, instr);
+    final Node formula = assembler.assemble(context, instruction);
 
     return new PathConstraintBuilder(formula);
   }
