@@ -30,7 +30,7 @@ final class PathFilter {
     public final Enum<?> opId;
     public int numOperands;
 
-    public OpHeader(Enum<?> opId) {
+    public OpHeader(final Enum<?> opId) {
       this.opId = opId;
       this.numOperands = 0;
     }
