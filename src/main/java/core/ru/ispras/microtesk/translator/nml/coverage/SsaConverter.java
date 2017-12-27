@@ -27,6 +27,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.Formulas;
 import ru.ispras.fortress.transformer.NodeTransformer;
+import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 
 final class SsaConverter {
@@ -93,7 +94,7 @@ final class SsaConverter {
       } else if (ExprUtils.isOperation(op, SsaOperation.PHI)) {
         block = Block.newPhi();
       } else if (!ExprUtils.isOperation(op, SsaOperation.BLOCK)) {
-        builder.add((NodeOperation) Utility.transform(op, this.xform));
+        builder.add((NodeOperation) Transformer.transform(op, this.xform));
       }
     }
     if (block == null) {
@@ -116,7 +117,7 @@ final class SsaConverter {
       if (ExprUtils.isOperation(node, SsaOperation.BLOCK)) {
         final NodeOperation op = (NodeOperation) node;
         final String name = operandName(op, 0);
-        final Node guard = Utility.transform(op.getOperand(1), this.xform);
+        final Node guard = Transformer.transform(op.getOperand(1), this.xform);
         final GuardedBlock guarded =
             new GuardedBlock(name, guard, restoreBlock(name));
         children.add(guarded);

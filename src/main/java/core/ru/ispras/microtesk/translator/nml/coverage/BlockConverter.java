@@ -31,6 +31,7 @@ import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
 import ru.ispras.fortress.solver.constraint.ConstraintKind;
 import ru.ispras.fortress.solver.constraint.Formulas;
 import ru.ispras.fortress.transformer.NodeTransformer;
+import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 
 public final class BlockConverter {
@@ -84,11 +85,11 @@ public final class BlockConverter {
       } else if (ExprUtils.isOperation(node, SsaOperation.CALL)) {
         formulas.add(convertCall(node, xform));
       } else {
-        formulas.add(Utility.transform(node, xform));
+        formulas.add(Transformer.transform(node, xform));
       }
     }
     for (GuardedBlock child : block.getChildren()) {
-      final Node guard = Utility.transform(child.guard, xform);
+      final Node guard = Transformer.transform(child.guard, xform);
       formulas.add(new NodeOperation(SsaOperation.BLOCK, newNamed(child.name), guard));
     }
 
@@ -123,7 +124,7 @@ public final class BlockConverter {
       } else if (ExprUtils.isOperation(arg, SsaOperation.ARGUMENT_LINK)) {
         arguments.add(arg);
       } else {
-        arguments.add(Utility.transform(arg, xform));
+        arguments.add(Transformer.transform(arg, xform));
       }
     }
     return new NodeOperation(SsaOperation.CLOSURE, arguments);

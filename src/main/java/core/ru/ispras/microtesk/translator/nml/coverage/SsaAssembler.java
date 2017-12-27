@@ -42,6 +42,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.NodeTransformer;
+import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
@@ -219,7 +220,7 @@ public final class SsaAssembler {
     for (GuardedBlock guard : block.getChildren()) {
       changes = rebasers.next();
 
-      newBatch(Utility.transform(guard.guard, xform));
+      newBatch(Transformer.transform(guard.guard, xform));
       fence = sameNotNull(fence, embedBlock(prefix, guard.block));
       branches.add(endBatch());
     }
@@ -244,7 +245,7 @@ public final class SsaAssembler {
   private static void join(Changes repo, Collection<GuardedBlock> blocks, Collection<Changes> containers, NodeTransformer xform) {
     final Iterator<GuardedBlock> block = blocks.iterator();
     for (Changes diff : containers) {
-      final Node guard = Utility.transform(block.next().guard, xform);
+      final Node guard = Transformer.transform(block.next().guard, xform);
       for (Map.Entry<String, Node> entry : diff.getSummary().entrySet()) {
         final Node fallback = getJointFallback(entry.getKey(), repo, diff);
         if (!fallback.equals(entry.getValue()) ||

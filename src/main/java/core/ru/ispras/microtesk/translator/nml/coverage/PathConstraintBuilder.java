@@ -32,6 +32,7 @@ import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
 import ru.ispras.fortress.solver.constraint.Formulas;
 import ru.ispras.fortress.transformer.NodeTransformer;
+import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -50,7 +51,7 @@ public final class PathConstraintBuilder {
 
   public PathConstraintBuilder(final Collection<? extends Node> formulas) {
     InvariantChecks.checkNotNull(formulas);
-    this.ssa = Utility.transform(formulas, setUpTransformer());
+    this.ssa = Transformer.transformAll(formulas, setUpTransformer());
     for (NodeVariable node : variables.values()) {
       this.builder.addVariable(node.getName(), node.getData());
     }

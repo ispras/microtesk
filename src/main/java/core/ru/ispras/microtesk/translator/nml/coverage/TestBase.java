@@ -42,6 +42,7 @@ import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.solver.SolverResult;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.transformer.NodeTransformer;
+import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.SysUtils;
@@ -272,7 +273,7 @@ public final class TestBase {
         final String name = entry.getKey() + "!1";
         if (variables.containsKey(name)) {
           final Node binding = EQ(variables.get(name), entry.getValue());
-          bindings.add(Utility.transform(binding, caster));
+          bindings.add(Transformer.transform(binding, caster));
         }
       }
     }
