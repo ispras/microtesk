@@ -90,7 +90,7 @@ public final class TestBase {
 
     SolverResult result;
     try {
-      final PathConstraintBuilder builder = constraintBuilder(query);
+      final PathConstraintBuilder builder = newPathConstraintBuilder(query);
 
       final Collection<Node> bindings = gatherBindings(query, builder.getVariables());
       bindings.add(findPathSpec(query, builder.getVariables()));
@@ -288,7 +288,7 @@ public final class TestBase {
     return bindings;
   }
 
-  private PathConstraintBuilder constraintBuilder(final TestBaseQuery query) {
+  private PathConstraintBuilder newPathConstraintBuilder(final TestBaseQuery query) {
     final Map<String, Object> context = query.getContext();
 
     final String model = (String) context.get(TestBaseContext.PROCESSOR);
