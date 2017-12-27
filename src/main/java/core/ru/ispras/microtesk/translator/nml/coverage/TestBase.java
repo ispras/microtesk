@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import static ru.ispras.fortress.expression.Nodes.EQ;
-import static ru.ispras.fortress.expression.Nodes.NOT;
-import static ru.ispras.fortress.expression.Nodes.OR;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -55,15 +51,17 @@ import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;
 
 public final class TestBase {
-  final String path;
-  final Map<String, Map<String, SsaForm>> storage;
-  final ru.ispras.testbase.stub.TestBase testBase;
+  private final String path;
+  private final Map<String, Map<String, SsaForm>> storage;
+  private final ru.ispras.testbase.stub.TestBase testBase;
 
-  private static TestBase instance = new TestBase();
-
+  private static TestBase instance = null;
   private static SolverId solverId = SolverId.CVC4_TEXT;
 
   public static TestBase get() {
+    if (null == instance) {
+      instance = new TestBase();
+    }
     return instance;
   }
 
@@ -101,7 +99,7 @@ public final class TestBase {
       if (testCase.equals("normal")) {
         final List<NodeVariable> marks = builder.getSpecialMarks();
         if (!marks.isEmpty()) {
-          bindings.add(NOT(OR(marks)));
+          bindings.add(Nodes.NOT(Nodes.OR(marks)));
         }
       } else if (!testCase.equals("undefined") && !testCase.equals("unpredicted")) {
         final List<NodeVariable> marks = new ArrayList<>();
@@ -112,12 +110,12 @@ public final class TestBase {
           }
         }
         if (!marks.isEmpty()) {
-          bindings.add(NOT(OR(marks)));
+          bindings.add(Nodes.NOT(Nodes.OR(marks)));
         }
-        bindings.add(EQ(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
+        bindings.add(Nodes.EQ(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
       } else {
         // unrestrited access to all paths: same as above, but w/o mark filtering
-        bindings.add(EQ(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
+        bindings.add(Nodes.EQ(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
       }
 
       final Constraint constraint = builder.build(bindings);
@@ -206,27 +204,25 @@ public final class TestBase {
     return NodeValue.newBoolean(true);
   }
 
-  private TestBaseQueryResult fromSolverResult(TestBaseQuery query, SolverResult result) {
+  private TestBaseQueryResult fromSolverResult(
+      final TestBaseQuery query,
+      final SolverResult result) {
     switch (result.getStatus()) {
-    case SAT:
-      return TestBaseQueryResult.success(parseResult(query, result));
+      case SAT:
+        return TestBaseQueryResult.success(parseResult(query, result));
 
-    case ERROR:
-      final List<String> errors = new ArrayList<>();
-      for (String error : result.getErrors()) {
-        errors.add(error);
-      }
-      return TestBaseQueryResult.reportErrors(errors);
+      case ERROR:
+        return TestBaseQueryResult.reportErrors(result.getErrors());
 
-    default:
+      default:
+        return TestBaseQueryResult.success(TestDataProvider.empty());
     }
-    return TestBaseQueryResult.success(TestDataProvider.empty());
   }
 
-  private TestDataProvider parseResult(TestBaseQuery query, SolverResult result) {
+  private TestDataProvider parseResult(final TestBaseQuery query, final SolverResult result) {
     final Map<String, Data> values = new HashMap<>();
-    for (Variable var : result.getVariables()) {
-      values.put(var.getName(), var.getData());
+    for (final Variable variable : result.getVariables()) {
+      values.put(variable.getName(), variable.getData());
     }
 
     final Map<String, Object> valueNodes = new HashMap<>();
@@ -264,7 +260,9 @@ public final class TestBase {
     };
   }
 
-  private Collection<Node> gatherBindings(TestBaseQuery query, Map<String, NodeVariable> variables) {
+  private Collection<Node> gatherBindings(
+      final TestBaseQuery query,
+      final Map<String, NodeVariable> variables) {
     final List<Node> bindings = new ArrayList<>();
     final NodeTransformer caster = new NodeTransformer(IntegerCast.rules());
 
@@ -272,7 +270,7 @@ public final class TestBase {
       if (entry.getValue().getKind() == Node.Kind.VALUE) {
         final String name = entry.getKey() + "!1";
         if (variables.containsKey(name)) {
-          final Node binding = EQ(variables.get(name), entry.getValue());
+          final Node binding = Nodes.EQ(variables.get(name), entry.getValue());
           bindings.add(Transformer.transform(binding, caster));
         }
       }
