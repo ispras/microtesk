@@ -33,7 +33,6 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.TransformerRule;
-import ru.ispras.fortress.util.InvariantChecks;
 
 public final class IntegerCast {
   public static Map<Enum<?>, TransformerRule> rules() {
