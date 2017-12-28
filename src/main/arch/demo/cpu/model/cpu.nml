@@ -140,16 +140,18 @@ mode J_ADDR = J_LABEL | J_IMM
 
 op J (target : J_ADDR)
   syntax = format("j %s", target.syntax)
-  image  = format("011%s", target.image)
+  image  = format("01%s", target.image)
   action = { PC = target; }
 
 // Transfers control to the specified address if source equals 0.
 op JZ (source: OPRNDL, target: J_ADDR)
   syntax = format("jz %s", target.syntax)
-  image  = format("111%s%s", source.image, target.image)
+  image  = format("11%s%s", source.image, target.image)
   action = {
     if source == 0 then
       PC = target;
+    else
+      PC = PC + 2;
     endif;
   }
 

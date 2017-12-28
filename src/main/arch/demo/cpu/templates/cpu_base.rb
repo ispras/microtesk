@@ -92,7 +92,7 @@ class CpuBaseTemplate < Template
     preparator(:target => 'IMM') {
     }
 
-    org 0x1F
+    org 0x10
 
     trace 'Initialization:'
     comment 'Initialization Section Starts'
