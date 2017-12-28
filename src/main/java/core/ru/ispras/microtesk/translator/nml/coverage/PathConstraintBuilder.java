@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -44,16 +44,18 @@ public final class PathConstraintBuilder {
   private final Node conditionExpr;
 
   public PathConstraintBuilder(final Node node) {
-    this(ExprUtils.isOperation(node, StandardOperation.AND)
-      ? ((NodeOperation) node).getOperands()
-      : Collections.singleton(node));
+    this(
+        ExprUtils.isOperation(node, StandardOperation.AND) ?
+            ((NodeOperation) node).getOperands() :
+            Collections.singleton(node)
+    );
   }
 
   public PathConstraintBuilder(final Collection<? extends Node> formulas) {
     InvariantChecks.checkNotNull(formulas);
 
     this.ssa = Transformer.transformAll(formulas, setUpTransformer());
-    for (NodeVariable node : variables.values()) {
+    for (final NodeVariable node : variables.values()) {
       this.builder.addVariable(node.getName(), node.getData());
     }
     this.conditionExpr = PathFilter.filter(Nodes.AND(this.ssa));
@@ -61,10 +63,6 @@ public final class PathConstraintBuilder {
 
   public Map<String, NodeVariable> getVariables() {
     return this.variables;
-  }
-
-  public ConstraintBuilder getConstraintBuilder() {
-    return this.builder;
   }
 
   public Paths getPaths() {
@@ -98,19 +96,19 @@ public final class PathConstraintBuilder {
     final TransformerRule bake = new TransformerRule() {
       @Override
       public boolean isApplicable(final Node node) {
-        return node.getKind() == Node.Kind.VARIABLE;
+        return ExprUtils.isVariable(node);
       }
 
       @Override
       public Node apply(final Node node) {
-        final NodeVariable var = (NodeVariable) node;
-        final String name =
-            String.format("%s!%d", var.getName(), var.getUserData());
+        final NodeVariable variable = (NodeVariable) node;
+        final String name = String.format("%s!%d", variable.getName(), variable.getUserData());
+
         if (variables.containsKey(name)) {
           return variables.get(name);
         }
-        final NodeVariable baked =
-            new NodeVariable(new Variable(name, var.getData()));
+
+        final NodeVariable baked = new NodeVariable(new Variable(name, variable.getData()));
         variables.put(name, baked);
 
         return baked;
