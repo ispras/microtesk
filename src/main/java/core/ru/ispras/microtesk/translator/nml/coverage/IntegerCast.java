@@ -33,6 +33,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.TransformerRule;
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class IntegerCast {
   public static Map<Enum<?>, TransformerRule> rules() {
@@ -117,7 +118,7 @@ public final class IntegerCast {
     return Nodes.BVZEROEXT(extsize, origin);
   }
 
-  public static int getIntegerOperandIndex(Node node, int start) {
+  private static int getIntegerOperandIndex(Node node, int start) {
     if (node.getKind() == Node.Kind.OPERATION) {
       final NodeOperation op = (NodeOperation) node;
       for (int i = start; i < op.getOperandCount(); ++i) {
@@ -129,7 +130,7 @@ public final class IntegerCast {
     return -1;
   }
 
-  public static int getBitVectorOperandIndex(Node node, int start) {
+  private static int getBitVectorOperandIndex(Node node, int start) {
     if (node.getKind() == Node.Kind.OPERATION) {
       final NodeOperation op = (NodeOperation) node;
       for (int i = start; i < op.getOperandCount(); ++i) {
@@ -141,7 +142,7 @@ public final class IntegerCast {
     return -1;
   }
 
-  public static boolean nodeIsInteger(Node node) {
+  private static boolean nodeIsInteger(Node node) {
     return node.getKind() == Node.Kind.VALUE &&
            node.getDataType() == DataType.INTEGER;
   }
@@ -157,7 +158,7 @@ public final class IntegerCast {
     return common;
   }
 
-  public static int compare(final DataType lhs, final DataType rhs) {
+  private static int compare(final DataType lhs, final DataType rhs) {
     final List<DataType> priorities = Arrays.asList( 
         DataType.UNKNOWN,
         DataType.BOOLEAN,
@@ -173,7 +174,7 @@ public final class IntegerCast {
     return priorities.indexOf(lhs) - priorities.indexOf(rhs);
   }
 
-  public static boolean hasTypeMismatch(final Collection<? extends Node> nodes) {
+  private static boolean hasTypeMismatch(final Collection<? extends Node> nodes) {
     if (nodes.isEmpty()) {
       return false;
     }
@@ -186,26 +187,26 @@ public final class IntegerCast {
     }
     return false;
   }
-}
 
-interface TypeGetter {
+
+private interface TypeGetter {
   DataType getType(Node node);
 }
 
-final class AttributeTypeGetter implements TypeGetter {
+private static final class AttributeTypeGetter implements TypeGetter {
   final int attrIndex;
 
-  public AttributeTypeGetter(int index) {
+  public AttributeTypeGetter(final int index) {
     this.attrIndex = index;
   }
 
   @Override
-  public DataType getType(Node node) {
+  public DataType getType(final Node node) {
     return (DataType) node.getDataType().getParameters()[this.attrIndex];
   }
 }
 
-final class CastOperationRule implements TransformerRule {
+private static final class CastOperationRule implements TransformerRule {
   private final Map<Enum<?>, Enum<?>> operations;
   private final TransformerRule castRule;
 
@@ -232,15 +233,15 @@ final class CastOperationRule implements TransformerRule {
   }
 }
 
-class CommonBitVectorTypeRule implements TransformerRule {
+private static class CommonBitVectorTypeRule implements TransformerRule {
   @Override
-  public boolean isApplicable(Node node) {
+  public boolean isApplicable(final Node node) {
     return IntegerCast.getBitVectorOperandIndex(node, 0) >= 0 &&
            nodeHasTypeMismatch(node);
   }
 
   @Override
-  public Node apply(Node node) {
+  public Node apply(final Node node) {
     final NodeOperation op = (NodeOperation) node;
     final DataType type = IntegerCast.findCommonType(op.getOperands());
 
@@ -260,12 +261,15 @@ class CommonBitVectorTypeRule implements TransformerRule {
 
 }
 
-final class DependentOperandRule implements TransformerRule {
+private static final class DependentOperandRule implements TransformerRule {
   private final int domIndex;
   private final TypeGetter domGetter;
   private final int[] indices;
 
-  public DependentOperandRule(int domIndex, TypeGetter domGetter, int ... indices) {
+  public DependentOperandRule(
+      final int domIndex,
+      final TypeGetter domGetter,
+      final int ... indices) {
     this.domIndex = domIndex;
     this.domGetter = domGetter;
     this.indices = indices;
@@ -275,7 +279,7 @@ final class DependentOperandRule implements TransformerRule {
   public boolean isApplicable(Node node) {
     final NodeOperation op = (NodeOperation) node;
     final DataType type = domGetter.getType(op.getOperand(domIndex));
-    for (int index : indices) {
+    for (final int index : indices) {
       if (!type.equals(op.getOperand(index).getDataType())) {
         return true;
       }
@@ -284,18 +288,18 @@ final class DependentOperandRule implements TransformerRule {
   }
 
   @Override
-  public Node apply(Node node) {
+  public Node apply(final Node node) {
     final NodeOperation op = (NodeOperation) node;
     final DataType type = domGetter.getType(op.getOperand(domIndex));
     final List<Node> operands = new ArrayList<>(op.getOperands());
-    for (int index : indices) {
+    for (final int index : indices) {
       operands.set(index, IntegerCast.cast(operands.get(index), type));
     }
     return new NodeOperation(op.getOperationId(), operands);
   }
 }
 
-final class IteRule implements TransformerRule {
+private static final class IteRule implements TransformerRule {
   @Override
   public boolean isApplicable(final Node node) {
     if (ExprUtils.isOperation(node, StandardOperation.ITE) &&
@@ -318,4 +322,5 @@ final class IteRule implements TransformerRule {
     }
     return new NodeOperation(StandardOperation.ITE, operands);
   }
+}
 }
