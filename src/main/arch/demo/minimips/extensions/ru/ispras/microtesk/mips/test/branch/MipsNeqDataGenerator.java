@@ -25,14 +25,18 @@ public final class MipsNeqDataGenerator extends MipsBranchDataGenerator {
   @Override
   public TestDataProvider generateThen(final TestBaseQuery query) {
     final Pair<Integer, Integer> values = generateDistinct(
-        getValue("rs", query),
+        // rs is always unknown because it is chosen to be used as a stream register.
+        null, // getValue("rs", query),
         getValue("rt", query));
     return generate(query, values.first, values.second);
   }
 
   @Override
   public TestDataProvider generateElse(final TestBaseQuery query) {
-    final int value = generateEqual(getValue("rs", query), getValue("rt", query));
+    final int value = generateEqual(
+        // rs is always unknown because it is chosen to be used as a stream register.
+        null, // getValue("rs", query),
+        getValue("rt", query));
     return generate(query, value, value);
   }
 }
