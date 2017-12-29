@@ -553,6 +553,11 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
       }
     }
 
+    // If we were looking for a label, we can try non-label.
+    if (!isLabel && null == modeName) {
+      modeName = getModeName(metaArgument, true);
+    }
+
     if (null == modeName) {
       throw new IllegalArgumentException(String.format(
           "No suitable addressing mode is found for implicit conversion of the %s argument.",
