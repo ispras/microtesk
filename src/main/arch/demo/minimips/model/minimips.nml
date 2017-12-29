@@ -721,7 +721,7 @@ internal op instruction (command: Operations)
 // Pseudo Instructions
 
 label mode LA_ADDR(value: WORD) = value
-  syntax = ""
+  syntax = format("0x%X", value)
   image = format("%s", value)
 
 pseudo op la(rd : REG, addr : LA_ADDR)
