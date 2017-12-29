@@ -40,6 +40,9 @@ reg LO [WORD]
 // Current instruction address (program counter)
 reg CIA[WORD]
 
+// Copy of current instruction address (program counter)
+reg CIA_COPY[WORD]
+
 // Stores processing element identifier
 reg PID[WORD]
 
@@ -665,10 +668,10 @@ internal op instruction (command: Operations)
   syntax = command.syntax
   image  = command.image
   action = {
-    GPR[0] = coerce(WORD, 0);
+    GPR[0] = 0;
 
     // This code is responsible for updating the value of the program counter.
-    // 
+    //
     // Explanation based on the MIPS architecture manual:
     //
     // The Program Counter value. During the instruction time of an instruction,
@@ -684,23 +687,34 @@ internal op instruction (command: Operations)
     // Restriction: Processor operation is UNPREDICTABLE if a branch or jump
     // instruction is placed in the delay slot of a branch or jump.
 
-    is_delay_slot = BRANCH;
-    jump_address = JMPADDR;
+    // Prevents making a jump when the context has been switched to executing
+    // some other code between executing a branch instruction and its delay
+    // slot (this can happen during presimulation when initialization code
+    // is executed in the middle).
+    if CIA == CIA_COPY then
+      is_delay_slot = BRANCH;
+      jump_address = JMPADDR;
+    else
+      is_delay_slot = 0;
+      jump_address = 0;
+    endif;
 
     BRANCH = 0;
-    JMPADDR = coerce(WORD, 0);
+    JMPADDR = 0;
 
     command.action;
 
-    if (is_delay_slot == 1 && BRANCH == 1) then
+    if is_delay_slot == 1 && BRANCH == 1 then
       unpredicted;
     endif;
 
-    if (is_delay_slot == 1) then
+    if is_delay_slot == 1 then
       CIA = jump_address;
     else
       CIA = CIA + 4;
     endif;
+
+    CIA_COPY = CIA;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
