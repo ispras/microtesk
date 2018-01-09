@@ -27,6 +27,6 @@ public class BlockRandomTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1,   statistics.getPrograms());
     Assert.assertEquals(10,  statistics.getSequences());
-    Assert.assertEquals(233, statistics.getInstructions());
+    Assert.assertEquals(243, statistics.getInstructions());
   }
 }
