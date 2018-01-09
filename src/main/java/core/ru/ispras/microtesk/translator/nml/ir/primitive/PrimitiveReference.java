@@ -1,11 +1,11 @@
 /*
  * Copyright 2016 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -19,10 +19,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * The {@link PrimitiveReference} class describes references to the current primitive made from another
- * primitive (parent). There may be several reference since a primitive (AND rule) can have
- * several parameters of the same type.
- * 
+ * The {@link PrimitiveReference} class describes references to the current primitive made from
+ * another primitive (parent). There may be several reference since a primitive (AND rule) can
+ * have several parameters of the same type.
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class PrimitiveReference {
@@ -32,6 +32,9 @@ public final class PrimitiveReference {
 
   /**
    * Constructs a reference made from the source (parent) primitive to the target primitive.
+   *
+   * @param source Source primitive.
+   * @param target Target primitive.
    */
   public PrimitiveReference(final PrimitiveAND source, final Primitive target) {
     this(source, target, new LinkedHashSet<String>());
@@ -85,17 +88,22 @@ public final class PrimitiveReference {
   }
 
   /**
-   * Returns names of the references (parameter names) made from the parent primitive
-   * to the current primitive.
+   * Returns names of the references (parameter names) made from the parent primitive to
+   * the current primitive.
+   *
+   * @return Set of references names (corresponding to parameter names).
    */
   public Set<String> getReferenceNames() {
     return Collections.unmodifiableSet(refNames);
   }
 
   /**
-   * Resolves the reference and returns the source primitive that has all references resolved. To
-   * resolve a reference from source to target means to set all source arguments that can point to
-   * the target (OR rules) to the specified target.
+   * Resolves the reference and returns the source primitive that has all references resolved.
+   *
+   * <p>To resolve a reference from source to target means to set all source arguments that
+   * can point to the target (OR rules) to the specified target.
+   *
+   * @return Source primitive that has all references resolved.
    */
   public PrimitiveAND resolve() {
     PrimitiveAND result = source;
