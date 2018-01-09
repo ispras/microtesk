@@ -27,6 +27,6 @@ public class GroupsTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1,   statistics.getPrograms());
     Assert.assertEquals(20,  statistics.getSequences());
-    Assert.assertEquals(326, statistics.getInstructions());
+    Assert.assertEquals(310, statistics.getInstructions());
   }
 }
