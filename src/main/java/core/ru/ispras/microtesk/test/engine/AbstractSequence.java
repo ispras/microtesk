@@ -25,7 +25,6 @@ import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.template.AbstractCall;
-import ru.ispras.microtesk.utils.StringUtils;
 
 public final class AbstractSequence {
   public static final class Builder {
@@ -231,6 +230,7 @@ public final class AbstractSequence {
 
   @Override
   public String toString() {
-    return StringUtils.toString(sequence, System.lineSeparator());
+    //return StringUtils.toString(sequence, System.lineSeparator());
+    return String.format("%s@%d", getClass().getSimpleName(), System.identityHashCode(this));
   }
 }
