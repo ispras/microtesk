@@ -35,7 +35,6 @@ TESTS = aligned_calls\
         memory_situation2\
         memory_situation\
         memory_subsystem\
-        minimips_base\
         min_max\
         multiple_engines\
         page_table\
@@ -47,7 +46,7 @@ TESTS = aligned_calls\
         random_sequence\
         random_situation\
         register_allocation\
-        selfchecks\
+        selfchecks
 
 all: $(TESTS)
 
