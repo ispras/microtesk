@@ -27,6 +27,6 @@ public class ExampleTestCase extends CpuTest {
 
     Assert.assertEquals(1,  statistics.getPrograms());
     Assert.assertEquals(6,  statistics.getSequences());
-    Assert.assertEquals(107, statistics.getInstructions());
+    Assert.assertEquals(113, statistics.getInstructions());
   }
 }
