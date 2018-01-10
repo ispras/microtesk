@@ -90,11 +90,11 @@ public final class IntegerCast {
     return rules;
   }
 
-  public static Node cast(Node origin, DataType type) {
+  public static Node cast(final Node origin, final DataType type) {
     return cast(origin, origin.getDataType(), type);
   }
 
-  public static Node cast(Node origin, DataType nodeType, DataType type) {
+  public static Node cast(final Node origin, final DataType nodeType, final DataType type) {
     if (nodeType.equals(type)) {
       return origin;
     }
@@ -141,9 +141,8 @@ public final class IntegerCast {
     return -1;
   }
 
-  private static boolean nodeIsInteger(Node node) {
-    return node.getKind() == Node.Kind.VALUE &&
-           node.getDataType() == DataType.INTEGER;
+  private static boolean nodeIsInteger(final Node node) {
+    return ExprUtils.isValue(node) && node.isType(DataType.INTEGER);
   }
 
   public static DataType findCommonType(final Collection<? extends Node> nodes) {
