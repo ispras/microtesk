@@ -60,7 +60,7 @@ class ConstraintControlFlowTemplate < MiniMipsBaseTemplate
 
       label :exit
       nop 
-    }.run(5)
+    }.run(10)
   end
 
 end
