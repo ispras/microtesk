@@ -5,7 +5,8 @@ SOURCE  = $(MAIN) \
           utils.tex \
           sequence.tex \
           data.tex \
-          branch.tex \
+          engine_composition.tex \
+          engine_branch.tex \
           memconfig.tex \
           biblio.tex
 
