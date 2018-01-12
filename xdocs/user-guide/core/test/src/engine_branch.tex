@@ -1,6 +1,12 @@
-\chapter{Test Engines}
-
 \section{Branch Engine}
+
+The purpose of the branch engine is to generate test programs that contain \emph{branches}, i.e. instructions that can change execution flow.
+There are \emph{unconditional branches}, which always result in branching, and \emph{conditional branches}, which may or may not cause branching, depending on some condition.
+Given, an instruction sequence, the branch engine enumerates all possible execution traces of the bounded length or selects random ones.
+Enumeration (or selection) is carried out in the depth-first search manner;
+when the traverser meets a conditional branch, it assigns a condition value and goes on until it reaches the end of the sequence.
+If the length of the execution trace exceeds the given bound, the traverser rolls back to the latest conditional branch and changes the condition value (if possible).
+Given an execution trace, the branch engine enforces the specified order of execution by generating so-called \emph{control code} and injecting it into the sequence.
 
 \subsection{Parameters}
 
@@ -106,7 +112,7 @@ To guide the trace enumeration process, the following parameters are used:
 \item
 $branch\_exec\_limit$ specifies the maximum number of occurrences of an if or goto element in an execution trace:
   \begin{itemize}
-  \item a trace, where there exists an index $i$, such that $op_i \in \{if, goto\}$ and the number of $i$â€™s occurrences is greater than $branch\_exec\_limit$, is rejected;
+  \item a trace, where there exists an index $i$, such that $op_i \in \{if, goto\}$ and the number of $i$’s occurrences is greater than $branch\_exec\_limit$, is rejected;
   \item the default value is $1$.
   \end{itemize}
 \item
