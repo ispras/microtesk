@@ -32,7 +32,7 @@ public final class SsaScopeFactory {
     return new SsaVariableScope(EMPTY_SCOPE);
   }
 
-  public static SsaScope collapse(SsaScope input) {
+  public static SsaScope collapse(final SsaScope input) {
     InvariantChecks.checkNotNull(input);
 
     if (input.getClass() != SsaVariableScope.class) {
@@ -49,13 +49,15 @@ public final class SsaScopeFactory {
 
     final Set<String> locals = new HashSet<>(scope.getOuters().keySet());
     locals.retainAll(parent.getLocals().keySet());
-    for (String name : locals) {
+
+    for (final String name : locals) {
       parent.getLocals().put(name, scope.getOuters().get(name));
     }
 
     final Set<String> outers = new HashSet<>(scope.getOuters().keySet());
     outers.removeAll(locals);
-    for (String name : outers) {
+
+    for (final String name : outers) {
       parent.getOuters().put(name, scope.getOuters().get(name));
     }
 
