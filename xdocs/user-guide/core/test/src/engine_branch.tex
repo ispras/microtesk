@@ -1,6 +1,12 @@
 \section{Branch Engine}
 
-
+The purpose of the branch engine is to generate test programs that contain \emph{branches}, i.e. instructions that can change execution flow.
+There are \emph{unconditional branches}, which always result in branching, and \emph{conditional branches}, which may or may not cause branching, depending on some condition.
+Given, an instruction sequence, the branch engine enumerates all possible execution traces of the bounded length or selects random ones.
+Enumeration (or selection) is carried out in the depth-first search manner;
+when the traverser meets a conditional branch, it assigns a condition value and goes on until it reaches the end of the sequence.
+If the length of the execution trace exceeds the given bound, the traverser rolls back to the latest conditional branch and changes the condition value (if possible).
+Given an execution trace, the branch engine enforces the specified order of execution by generating so-called \emph{control code} and injecting it into the sequence.
 
 \subsection{Parameters}
 
