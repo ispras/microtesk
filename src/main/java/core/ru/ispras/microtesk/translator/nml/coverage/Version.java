@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -34,7 +33,7 @@ final class Version {
 
   public static NodeVariable bakeVersion(final NodeVariable node) {
     final String name = String.format("%s!%d", node.getName(), getVersion(node));
-    return new NodeVariable(new Variable(name, node.getData()));
+    return new NodeVariable(name, node.getData());
   }
 
   public static boolean hasBakedVersion(final Node node) {
@@ -57,7 +56,7 @@ final class Version {
   public static NodeVariable undoVersion(final NodeVariable node) {
     final Pair<String, Integer> pair = splitVersionedName(node.getName());
 
-    final NodeVariable out = new NodeVariable(new Variable(pair.first, node.getData()));
+    final NodeVariable out = new NodeVariable(pair.first, node.getData());
     out.setUserData(pair.second);
 
     return out;
