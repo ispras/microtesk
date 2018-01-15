@@ -99,7 +99,6 @@ public final class MemoryDataGenerator implements DataGenerator {
     InvariantChecks.checkNotNull(access);
 
     AddressObject solution = new AddressObject(access);
-    //final List<AddressObject> solutions = null; // FIXME:
 
     final BufferUnitedDependency dependency = access.getUnitedDependency();
     Logger.debug("Solve: %s, %s", access, dependency);
@@ -125,7 +124,7 @@ public final class MemoryDataGenerator implements DataGenerator {
         accessConstraints.getVariateConstraints();
 
     // Refine the addresses (in particular, assign the intermediate addresses).
-    Map<Variable, BitVector> values = refineAddr(solution, conditions, constraints);
+    Map<Variable, BitVector> values = refineAddress(solution, conditions, constraints);
 
     if (values == null) {
       Logger.debug("Infeasible path: %s", access);
@@ -142,7 +141,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       refinedAddrObject.setData(dataVariable, dataValue);
 
       final Map<Variable, BitVector> refinedValues =
-          refineAddr(refinedAddrObject, conditions, constraints);
+          refineAddress(refinedAddrObject, conditions, constraints);
 
       if (refinedValues != null) {
         solution = refinedAddrObject;
@@ -201,7 +200,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       refinedAddrObject.setData(dataVariable, dataValue);
 
       final Map<Variable, BitVector> refinedValues =
-          refineAddr(refinedAddrObject, conditions, constraints);
+          refineAddress(refinedAddrObject, conditions, constraints);
 
       if (refinedValues != null) {
         solution = refinedAddrObject;
@@ -486,7 +485,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     return entryId;
   }
 
-  private Map<Variable, BitVector> refineAddr(
+  private Map<Variable, BitVector> refineAddress(
       final AddressObject addressObject,
       final Collection<Node> conditions,
       final Collection<BitVectorConstraint> constraints) {
@@ -537,7 +536,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     // Set the intermediate addresses used along the memory access path.
     for (final MmuBufferAccess bufferAccess : bufferAccesses) {
       final MmuAddressInstance addrType = bufferAccess.getAddress();
-      final NodeVariable addrVar = addrType.getVariable();
+      final Variable addrVar = addrType.getVariable().getVariable();
       final BitVector addrValue = values.get(addrVar);
 
       if (addrValue != null) {
@@ -549,7 +548,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     // Get the virtual address value.
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     final MmuAddressInstance addrType = memory.getVirtualAddress();
-    final NodeVariable addrVar = addrType.getVariable();
+    final Variable addrVar = addrType.getVariable().getVariable();
     final BitVector addrValue = values.get(addrVar);
     InvariantChecks.checkNotNull(addrValue, "Cannot obtain the virtual address value");
 

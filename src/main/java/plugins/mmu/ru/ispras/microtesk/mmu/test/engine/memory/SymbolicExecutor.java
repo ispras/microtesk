@@ -770,21 +770,13 @@ public final class SymbolicExecutor {
       final Set<Variable> defines,
       final Node condition,
       final int pathIndex) {
-    final NodeOperation clause = (NodeOperation) condition;
-    final Enum<?> clauseId = clause.getOperationId();
-
-    InvariantChecks.checkTrue(
-           clauseId == StandardOperation.AND
-        || clauseId == StandardOperation.OR
-        || clauseId == StandardOperation.EQ
-        || clauseId == StandardOperation.NOTEQ);
 
     if (result.hasConflict()) {
       return Boolean.FALSE;
     }
 
     // Try to calculate the condition based on the derived constants.
-    final Boolean value = FortressUtils.check(condition,
+    final Boolean value = FortressUtils.evaluateBoolean(condition,
         new ValueProvider() {
           @Override
           public Data getVariableValue(final Variable original) {
@@ -801,6 +793,15 @@ public final class SymbolicExecutor {
       result.setConflict(!value.booleanValue());
       return value;
     }
+
+    final NodeOperation clause = (NodeOperation) condition;
+    final Enum<?> clauseId = clause.getOperationId();
+
+    InvariantChecks.checkTrue(
+           clauseId == StandardOperation.AND
+        || clauseId == StandardOperation.OR
+        || clauseId == StandardOperation.EQ
+        || clauseId == StandardOperation.NOTEQ);
 
     final Enum<?> clauseBuilderId = clauseId == StandardOperation.OR
         ? StandardOperation.OR

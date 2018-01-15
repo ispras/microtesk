@@ -99,9 +99,7 @@ public final class AddressDataGenerator implements DataGenerator {
     final BigInteger addressValue;
 
     if (address != null) {
-      InvariantChecks.checkTrue(address instanceof Number, "Address is of incorrect type");
-
-      addressValue = BigIntegerUtils.valueOfUnsignedLong(((Number) address).longValue());
+      addressValue = ((BitVector) address).bigIntegerValue(false);
     } else {
       InvariantChecks.checkTrue(size instanceof Number, "Size is of incorrect type");
 

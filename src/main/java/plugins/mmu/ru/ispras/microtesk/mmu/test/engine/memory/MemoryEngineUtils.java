@@ -83,7 +83,7 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final Boolean value = FortressUtils.check(condition);
+    final Boolean value = FortressUtils.evaluateBoolean(condition);
     if (value == null) {
       return false;
     }
