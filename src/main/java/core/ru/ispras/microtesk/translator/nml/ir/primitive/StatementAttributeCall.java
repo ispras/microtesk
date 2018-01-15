@@ -67,6 +67,14 @@ public final class StatementAttributeCall extends Statement {
     return calleeInstance;
   }
 
+  public boolean isThisCall() {
+    return getCalleeName() == null && getCalleeInstance() == null;
+  }
+
+  public boolean isInstanceCall() {
+    return getCalleeName() == null && getCalleeInstance() != null;
+  }
+
   public static Node createCallNode(final StatementAttributeCall call) {
     InvariantChecks.checkNotNull(call);
 
