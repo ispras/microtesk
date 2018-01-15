@@ -127,7 +127,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     Map<Variable, BitVector> values = refineAddress(solution, conditions, constraints);
 
     if (values == null) {
-      Logger.debug("Infeasible path: %s", access);
+      Logger.debug("Infeasible path (refineAddress returned null): %s", access);
       return TestDataProvider.empty();
     }
 
@@ -382,6 +382,14 @@ public final class MemoryDataGenerator implements DataGenerator {
   private Node getIndexCondition(
       final MmuBufferAccess bufferAccess,
       final BitVector addressWithoutTag) {
+    final MmuBuffer buffer = bufferAccess.getBuffer();
+
+    // This workaround is to handle fully associative buffers.
+    // As zero-length vectors are unsupported, the translator returns the false index condition.
+    if (buffer.getSets() == 1) {
+      return NodeValue.newBoolean(true);
+    }
+
     final Node lhs = bufferAccess.getIndexExpression();
     final BitVector rhs = bufferAccess.getBuffer().getIndex(addressWithoutTag);
 
@@ -443,7 +451,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       }
     }
 
-    return Nodes.AND(atoms);
+    return !atoms.isEmpty() ? Nodes.AND(atoms) : NodeValue.newBoolean(true);
   }
 
   private Node getReplaceCondition(
