@@ -852,9 +852,7 @@ final class SsaBuilder {
       return SsaForm.newEmpty();
     }
 
-    return new SsaForm(blocks.get(0),
-                       blocks.get(blocks.size() - 1),
-                       blocks);
+    return SsaForm.newForm(blocks);
   }
 
   public static SsaForm macroExpansion(final IrInquirer inquirer, final String prefix, final Expr expr) {
