@@ -624,7 +624,7 @@ final class SsaBuilder {
   private void acquireBlockBuilder() {
     if (blockBuilder == null) {
       blockBuilder = new Block.Builder();
-      scope = SsaScopeFactory.createScope();
+      scope = new SsaScopeVariable();
       numTemps = 0;
     }
   }

@@ -146,7 +146,7 @@ public final class SsaAssembler {
   public SsaAssembler(Map<String, SsaForm> buildingBlocks) {
     this.buildingBlocks = buildingBlocks;
 
-    this.scope = SsaScopeFactory.createScope();
+    this.scope = new SsaScopeVariable();
     this.numTemps = 0;
   }
 
