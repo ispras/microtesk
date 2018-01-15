@@ -45,6 +45,19 @@ public final class FortressUtils {
     }
   }
 
+  public static Boolean getBoolean(final Node expr) {
+    checkConstantValue(expr);
+    final NodeValue value = (NodeValue) expr;
+
+    switch (value.getDataTypeId()) {
+      case LOGIC_BOOLEAN:
+        return value.getBoolean();
+      default:
+        InvariantChecks.checkTrue(false);
+        return null;
+    }
+  }
+
   public static BigInteger getInteger(final Node expr) {
     checkConstantValue(expr);
     final NodeValue value = (NodeValue) expr;
@@ -70,7 +83,7 @@ public final class FortressUtils {
       case BIT_VECTOR:
         return value.getBitVector();
       case LOGIC_INTEGER:
-        return BitVector.valueOf(value.getInteger(), Integer.SIZE); // TODO:
+        return BitVector.valueOf(value.getInteger(), Integer.SIZE);
       case LOGIC_BOOLEAN:
         return BitVector.valueOf(value.getBoolean());
       default:
@@ -188,47 +201,27 @@ public final class FortressUtils {
     final Node result = Reducer.reduce(valueProvider, node);
     InvariantChecks.checkNotNull(result);
 
-    if (result.getKind() != Node.Kind.VALUE) {
-      return null;
-    }
-
-    final NodeValue value = (NodeValue) result;
-    return value.getBitVector();
+    return result.getKind() == Node.Kind.VALUE ? getBitVector(result) : null;
   }
 
   public static BitVector evaluateBitVector(final Node node) {
     final Node result = Reducer.reduce(node);
     InvariantChecks.checkNotNull(result);
 
-    if (result.getKind() != Node.Kind.VALUE) {
-      return null;
-    }
-
-    final NodeValue value = (NodeValue) result;
-    return value.getBitVector();
+    return result.getKind() == Node.Kind.VALUE ? getBitVector(result) : null;
   }
 
-  public static Boolean check(final Node node, final ValueProvider valueProvider) {
+  public static Boolean evaluateBoolean(final Node node, final ValueProvider valueProvider) {
     final Node result = Reducer.reduce(valueProvider, node);
     InvariantChecks.checkNotNull(result);
 
-    if (result.getKind() != Node.Kind.VALUE) {
-      return null;
-    }
-
-    final NodeValue value = (NodeValue) result;
-    return value.getBoolean();
+    return result.getKind() == Node.Kind.VALUE ? getBoolean(result) : null;
   }
 
-  public static Boolean check(final Node node) {
+  public static Boolean evaluateBoolean(final Node node) {
     final Node result = Reducer.reduce(node);
     InvariantChecks.checkNotNull(result);
 
-    if (result.getKind() != Node.Kind.VALUE) {
-      return null;
-    }
-
-    final NodeValue value = (NodeValue) result;
-    return value.getBoolean();
+    return result.getKind() == Node.Kind.VALUE ? getBoolean(result) : null;
   }
 }
