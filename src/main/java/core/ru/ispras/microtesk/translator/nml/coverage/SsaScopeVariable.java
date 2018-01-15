@@ -20,9 +20,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 final class SsaScopeVariable implements SsaScope {
   private final SsaScope parent;

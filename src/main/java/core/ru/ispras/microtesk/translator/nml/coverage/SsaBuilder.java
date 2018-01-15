@@ -556,12 +556,12 @@ final class SsaBuilder {
 
   private void convertCall(StatementAttributeCall s) {
     final NodeOperation node;
-    if (isInstanceCall(s)) {
+    if (s.isInstanceCall()) {
       acquireBlockBuilder();
       node = new NodeOperation(SsaOperation.CALL,
                                instanceReference(s.getCalleeInstance()),
                                newNamed(s.getAttributeName()));
-    } else if (isThisCall(s)) {
+    } else if (s.isThisCall()) {
       node = new NodeOperation(SsaOperation.THIS_CALL, newNamed(s.getAttributeName()));
     } else {
       node = new NodeOperation(SsaOperation.CALL,
@@ -611,14 +611,6 @@ final class SsaBuilder {
 
   private static NodeVariable newNamed(final String name) {
     return new NodeVariable(name, DataType.BOOLEAN);
-  }
-
-  private static boolean isThisCall(final StatementAttributeCall s) {
-    return s.getCalleeName() == null && s.getCalleeInstance() == null;
-  }
-
-  private static boolean isInstanceCall(final StatementAttributeCall s) {
-    return s.getCalleeName() == null && s.getCalleeInstance() != null;
   }
 
   private void acquireBlockBuilder() {
