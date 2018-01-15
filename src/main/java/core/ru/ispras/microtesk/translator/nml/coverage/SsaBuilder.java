@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -815,6 +815,13 @@ final class SsaBuilder {
     InvariantChecks.checkNotNull(code);
   }
 
+  public SsaBuilder(final IrInquirer inquirer, final String prefix) {
+    this(inquirer, prefix, "", prefix, Collections.<Statement>emptyList());
+
+    InvariantChecks.checkNotNull(inquirer);
+    InvariantChecks.checkNotNull(prefix);
+  }
+
   private SsaBuilder(final IrInquirer inquirer,
                      final String prefix,
                      final String suffix,
@@ -850,7 +857,7 @@ final class SsaBuilder {
   }
 
   public static SsaForm macroExpansion(final IrInquirer inquirer, final String prefix, final Expr expr) {
-    final SsaBuilder builder = newConverter(inquirer, prefix);
+    final SsaBuilder builder = new SsaBuilder(inquirer, prefix);
     builder.acquireBlockBuilder();
 
     builder.addToContext(
@@ -866,8 +873,9 @@ final class SsaBuilder {
   }
 
   public static SsaForm macroUpdate(final IrInquirer inquirer, final String prefix, final Expr expr) {
-    final SsaBuilder builder = newConverter(inquirer, prefix);
+    final SsaBuilder builder = new SsaBuilder(inquirer, prefix);
     builder.acquireBlockBuilder();
+
     final Location loc = locationFromNodeVariable(expr.getNode());
     if (loc != null) {
       builder.assign(
@@ -877,12 +885,14 @@ final class SsaBuilder {
                                   expr.getNode().getDataType().valueUninitialized())
           );
     }
+
     return builder.build();
   }
 
   public static SsaForm parametersList(final IrInquirer inquirer, final PrimitiveAND p) {
-    final SsaBuilder builder = newConverter(inquirer, p.getName());
+    final SsaBuilder builder = new SsaBuilder(inquirer, p.getName());
     builder.acquireBlockBuilder();
+
     final List<Node> parameters = new ArrayList<>(p.getArguments().size());
     for (final Map.Entry<String, Primitive> entry : p.getArguments().entrySet()) {
       final DataType type = convertType(entry.getValue().getReturnType());
@@ -902,9 +912,5 @@ final class SsaBuilder {
 
   private NodeOperation createOutput(Data data) {
     return new NodeOperation(SsaOperation.SUBSTITUTE, createTemporary(data));
-  }
-
-  private static SsaBuilder newConverter(final IrInquirer inquirer, final String prefix) {
-    return new SsaBuilder(inquirer, prefix, "", prefix, Collections.<Statement>emptyList());
   }
 }
