@@ -846,11 +846,12 @@ final class SsaBuilder {
       convertCode(code);
       finalizeBlock();
     }
+
     // still empty?
     if (blocks.isEmpty()) {
-      final Block empty = Block.newEmpty();
-      return new SsaForm(empty, empty, Collections.singleton(empty));
+      return SsaForm.newEmpty();
     }
+
     return new SsaForm(blocks.get(0),
                        blocks.get(blocks.size() - 1),
                        blocks);

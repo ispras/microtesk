@@ -14,15 +14,20 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.Collection;
 import java.util.Collections;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 public final class SsaForm {
   private final Block entry;
   private final Block exit;
   private final Collection<Block> blocks;
+
+  public static SsaForm newEmpty() {
+    final Block empty = Block.newEmpty();
+    return new SsaForm(empty, empty, Collections.singleton(empty));
+  }
 
   SsaForm(final Block entry, final Block exit, final Collection<Block> blocks) {
     InvariantChecks.checkNotNull(entry);
