@@ -158,7 +158,7 @@ public final class FortressUtils {
       case VALUE:
         final NodeValue value = (NodeValue) node;
         final int valueBitSize = value.getDataType().getSize();
-        return valueBitSize > 0 ? valueBitSize - 1 : Integer.SIZE - 1; // TODO
+        return valueBitSize > 0 ? valueBitSize - 1 : Integer.SIZE - 1;
       case VARIABLE:
         final NodeVariable variable = (NodeVariable) node;
         return getBitSize(variable.getVariable()) - 1;

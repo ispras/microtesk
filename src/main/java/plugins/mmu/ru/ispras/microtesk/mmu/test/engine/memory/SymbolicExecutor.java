@@ -489,6 +489,7 @@ public final class SymbolicExecutor {
     }
 
     if (statement.isEmpty()) {
+      Logger.debug("Conflict: empty statement");
       result.setConflict(true);
       return Boolean.FALSE;
     }
@@ -514,6 +515,7 @@ public final class SymbolicExecutor {
     }
 
     if (switchResults.isEmpty()) {
+      Logger.debug("Conflict: empty results");
       result.setConflict(true);
       return Boolean.FALSE;
     }
@@ -585,9 +587,9 @@ public final class SymbolicExecutor {
 
       final List<Node> switchBuilder = new ArrayList<>();
 
-      // Switch: (PHI == 0) | ... | (PHI == N-1)
+      // Switch: (PHI == 0) | ... | (PHI == N-1).
       for (int i = 0; i < switchResults.size(); i++) {
-        switchBuilder.add(Nodes.EQ(phi, NodeValue.newInteger(i)));
+        switchBuilder.add(Nodes.EQ(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
       }
   
       result.addFormula(Nodes.OR(switchBuilder));
@@ -599,7 +601,7 @@ public final class SymbolicExecutor {
         final Node caseFormula = caseBuilder.build();
 
         // Case: (PHI == i) -> CASE(i).
-        final Node ifThenFormula = getIfThenFormula(phi, i, caseFormula);
+        final Node ifThenFormula = getIfThenFormula(phi, width, i, caseFormula);
         result.addFormula(ifThenFormula);
       }
     }
@@ -790,6 +792,7 @@ public final class SymbolicExecutor {
     if (value != null) {
       // If the result is false, there is a conflict.
       // If the result is true, the condition is redundant.
+      Logger.debug("Conflict: constant condition %s", condition);
       result.setConflict(!value.booleanValue());
       return value;
     }
@@ -872,7 +875,7 @@ public final class SymbolicExecutor {
 
           // Check whether the field's value is known (via constant propagation).
           final BitVector constant = result.getConstants().get(FortressUtils.getVariable(field));
-  
+
           if (constant != null) {
             final int fieldlowerBit = FortressUtils.getLowerBit(field);
             final int fieldUpperBit = FortressUtils.getUpperBit(field);
@@ -884,6 +887,7 @@ public final class SymbolicExecutor {
 
             if (!truthValue && operation == StandardOperation.AND) {
               // Condition is always false.
+              Logger.debug("Conflict: false atom");
               result.setConflict(true);
               return Boolean.FALSE;
             }
@@ -1120,18 +1124,21 @@ public final class SymbolicExecutor {
   }
 
   private static Node getPhiField(final int width) {
-    final Variable variable = new Variable(
-        String.format("phi_%d", uniqueId++), DataType.BIT_VECTOR(width));
+    final String name = String.format("phi_%d", uniqueId++);
+    final Variable variable = new Variable(name, DataType.BIT_VECTOR(width));
+
     return new NodeVariable(variable);
   }
 
   private static Node getIfThenField(final Variable phi, final int i) {
-    final Variable variable = new Variable(
-        String.format("%s_%d", phi.getName(), i), DataType.BIT_VECTOR(1));
+    final String name = String.format("%s_%d", phi.getName(), i);
+    final Variable variable = new Variable(name, DataType.BOOLEAN);
+
     return new NodeVariable(variable);
   }
 
-  private static Node getIfThenFormula(final Node phi, final int i, final Node formula) {
+  private static Node getIfThenFormula(
+      final Node phi, final int width, final int i, final Node formula) {
     final List<Node> ifThenBuilder = new ArrayList<>();
     final List<Node> clauseBuilder1 = new ArrayList<>();
     final List<Node> clauseBuilder2 = new ArrayList<>();
@@ -1141,11 +1148,11 @@ public final class SymbolicExecutor {
     // Introduce a Boolean variable: C == (PHI == i).
     final Node condition = getIfThenField(FortressUtils.getVariable(phi), i);
 
-    clauseBuilder1.add(Nodes.EQ(condition, NodeValue.newBitVector(BitVector.valueOf(true))));
-    clauseBuilder1.add(Nodes.NOTEQ(phi, NodeValue.newInteger(i)));
+    clauseBuilder1.add(Nodes.EQ(condition, NodeValue.newBoolean(true)));
+    clauseBuilder1.add(Nodes.NOTEQ(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
 
-    clauseBuilder2.add(Nodes.NOTEQ(condition, NodeValue.newBitVector(BitVector.valueOf(true))));
-    clauseBuilder2.add(Nodes.EQ(phi, NodeValue.newInteger(i)));
+    clauseBuilder2.add(Nodes.NOTEQ(condition, NodeValue.newBoolean(true)));
+    clauseBuilder2.add(Nodes.EQ(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
 
     ifThenBuilder.add(Nodes.OR(clauseBuilder1));
     ifThenBuilder.add(Nodes.OR(clauseBuilder2));
@@ -1163,7 +1170,7 @@ public final class SymbolicExecutor {
         // C -> (A | B) == (~C | A | B).
         final List<Node> clauseBuilder = new ArrayList<>();
 
-        clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBitVector(BitVector.valueOf(false))));
+        clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBoolean(false)));
         clauseBuilder.addAll(clause.getOperands());
 
         ifThenBuilder.add(Nodes.OR(clauseBuilder));
@@ -1172,7 +1179,7 @@ public final class SymbolicExecutor {
         for (final Node equation : clause.getOperands()) {
           final List<Node> clauseBuilder = new ArrayList<>();
 
-          clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBitVector(BitVector.valueOf(false))));
+          clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBoolean(false)));
           clauseBuilder.add(equation);
 
           ifThenBuilder.add(Nodes.OR(clauseBuilder));
@@ -1181,7 +1188,7 @@ public final class SymbolicExecutor {
         // C -> A == (~C | A).
         final List<Node> clauseBuilder = new ArrayList<>();
 
-        clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBitVector(BitVector.valueOf(false))));
+        clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBoolean(false)));
         clauseBuilder.add(clause);
 
         ifThenBuilder.add(Nodes.OR(clauseBuilder));

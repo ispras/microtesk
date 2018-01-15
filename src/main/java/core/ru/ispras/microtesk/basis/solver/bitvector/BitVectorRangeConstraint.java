@@ -122,7 +122,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
     formulaBuilder.add(
         Nodes.NOTEQ(
             Nodes.BVEXTRACT(e),
-            NodeValue.newInteger(0)));
+            NodeValue.newBitVector(BitVector.FALSE)));
 
     // u[0] == (x[upper] = a[upper]).
     // e[0] <=> u[0] == (~u[0] | e[0]) & (u[0] | ~e[0]).
@@ -137,7 +137,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
     clauseBuilder1.add(
         Nodes.EQ(
             Nodes.BVEXTRACT(0, e),
-            NodeValue.newInteger(1)));
+            NodeValue.newBitVector(BitVector.TRUE)));
 
     formulaBuilder.add(Nodes.OR(clauseBuilder1));
 
@@ -151,7 +151,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
     clauseBuilder2.add(
         Nodes.EQ(
             Nodes.BVEXTRACT(0, e),
-            NodeValue.newInteger(0)));
+            NodeValue.newBitVector(BitVector.FALSE)));
 
     formulaBuilder.add(Nodes.OR(clauseBuilder2));
 
@@ -186,7 +186,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
         clauseBuilder4.add(
             Nodes.EQ(
                 Nodes.BVEXTRACT(k, e),
-                NodeValue.newInteger(0)));
+                NodeValue.newBitVector(BitVector.FALSE)));
 
         formulaBuilder.add(Nodes.OR(clauseBuilder4));
       }
@@ -194,7 +194,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
       clauseBuilder3.add(
           Nodes.EQ(
               Nodes.BVEXTRACT(i, x),
-              NodeValue.newInteger(greaterThanOrEqualTo ? 0 : 1)));
+              NodeValue.newBitVector(greaterThanOrEqualTo ? BitVector.FALSE : BitVector.TRUE)));
 
       clauseBuilder3.add(
           Nodes.EQ(
@@ -208,7 +208,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
       clauseBuilder5.add(
           Nodes.EQ(
               Nodes.BVEXTRACT(i, x),
-              NodeValue.newInteger(greaterThanOrEqualTo ? 1 : 0)));
+              NodeValue.newBitVector(greaterThanOrEqualTo ? BitVector.TRUE : BitVector.FALSE)));
 
       clauseBuilder5.add(
           Nodes.EQ(
