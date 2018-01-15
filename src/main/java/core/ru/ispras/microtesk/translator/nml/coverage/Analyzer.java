@@ -14,18 +14,25 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.analysis.IrInquirer;
+import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 /**
  * Class for model code coverage extraction from internal representation.
@@ -74,7 +81,28 @@ public final class Analyzer implements TranslatorHandler<Ir> {
   }
 
   private void processParameters(final PrimitiveAND op) {
-    ssa.put(op.getName() + ".parameters", SsaBuilder.parametersList(inquirer, op));
+    ssa.put(op.getName() + ".parameters", newParametersList(inquirer, op));
+  }
+
+  private static SsaForm newParametersList(final IrInquirer inquirer, final PrimitiveAND p) {
+    final SsaBuilder builder = new SsaBuilder(inquirer, p.getName());
+    builder.acquireBlockBuilder();
+
+    final List<Node> parameters = new ArrayList<>(p.getArguments().size());
+    for (final Map.Entry<String, Primitive> entry : p.getArguments().entrySet()) {
+      final DataType type = convertType(entry.getValue().getReturnType());
+      parameters.add(new NodeVariable(entry.getKey(), type));
+    }
+    builder.addToContext(new NodeOperation(SsaOperation.PARAMETERS, parameters));
+
+    return builder.build();
+  }
+
+  private static DataType convertType(final Type type) {
+    if (type == null) {
+      return DataType.BOOLEAN;
+    }
+    return TypeCast.getFortressDataType(type);
   }
 
   private void processModes(final Collection<Primitive> modes) {

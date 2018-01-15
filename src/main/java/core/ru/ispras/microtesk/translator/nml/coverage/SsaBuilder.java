@@ -136,12 +136,8 @@ final class SsaBuilder {
     }
   }
 
-  private void addToContext(NodeOperation node) {
+  public void addToContext(NodeOperation node) {
     blockBuilder.add(node);
-  }
-
-  private void addToContext(List<NodeOperation> list) {
-    blockBuilder.addAll(list);
   }
 
   private NodeVariable createTemporary(DataType type) {
@@ -613,7 +609,7 @@ final class SsaBuilder {
     return new NodeVariable(name, DataType.BOOLEAN);
   }
 
-  private void acquireBlockBuilder() {
+  public void acquireBlockBuilder() {
     if (blockBuilder == null) {
       blockBuilder = new Block.Builder();
       scope = new SsaScopeVariable();
@@ -886,27 +882,6 @@ final class SsaBuilder {
     }
 
     return builder.build();
-  }
-
-  public static SsaForm parametersList(final IrInquirer inquirer, final PrimitiveAND p) {
-    final SsaBuilder builder = new SsaBuilder(inquirer, p.getName());
-    builder.acquireBlockBuilder();
-
-    final List<Node> parameters = new ArrayList<>(p.getArguments().size());
-    for (final Map.Entry<String, Primitive> entry : p.getArguments().entrySet()) {
-      final DataType type = convertType(entry.getValue().getReturnType());
-      parameters.add(new NodeVariable(entry.getKey(), type));
-    }
-    builder.addToContext(new NodeOperation(SsaOperation.PARAMETERS, parameters));
-
-    return builder.build();
-  }
-
-  private static DataType convertType(final Type type) {
-    if (type == null) {
-      return DataType.BOOLEAN;
-    }
-    return TypeCast.getFortressDataType(type);
   }
 
   private NodeOperation createOutput(Data data) {
