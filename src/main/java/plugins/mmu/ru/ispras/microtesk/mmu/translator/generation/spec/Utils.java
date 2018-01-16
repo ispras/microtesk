@@ -180,7 +180,7 @@ public final class Utils {
           final Atom atom = AtomExtractor.extract(variable);
           if (atom.getKind() == Atom.Kind.GROUP) {
             final String name = getVariableName(context, ((Var) atom.getObject()).getName());
-            appendText(String.format("Nodes.BVCONCAT(%s.getFields())", name));
+            appendText(String.format("Nodes.bvconcat(%s.getFields())", name));
             return;
           }
         }
