@@ -175,7 +175,7 @@ public final class Condition {
     InvariantChecks.checkNotNull(expr);
 
     if (Node.Kind.VARIABLE == expr.getKind()) {
-      return Nodes.NOT(expr);
+      return Nodes.not(expr);
     } else if (Node.Kind.OPERATION == expr.getKind()) {
       return not((NodeOperation) expr);
     } else {
@@ -193,11 +193,11 @@ public final class Condition {
     }
 
     if (op == StandardOperation.EQ) {
-      return Nodes.NOTEQ(expr.getOperand(0), expr.getOperand(1));
+      return Nodes.noteq(expr.getOperand(0), expr.getOperand(1));
     }
 
     if (op == StandardOperation.NOTEQ) {
-      return Nodes.EQ(expr.getOperand(0), expr.getOperand(1));
+      return Nodes.eq(expr.getOperand(0), expr.getOperand(1));
     }
 
     throw new IllegalStateException(String.format(
