@@ -73,7 +73,7 @@ final class BufferExprAnalyzer {
     final int hi = FortressUtils.extractInt(node.getOperand(0));
 
     fieldTrackerForAddress.exclude(lo, hi);
-    return Nodes.BVEXTRACT(hi, lo, variableForAddress);
+    return Nodes.bvextract(hi, lo, variableForAddress);
   }
 
   private Node newAddressField(final NodeVariable node) {

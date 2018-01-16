@@ -81,7 +81,7 @@ final class GuardPrinter {
         final Node variable = new NodeVariable(variableName, DataType.BIT_VECTOR(1));
         variable.setUserData(atom.getUserData());
 
-        final Node equality = Nodes.NOTEQ(variable, NodeValue.newBitVector(BitVector.FALSE));
+        final Node equality = Nodes.noteq(variable, NodeValue.newBitVector(BitVector.FALSE));
         equalities.add(equality);
       } else if (isNegatedBooleanVariable(atom)) {
         final NodeOperation op = (NodeOperation) atom;
@@ -90,7 +90,7 @@ final class GuardPrinter {
         final Node variable = new NodeVariable(var.getName(), DataType.BIT_VECTOR(1));
         variable.setUserData(var.getUserData());
 
-        final Node equality = Nodes.EQ(variable, NodeValue.newBitVector(BitVector.FALSE));
+        final Node equality = Nodes.eq(variable, NodeValue.newBitVector(BitVector.FALSE));
         equalities.add(equality);
       } else {
         throw new IllegalStateException("Illegal atomic condition: " + atom);
@@ -106,7 +106,7 @@ final class GuardPrinter {
       }
 
       final Node node = cond.getType() == Condition.Type.AND ?
-          Nodes.AND(equalities) : Nodes.OR(equalities);
+          Nodes.and(equalities) : Nodes.or(equalities);
 
       return String.format("new MmuGuard(%s)", Utils.toString(ir, context, node));
     }
