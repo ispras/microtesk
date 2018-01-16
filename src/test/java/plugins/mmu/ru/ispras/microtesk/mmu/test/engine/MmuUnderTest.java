@@ -201,13 +201,13 @@ public final class MmuUnderTest {
 
   public final MmuBuffer jtlb = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, JTLB_SIZE, 1, vaAddr,
-      Nodes.BVEXTRACT(39, 13, va), // Tag
+      Nodes.bvextract(39, 13, va), // Tag
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Index
-      Nodes.BVEXTRACT(12, 0, va), // Offset
+      Nodes.bvextract(12, 0, va), // Offset
       Collections.singleton(
           new MmuBinding(
               vpn2,
-              Nodes.BVEXTRACT(39, 13, va))),
+              Nodes.bvextract(39, 13, va))),
       false, null);
 
   {
@@ -248,13 +248,13 @@ public final class MmuUnderTest {
 
   public final MmuBuffer dtlb = new MmuBuffer(
       "DTLB", MmuBuffer.Kind.UNMAPPED, MTLB_SIZE, 1, vaAddr,
-      Nodes.BVEXTRACT(39, 13, va), // Tag
+      Nodes.bvextract(39, 13, va), // Tag
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Index
-      Nodes.BVEXTRACT(12, 0, va), // Offset
+      Nodes.bvextract(12, 0, va), // Offset
       Collections.singleton(
           new MmuBinding(
               vpn2,
-              Nodes.BVEXTRACT(39, 13, va))),
+              Nodes.bvextract(39, 13, va))),
       true, jtlb
       );
   {
@@ -276,13 +276,13 @@ public final class MmuUnderTest {
   // -----------------------------------------------------------------------------------------------
   public final MmuBuffer l1 = new MmuBuffer(
       "L1", MmuBuffer.Kind.UNMAPPED, L1_WAYS, L1_SETS, paAddr,
-      Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS + L1_ROW_BITS, pa), // Tag
-      Nodes.BVEXTRACT(POS_BITS + L1_ROW_BITS - 1, POS_BITS, pa), // Index
-      Nodes.BVEXTRACT(POS_BITS - 1, 0, pa), // Offset
+      Nodes.bvextract(PA_BITS - 1, POS_BITS + L1_ROW_BITS, pa), // Tag
+      Nodes.bvextract(POS_BITS + L1_ROW_BITS - 1, POS_BITS, pa), // Index
+      Nodes.bvextract(POS_BITS - 1, 0, pa), // Offset
       Collections.singleton(
           new MmuBinding(
               l1Tag,
-              Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS + L1_ROW_BITS, pa))),
+              Nodes.bvextract(PA_BITS - 1, POS_BITS + L1_ROW_BITS, pa))),
       true, null
       );
   {
@@ -293,13 +293,13 @@ public final class MmuUnderTest {
   // -----------------------------------------------------------------------------------------------
   public final MmuBuffer l2 = new MmuBuffer(
       "L2", MmuBuffer.Kind.UNMAPPED, L1_WAYS, L1_SETS, paAddr,
-      Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS + L2_ROW_BITS, pa), // Tag
-      Nodes.BVEXTRACT(POS_BITS + L2_ROW_BITS - 1, POS_BITS, pa), // Index
-      Nodes.BVEXTRACT(POS_BITS - 1, 0, pa), // Offset
+      Nodes.bvextract(PA_BITS - 1, POS_BITS + L2_ROW_BITS, pa), // Tag
+      Nodes.bvextract(POS_BITS + L2_ROW_BITS - 1, POS_BITS, pa), // Index
+      Nodes.bvextract(POS_BITS - 1, 0, pa), // Offset
       Collections.singleton(
           new MmuBinding(
               l2Tag,
-              Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS + L2_ROW_BITS, pa))),
+              Nodes.bvextract(PA_BITS - 1, POS_BITS + L2_ROW_BITS, pa))),
       true, null
       );
   {
@@ -311,8 +311,8 @@ public final class MmuUnderTest {
   public final MmuBuffer mem = new MmuBuffer(
       "MEM", MmuBuffer.Kind.UNMAPPED, 1, (1L << PA_BITS) / 32, paAddr,
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Tag
-      Nodes.BVEXTRACT(PA_BITS - 1, POS_BITS, pa), // Index
-      Nodes.BVEXTRACT(POS_BITS - 1, 0, pa), // Offset
+      Nodes.bvextract(PA_BITS - 1, POS_BITS, pa), // Index
+      Nodes.bvextract(POS_BITS - 1, 0, pa), // Offset
       Collections.<MmuBinding>emptySet(),
       false, null
       );
@@ -331,11 +331,11 @@ public final class MmuUnderTest {
   public final MmuAction getUpaKseg = new MmuAction("GET_UPA_KSEG",
       new MmuBinding(
           pa,
-          Nodes.BVEXTRACT(28, 0, va)));
+          Nodes.bvextract(28, 0, va)));
   public final MmuAction getUpaXkphys = new MmuAction("GET_UPA_XKPHYS",
       new MmuBinding(
           pa,
-          Nodes.BVEXTRACT(35, 0, va)));
+          Nodes.bvextract(35, 0, va)));
   public final MmuAction startDtlb = new MmuAction("START_DTLB");
   public final MmuAction hitDtlb = new MmuAction(
       "HIT_DTLB",
@@ -379,16 +379,16 @@ public final class MmuUnderTest {
   public final MmuAction getMpa = new MmuAction("GET_MPA",
       new MmuBinding(
           pa,
-          Nodes.BVCONCAT(
+          Nodes.bvconcat(
               pfn,
-              Nodes.BVEXTRACT(11, 0, va))));
+              Nodes.bvextract(11, 0, va))));
   public final MmuAction checkSegment = new MmuAction("CHECK_SEGMENT");
   public final MmuAction startKseg0 = new MmuAction("START_KSEG0",
       new MmuBinding(c, kseg0Cp));
   public final MmuAction startXkphys = new MmuAction("START_XKPHYS",
       new MmuBinding(
           c,
-          Nodes.BVEXTRACT(61, 59, va)));
+          Nodes.bvextract(61, 59, va)));
   public final MmuAction startCache = new MmuAction("START_CACHE");
   public final MmuAction startL1 = new MmuAction("START_L1");
   public final MmuAction hitL1 = new MmuAction(
@@ -440,47 +440,47 @@ public final class MmuUnderTest {
   public final MmuTransition afterJtlb = new MmuTransition(hitJtlb, selectVpn);
   public final MmuTransition ifVpn0 = new MmuTransition(selectVpn, getLo0,
       new MmuGuard(
-          Nodes.EQ(
-              Nodes.BVEXTRACT(12, va),
+          Nodes.eq(
+              Nodes.bvextract(12, va),
               NodeValue.newBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifVpn1 = new MmuTransition(selectVpn, getLo1,
       new MmuGuard(
-          Nodes.EQ(
-              Nodes.BVEXTRACT(12, va),
+          Nodes.eq(
+              Nodes.bvextract(12, va),
               NodeValue.newInteger(1))));
   public final MmuTransition afterLo0 = new MmuTransition(getLo0, checkG);
   public final MmuTransition afterLo1 = new MmuTransition(getLo1, checkG);
   public final MmuTransition ifLocal = new MmuTransition(checkG, local,
       new MmuGuard(
-          Nodes.EQ(
+          Nodes.eq(
               g,
               NodeValue.newBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifGlobal = new MmuTransition(checkG, global,
       new MmuGuard(
-          Nodes.EQ(
+          Nodes.eq(
               g,
               NodeValue.newInteger(1))));
   public final MmuTransition afterLocal = new MmuTransition(local, checkV);
   public final MmuTransition afterGlobal = new MmuTransition(global, checkV);
   public final MmuTransition ifInvalid = new MmuTransition(checkV, tlbInvalid,
       new MmuGuard(
-          Nodes.EQ(
+          Nodes.eq(
               v,
               NodeValue.newBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifValid = new MmuTransition(checkV, checkD,
       new MmuGuard(
-          Nodes.EQ(
+          Nodes.eq(
               v,
               NodeValue.newInteger(1))));
   public final MmuTransition ifDirty = new MmuTransition(checkD, tlbModified,
       new MmuGuard(
           MemoryOperation.STORE,
-          Nodes.EQ(
+          Nodes.eq(
               d,
               NodeValue.newBitVector(BitVector.newEmpty(1)))));
   public final MmuTransition ifClean = new MmuTransition(checkD, getMpa,
       new MmuGuard(
-          Nodes.EQ(
+          Nodes.eq(
               d,
               NodeValue.newInteger(1))));
   public final MmuTransition afterMpa = new MmuTransition(getMpa, checkSegment);
@@ -496,13 +496,13 @@ public final class MmuUnderTest {
   public final MmuTransition afterXkphys = new MmuTransition(startXkphys, startCache);
   public final MmuTransition ifUncached = new MmuTransition(startCache, startMem,
       new MmuGuard(
-          Nodes.EQ(
-              Nodes.BVEXTRACT(1, 0, c),
+          Nodes.eq(
+              Nodes.bvextract(1, 0, c),
               NodeValue.newInteger(0x2))));
   public final MmuTransition ifCached = new MmuTransition(startCache, startL1,
       new MmuGuard(
-          Nodes.NOTEQ(
-              Nodes.BVEXTRACT(1, 0, c),
+          Nodes.noteq(
+              Nodes.bvextract(1, 0, c),
               NodeValue.newInteger(0x2))));
   public final MmuTransition ifL1Miss = new MmuTransition(startL1, checkL2,
       new MmuGuard(defaultAccess(l1, BufferAccessEvent.MISS)));
@@ -511,21 +511,21 @@ public final class MmuUnderTest {
   public final MmuTransition afterL1 = new MmuTransition(hitL1, stop);
   public final MmuTransition ifL2Bypass = new MmuTransition(checkL2, startMem,
       new MmuGuard(
-          Nodes.AND(
-              Nodes.NOTEQ(
-                  Nodes.BVEXTRACT(1, 0, c),
+          Nodes.and(
+              Nodes.noteq(
+                  Nodes.bvextract(1, 0, c),
                   NodeValue.newInteger(0x2)),
-              Nodes.NOTEQ(
-                  Nodes.BVEXTRACT(1, 0, c),
+              Nodes.noteq(
+                  Nodes.bvextract(1, 0, c),
                   NodeValue.newInteger(0x3)))));
   public final MmuTransition ifL2Used = new MmuTransition(checkL2, startL2,
       new MmuGuard(
-          Nodes.AND(
-              Nodes.NOTEQ(
-                  Nodes.BVEXTRACT(1, 0, c),
+          Nodes.and(
+              Nodes.noteq(
+                  Nodes.bvextract(1, 0, c),
                   NodeValue.newInteger(0x0)),
-              Nodes.NOTEQ(
-                  Nodes.BVEXTRACT(1, 0, c),
+              Nodes.noteq(
+                  Nodes.bvextract(1, 0, c),
                   NodeValue.newInteger(0x1)))));
   public final MmuTransition ifL2Miss = new MmuTransition(startL2, startMem,
       new MmuGuard(defaultAccess(l2, BufferAccessEvent.MISS)));
