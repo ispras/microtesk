@@ -126,7 +126,7 @@ public final class Utils {
       return toMmuExpressionText(context, fields.get(0));
     }
 
-    return toMmuExpressionText(context, Nodes.reverseBVCONCAT(fields));
+    return toMmuExpressionText(context, Nodes.reverseBvconcat(fields));
   }
 
   public static String toMmuExpressionText(final String context, final Node field) {
