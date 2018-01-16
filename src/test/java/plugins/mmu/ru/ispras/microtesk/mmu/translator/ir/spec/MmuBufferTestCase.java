@@ -79,13 +79,13 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer JTLB = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, 64, 1, VA_ADDR,
-      Nodes.BVEXTRACT(39, 13, VA), // Tag
+      Nodes.bvextract(39, 13, VA), // Tag
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Index
-      Nodes.BVEXTRACT(12, 0, VA), // Offset
+      Nodes.bvextract(12, 0, VA), // Offset
       Collections.singleton(
           new MmuBinding(
               VPN2,
-              Nodes.BVEXTRACT(39, 13, VA))),
+              Nodes.bvextract(39, 13, VA))),
       false, null
       );
 
@@ -107,13 +107,13 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer DTLB = new MmuBuffer(
       "DTLB", MmuBuffer.Kind.UNMAPPED, 4, 1, VA_ADDR,
-      Nodes.BVEXTRACT(39, 13, VA), // Tag
+      Nodes.bvextract(39, 13, VA), // Tag
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Index
-      Nodes.BVEXTRACT(12, 0, VA), // Offset
+      Nodes.bvextract(12, 0, VA), // Offset
       Collections.singleton(
           new MmuBinding(
               VPN2,
-              Nodes.BVEXTRACT(39, 13, VA))),
+              Nodes.bvextract(39, 13, VA))),
       true, JTLB
       );
 
@@ -159,13 +159,13 @@ public class MmuBufferTestCase {
 
   public static final MmuBuffer L1 = new MmuBuffer(
       "L1", MmuBuffer.Kind.UNMAPPED, 4, 128, PA_ADDR,
-      Nodes.BVEXTRACT(35, 12, PA), // Tag
-      Nodes.BVEXTRACT(11, 5, PA), // Index
-      Nodes.BVEXTRACT(4, 0, PA), // Offset
+      Nodes.bvextract(35, 12, PA), // Tag
+      Nodes.bvextract(11, 5, PA), // Index
+      Nodes.bvextract(4, 0, PA), // Offset
       Collections.singleton(
           new MmuBinding(
               L1_TAG,
-              Nodes.BVEXTRACT(35, 12, PA))),
+              Nodes.bvextract(35, 12, PA))),
       true, null
       );
 
@@ -199,13 +199,13 @@ public class MmuBufferTestCase {
   // -----------------------------------------------------------------------------------------------
   public static final MmuBuffer L2 = new MmuBuffer(
       "L2", MmuBuffer.Kind.UNMAPPED, 4, 4096, PA_ADDR,
-      Nodes.BVEXTRACT(35, 17, PA), // Tag
-      Nodes.BVEXTRACT(16, 5, PA), // Index
-      Nodes.BVEXTRACT(4, 0, PA), // Offset
+      Nodes.bvextract(35, 17, PA), // Tag
+      Nodes.bvextract(16, 5, PA), // Index
+      Nodes.bvextract(4, 0, PA), // Offset
       Collections.singleton(
           new MmuBinding(
               L2_TAG,
-              Nodes.BVEXTRACT(35, 17, PA))),
+              Nodes.bvextract(35, 17, PA))),
       true, null
       );
 
@@ -239,8 +239,8 @@ public class MmuBufferTestCase {
   public static final MmuBuffer MEM = new MmuBuffer(
       "MMU", MmuBuffer.Kind.UNMAPPED, 1, (1L << 36) / 32, PA_ADDR,
       NodeValue.newBitVector(BitVector.newEmpty(1)), // Tag
-      Nodes.BVEXTRACT(35, 5, PA), // Index
-      Nodes.BVEXTRACT(4, 0, PA), // Offset
+      Nodes.bvextract(35, 5, PA), // Index
+      Nodes.bvextract(4, 0, PA), // Offset
       Collections.<MmuBinding>emptySet(),
       false, null
       );

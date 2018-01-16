@@ -33,35 +33,35 @@ public class IntegerFieldTrackerTestCase {
 
     assertEquals(
         Collections.singletonList(
-            Nodes.BVEXTRACT(31, 0, var)),
+            Nodes.bvextract(31, 0, var)),
         tracker.getFields());
 
     tracker.exclude(8, 15);
     assertEquals(
         Arrays.asList(
-            Nodes.BVEXTRACT(7, 0, var),
-            Nodes.BVEXTRACT(31, 16, var)),
+            Nodes.bvextract(7, 0, var),
+            Nodes.bvextract(31, 16, var)),
         tracker.getFields());
 
     tracker.exclude(12, 23);
     assertEquals(
         Arrays.asList(
-            Nodes.BVEXTRACT(7, 0, var),
-            Nodes.BVEXTRACT(31, 24, var)),
+            Nodes.bvextract(7, 0, var),
+            Nodes.bvextract(31, 24, var)),
         tracker.getFields());
 
     tracker.exclude(31, 31);
     assertEquals(
         Arrays.asList(
-            Nodes.BVEXTRACT(7, 0, var),
-            Nodes.BVEXTRACT(30, 24, var)),
+            Nodes.bvextract(7, 0, var),
+            Nodes.bvextract(30, 24, var)),
         tracker.getFields());
 
     tracker.exclude(0, 0);
     assertEquals(
         Arrays.asList(
-            Nodes.BVEXTRACT(7, 1, var),
-            Nodes.BVEXTRACT(30, 24, var)),
+            Nodes.bvextract(7, 1, var),
+            Nodes.bvextract(30, 24, var)),
         tracker.getFields());
 
     tracker.excludeAll();
@@ -78,7 +78,7 @@ public class IntegerFieldTrackerTestCase {
 
     assertEquals(
         Collections.singletonList(
-            Nodes.BVEXTRACT(4, 0, var)),
+            Nodes.bvextract(4, 0, var)),
         tracker.getFields());
   }
 
@@ -92,7 +92,7 @@ public class IntegerFieldTrackerTestCase {
 
     assertEquals(
         Collections.singletonList(
-            Nodes.BVEXTRACT(4, 0, var)),
+            Nodes.bvextract(4, 0, var)),
         tracker.getFields());
   }
 }
