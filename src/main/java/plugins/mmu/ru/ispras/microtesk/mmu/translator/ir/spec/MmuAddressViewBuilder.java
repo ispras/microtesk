@@ -76,7 +76,7 @@ public final class MmuAddressViewBuilder {
       expectedIndex += FortressUtils.getBitSize(field);
     }
 
-    return Nodes.reverseBVCONCAT(operands);
+    return Nodes.reverseBvconcat(operands);
   }
 
   /**
@@ -111,7 +111,7 @@ public final class MmuAddressViewBuilder {
 
     int offset = 0;
     for (final Node addressField : addressFields) {
-      final Node field = Nodes.BVEXTRACT(
+      final Node field = Nodes.bvextract(
           (offset + FortressUtils.getBitSize(addressField)) - 1, offset, variable);
 
       fields.put(FortressUtils.getLowerBit(addressField), field);

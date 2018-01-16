@@ -131,7 +131,7 @@ final class DistanceCalculator {
         }
       }
 
-      return Nodes.ADD(operands);
+      return Nodes.add(operands);
     }
   }
 
@@ -156,11 +156,11 @@ final class DistanceCalculator {
           InvariantChecks.checkTrue(((NodeOperation) current).getOperandCount() == 1);
           operands.add(((NodeOperation) current).getOperand(0));
         } else {
-          operands.add(Nodes.MINUS(current));
+          operands.add(Nodes.minus(current));
         }
       }
 
-      return Nodes.ADD(operands);
+      return Nodes.add(operands);
     }
   }
 
@@ -226,7 +226,7 @@ final class DistanceCalculator {
         return newOperands.get(0);
       }
 
-      return Nodes.ADD(newOperands);
+      return Nodes.add(newOperands);
     }
 
     private boolean isNedation(final Node node1, final Node node2) {
