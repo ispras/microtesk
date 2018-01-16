@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
@@ -56,7 +55,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
-import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 final class SsaBuilder {
   private static final String ARRAY_INDEX = "index";
@@ -195,7 +193,7 @@ final class SsaBuilder {
     }
 
     if (lvalue.isArray()) {
-      final Node element = Nodes.SELECT(root, lvalue.index);
+      final Node element = Nodes.select(root, lvalue.index);
       if (signal) {
         signalArrayEvent(root, ARRAY_EVENT_READ, lvalue.index, element);
       }
@@ -204,7 +202,7 @@ final class SsaBuilder {
     }
 
     if (lvalue.hasStaticBitfield()) {
-      return Nodes.BVEXTRACT(
+      return Nodes.bvextract(
           (NodeValue) lvalue.majorBit,
           (NodeValue) lvalue.minorBit,
           root
@@ -212,10 +210,10 @@ final class SsaBuilder {
     }
 
     if (lvalue.hasBitfield()) {
-      return Nodes.BVEXTRACT(
+      return Nodes.bvextract(
           lvalue.targetType.getSize(),
           0,
-          Nodes.BVLSHR(root, lvalue.minorBit)
+          Nodes.bvlshr(root, lvalue.minorBit)
           );
     }
 
@@ -230,14 +228,14 @@ final class SsaBuilder {
     final String fmt = String.format("%s.%s.%%s.%d", var.getName(), event, numTemps++);
 
     addToContext(
-        Nodes.EQ(newUniqueTmp(String.format(fmt, ARRAY_INDEX), index.getDataType()), index));
+        Nodes.eq(newUniqueTmp(String.format(fmt, ARRAY_INDEX), index.getDataType()), index));
     addToContext(
-        Nodes.EQ(newUniqueTmp(String.format(fmt, ARRAY_VALUE), value.getDataType()), value));
+        Nodes.eq(newUniqueTmp(String.format(fmt, ARRAY_VALUE), value.getDataType()), value));
   }
 
   private void signalBranchEvent(final Node address) {
     final String name = String.format("branch.address.%d", numTemps++);
-    addToContext(Nodes.EQ(newUniqueTmp(name, address.getDataType()), address));
+    addToContext(Nodes.eq(newUniqueTmp(name, address.getDataType()), address));
   }
 
   private Node[] createRValues(LValue[] lhs) {
@@ -282,9 +280,9 @@ final class SsaBuilder {
   private void assignToAtom(Location lhs, Node value) {
     final LValue lvalue = createLValue(lhs);
     if (lvalue.isArray()) {
-      addToContext(Nodes.EQ(updateArrayElement(lvalue), value));
+      addToContext(Nodes.eq(updateArrayElement(lvalue), value));
     } else {
-      addToContext(Nodes.EQ(updateScalar(lvalue), value));
+      addToContext(Nodes.eq(updateScalar(lvalue), value));
     }
     if (inquirer.isPC(lhs)) {
       final Node address = createRValue(lvalue.stripBitfield(), false);
@@ -329,7 +327,7 @@ final class SsaBuilder {
     final SsaValue array = new SsaValue(lvalue);
 
     final NodeVariable newer = createTemporary(lvalue.sourceType);
-    addToContext(Nodes.EQ(array.newer, Nodes.STORE(array.older, lvalue.index, newer)));
+    addToContext(Nodes.eq(array.newer, Nodes.store(array.older, lvalue.index, newer)));
 
     signalArrayEvent(array.newer, ARRAY_EVENT_WRITE, lvalue.index, newer);
 
@@ -338,7 +336,7 @@ final class SsaBuilder {
     }
 
     final NodeVariable older = createTemporary(lvalue.sourceType);
-    addToContext(Nodes.EQ(older, Nodes.SELECT(array.older, lvalue.index)));
+    addToContext(Nodes.eq(older, Nodes.select(array.older, lvalue.index)));
 
     if (lvalue.hasStaticBitfield()) {
       return updateStaticSubvector(newer, older, lvalue);
@@ -361,16 +359,16 @@ final class SsaBuilder {
     final int lower = minor.getInteger().intValue() - 1;
     if (lower >= 0) {
       addToContext(
-          Nodes.EQ(Nodes.BVEXTRACT(lower, 0, newer), Nodes.BVEXTRACT(lower, 0, older)));
+          Nodes.eq(Nodes.bvextract(lower, 0, newer), Nodes.bvextract(lower, 0, older)));
     }
 
     final int upper = major.getInteger().intValue() + 1;
     if (upper <= hibit) {
       addToContext(
-          Nodes.EQ(Nodes.BVEXTRACT(hibit, upper, newer), Nodes.BVEXTRACT(hibit, upper, older)));
+          Nodes.eq(Nodes.bvextract(hibit, upper, newer), Nodes.bvextract(hibit, upper, older)));
     }
 
-    return Nodes.BVEXTRACT(major, minor, newer);
+    return Nodes.bvextract(major, minor, newer);
   }
 
   private Node updateDynamicSubvector(Node newer, Node older, LValue lvalue) {
@@ -383,28 +381,28 @@ final class SsaBuilder {
     final int bitsize = olderSize;
 
     final NodeOperation shLeftAmount =
-        Nodes.BVSUB(
+        Nodes.bvsub(
             NodeValue.newBitVector(BitVector.valueOf(bitsize, bitsize)),
             lvalue.minorBit);
 
-    addToContext(Nodes.EQ(
-        Nodes.BVLSHL(older, shLeftAmount),
-        Nodes.BVLSHL(newer, shLeftAmount)));
+    addToContext(Nodes.eq(
+        Nodes.bvlshl(older, shLeftAmount),
+        Nodes.bvlshl(newer, shLeftAmount)));
 
     final NodeOperation shRightAmount =
-        Nodes.BVADD(
+        Nodes.bvadd(
             lvalue.majorBit,
             NodeValue.newBitVector(BitVector.valueOf(1, bitsize)));
 
-    addToContext(Nodes.EQ(
-        Nodes.BVLSHR(older, shRightAmount),
-        Nodes.BVLSHR(newer, shRightAmount)));
+    addToContext(Nodes.eq(
+        Nodes.bvlshr(older, shRightAmount),
+        Nodes.bvlshr(newer, shRightAmount)));
 
     final DataType subtype = lvalue.targetType;
     final NodeVariable subvector = createTemporary(subtype);
 
-    addToContext(Nodes.EQ(
-        Nodes.BVEXTRACT(subtype.getSize(), 0, Nodes.BVLSHR(newer, lvalue.minorBit)),
+    addToContext(Nodes.eq(
+        Nodes.bvextract(subtype.getSize(), 0, Nodes.bvlshr(newer, lvalue.minorBit)),
         subvector));
 
     return subvector;
@@ -421,7 +419,7 @@ final class SsaBuilder {
         arg[i] = updateScalar(lvalues[i]);
       }
     }
-    addToContext(Nodes.EQ(Nodes.BVCONCAT(arg), value));
+    addToContext(Nodes.eq(Nodes.bvconcat(arg), value));
   }
 
   private void convertCondition(StatementCondition s) {
@@ -448,7 +446,7 @@ final class SsaBuilder {
     }
     if (!s.getBlock(s.getBlockCount() - 1).isElseBlock()) {
       children.add(new GuardedBlock(
-          phiName, Nodes.NOT(Nodes.OR(branchPoint.negateGuards())), phi));
+          phiName, Nodes.not(Nodes.or(branchPoint.negateGuards())), phi));
     }
     final Block block = stack.pop();
     block.setChildren(children);
@@ -488,12 +486,12 @@ final class SsaBuilder {
         final Node condition =
             convertExpression(block.getCondition().getNode());
         if (guards.isEmpty()) {
-          addToContext(Nodes.EQ(guard, condition));
+          addToContext(Nodes.eq(guard, condition));
         } else {
-          addToContext(Nodes.EQ(guard, Nodes.AND(Nodes.NOT(Nodes.OR(negateGuards())), condition)));
+          addToContext(Nodes.eq(guard, Nodes.and(Nodes.not(Nodes.or(negateGuards())), condition)));
         }
       } else {
-        addToContext(Nodes.EQ(guard, Nodes.NOT(Nodes.OR(negateGuards()))));
+        addToContext(Nodes.eq(guard, Nodes.not(Nodes.or(negateGuards()))));
       }
       names.add(guard.getName());
       guards.add(guard);
@@ -528,7 +526,7 @@ final class SsaBuilder {
           if (!callee.equals("mark")) {
             special.add(mark);
           }
-          addToContext(Nodes.EQ(guard, mark));
+          addToContext(Nodes.eq(guard, mark));
         }
       }
       if (!special.isEmpty()) {
@@ -856,7 +854,7 @@ final class SsaBuilder {
     builder.acquireBlockBuilder();
 
     builder.addToContext(
-        Nodes.EQ(
+        Nodes.eq(
             builder.convertExpression(expr.getNode()),
             builder.createOutput(
                 expr.isConstant() ? ((NodeValue) expr.getNode()).getData() :
