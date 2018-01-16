@@ -59,7 +59,7 @@ public final class FormulaBuilder {
         final Node variable = NodeVariable.newBitVector(name, value.getBitSize());
         variable.setUserData(1);
 
-        formulae.add(Nodes.EQ(variable, NodeValue.newBitVector(value)));
+        formulae.add(Nodes.eq(variable, NodeValue.newBitVector(value)));
       }
 
       final Node f = assembler.assemble(ctx, p.getName(), tag);

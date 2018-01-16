@@ -241,7 +241,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     final Type type = typeId == TypeId.CARD ? Type.CARD(bitSize) : Type.INT(bitSize);
-    final Node node = Nodes.BVCONCAT(operands);
+    final Node node = Nodes.bvconcat(operands);
     final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.CONCAT, type);
 
     node.setUserData(nodeInfo);
@@ -356,7 +356,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     final NodeValue extensionNode = NodeValue.newInteger(extensionBitSize);
     extensionNode.setUserData(NodeInfo.newConst(null));
 
-    final Node node = Nodes.BVSIGNEXT(extensionNode, src.getNode());
+    final Node node = Nodes.bvsignext(extensionNode, src.getNode());
 
     final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.SIGN_EXTEND, type);
     node.setUserData(nodeInfo);
@@ -391,7 +391,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     final NodeValue extensionNode = NodeValue.newInteger(extensionBitSize);
     extensionNode.setUserData(NodeInfo.newConst(null));
 
-    final Node node = Nodes.BVZEROEXT(extensionNode, src.getNode());
+    final Node node = Nodes.bvzeroext(extensionNode, src.getNode());
     final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.ZERO_EXTEND, type);
     node.setUserData(nodeInfo);
 
@@ -444,7 +444,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     final NodeValue hi = NodeValue.newInteger(newBitSize - 1);
     hi.setUserData(NodeInfo.newConst(null));
 
-    final Node node = Nodes.BVEXTRACT(hi, lo, src.getNode());
+    final Node node = Nodes.bvextract(hi, lo, src.getNode());
     final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.COERCE, type);
     node.setUserData(nodeInfo);
 
@@ -648,7 +648,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       } else if (condition.getNode().equals(NodeValue.newBoolean(false))) {
         // result stays the same
       } else {
-        final NodeOperation node = Nodes.ITE(
+        final NodeOperation node = Nodes.ite(
             condition.getNode(),
             value.getNode(),
             result.getNode()
@@ -686,7 +686,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       } else if (condition.equals(NodeValue.newBoolean(false))) {
         // result stays the same
       } else {
-        result = Nodes.ITE(condition, value, result);
+        result = Nodes.ite(condition, value, result);
       }
     }
 
@@ -747,7 +747,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       final Expr zero = new Expr(NodeValue.newBitVector(BitVector.newEmpty(type.getBitSize())));
       zero.setNodeInfo(NodeInfo.newConst(type));
 
-      final Expr expr = new Expr(Nodes.NOTEQ(src.getNode(), zero.getNode()));
+      final Expr expr = new Expr(Nodes.noteq(src.getNode(), zero.getNode()));
       expr.setNodeInfo(NodeInfo.newOperator(Operator.NOT_EQ, type));
 
       return expr;

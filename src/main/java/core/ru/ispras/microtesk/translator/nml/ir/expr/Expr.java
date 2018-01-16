@@ -272,7 +272,7 @@ public final class Expr {
         return new Reduced(constant, right.polynomial);
       }
 
-      final Node polynomial = Nodes.MINUS(right.polynomial.getNode());
+      final Node polynomial = Nodes.minus(right.polynomial.getNode());
       polynomial.setUserData(expr.getNodeInfo());
 
       return new Reduced(constant, new Expr(polynomial));

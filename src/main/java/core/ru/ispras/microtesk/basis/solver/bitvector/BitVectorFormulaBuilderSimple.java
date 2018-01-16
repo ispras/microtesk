@@ -37,7 +37,7 @@ public final class BitVectorFormulaBuilderSimple extends BitVectorFormulaBuilder
   }
 
   public Node build() {
-    return Nodes.AND(nodes);
+    return Nodes.and(nodes);
   }
 
   @Override

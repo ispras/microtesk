@@ -54,7 +54,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
     encodeGreaterThanOrEqualTo(formulaBuilder, variable, range.getMin());
     encodeLessThanOrEqualTo(formulaBuilder, variable, range.getMax());
 
-    this.formula = Nodes.AND(formulaBuilder);
+    this.formula = Nodes.and(formulaBuilder);
   }
 
   private static void encodeGreaterThanOrEqualTo(
@@ -97,8 +97,8 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
           : BigInteger.ZERO;
 
       formulaBuilder.add(
-          Nodes.EQ(
-              Nodes.BVEXTRACT(x.getType().getSize() - 1, upperBit + 1, x),
+          Nodes.eq(
+              Nodes.bvextract(x.getType().getSize() - 1, upperBit + 1, x),
               NodeValue.newBitVector(BitVector.valueOf(value, sizeInBits))));
     }
 
@@ -120,8 +120,8 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
 
     // (e[0] | ... | e[n-1]) == (e != 0).
     formulaBuilder.add(
-        Nodes.NOTEQ(
-            Nodes.BVEXTRACT(e),
+        Nodes.noteq(
+            Nodes.bvextract(e),
             NodeValue.newBitVector(BitVector.FALSE)));
 
     // u[0] == (x[upper] = a[upper]).
@@ -130,30 +130,30 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
     final List<Node> clauseBuilder1 = new ArrayList<>();
 
     clauseBuilder1.add(
-        Nodes.NOTEQ(
-            Nodes.BVEXTRACT(upperBit, lowerBit, x),
+        Nodes.noteq(
+            Nodes.bvextract(upperBit, lowerBit, x),
             NodeValue.newBitVector(a.field(lowerBit, upperBit))));
 
     clauseBuilder1.add(
-        Nodes.EQ(
-            Nodes.BVEXTRACT(0, e),
+        Nodes.eq(
+            Nodes.bvextract(0, e),
             NodeValue.newBitVector(BitVector.TRUE)));
 
-    formulaBuilder.add(Nodes.OR(clauseBuilder1));
+    formulaBuilder.add(Nodes.or(clauseBuilder1));
 
     final List<Node> clauseBuilder2 = new ArrayList<>();
 
     clauseBuilder2.add(
-        Nodes.EQ(
-            Nodes.BVEXTRACT(upperBit, lowerBit, x),
+        Nodes.eq(
+            Nodes.bvextract(upperBit, lowerBit, x),
             NodeValue.newBitVector(a.field(lowerBit, upperBit))));
 
     clauseBuilder2.add(
-        Nodes.EQ(
-            Nodes.BVEXTRACT(0, e),
+        Nodes.eq(
+            Nodes.bvextract(0, e),
             NodeValue.newBitVector(BitVector.FALSE)));
 
-    formulaBuilder.add(Nodes.OR(clauseBuilder2));
+    formulaBuilder.add(Nodes.or(clauseBuilder2));
 
     int k = 1;
     for (int i = upperBit; i >= lowerBit; i--) {
@@ -172,50 +172,50 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
         final int j = i + 1;
 
         clauseBuilder3.add(
-            Nodes.NOTEQ(
-                Nodes.BVEXTRACT(upperBit, j, x),
+            Nodes.noteq(
+                Nodes.bvextract(upperBit, j, x),
                 NodeValue.newBitVector(a.field(j, upperBit))));
 
         final List<Node> clauseBuilder4 = new ArrayList<>();
 
         clauseBuilder4.add(
-            Nodes.EQ(
-                Nodes.BVEXTRACT(upperBit, j, x),
+            Nodes.eq(
+                Nodes.bvextract(upperBit, j, x),
                 NodeValue.newBitVector(a.field(j, upperBit))));
 
         clauseBuilder4.add(
-            Nodes.EQ(
-                Nodes.BVEXTRACT(k, e),
+            Nodes.eq(
+                Nodes.bvextract(k, e),
                 NodeValue.newBitVector(BitVector.FALSE)));
 
-        formulaBuilder.add(Nodes.OR(clauseBuilder4));
+        formulaBuilder.add(Nodes.or(clauseBuilder4));
       }
 
       clauseBuilder3.add(
-          Nodes.EQ(
-              Nodes.BVEXTRACT(i, x),
+          Nodes.eq(
+              Nodes.bvextract(i, x),
               NodeValue.newBitVector(greaterThanOrEqualTo ? BitVector.FALSE : BitVector.TRUE)));
 
       clauseBuilder3.add(
-          Nodes.EQ(
-              Nodes.BVEXTRACT(k, e),
+          Nodes.eq(
+              Nodes.bvextract(k, e),
               NodeValue.newInteger(1)));
 
-      formulaBuilder.add(Nodes.OR(clauseBuilder3));
+      formulaBuilder.add(Nodes.or(clauseBuilder3));
 
       final List<Node> clauseBuilder5 = new ArrayList<>();
 
       clauseBuilder5.add(
-          Nodes.EQ(
-              Nodes.BVEXTRACT(i, x),
+          Nodes.eq(
+              Nodes.bvextract(i, x),
               NodeValue.newBitVector(greaterThanOrEqualTo ? BitVector.TRUE : BitVector.FALSE)));
 
       clauseBuilder5.add(
-          Nodes.EQ(
-              Nodes.BVEXTRACT(k, e),
+          Nodes.eq(
+              Nodes.bvextract(k, e),
               NodeValue.newInteger(0)));
 
-      formulaBuilder.add(Nodes.OR(clauseBuilder5));
+      formulaBuilder.add(Nodes.or(clauseBuilder5));
 
       k++;
     }
