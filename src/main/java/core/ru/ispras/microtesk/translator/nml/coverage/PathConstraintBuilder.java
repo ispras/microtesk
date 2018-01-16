@@ -58,7 +58,7 @@ public final class PathConstraintBuilder {
     for (final NodeVariable node : variables.values()) {
       this.builder.addVariable(node.getName(), node.getData());
     }
-    this.conditionExpr = PathFilter.filter(Nodes.AND(this.ssa));
+    this.conditionExpr = PathFilter.filter(Nodes.and(this.ssa));
   }
 
   public Map<String, NodeVariable> getVariables() {

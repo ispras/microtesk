@@ -99,7 +99,7 @@ public final class TestBase {
       if (testCase.equals("normal")) {
         final List<NodeVariable> marks = builder.getSpecialMarks();
         if (!marks.isEmpty()) {
-          bindings.add(Nodes.NOT(Nodes.OR(marks)));
+          bindings.add(Nodes.not(Nodes.or(marks)));
         }
       } else if (!testCase.equals("undefined") && !testCase.equals("unpredicted")) {
         final List<NodeVariable> marks = new ArrayList<>();
@@ -110,12 +110,12 @@ public final class TestBase {
           }
         }
         if (!marks.isEmpty()) {
-          bindings.add(Nodes.NOT(Nodes.OR(marks)));
+          bindings.add(Nodes.not(Nodes.or(marks)));
         }
-        bindings.add(Nodes.EQ(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
+        bindings.add(Nodes.eq(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
       } else {
         // unrestrited access to all paths: same as above, but w/o mark filtering
-        bindings.add(Nodes.EQ(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
+        bindings.add(Nodes.eq(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
       }
 
       final Constraint constraint = builder.build(bindings);
@@ -279,7 +279,7 @@ public final class TestBase {
       if (entry.getValue().getKind() == Node.Kind.VALUE) {
         final String name = entry.getKey() + "!1";
         if (variables.containsKey(name)) {
-          final Node binding = Nodes.EQ(variables.get(name), entry.getValue());
+          final Node binding = Nodes.eq(variables.get(name), entry.getValue());
           bindings.add(Transformer.transform(binding, caster));
         }
       }
