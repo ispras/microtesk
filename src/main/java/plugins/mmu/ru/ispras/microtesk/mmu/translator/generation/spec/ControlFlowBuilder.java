@@ -391,12 +391,12 @@ final class ControlFlowBuilder {
         buildTransition(branchStop, join);
       }
 
-      final Node elseCondition = Nodes.NOT(condition);
+      final Node elseCondition = Nodes.not(condition);
       if (ExprUtils.isOperation(condition, StandardOperation.EQ) ||
           ExprUtils.isOperation(condition, StandardOperation.NOTEQ)) {
         jointElseCondition = null == jointElseCondition ?
             elseCondition :
-            Nodes.AND(jointElseCondition, elseCondition);
+            Nodes.and(jointElseCondition, elseCondition);
       } else {
         elseConditions.add(elseCondition);
       }
