@@ -188,6 +188,21 @@ public final class MemoryDataGenerator implements DataGenerator {
     }
 
     // Allocate entries in the non-replaceable buffers.
+    fillEntries(access, addressObject, values, abstractSequence);
+
+    final TestData testData = new TestData(
+        MemoryEngine.ID,
+        Collections.<String, Object>singletonMap(SOLUTION, addressObject)
+    );
+
+    return TestDataProvider.singleton(testData);
+  }
+
+  private void fillEntries(
+      final Access access,
+      final AddressObject addressObject,
+      final Map<Variable, BitVector> values,
+      final AbstractSequence abstractSequence) {
     final AccessPath path = access.getPath();
 
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
@@ -199,22 +214,15 @@ public final class MemoryDataGenerator implements DataGenerator {
         fillEntry(addressObject, bufferAccess, entryObject, values);
       }
     }
-
-    final TestData testData = new TestData(
-        MemoryEngine.ID,
-        Collections.<String, Object>singletonMap(SOLUTION, addressObject)
-    );
-
-    return TestDataProvider.singleton(testData);
   }
 
   private EntryObject allocateEntry(
       final Access access,
-      final AddressObject solution,
+      final AddressObject addressObject,
       final AbstractSequence abstractSequence,
       final MmuBufferAccess bufferAccess) {
     final BufferUnitedDependency dependency = access.getUnitedDependency();
-    final EntryObject entryObject = solution.getEntry(bufferAccess);
+    final EntryObject entryObject = addressObject.getEntry(bufferAccess);
 
     if (entryObject != null) {
       return entryObject;
@@ -229,7 +237,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final AddressObject prevAddrObject = getAddressObject(prevAbstractCall);
       final EntryObject prevEntryObject = prevAddrObject.getEntry(bufferAccess);
 
-      solution.setEntry(bufferAccess, prevEntryObject);
+      addressObject.setEntry(bufferAccess, prevEntryObject);
       return prevEntryObject;
     }
 
@@ -239,13 +247,13 @@ public final class MemoryDataGenerator implements DataGenerator {
     final MmuEntry newEntry = new MmuEntry(buffer.getFields());
     final EntryObject newEntryObject = new EntryObject(newEntryId, newEntry);
 
-    solution.setEntry(bufferAccess, newEntryObject);
+    addressObject.setEntry(bufferAccess, newEntryObject);
 
     return newEntryObject;
   }
 
   private void fillEntry(
-      final AddressObject solution,
+      final AddressObject addressObject,
       final MmuBufferAccess bufferAccess,
       final EntryObject entryObject,
       final Map<Variable, BitVector> values) {
@@ -257,7 +265,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     // Set the entry fields.
     entry.setValid(true);
-    entry.setAddress(solution.getAddress(bufferAccess));
+    entry.setAddress(addressObject.getAddress(bufferAccess));
 
     Logger.debug("Fill entry: values=%s", values);
 
@@ -360,7 +368,9 @@ public final class MemoryDataGenerator implements DataGenerator {
     return conditions;
   }
 
-  private Collection<Node> getHitMissConditions(final Access access, AddressObject solution) {
+  private Collection<Node> getHitMissConditions(
+      final Access access,
+      AddressObject addressObject) {
     final Collection<Node> conditions = new ArrayList<>();
     final AccessPath path = access.getPath();
     final BufferUnitedDependency dependency = access.getUnitedDependency();
@@ -373,7 +383,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       }
 
       final MmuAddressInstance addressType = bufferAccess.getAddress();
-      final BitVector addressValue = solution.getAddress(addressType);
+      final BitVector addressValue = addressObject.getAddress(addressType);
 
       if (addressValue == null) {
         // The address has been already processed.

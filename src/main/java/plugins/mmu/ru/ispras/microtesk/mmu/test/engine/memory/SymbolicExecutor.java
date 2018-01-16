@@ -1132,7 +1132,7 @@ public final class SymbolicExecutor {
 
   private static Node getIfThenField(final Variable phi, final int i) {
     final String name = String.format("%s_%d", phi.getName(), i);
-    final Variable variable = new Variable(name, DataType.BOOLEAN);
+    final Variable variable = new Variable(name, DataType.BIT_VECTOR(1));
 
     return new NodeVariable(variable);
   }
@@ -1148,10 +1148,10 @@ public final class SymbolicExecutor {
     // Introduce a Boolean variable: C == (PHI == i).
     final Node condition = getIfThenField(FortressUtils.getVariable(phi), i);
 
-    clauseBuilder1.add(Nodes.eq(condition, NodeValue.newBoolean(true)));
+    clauseBuilder1.add(Nodes.eq(condition, NodeValue.newBitVector(BitVector.TRUE)));
     clauseBuilder1.add(Nodes.noteq(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
 
-    clauseBuilder2.add(Nodes.noteq(condition, NodeValue.newBoolean(true)));
+    clauseBuilder2.add(Nodes.noteq(condition, NodeValue.newBitVector(BitVector.TRUE)));
     clauseBuilder2.add(Nodes.eq(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
 
     ifThenBuilder.add(Nodes.or(clauseBuilder1));
@@ -1170,7 +1170,7 @@ public final class SymbolicExecutor {
         // C -> (A | B) == (~C | A | B).
         final List<Node> clauseBuilder = new ArrayList<>();
 
-        clauseBuilder.add(Nodes.eq(condition, NodeValue.newBoolean(false)));
+        clauseBuilder.add(Nodes.eq(condition, NodeValue.newBitVector(BitVector.FALSE)));
         clauseBuilder.addAll(clause.getOperands());
 
         ifThenBuilder.add(Nodes.or(clauseBuilder));
@@ -1179,7 +1179,7 @@ public final class SymbolicExecutor {
         for (final Node equation : clause.getOperands()) {
           final List<Node> clauseBuilder = new ArrayList<>();
 
-          clauseBuilder.add(Nodes.eq(condition, NodeValue.newBoolean(false)));
+          clauseBuilder.add(Nodes.eq(condition, NodeValue.newBitVector(BitVector.FALSE)));
           clauseBuilder.add(equation);
 
           ifThenBuilder.add(Nodes.or(clauseBuilder));
@@ -1188,7 +1188,7 @@ public final class SymbolicExecutor {
         // C -> A == (~C | A).
         final List<Node> clauseBuilder = new ArrayList<>();
 
-        clauseBuilder.add(Nodes.eq(condition, NodeValue.newBoolean(false)));
+        clauseBuilder.add(Nodes.eq(condition, NodeValue.newBitVector(BitVector.FALSE)));
         clauseBuilder.add(clause);
 
         ifThenBuilder.add(Nodes.or(clauseBuilder));
