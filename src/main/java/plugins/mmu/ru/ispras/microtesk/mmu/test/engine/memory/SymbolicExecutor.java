@@ -198,7 +198,7 @@ public final class SymbolicExecutor {
 
     final MmuAddressInstance addrType = MmuPlugin.getSpecification().getVirtualAddress();
 
-    final Node field = Nodes.BVEXTRACT(
+    final Node field = Nodes.bvextract(
         upperZeroBit,
         lowerZeroBit,
         addrType.getVariable());
@@ -277,9 +277,9 @@ public final class SymbolicExecutor {
           final Node field2 = result.getVersion(instance2, pathIndex2);
 
           if (equality.getOperationId() == StandardOperation.EQ) {
-            clauseBuilder.add(Nodes.EQ(field1, field2));
+            clauseBuilder.add(Nodes.eq(field1, field2));
           } else {
-            clauseBuilder.add(Nodes.NOTEQ(field1, field2));
+            clauseBuilder.add(Nodes.noteq(field1, field2));
           }
 
           final Variable variable1 = FortressUtils.getVariable(instance1);
@@ -295,9 +295,9 @@ public final class SymbolicExecutor {
       }
 
       if (condition.getOperationId() == StandardOperation.AND) {
-        result.addFormula(Nodes.AND(clauseBuilder));
+        result.addFormula(Nodes.and(clauseBuilder));
       } else {
-        result.addFormula(Nodes.OR(clauseBuilder));
+        result.addFormula(Nodes.or(clauseBuilder));
       }
     }
 
@@ -431,8 +431,8 @@ public final class SymbolicExecutor {
         final NodeVariable postVariable = postFields.get(i);
         final int sizeInBits = postVariable.getDataType().getSize() - 1;
 
-        final NodeOperation postField = Nodes.BVEXTRACT(sizeInBits - 1, 0, postVariable);
-        final NodeOperation preField = Nodes.BVEXTRACT((bit + sizeInBits) - 1, 0, preVariable);
+        final NodeOperation postField = Nodes.bvextract(sizeInBits - 1, 0, postVariable);
+        final NodeOperation preField = Nodes.bvextract((bit + sizeInBits) - 1, 0, preVariable);
 
         // Buffer.Entry = Memory.DATA.
         final MmuBinding binding = new MmuBinding(postField, preField);
@@ -561,7 +561,7 @@ public final class SymbolicExecutor {
           final Variable newVersion = caseResult.getVersion(originalVariable);
 
           caseResult.addFormula(
-              Nodes.EQ(
+              Nodes.eq(
                   new NodeVariable(newVersion),
                   new NodeVariable(oldVersion)));
         }
@@ -589,10 +589,10 @@ public final class SymbolicExecutor {
 
       // Switch: (PHI == 0) | ... | (PHI == N-1).
       for (int i = 0; i < switchResults.size(); i++) {
-        switchBuilder.add(Nodes.EQ(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
+        switchBuilder.add(Nodes.eq(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
       }
   
-      result.addFormula(Nodes.OR(switchBuilder));
+      result.addFormula(Nodes.or(switchBuilder));
 
       for (int i = 0; i < switchResults.size(); i++) {
         final SymbolicResult caseResult = switchResults.get(i);
@@ -828,9 +828,9 @@ public final class SymbolicExecutor {
 
     if (!clauseBuilder.isEmpty()) {
       if (clauseBuilderId == StandardOperation.AND) {
-        result.addFormula(Nodes.AND(clauseBuilder));
+        result.addFormula(Nodes.and(clauseBuilder));
       } else {
-        result.addFormula(Nodes.OR(clauseBuilder));
+        result.addFormula(Nodes.or(clauseBuilder));
       }
     }
 
@@ -903,10 +903,10 @@ public final class SymbolicExecutor {
           if (!isTrue && constant == null) {
             if (equality.getOperationId() == StandardOperation.EQ) {
               clauseBuilder.add(
-                  Nodes.EQ(field, NodeValue.newBitVector(value)));
+                  Nodes.eq(field, NodeValue.newBitVector(value)));
             } else {
               clauseBuilder.add(
-                  Nodes.NOTEQ(field, NodeValue.newBitVector(value)));
+                  Nodes.noteq(field, NodeValue.newBitVector(value)));
             }
           }
 
@@ -933,10 +933,10 @@ public final class SymbolicExecutor {
 
         if (equality.getOperationId() == StandardOperation.EQ) {
           clauseBuilder.add(
-              Nodes.EQ(lhsField, rhsField));
+              Nodes.eq(lhsField, rhsField));
         } else {
           clauseBuilder.add(
-              Nodes.NOTEQ(lhsField, rhsField));
+              Nodes.noteq(lhsField, rhsField));
         }
 
         final Variable lhsVariable = FortressUtils.getVariable(lhsTerm);
@@ -991,10 +991,10 @@ public final class SymbolicExecutor {
       final int lhsUpperBit = FortressUtils.getUpperBit(lhs);
 
       if (lhsLowerBit > 0) {
-        final Node oldLhsPre = Nodes.BVEXTRACT(lhsLowerBit - 1, 0, oldLhsVar);
-        final Node newLhsPre = Nodes.BVEXTRACT(lhsLowerBit - 1, 0, newLhsVar);
+        final Node oldLhsPre = Nodes.bvextract(lhsLowerBit - 1, 0, oldLhsVar);
+        final Node newLhsPre = Nodes.bvextract(lhsLowerBit - 1, 0, newLhsVar);
 
-        clauseBuilder.add(Nodes.EQ(newLhsPre, oldLhsPre));
+        clauseBuilder.add(Nodes.eq(newLhsPre, oldLhsPre));
         rhsTerms.add(oldLhsPre);
       }
 
@@ -1014,10 +1014,10 @@ public final class SymbolicExecutor {
         final int upper = offset + (FortressUtils.getBitSize(field) - 1);
         final int trunc = upper > lhsUpperBit ? lhsUpperBit : upper;
 
-        final Node lhsField = Nodes.BVEXTRACT(trunc, offset, newLhsVar);
+        final Node lhsField = Nodes.bvextract(trunc, offset, newLhsVar);
         final Node rhsField = (trunc == upper || field.getKind() == Node.Kind.VALUE)
             ? field
-            : Nodes.BVEXTRACT(
+            : Nodes.bvextract(
                   FortressUtils.getUpperBit(field) - (upper - trunc),
                   FortressUtils.getLowerBit(field),
                   (field.getKind() == Node.Kind.VARIABLE)
@@ -1025,7 +1025,7 @@ public final class SymbolicExecutor {
                       : ((NodeOperation) field).getOperand(2) // BVEXTRACT's operand
                   );
 
-        clauseBuilder.add(Nodes.EQ(lhsField, rhsField));
+        clauseBuilder.add(Nodes.eq(lhsField, rhsField));
         Logger.debug("Clause builder: %s", clauseBuilder);
 
         rhsTerms.add(rhsField);
@@ -1040,8 +1040,8 @@ public final class SymbolicExecutor {
 
       if (offset <= lhsUpperBit) {
         clauseBuilder.add(
-            Nodes.EQ(
-                Nodes.BVEXTRACT(lhsUpperBit, offset, newLhsVar),
+            Nodes.eq(
+                Nodes.bvextract(lhsUpperBit, offset, newLhsVar),
                 NodeValue.newBitVector(BitVector.valueOf(0, (lhsUpperBit - offset) + 1))));
         Logger.debug("Clause builder: %s", clauseBuilder);
       }
@@ -1049,11 +1049,11 @@ public final class SymbolicExecutor {
       // Equation for the suffix part.
       if (lhsUpperBit < oldLhsVar.getType().getSize() - 1) {
         final Node oldLhsPost =
-            Nodes.BVEXTRACT(oldLhsVar.getType().getSize() - 1, lhsUpperBit, oldLhsVar);
+            Nodes.bvextract(oldLhsVar.getType().getSize() - 1, lhsUpperBit, oldLhsVar);
         final Node newLhsPost =
-            Nodes.BVEXTRACT(newLhsVar.getType().getSize() - 1, lhsUpperBit, newLhsVar);
+            Nodes.bvextract(newLhsVar.getType().getSize() - 1, lhsUpperBit, newLhsVar);
 
-        clauseBuilder.add(Nodes.EQ(newLhsPost, oldLhsPost));
+        clauseBuilder.add(Nodes.eq(newLhsPost, oldLhsPost));
         rhsTerms.add(oldLhsPost);
       }
 
@@ -1062,7 +1062,7 @@ public final class SymbolicExecutor {
 
       // Try to propagate constants.
       final Map<Variable, BitVector> constants = result.getConstants();
-      final Node rhsExpr = Nodes.reverseBVCONCAT(rhsTerms);
+      final Node rhsExpr = Nodes.reverseBvconcat(rhsTerms);
 
       final BitVector constant = FortressUtils.evaluateBitVector(rhsExpr,
           new ValueProvider() {
@@ -1080,7 +1080,7 @@ public final class SymbolicExecutor {
     } // For each binding.
 
     if (!clauseBuilder.isEmpty()) {
-      result.addFormula(Nodes.AND(clauseBuilder));
+      result.addFormula(Nodes.and(clauseBuilder));
     }
 
     return Boolean.TRUE;
@@ -1088,7 +1088,7 @@ public final class SymbolicExecutor {
 
   private static NodeOperation getConcatOperation(final Node node) {
     if (node.getKind() == Node.Kind.VARIABLE || node.getKind() == Node.Kind.VALUE) {
-      return Nodes.BVCONCAT(node);
+      return Nodes.bvconcat(node);
     }
 
     final NodeOperation operation = (NodeOperation) node;
@@ -1099,7 +1099,7 @@ public final class SymbolicExecutor {
     }
 
     if (operationId == StandardOperation.BVEXTRACT) {
-      return Nodes.BVCONCAT(node);
+      return Nodes.bvconcat(node);
     }
 
     InvariantChecks.checkTrue(false);
@@ -1148,14 +1148,14 @@ public final class SymbolicExecutor {
     // Introduce a Boolean variable: C == (PHI == i).
     final Node condition = getIfThenField(FortressUtils.getVariable(phi), i);
 
-    clauseBuilder1.add(Nodes.EQ(condition, NodeValue.newBoolean(true)));
-    clauseBuilder1.add(Nodes.NOTEQ(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
+    clauseBuilder1.add(Nodes.eq(condition, NodeValue.newBoolean(true)));
+    clauseBuilder1.add(Nodes.noteq(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
 
-    clauseBuilder2.add(Nodes.NOTEQ(condition, NodeValue.newBoolean(true)));
-    clauseBuilder2.add(Nodes.EQ(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
+    clauseBuilder2.add(Nodes.noteq(condition, NodeValue.newBoolean(true)));
+    clauseBuilder2.add(Nodes.eq(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
 
-    ifThenBuilder.add(Nodes.OR(clauseBuilder1));
-    ifThenBuilder.add(Nodes.OR(clauseBuilder2));
+    ifThenBuilder.add(Nodes.or(clauseBuilder1));
+    ifThenBuilder.add(Nodes.or(clauseBuilder2));
 
     // Transform the formula according to the rule:
     // C -> (x[1] & ... & x[n]) == (~C | x[1]) & ... & (~C | x[n]).
@@ -1170,31 +1170,31 @@ public final class SymbolicExecutor {
         // C -> (A | B) == (~C | A | B).
         final List<Node> clauseBuilder = new ArrayList<>();
 
-        clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBoolean(false)));
+        clauseBuilder.add(Nodes.eq(condition, NodeValue.newBoolean(false)));
         clauseBuilder.addAll(clause.getOperands());
 
-        ifThenBuilder.add(Nodes.OR(clauseBuilder));
+        ifThenBuilder.add(Nodes.or(clauseBuilder));
       } else if (clause.getOperationId() == StandardOperation.AND) {
         // C -> (A & B) == (~C | A) & (~C | B).
         for (final Node equation : clause.getOperands()) {
           final List<Node> clauseBuilder = new ArrayList<>();
 
-          clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBoolean(false)));
+          clauseBuilder.add(Nodes.eq(condition, NodeValue.newBoolean(false)));
           clauseBuilder.add(equation);
 
-          ifThenBuilder.add(Nodes.OR(clauseBuilder));
+          ifThenBuilder.add(Nodes.or(clauseBuilder));
         }
       } else {
         // C -> A == (~C | A).
         final List<Node> clauseBuilder = new ArrayList<>();
 
-        clauseBuilder.add(Nodes.EQ(condition, NodeValue.newBoolean(false)));
+        clauseBuilder.add(Nodes.eq(condition, NodeValue.newBoolean(false)));
         clauseBuilder.add(clause);
 
-        ifThenBuilder.add(Nodes.OR(clauseBuilder));
+        ifThenBuilder.add(Nodes.or(clauseBuilder));
       }
     }
 
-    return Nodes.AND(ifThenBuilder);
+    return Nodes.and(ifThenBuilder);
   }
 }

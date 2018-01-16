@@ -248,7 +248,7 @@ public final class SymbolicResult {
       InvariantChecks.checkNotNull(version,
           String.format("Version of %s has not been found", original.getName()));
 
-      addFormula(Nodes.EQ(
+      addFormula(Nodes.eq(
           new NodeVariable(original),
           new NodeVariable(version)));
 

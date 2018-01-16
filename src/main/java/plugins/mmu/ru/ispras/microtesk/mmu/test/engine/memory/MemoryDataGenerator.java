@@ -393,7 +393,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     final Node lhs = bufferAccess.getIndexExpression();
     final BitVector rhs = bufferAccess.getBuffer().getIndex(addressWithoutTag);
 
-    return Nodes.EQ(lhs, NodeValue.newBitVector(rhs));
+    return Nodes.eq(lhs, NodeValue.newBitVector(rhs));
   }
 
   private Node getHitCondition(
@@ -418,11 +418,11 @@ public final class MemoryDataGenerator implements DataGenerator {
         final BitVector address = taggedData.first;
         final BitVector rhs = buffer.getTag(address);
 
-        atoms.add(Nodes.EQ(lhs, NodeValue.newBitVector(rhs)));
+        atoms.add(Nodes.eq(lhs, NodeValue.newBitVector(rhs)));
       }
     }
 
-    return !atoms.isEmpty() ? Nodes.OR(atoms) : NodeValue.newBoolean(true);
+    return !atoms.isEmpty() ? Nodes.or(atoms) : NodeValue.newBoolean(true);
   }
 
   private Node getMissCondition(
@@ -447,11 +447,11 @@ public final class MemoryDataGenerator implements DataGenerator {
         final BitVector address = taggedData.first;
         final BitVector rhs = buffer.getTag(address);
 
-        atoms.add(Nodes.NOTEQ(lhs, NodeValue.newBitVector(rhs)));
+        atoms.add(Nodes.noteq(lhs, NodeValue.newBitVector(rhs)));
       }
     }
 
-    return !atoms.isEmpty() ? Nodes.AND(atoms) : NodeValue.newBoolean(true);
+    return !atoms.isEmpty() ? Nodes.and(atoms) : NodeValue.newBoolean(true);
   }
 
   private Node getReplaceCondition(

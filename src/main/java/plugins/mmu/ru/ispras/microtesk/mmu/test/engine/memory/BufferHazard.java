@@ -40,9 +40,9 @@ public final class BufferHazard {
           final MmuBufferAccess bufferAccess2) {
 
         // Index1 != Index2.
-        return Nodes.AND(
+        return Nodes.and(
             Collections.<Node>singletonList(
-                Nodes.NOTEQ(
+                Nodes.noteq(
                     bufferAccess1.getIndexExpression(),
                     bufferAccess2.getIndexExpression())));
       }
@@ -58,17 +58,17 @@ public final class BufferHazard {
         final List<Node> atoms = new ArrayList<>();
 
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
-          atoms.add(Nodes.EQ(
+          atoms.add(Nodes.eq(
               bufferAccess1.getIndexExpression(),
               bufferAccess2.getIndexExpression()));
         }
 
-        atoms.add(Nodes.NOTEQ(
+        atoms.add(Nodes.noteq(
             bufferAccess1.getTagExpression(),
             bufferAccess2.getTagExpression()));
 
         // Index1 == Index2 && Tag1 != Tag2.
-        return Nodes.AND(atoms);
+        return Nodes.and(atoms);
       }
     },
 
@@ -82,17 +82,17 @@ public final class BufferHazard {
         final List<Node> atoms = new ArrayList<>();
 
         if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
-          atoms.add(Nodes.EQ(
+          atoms.add(Nodes.eq(
               bufferAccess1.getIndexExpression(),
               bufferAccess2.getIndexExpression()));
         }
 
-        atoms.add(Nodes.EQ(
+        atoms.add(Nodes.eq(
             bufferAccess1.getTagExpression(),
             bufferAccess2.getTagExpression()));
 
         // Index1 == Index2 && Tag1 == Tag2.
-        return Nodes.AND(atoms);
+        return Nodes.and(atoms);
       }
     };
 
