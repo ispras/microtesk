@@ -196,7 +196,7 @@ class Template
     set_attributes(:executed => true, &contents)
   end
 
-  def nontaken(&contents)
+  def nonexecuted(&contents)
     set_attributes(:executed => false, &contents)
   end
 
