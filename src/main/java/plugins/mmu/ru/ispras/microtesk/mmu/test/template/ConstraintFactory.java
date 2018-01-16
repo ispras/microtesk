@@ -218,7 +218,7 @@ public final class ConstraintFactory {
     }
 
     final Pair<Integer, Integer> fieldRange = parseRange(variableField);
-    return Nodes.BVEXTRACT(fieldRange.second, fieldRange.first, variable);
+    return Nodes.bvextract(fieldRange.second, fieldRange.first, variable);
   }
 
   private MmuBuffer getBuffer(final String name) {

@@ -114,7 +114,7 @@ public final class IntegerCast {
 
   private static Node extendBitVector(Node origin, DataType typeOf, DataType type) {
     final int extsize = type.getSize() - typeOf.getSize();
-    return Nodes.BVZEROEXT(extsize, origin);
+    return Nodes.bvzeroext(extsize, origin);
   }
 
   private static int getIntegerOperandIndex(Node node, int start) {

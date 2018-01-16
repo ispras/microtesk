@@ -41,7 +41,7 @@ final class IntegerFieldTracker {
     InvariantChecks.checkNotNull(variable);
 
     this.variable = variable;
-    this.fields = Collections.<Node>singletonList(Nodes.BVEXTRACT(variable));
+    this.fields = Collections.<Node>singletonList(Nodes.bvextract(variable));
   }
 
   public void exclude(final int lo, final int hi) {
@@ -60,11 +60,11 @@ final class IntegerFieldTracker {
       final boolean isHiInField = inField(field, hi);
 
       if (isLoInField && lo > FortressUtils.getLowerBit(field)) {
-        newFields.add(Nodes.BVEXTRACT(lo - 1, FortressUtils.getLowerBit(field), variable));
+        newFields.add(Nodes.bvextract(lo - 1, FortressUtils.getLowerBit(field), variable));
       }
 
       if (isHiInField && hi < FortressUtils.getUpperBit(field)) {
-        newFields.add(Nodes.BVEXTRACT(FortressUtils.getUpperBit(field), hi + 1, variable));
+        newFields.add(Nodes.bvextract(FortressUtils.getUpperBit(field), hi + 1, variable));
       }
 
       if (!isLoInField && !isHiInField) {
