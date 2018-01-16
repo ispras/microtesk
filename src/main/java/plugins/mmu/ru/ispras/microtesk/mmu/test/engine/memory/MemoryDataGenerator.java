@@ -89,6 +89,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     InvariantChecks.checkNotNull(query);
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
+    InvariantChecks.checkNotNull(memory);
 
     final Map<String, Object> context = query.getContext();
     final AbstractSequence abstractSequence = (AbstractSequence) context.get(SEQUENCE);
@@ -98,22 +99,17 @@ public final class MemoryDataGenerator implements DataGenerator {
     final Access access = (Access) parameters.get(CONSTRAINT);
     InvariantChecks.checkNotNull(access);
 
-    AddressObject solution = new AddressObject(access);
+    Logger.debug("MemoryDataGenerator.generate: %s", access);
 
-    final BufferUnitedDependency dependency = access.getUnitedDependency();
-    Logger.debug("Solve: %s, %s", access, dependency);
-
-    // Generate a virtual address value.
+    // Generate a preliminary address object.
     final MemoryAccessType accessType = access.getType();
     final MemoryDataType dataType = accessType.getDataType();
 
-    final MmuAddressInstance virtAddrType = memory.getVirtualAddress();
-    final BitVector virtAddrValue = getRandomAddress(virtAddrType, dataType);
-    solution.setAddress(virtAddrType, virtAddrValue);
+    final MmuAddressInstance addressType = memory.getVirtualAddress();
+    final BitVector addressValue = getRandomAddress(addressType, dataType);
 
     final NodeVariable dataVariable = memory.getDataVariable();
     final BitVector dataValue = getRandomValue(dataVariable.getVariable());
-    solution.setData(dataVariable, dataValue);
 
     final Collection<Node> conditions = new ArrayList<>();
     final AccessConstraints accessConstraints = access.getConstraints();
@@ -124,10 +120,21 @@ public final class MemoryDataGenerator implements DataGenerator {
         accessConstraints.getVariateConstraints();
 
     // Refine the addresses (in particular, assign the intermediate addresses).
-    Map<Variable, BitVector> values = refineAddress(solution, conditions, constraints);
+    AddressObject addressObject = new AddressObject(access);
+
+    Map<Variable, BitVector> values =
+        refineAddress(
+          addressObject,
+          addressType,
+          addressValue,
+          dataVariable,
+          dataValue,
+          conditions,
+          constraints
+        );
 
     if (values == null) {
-      Logger.debug("Infeasible path (refineAddress returned null): %s", access);
+      Logger.debug("MemoryDataGenerator.generate: infeasible path for %s", access);
       return TestDataProvider.empty();
     }
 
@@ -136,91 +143,66 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     // Try to refine the address object.
     if (!conditions.isEmpty()) {
-      final AddressObject refinedAddrObject = new AddressObject(access);
-      refinedAddrObject.setAddress(virtAddrType, virtAddrValue);
-      refinedAddrObject.setData(dataVariable, dataValue);
+      final AddressObject refinedObject = new AddressObject(access);
 
       final Map<Variable, BitVector> refinedValues =
-          refineAddress(refinedAddrObject, conditions, constraints);
+          refineAddress(
+            addressObject,
+            addressType,
+            addressValue,
+            dataVariable,
+            dataValue,
+            conditions,
+            constraints
+          );
 
       if (refinedValues != null) {
-        solution = refinedAddrObject;
+        addressObject = refinedObject;
         values = refinedValues;
       }
     }
 
-    final AccessPath path = access.getPath();
-
-    // Synthesize HIT, MISS, and REPLACE conditions.
-    final int numberOfConditions = conditions.size();
-
-    for (final MmuBufferAccess bufferAccess : path.getBufferChecks()) {
-      final MmuBuffer buffer = bufferAccess.getBuffer();
-      final Set<?> tagEqualRelation = dependency.getTagEqualRelation(bufferAccess);
-
-      if (tagEqualRelation.isEmpty()) {
-        final MmuAddressInstance addrType = bufferAccess.getAddress();
-        final BitVector addrValue = solution.getAddress(addrType);
-
-        if (addrValue == null) {
-          // The address has been already processed.
-          continue;
-        }
-
-        switch (bufferAccess.getEvent()) {
-          case HIT:
-            // Add more constraints.
-            conditions.add(getIndexCondition(bufferAccess, addrValue));
-            conditions.add(getHitCondition(bufferAccess, addrValue));
-            break;
-
-          case MISS:
-            // Add more constraints.
-            conditions.add(getIndexCondition(bufferAccess, addrValue));
-
-            if (!buffer.isReplaceable() || Randomizer.get().nextBoolean()) {
-              conditions.add(getMissCondition(bufferAccess, addrValue));
-            } else {
-              conditions.add(getReplaceCondition(bufferAccess, addrValue));
-            }
-
-            break;
-
-          default:
-            InvariantChecks.checkTrue(false);
-            break;
-        }
-      } // If there are no tag equalities.
-    } // For each buffer access.
+    // Assign the tag, index and offset according to the hit and miss conditions.
+    final int previousNumberOfConditions = conditions.size();
+    conditions.addAll(getHitMissConditions(access, addressObject));
 
     // Try to refine the address object.
-    if (conditions.size() > numberOfConditions) {
-      final AddressObject refinedAddrObject = new AddressObject(access);
-      refinedAddrObject.setAddress(virtAddrType, virtAddrValue);
-      refinedAddrObject.setData(dataVariable, dataValue);
+    if (conditions.size() != previousNumberOfConditions) {
+      final AddressObject refinedObject = new AddressObject(access);
 
       final Map<Variable, BitVector> refinedValues =
-          refineAddress(refinedAddrObject, conditions, constraints);
+          refineAddress(
+            addressObject,
+            addressType,
+            addressValue,
+            dataVariable,
+            dataValue,
+            conditions,
+            constraints
+          );
 
       if (refinedValues != null) {
-        solution = refinedAddrObject;
+        addressObject = refinedObject;
         values = refinedValues;
       }
     }
 
-    // Allocate entries in non-replaceable buffers.
+    // Allocate entries in the non-replaceable buffers.
+    final AccessPath path = access.getPath();
+
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
       if (!bufferAccess.getBuffer().isReplaceable()) {
-        final EntryObject entryObject = allocateEntry(access, solution, abstractSequence, bufferAccess);
+        final EntryObject entryObject = 
+            allocateEntry(access, addressObject, abstractSequence, bufferAccess);
         InvariantChecks.checkNotNull(entryObject);
 
-        fillEntry(solution, bufferAccess, entryObject, values);
+        fillEntry(addressObject, bufferAccess, entryObject, values);
       }
     }
 
     final TestData testData = new TestData(
         MemoryEngine.ID,
-        Collections.<String, Object>singletonMap(SOLUTION, solution)
+        Collections.<String, Object>singletonMap(SOLUTION, addressObject)
     );
 
     return TestDataProvider.singleton(testData);
@@ -332,10 +314,9 @@ public final class MemoryDataGenerator implements DataGenerator {
   private Collection<Node> getHazardConditions(
       final Access access,
       final AbstractSequence abstractSequence) {
+    final Collection<Node> conditions = new ArrayList<>();
     final AccessPath path = access.getPath();
     final BufferUnitedDependency dependency = access.getUnitedDependency();
-
-    final Collection<Node> conditions = new ArrayList<>();
 
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
       final Set<Pair<Integer, BufferHazard.Instance>> indexEqualRelation =
@@ -379,15 +360,88 @@ public final class MemoryDataGenerator implements DataGenerator {
     return conditions;
   }
 
+  private Collection<Node> getHitMissConditions(final Access access, AddressObject solution) {
+    final Collection<Node> conditions = new ArrayList<>();
+    final AccessPath path = access.getPath();
+    final BufferUnitedDependency dependency = access.getUnitedDependency();
+
+    for (final MmuBufferAccess bufferAccess : path.getBufferChecks()) {
+      final Set<?> tagEqualRelation = dependency.getTagEqualRelation(bufferAccess);
+
+      if (!tagEqualRelation.isEmpty()) {
+        continue;
+      }
+
+      final MmuAddressInstance addressType = bufferAccess.getAddress();
+      final BitVector addressValue = solution.getAddress(addressType);
+
+      if (addressValue == null) {
+        // The address has been already processed.
+        continue;
+      }
+
+      conditions.addAll(getHitMissConditions(bufferAccess, addressValue));
+    }
+
+    return conditions;
+  }
+
+  private Collection<Node> getHitMissConditions(
+      final MmuBufferAccess bufferAccess,
+      final BitVector addressValue) {
+    final Collection<Node> conditions = new ArrayList<>();
+    final MmuBuffer buffer = bufferAccess.getBuffer();
+
+    switch (bufferAccess.getEvent()) {
+      case HIT:
+        final Node hitIndexCondition = getIndexCondition(bufferAccess, addressValue);
+        if (hitIndexCondition != null) {
+          conditions.add(hitIndexCondition);
+        }
+
+        final Node hitTagCondition = getHitCondition(bufferAccess, addressValue);
+        if (hitTagCondition != null) {
+          conditions.add(hitTagCondition);
+        }
+
+        break;
+      case MISS:
+        final Node missIndexCondition = getIndexCondition(bufferAccess, addressValue);
+
+        if (missIndexCondition != null) {
+          conditions.add(missIndexCondition);
+        }
+
+        // There are two types of misses
+        if (!buffer.isReplaceable() || Randomizer.get().nextBoolean()) {
+          final Node missTagCondition = getMissCondition(bufferAccess, addressValue);
+          if (missTagCondition != null) {
+            conditions.add(missTagCondition);
+          }
+        } else {
+          final Node replaceTagCondition = getReplaceCondition(bufferAccess, addressValue);
+          if (replaceTagCondition != null) {
+            conditions.add(replaceTagCondition);
+          }
+        }
+
+        break;
+      default:
+        InvariantChecks.checkTrue(false);
+        break;
+    }
+
+    return conditions;
+  }
+
   private Node getIndexCondition(
       final MmuBufferAccess bufferAccess,
       final BitVector addressWithoutTag) {
     final MmuBuffer buffer = bufferAccess.getBuffer();
 
     // This workaround is to handle fully associative buffers.
-    // As zero-length vectors are unsupported, the translator returns the false index condition.
     if (buffer.getSets() == 1) {
-      return NodeValue.newBoolean(true);
+      return null;
     }
 
     final Node lhs = bufferAccess.getIndexExpression();
@@ -422,7 +476,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       }
     }
 
-    return !atoms.isEmpty() ? Nodes.or(atoms) : NodeValue.newBoolean(true);
+    return !atoms.isEmpty() ? Nodes.or(atoms) : null;
   }
 
   private Node getMissCondition(
@@ -451,7 +505,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       }
     }
 
-    return !atoms.isEmpty() ? Nodes.and(atoms) : NodeValue.newBoolean(true);
+    return !atoms.isEmpty() ? Nodes.and(atoms) : null;
   }
 
   private Node getReplaceCondition(
@@ -495,10 +549,17 @@ public final class MemoryDataGenerator implements DataGenerator {
 
   private Map<Variable, BitVector> refineAddress(
       final AddressObject addressObject,
+      final MmuAddressInstance addressType,
+      final BitVector addressValue,
+      final NodeVariable dataVariable,
+      final BitVector dataValue,
       final Collection<Node> conditions,
       final Collection<BitVectorConstraint> constraints) {
 
     Logger.debug("Refine address: conditions=%s", conditions);
+
+    addressObject.setAddress(addressType, addressValue);
+    addressObject.setData(dataVariable, dataValue);
 
     final Collection<BitVectorConstraint> allConstraints = new ArrayList<>(constraints);
 
