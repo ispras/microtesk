@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import static ru.ispras.fortress.expression.Nodes.EQ;
-import static ru.ispras.fortress.expression.Nodes.AND;
-import static ru.ispras.fortress.expression.Nodes.OR;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.dotConc;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.literalOperand;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.variableOperand;
@@ -227,13 +224,13 @@ public final class SsaAssembler {
     changes = changesStack.pop();
     join(changes, block.getChildren(), containers, xform);
 
-    addToBatch(OR(branches));
+    addToBatch(Nodes.or(branches));
 
     newBatch();
     for (Map.Entry<String, Node> entry : changes.getSummary().entrySet()) {
       final Node node = entry.getValue();
       if (ExprUtils.isOperation(node, StandardOperation.ITE)) {
-        addToBatch(EQ(changes.newLatest(entry.getKey()), node));
+        addToBatch(Nodes.eq(changes.newLatest(entry.getKey()), node));
       }
     }
     addToBatch(endBatch());
@@ -250,7 +247,7 @@ public final class SsaAssembler {
         final Node fallback = getJointFallback(entry.getKey(), repo, diff);
         if (!fallback.equals(entry.getValue()) ||
             fallback.getUserData() != entry.getValue().getUserData()) {
-          final Node ite = Nodes.ITE(guard, entry.getValue(), fallback);
+          final Node ite = Nodes.ite(guard, entry.getValue(), fallback);
           repo.getSummary().put(entry.getKey(), ite);
         }
       }
@@ -317,7 +314,7 @@ public final class SsaAssembler {
 
     final String path = dotConc(prefix.expression, name);
     final NodeVariable var = changes.rebase(path, tmp.getData(), version);
-    addToBatch(EQ(var, tmp));
+    addToBatch(Nodes.eq(var, tmp));
 
     return tmp;
   }
@@ -363,7 +360,7 @@ public final class SsaAssembler {
             changes.rebase(inner.expression, //.substring(origin.expression.length()),
                            parameters.getType(i).valueUninitialized(),
                            1);
-            addToBatch(EQ(arg, operand));
+            addToBatch(Nodes.eq(arg, operand));
 //        walkStatements(origin, Collections.singleton(EQ(arg, operand)));
       }
     }
@@ -381,7 +378,7 @@ public final class SsaAssembler {
     final String sourceName = dotConc(prefix.expression, localName);
     final NodeVariable source = changes.rebase(sourceName, data, 1);
 
-    addToBatch(EQ(target, source));
+    addToBatch(Nodes.eq(target, source));
   }
 
   private Parameters getParameters(final String callee) {
@@ -529,14 +526,14 @@ public final class SsaAssembler {
         final Node n = castBitVector(amount, origin);
         final Node size = NodeValue.newBitVector(BitVector.valueOf(bitsize, bitsize));
 
-        final Node sizeMinusN = Nodes.BVSUB(size, n);
-        final Node pow2n = Nodes.BVLSHL(one, n);
-        final Node mask = Nodes.BVSUB(pow2n, one);
-        final Node shrX = Nodes.BVLSHR(origin, n);
-        final Node maskX = Nodes.BVAND(origin, mask);
-        final Node shlMasked = Nodes.BVLSHL(maskX, sizeMinusN);
+        final Node sizeMinusN = Nodes.bvsub(size, n);
+        final Node pow2n = Nodes.bvlshl(one, n);
+        final Node mask = Nodes.bvsub(pow2n, one);
+        final Node shrX = Nodes.bvlshr(origin, n);
+        final Node maskX = Nodes.bvand(origin, mask);
+        final Node shlMasked = Nodes.bvlshl(maskX, sizeMinusN);
 
-        return Nodes.BVOR(shrX, shlMasked);
+        return Nodes.bvor(shrX, shlMasked);
       }
     };
 
@@ -549,11 +546,11 @@ public final class SsaAssembler {
     final int dstSize = dst.getDataType().getSize();
 
     if (srcSize < dstSize) {
-      return Nodes.BVZEROEXT(dstSize - srcSize, src);
+      return Nodes.bvzeroext(dstSize - srcSize, src);
     }
 
     if (srcSize > dstSize) {
-      return Nodes.BVEXTRACT(dstSize - 1, 0, src);
+      return Nodes.bvextract(dstSize - 1, 0, src);
     }
 
     return src;
@@ -600,7 +597,7 @@ public final class SsaAssembler {
     this.batchSize.push(0);
   }
 
-  private void newBatch(Node node) {
+  private void newBatch(final Node node) {
     newBatch();
     addToBatch(node);
   }
@@ -611,9 +608,9 @@ public final class SsaAssembler {
                                 this.statements.size());
 
     if (operands.isEmpty()) {
-      return AND(Nodes.TRUE);
+      return Nodes.and(Nodes.TRUE);
     }
-    final NodeOperation batch = AND(operands);
+    final NodeOperation batch = Nodes.and(operands);
     operands.clear();
 
     return batch;
