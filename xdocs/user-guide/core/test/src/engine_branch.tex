@@ -8,6 +8,21 @@ when the traverser meets a conditional branch, it assigns a condition value and 
 If the length of the execution trace exceeds the given bound, the traverser rolls back to the latest conditional branch and changes the condition value (if possible).
 Given an execution trace, the branch engine enforces the specified order of execution by generating so-called \emph{control code} and injecting it into the sequence.
 
+The branch engine can operate in two modes: a \emph{regular mode} and an \emph{advanced mode}.
+The first mode implies that sequences to be processed are composed by regular means.
+Each sequence may include branch and non-branch instructions.
+The engine determines which instructions are branches and which are not, and finds out the branches’ destinations.
+After that, it starts enumerating execution traces and constructs the control code for each of them.
+The second mode implies using three special nested blocks, namely $branches$, $executed$, and $nonexecuted$:
+
+\begin{itemize}
+\item the block $branches$ contains branch instructions to be used in sequences;
+\item the block $executed$ contains non-branch instructions to be put into executed basic blocks;
+\item the block $nonexecuted$ contains non-branch instructions to be put into non-executed basic blocks.
+\end{itemize}
+
+Note that branch instructions may appear multiple (zero or more) times, while executed and non-executed instructions are placed as they are.
+
 \subsection{Parameters}
 
 \begin{itemize}
