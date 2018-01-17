@@ -30,7 +30,7 @@ import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.xml.XMLConstraintLoader;
 import ru.ispras.fortress.solver.xml.XMLConstraintSaver;
 import ru.ispras.fortress.solver.xml.XmlNotLoadedException;
-import ru.ispras.fortress.solver.xml.XMLNotSavedException;
+import ru.ispras.fortress.solver.xml.XmlNotSavedException;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -108,7 +108,7 @@ final class SsaStorage {
             path.mkdir();
             saver.saveToFile(
                 String.format("%s%s%s.xml", path.getPath(), File.separator, c.getName()));
-          } catch (final XMLNotSavedException e) {
+          } catch (final XmlNotSavedException e) {
             Logger.error("Failed to save coverage model to the XML file: %s", e.getMessage());
           }
         }
