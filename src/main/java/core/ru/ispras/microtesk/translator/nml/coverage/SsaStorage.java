@@ -28,7 +28,7 @@ import java.util.Map;
 
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.xml.XmlConstraintLoader;
-import ru.ispras.fortress.solver.xml.XMLConstraintSaver;
+import ru.ispras.fortress.solver.xml.XmlConstraintSaver;
 import ru.ispras.fortress.solver.xml.XmlNotLoadedException;
 import ru.ispras.fortress.solver.xml.XmlNotSavedException;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -99,7 +99,7 @@ final class SsaStorage {
         for (final Constraint c :
           BlockConverter.convert(entry.getKey(), entry.getValue().getEntryPoint())) {
 
-          final XMLConstraintSaver saver = new XMLConstraintSaver(c);
+          final XmlConstraintSaver saver = new XmlConstraintSaver(c);
 
           try {
             final File path = new File(
