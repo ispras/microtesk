@@ -99,6 +99,9 @@ public final class MemoryInitializerMaker implements InitializerMaker {
         (AddressObject) testData.getBindings().get(MemoryDataGenerator.SOLUTION);
     InvariantChecks.checkNotNull(addressObject);
 
+    Logger.debug("MemoryInitializerMaker.makeInitializer: addressObject[%d]=%s",
+        System.identityHashCode(addressObject), addressObject);
+
     final List<AbstractCall> initializer = new ArrayList<>();
     // Write entries into the non-replaceable buffers.
     initializer.addAll(prepareEntries(engineContext, primitive, situation, addressObject));

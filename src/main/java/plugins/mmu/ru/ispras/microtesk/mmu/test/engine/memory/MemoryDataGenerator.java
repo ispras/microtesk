@@ -133,7 +133,7 @@ public final class MemoryDataGenerator implements DataGenerator {
         );
 
     if (values == null) {
-      Logger.debug("MemoryDataGenerator.generate: infeasible path for %s", access);
+      Logger.debug("MemoryDataGenerator.generate: infeasible %s", access);
       return TestDataProvider.empty();
     }
 
@@ -146,7 +146,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
       final Map<Variable, BitVector> refinedValues =
           refineAddress(
-            addressObject,
+            refinedObject,
             addressType,
             dataVariable,
             dataValue,
@@ -170,7 +170,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
       final Map<Variable, BitVector> refinedValues =
           refineAddress(
-            addressObject,
+            refinedObject,
             addressType,
             dataVariable,
             dataValue,
@@ -192,7 +192,9 @@ public final class MemoryDataGenerator implements DataGenerator {
         Collections.<String, Object>singletonMap(SOLUTION, addressObject)
     );
 
-    Logger.debug("MemoryDataGenerator.generate: addressObject=%s", addressObject);
+    Logger.debug("MemoryDataGenerator.generate: addressObject[%d]=%s",
+        System.identityHashCode(addressObject), addressObject);
+
     return TestDataProvider.singleton(testData);
   }
 
