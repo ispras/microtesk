@@ -37,7 +37,6 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorDomainConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaBuilderSimple;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRange;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRangeConstraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
@@ -688,7 +687,8 @@ public final class SymbolicExecutor {
 
         final BitVectorRangeConstraint constraint =
             new BitVectorRangeConstraint(address.getVariable().getVariable(),
-            new BitVectorRange(segment.getMin(), segment.getMax()));
+            segment.getMin(),
+            segment.getMax());
 
         status = executeFormula(result, defines, constraint.getFormula(), pathIndex);
       } else {

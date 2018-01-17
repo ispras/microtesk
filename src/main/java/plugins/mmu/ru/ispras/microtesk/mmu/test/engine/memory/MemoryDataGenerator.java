@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,10 +25,10 @@ import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -37,6 +36,7 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorEqualConstraint;
+import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRangeConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorVariableInitializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -101,25 +101,23 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     Logger.debug("MemoryDataGenerator.generate: %s", access);
 
-    // Generate a preliminary address object.
+    // Generate the basic address object constraints.
+    final Collection<Node> conditions = new ArrayList<>();
+    final Collection<BitVectorConstraint> constraints = new ArrayList<>();
+
     final MemoryAccessType accessType = access.getType();
     final MemoryDataType dataType = accessType.getDataType();
 
     final MmuAddressInstance addressType = memory.getVirtualAddress();
-    final BitVector addressValue = getRandomAddress(addressType, dataType);
-    InvariantChecks.checkNotNull(addressValue);
+    constraints.addAll(getAddressConstraints(addressType, dataType));
 
     final NodeVariable dataVariable = memory.getDataVariable();
     final BitVector dataValue = getRandomValue(dataVariable.getVariable());
-    InvariantChecks.checkNotNull(dataValue);
 
-    final Collection<Node> conditions = new ArrayList<>();
     final AccessConstraints accessConstraints = access.getConstraints();
-
     accessConstraints.randomize();
 
-    final Collection<BitVectorConstraint> constraints =
-        accessConstraints.getVariateConstraints();
+    constraints.addAll(accessConstraints.getVariateConstraints());
 
     // Refine the addresses (in particular, assign the intermediate addresses).
     AddressObject addressObject = new AddressObject(access);
@@ -128,7 +126,6 @@ public final class MemoryDataGenerator implements DataGenerator {
         refineAddress(
           addressObject,
           addressType,
-          addressValue,
           dataVariable,
           dataValue,
           conditions,
@@ -151,7 +148,6 @@ public final class MemoryDataGenerator implements DataGenerator {
           refineAddress(
             addressObject,
             addressType,
-            addressValue,
             dataVariable,
             dataValue,
             conditions,
@@ -176,7 +172,6 @@ public final class MemoryDataGenerator implements DataGenerator {
           refineAddress(
             addressObject,
             addressType,
-            addressValue,
             dataVariable,
             dataValue,
             conditions,
@@ -528,20 +523,33 @@ public final class MemoryDataGenerator implements DataGenerator {
     return getMissCondition(bufferAccess, addressWithoutTag);
   }
 
-  private BitVector getRandomAddress(
-      final MmuAddressInstance addrType,
+  private Collection<BitVectorConstraint> getAddressConstraints(
+      final MmuAddressInstance addressType,
       final MemoryDataType dataType) {
+    final Collection<BitVectorConstraint> constraints = new ArrayList<>();
     final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     final GeneratorSettings settings = GeneratorSettings.get();
     final RegionSettings region = settings.getMemory().getRegion(memory.getName());
 
-    final BigInteger address =
-        Randomizer.get().nextBigIntegerRange(region.getMin(), region.getMax());
+    final Variable addressVariable = addressType.getVariable().getVariable();
 
-    final BigInteger alignedAddress = dataType.align(address);
+    // Range constraint.
+    constraints.add(
+        new BitVectorRangeConstraint(
+          addressVariable,
+          BitVector.valueOf(region.getMin(), addressType.getBitSize()),
+          BitVector.valueOf(region.getMax(), addressType.getBitSize()))); 
 
-    return BitVector.valueOf(alignedAddress, addrType.getWidth());
+    // Alignment constraint (if required).
+    if (dataType.getSizeInBytes() > 1) {
+      constraints.add(
+          new BitVectorEqualConstraint(
+            Nodes.bvextract(dataType.getSizeInBytes() - 2, 0, addressVariable),
+            BitVector.valueOf(0, dataType.getSizeInBytes() - 1)));
+    }
+
+    return constraints;
   }
 
   private BitVector getRandomValue(final Variable variable) {
@@ -563,15 +571,14 @@ public final class MemoryDataGenerator implements DataGenerator {
   private Map<Variable, BitVector> refineAddress(
       final AddressObject addressObject,
       final MmuAddressInstance addressType,
-      final BitVector addressValue,
       final NodeVariable dataVariable,
       final BitVector dataValue,
       final Collection<Node> conditions,
       final Collection<BitVectorConstraint> constraints) {
 
     Logger.debug("Refine address: conditions=%s", conditions);
+    Logger.debug("Refine address: constraints=%s", constraints);
 
-    addressObject.setAddress(addressType, addressValue);
     addressObject.setData(dataVariable, dataValue);
 
     final Collection<BitVectorConstraint> allConstraints = new ArrayList<>(constraints);

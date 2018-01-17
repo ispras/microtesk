@@ -37,22 +37,26 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
   private static int newVariableId = 0;
 
   private final Variable variable;
-  private final BitVectorRange range;
+  private final BitVector min;
+  private final BitVector max;
 
   private final Node formula;
 
   public BitVectorRangeConstraint(
       final Variable variable,
-      final BitVectorRange range) {
+      final BitVector min,
+      final BitVector max) {
     InvariantChecks.checkNotNull(variable);
-    InvariantChecks.checkNotNull(range);
+    InvariantChecks.checkNotNull(min);
+    InvariantChecks.checkNotNull(max);
 
     this.variable = variable;
-    this.range = range;
+    this.min = min;
+    this.max = max;
 
     final List<Node> formulaBuilder = new ArrayList<>();
-    encodeGreaterThanOrEqualTo(formulaBuilder, variable, range.getMin());
-    encodeLessThanOrEqualTo(formulaBuilder, variable, range.getMax());
+    encodeGreaterThanOrEqualTo(formulaBuilder, variable, min);
+    encodeLessThanOrEqualTo(formulaBuilder, variable, max);
 
     this.formula = Nodes.and(formulaBuilder);
   }
@@ -225,8 +229,12 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
     return variable;
   }
 
-  public BitVectorRange getRange() {
-    return range;
+  public BitVector getMin() {
+    return min;
+  }
+
+  public BitVector getMax() {
+    return max;
   }
 
   @Override

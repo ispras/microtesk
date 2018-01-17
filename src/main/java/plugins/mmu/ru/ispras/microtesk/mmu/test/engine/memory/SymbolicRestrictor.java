@@ -22,7 +22,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRange;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRangeConstraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -93,13 +92,12 @@ public final class SymbolicRestrictor {
     InvariantChecks.checkNotNull(addrType);
     InvariantChecks.checkNotNull(region);
 
-    final BitVectorRange range = new BitVectorRange(
-        BitVector.valueOf(region.getMin(), addrType.getWidth()),
-        BitVector.valueOf(region.getMax(), addrType.getWidth()));
-    Logger.debug("Range constraint: %s in %s", addrType, range);
+    final BitVector min = BitVector.valueOf(region.getMin(), addrType.getWidth());
+    final BitVector max = BitVector.valueOf(region.getMax(), addrType.getWidth());
+    Logger.debug("Constraint: %s in [%s, %s]", addrType, min.toHexString(), max.toHexString());
 
     return Collections.<BitVectorConstraint>singleton(
-        new BitVectorRangeConstraint(addrType.getVariable().getVariable(), range));
+        new BitVectorRangeConstraint(addrType.getVariable().getVariable(), min, max));
   }
 
   public Collection<BitVectorConstraint> getConstraints(
