@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.ispras.fortress.solver.constraint.Constraint;
-import ru.ispras.fortress.solver.xml.XMLConstraintLoader;
+import ru.ispras.fortress.solver.xml.XmlConstraintLoader;
 import ru.ispras.fortress.solver.xml.XMLConstraintSaver;
 import ru.ispras.fortress.solver.xml.XmlNotLoadedException;
 import ru.ispras.fortress.solver.xml.XmlNotSavedException;
@@ -48,7 +48,7 @@ final class SsaStorage {
 
     for (final File file : dir.listFiles()) {
       try {
-        constraints.add(XMLConstraintLoader.loadFromFile(file.getPath()));
+        constraints.add(XmlConstraintLoader.loadFromFile(file.getPath()));
       } catch (final XmlNotLoadedException e) {
         System.err.println(e.getMessage());
       }
