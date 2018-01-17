@@ -107,9 +107,11 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     final MmuAddressInstance addressType = memory.getVirtualAddress();
     final BitVector addressValue = getRandomAddress(addressType, dataType);
+    InvariantChecks.checkNotNull(addressValue);
 
     final NodeVariable dataVariable = memory.getDataVariable();
     final BitVector dataValue = getRandomValue(dataVariable.getVariable());
+    InvariantChecks.checkNotNull(dataValue);
 
     final Collection<Node> conditions = new ArrayList<>();
     final AccessConstraints accessConstraints = access.getConstraints();
@@ -195,6 +197,7 @@ public final class MemoryDataGenerator implements DataGenerator {
         Collections.<String, Object>singletonMap(SOLUTION, addressObject)
     );
 
+    Logger.debug("MemoryDataGenerator.generate: addressObject=%s", addressObject);
     return TestDataProvider.singleton(testData);
   }
 
@@ -579,8 +582,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final NodeVariable variable = entry.getKey();
       final BitVector value = entry.getValue();
 
-      allConstraints.add(
-          new BitVectorEqualConstraint(variable, value));
+      allConstraints.add(new BitVectorEqualConstraint(variable, value));
     }
 
     // Fix known values of the addresses.
@@ -614,25 +616,21 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     // Set the intermediate addresses used along the memory access path.
     for (final MmuBufferAccess bufferAccess : bufferAccesses) {
-      final MmuAddressInstance addrType = bufferAccess.getAddress();
-      final Variable addrVar = addrType.getVariable().getVariable();
-      final BitVector addrValue = values.get(addrVar);
+      final MmuAddressInstance type = bufferAccess.getAddress();
+      final BitVector value = values.get(type.getVariable().getVariable());
 
-      if (addrValue != null) {
-        Logger.debug("Refine address: %s=0x%s", addrType, addrValue.toHexString());
-        addressObject.setAddress(addrType, addrValue);
+      if (value != null) {
+        Logger.debug("Refine address: %s=0x%s", type, value.toHexString());
+        addressObject.setAddress(type, value);
       }
     }
 
     // Get the virtual address value.
-    final MmuSubsystem memory = MmuPlugin.getSpecification();
-    final MmuAddressInstance addrType = memory.getVirtualAddress();
-    final Variable addrVar = addrType.getVariable().getVariable();
-    final BitVector addrValue = values.get(addrVar);
-    InvariantChecks.checkNotNull(addrValue, "Cannot obtain the virtual address value");
+    final BitVector refinedAddressValue = values.get(addressType.getVariable().getVariable());
+    InvariantChecks.checkNotNull(refinedAddressValue, "Cannot obtain the virtual address value");
 
-    Logger.debug("Refine address: %s=0x%s", addrType, addrValue.toHexString());
-    addressObject.setAddress(addrType, addrValue);
+    Logger.debug("Refine address: %s=0x%s", addressType, refinedAddressValue.toHexString());
+    addressObject.setAddress(addressType, refinedAddressValue);
 
     return values;
   }

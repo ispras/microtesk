@@ -27,7 +27,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.MemorySettings;
 import ru.ispras.microtesk.settings.RegionSettings;
-import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.TestDataProvider;

@@ -119,18 +119,20 @@ public final class AddressObject {
     final StringBuilder builder = new StringBuilder();
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
-    final MmuAddressInstance virtAddrType = memory.getVirtualAddress();
-    final BitVector virtAddrValue = addresses.get(virtAddrType);
+    final MmuAddressInstance addressType = memory.getVirtualAddress();
+    final BitVector addressValue = addresses.get(addressType);
+    InvariantChecks.checkNotNull(addressValue, addresses.toString());
 
-    builder.append(String.format("%s[0x%s]", memory.getName(), virtAddrValue.toHexString()));
+    builder.append(String.format("%s[0x%s]", memory.getName(), addressValue.toHexString()));
 
     for (final MmuBufferAccess bufferAccess : access.getPath().getBufferReads()) {
       final MmuBuffer buffer = bufferAccess.getBuffer();
-      final MmuAddressInstance addrType = bufferAccess.getAddress();
-      final BitVector addrValue = addresses.get(addrType);
+      final MmuAddressInstance type = bufferAccess.getAddress();
+      final BitVector value = addresses.get(type);
+      InvariantChecks.checkNotNull(value);
 
       builder.append(separator);
-      builder.append(String.format("%s[0x%s]", buffer.getName(), addrValue.toHexString()));
+      builder.append(String.format("%s[0x%s]", buffer.getName(), value.toHexString()));
 
       if (!buffer.isReplaceable()) {
         final EntryObject entryObject = getEntry(bufferAccess);

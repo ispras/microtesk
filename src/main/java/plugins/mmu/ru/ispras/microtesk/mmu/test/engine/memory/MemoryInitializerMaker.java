@@ -91,7 +91,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       final Set<AddressingModeWrapper> initializedModes /* OUT */) {
     InvariantChecks.checkTrue(MemoryEngine.ID.equals(testData.getId()));
 
-    if (processingCount != 0) {
+    if (stage == Stage.PRE || stage == Stage.POST || processingCount != 0) {
       return Collections.<AbstractCall>emptyList();
     }
 
