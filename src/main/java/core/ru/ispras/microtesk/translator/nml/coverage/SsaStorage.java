@@ -29,7 +29,7 @@ import java.util.Map;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.xml.XMLConstraintLoader;
 import ru.ispras.fortress.solver.xml.XMLConstraintSaver;
-import ru.ispras.fortress.solver.xml.XMLNotLoadedException;
+import ru.ispras.fortress.solver.xml.XmlNotLoadedException;
 import ru.ispras.fortress.solver.xml.XMLNotSavedException;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -49,7 +49,7 @@ final class SsaStorage {
     for (final File file : dir.listFiles()) {
       try {
         constraints.add(XMLConstraintLoader.loadFromFile(file.getPath()));
-      } catch (final XMLNotLoadedException e) {
+      } catch (final XmlNotLoadedException e) {
         System.err.println(e.getMessage());
       }
     }
