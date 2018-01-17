@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import ru.ispras.fortress.expression.Node;
@@ -38,13 +37,17 @@ public final class BufferHazard {
       public Node getCondition(
           final MmuBufferAccess bufferAccess1,
           final MmuBufferAccess bufferAccess2) {
+        final MmuBuffer buffer = bufferAccess1.getBuffer();
+        final List<Node> atoms = new ArrayList<>();
+
+        if (buffer.getIndexExpression().getKind() != Node.Kind.VALUE) {
+          atoms.add(Nodes.noteq(
+              bufferAccess1.getIndexExpression(),
+              bufferAccess2.getIndexExpression()));
+        }
 
         // Index1 != Index2.
-        return Nodes.and(
-            Collections.<Node>singletonList(
-                Nodes.noteq(
-                    bufferAccess1.getIndexExpression(),
-                    bufferAccess2.getIndexExpression())));
+        return Nodes.and(atoms);
       }
     },
 
@@ -57,15 +60,17 @@ public final class BufferHazard {
         final MmuBuffer buffer = bufferAccess1.getBuffer();
         final List<Node> atoms = new ArrayList<>();
 
-        if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
+        if (buffer.getIndexExpression().getKind() != Node.Kind.VALUE) {
           atoms.add(Nodes.eq(
               bufferAccess1.getIndexExpression(),
               bufferAccess2.getIndexExpression()));
         }
 
-        atoms.add(Nodes.noteq(
-            bufferAccess1.getTagExpression(),
-            bufferAccess2.getTagExpression()));
+        if (buffer.getTagExpression().getKind() != Node.Kind.VALUE) {
+          atoms.add(Nodes.noteq(
+              bufferAccess1.getTagExpression(),
+              bufferAccess2.getTagExpression()));
+        }
 
         // Index1 == Index2 && Tag1 != Tag2.
         return Nodes.and(atoms);
@@ -81,15 +86,17 @@ public final class BufferHazard {
         final MmuBuffer buffer = bufferAccess1.getBuffer();
         final List<Node> atoms = new ArrayList<>();
 
-        if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
+        if (buffer.getIndexExpression().getKind() != Node.Kind.VALUE) {
           atoms.add(Nodes.eq(
               bufferAccess1.getIndexExpression(),
               bufferAccess2.getIndexExpression()));
         }
 
-        atoms.add(Nodes.eq(
-            bufferAccess1.getTagExpression(),
-            bufferAccess2.getTagExpression()));
+        if (buffer.getTagExpression().getKind() != Node.Kind.VALUE) {
+          atoms.add(Nodes.eq(
+              bufferAccess1.getTagExpression(),
+              bufferAccess2.getTagExpression()));
+        }
 
         // Index1 == Index2 && Tag1 == Tag2.
         return Nodes.and(atoms);
@@ -132,12 +139,12 @@ public final class BufferHazard {
 
     final Collection<BufferHazard> hazards = new ArrayList<>();
 
-    if (buffer.getSets() > 1 && buffer.getIndexExpression() != null) {
+    if (buffer.getIndexExpression().getKind() != Node.Kind.VALUE) {
       // Index1 != Index2.
       hazards.add(new BufferHazard(Type.INDEX_NOT_EQUAL, buffer));
     }
 
-    if (buffer.getTagExpression() != null) {
+    if (buffer.getTagExpression().getKind() != Node.Kind.VALUE) {
       // Index1 == Index2 && Tag1 != Tag2.
       hazards.add(new BufferHazard(Type.TAG_NOT_EQUAL, buffer));
       // Index1 == Index2 && Tag1 == Tag2.

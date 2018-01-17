@@ -450,7 +450,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     final MmuBuffer buffer = bufferAccess.getBuffer();
 
     // This workaround is to handle fully associative buffers.
-    if (buffer.getSets() == 1) {
+    if (buffer.getIndexExpression().getKind() == Node.Kind.VALUE) {
       return null;
     }
 

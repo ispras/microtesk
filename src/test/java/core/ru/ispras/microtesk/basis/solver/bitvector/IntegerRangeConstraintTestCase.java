@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis.solver.integer;
+package ru.ispras.microtesk.basis.solver.bitvector;
 
 import java.util.Map;
 
@@ -22,12 +22,9 @@ import org.junit.Test;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaSolverSat4j;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRange;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRangeConstraint;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorVariableInitializer;
 
 /**
  * Test for {@link BitVectorRangeConstraint}.
@@ -36,10 +33,9 @@ import ru.ispras.microtesk.basis.solver.bitvector.BitVectorVariableInitializer;
  */
 public final class IntegerRangeConstraintTestCase {
   private void runTest(final Variable x, final BitVector a, final BitVector b) {
-    final BitVectorRange range = new BitVectorRange(a, b);
-    System.out.format("Range: %s\n", range);
+    System.out.format("Range: [%s, %s]\n", a.toHexString(), b.toHexString());
 
-    final BitVectorRangeConstraint constraint = new BitVectorRangeConstraint(x, range);
+    final BitVectorRangeConstraint constraint = new BitVectorRangeConstraint(x, a, b);
     System.out.format("Formula: %s\n", constraint);
 
     final BitVectorFormulaSolverSat4j solver = new BitVectorFormulaSolverSat4j(
@@ -55,7 +51,8 @@ public final class IntegerRangeConstraintTestCase {
     final BitVector value = values.get(x);
     System.out.format("Value: %s\n", value);
 
-    Assert.assertTrue(range.contains(value));
+    Assert.assertTrue(BitVectorMath.ule(a, value).equals(BitVector.TRUE)
+                   && BitVectorMath.ule(value, b).equals(BitVector.TRUE));
   }
 
   @Test
