@@ -113,21 +113,21 @@ public final class ExprPrinter extends MapBasedPrinter {
     addBitVectorMathMapping(StandardOperation.BVNOR,  "nor");
     addBitVectorMathMapping(StandardOperation.BVXNOR, "xnor");
 
-    addBitVectorMathMappingBool(StandardOperation.BVULE, "ule");
-    addBitVectorMathMappingBool(StandardOperation.BVULT, "ult");
-    addBitVectorMathMappingBool(StandardOperation.BVUGE, "uge");
-    addBitVectorMathMappingBool(StandardOperation.BVUGT, "ugt");
-    addBitVectorMathMappingBool(StandardOperation.BVSLE, "sle");
-    addBitVectorMathMappingBool(StandardOperation.BVSLT, "slt");
-    addBitVectorMathMappingBool(StandardOperation.BVSGE, "sge");
-    addBitVectorMathMappingBool(StandardOperation.BVSGT, "sgt");
+    addBitVectorMathMapping(StandardOperation.BVULE, "ule");
+    addBitVectorMathMapping(StandardOperation.BVULT, "ult");
+    addBitVectorMathMapping(StandardOperation.BVUGE, "uge");
+    addBitVectorMathMapping(StandardOperation.BVUGT, "ugt");
+    addBitVectorMathMapping(StandardOperation.BVSLE, "sle");
+    addBitVectorMathMapping(StandardOperation.BVSLT, "slt");
+    addBitVectorMathMapping(StandardOperation.BVSGE, "sge");
+    addBitVectorMathMapping(StandardOperation.BVSGT, "sgt");
 
-    addBitVectorMathMappingBool(StandardOperation.BVANDR,  "andr");
-    addBitVectorMathMappingBool(StandardOperation.BVNANDR, "!andr");
-    addBitVectorMathMappingBool(StandardOperation.BVORR,   "orr");
-    addBitVectorMathMappingBool(StandardOperation.BVNORR,  "!orr");
-    addBitVectorMathMappingBool(StandardOperation.BVXORR,  "xorr");
-    addBitVectorMathMappingBool(StandardOperation.BVXNORR, "!xorr");
+    addBitVectorMathMapping(StandardOperation.BVANDR,  "andr");
+    addBitVectorMathMapping(StandardOperation.BVNANDR, "!andr");
+    addBitVectorMathMapping(StandardOperation.BVORR,   "orr");
+    addBitVectorMathMapping(StandardOperation.BVNORR,  "!orr");
+    addBitVectorMathMapping(StandardOperation.BVXORR,  "xorr");
+    addBitVectorMathMapping(StandardOperation.BVXNORR, "!xorr");
 
     // StandardOperation.BV2BOOL // TODO
 
@@ -165,15 +165,6 @@ public final class ExprPrinter extends MapBasedPrinter {
         String.format("BitVectorMath.%s(", opMapping),
         ", ",
         ")"
-        );
-  }
-
-  private void addBitVectorMathMappingBool(final StandardOperation op, final String opMapping) {
-    addMapping(
-        op,
-        String.format("BitVectorMath.%s(", opMapping),
-        ", ",
-        ").equals(BitVector.TRUE)"
         );
   }
 
