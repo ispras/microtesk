@@ -51,8 +51,7 @@ public final class IntegerRangeConstraintTestCase {
     final BitVector value = values.get(x);
     System.out.format("Value: %s\n", value);
 
-    Assert.assertTrue(BitVectorMath.ule(a, value).equals(BitVector.TRUE)
-                   && BitVectorMath.ule(value, b).equals(BitVector.TRUE));
+    Assert.assertTrue(BitVectorMath.ule(a, value) && BitVectorMath.ule(value, b));
   }
 
   @Test
