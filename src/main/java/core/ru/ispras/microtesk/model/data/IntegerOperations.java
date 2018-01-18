@@ -151,11 +151,11 @@ final class IntegerOperations implements Operations {
     }
 
     final boolean signed = isSigned(lhs) && isSigned(rhs);
-    final BitVector greater = signed ?
+    final boolean greater = signed ?
         BitVectorMath.sgt(lhs.getRawData(), rhs.getRawData()) :
         BitVectorMath.ugt(lhs.getRawData(), rhs.getRawData());
 
-    return greater.isAllReset() ? -1 : 1;
+    return greater ? 1 : -1;
   }
 
   @Override
