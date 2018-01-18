@@ -83,7 +83,6 @@ public final class AccessesIterator implements Iterator<List<Access>> {
   private boolean enoughDependencies;
 
   private List<Access> accesses;
-  private BufferDependency[][] dependencies;
 
   public AccessesIterator(
       final GraphAbstraction abstraction,
@@ -134,7 +133,6 @@ public final class AccessesIterator implements Iterator<List<Access>> {
 
     this.accessIterator = mode.getAccessIterator(accessChoosers);
     this.dependencyIterators = new DependencyIterator[size][size];
-    this.dependencies = new BufferDependency[size][size];
   }
 
   @Override
@@ -154,9 +152,17 @@ public final class AccessesIterator implements Iterator<List<Access>> {
 
   @Override
   public List<Access> value() {
-    for (int j = 0; j < accesses.size(); j++) {
+    final int size = accesses.size();
+
+    for (int j = 0; j < size; j++) {
       final Access access = accesses.get(j);
-      access.setDependencies(dependencies[j]);
+
+      final BufferDependency[] dependencies = new BufferDependency[size];
+      for (int i = 0; i < j; i++) {
+        dependencies[i] = dependencyIterators[i][j].value();
+      }
+
+      access.setDependencies(dependencies);
     }
 
     return accesses;
@@ -224,7 +230,6 @@ public final class AccessesIterator implements Iterator<List<Access>> {
 
     enoughDependencies = false;
 
-    assignDependencies();
     return true;
   }
 
@@ -243,7 +248,6 @@ public final class AccessesIterator implements Iterator<List<Access>> {
           iterator.next();
 
           if (iterator.hasValue()) {
-            assignDependencies();
             return true;
           }
 
@@ -253,16 +257,6 @@ public final class AccessesIterator implements Iterator<List<Access>> {
     }
 
     return false;
-  }
-
-  private void assignDependencies() {
-    final int size = accessTypes.size();
-
-    for (int i = 0; i < size - 1; i++) {
-      for (int j = i + 1; j < size; j++) {
-        dependencies[i][j] = dependencyIterators[i][j].value();
-      }
-    }
   }
 
   private boolean initAccesses() {

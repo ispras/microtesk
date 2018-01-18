@@ -36,7 +36,6 @@ public final class Access {
 
   private final MemoryAccessType type;
   private final AccessPath path;
-
   private final AccessConstraints constraints;
 
   private BufferDependency[] dependencies;
@@ -55,6 +54,15 @@ public final class Access {
     this.type = type;
     this.path = path;
     this.constraints = constraints;
+  }
+
+  public Access(final Access other) {
+    this.type = other.type;
+    this.path = other.path;
+    this.constraints = other.constraints;
+
+    this.dependencies = null;
+    this.symbolicResult = null;
   }
 
   public MemoryAccessType getType() {

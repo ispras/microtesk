@@ -29,6 +29,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -91,14 +92,14 @@ public final class MemoryDataGenerator implements DataGenerator {
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     InvariantChecks.checkNotNull(memory);
 
-    final Map<String, Object> context = query.getContext();
-    final AbstractSequence abstractSequence = (AbstractSequence) context.get(SEQUENCE);
-    InvariantChecks.checkNotNull(abstractSequence);
-
     final Map<String, Object> parameters = query.getParameters();
+
+    final AbstractSequence abstractSequence = (AbstractSequence) parameters.get(SEQUENCE);
+    InvariantChecks.checkNotNull(abstractSequence);
+    Logger.debug("MemoryDataGenerator.generate: %s", abstractSequence.getSequence());
+
     final Access access = (Access) parameters.get(CONSTRAINT);
     InvariantChecks.checkNotNull(access);
-
     Logger.debug("MemoryDataGenerator.generate: %s", access);
 
     // Generate the basic address object constraints.
@@ -292,31 +293,45 @@ public final class MemoryDataGenerator implements DataGenerator {
     final MmuBuffer buffer2 = bufferAccess2.getBuffer();
     InvariantChecks.checkTrue(buffer1 == buffer2);
 
-    final NodeOperation condition = (NodeOperation) hazard.getCondition();
-    final List<Node> atoms = condition.getOperands();
-    InvariantChecks.checkTrue(atoms.size() == 1);
-
-    final NodeOperation equality = (NodeOperation) atoms.iterator().next();
-    final Node expression = equality.getOperand(0);
-
     final AbstractCall abstractCall1 = abstractSequence.getSequence().get(i);
+    Logger.debug("Sequence=%s, Sequence[%d]=%s", abstractSequence.getSequence(), i, abstractCall1);
+
     final AddressObject addressObject1 = getAddressObject(abstractCall1);
-    final BitVector addrValue1 = addressObject1.getAddress(bufferAccess1);
+    final BitVector addressValue1 = addressObject1.getAddress(bufferAccess1);
+    InvariantChecks.checkTrue(addressValue1 != null);
 
     final String instanceId2 = bufferAccess2.getId();
     final MemoryAccessContext context2 = bufferAccess2.getContext();
+    InvariantChecks.checkTrue(context2 != null);
 
-    final Node lhs = context2.getInstance(instanceId2, expression);
-    final BitVector rhs = FortressUtils.evaluateBitVector(
-        expression,
-        new ValueProvider() {
-          @Override
-          public Data getVariableValue(final Variable variable) {
-            return Data.newBitVector(addrValue1);
-          }
-        });
+    final NodeOperation condition = (NodeOperation) hazard.getCondition();
+    InvariantChecks.checkTrue(condition.getOperationId() == StandardOperation.AND);
 
-    return new NodeOperation(equality.getOperationId(), lhs, NodeValue.newBitVector(rhs));
+    final List<Node> newEquations = new ArrayList<>();
+
+    for (final Node operand : condition.getOperands()) {
+      final NodeOperation oldEquation = (NodeOperation) operand;
+      InvariantChecks.checkTrue(oldEquation.getOperandCount() == 2);
+
+      final Node oldLhs = oldEquation.getOperand(0);
+      final Node oldRhs = oldEquation.getOperand(1);
+
+      final BitVector value = FortressUtils.evaluateBitVector(
+          oldRhs,
+          new ValueProvider() {
+            @Override
+            public Data getVariableValue(final Variable variable) {
+              return Data.newBitVector(addressValue1);
+            }
+          });
+
+      final Node newLhs = context2.getInstance(instanceId2, oldLhs);
+      final Node newRhs = NodeValue.newBitVector(value);
+
+      newEquations.add(new NodeOperation(oldEquation.getOperationId(), newLhs, newRhs));
+    }
+
+    return Nodes.and(newEquations);
   }
 
   private Collection<Node> getHazardConditions(
@@ -647,8 +662,11 @@ public final class MemoryDataGenerator implements DataGenerator {
   private AddressObject getAddressObject(final AbstractCall abstractCall) {
     final Primitive primitive = abstractCall.getRootOperation();
     final Situation situation = primitive.getSituation();
+    Logger.debug("MemoryDataGenerator.getAddressObject: situation=%s", situation);
+
     final TestData testData = situation.getTestData();
     InvariantChecks.checkNotNull(testData);
+    Logger.debug("MemoryDataGenerator.getAddressObject: testData=%s", testData);
 
     return (AddressObject) testData.getBindings().get(MemoryDataGenerator.SOLUTION);
   }

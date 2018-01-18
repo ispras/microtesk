@@ -265,11 +265,11 @@ public final class TestEngine {
         z3Solver.setSolverPath(z3Path + "unix/z3/bin/z3");
       } else if (Environment.isWindows()) {
         z3Solver.setSolverPath(z3Path + "windows/z3/bin/z3.exe");
-      } else if (Environment.isOSX()) {
+      } else if (Environment.isOsX()) {
         z3Solver.setSolverPath(z3Path + "osx/z3/bin/z3");
       } else {
         throw new UnsupportedOperationException(String.format(
-            "Unsupported platform: %s.", Environment.getOSName()));
+            "Unsupported platform: %s.", Environment.getOsName()));
       }
     }
 
@@ -282,11 +282,11 @@ public final class TestEngine {
         cvc4Solver.setSolverPath(cvc4Path + "unix/cvc4");
       } else if (Environment.isWindows()) {
         cvc4Solver.setSolverPath(cvc4Path + "windows/cvc4.exe");
-      } else if (Environment.isOSX()) {
+      } else if (Environment.isOsX()) {
         cvc4Solver.setSolverPath(cvc4Path + "osx/cvc4");
       } else {
         throw new UnsupportedOperationException(String.format(
-            "Unsupported platform: %s.", Environment.getOSName()));
+            "Unsupported platform: %s.", Environment.getOsName()));
       }
     }
   }

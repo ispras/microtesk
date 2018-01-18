@@ -72,7 +72,7 @@ public final class AccessesIteratorExhaustive implements Iterator<List<Access>> 
           break;
         }
 
-        result.add(access);
+        result.add(new Access(access));
       }
 
       if (result.size() == iterator.size()) {

@@ -291,7 +291,6 @@ public final class MemoryInitializerMaker implements InitializerMaker {
         preparation.addAll(initializer);
       }
     }
-    //}
 
     return preparation;
   }
@@ -389,9 +388,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(initializedModes);
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
-
     final Map<String, Object> attributes = situation.getAttributes();
-    InvariantChecks.checkNotNull(attributes, "Attributes map is null");
 
     // Specify the situation's parameter (address value).
     final Map<String, Object> newAttributes = new HashMap<>(attributes);

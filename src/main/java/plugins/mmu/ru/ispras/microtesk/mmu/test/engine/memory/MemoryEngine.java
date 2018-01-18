@@ -151,7 +151,10 @@ public final class MemoryEngine implements Engine {
     return AccessConstraints.EMPTY;
   }
 
-  private static void setAccess(final AbstractCall abstractCall, final Access access) {
+  private static void setAttributes(
+      final AbstractCall abstractCall,
+      final AbstractSequence abstractSequence,
+      final Access access) {
     final Primitive primitive = abstractCall.getRootOperation();
     InvariantChecks.checkNotNull(primitive);
 
@@ -159,6 +162,7 @@ public final class MemoryEngine implements Engine {
     final Map<String, Object> oldAttributes = oldSituation.getAttributes();
 
     final Map<String, Object> newAttributes = new LinkedHashMap<>(oldAttributes);
+    newAttributes.put(MemoryDataGenerator.SEQUENCE, abstractSequence);
     newAttributes.put(MemoryDataGenerator.CONSTRAINT, access);
     final Situation newSituation = new Situation(MemoryEngine.ID, newAttributes);
 
@@ -209,8 +213,10 @@ public final class MemoryEngine implements Engine {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractSequence);
 
+    Logger.debug("MemoryEngine.solve: %s", abstractSequence.getSequence());
+
     final AccessConstraints globalConstraints = AccessConstraints.EMPTY;
-    Logger.debug("Global memory constraints: %s", globalConstraints);
+    Logger.debug("MemoryEngine.solve: globalConstraints=%s", globalConstraints);
 
     final List<MemoryAccessType> accessTypes = new ArrayList<>();
     final List<AccessConstraints> accessConstraints = new ArrayList<>();
@@ -233,8 +239,8 @@ public final class MemoryEngine implements Engine {
       accessConstraints.add(constraints);
     }
 
-    Logger.debug("Memory access types: %s", accessTypes);
-    Logger.debug("Memory access constraints: %s", accessConstraints);
+    Logger.debug("MemoryEngine.solve: accessTypes=%s", accessTypes);
+    Logger.debug("MemoryEngine.solve: accessConstraints=%s", accessConstraints);
 
     final Iterator<List<Access>> accessIterator =
         new AccessesIterator(
@@ -267,9 +273,12 @@ public final class MemoryEngine implements Engine {
 
             for (int i = 0; i < abstractCalls.size(); i++) {
               final AbstractCall abstractCall = abstractCalls.get(i);
-              final Access access = accesses.get(i);
+              Logger.debug("MemoryEngine.solve: %s", abstractCall);
 
-              setAccess(abstractCall, access);
+              final Access access = accesses.get(i);
+              Logger.debug("MemoryEngine.solve: %s", access);
+
+              setAttributes(abstractCall, abstractSequence, access);
             }
 
             return abstractSequence;

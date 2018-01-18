@@ -65,7 +65,7 @@ public final class AccessesIteratorRandom implements Iterator<List<Access>> {
         if (access == null) {
           choosers.remove(chooser);
         } else {
-          result.add(access);
+          result.add(new Access(access));
           break;
         }
       }
