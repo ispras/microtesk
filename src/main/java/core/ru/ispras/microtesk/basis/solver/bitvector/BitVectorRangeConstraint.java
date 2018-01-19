@@ -120,7 +120,7 @@ public final class BitVectorRangeConstraint implements BitVectorConstraint {
     // Introduce a new variable to encode OR.
     final Variable e = new Variable(
         String.format("%s%d", NEW_VARIABLE_PREFIX, newVariableId++),
-        DataType.BIT_VECTOR(numberOfBits + 1));
+        DataType.bitVector(numberOfBits + 1));
 
     // (e[0] | ... | e[n-1]) == (e != 0).
     formulaBuilder.add(

@@ -78,7 +78,7 @@ final class GuardPrinter {
       } else if (isBooleanVariable(atom)) {
         final String variableName = ((NodeVariable) atom).getName();
 
-        final Node variable = new NodeVariable(variableName, DataType.BIT_VECTOR(1));
+        final Node variable = new NodeVariable(variableName, DataType.bitVector(1));
         variable.setUserData(atom.getUserData());
 
         final Node equality = Nodes.noteq(variable, NodeValue.newBitVector(BitVector.FALSE));
@@ -87,7 +87,7 @@ final class GuardPrinter {
         final NodeOperation op = (NodeOperation) atom;
         final NodeVariable var = (NodeVariable) op.getOperand(0);
 
-        final Node variable = new NodeVariable(var.getName(), DataType.BIT_VECTOR(1));
+        final Node variable = new NodeVariable(var.getName(), DataType.bitVector(1));
         variable.setUserData(var.getUserData());
 
         final Node equality = Nodes.eq(variable, NodeValue.newBitVector(BitVector.FALSE));

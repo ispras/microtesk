@@ -127,7 +127,7 @@ final class STBStruct implements STBuilder {
     } else {
       fieldDef = group.getInstanceOf("field_def_var");
       fieldDef.add("type", String.format(
-          "%s.BIT_VECTOR(%d)", DATA_TYPE_CLASS.getSimpleName(), type.getBitSize()));
+          "%s.bitVector(%d)", DATA_TYPE_CLASS.getSimpleName(), type.getBitSize()));
     }
 
     fieldDef.add("name", name);

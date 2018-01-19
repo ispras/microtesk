@@ -44,7 +44,7 @@ public class MmuBufferTestCase {
     return new MmuAddressInstance(
         name,
         new Var(name, type),
-        new NodeVariable(name + ".value", DataType.BIT_VECTOR(width)));
+        new NodeVariable(name + ".value", DataType.bitVector(width)));
   }
 
   public static final MmuAddressInstance VA_ADDR = newAddress("VA", 64);
@@ -53,29 +53,29 @@ public class MmuBufferTestCase {
   public static final NodeVariable VA = VA_ADDR.getVariable();
   public static final NodeVariable PA = PA_ADDR.getVariable();
 
-  public static final NodeVariable isMapped = new NodeVariable("isMapped", DataType.BIT_VECTOR(1));
-  public static final NodeVariable isCached = new NodeVariable("isCached", DataType.BIT_VECTOR(1));
-  public static final NodeVariable VPN2 = new NodeVariable("VPN2", DataType.BIT_VECTOR(27));
-  public static final NodeVariable V0 = new NodeVariable("V0", DataType.BIT_VECTOR(1));
-  public static final NodeVariable D0 = new NodeVariable("D0", DataType.BIT_VECTOR(1));
-  public static final NodeVariable G0 = new NodeVariable("G0", DataType.BIT_VECTOR(1));
-  public static final NodeVariable C0 = new NodeVariable("C0", DataType.BIT_VECTOR(3));
-  public static final NodeVariable PFN0 = new NodeVariable("PFN0", DataType.BIT_VECTOR(24));
-  public static final NodeVariable V1 = new NodeVariable("V1", DataType.BIT_VECTOR(1));
-  public static final NodeVariable D1 = new NodeVariable("D1", DataType.BIT_VECTOR(1));
-  public static final NodeVariable G1 = new NodeVariable("G1", DataType.BIT_VECTOR(1));
-  public static final NodeVariable C1 = new NodeVariable("C1", DataType.BIT_VECTOR(3));
-  public static final NodeVariable PFN1 = new NodeVariable("PFN1", DataType.BIT_VECTOR(24));
-  public static final NodeVariable V = new NodeVariable("V", DataType.BIT_VECTOR(1));
-  public static final NodeVariable D = new NodeVariable("D", DataType.BIT_VECTOR(1));
-  public static final NodeVariable G = new NodeVariable("G", DataType.BIT_VECTOR(1));
-  public static final NodeVariable C = new NodeVariable("C", DataType.BIT_VECTOR(3));
-  public static final NodeVariable PFN = new NodeVariable("PFN", DataType.BIT_VECTOR(24));
-  public static final NodeVariable L1_TAG = new NodeVariable("TAG1", DataType.BIT_VECTOR(24));
-  public static final NodeVariable L2_TAG = new NodeVariable("TAG2", DataType.BIT_VECTOR(24));
-  public static final NodeVariable L1_DATA = new NodeVariable("DATA1", DataType.BIT_VECTOR(8 * 32));
-  public static final NodeVariable L2_DATA = new NodeVariable("DATA2", DataType.BIT_VECTOR(8 * 32));
-  public static final NodeVariable DATA = new NodeVariable("DATA", DataType.BIT_VECTOR(8 * 32));
+  public static final NodeVariable isMapped = new NodeVariable("isMapped", DataType.bitVector(1));
+  public static final NodeVariable isCached = new NodeVariable("isCached", DataType.bitVector(1));
+  public static final NodeVariable VPN2 = new NodeVariable("VPN2", DataType.bitVector(27));
+  public static final NodeVariable V0 = new NodeVariable("V0", DataType.bitVector(1));
+  public static final NodeVariable D0 = new NodeVariable("D0", DataType.bitVector(1));
+  public static final NodeVariable G0 = new NodeVariable("G0", DataType.bitVector(1));
+  public static final NodeVariable C0 = new NodeVariable("C0", DataType.bitVector(3));
+  public static final NodeVariable PFN0 = new NodeVariable("PFN0", DataType.bitVector(24));
+  public static final NodeVariable V1 = new NodeVariable("V1", DataType.bitVector(1));
+  public static final NodeVariable D1 = new NodeVariable("D1", DataType.bitVector(1));
+  public static final NodeVariable G1 = new NodeVariable("G1", DataType.bitVector(1));
+  public static final NodeVariable C1 = new NodeVariable("C1", DataType.bitVector(3));
+  public static final NodeVariable PFN1 = new NodeVariable("PFN1", DataType.bitVector(24));
+  public static final NodeVariable V = new NodeVariable("V", DataType.bitVector(1));
+  public static final NodeVariable D = new NodeVariable("D", DataType.bitVector(1));
+  public static final NodeVariable G = new NodeVariable("G", DataType.bitVector(1));
+  public static final NodeVariable C = new NodeVariable("C", DataType.bitVector(3));
+  public static final NodeVariable PFN = new NodeVariable("PFN", DataType.bitVector(24));
+  public static final NodeVariable L1_TAG = new NodeVariable("TAG1", DataType.bitVector(24));
+  public static final NodeVariable L2_TAG = new NodeVariable("TAG2", DataType.bitVector(24));
+  public static final NodeVariable L1_DATA = new NodeVariable("DATA1", DataType.bitVector(8 * 32));
+  public static final NodeVariable L2_DATA = new NodeVariable("DATA2", DataType.bitVector(8 * 32));
+  public static final NodeVariable DATA = new NodeVariable("DATA", DataType.bitVector(8 * 32));
 
   public static final MmuBuffer JTLB = new MmuBuffer(
       "JTLB", MmuBuffer.Kind.UNMAPPED, 64, 1, VA_ADDR,

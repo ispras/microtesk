@@ -40,7 +40,7 @@ public final class Type extends Nested<Type> {
     this.id = null;
     this.bitSize = bitSize;
     this.fields = Collections.emptyMap();
-    this.dataType = DataType.BIT_VECTOR(bitSize);
+    this.dataType = DataType.bitVector(bitSize);
     this.defaultValue = defaultValue;
   }
 
@@ -58,7 +58,7 @@ public final class Type extends Nested<Type> {
     checkTrue(totalBitSize > 0);
     this.bitSize = totalBitSize;
     this.fields = Collections.unmodifiableMap(fields);
-    this.dataType = DataType.BIT_VECTOR(totalBitSize);
+    this.dataType = DataType.bitVector(totalBitSize);
     this.defaultValue = null;
   }
 

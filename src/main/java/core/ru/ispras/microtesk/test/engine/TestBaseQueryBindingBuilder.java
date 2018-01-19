@@ -115,7 +115,7 @@ final class TestBaseQueryBindingBuilder {
           if (!unknownValue.isValueSet()) {
             queryBuilder.setBinding(
                 argName,
-                new NodeVariable(argName, DataType.BIT_VECTOR(arg.getType().getBitSize()))
+                new NodeVariable(argName, DataType.bitVector(arg.getType().getBitSize()))
                 );
 
             unknownValues.put(argName, arg);
@@ -136,7 +136,7 @@ final class TestBaseQueryBindingBuilder {
           // If a MODE has no return expression it is treated as OP and
           // it is NOT added to bindings and mode list
           if (arg.getMode() != ArgumentMode.NA) {
-            final DataType dataType = DataType.BIT_VECTOR(arg.getType().getBitSize());
+            final DataType dataType = DataType.bitVector(arg.getType().getBitSize());
             Node bindingValue = null;
 
             try {

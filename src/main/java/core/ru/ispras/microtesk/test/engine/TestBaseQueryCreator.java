@@ -43,12 +43,12 @@ import ru.ispras.testbase.TestBaseQueryBuilder;
  * Arguments are treated in the following way:
  * <ul>
  * <li>All immediate arguments that have values are constants (see {@link NodeValue}) of type
- * {@link DataType#BIT_VECTOR}.</li>
+ * {@link DataType#bitVector}.</li>
  * <li>All unknown immediate arguments (see {@link UnknownImmediateValue}) that have not been 
  * assigned values are unknown variables (see {@link NodeVariable}) of type
- * {@link DataType#BIT_VECTOR}.</li>
+ * {@link DataType#bitVector}.</li>
  * <li>All addressing modes are unknown variables (see {@link NodeVariable}) of type
- * {@link DataType#BIT_VECTOR}.</li>
+ * {@link DataType#bitVector}.</li>
  * </ul>
  * <p>
  * N.B. If nested operations have linked test situations, these situations are ignored and no

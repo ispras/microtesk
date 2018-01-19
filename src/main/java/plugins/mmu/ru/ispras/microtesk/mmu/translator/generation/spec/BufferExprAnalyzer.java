@@ -262,7 +262,7 @@ final class BufferExprAnalyzer {
     final String addressName =
         address.getId() + "." + StringUtils.toString(address.getAccessChain(), ".");
 
-    this.variableForAddress = new Variable(addressName, DataType.BIT_VECTOR(addressSize));
+    this.variableForAddress = new Variable(addressName, DataType.bitVector(addressSize));
     this.fieldTrackerForAddress = new IntegerFieldTracker(variableForAddress);
 
     final VisitorIndex visitorIndex = new VisitorIndex();

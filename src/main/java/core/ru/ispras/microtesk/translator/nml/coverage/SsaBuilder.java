@@ -692,7 +692,7 @@ final class SsaBuilder {
       // 'var x[type]' is considered as array of length 1 allowing x[0], skip
       if (size > 0) {
         index = convertExpression(atom.getIndex().getNode());
-        baseType = DataType.MAP(DataType.BIT_VECTOR(size), sourceType);
+        baseType = DataType.map(DataType.bitVector(size), sourceType);
       }
     }
 

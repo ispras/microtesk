@@ -625,7 +625,7 @@ final class ControlFlowBuilder {
       temporary.add("type", type.getId());
     } else {
       temporary.add("type", "NodeVariable");
-      temporary.add("size", String.format("DataType.BIT_VECTOR(%d)", type.getBitSize()));
+      temporary.add("size", String.format("DataType.bitVector(%d)", type.getBitSize()));
     }
     stDef.add("stmts", temporary);
 

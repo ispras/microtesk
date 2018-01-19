@@ -122,7 +122,7 @@ public final class MmuUnderTest {
     return new MmuAddressInstance(
         name,
         new Var(name, type),
-        new NodeVariable(name + ".value", DataType.BIT_VECTOR(width)));
+        new NodeVariable(name + ".value", DataType.bitVector(width)));
   }
 
   //================================================================================================
@@ -135,29 +135,29 @@ public final class MmuUnderTest {
   public final NodeVariable va = vaAddr.getVariable();
   public final NodeVariable pa = paAddr.getVariable();
 
-  public final NodeVariable kseg0Cp = new NodeVariable("KSEG0_CP", DataType.BIT_VECTOR(3));
+  public final NodeVariable kseg0Cp = new NodeVariable("KSEG0_CP", DataType.bitVector(3));
 
-  public final NodeVariable vpn2 = new NodeVariable("VPN2", DataType.BIT_VECTOR(27));
-  public final NodeVariable v0 = new NodeVariable("V0", DataType.BIT_VECTOR(1));
-  public final NodeVariable d0 = new NodeVariable("D0", DataType.BIT_VECTOR(1));
-  public final NodeVariable g0 = new NodeVariable("G0", DataType.BIT_VECTOR(1));
-  public final NodeVariable c0 = new NodeVariable("C0", DataType.BIT_VECTOR(3));
-  public final NodeVariable pfn0 = new NodeVariable("PFN0", DataType.BIT_VECTOR(24));
-  public final NodeVariable v1 = new NodeVariable("V1", DataType.BIT_VECTOR(1));
-  public final NodeVariable d1 = new NodeVariable("D1", DataType.BIT_VECTOR(1));
-  public final NodeVariable g1 = new NodeVariable("G1", DataType.BIT_VECTOR(1));
-  public final NodeVariable c1 = new NodeVariable("C1", DataType.BIT_VECTOR(3));
-  public final NodeVariable pfn1 = new NodeVariable("PFN1", DataType.BIT_VECTOR(24));
-  public final NodeVariable v = new NodeVariable("V", DataType.BIT_VECTOR(1));
-  public final NodeVariable d = new NodeVariable("D", DataType.BIT_VECTOR(1));
-  public final NodeVariable g = new NodeVariable("G", DataType.BIT_VECTOR(1));
-  public final NodeVariable c = new NodeVariable("C", DataType.BIT_VECTOR(3));
-  public final NodeVariable pfn = new NodeVariable("PFN", DataType.BIT_VECTOR(24));
-  public final NodeVariable l1Tag = new NodeVariable("TAG1", DataType.BIT_VECTOR(24));
-  public final NodeVariable l2Tag = new NodeVariable("TAG2", DataType.BIT_VECTOR(19));
-  public final NodeVariable l1Data = new NodeVariable("DATA1", DataType.BIT_VECTOR(8 * 32));
-  public final NodeVariable l2Data = new NodeVariable("DATA2", DataType.BIT_VECTOR(8 * 32));
-  public final NodeVariable data = new NodeVariable("DATA", DataType.BIT_VECTOR(8 * 32));
+  public final NodeVariable vpn2 = new NodeVariable("VPN2", DataType.bitVector(27));
+  public final NodeVariable v0 = new NodeVariable("V0", DataType.bitVector(1));
+  public final NodeVariable d0 = new NodeVariable("D0", DataType.bitVector(1));
+  public final NodeVariable g0 = new NodeVariable("G0", DataType.bitVector(1));
+  public final NodeVariable c0 = new NodeVariable("C0", DataType.bitVector(3));
+  public final NodeVariable pfn0 = new NodeVariable("PFN0", DataType.bitVector(24));
+  public final NodeVariable v1 = new NodeVariable("V1", DataType.bitVector(1));
+  public final NodeVariable d1 = new NodeVariable("D1", DataType.bitVector(1));
+  public final NodeVariable g1 = new NodeVariable("G1", DataType.bitVector(1));
+  public final NodeVariable c1 = new NodeVariable("C1", DataType.bitVector(3));
+  public final NodeVariable pfn1 = new NodeVariable("PFN1", DataType.bitVector(24));
+  public final NodeVariable v = new NodeVariable("V", DataType.bitVector(1));
+  public final NodeVariable d = new NodeVariable("D", DataType.bitVector(1));
+  public final NodeVariable g = new NodeVariable("G", DataType.bitVector(1));
+  public final NodeVariable c = new NodeVariable("C", DataType.bitVector(3));
+  public final NodeVariable pfn = new NodeVariable("PFN", DataType.bitVector(24));
+  public final NodeVariable l1Tag = new NodeVariable("TAG1", DataType.bitVector(24));
+  public final NodeVariable l2Tag = new NodeVariable("TAG2", DataType.bitVector(19));
+  public final NodeVariable l1Data = new NodeVariable("DATA1", DataType.bitVector(8 * 32));
+  public final NodeVariable l2Data = new NodeVariable("DATA2", DataType.bitVector(8 * 32));
+  public final NodeVariable data = new NodeVariable("DATA", DataType.bitVector(8 * 32));
 
   //================================================================================================
   // Segments
@@ -258,19 +258,19 @@ public final class MmuUnderTest {
       true, jtlb
       );
   {
-    dtlb.addField(new NodeVariable("VPN2", DataType.BIT_VECTOR(27)));
+    dtlb.addField(new NodeVariable("VPN2", DataType.bitVector(27)));
 
-    dtlb.addField(new NodeVariable("V0", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new NodeVariable("D0", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new NodeVariable("G0", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new NodeVariable("C0", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new NodeVariable("PFN0", DataType.BIT_VECTOR(24)));
+    dtlb.addField(new NodeVariable("V0", DataType.bitVector(1)));
+    dtlb.addField(new NodeVariable("D0", DataType.bitVector(1)));
+    dtlb.addField(new NodeVariable("G0", DataType.bitVector(1)));
+    dtlb.addField(new NodeVariable("C0", DataType.bitVector(1)));
+    dtlb.addField(new NodeVariable("PFN0", DataType.bitVector(24)));
 
-    dtlb.addField(new NodeVariable("V1", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new NodeVariable("D1", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new NodeVariable("G1", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new NodeVariable("C1", DataType.BIT_VECTOR(1)));
-    dtlb.addField(new NodeVariable("PFN1", DataType.BIT_VECTOR(24)));
+    dtlb.addField(new NodeVariable("V1", DataType.bitVector(1)));
+    dtlb.addField(new NodeVariable("D1", DataType.bitVector(1)));
+    dtlb.addField(new NodeVariable("G1", DataType.bitVector(1)));
+    dtlb.addField(new NodeVariable("C1", DataType.bitVector(1)));
+    dtlb.addField(new NodeVariable("PFN1", DataType.bitVector(24)));
   }
 
   // -----------------------------------------------------------------------------------------------

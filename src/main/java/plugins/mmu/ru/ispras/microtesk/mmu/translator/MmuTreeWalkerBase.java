@@ -1584,7 +1584,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     return new NodeOperation(
         StandardOperation.BVEXTRACT,
-        DataType.BIT_VECTOR(fieldSize.intValue()),
+        DataType.bitVector(fieldSize.intValue()),
         reducedFrom,
         reducedTo,
         variable

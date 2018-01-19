@@ -50,7 +50,7 @@ public final class ExprTransformerTestCase {
     final int bitSize = 32;
     final int shiftAmount = 8;
 
-    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+    final Node x = new NodeVariable("x", DataType.bitVector(bitSize));
     final Node field = newField(x, 8, 23);
 
     final Node initial = new NodeOperation(
@@ -90,7 +90,7 @@ public final class ExprTransformerTestCase {
     final int bitSize = 32;
     final int shiftAmount = 8;
 
-    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+    final Node x = new NodeVariable("x", DataType.bitVector(bitSize));
     final Node field = newField(x, 8, 23);
 
     final Node initial = new NodeOperation(
@@ -122,7 +122,7 @@ public final class ExprTransformerTestCase {
       final int shiftAmount) {
 
     final Node x =
-        new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+        new NodeVariable("x", DataType.bitVector(bitSize));
 
     final Node initial = new NodeOperation(
         operator,
@@ -155,7 +155,7 @@ public final class ExprTransformerTestCase {
       final int shiftAmount) {
 
     final Node x =
-        new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+        new NodeVariable("x", DataType.bitVector(bitSize));
 
     final Node initial = new NodeOperation(
         operator,
@@ -187,7 +187,7 @@ public final class ExprTransformerTestCase {
     final int bitSize = 32;
 
     final Node x =
-        new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+        new NodeVariable("x", DataType.bitVector(bitSize));
 
     testBitMask(
         StandardOperation.BVAND,
@@ -290,7 +290,7 @@ public final class ExprTransformerTestCase {
   public void testAndMaskNestedFields() {
     final int bitSize = 32;
 
-    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+    final Node x = new NodeVariable("x", DataType.bitVector(bitSize));
     final Node field = newField(x, 8, 23);
 
     testBitMask(
@@ -312,7 +312,7 @@ public final class ExprTransformerTestCase {
     final int bitSize = 32;
 
     final Node x =
-        new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+        new NodeVariable("x", DataType.bitVector(bitSize));
 
     testBitMask(
         StandardOperation.BVOR,
@@ -415,7 +415,7 @@ public final class ExprTransformerTestCase {
   public void testOrMaskNestedFields() {
     final int bitSize = 32;
 
-    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+    final Node x = new NodeVariable("x", DataType.bitVector(bitSize));
     final Node field = newField(x, 8, 23);
 
     testBitMask(
@@ -435,7 +435,7 @@ public final class ExprTransformerTestCase {
   @Test
   public void testLeftRightShift() {
     final int bitSize = 32;
-    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+    final Node x = new NodeVariable("x", DataType.bitVector(bitSize));
 
     final Node inner = new NodeOperation(
         StandardOperation.BVLSHL,
@@ -470,7 +470,7 @@ public final class ExprTransformerTestCase {
   @Test
   public void testRightLeftShift() {
     final int bitSize = 32;
-    final Node x = new NodeVariable("x", DataType.BIT_VECTOR(bitSize));
+    final Node x = new NodeVariable("x", DataType.bitVector(bitSize));
 
     final Node inner = new NodeOperation(
         StandardOperation.BVLSHR,

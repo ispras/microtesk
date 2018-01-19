@@ -81,7 +81,7 @@ public final class AtomExtractor {
             new Variable(expr.getName(), expr.getDataType()));
       } else if (expr.isType(DataTypeId.LOGIC_INTEGER)) {
         return Atom.newVariable(
-            new Variable(expr.getName(), /* arbitrary positive value */ DataType.BIT_VECTOR(64)));
+            new Variable(expr.getName(), /* arbitrary positive value */ DataType.bitVector(64)));
       } else {
         throw new IllegalArgumentException("Illegal variable type: " + expr.getDataType());
       }
@@ -105,7 +105,7 @@ public final class AtomExtractor {
     if (var.isStruct()) {
       return Atom.newGroup(var);
     } else {
-      return Atom.newVariable(new Variable(var.getName(), DataType.BIT_VECTOR(var.getBitSize())));
+      return Atom.newVariable(new Variable(var.getName(), DataType.bitVector(var.getBitSize())));
     }
   }
 

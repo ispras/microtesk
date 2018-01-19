@@ -1125,14 +1125,14 @@ public final class SymbolicExecutor {
 
   private static Node getPhiField(final int width) {
     final String name = String.format("phi_%d", uniqueId++);
-    final Variable variable = new Variable(name, DataType.BIT_VECTOR(width));
+    final Variable variable = new Variable(name, DataType.bitVector(width));
 
     return new NodeVariable(variable);
   }
 
   private static Node getIfThenField(final Variable phi, final int i) {
     final String name = String.format("%s_%d", phi.getName(), i);
-    final Variable variable = new Variable(name, DataType.BIT_VECTOR(1));
+    final Variable variable = new Variable(name, DataType.bitVector(1));
 
     return new NodeVariable(variable);
   }

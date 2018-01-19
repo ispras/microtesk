@@ -57,7 +57,7 @@ public final class IntegerRangeConstraintTestCase {
   @Test
   public void runTest1() {
     final int bitSize = 64;
-    final Variable x = new Variable("x", DataType.BIT_VECTOR(bitSize));
+    final Variable x = new Variable("x", DataType.bitVector(bitSize));
 
     runTest(x, BitVector.valueOf(0x00000L, bitSize), BitVector.valueOf(0x0ffffL, bitSize));
     runTest(x, BitVector.valueOf(0x10000L, bitSize), BitVector.valueOf(0x1ffffL, bitSize));
@@ -67,7 +67,7 @@ public final class IntegerRangeConstraintTestCase {
   public void runTest2() {
     final int N = 1000;
     final int bitSize = 64;
-    final Variable x = new Variable("x", DataType.BIT_VECTOR(bitSize));
+    final Variable x = new Variable("x", DataType.bitVector(bitSize));
 
     for (int i = 0; i < N; i++) {
       runTest(x, BitVector.valueOf(i, bitSize), BitVector.valueOf(0xffff0000L + 2*i, bitSize));

@@ -221,7 +221,7 @@ public final class TypeCast {
     }
 
     if (BV_BASED_TYPES.contains(typeId)) {
-      return DataType.BIT_VECTOR(type.getBitSize());
+      return DataType.bitVector(type.getBitSize());
     }
 
     throw new IllegalArgumentException("Unsupported type: "  + type);

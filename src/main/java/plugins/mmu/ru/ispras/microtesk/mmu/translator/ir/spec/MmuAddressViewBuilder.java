@@ -145,7 +145,7 @@ public final class MmuAddressViewBuilder {
 
     for (int i = 0; i < expressions.size(); i++) {
       final Variable variable = new Variable(
-          String.format("%s$%d", variableNamePrefix, i), DataType.BIT_VECTOR(addressWidth));
+          String.format("%s$%d", variableNamePrefix, i), DataType.bitVector(addressWidth));
 
       variables.add(variable);
     }

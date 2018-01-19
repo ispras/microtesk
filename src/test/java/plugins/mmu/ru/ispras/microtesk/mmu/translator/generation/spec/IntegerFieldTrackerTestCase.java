@@ -28,7 +28,7 @@ import ru.ispras.fortress.expression.Nodes;
 public class IntegerFieldTrackerTestCase {
   @Test
   public void test() {
-    final Variable var = new Variable("VA", DataType.BIT_VECTOR(32)); 
+    final Variable var = new Variable("VA", DataType.bitVector(32)); 
     final IntegerFieldTracker tracker = new IntegerFieldTracker(var);
 
     assertEquals(
@@ -70,7 +70,7 @@ public class IntegerFieldTrackerTestCase {
 
   @Test
   public void test2() {
-    final Variable var = new Variable("PA", DataType.BIT_VECTOR(36)); 
+    final Variable var = new Variable("PA", DataType.bitVector(36)); 
     final IntegerFieldTracker tracker = new IntegerFieldTracker(var);
 
     tracker.exclude(5, 11);
@@ -84,7 +84,7 @@ public class IntegerFieldTrackerTestCase {
 
   @Test
   public void test3() {
-    final Variable var = new Variable("PA", DataType.BIT_VECTOR(36)); 
+    final Variable var = new Variable("PA", DataType.bitVector(36)); 
     final IntegerFieldTracker tracker = new IntegerFieldTracker(var);
   
     tracker.exclude(11, 5);
