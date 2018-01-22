@@ -691,7 +691,7 @@ final class ControlFlowBuilder {
     final String name = String.format("const:%d=%x", width, value);
 
     return String.format(
-        "new NodeVariable(new Variable(\"%s\", Data.newBitVector(%s, %d)))",
+        "new NodeVariable(\"%s\", Data.newBitVector(%s, %d))",
         name,
         Utils.toString(value),
         width

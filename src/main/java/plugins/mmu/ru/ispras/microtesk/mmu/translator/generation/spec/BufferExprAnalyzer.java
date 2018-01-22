@@ -242,7 +242,7 @@ final class BufferExprAnalyzer {
         throw new IllegalStateException("Unsupported value type: " + node.getDataType());
       }
 
-      addressSide = new NodeVariable(new Variable("#fake", Data.newBitVector(value, width)));
+      addressSide = new NodeVariable("#fake", Data.newBitVector(value, width));
     }
   }
 
