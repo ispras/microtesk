@@ -1014,7 +1014,10 @@ public final class SymbolicExecutor {
         final int upper = offset + (FortressUtils.getBitSize(field) - 1);
         final int trunc = upper > lhsUpperBit ? lhsUpperBit : upper;
 
-        final Node lhsField = Nodes.bvextract(trunc, offset, newLhsVar);
+        final Node lhsField = (trunc == newLhsVar.getType().getSize() - 1 && offset == 0)
+            ? new NodeVariable(newLhsVar)
+            : Nodes.bvextract(trunc, offset, newLhsVar);
+
         final Node rhsField = (trunc == upper || field.getKind() == Node.Kind.VALUE)
             ? field
             : Nodes.bvextract(
