@@ -275,8 +275,8 @@ public final class MemoryDataGenerator implements DataGenerator {
       Logger.debug("Fill entry: fieldInstance=%s", fieldInstance);
 
       // If an entry field is not used in the path, it remains unchanged.
-      if (values.containsKey(fieldInstance) && !entry.isValid(field)) {
-        final BitVector fieldValue = values.get(fieldInstance);
+      if (values.containsKey(fieldInstance.getVariable()) && !entry.isValid(field)) {
+        final BitVector fieldValue = values.get(fieldInstance.getVariable());
         entry.setValue(field, fieldValue, true);
       }
     }
