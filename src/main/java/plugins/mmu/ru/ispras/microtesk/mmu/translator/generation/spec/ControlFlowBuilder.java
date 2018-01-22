@@ -33,6 +33,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.expression.printer.JavaExprPrinter;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -693,7 +694,7 @@ final class ControlFlowBuilder {
     return String.format(
         "new NodeVariable(\"%s\", Data.newBitVector(%s, %d))",
         name,
-        Utils.toString(value),
+        JavaExprPrinter.integerToString(value),
         width
         );
   }
