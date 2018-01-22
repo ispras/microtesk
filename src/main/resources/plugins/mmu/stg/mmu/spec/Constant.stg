@@ -28,7 +28,7 @@ public static NodeVariable get(final int width) {
 
   if (null == result) {
     final MmuDynamicConst dynamicConst = new MmuDynamicConst(<value>, width);
-    result = new NodeVariable(new Variable("<name>", dynamicConst));
+    result = new NodeVariable("<name>", dynamicConst);
     constants.put(width, result);
   }
 
