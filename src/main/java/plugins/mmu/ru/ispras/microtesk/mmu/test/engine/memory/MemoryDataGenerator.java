@@ -391,9 +391,14 @@ public final class MemoryDataGenerator implements DataGenerator {
     final BufferUnitedDependency dependency = access.getUnitedDependency();
 
     for (final MmuBufferAccess bufferAccess : path.getBufferChecks()) {
-      final Set<?> tagEqualRelation = dependency.getTagEqualRelation(bufferAccess);
+      if (!bufferAccess.getBuffer().isReplaceable()) {
+        // Hit/miss conditions are constructed for replaceable buffers only.
+        continue;
+      }
 
+      final Set<?> tagEqualRelation = dependency.getTagEqualRelation(bufferAccess);
       if (!tagEqualRelation.isEmpty()) {
+        // Hit/miss conditions are ignored if there is a tag dependency.
         continue;
       }
 
