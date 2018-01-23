@@ -145,6 +145,9 @@ public final class SsaAssembler {
 
     this.scope = new SsaScopeVariable();
     this.numTemps = 0;
+
+    final Map<String, NodeVariable> changesStore = new HashMap<>();
+    this.changes = new Changes(changesStore, changesStore);
   }
 
   public Node assemble(final Map<String, Object> context, final String entry) {
@@ -158,9 +161,6 @@ public final class SsaAssembler {
     this.batchSize = new ArrayDeque<>();
 
     this.changesStack = new ArrayDeque<>();
-
-    final Map<String, NodeVariable> changesStore = new HashMap<>();
-    this.changes = new Changes(changesStore, changesStore);
 
     newBatch();
     step(new Prefix(entry, tag), "action");
