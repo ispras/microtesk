@@ -210,11 +210,13 @@ public final class LocationFactory extends WalkerFactoryBase {
     InvariantChecks.checkNotNull(pos);
 
     final Location location = extractLocation(variable);
+    final Type type = location.getType();
+
     if (pos.isConstant()) {
-      checkBitfieldBounds(where, pos.integerValue(), location.getType().getBitSize());
+      checkBitfieldBounds(where, pos.integerValue(), type.getBitSize());
     }
 
-    final Type bitfieldType = location.getType().resize(1);
+    final Type bitfieldType = type.resize(1);
     final Location result = createBitfield(where, location, pos, pos, bitfieldType);
 
     return newLocationExpr(result);

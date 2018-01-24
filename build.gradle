@@ -327,6 +327,9 @@ checkstyle {
   configFile=file("${project.projectDir}/config/checkstyle/google_checks.xml")
 }
 
+checkstyleMain.exclude '**/ru/ispras/microtesk/translator/nml/grammar**'
+checkstyleMain.exclude '**/ru/ispras/microtesk/mmu/translator/grammar**'
+
 findbugs {
   ignoreFailures = true
 }
