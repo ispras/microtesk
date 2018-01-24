@@ -320,11 +320,16 @@ generateGrammarSource {
   arguments += ["-lib", "src/main/antlrlib/ru/ispras/microtesk/translator/nml/grammar"]
 }
 
-checkstyle {
+checkstyle (type: Checkstyle) {
   toolVersion = 6.5
   ignoreFailures = true
   showViolations = false
   configFile=file("${project.projectDir}/config/checkstyle/google_checks.xml")
+}
+
+tasks.withType(Checkstyle) {
+    exclude '**/ru/ispras/microtesk/translator/nml/grammar**'
+	exclude '**/ru/ispras/microtesk/mmu/translator/grammar**'
 }
 
 findbugs {
