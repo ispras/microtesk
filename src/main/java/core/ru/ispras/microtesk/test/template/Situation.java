@@ -84,7 +84,7 @@ public final class Situation {
     }
 
     final StringBuilder sb = new StringBuilder();
-    for (Map.Entry<String, Object> e : attributes.entrySet()) {
+    for (final Map.Entry<String, Object> e : attributes.entrySet()) {
       if (sb.length() > 0) {
         sb.append(", ");
       }
