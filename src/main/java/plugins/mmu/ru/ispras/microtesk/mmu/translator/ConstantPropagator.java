@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator;
 
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -57,13 +58,14 @@ public final class ConstantPropagator {
   }
 
   public Node get(final Node node) {
-    if (node.getKind() == Node.Kind.VARIABLE) {
+    if (ExprUtils.isVariable(node)) {
       final String name = ((NodeVariable) node).getName();
       final Node value = scopes.peek().get(name);
       if (value != null) {
         return value;
       }
     }
+
     return node;
   }
 
@@ -71,25 +73,25 @@ public final class ConstantPropagator {
     final Set<String> names = collectNames(collectLhs(lhs));
     assigned.peek().addAll(names);
 
-    if (lhs.getKind() == Node.Kind.VARIABLE &&
-        rhs.getKind() == Node.Kind.VALUE) {
+    if (ExprUtils.isVariable(lhs) && ExprUtils.isValue(rhs)) {
       final String name = ((NodeVariable) lhs).getName();
 
       scopes.peek().put(name, rhs);
       names.remove(name);
     }
+
     scopes.peek().keySet().removeAll(names);
   }
 
   private static Set<NodeVariable> collectLhs(final Node node) {
-    switch (node.getKind()) {
-    case VARIABLE:
+    if (ExprUtils.isVariable(node)) {
       return Collections.singleton((NodeVariable) node);
-
-    case OPERATION:
-      return collectLhs(node, new HashSet<NodeVariable>());
-
     }
+
+    if (ExprUtils.isOperation(node)) {
+      return collectLhs(node, new HashSet<NodeVariable>());
+    }
+
     return Collections.emptySet();
   }
 
@@ -97,6 +99,7 @@ public final class ConstantPropagator {
     if (nodes.isEmpty()) {
       return Collections.emptySet();
     }
+
     final Set<String> names = new HashSet<>();
     for (final NodeVariable node : nodes) {
       names.add(node.getName());
@@ -104,43 +107,39 @@ public final class ConstantPropagator {
         collectNames((Var) node.getUserData(), names);
       }
     }
+
     return names;
   }
 
   private static int collectNames(final Var var, final Set<String> bag) {
     int n = 0;
+
     if (bag.add(var.getName())) {
       ++n;
     }
+
     for (final Var field : var.getFields().values()) {
       n += collectNames(field, bag);
     }
+
     return n;
   }
 
-  private static Set<NodeVariable> collectLhs(final Node node,
-                                              final Set<NodeVariable> bag) {
-    if (node.getKind() == Node.Kind.VARIABLE) {
+  private static Set<NodeVariable> collectLhs(final Node node, final Set<NodeVariable> bag) {
+    if (ExprUtils.isVariable(node)) {
       bag.add((NodeVariable) node);
-    } else if (node.getKind() == Node.Kind.OPERATION) {
-      final NodeOperation op = (NodeOperation) node;
-      if (op.getOperationId() instanceof StandardOperation) {
-        switch ((StandardOperation) op.getOperationId()) {
-        case BVCONCAT:
-          for (final Node operand : op.getOperands()) {
-            collectLhs(operand, bag);
-          }
-          break;
-
-        case BVEXTRACT:
-          collectLhs(op.getOperand(2), bag);
-          break;
-        }
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVCONCAT)) {
+      for (final Node operand : ((NodeOperation) node).getOperands()) {
+        collectLhs(operand, bag);
       }
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVEXTRACT)) {
+       collectLhs(((NodeOperation) node).getOperand(2), bag);
     }
+
     if (bag.isEmpty()) {
       return Collections.emptySet();
     }
+
     return bag;
   }
 }
