@@ -392,7 +392,9 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     for (final MmuBufferAccess bufferAccess : path.getBufferChecks()) {
       if (!bufferAccess.getBuffer().isReplaceable()) {
-        // Hit/miss conditions are constructed for replaceable buffers only.
+        // FIXME:
+        // This check was introduced to avoid the following problem.
+        // Register-mapped buffers' seeData() returns incorrect addresses. 
         continue;
       }
 

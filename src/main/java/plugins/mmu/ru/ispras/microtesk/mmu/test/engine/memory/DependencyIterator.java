@@ -27,7 +27,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link DependencyIterator} is a base iterator of dependencies between memory accesses.
+ * {@link DependencyIterator} is a base iterator of dependencies between two memory accesses.
  * 
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
@@ -35,13 +35,14 @@ public abstract class DependencyIterator implements Iterator<BufferDependency> {
 
   protected final BufferDependency[] allPossibleDependencies;
 
-  protected DependencyIterator(
-      final Access access1,
-      final Access access2) {
+  protected DependencyIterator(final Access access1, final Access access2) {
     InvariantChecks.checkNotNull(access1);
-    InvariantChecks.checkNotNull(access2);
+    InvariantChecks.checkFalse(access1.hasDependencies());
 
-    this.allPossibleDependencies = getAllPossibleDependencies(access1, access2);
+    InvariantChecks.checkNotNull(access2);
+    InvariantChecks.checkFalse(access2.hasDependencies());
+
+    this.allPossibleDependencies = enumerateAllPossibleDependencies(access1, access2);
   }
 
   @Override
@@ -49,7 +50,7 @@ public abstract class DependencyIterator implements Iterator<BufferDependency> {
     throw new UnsupportedOperationException();
   }
 
-  private static BufferDependency[] getAllPossibleDependencies(
+  private static BufferDependency[] enumerateAllPossibleDependencies(
       final Access access1,
       final Access access2) {
     final Collection<MmuBufferAccess> bufferAccesses1 = access1.getPath().getBufferReads();
@@ -61,6 +62,7 @@ public abstract class DependencyIterator implements Iterator<BufferDependency> {
     bufferAccesses.addAll(bufferAccesses1);
     bufferAccesses.addAll(bufferAccesses2);
 
+    // Start from the empty dependency.
     Collection<BufferDependency> bufferDependencies =
         Collections.<BufferDependency>singleton(new BufferDependency());
 
@@ -136,11 +138,13 @@ public abstract class DependencyIterator implements Iterator<BufferDependency> {
         structure.add(access1);
         structure.add(access2);
 
-        access2.setDependencies(new BufferDependency[] { newDependency });
+        access2.setDependency(0, newDependency);
 
         if (MemoryEngineUtils.isFeasibleStructure(structure)) {
           newDependencies.add(newDependency);
         }
+
+        access2.clearDependencies();
       }
     }
 

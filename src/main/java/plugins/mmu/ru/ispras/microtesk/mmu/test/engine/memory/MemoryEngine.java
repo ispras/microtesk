@@ -204,7 +204,10 @@ public final class MemoryEngine implements Engine {
         PARAM_RECURSION_LIMIT, recursionLimit,
         PARAM_COUNT, count);
 
+    // If count is -1, there is no limit.
     InvariantChecks.checkTrue(count == -1 || count >= 0);
+    // The random iterator needs to be limited.
+    InvariantChecks.checkTrue(count != -1 || iterator != AccessesIterator.Mode.RANDOM);
   }
 
   @Override
