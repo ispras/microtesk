@@ -49,10 +49,7 @@ public class TemplateOperation {
     name = templatePrinter.formattingOperation(operation.getName());
 
     // TODO: branch
-    if (name.startsWith("b") || name.startsWith("j"))
-      branch = true;
-    else
-      branch = false;
+    branch = (name.startsWith("b") || name.startsWith("j")) ? Boolean.TRUE : Boolean.FALSE;
 
     load = (operation.isLoad()) ? Boolean.TRUE : Boolean.FALSE;
     store = (operation.isStore()) ? Boolean.TRUE : Boolean.FALSE;
@@ -79,7 +76,7 @@ public class TemplateOperation {
     command = setCommand(operation.getArguments(), name);
   }
 
-  public static void printMetaOperation(MetaOperation operation) {
+  private static void printMetaOperation(MetaOperation operation) {
     System.out.format("getTypeName: %s \n", operation.toString());
     System.out.format("Operation: %s \n", operation.getName());
     System.out.format("getTypeName: %s \n", operation.getTypeName());
@@ -127,20 +124,25 @@ public class TemplateOperation {
               tempCommand += branchLabel;
               printLabel = true;
             }
-          } else if (argument.getMode() == ArgumentMode.IN && branch
-              && getArgumentNumbers(arguments, IsaPrimitiveKind.IMM) == 0 && !iterator.hasNext())
-            tempCommand += String.format("%s(%x)", tempType.toLowerCase(), JUMP_REG);
-          else
-            tempCommand += String.format("%s(_)", tempType.toLowerCase());
+          } else {
+            if (argument.getMode() == ArgumentMode.IN && branch
+                && getArgumentNumbers(arguments, IsaPrimitiveKind.IMM) == 0
+                && !iterator.hasNext()) {
+              tempCommand += String.format("%s(%x)", tempType.toLowerCase(), JUMP_REG);
+            } else {
+              tempCommand += String.format("%s(_)", tempType.toLowerCase());
+            }
+          }
         }
       }
 
       if (argument.getKind() == IsaPrimitiveKind.IMM) {
-        if (!branch)
+        if (!branch) {
           tempCommand += String.format("rand(%s, %s)", 0,
               (long) Math.pow(2, argument.getDataType().getBitSize()) - 1);
-        else
+        } else {
           tempCommand += branchLabel;
+        }
       }
       commaIndicator = true;
     }
@@ -156,10 +158,11 @@ public class TemplateOperation {
       if (!iterator.hasNext()) {
         Collection<String> tempTypes = argument.getTypeNames();
 
-        if (argument.getKind() == type)
+        if (argument.getKind() == type) {
           for (String tempType : tempTypes) {
             return tempType;
           }
+        }
       }
     }
     return null;
@@ -190,6 +193,11 @@ public class TemplateOperation {
     // TODO prepare REG(1), get_address_of(:j_label)
   }
 
+  /**
+   * Returns the command syntax.
+   * 
+   * @return command syntax.
+   */
   public String getCommand() {
     return command;
   }

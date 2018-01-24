@@ -34,15 +34,7 @@ public class RubyTemplatePrinter implements TemplatePrinter {
   public static final String[] RUBY_KEYWORDS = {"and", "or"};
   public static final String RUBY_TAB = "  ";
 
-  private int NowLevel;
-
-  public String formattingOperation(String operationName) {
-    for (String rubyKeywords : RUBY_KEYWORDS) {
-      if (rubyKeywords == operationName)
-        return operationName.toUpperCase();
-    }
-    return operationName;
-  }
+  private int nowLevel;
 
   static final String TEMPLATE_NAME = "_autogentemplate.rb";
 
@@ -54,7 +46,17 @@ public class RubyTemplatePrinter implements TemplatePrinter {
     printWriter = newPrintWriter(templateFile);
   }
 
-  public BufferedWriter newBufferedWriter(final File file) {
+  @Override
+  public String formattingOperation(String operationName) {
+    for (String rubyKeywords : RUBY_KEYWORDS) {
+      if (rubyKeywords == operationName) {
+        return operationName.toUpperCase();
+      }
+    }
+    return operationName;
+  }
+
+  private BufferedWriter newBufferedWriter(final File file) {
     InvariantChecks.checkNotNull(file);
     try {
       return new BufferedWriter(
@@ -65,20 +67,27 @@ public class RubyTemplatePrinter implements TemplatePrinter {
     }
   }
 
+  /**
+   * Creates new {@code PrintWriter}
+   * 
+   * @param file filename of new {@code PrintWriter}
+   * @return new {@code PrintWriter}
+   */
   public PrintWriter newPrintWriter(final File file) {
     InvariantChecks.checkNotNull(file);
     return new PrintWriter(newBufferedWriter(file));
   }
 
+  @Override
   public void templateBegin() {
     // Adds xml data
     this.printWriter.print("require_relative 'minimips_base'\r\n\n"
         + "class MiniMipsGenTemplate < MiniMipsBaseTemplate\r\n");
-    NowLevel++;
-    this.addTab(NowLevel);
+    nowLevel++;
+    this.addTab(nowLevel);
     this.printWriter.print("def run\r\n");
-    NowLevel++;
-    this.addTab(NowLevel);
+    nowLevel++;
+    this.addTab(nowLevel);
     this.printWriter.print("org 0x00020000\n");
   }
 
@@ -88,23 +97,28 @@ public class RubyTemplatePrinter implements TemplatePrinter {
     }
   }
 
-  public void addOperation(String operationName) {
-    InvariantChecks.checkNotNull(operationName);
-    this.addTab(NowLevel);
-    this.printWriter.format("%s ", formattingOperation(operationName));
+  /**
+   * Adds the operation to template file.
+   * 
+   * @param operation Operation syntax.
+   */
+  public void addOperation(String operation) {
+    InvariantChecks.checkNotNull(operation);
+    this.addTab(nowLevel);
+    this.printWriter.format("%s ", formattingOperation(operation));
   }
 
   @Override
   public void addOperation(String opName, String opArguments) {
     InvariantChecks.checkNotNull(opName);
-    this.addTab(NowLevel);
+    this.addTab(nowLevel);
     this.printWriter.format("%s %s", formattingOperation(opName), opArguments);
   }
 
   @Override
   public void addString(String addString) {
     InvariantChecks.checkNotNull(addString);
-    this.addTab(NowLevel);
+    this.addTab(nowLevel);
     this.printWriter.format("%s\n", addString);
   }
 
@@ -117,17 +131,17 @@ public class RubyTemplatePrinter implements TemplatePrinter {
   @Override
   public void addComment(String addText) {
     InvariantChecks.checkNotNull(addText);
-    this.addTab(NowLevel);
+    this.addTab(nowLevel);
     this.printWriter.format("# %s\n", addText);
   }
 
   @Override
   public void templateEnd() {
-    NowLevel--;
-    this.addTab(NowLevel);
+    nowLevel--;
+    this.addTab(nowLevel);
     this.printWriter.println("end");
-    NowLevel--;
-    this.addTab(NowLevel);
+    nowLevel--;
+    this.addTab(nowLevel);
     this.printWriter.println("end");
   }
 
@@ -140,23 +154,25 @@ public class RubyTemplatePrinter implements TemplatePrinter {
   public void startSequence(String addText) {
     InvariantChecks.checkNotNull(addText);
     this.addString(addText);
-    NowLevel++;
+    nowLevel++;
   }
 
   @Override
   public void closeSequence(String addText) {
     InvariantChecks.checkNotNull(addText);
-    NowLevel--;
+    nowLevel--;
     this.addString(addText);
   }
 
+  @Override
   public void startBlock() {
     this.addString("block(:combinator => 'product', :compositor => 'random') {");
-    NowLevel++;
+    nowLevel++;
   }
 
+  @Override
   public void closeBlock() {
-    NowLevel--;
+    nowLevel--;
     this.addString("}.run");
   }
 }
