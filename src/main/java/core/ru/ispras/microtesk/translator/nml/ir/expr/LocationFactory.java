@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -78,12 +76,11 @@ public final class LocationFactory extends WalkerFactoryBase {
            );
     }
 
-    final LocationCreator creator = (NmlSymbolKind.MEMORY == kind) ?
-        new MemoryBasedLocationCreator(this, where, name, null) :
-        new ArgumentBasedLocationCreator(this, where, name);
+    final Location location = NmlSymbolKind.MEMORY == kind ?
+        newLocationMemory(where, name, null) :
+        newLocationArgument(where, name);
 
-    final Location result = creator.create();
-    return newLocationExpr(result);
+    return newLocationExpr(location);
   }
 
   public Expr location(
@@ -91,7 +88,7 @@ public final class LocationFactory extends WalkerFactoryBase {
       final String name,
       final Expr index,
       final List<String> fields) throws SemanticException {
-    checkNotNull(index);
+    InvariantChecks.checkNotNull(index);
 
     final Symbol symbol = findSymbol(where, name);
     final Enum<?> kind = symbol.getKind();
@@ -100,10 +97,10 @@ public final class LocationFactory extends WalkerFactoryBase {
       raiseError(where, new SymbolTypeMismatch(name, kind, NmlSymbolKind.MEMORY));
     }
 
-    final LocationCreator creator = new MemoryBasedLocationCreator(this, where, name, index);
-    final Location location = namedField(where, creator.create(), fields);
+    final Location location = newLocationMemory(where, name, index);
+    final Location locationField = namedField(where, location, fields);
 
-    return newLocationExpr(location);
+    return newLocationExpr(locationField);
   }
 
   private Location namedField(
@@ -154,9 +151,9 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     if (NmlSymbolKind.MEMORY == kind) {
-      final LocationCreator creator = new MemoryBasedLocationCreator(this, where, name, null);
-      final Location location = namedField(where, creator.create(), fields);
-      return newLocationExpr(location);
+      final Location location = newLocationMemory(where, name, null);
+      final Location locationField = namedField(where, location, fields);
+      return newLocationExpr(locationField);
     }
 
     final Primitive argument = getThisArgs().get(name);
@@ -209,8 +206,8 @@ public final class LocationFactory extends WalkerFactoryBase {
 
   public Expr bitfield(
       final Where where, final Expr variable, final Expr pos) throws SemanticException {
-    checkNotNull(variable);
-    checkNotNull(pos);
+    InvariantChecks.checkNotNull(variable);
+    InvariantChecks.checkNotNull(pos);
 
     final Location location = extractLocation(variable);
     if (pos.isConstant()) {
@@ -226,9 +223,9 @@ public final class LocationFactory extends WalkerFactoryBase {
   public Expr bitfield(
       final Where where, final Expr variable, final Expr from, final Expr to)
       throws SemanticException {
-    checkNotNull(variable);
-    checkNotNull(from);
-    checkNotNull(to);
+    InvariantChecks.checkNotNull(variable);
+    InvariantChecks.checkNotNull(from);
+    InvariantChecks.checkNotNull(to);
 
     final Location location = extractLocation(variable);
     if (from.isConstant() != to.isConstant()) {
@@ -262,8 +259,8 @@ public final class LocationFactory extends WalkerFactoryBase {
       raiseError(where, FAILED_TO_CALCULATE_SIZE);
     }
 
-    checkNotNull(reducedFrom.polynomial); // Cannot be reduced to constant at this point
-    checkNotNull(reducedTo.polynomial); // Cannot be reduced to constant at this point
+    InvariantChecks.checkNotNull(reducedFrom.polynomial); // Cannot be reduced to constant at this point
+    InvariantChecks.checkNotNull(reducedTo.polynomial); // Cannot be reduced to constant at this point
 
     if (reducedFrom.polynomial.equals(reducedTo.polynomial)) {
       final int bitfieldSize = Math.abs(reducedTo.constant - reducedFrom.constant) + 1;
@@ -351,30 +348,12 @@ public final class LocationFactory extends WalkerFactoryBase {
     InvariantChecks.checkTrue(expr.getNodeInfo().isLocation());
     return (Location) expr.getNodeInfo().getSource();
   }
-}
 
-
-interface LocationCreator {
-  public Location create() throws SemanticException;
-}
-
-
-final class MemoryBasedLocationCreator extends WalkerFactoryBase implements LocationCreator {
-  private final Where where;
-  private final String name;
-  private final Expr index;
-
-  public MemoryBasedLocationCreator(WalkerContext context, Where where, String name, Expr index) {
-    super(context);
-
-    this.where = where;
-    this.name = name;
-    this.index = index;
-  }
-
-  @Override
-  public Location create() throws SemanticException {
-    final MemoryExpr memory = findMemory();
+  private Location newLocationMemory(
+      final Where where,
+      final String name,
+      final Expr index) throws SemanticException {
+    final MemoryExpr memory = findMemory(where, name);
 
     // Checking bounds for constant values.
     if (index != null && index.isConstant()) {
@@ -389,42 +368,36 @@ final class MemoryBasedLocationCreator extends WalkerFactoryBase implements Loca
     return Location.createMemoryBased(name, memory, index);
   }
 
-  private MemoryExpr findMemory() throws SemanticException {
+  private Location newLocationArgument(
+      final Where where,
+      final String name) throws SemanticException {
+    final Primitive primitive = findArgument(where, name);
+
+    if ((Primitive.Kind.MODE != primitive.getKind()) &&
+        (Primitive.Kind.IMM != primitive.getKind())) {
+      raiseError(where, String.format(
+          "The %s argument refers to a %s primitive that cannot be used as a location.",
+          name,
+          primitive.getKind())
+          );
+    }
+
+    return Location.createPrimitiveBased(name, primitive);
+  }
+
+  private MemoryExpr findMemory(
+      final Where where,
+      final String name) throws SemanticException {
     if (!getIR().getMemory().containsKey(name)) {
       raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.MEMORY));
     }
 
     return getIR().getMemory().get(name);
   }
-}
 
-
-final class ArgumentBasedLocationCreator extends WalkerFactoryBase implements LocationCreator {
-  private static final String UNEXPECTED_PRIMITIVE =
-    "The %s argument refers to a %s primitive that cannot be used as a location.";
-
-  private final Where where;
-  private final String name;
-
-  public ArgumentBasedLocationCreator(WalkerContext context, Where where, String name) {
-    super(context);
-
-    this.where = where;
-    this.name = name;
-  }
-
-  @Override
-  public Location create() throws SemanticException {
-    final Primitive primitive = findArgument();
-
-    if ((Primitive.Kind.MODE != primitive.getKind()) && (Primitive.Kind.IMM != primitive.getKind())) {
-      raiseError(where, String.format(UNEXPECTED_PRIMITIVE, name, primitive.getKind()));
-    }
-
-    return Location.createPrimitiveBased(name, primitive);
-  }
-
-  private Primitive findArgument() throws SemanticException {
+  private Primitive findArgument(
+      final Where where,
+      final String name) throws SemanticException {
     if (!getThisArgs().containsKey(name)) {
       raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.ARGUMENT));
     }
