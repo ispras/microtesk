@@ -44,8 +44,8 @@ class IntExampleTemplate < VliwBaseTemplate
         (add r(_), r(_), r(_))
       ) do situation('random') end
   
-      # Random registers are assigned radom values from the specified range.
-      # The immediate values are also radom values from the specified range.
+      # Random registers are assigned random values from the specified range.
+      # The immediate values are also random values from the specified range.
       vliw(
         (addi r(_), r(_), _ do situation('random', :min => 1, :max => 31) end),
         (addi r(_), r(_), _ do situation('random', :min => 1, :max => 31) end)
