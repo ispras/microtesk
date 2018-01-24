@@ -701,15 +701,15 @@ final class ControlFlowBuilder {
 
   private final class CallBuilder implements TransformerRule {
     private String state;
-    
+
     public CallBuilder(final String state) {
       this.state = state;
     }
 
     @Override
     public boolean isApplicable(final Node node) {
-      final boolean process = nodeIsOperation(node, MmuSymbolKind.FUNCTION) &&
-             node.getUserData() instanceof Callable;
+      final boolean process = ExprUtils.isOperation(node, MmuSymbolKind.FUNCTION) &&
+          node.getUserData() instanceof Callable;
       return process;
     }
 
@@ -741,14 +741,6 @@ final class ControlFlowBuilder {
     public String getState() {
       return state;
     }
-  }
-
-  private static boolean nodeIsOperation(final Node node, final Enum<?> op) {
-    checkNotNull(node);
-    checkNotNull(op);
-
-    return node.getKind() == Node.Kind.OPERATION &&
-           ((NodeOperation) node).getOperationId().equals(op);
   }
 
   private String buildBindings(final Atom lhs, final Atom rhs) {
