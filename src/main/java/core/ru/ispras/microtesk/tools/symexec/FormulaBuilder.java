@@ -87,12 +87,14 @@ public final class FormulaBuilder {
       final String key = prefix + entry.getKey();
       final IsaPrimitive arg = entry.getValue();
 
+      ctx.put(key, arg.getName());
       if (arg instanceof Immediate) {
         final Location location = ((Immediate) arg).access();
         consts.put(key, BitVector.valueOf(location.getValue(), location.getBitSize()));
+        // override context for immediates
+        ctx.put(key, Immediate.TYPE_NAME);
       }
 
-      ctx.put(key, arg.getName());
       buildContext(ctx, consts, key + ".", arg);
     }
   }
