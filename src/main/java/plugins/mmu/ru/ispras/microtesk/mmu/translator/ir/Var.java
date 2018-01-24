@@ -24,7 +24,7 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.mmu.translator.ScopeStorage;
+import ru.ispras.microtesk.utils.StringUtils;
 
 public final class Var extends Nested<Var> {
   private final String name;
@@ -58,7 +58,7 @@ public final class Var extends Nested<Var> {
     if (type.isStruct()) {
       final Map<String, Var> fields = new HashMap<>(type.getFields().size());
       for (final Map.Entry<String, Type> fieldType : type.getFields().entrySet()) {
-        final String varName = ScopeStorage.dotConc(name, fieldType.getKey());
+        final String varName = StringUtils.dotConc(name, fieldType.getKey());
         fields.put(fieldType.getKey(), new Var(varName, fieldType.getValue(), this, null));
       }
       this.fields = Collections.unmodifiableMap(fields);

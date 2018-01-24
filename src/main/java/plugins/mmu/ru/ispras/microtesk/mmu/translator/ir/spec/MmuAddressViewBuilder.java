@@ -158,6 +158,7 @@ public final class MmuAddressViewBuilder {
           @Override
           public List<BitVector> apply(final BitVector addressValue) {
             InvariantChecks.checkNotNull(addressValue);
+            InvariantChecks.checkTrue(addressValue.getBitSize() == addressWidth);
 
             final List<BitVector> fields = new ArrayList<BitVector>();
 

@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import static ru.ispras.microtesk.translator.nml.coverage.Utility.dotConc;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.literalOperand;
 import static ru.ispras.microtesk.translator.nml.coverage.Utility.variableOperand;
 
@@ -55,7 +54,7 @@ final class Prefix {
   }
 
   public Prefix pushAll(final String suffix) {
-    return new Prefix(dotConc(context, suffix), dotConc(expression, suffix));
+    return new Prefix(StringUtils.dotConc(context, suffix), StringUtils.dotConc(expression, suffix));
   }
 
   public Prefix popAll() {
@@ -170,7 +169,7 @@ public final class SsaAssembler {
 
   private void step(final Prefix prefix, final String method) {
     final String name = (String) buildingContext.get(prefix.context);
-    final SsaForm ssa = buildingBlocks.get(dotConc(name, method));
+    final SsaForm ssa = buildingBlocks.get(StringUtils.dotConc(name, method));
     embedBlock(prefix, ssa.getEntryPoint());
   }
 
@@ -312,7 +311,7 @@ public final class SsaAssembler {
     final NodeVariable tmp =
         scope.fetch(String.format("__tmp_%d", numTemps - 1));
 
-    final String path = dotConc(prefix.expression, name);
+    final String path = StringUtils.dotConc(prefix.expression, name);
     final NodeVariable var = changes.rebase(path, tmp.getData(), version);
     addToBatch(Nodes.eq(var, tmp));
 
@@ -375,14 +374,14 @@ public final class SsaAssembler {
 
     final NodeVariable target = changes.rebase(targetName, data, 1);
 
-    final String sourceName = dotConc(prefix.expression, localName);
+    final String sourceName = StringUtils.dotConc(prefix.expression, localName);
     final NodeVariable source = changes.rebase(sourceName, data, 1);
 
     addToBatch(Nodes.eq(target, source));
   }
 
   private Parameters getParameters(final String callee) {
-    final SsaForm ssa = buildingBlocks.get(dotConc(callee, "parameters"));
+    final SsaForm ssa = buildingBlocks.get(StringUtils.dotConc(callee, "parameters"));
     return new Parameters(ssa.getEntryPoint().getStatements().get(0));
   }
 
@@ -414,7 +413,7 @@ public final class SsaAssembler {
           final NodeOperation instance = (NodeOperation) call.getOperand(0);
 
           final String callee = literalOperand(0, instance);
-          final String ctxKey = dotConc(prefix.context, callee);
+          final String ctxKey = StringUtils.dotConc(prefix.context, callee);
           Integer num = contextEnum.get(ctxKey);
           if (num == null ) {
             contextEnum.put(ctxKey, 1);
@@ -490,7 +489,7 @@ public final class SsaAssembler {
         final Pair<String, String> pair =
             StringUtils.splitOnFirst(node.getName(), '.');
 
-        return changes.rebase(dotConc(prefix.expression, pair.second),
+        return changes.rebase(StringUtils.dotConc(prefix.expression, pair.second),
                               node.getData(),
                               (Integer) node.getUserData());
       }

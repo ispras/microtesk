@@ -33,6 +33,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+import ru.ispras.microtesk.utils.StringUtils;
 
 /**
  * Class for model code coverage extraction from internal representation.
@@ -75,7 +76,7 @@ public final class Analyzer implements TranslatorHandler<Ir> {
       if (a.getKind() == Attribute.Kind.ACTION) {
         final SsaBuilder builder =
             new SsaBuilder(inquirer, op.getName(), a.getName(), a.getStatements());
-        ssa.put(Utility.dotConc(op.getName(), a.getName()), builder.build());
+        ssa.put(StringUtils.dotConc(op.getName(), a.getName()), builder.build());
       }
     }
   }
