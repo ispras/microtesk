@@ -27,6 +27,18 @@ public interface TemplatePrinter {
   public abstract void templateBegin();
 
   /**
+   * Checks for a match with the keywords and returns not a keyword for the printer with the same
+   * value. Example: add - keyword, ADD - not keyword for some languages.
+   * 
+   * @param operationName name of the operation.
+   * @return not keyword name of the operation for the printer.
+   */
+  public String formattingOperation(String operationName);
+  /*
+   * TODO: public default String formattingOperation(String operationName) { return operationName; }
+   */
+
+  /**
    * Adds the operation to template file.
    *
    * @param opName Operation name.

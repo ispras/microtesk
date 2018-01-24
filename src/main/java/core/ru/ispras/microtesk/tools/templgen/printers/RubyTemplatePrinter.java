@@ -36,7 +36,7 @@ public class RubyTemplatePrinter implements TemplatePrinter {
 
   private int NowLevel;
 
-  private static String formatOperation(String operationName) {
+  public String formattingOperation(String operationName) {
     for (String rubyKeywords : RUBY_KEYWORDS) {
       if (rubyKeywords == operationName)
         return operationName.toUpperCase();
@@ -91,14 +91,14 @@ public class RubyTemplatePrinter implements TemplatePrinter {
   public void addOperation(String operationName) {
     InvariantChecks.checkNotNull(operationName);
     this.addTab(NowLevel);
-    this.printWriter.format("%s ", formatOperation(operationName));
+    this.printWriter.format("%s ", formattingOperation(operationName));
   }
 
   @Override
   public void addOperation(String opName, String opArguments) {
     InvariantChecks.checkNotNull(opName);
     this.addTab(NowLevel);
-    this.printWriter.format("%s %s", formatOperation(opName), opArguments);
+    this.printWriter.format("%s %s", formattingOperation(opName), opArguments);
   }
 
   @Override
