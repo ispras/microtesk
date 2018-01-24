@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,6 +22,7 @@ import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.IsaPrimitiveKind;
 import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
+import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
 
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
@@ -29,11 +30,12 @@ import ru.ispras.microtesk.model.metadata.MetaOperation;
 
 public class TemplateOperation {
   private static final int JUMP_REG = 3;
-  // private static final int NOT_JUMP = -1;
-  public static final String[] RUBY_KEYWORDS = {"and", "or"};
 
   private final String name; // Operation name
-  private final boolean branch; // Operation name
+  private final boolean branch;
+  private final boolean store;
+  private final boolean load;
+  private final boolean arithmetic;
   private final String command;
 
   private String branchLabel;
@@ -41,20 +43,26 @@ public class TemplateOperation {
   private String preCommand;
   private String[] postCommand;
 
-  TemplateOperation(final MetaOperation operation) {
-    printMetaOperation(operation);
+  TemplateOperation(final MetaOperation operation, final TemplatePrinter templatePrinter) {
+    // printMetaOperation(operation);
 
-    name = formatOperation(operation.getName());
-    // TODO:
+    name = templatePrinter.formattingOperation(operation.getName());
+
+    // TODO: branch
     if (name.startsWith("b") || name.startsWith("j"))
       branch = true;
     else
       branch = false;
 
+    load = (operation.isLoad()) ? Boolean.TRUE : Boolean.FALSE;
+    store = (operation.isStore()) ? Boolean.TRUE : Boolean.FALSE;
+    arithmetic = (!branch && getArgumentsNumber(operation.getArguments()) == 3 && !load && !store)
+        ? Boolean.TRUE
+        : Boolean.FALSE;
+
     if (branch) {
       branchLabel = String.format(":%s_label", name);
       regTitle = getLastArgument(operation.getArguments(), IsaPrimitiveKind.MODE);
-      System.out.format("regTitle: %s \n", regTitle);
 
       if (regTitle != "JUMP_LABEL" && regTitle != "BRANCH_LABEL") {
         preCommand = prepareReg(regTitle);
@@ -98,20 +106,12 @@ public class TemplateOperation {
     System.out.format("\n");
   }
 
-  public static String formatOperation(String operationName) {
-    for (String rubyKeywords : RUBY_KEYWORDS) {
-      if (rubyKeywords == operationName)
-        return operationName.toUpperCase();
-    }
-    return operationName;
-  }
-
   private String setCommand(final Iterable<MetaArgument> arguments, final String name) {
     String tempCommand = name + " ";
 
     boolean commaIndicator = false;
-    //for (MetaArgument argument : arguments) {
-    for(Iterator<MetaArgument> iterator = arguments.iterator(); iterator.hasNext(); ) {
+    // for (MetaArgument argument : arguments) {
+    for (Iterator<MetaArgument> iterator = arguments.iterator(); iterator.hasNext();) {
       MetaArgument argument = (MetaArgument) iterator.next();
 
       Collection<String> tempTypes = argument.getTypeNames();
@@ -136,7 +136,6 @@ public class TemplateOperation {
       }
 
       if (argument.getKind() == IsaPrimitiveKind.IMM) {
-        // TODO:
         if (!branch)
           tempCommand += String.format("rand(%s, %s)", 0,
               (long) Math.pow(2, argument.getDataType().getBitSize()) - 1);
@@ -146,22 +145,21 @@ public class TemplateOperation {
       commaIndicator = true;
     }
 
-    System.out.println(tempCommand);
     return tempCommand;
   }
 
   private static String getLastArgument(final Iterable<MetaArgument> arguments,
       final IsaPrimitiveKind type) {
-    for(Iterator<MetaArgument> iterator = arguments.iterator(); iterator.hasNext(); ) {
+    for (Iterator<MetaArgument> iterator = arguments.iterator(); iterator.hasNext();) {
       MetaArgument argument = (MetaArgument) iterator.next();
 
       if (!iterator.hasNext()) {
         Collection<String> tempTypes = argument.getTypeNames();
 
         if (argument.getKind() == type)
-        for (String tempType : tempTypes) {
+          for (String tempType : tempTypes) {
             return tempType;
-        }
+          }
       }
     }
     return null;
@@ -180,7 +178,7 @@ public class TemplateOperation {
     return argumentNumbers;
   }
 
-  public static int getArgumentsNumber(Iterable<MetaArgument> arguments) {
+  private static int getArgumentsNumber(Iterable<MetaArgument> arguments) {
     if (arguments instanceof Collection<?>) {
       return ((Collection<?>) arguments).size();
     }
@@ -206,5 +204,33 @@ public class TemplateOperation {
 
   public boolean isBranchOperation() {
     return branch;
+  }
+
+  public boolean isStoreOperation() {
+    return store;
+  }
+
+  public boolean isLoadOperation() {
+    return load;
+  }
+
+  public boolean isArithmeticOperation() {
+    return arithmetic;
+  }
+
+  public void printOperationBlock(final TemplatePrinter templatePrinter) {
+    if (branch) {
+      String tempPreCommand = this.getPreCommand();
+      if (tempPreCommand != null && !tempPreCommand.isEmpty())
+        templatePrinter.addString(tempPreCommand);
+    }
+    templatePrinter.addString(this.getCommand());
+    if (branch) {
+      String[] postCommand = this.getPostCommand();
+
+      for (int i = 0; i < postCommand.length; i++) {
+        templatePrinter.addString(postCommand[i]);
+      }
+    }
   }
 }

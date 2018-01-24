@@ -19,6 +19,13 @@
         <exclude item="31"/>
       </range>
     </mode>
+    <mode name="RCOP0">
+      <strategy name="random" free-bias="50" used-bias="50"/>
+      <range min="0" max="31">
+        <exclude item="0"/>
+        <exclude item="31"/>
+      </range>
+    </mode>
   </allocation>
 
   <delaySlot size="1" />

@@ -21,6 +21,7 @@ import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.templgen.printers.RubyTemplatePrinter;
+import ru.ispras.microtesk.tools.templgen.templates.BoundaryValuesTemplate;
 import ru.ispras.microtesk.tools.templgen.templates.GroupTemplate;
 import ru.ispras.microtesk.tools.templgen.templates.SimpleTemplate;
 
@@ -34,13 +35,17 @@ public final class TemplateGenerator {
 
     boolean generatedResult = true;
 
-    SimpleTemplate simpleTemplate =
+    final SimpleTemplate simpleTemplate =
         new SimpleTemplate(metaModel, new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME));
     generatedResult = generatedResult & simpleTemplate.generate();
 
-    GroupTemplate groupTemplate =
+    final GroupTemplate groupTemplate =
         new GroupTemplate(metaModel, new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME));
     generatedResult = generatedResult & groupTemplate.generate();
+
+    final BoundaryValuesTemplate boundaryTemplate =
+        new BoundaryValuesTemplate(metaModel, new RubyTemplatePrinter(BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME));
+    generatedResult = generatedResult & boundaryTemplate.generate();
 
     return generatedResult;
   }

@@ -77,6 +77,16 @@ class MiniMipsBaseTemplate < Template
 
     #
     # The code below specifies an instruction sequence that writes a value
+    # to the specified register (target) via the RCOP0 addressing mode.
+    #
+    # Default preparator
+    #
+    preparator(:target => 'RCOP0') {
+      # Do nothing.
+    }
+
+    #
+    # The code below specifies an instruction sequence that writes a value
     # to the specified register (target) via the REG addressing mode.
     #
     # Default preparator: It is used when no special case provided below
