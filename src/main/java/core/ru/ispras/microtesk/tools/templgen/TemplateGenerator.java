@@ -43,8 +43,8 @@ public final class TemplateGenerator {
         new GroupTemplate(metaModel, new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME));
     generatedResult = generatedResult & groupTemplate.generate();
 
-    final BoundaryValuesTemplate boundaryTemplate =
-        new BoundaryValuesTemplate(metaModel, new RubyTemplatePrinter(BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME));
+    final BoundaryValuesTemplate boundaryTemplate = new BoundaryValuesTemplate(metaModel,
+        new RubyTemplatePrinter(BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME));
     generatedResult = generatedResult & boundaryTemplate.generate();
 
     return generatedResult;
