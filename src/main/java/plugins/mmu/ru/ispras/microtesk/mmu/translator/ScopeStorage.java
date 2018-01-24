@@ -20,6 +20,8 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.ispras.microtesk.utils.StringUtils;
+
 public class ScopeStorage<T> {
   private static final class Scope<T> {
     public final String name;
@@ -29,7 +31,7 @@ public class ScopeStorage<T> {
 
     public Scope(final String name, final String globalPath) {
       this.name = name;
-      this.path = dotConc(globalPath, name);
+      this.path = StringUtils.dotConc(globalPath, name);
       this.variables = new HashMap<>();
       this.readOnly = false;
     }
@@ -77,7 +79,7 @@ public class ScopeStorage<T> {
   public void put(final String name, final T var) {
     final Scope<T> scope = scopes.peek();
     scope.variables.put(name, var);
-    variables.put(dotConc(scope.path, name), var);
+    variables.put(StringUtils.dotConc(scope.path, name), var);
   }
 
   public T get(final String name) {
@@ -91,13 +93,6 @@ public class ScopeStorage<T> {
   }
 
   public String newPath(final String name) {
-    return dotConc(scopes.peek().path, name);
-  }
-
-  public static String dotConc(final String lhs, final String rhs) {
-    if (lhs.isEmpty()) {
-      return rhs;
-    }
-    return lhs + "." + rhs;
+    return StringUtils.dotConc(scopes.peek().path, name);
   }
 }

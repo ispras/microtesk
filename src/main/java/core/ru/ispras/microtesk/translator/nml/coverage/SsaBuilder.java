@@ -55,6 +55,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.utils.StringUtils;
 
 final class SsaBuilder {
   private static final String ARRAY_INDEX = "index";
@@ -660,7 +661,7 @@ final class SsaBuilder {
     String name = atom.getName();
     switch (atom.getSource().getSymbolKind()) {
     case ARGUMENT:
-      name = Utility.dotConc(prefix, atom.getName());
+      name = StringUtils.dotConc(prefix, atom.getName());
       break;
 
     case MEMORY: // FIXME recursive processing required
@@ -801,7 +802,7 @@ final class SsaBuilder {
       final String prefix,
       final String attribute,
       final List<Statement> code) {
-    this(inquirer, prefix, attribute, Utility.dotConc(prefix, attribute), code);
+    this(inquirer, prefix, attribute, StringUtils.dotConc(prefix, attribute), code);
 
     InvariantChecks.checkNotNull(prefix);
     InvariantChecks.checkNotNull(attribute);

@@ -19,13 +19,6 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 
 public final class Utility {
-  static String dotConc(final String lhs, final String rhs) {
-    if (lhs.isEmpty()) {
-      return rhs;
-    }
-    return lhs + "." + rhs;
-  }
-
   static NodeVariable variableOperand(final int i, final Node node) {
     return (NodeVariable) ((NodeOperation) node).getOperand(i);
   }

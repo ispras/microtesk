@@ -69,4 +69,9 @@ public final class StringUtils {
     return index < 0 ? new Pair<>("", str) :
                        new Pair<>(str.substring(0, index), str.substring(index + 1));
   }
+
+  public static String dotConc(final String lhs, final String rhs) {
+    InvariantChecks.checkNotNull(lhs);
+    return lhs.isEmpty() ? rhs : lhs + "." + rhs;
+  }
 }
