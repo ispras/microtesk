@@ -252,7 +252,7 @@ public final class EngineUtils {
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(queryCreator);
 
-    Logger.debug("Processing situation %s for %s...", situation, primitive.getSignature());
+    Logger.debug("Processing %s for %s...", situation, primitive.getSignature());
     if (situation == null) {
       return engineContext.getOptions().getValueAsBoolean(Option.DEFAULT_TEST_DATA) ?
           getDefaultTestData(engineContext, primitive, queryCreator) : NO_TEST_DATA;

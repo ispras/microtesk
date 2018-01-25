@@ -219,12 +219,20 @@ class Template
     @template.getAddressForLabel label.to_s
   end
 
+  def testdata(name, attrs = {})
+    get_new_situation name, attrs, true
+  end
+
   def situation(name, attrs = {})
+    get_new_situation name, attrs, false
+  end
+
+  def get_new_situation(name, attrs, testdata_provider)
     if !attrs.is_a?(Hash)
       raise MTRubyError, "attrs (#{attrs}) must be a Hash."
     end
 
-    builder = @template.newSituation name
+    builder = @template.newSituation name, testdata_provider
     attrs.each_pair do |name, value|
       if value.is_a?(Dist) then
         attr_value = value.java_object
@@ -458,14 +466,14 @@ class Template
     print_format :TRACE, format, *args
   end
 
-  # 
+  #
   # Adds the new line character into the test program
   #
   def newline
     text ''
   end
 
-  # 
+  #
   # Adds text into the test program.
   #
   def text(format, *args)
@@ -476,7 +484,7 @@ class Template
     end
   end
 
-  # 
+  #
   # Adds a comment into the test program (uses sl_comment_starts_with).
   #
   def comment(format, *args)
