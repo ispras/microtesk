@@ -150,7 +150,9 @@ public class BitVectorConstraint {
       operands.add(
           Nodes.eq(
               Nodes.bvextract(x.getType().getSize() - 1, upperBit + 1, x),
-              NodeValue.newBitVector(BitVector.valueOf(value, sizeInBits))));
+              NodeValue.newBitVector(BitVector.valueOf(value, sizeInBits))
+          )
+      );
     }
 
     if (upperBit <= lowerBit) {
@@ -173,7 +175,9 @@ public class BitVectorConstraint {
     operands.add(
         Nodes.noteq(
             Nodes.bvextract(e),
-            NodeValue.newBitVector(BitVector.FALSE)));
+            NodeValue.newBitVector(BitVector.FALSE)
+        )
+    );
 
     // u[0] == (x[upper] = a[upper]).
     // e[0] <=> u[0] == (~u[0] | e[0]) & (u[0] | ~e[0]).
@@ -183,12 +187,16 @@ public class BitVectorConstraint {
     clauseBuilder1.add(
         Nodes.noteq(
             Nodes.bvextract(upperBit, lowerBit, x),
-            NodeValue.newBitVector(a.field(lowerBit, upperBit))));
+            NodeValue.newBitVector(a.field(lowerBit, upperBit))
+        )
+    );
 
     clauseBuilder1.add(
         Nodes.eq(
             Nodes.bvextract(0, e),
-            NodeValue.newBitVector(BitVector.TRUE)));
+            NodeValue.newBitVector(BitVector.TRUE)
+        )
+    );
 
     operands.add(Nodes.or(clauseBuilder1));
 
@@ -197,12 +205,16 @@ public class BitVectorConstraint {
     clauseBuilder2.add(
         Nodes.eq(
             Nodes.bvextract(upperBit, lowerBit, x),
-            NodeValue.newBitVector(a.field(lowerBit, upperBit))));
+            NodeValue.newBitVector(a.field(lowerBit, upperBit))
+        )
+    );
 
     clauseBuilder2.add(
         Nodes.eq(
             Nodes.bvextract(0, e),
-            NodeValue.newBitVector(BitVector.FALSE)));
+            NodeValue.newBitVector(BitVector.FALSE)
+        )
+    );
 
     operands.add(Nodes.or(clauseBuilder2));
 
@@ -225,19 +237,25 @@ public class BitVectorConstraint {
         clauseBuilder3.add(
             Nodes.noteq(
                 Nodes.bvextract(upperBit, j, x),
-                NodeValue.newBitVector(a.field(j, upperBit))));
+                NodeValue.newBitVector(a.field(j, upperBit))
+            )
+        );
 
         final List<Node> clauseBuilder4 = new ArrayList<>();
 
         clauseBuilder4.add(
             Nodes.eq(
                 Nodes.bvextract(upperBit, j, x),
-                NodeValue.newBitVector(a.field(j, upperBit))));
+                NodeValue.newBitVector(a.field(j, upperBit))
+            )
+        );
 
         clauseBuilder4.add(
             Nodes.eq(
                 Nodes.bvextract(k, e),
-                NodeValue.newBitVector(BitVector.FALSE)));
+                NodeValue.newBitVector(BitVector.FALSE)
+            )
+        );
 
         operands.add(Nodes.or(clauseBuilder4));
       }
@@ -245,12 +263,16 @@ public class BitVectorConstraint {
       clauseBuilder3.add(
           Nodes.eq(
               Nodes.bvextract(i, x),
-              NodeValue.newBitVector(greaterThanOrEqualTo ? BitVector.FALSE : BitVector.TRUE)));
+              NodeValue.newBitVector(greaterThanOrEqualTo ? BitVector.FALSE : BitVector.TRUE)
+          )
+      );
 
       clauseBuilder3.add(
           Nodes.eq(
               Nodes.bvextract(k, e),
-              NodeValue.newInteger(1)));
+              NodeValue.newBitVector(BitVector.TRUE)
+          )
+       );
 
       operands.add(Nodes.or(clauseBuilder3));
 
@@ -259,12 +281,16 @@ public class BitVectorConstraint {
       clauseBuilder5.add(
           Nodes.eq(
               Nodes.bvextract(i, x),
-              NodeValue.newBitVector(greaterThanOrEqualTo ? BitVector.TRUE : BitVector.FALSE)));
+              NodeValue.newBitVector(greaterThanOrEqualTo ? BitVector.TRUE : BitVector.FALSE)
+          )
+      );
 
       clauseBuilder5.add(
           Nodes.eq(
               Nodes.bvextract(k, e),
-              NodeValue.newInteger(0)));
+              NodeValue.newBitVector(BitVector.FALSE)
+          )
+      );
 
       operands.add(Nodes.or(clauseBuilder5));
 
