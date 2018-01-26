@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -24,7 +24,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
- * {@link AccessesIteratorExhaustive} implements an exhaustive iterator of memory access
+ * {@link AccessesIteratorExhaustive} implements an exhaustive iterator of the memory access
  * skeletons, i.e. sequences of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>

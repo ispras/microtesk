@@ -19,10 +19,10 @@ import java.util.Collection;
 import java.util.Collections;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRangeConstraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
@@ -49,7 +49,7 @@ public final class SymbolicRestrictor {
     this.region = region;
   }
 
-  public Collection<BitVectorConstraint> getConstraints(
+  public Collection<Node> getConstraints(
       final MmuBufferAccess bufferAccess) {
     final MmuAddressInstance physAddrType = memory.getPhysicalAddress();
     final MmuAddressInstance addrType = bufferAccess.getAddress();
@@ -74,10 +74,10 @@ public final class SymbolicRestrictor {
           settings.getMemory().getRegion(buffer.getName()));
     }
 
-    return Collections.<BitVectorConstraint>emptyList();
+    return Collections.<Node>emptyList();
   }
 
-  public Collection<BitVectorConstraint> getConstraints() {
+  public Collection<Node> getConstraints() {
     final GeneratorSettings settings = GeneratorSettings.get();
     InvariantChecks.checkNotNull(settings);
 
@@ -86,7 +86,7 @@ public final class SymbolicRestrictor {
         settings.getMemory().getRegion(memory.getName()));
   }
 
-  private Collection<BitVectorConstraint> getConstraints(
+  private Collection<Node> getConstraints(
       final MmuAddressInstance addrType,
       final RegionSettings region) {
     InvariantChecks.checkNotNull(addrType);
@@ -96,15 +96,15 @@ public final class SymbolicRestrictor {
     final BitVector max = BitVector.valueOf(region.getMax(), addrType.getWidth());
     Logger.debug("Constraint: %s in [%s, %s]", addrType, min.toHexString(), max.toHexString());
 
-    return Collections.<BitVectorConstraint>singleton(
-        new BitVectorRangeConstraint(addrType.getVariable().getVariable(), min, max));
+    return Collections.<Node>singleton(
+        BitVectorConstraint.range(addrType.getVariable().getVariable(), min, max));
   }
 
-  public Collection<BitVectorConstraint> getConstraints(
+  public Collection<Node> getConstraints(
       final boolean isStart,
       final MmuTransition transition,
       final MemoryAccessContext context) {
-    final Collection<BitVectorConstraint> constraints = new ArrayList<>();
+    final Collection<Node> constraints = new ArrayList<>();
 
     if (isStart) {
       constraints.addAll(getConstraints());
@@ -117,11 +117,11 @@ public final class SymbolicRestrictor {
     return constraints;
   }
 
-  public Collection<BitVectorConstraint> getConstraints(
+  public Collection<Node> getConstraints(
       final boolean isStart,
       final MmuProgram program,
       final MemoryAccessContext context) {
-    final Collection<BitVectorConstraint> constraints = new ArrayList<>();
+    final Collection<Node> constraints = new ArrayList<>();
 
     if (isStart) {
       constraints.addAll(getConstraints());

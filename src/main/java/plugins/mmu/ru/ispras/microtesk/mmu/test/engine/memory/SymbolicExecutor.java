@@ -35,9 +35,7 @@ import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorDomainConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaBuilderSimple;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRangeConstraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -89,11 +87,6 @@ public final class SymbolicExecutor {
   public Boolean execute(final MemoryDataType dataType) {
     InvariantChecks.checkNotNull(dataType);
     return executeAlignment(result, null, dataType, -1);
-  }
-
-  public Boolean execute(final BitVectorConstraint constraint) {
-    InvariantChecks.checkNotNull(constraint);
-    return executeFormula(result, null, constraint.getFormula(), -1);
   }
 
   public Boolean execute(final Node condition) {
@@ -202,10 +195,10 @@ public final class SymbolicExecutor {
         lowerZeroBit,
         addrType.getVariable());
 
-    final BitVectorConstraint constraint =
-        new BitVectorDomainConstraint(field, BitVector.valueOf(0, FortressUtils.getBitSize(field)));
+    final Node constraint =
+        BitVectorConstraint.equal(field, BitVector.valueOf(0, FortressUtils.getBitSize(field)));
 
-    return executeFormula(result, defines, constraint.getFormula(), pathIndex);
+    return executeFormula(result, defines, constraint, pathIndex);
   }
 
   private Boolean executeDependency(
@@ -321,11 +314,10 @@ public final class SymbolicExecutor {
     final MemoryAccessContext context = result.getContext(pathIndex);
 
     if (restrictor != null) {
-      final Collection<BitVectorConstraint> constraints =
-          restrictor.getConstraints(isStart, transition, context);
+      final Collection<Node> constraints = restrictor.getConstraints(isStart, transition, context);
 
-      for (final BitVectorConstraint constraint : constraints) {
-        executeFormula(result, defines, constraint.getFormula(), pathIndex);
+      for (final Node constraint : constraints) {
+        executeFormula(result, defines, constraint, pathIndex);
       }
     }
   }
@@ -339,11 +331,11 @@ public final class SymbolicExecutor {
     final MemoryAccessContext context = result.getContext(pathIndex);
 
     if (restrictor != null) {
-      final Collection<BitVectorConstraint> constraints =
+      final Collection<Node> constraints =
           restrictor.getConstraints(isStart, program, context);
 
-      for (final BitVectorConstraint constraint : constraints) {
-        executeFormula(result, defines, constraint.getFormula(), pathIndex);
+      for (final Node constraint : constraints) {
+        executeFormula(result, defines, constraint, pathIndex);
       }
     }
   }
@@ -685,12 +677,12 @@ public final class SymbolicExecutor {
       if (guard.isHit()) {
         final MmuAddressInstance address = segment.getVaType().getInstance(null, context);
 
-        final BitVectorRangeConstraint constraint =
-            new BitVectorRangeConstraint(address.getVariable().getVariable(),
+        final Node constraint = BitVectorConstraint.range(
+            address.getVariable().getVariable(),
             segment.getMin(),
             segment.getMax());
 
-        status = executeFormula(result, defines, constraint.getFormula(), pathIndex);
+        status = executeFormula(result, defines, constraint, pathIndex);
       } else {
         // FIXME: Handle segment miss.
         // InvariantChecks.checkTrue(false);

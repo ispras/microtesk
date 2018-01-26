@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Set;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorDomainConstraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.template.BufferEventConstraint;
@@ -43,19 +43,19 @@ import ru.ispras.microtesk.utils.BigIntegerUtils;
 public final class MmuSettingsUtils {
   private MmuSettingsUtils() {}
 
-  public static List<BitVectorConstraint> getIntegerConstraints() {
+  public static List<Node> getVariableConstraints() {
     final GeneratorSettings settings = GeneratorSettings.get();
     InvariantChecks.checkNotNull(settings);
 
-    final List<BitVectorConstraint> integerConstraints = new ArrayList<>();
+    final List<Node> integerConstraints = new ArrayList<>();
 
     final Collection<AbstractSettings> integerValuesSettings =
         settings.get(IntegerValuesSettings.TAG);
 
     if (integerValuesSettings != null) {
       for (final AbstractSettings section : integerValuesSettings) {
-        final BitVectorConstraint constraint =
-            getIntegerConstraint((IntegerValuesSettings) section);
+        final Node constraint =
+            getVariableConstraint((IntegerValuesSettings) section);
 
         if (constraint != null) {
           integerConstraints.add(constraint);
@@ -68,8 +68,7 @@ public final class MmuSettingsUtils {
 
     if (booleanValuesSettings != null) {
       for (final AbstractSettings section : booleanValuesSettings) {
-        final BitVectorConstraint constraint =
-            getIntegerConstraint((BooleanValuesSettings) section);
+        final Node constraint = getVariableConstraint((BooleanValuesSettings) section);
 
         if (constraint != null) {
           integerConstraints.add(constraint);
@@ -87,7 +86,7 @@ public final class MmuSettingsUtils {
    * @param settings the values settings.
    * @return the constraint or {@code null}.
    */
-  public static BitVectorConstraint getIntegerConstraint(
+  public static Node getVariableConstraint(
       final IntegerValuesSettings settings) {
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     InvariantChecks.checkNotNull(memory);
@@ -110,9 +109,9 @@ public final class MmuSettingsUtils {
       return null /* TRUE */;
     }
 
-    final BitVectorDomainConstraint.Kind kind = include.isEmpty()
-        ? BitVectorDomainConstraint.Kind.EXCLUDE
-        : BitVectorDomainConstraint.Kind.RETAIN;
+    final BitVectorConstraint.Kind kind = include.isEmpty()
+        ? BitVectorConstraint.Kind.EXCLUDE
+        : BitVectorConstraint.Kind.RETAIN;
 
     final Set<BigInteger> values = include.isEmpty()
         ? exclude
@@ -123,11 +122,7 @@ public final class MmuSettingsUtils {
     final Set<BitVector> bvValues =
         BigIntegerUtils.toBitVectorSet(values, variable.getDataType().getSize());
 
-    return new BitVectorDomainConstraint(
-        kind,
-        variable,
-        bvDomain,
-        bvValues);
+    return BitVectorConstraint.domain(kind, variable, bvDomain, bvValues);
   }
 
   /**
@@ -137,7 +132,7 @@ public final class MmuSettingsUtils {
    * @param settings the values settings.
    * @return the constraint or {@code null}.
    */
-  public static BitVectorConstraint getIntegerConstraint(
+  public static Node getVariableConstraint(
       final BooleanValuesSettings settings) {
     InvariantChecks.checkNotNull(settings);
 
@@ -161,14 +156,10 @@ public final class MmuSettingsUtils {
       values.add(value ? BitVector.valueOf(1, 1) : BitVector.valueOf(0, 1));
     }
 
-    return new BitVectorDomainConstraint(
-        BitVectorDomainConstraint.Kind.RETAIN,
-        variable,
-        null,
-        values);
+    return BitVectorConstraint.domain(BitVectorConstraint.Kind.RETAIN, variable, null, values);
   }
 
-  public static  List<BufferEventConstraint> getBufferEventConstraints() {
+  public static  List<BufferEventConstraint> getBufferConstraints() {
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     InvariantChecks.checkNotNull(memory);
 

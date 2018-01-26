@@ -36,8 +36,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorEqualConstraint;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRangeConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorVariableInitializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -104,7 +102,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     // Generate the basic address object constraints.
     final Collection<Node> conditions = new ArrayList<>();
-    final Collection<BitVectorConstraint> constraints = new ArrayList<>();
+    final Collection<Node> constraints = new ArrayList<>();
 
     final MemoryAccessType accessType = access.getType();
     final MemoryDataType dataType = accessType.getDataType();
@@ -547,10 +545,10 @@ public final class MemoryDataGenerator implements DataGenerator {
     return getMissCondition(bufferAccess, addressWithoutTag);
   }
 
-  private Collection<BitVectorConstraint> getAddressConstraints(
+  private Collection<Node> getAddressConstraints(
       final MmuAddressInstance addressType,
       final MemoryDataType dataType) {
-    final Collection<BitVectorConstraint> constraints = new ArrayList<>();
+    final Collection<Node> constraints = new ArrayList<>();
     final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     final GeneratorSettings settings = GeneratorSettings.get();
@@ -560,17 +558,19 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     // Range constraint.
     constraints.add(
-        new BitVectorRangeConstraint(
+        BitVectorConstraint.range(
           addressVariable,
           BitVector.valueOf(region.getMin(), addressType.getBitSize()),
-          BitVector.valueOf(region.getMax(), addressType.getBitSize()))); 
+          BitVector.valueOf(region.getMax(), addressType.getBitSize()))
+    ); 
 
     // Alignment constraint (if required).
     if (dataType.getSizeInBytes() > 1) {
       constraints.add(
-          new BitVectorEqualConstraint(
+          BitVectorConstraint.equal(
             Nodes.bvextract(dataType.getSizeInBytes() - 2, 0, addressVariable),
-            BitVector.valueOf(0, dataType.getSizeInBytes() - 1)));
+            BitVector.valueOf(0, dataType.getSizeInBytes() - 1))
+      );
     }
 
     return constraints;
@@ -598,14 +598,14 @@ public final class MemoryDataGenerator implements DataGenerator {
       final NodeVariable dataVariable,
       final BitVector dataValue,
       final Collection<Node> conditions,
-      final Collection<BitVectorConstraint> constraints) {
+      final Collection<Node> constraints) {
 
     Logger.debug("Refine address: conditions=%s", conditions);
     Logger.debug("Refine address: constraints=%s", constraints);
 
     addressObject.setData(dataVariable, dataValue);
 
-    final Collection<BitVectorConstraint> allConstraints = new ArrayList<>(constraints);
+    final Collection<Node> allConstraints = new ArrayList<>(constraints);
 
     // Fix known values of the data.
     final Map<NodeVariable, BitVector> data = addressObject.getData();
@@ -613,7 +613,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final NodeVariable variable = entry.getKey();
       final BitVector value = entry.getValue();
 
-      allConstraints.add(new BitVectorEqualConstraint(variable, value));
+      allConstraints.add(BitVectorConstraint.equal(variable, value));
     }
 
     // Fix known values of the addresses.
@@ -621,7 +621,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     for (final Map.Entry<MmuAddressInstance, BitVector> entry : addresses.entrySet()) {
       final NodeVariable variable = entry.getKey().getVariable();
       final BitVector value = entry.getValue();
-      allConstraints.add(new BitVectorEqualConstraint(variable, value));
+      allConstraints.add(BitVectorConstraint.equal(variable, value));
     }
 
     Logger.debug("Constraints for refinement: %s", allConstraints);
