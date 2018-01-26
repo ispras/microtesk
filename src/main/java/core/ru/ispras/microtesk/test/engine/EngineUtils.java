@@ -214,22 +214,24 @@ public final class EngineUtils {
       final String name = entry.getKey();
       final Argument arg = entry.getValue();
 
-      if (arg.getKind() == Argument.Kind.MODE && arg.getMode().isIn()) {
-        try {
-          final IsaPrimitive concreteMode = makeMode(engineContext, arg);
-          final Model model = engineContext.getModel();
-          if (concreteMode.access(model.getPE(), model.getTempVars()).isInitialized()) {
-            continue;
+      if (arg.getMode().isIn()) {
+        if (arg.getKind() == Argument.Kind.MODE) { 
+          try {
+            final IsaPrimitive concreteMode = makeMode(engineContext, arg);
+            final Model model = engineContext.getModel();
+            if (concreteMode.access(model.getPE(), model.getTempVars()).isInitialized()) {
+              continue;
+            }
+          } catch (final ConfigurationException e) {
+            Logger.error(e.getMessage());
           }
-        } catch (final ConfigurationException e) {
-          Logger.error(e.getMessage());
         }
+
+        final BitVector value = BitVector.newEmpty(arg.getType().getBitSize());
+        Randomizer.get().fill(value);
+
+        bindings.put(name, NodeValue.newBitVector(value));
       }
-
-      final BitVector value = BitVector.newEmpty(arg.getType().getBitSize());
-      Randomizer.get().fill(value);
-
-      bindings.put(name, NodeValue.newBitVector(value));
     }
 
     return new TestData(bindings);
