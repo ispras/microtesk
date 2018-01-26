@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.engine;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,12 +47,10 @@ public class InitializerMakerDefault implements InitializerMaker {
       final Primitive primitive,
       final Situation situation,
       final TestData testData,
-      final Map<String, Argument> arguments,
-      final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
+      final Map<String, Argument> arguments) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(testData);
-    InvariantChecks.checkNotNull(initializedModes);
 
     if (stage == Stage.PRE) {
       return Collections.<AbstractCall>emptyList();
@@ -61,7 +60,9 @@ public class InitializerMakerDefault implements InitializerMaker {
       return Collections.<AbstractCall>emptyList();
     }
 
+    final Set<AddressingModeWrapper> initializedModes = new HashSet<>();
     final List<AbstractCall> result = new ArrayList<>();
+
     for (final Map.Entry<String, Object> e : testData.getBindings().entrySet()) {
       final String name = e.getKey();
       final Argument argument = arguments.get(name);

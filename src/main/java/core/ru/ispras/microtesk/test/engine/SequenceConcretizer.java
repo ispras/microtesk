@@ -372,7 +372,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     private final AbstractSequence abstractSequence;
     private final ConcreteSequence concreteSequence;
     private final Map<ConcreteCall, CallEntry> callMap;
-    private final Set<AddressingModeWrapper> initializedModes;
     private final ExecutorListener listenerForInitializers;
     private final ConcreteSequence.Builder testSequenceBuilder;
 
@@ -387,7 +386,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       this.abstractSequence = abstractSequence;
       this.concreteSequence = concreteSequence;
       this.callMap = new IdentityHashMap<>();
-      this.initializedModes = new HashSet<>();
       this.listenerForInitializers = new ExecutorListener();
 
       final List<AbstractCall> abstractCalls = abstractSequence.getSequence();
@@ -570,7 +568,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           abstractSequence,
           abstractPrimitive,
           situation,
-          initializedModes,
           fixedConcretePrimitive
           );
 

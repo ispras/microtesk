@@ -28,7 +28,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.ConfigurationException;
-import ru.ispras.microtesk.test.engine.AddressingModeWrapper;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineUtils;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
@@ -138,8 +137,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
       final Primitive primitive,
       final Situation situation,
       final TestData testData, /* Unused */
-      final Map<String, Argument> modes,
-      final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
+      final Map<String, Argument> modes) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractCall);
     InvariantChecks.checkNotNull(primitive);

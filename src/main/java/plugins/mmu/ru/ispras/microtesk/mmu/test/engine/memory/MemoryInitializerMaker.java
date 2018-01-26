@@ -42,7 +42,6 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.memory.Sections;
-import ru.ispras.microtesk.test.engine.AddressingModeWrapper;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineUtils;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
@@ -87,8 +86,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       final Primitive primitive,
       final Situation situation,
       final TestData testData,
-      final Map<String, Argument> modes,
-      final Set<AddressingModeWrapper> initializedModes /* OUT */) {
+      final Map<String, Argument> modes) {
     InvariantChecks.checkTrue(MemoryEngine.ID.equals(testData.getId()));
 
     if (stage == Stage.PRE || stage == Stage.POST || processingCount != 0) {
@@ -354,10 +352,9 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(addressObject);
 
     final List<AbstractCall> preparation = new ArrayList<>();
-    final Set<AddressingModeWrapper> initializedModes = new HashSet<>();
 
     final List<AbstractCall> initializer = prepareAddress(
-        engineContext, primitive, situation, addressObject, initializedModes);
+        engineContext, primitive, situation, addressObject);
     InvariantChecks.checkNotNull(initializer);
 
     Logger.debug("Call preparation: %s", initializer);
@@ -381,11 +378,9 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       final EngineContext engineContext,
       final Primitive primitive,
       final Situation situation,
-      final AddressObject addressObject,
-      final Set<AddressingModeWrapper> initializedModes) {
+      final AddressObject addressObject) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(situation);
-    InvariantChecks.checkNotNull(initializedModes);
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     final Map<String, Object> attributes = situation.getAttributes();
@@ -405,8 +400,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
           null /* Abstract call */,
           null /* Abstract sequence */,
           primitive,
-          newSituation,
-          initializedModes
+          newSituation
           );
 
       InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");

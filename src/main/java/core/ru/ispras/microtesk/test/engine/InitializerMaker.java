@@ -16,7 +16,6 @@ package ru.ispras.microtesk.test.engine;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.test.template.AbstractCall;
@@ -47,6 +46,5 @@ public interface InitializerMaker {
       final Primitive primitive,
       final Situation situation,
       final TestData testData,
-      final Map<String, Argument> modes,
-      final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException;
+      final Map<String, Argument> modes) throws ConfigurationException;
 }

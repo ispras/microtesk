@@ -21,11 +21,10 @@ import ru.ispras.microtesk.test.template.Primitive;
 /**
  * Wrapper class for addressing mode primitives that allows checking equality and calculating
  * hash code. This is needed to avoid initializations of the same resources that would overwrite
- * each other. 
- * 
+ * each other.
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class AddressingModeWrapper {
   private final Primitive mode;
 

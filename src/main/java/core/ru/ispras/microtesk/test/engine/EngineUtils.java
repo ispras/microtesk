@@ -125,8 +125,7 @@ public final class EngineUtils {
       final AbstractCall abstractCall,
       final AbstractSequence abstractSequence,
       final Primitive primitive,
-      final Situation situation,
-      final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
+      final Situation situation) throws ConfigurationException {
     return makeInitializer(
         engineContext,
         processingCount,
@@ -135,7 +134,6 @@ public final class EngineUtils {
         abstractSequence,
         primitive,
         situation,
-        initializedModes,
         null
         );
   }
@@ -148,11 +146,9 @@ public final class EngineUtils {
       final AbstractSequence abstractSequence,
       final Primitive primitive,
       final Situation situation,
-      final Set<AddressingModeWrapper> initializedModes,
       final IsaPrimitive concretePrimitive) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(primitive);
-    InvariantChecks.checkNotNull(initializedModes);
     // Parameter {@code situation} can be null.
     // Parameter {@code concretePrimitive} can be null.
 
@@ -198,8 +194,7 @@ public final class EngineUtils {
         primitive,
         situation,
         testData,
-        queryCreator.getModes(),
-        initializedModes
+        queryCreator.getModes()
         );
   }
 
