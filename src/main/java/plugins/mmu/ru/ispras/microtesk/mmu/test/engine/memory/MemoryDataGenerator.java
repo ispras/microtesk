@@ -567,9 +567,10 @@ public final class MemoryDataGenerator implements DataGenerator {
     // Alignment constraint (if required).
     if (dataType.getSizeInBytes() > 1) {
       constraints.add(
-          BitVectorConstraint.equal(
-            Nodes.bvextract(dataType.getSizeInBytes() - 2, 0, addressVariable),
-            BitVector.valueOf(0, dataType.getSizeInBytes() - 1))
+          Nodes.eq(
+              Nodes.bvextract(dataType.getSizeInBytes() - 2, 0, addressVariable),
+              NodeValue.newBitVector(0, dataType.getSizeInBytes() - 1)
+          )
       );
     }
 
@@ -613,7 +614,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final NodeVariable variable = entry.getKey();
       final BitVector value = entry.getValue();
 
-      allConstraints.add(BitVectorConstraint.equal(variable, value));
+      allConstraints.add(Nodes.eq(variable, NodeValue.newBitVector(value)));
     }
 
     // Fix known values of the addresses.
@@ -621,7 +622,8 @@ public final class MemoryDataGenerator implements DataGenerator {
     for (final Map.Entry<MmuAddressInstance, BitVector> entry : addresses.entrySet()) {
       final NodeVariable variable = entry.getKey().getVariable();
       final BitVector value = entry.getValue();
-      allConstraints.add(BitVectorConstraint.equal(variable, value));
+
+      allConstraints.add(Nodes.eq(variable, NodeValue.newBitVector(value)));
     }
 
     Logger.debug("Constraints for refinement: %s", allConstraints);

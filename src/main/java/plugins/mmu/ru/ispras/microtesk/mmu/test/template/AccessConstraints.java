@@ -21,8 +21,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
@@ -200,9 +201,10 @@ public final class AccessConstraints {
       final BigInteger value = variableConstraint.getVariate().getValue();
 
       variateConstraints.add(
-          BitVectorConstraint.equal(
+          Nodes.eq(
               variable,
-              BitVector.valueOf(value, FortressUtils.getBitSize(variable)))
+              NodeValue.newBitVector(value, FortressUtils.getBitSize(variable))
+          )
       );
     }
 

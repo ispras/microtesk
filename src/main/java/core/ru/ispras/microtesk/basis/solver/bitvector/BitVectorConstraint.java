@@ -45,13 +45,6 @@ public class BitVectorConstraint {
     EXCLUDE
   }
 
-  public static Node equal(final Node variable, final BitVector value) {
-    InvariantChecks.checkNotNull(variable);
-    InvariantChecks.checkNotNull(value);
-
-    return Nodes.eq(variable, NodeValue.newBitVector(value));
-  }
-
   public static Node domain(
       final Kind kind,
       final Node variable,

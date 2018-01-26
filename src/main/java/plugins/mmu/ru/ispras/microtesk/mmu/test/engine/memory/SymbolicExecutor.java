@@ -196,7 +196,7 @@ public final class SymbolicExecutor {
         addrType.getVariable());
 
     final Node constraint =
-        BitVectorConstraint.equal(field, BitVector.valueOf(0, FortressUtils.getBitSize(field)));
+        Nodes.eq(field, NodeValue.newBitVector(0, FortressUtils.getBitSize(field)));
 
     return executeFormula(result, defines, constraint, pathIndex);
   }
