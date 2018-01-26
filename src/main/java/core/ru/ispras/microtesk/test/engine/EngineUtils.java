@@ -36,7 +36,6 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
-import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.InstructionCall;
@@ -215,24 +214,22 @@ public final class EngineUtils {
       final String name = entry.getKey();
       final Argument arg = entry.getValue();
 
-      if (arg.getMode() == ArgumentMode.IN || arg.getMode() == ArgumentMode.INOUT) {
-        if (arg.getKind() == Argument.Kind.MODE) {
-          try {
-            final IsaPrimitive concreteMode = makeMode(engineContext, arg);
-            final Model model = engineContext.getModel();
-            if (concreteMode.access(model.getPE(), model.getTempVars()).isInitialized()) {
-              continue;
-            }
-          } catch (ConfigurationException e) {
-            Logger.error(e.getMessage());
+      if (arg.getKind() == Argument.Kind.MODE && arg.getMode().isIn()) {
+        try {
+          final IsaPrimitive concreteMode = makeMode(engineContext, arg);
+          final Model model = engineContext.getModel();
+          if (concreteMode.access(model.getPE(), model.getTempVars()).isInitialized()) {
+            continue;
           }
+        } catch (final ConfigurationException e) {
+          Logger.error(e.getMessage());
         }
-
-        final BitVector value = BitVector.newEmpty(arg.getType().getBitSize());
-        Randomizer.get().fill(value);
-
-        bindings.put(name, NodeValue.newBitVector(value));
       }
+
+      final BitVector value = BitVector.newEmpty(arg.getType().getBitSize());
+      Randomizer.get().fill(value);
+
+      bindings.put(name, NodeValue.newBitVector(value));
     }
 
     return new TestData(bindings);
