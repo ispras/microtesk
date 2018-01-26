@@ -37,6 +37,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.utils.HierarchicalMap;
 
 /**
  * {@link SymbolicExecutor} represents a result of symbolic execution.
@@ -102,39 +103,28 @@ public final class SymbolicResult {
         new LinkedHashSet<Variable>(),
         new HashMap<String, Integer>(),
         new HashMap<String, Variable>(),
-        new HashMap<Variable, BitVector>());
+        new HashMap<Variable, BitVector>()
+    );
   }
 
-  public SymbolicResult(final SymbolicResult r) {
-    this(
-        r.builder.clone(),
-        new HashMap<Integer, MemoryAccessContext>(r.contexts.size()),
-        new LinkedHashSet<>(r.originals),
-        new HashMap<>(r.versions),
-        new HashMap<>(r.cache),
-        new HashMap<>(r.constants));
-
-    // Clone the memory access contexts.
-    for (final Map.Entry<Integer, MemoryAccessContext> entry : r.contexts.entrySet()) {
-      this.contexts.put(entry.getKey(), new MemoryAccessContext(entry.getValue()));
-    }
-  }
-
-  public SymbolicResult(
-      final BitVectorFormulaBuilder builder,
-      final SymbolicResult r) {
+  public SymbolicResult(final BitVectorFormulaBuilder builder, final SymbolicResult other) {
     this(
         builder,
-        new HashMap<Integer, MemoryAccessContext>(r.contexts.size()),
-        new LinkedHashSet<>(r.originals),
-        new HashMap<>(r.versions),
-        new HashMap<>(r.cache),
-        new HashMap<>(r.constants));
+        new HashMap<Integer, MemoryAccessContext>(other.contexts.size()),
+        new LinkedHashSet<Variable>(other.originals),
+        new HierarchicalMap<String, Integer>(other.versions, new HashMap<String, Integer>()),
+        new HierarchicalMap<String, Variable>(other.cache, new HashMap<String, Variable>()),
+        new HierarchicalMap<Variable, BitVector>(other.constants, new HashMap<Variable, BitVector>())
+    );
 
     // Clone the memory access contexts.
-    for (final Map.Entry<Integer, MemoryAccessContext> entry : r.contexts.entrySet()) {
+    for (final Map.Entry<Integer, MemoryAccessContext> entry : other.contexts.entrySet()) {
       this.contexts.put(entry.getKey(), new MemoryAccessContext(entry.getValue()));
     }
+  }
+
+  public SymbolicResult(final SymbolicResult other) {
+    this(other.builder.clone(), other);
   }
 
   public boolean hasConflict() {

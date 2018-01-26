@@ -53,6 +53,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.utils.FortressUtils;
+import ru.ispras.microtesk.utils.HierarchicalMap;
 
 /**
  * {@link SymbolicExecutor} implements a simple symbolic executor of memory access structures.
@@ -554,7 +555,9 @@ public final class SymbolicExecutor {
           caseResult.addFormula(
               Nodes.eq(
                   new NodeVariable(newVersion),
-                  new NodeVariable(oldVersion)));
+                  new NodeVariable(oldVersion)
+              )
+          );
         }
       }
 
@@ -569,8 +572,13 @@ public final class SymbolicExecutor {
       final Node caseFormula = caseBuilder.build();
 
       result.addFormula(caseFormula);
-      // TODO: Constant propagation can be optimized.
-      result.getConstants().putAll(caseResult.getConstants());
+
+      // Constant propagation.
+      final HierarchicalMap<Variable, BitVector> constants =
+          (HierarchicalMap<Variable, BitVector>) caseResult.getConstants();
+
+      // Only new constants are added.
+      result.getConstants().putAll(constants.getLocalMap());
     } else {
       // Join the control flows.
       final int width = getWidth(statement.size());
@@ -582,7 +590,7 @@ public final class SymbolicExecutor {
       for (int i = 0; i < switchResults.size(); i++) {
         switchBuilder.add(Nodes.eq(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
       }
-  
+
       result.addFormula(Nodes.or(switchBuilder));
 
       for (int i = 0; i < switchResults.size(); i++) {
