@@ -260,9 +260,14 @@ public final class BranchInitializerMaker implements InitializerMaker {
     for (final Map.Entry<String, Object> testDatum : testData.getBindings().entrySet()) {
       final String name = testDatum.getKey();
       final Primitive mode = queryCreator.getTargetModes().get(name);
-      final BitVector value = FortressUtils.extractBitVector((Node) testDatum.getValue());
 
+      if (mode == null) {
+        continue;
+      }
+
+      final BitVector value = FortressUtils.extractBitVector((Node) testDatum.getValue());
       initializer.addAll(EngineUtils.makeInitializer(engineContext, mode, value));
+
       if (writeIntoStream) {
         final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
         initializer.addAll(EngineUtils.makeStreamWrite(engineContext, testDataStream));
