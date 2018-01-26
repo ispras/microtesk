@@ -194,7 +194,7 @@ public final class EngineUtils {
         primitive,
         situation,
         testData,
-        queryCreator.getModes()
+        queryCreator.getTargetModes()
         );
   }
 
@@ -247,8 +247,8 @@ public final class EngineUtils {
     final Map<String, Argument> unknownImmediateValues = queryCreator.getUnknownImmValues();
     Logger.debug("Unknown immediate values: " + unknownImmediateValues.keySet());
 
-    final Map<String, Argument> modes = queryCreator.getModes();
-    Logger.debug("Modes used as arguments: " + modes);
+    final Map<String, Primitive> modes = queryCreator.getTargetModes();
+    Logger.debug("Modes used as input arguments: " + modes);
 
     final boolean isDefaultTestData =
         engineContext.getOptions().getValueAsBoolean(Option.DEFAULT_TEST_DATA);

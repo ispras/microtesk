@@ -46,7 +46,6 @@ import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineUtils;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.template.AbstractCall;
-import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.BufferPreparator;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
@@ -86,7 +85,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       final Primitive primitive,
       final Situation situation,
       final TestData testData,
-      final Map<String, Argument> modes) {
+      final Map<String, Primitive> targetModes) {
     InvariantChecks.checkTrue(MemoryEngine.ID.equals(testData.getId()));
 
     if (stage == Stage.PRE || stage == Stage.POST || processingCount != 0) {

@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.engine;
 
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -42,7 +43,7 @@ final class TestBaseQueryBindingBuilder {
   private EngineContext engineContext;
   private final TestBaseQueryBuilder queryBuilder;
   private final Map<String, Argument> unknownValues;
-  private final Map<String, Argument> modes;
+  private final Map<String, Primitive> modes;
 
   public TestBaseQueryBindingBuilder(
       final EngineContext engineContext,
@@ -64,7 +65,7 @@ final class TestBaseQueryBindingBuilder {
     return unknownValues;
   }
 
-  public Map<String, Argument> getModes() {
+  public Map<String, Primitive> getTargetModes() {
     return modes;
   }
 
@@ -154,7 +155,9 @@ final class TestBaseQueryBindingBuilder {
             }
 
             queryBuilder.setBinding(argName, bindingValue);
-            modes.put(argName, arg);
+            if (arg.getMode().isIn() && ExprUtils.isVariable(bindingValue)) {
+              modes.put(argName, (Primitive) arg.getValue());
+            }
           }
 
           break;

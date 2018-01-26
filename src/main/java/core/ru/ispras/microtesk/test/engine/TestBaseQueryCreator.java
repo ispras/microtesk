@@ -70,7 +70,7 @@ public final class TestBaseQueryCreator {
   private boolean isCreated;
   private TestBaseQuery query;
   private Map<String, Argument> unknownImmValues;
-  private Map<String, Argument> modes;
+  private Map<String, Primitive> modes;
 
   public TestBaseQueryCreator(
       final EngineContext engineContext,
@@ -107,7 +107,7 @@ public final class TestBaseQueryCreator {
     return unknownImmValues;
   }
 
-  public Map<String, Argument> getModes() {
+  public Map<String, Primitive> getTargetModes() {
     createQuery();
 
     InvariantChecks.checkNotNull(modes);
@@ -130,7 +130,7 @@ public final class TestBaseQueryCreator {
         new TestBaseQueryBindingBuilder(engineContext, queryBuilder, primitive);
 
     unknownImmValues = bindingBuilder.getUnknownValues();
-    modes = bindingBuilder.getModes();
+    modes = bindingBuilder.getTargetModes();
 
     query = queryBuilder.build();
 

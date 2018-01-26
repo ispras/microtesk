@@ -19,7 +19,6 @@ import java.util.Map;
 
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.test.template.AbstractCall;
-import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.TestData;
@@ -46,5 +45,5 @@ public interface InitializerMaker {
       final Primitive primitive,
       final Situation situation,
       final TestData testData,
-      final Map<String, Argument> modes) throws ConfigurationException;
+      final Map<String, Primitive> targetModes) throws ConfigurationException;
 }

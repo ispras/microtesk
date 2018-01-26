@@ -25,10 +25,8 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.test.template.AbstractCall;
-import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -47,7 +45,7 @@ public class InitializerMakerDefault implements InitializerMaker {
       final Primitive primitive,
       final Situation situation,
       final TestData testData,
-      final Map<String, Argument> arguments) throws ConfigurationException {
+      final Map<String, Primitive> targetModes) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(testData);
@@ -65,13 +63,7 @@ public class InitializerMakerDefault implements InitializerMaker {
 
     for (final Map.Entry<String, Object> e : testData.getBindings().entrySet()) {
       final String name = e.getKey();
-      final Argument argument = arguments.get(name);
-
-      if (null == argument || ArgumentMode.OUT == argument.getMode()) {
-        continue;
-      }
-
-      final Primitive mode = (Primitive) argument.getValue();
+      final Primitive mode = targetModes.get(name);
       final AddressingModeWrapper targetMode = new AddressingModeWrapper(mode);
 
       if (initializedModes.contains(targetMode)) {
