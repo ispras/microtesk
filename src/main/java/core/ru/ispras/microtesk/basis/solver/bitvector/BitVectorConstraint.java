@@ -85,13 +85,6 @@ public class BitVectorConstraint {
 
   public static Node domain(
       final Node variable,
-      final Set<BitVector> domain,
-      final Set<BitVector> values) {
-    return domain(Kind.RETAIN, variable, domain, values);
-  }
-
-  public static Node domain(
-      final Node variable,
       final Set<BitVector> values) {
     return domain(Kind.RETAIN, variable, null, values);
   }
