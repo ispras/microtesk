@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -79,12 +79,11 @@ public abstract class DependencyIterator implements Iterator<BufferDependency> {
 
         Logger.debug("Checking dependencies between %s and %s", bufferAccess1, bufferAccess2);
 
-        // FIXME: Some restrictions need to be weakened.
         if (!buffer1.isFake()
             && buffer1.getKind() != MmuBuffer.Kind.MEMORY
             && buffer1 == buffer2
-            && context1.isEmptyStack()
-            && context2.isEmptyStack()
+            && context1.isEmptyStack() // Only top-level accesses
+            && context2.isEmptyStack() // Only top-level accesses
             && context1.getBufferAccessId(buffer1) == MemoryAccessContext.BUFFER_ACCESS_INITIAL_ID
             && context2.getBufferAccessId(buffer1) == MemoryAccessContext.BUFFER_ACCESS_INITIAL_ID) {
           Logger.debug("Enumerating dependencies between %s and %s", bufferAccess1, bufferAccess2);

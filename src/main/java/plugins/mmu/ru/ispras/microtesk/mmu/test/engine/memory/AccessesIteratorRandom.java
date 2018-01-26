@@ -23,7 +23,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
- * {@link AccessesIteratorRandom} implements a random iterator of the memory access skeletons,
+ * {@link AccessesIteratorRandom} implements a random iterator of memory access skeletons,
  * i.e. sequences of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>

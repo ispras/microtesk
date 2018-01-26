@@ -24,7 +24,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
 
 /**
- * {@link AccessesIteratorExhaustive} implements an exhaustive iterator of the memory access
+ * {@link AccessesIteratorExhaustive} implements an exhaustive iterator of memory access
  * skeletons, i.e. sequences of memory accesses.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
