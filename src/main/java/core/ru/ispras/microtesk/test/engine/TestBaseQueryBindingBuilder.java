@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
- * 
+ * Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -14,25 +14,18 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.engine.EngineUtils.makeMode;
-
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
-
-import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.Location;
+import ru.ispras.microtesk.test.engine.EngineUtils;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.LazyValue;
@@ -40,6 +33,10 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.testbase.TestBaseQueryBuilder;
+
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 final class TestBaseQueryBindingBuilder {
   private EngineContext engineContext;
@@ -51,14 +48,14 @@ final class TestBaseQueryBindingBuilder {
       final EngineContext engineContext,
       final TestBaseQueryBuilder queryBuilder,
       final Primitive primitive) {
-    checkNotNull(engineContext);
-    checkNotNull(queryBuilder);
-    checkNotNull(primitive);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(queryBuilder);
+    InvariantChecks.checkNotNull(primitive);
 
     this.engineContext = engineContext;
     this.queryBuilder = queryBuilder;
-    this.unknownValues = new HashMap<String, Argument>();
-    this.modes = new HashMap<String, Argument>();
+    this.unknownValues = new HashMap<>();
+    this.modes = new HashMap<>();
 
     visit(primitive.getName(), primitive);
   }
@@ -80,32 +77,32 @@ final class TestBaseQueryBindingBuilder {
         case IMM:
           queryBuilder.setBinding(
               argName,
-              new NodeValue(Data.newBitVector(BitVector.valueOf(
-                  (BigInteger) arg.getValue(), arg.getType().getBitSize())))
+              NodeValue.newBitVector(
+                  (BigInteger) arg.getValue(), arg.getType().getBitSize())
               );
           break;
 
         case IMM_RANDOM:
           queryBuilder.setBinding(
               argName, 
-              new NodeValue(Data.newBitVector(BitVector.valueOf(
-                  ((RandomValue) arg.getValue()).getValue(), arg.getType().getBitSize())))
+              NodeValue.newBitVector(
+                  ((RandomValue) arg.getValue()).getValue(), arg.getType().getBitSize())
               );
           break;
 
         case IMM_LAZY:
           queryBuilder.setBinding(
               argName, 
-              new NodeValue(Data.newBitVector(BitVector.valueOf(
-                  ((LazyValue) arg.getValue()).getValue(), arg.getType().getBitSize())))
+              NodeValue.newBitVector(
+                  ((LazyValue) arg.getValue()).getValue(), arg.getType().getBitSize())
               );
           break;
 
         case LABEL:
           queryBuilder.setBinding(
               argName, 
-              new NodeValue(Data.newBitVector(BitVector.valueOf(
-                  ((LabelValue) arg.getValue()).getValue(), arg.getType().getBitSize())))
+              NodeValue.newBitVector(
+                  ((LabelValue) arg.getValue()).getValue(), arg.getType().getBitSize())
               );
           break;
 
@@ -122,8 +119,8 @@ final class TestBaseQueryBindingBuilder {
           } else {
             queryBuilder.setBinding(
                 argName,
-                new NodeValue(Data.newBitVector(BitVector.valueOf(
-                    unknownValue.getValue(), arg.getType().getBitSize())))
+                NodeValue.newBitVector(
+                    unknownValue.getValue(), arg.getType().getBitSize())
                 );
           }
           break;
@@ -140,13 +137,12 @@ final class TestBaseQueryBindingBuilder {
             Node bindingValue = null;
 
             try {
-                final IsaPrimitive mode = makeMode(engineContext, arg);
+                final IsaPrimitive mode = EngineUtils.makeMode(engineContext, arg);
                 final Model model = engineContext.getModel();
                 final Location location = mode.access(model.getPE(), model.getTempVars());
 
                 if (location.isInitialized()) {
-                  bindingValue = NodeValue.newBitVector(
-                      BitVector.valueOf(location.getValue(), location.getBitSize()));
+                  bindingValue = NodeValue.newBitVector(location.getValue(), location.getBitSize());
                 } else {
                   bindingValue = new NodeVariable(argName, dataType);
                 }
