@@ -64,8 +64,12 @@ public class InitializerMakerDefault implements InitializerMaker {
     for (final Map.Entry<String, Object> e : testData.getBindings().entrySet()) {
       final String name = e.getKey();
       final Primitive mode = targetModes.get(name);
-      final AddressingModeWrapper targetMode = new AddressingModeWrapper(mode);
 
+      if (null == mode) {
+        continue;
+      }
+
+      final AddressingModeWrapper targetMode = new AddressingModeWrapper(mode);
       if (initializedModes.contains(targetMode)) {
         Logger.debug("%s has already been used to set up the processor state. " +
                      "No initialization code will be created.", targetMode);
