@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.utils;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -22,151 +23,121 @@ import java.util.Set;
 import ru.ispras.fortress.util.InvariantChecks;
 
 public class HierarchicalSet<T> implements Set<T> {
-  private final HierarchicalMap.Kind kind;
-  private final Set<T> upper;
-  private final Set<T> local;
+  private final HierarchicalCollection<T> collection;
 
-  public HierarchicalSet(final HierarchicalMap.Kind kind, final Set<T> upper, final Set<T> local) {
+  public HierarchicalSet(
+      final HierarchicalCollection.Kind kind,
+      final Set<T> upper,
+      final Set<T> local) {
     InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(upper);
     InvariantChecks.checkNotNull(local);
 
-    this.kind = kind;
-    this.upper = kind == HierarchicalMap.Kind.READ_ONLY ? Collections.<T>unmodifiableSet(upper) : upper;
-    this.local = local;
+    this.collection = new HierarchicalCollection<T>(kind, upper, local);
   }
 
   public HierarchicalSet(final Set<T> upper, final Set<T> local) {
-    this(HierarchicalMap.Kind.READ_ONLY, upper, local);
+    this(HierarchicalCollection.Kind.READ_ONLY, upper, local);
   }
 
-  public HierarchicalMap.Kind getKind() {
-    return kind;
+  public HierarchicalCollection.Kind getKind() {
+    return collection.getKind();
   }
 
-  public Set<T> getUpperSet() {
-    return upper;
+  public Set<T> getUpper() {
+    return (Set<T>) collection.getUpper();
   }
 
-  public Set<T> getLocalSet() {
-    return local;
+  public Set<T> getLocal() {
+    return (Set<T>) collection.getLocal();
   }
 
   @Override
   public boolean isEmpty() {
-    return local.isEmpty() && upper.isEmpty();
+    return collection.isEmpty();
   }
 
   @Override
   public int size() {
-    return local.size() + upper.size();
+    return collection.size();
   }
 
   @Override
   public boolean contains(final Object o) {
-    return local.contains(o) || upper.contains(o);
+    return collection.contains(o);
   }
 
   @Override
   public boolean containsAll(final Collection<?> c) {
-    for (final Object o : c) {
-      if (!contains(o)) {
-        return false;
-      }
-    }
-
-    return true;
+    return collection.containsAll(c);
   }
 
   @Override
   public boolean add(final T e) {
-    return local.add(e);
+    return collection.add(e);
   }
 
   @Override
   public boolean addAll(final Collection<? extends T> c) {
-    return local.addAll(c);
+    return collection.addAll(c);
   }
 
   @Override
   public Iterator<T> iterator() {
-    // TODO:
-    throw new UnsupportedOperationException();
+    return collection.iterator();
   }
 
   @Override
   public Object[] toArray() {
-    // TODO:
-    throw new UnsupportedOperationException();
+    return collection.toArray();
   }
 
   @Override
   public <V> V[] toArray(final V[] a) {
-    // TODO:
-    throw new UnsupportedOperationException();
+    return collection.toArray(a);
   }
 
   @Override
   public boolean remove(final Object o) {
-    return local.remove(o) || upper.remove(o);
+    return collection.remove(o);
   }
 
   @Override
   public boolean removeAll(final Collection<?> c) {
-    final boolean changed1 = local.removeAll(c);
-    final boolean changed2 = upper.removeAll(c);
-
-    return changed1 || changed2;
+    return collection.removeAll(c);
   }
 
   @Override
   public boolean retainAll(final Collection<?> c) {
-    final boolean changed1 = local.retainAll(c);
-    final boolean changed2 = upper.retainAll(c);
-
-    return changed1 || changed2;
+    return collection.retainAll(c);
   }
 
   @Override
   public void clear() {
-    local.clear();
-    upper.clear();
+    collection.clear();
   }
 
   @Override
   public int hashCode() {
-    int hashCode = kind.hashCode();
-
-    hashCode += 31 * upper.hashCode();
-    hashCode += 31 * local.hashCode();
-
-    return hashCode;
+    return collection.hashCode();
   }
 
   @Override
-  public boolean equals(final Object other) {
-    if (this == other) {
+  public boolean equals(final Object o) {
+    if (this == o) {
       return true;
     }
 
-    if (!(other instanceof HierarchicalSet<?>)) {
+    if (!(o instanceof HierarchicalSet<?>)) {
       return false;
     }
 
-    final HierarchicalSet<?> set = (HierarchicalSet<?>) other;
-
-    return kind.equals(set.kind)
-        && upper.equals(set.upper)
-        && local.equals(set.local);
+    final HierarchicalSet<?> other = (HierarchicalSet<?>) o;
+    return collection.equals(other.collection);
   }
 
   @Override
   public String toString() {
-    final StringBuilder builder = new StringBuilder();
-
-    builder.append(upper);
-    builder.append(local);
-
-    return builder.toString();
+    return collection.toString();
   }
 }

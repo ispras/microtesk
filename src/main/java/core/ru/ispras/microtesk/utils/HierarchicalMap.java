@@ -23,38 +23,38 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 public class HierarchicalMap<K, V> implements Map<K, V> {
 
-  public enum Kind {
-    READ_ONLY,
-    READ_WRITE
-  }
-
-  private final Kind kind;
+  private final HierarchicalCollection.Kind kind;
   private final Map<K, V> upper;
   private final Map<K, V> local;
 
-  public HierarchicalMap(final Kind kind, final Map<K, V> upper, final Map<K, V> local) {
+  public HierarchicalMap(
+      final HierarchicalCollection.Kind kind,
+      final Map<K, V> upper,
+      final Map<K, V> local) {
     InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(upper);
     InvariantChecks.checkNotNull(local);
 
+    final boolean isReadOnly = (kind == HierarchicalCollection.Kind.READ_ONLY);
+
     this.kind = kind;
-    this.upper = kind == Kind.READ_ONLY ? Collections.<K, V>unmodifiableMap(upper) : upper;
+    this.upper =  isReadOnly ? Collections.<K, V>unmodifiableMap(upper) : upper;
     this.local = local;
   }
 
   public HierarchicalMap(final Map<K, V> upper, final Map<K, V> local) {
-    this(Kind.READ_ONLY, upper, local);
+    this(HierarchicalCollection.Kind.READ_ONLY, upper, local);
   }
 
-  public Kind getKind() {
+  public HierarchicalCollection.Kind getKind() {
     return kind;
   }
 
-  public Map<K, V> getUpperMap() {
+  public Map<K, V> getUpper() {
     return upper;
   }
 
-  public Map<K, V> getLocalMap() {
+  public Map<K, V> getLocal() {
     return local;
   }
 
@@ -123,7 +123,7 @@ public class HierarchicalMap<K, V> implements Map<K, V> {
 
   @Override
   public Collection<V> values() {
-    throw new UnsupportedOperationException();
+    return new HierarchicalCollection<V>(kind, upper.values(), local.values());
   }
 
   @Override
