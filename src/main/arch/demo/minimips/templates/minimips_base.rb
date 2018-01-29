@@ -307,128 +307,128 @@ class MiniMipsBaseTemplate < Template
     reg(0)
   end
 
-  def at
-    reg(1)
+  def at(&contents)
+    reg(1, &contents)
   end
 
-  def v0
-    reg(2)
+  def v0(&contents)
+    reg(2, &contents)
   end
 
-  def v1
-    reg(3)
+  def v1(&contents)
+    reg(3, &contents)
   end
 
-  def a0
-    reg(4)
+  def a0(&contents)
+    reg(4, &contents)
   end
 
-  def a1
-    reg(5)
+  def a1(&contents)
+    reg(5, &contents)
   end
 
-  def a2
-    reg(6)
+  def a2(&contents)
+    reg(6, &contents)
   end
 
-  def a3
-    reg(7)
+  def a3(&contents)
+    reg(7, &contents)
   end
 
-  def t0
-    reg(8)
+  def t0(&contents)
+    reg(8, &contents)
   end
 
-  def t1
-    reg(9)
+  def t1(&contents)
+    reg(9, &contents)
   end
 
-  def t2
-    reg(10)
+  def t2(&contents)
+    reg(10, &contents)
   end
 
-  def t3
-    reg(11)
+  def t3(&contents)
+    reg(11, &contents)
   end
 
-  def t4
-    reg(12)
+  def t4(&contents)
+    reg(12, &contents)
   end
 
-  def t5
-    reg(13)
+  def t5(&contents)
+    reg(13, &contents)
   end
 
-  def t6
-    reg(14)
+  def t6(&contents)
+    reg(14, &contents)
   end
 
-  def t7
-    reg(15)
+  def t7(&contents)
+    reg(15, &contents)
   end
 
-  def s0
-    reg(16)
+  def s0(&contents)
+    reg(16, &contents)
   end
 
-  def s1
-    reg(17)
+  def s1(&contents)
+    reg(17, &contents)
   end
 
-  def s2
-    reg(18)
+  def s2(&contents)
+    reg(18, &contents)
   end
 
-  def s3
-    reg(19)
+  def s3(&contents)
+    reg(19, &contents)
   end
 
-  def s4
-    reg(20)
+  def s4(&contents)
+    reg(20, &contents)
   end
 
-  def s5
-    reg(21)
+  def s5(&contents)
+    reg(21, &contents)
   end
 
-  def s6
-    reg(22)
+  def s6(&contents)
+    reg(22, &contents)
   end
 
-  def s7
-    reg(23)
+  def s7(&contents)
+    reg(23, &contents)
   end
 
-  def t8 
-    reg(24)
+  def t8(&contents)
+    reg(24, &contents)
   end
 
-  def t9
-    reg(25)
+  def t9(&contents)
+    reg(25, &contents)
   end
 
-  def k0 
-    reg(26)
+  def k0(&contents)
+    reg(26, &contents)
   end
 
-  def k1 
-    reg(27)
+  def k1(&contents)
+    reg(27, &contents)
   end
 
-  def gp
-    reg(28)
+  def gp(&contents)
+    reg(28, &contents)
   end
 
-  def sp
-    reg(29)
+  def sp(&contents)
+    reg(29, &contents)
   end
 
-  def fp
-    reg(30)
+  def fp(&contents)
+    reg(30, &contents)
   end
 
-  def ra
-    reg(31)
+  def ra(&contents)
+    reg(31, &contents)
   end
 
   #
