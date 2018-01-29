@@ -33,7 +33,6 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaBuilderSimple;
 import ru.ispras.microtesk.mmu.MmuPlugin;
@@ -481,7 +480,6 @@ public final class SymbolicExecutor {
     }
 
     if (statement.isEmpty()) {
-      Logger.debug("Conflict: empty statement");
       result.setConflict(true);
       return Boolean.FALSE;
     }
@@ -507,7 +505,6 @@ public final class SymbolicExecutor {
     }
 
     if (switchResults.isEmpty()) {
-      Logger.debug("Conflict: empty results");
       result.setConflict(true);
       return Boolean.FALSE;
     }
@@ -577,8 +574,8 @@ public final class SymbolicExecutor {
       final HierarchicalMap<Variable, BitVector> constants =
           (HierarchicalMap<Variable, BitVector>) caseResult.getConstants();
 
-      // Only new constants are added.
-      result.getConstants().putAll(constants.getLocalMap());
+      // Only new constants to be added.
+      result.getConstants().putAll(constants.getLocal());
     } else {
       // Join the control flows.
       final int width = getWidth(statement.size());
@@ -792,7 +789,6 @@ public final class SymbolicExecutor {
     if (value != null) {
       // If the result is false, there is a conflict.
       // If the result is true, the condition is redundant.
-      Logger.debug("Conflict: constant condition %s", condition);
       result.setConflict(!value.booleanValue());
       return value;
     }
@@ -844,8 +840,6 @@ public final class SymbolicExecutor {
       final List<Node> clauseBuilder,
       final Node atom,
       final int pathIndex) {
-    Logger.debug("Condition atom: %s", atom);
-
     final NodeOperation equality = (NodeOperation) atom;
     InvariantChecks.checkTrue(
            equality.getOperationId() == StandardOperation.EQ
@@ -887,7 +881,6 @@ public final class SymbolicExecutor {
 
             if (!truthValue && operation == StandardOperation.AND) {
               // Condition is always false.
-              Logger.debug("Conflict: false atom");
               result.setConflict(true);
               return Boolean.FALSE;
             }
@@ -1029,7 +1022,6 @@ public final class SymbolicExecutor {
                   );
 
         clauseBuilder.add(Nodes.eq(lhsField, rhsField));
-        Logger.debug("Clause builder: %s", clauseBuilder);
 
         rhsTerms.add(rhsField);
 
@@ -1045,8 +1037,9 @@ public final class SymbolicExecutor {
         clauseBuilder.add(
             Nodes.eq(
                 Nodes.bvextract(lhsUpperBit, offset, newLhsVar),
-                NodeValue.newBitVector(BitVector.valueOf(0, (lhsUpperBit - offset) + 1))));
-        Logger.debug("Clause builder: %s", clauseBuilder);
+                NodeValue.newBitVector(BitVector.valueOf(0, (lhsUpperBit - offset) + 1))
+            )
+        );
       }
 
       // Equation for the suffix part.
@@ -1146,8 +1139,6 @@ public final class SymbolicExecutor {
     final List<Node> clauseBuilder1 = new ArrayList<>();
     final List<Node> clauseBuilder2 = new ArrayList<>();
 
-    Logger.debug("Get if-then formula: %s", formula);
-
     // Introduce a Boolean variable: C == (PHI == i).
     final Node condition = getIfThenField(FortressUtils.getVariable(phi), i);
 
@@ -1167,7 +1158,6 @@ public final class SymbolicExecutor {
 
     for (final Node operand : clauses.getOperands()) {
       final NodeOperation clause = (NodeOperation) operand;
-      Logger.debug("Clause: %s", clause);
 
       if (clause.getOperationId() == StandardOperation.OR) {
         // C -> (A | B) == (~C | A | B).
