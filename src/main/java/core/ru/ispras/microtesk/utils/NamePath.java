@@ -72,7 +72,7 @@ public final class NamePath implements Iterable<NamePath>, Comparable<NamePath> 
   }
 
   private static final class InverseIterator<T> implements Iterator<T> {
-    final ListIterator<T> it;
+    private final ListIterator<T> it;
 
     public InverseIterator(final List<T> list) {
       this.it = list.listIterator(list.size());
@@ -86,6 +86,11 @@ public final class NamePath implements Iterable<NamePath>, Comparable<NamePath> 
     @Override
     public T next() {
       return it.previous();
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("remove");
     }
   }
 
@@ -102,6 +107,11 @@ public final class NamePath implements Iterable<NamePath>, Comparable<NamePath> 
       @Override
       public NamePath next() {
         return getName(i++);
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException("remove");
       }
     };
   }
