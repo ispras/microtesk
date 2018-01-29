@@ -16,7 +16,6 @@ package ru.ispras.microtesk.test.engine;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -540,7 +539,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           fixedConcretePrimitive, abstractPrimitive.getName() + " not found.");
 
       for (final Argument argument : abstractPrimitive.getArguments().values()) {
-        if (Argument.Kind.OP == argument.getKind()) {
+        if (Argument.Kind.OP == argument.getKind() || Argument.Kind.MODE == argument.getKind()) {
           final String argumentName = argument.getName();
           final Primitive abstractArgument = (Primitive) argument.getValue();
 
@@ -559,6 +558,10 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       }
 
       final Situation situation = abstractPrimitive.getSituation();
+      if (null == situation && Primitive.Kind.MODE == abstractPrimitive.getKind()) {
+        // No default data generation for addressing modes.
+        return;
+      }
 
       final List<AbstractCall> initializer = EngineUtils.makeInitializer(
           engineContext,

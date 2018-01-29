@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test.engine;
 
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -25,7 +24,9 @@ import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
+import ru.ispras.microtesk.model.data.Type;
 import ru.ispras.microtesk.model.memory.Location;
+import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.test.engine.EngineUtils;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.LabelValue;
@@ -57,6 +58,10 @@ final class TestBaseQueryBindingBuilder {
     this.queryBuilder = queryBuilder;
     this.unknownValues = new HashMap<>();
     this.modes = new HashMap<>();
+
+    if (primitive.getKind() == Primitive.Kind.MODE) {
+      visitMode(primitive);
+    }
 
     visit(primitive.getName(), primitive);
   }
@@ -138,15 +143,15 @@ final class TestBaseQueryBindingBuilder {
             Node bindingValue = null;
 
             try {
-                final IsaPrimitive mode = EngineUtils.makeMode(engineContext, arg);
-                final Model model = engineContext.getModel();
-                final Location location = mode.access(model.getPE(), model.getTempVars());
+              final IsaPrimitive mode = EngineUtils.makeMode(engineContext, arg);
+              final Model model = engineContext.getModel();
+              final Location location = mode.access(model.getPE(), model.getTempVars());
 
-                if (location.isInitialized()) {
-                  bindingValue = NodeValue.newBitVector(location.getValue(), location.getBitSize());
-                } else {
-                  bindingValue = new NodeVariable(argName, dataType);
-                }
+              if (location.isInitialized()) {
+                bindingValue = NodeValue.newBitVector(location.getValue(), location.getBitSize());
+              } else {
+                bindingValue = new NodeVariable(argName, dataType);
+              }
             } catch (final ConfigurationException e) {
               Logger.error("Failed to read data from %s. Reason: %s",
                   arg.getTypeName(), e.getMessage());
@@ -172,5 +177,34 @@ final class TestBaseQueryBindingBuilder {
             "Illegal kind of argument %s: %s.", argName, arg.getKind()));
       }
     }
+  }
+
+  private void visitMode(final Primitive primitive) {
+    final String name = primitive.getName();
+    final Model model = engineContext.getModel();
+
+    final MetaAddressingMode metaMode = model.getMetaData().getAddressingMode(name);
+    InvariantChecks.checkNotNull(metaMode);
+
+    final Type type = metaMode.getDataType();
+    if (null == type) {
+      // No return expression.
+      return;
+    }
+
+    Node bindingValue = new NodeVariable(name, DataType.bitVector(type.getBitSize()));
+    try {
+      final IsaPrimitive mode = EngineUtils.makeMode(engineContext, primitive);
+      final Location location = mode.access(model.getPE(), model.getTempVars());
+
+      if (location.isInitialized()) {
+        bindingValue = NodeValue.newBitVector(location.getValue(), location.getBitSize());
+      }
+    } catch (final ConfigurationException e) {
+      throw new IllegalArgumentException(e);
+    }
+
+    queryBuilder.setBinding(name, bindingValue);
+    modes.put(name, primitive);
   }
 }
