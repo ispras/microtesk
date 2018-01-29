@@ -155,7 +155,7 @@ final class TestBaseQueryBindingBuilder {
             }
 
             queryBuilder.setBinding(argName, bindingValue);
-            if (arg.getMode().isIn() && ExprUtils.isVariable(bindingValue)) {
+            if (arg.getMode().isIn()) {
               modes.put(argName, (Primitive) arg.getValue());
             }
           }
