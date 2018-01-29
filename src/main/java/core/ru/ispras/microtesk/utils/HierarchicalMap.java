@@ -21,6 +21,14 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * {@link HierarchicalMap} implements a map composed of two ones.
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ *
+ * @param <K> Map key type.
+ * @param <V> Map key type.
+ */
 public class HierarchicalMap<K, V> implements Map<K, V> {
 
   private final HierarchicalCollection.Kind kind;

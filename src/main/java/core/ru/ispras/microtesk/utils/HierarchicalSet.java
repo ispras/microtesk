@@ -14,14 +14,19 @@
 
 package ru.ispras.microtesk.utils;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * {@link HierarchicalSet} implements a set composed of two ones.
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ *
+ * @param <T> Set item type.
+ */
 public class HierarchicalSet<T> implements Set<T> {
   private final HierarchicalCollection<T> collection;
 

@@ -22,6 +22,13 @@ import java.util.Set;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+/**
+ * {@link HierarchicalCollection} implements a collection composed of two ones.
+ * 
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ *
+ * @param <T> Collection item type.
+ */
 public class HierarchicalCollection<T> implements Collection<T> {
 
   public enum Kind {
