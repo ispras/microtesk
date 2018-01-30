@@ -1,0 +1,88 @@
+/*
+ * Copyright 2018 ISP RAS (http://www.ispras.ru)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+//==============================================================================
+// Constants and Data Types
+
+let GPR_INDEX_WIDTH = 4
+let PHYS_ADDR_WIDTH = 14
+
+type BYTE  = card(8)
+type HWORD = card(16)
+type INDEX = card(GPR_INDEX_WIDTH)
+
+//==============================================================================
+// Registers and Memory
+
+reg GPR[2 ** GPR_INDEX_WIDTH, HWORD]
+mem MEM[2 ** (PHYS_ADDR_WIDTH - 1), HWORD]
+reg PC[HWORD]
+
+//==============================================================================
+// Addressing Modes
+
+mode REG(i: INDEX) = GPR[i]
+  syntax = format("$%d", i)
+  image  = format("%s", i)
+
+//==============================================================================
+// Instructions
+
+op nop()
+  syntax = format("nop")
+  image  = format("0000000000000000")
+  action = {}
+
+op ml(rt: REG, im: BYTE)
+  syntax = format("ml %s %x", rt.syntax, im)
+  image  = format("0001%s%s", rt.image, im)
+  action = {
+    rt<7..0> = im;
+  }
+
+op mh(rt: REG, im: BYTE)
+  syntax = format("mh %s %x", rt.syntax, im)
+  image  = format("0010%s%s", rt.image, im)
+  action = {
+    rt<15..8> = im;
+  }
+
+op ld(rt: REG, base: REG)
+  syntax = format("ld %s %s", rt.syntax, base.syntax)
+  image  = format("10010000%s%s", rt.image, base.image)
+  action = {
+    rt = MEM[base >> 1];
+  }
+
+op st(rs: REG, base: REG)
+  syntax = format("ld %s %s", rs.syntax, base.syntax)
+  image  = format("10100000%s%s", rs.image, base.image)
+  action = {
+    MEM[base >> 1] = rs;
+  }
+
+op command = nop | ml | mh | ld | st
+
+//==============================================================================
+// Entry Point
+
+op instruction(c: command)
+  syntax = c.syntax
+  image  = c.image
+  action = {
+    c.action;
+    PC = PC + 2;
+  }

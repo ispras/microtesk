@@ -1,0 +1,32 @@
+address VA(value: 16)
+address PA(value: 14)
+
+buffer MEM (pa: PA)
+  ways  = 1
+  sets  = 2 ** 13
+  entry = (data: 16)
+  index = pa.value<13..1>
+  match = 0
+
+mmu vmem (va: VA) = (data: 16)
+  var pa: PA;
+  var memEntry: MEM.entry;
+
+  read = {
+    if (va.value<0> != 0) then
+      exception("AddressError");
+    endif;
+
+    pa.value = va.value<13..0>;
+    memEntry = MEM(pa);
+    data = memEntry.data;
+  }
+
+  write = {
+    if (va.value<0> != 0) then
+      exception("AddressError");
+    endif;
+
+    memEntry.data = data;
+    MEM(pa) = memEntry;
+  }
