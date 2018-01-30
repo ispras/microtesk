@@ -69,6 +69,7 @@ import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.generator.DataGenerator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * {@link EngineUtils} implements functions shared among test data generators.
@@ -263,12 +264,14 @@ public final class EngineUtils {
       return newDefaultTestData(query);
     }
 
-    final java.util.Iterator<TestData> dataProvider = queryResult.getDataProvider();
-    if (!dataProvider.hasNext()) {
+    final Iterator<TestData> dataIterator = queryResult.getDataIterator();
+    dataIterator.init();
+
+    if (!dataIterator.hasValue()) {
       return TestData.EMPTY;
     }
 
-    return dataProvider.next();
+    return dataIterator.value();
   }
 
   public static void setUnknownImmValue(

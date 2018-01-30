@@ -15,19 +15,20 @@
 package ru.ispras.microtesk.mips.test.branch;
 
 import ru.ispras.testbase.TestBaseQuery;
-import ru.ispras.testbase.TestDataProvider;
+import ru.ispras.testbase.TestData;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * {@link MipsLtzDataGenerator} is a test data generator for BLTZ-family instructions.
  */
 public final class MipsLtzDataGenerator extends MipsBranchDataGenerator {
   @Override
-  public TestDataProvider generateThen(final TestBaseQuery query) {
+  public Iterator<TestData> generateThen(final TestBaseQuery query) {
     return generate(query, -nonNegativeValue() - 1);
   }
 
   @Override
-  public TestDataProvider generateElse(final TestBaseQuery query) {
+  public Iterator<TestData> generateElse(final TestBaseQuery query) {
     return generate(query, nonNegativeValue());
   }
 }

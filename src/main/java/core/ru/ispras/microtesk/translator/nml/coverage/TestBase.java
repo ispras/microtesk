@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -48,7 +47,9 @@ import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.TestData;
-import ru.ispras.testbase.TestDataProvider;
+import ru.ispras.testbase.knowledge.iterator.EmptyIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 public final class TestBase {
   private final String path;
@@ -166,8 +167,8 @@ public final class TestBase {
   private static boolean isOrderedSubset(
       final List<String> parts,
       final List<String> path) {
-    final Iterator<String> pathIt = path.iterator();
-    final Iterator<String> partsIt = parts.iterator();
+    final java.util.Iterator<String> pathIt = path.iterator();
+    final java.util.Iterator<String> partsIt = parts.iterator();
 
     String part = partsIt.next();
     int matches = 0;
@@ -224,11 +225,11 @@ public final class TestBase {
         return TestBaseQueryResult.reportErrors(result.getErrors());
 
       default:
-        return TestBaseQueryResult.success(TestDataProvider.empty());
+        return TestBaseQueryResult.success(EmptyIterator.<TestData>get());
     }
   }
 
-  private TestDataProvider parseResult(final TestBaseQuery query, final SolverResult result) {
+  private Iterator<TestData> parseResult(final TestBaseQuery query, final SolverResult result) {
     final Map<String, Data> values = new HashMap<>();
     for (final Variable variable : result.getVariables()) {
       values.put(variable.getName(), variable.getData());
@@ -254,19 +255,7 @@ public final class TestBase {
     }
 
     final TestData data = new TestData(valueNodes);
-    final Iterator<TestData> iterator = Collections.singletonList(data).iterator();
-
-    return new TestDataProvider() {
-      @Override
-      public boolean hasNext() {
-        return iterator.hasNext();
-      }
-
-      @Override
-      public TestData next() {
-        return iterator.next();
-      }
-    };
+    return new SingleValueIterator<>(data);
   }
 
   private Collection<Node> gatherBindings(

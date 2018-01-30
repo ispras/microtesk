@@ -59,8 +59,10 @@ import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
-import ru.ispras.testbase.TestDataProvider;
 import ru.ispras.testbase.generator.DataGenerator;
+import ru.ispras.testbase.knowledge.iterator.EmptyIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
  * {@link MemoryDataGenerator} implements a solver of memory-related constraints (hit, miss, etc.).
@@ -84,7 +86,7 @@ public final class MemoryDataGenerator implements DataGenerator {
   }
 
   @Override
-  public TestDataProvider generate(final TestBaseQuery query) {
+  public Iterator<TestData> generate(final TestBaseQuery query) {
     InvariantChecks.checkNotNull(query);
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
@@ -133,7 +135,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     if (values == null) {
       Logger.debug("MemoryDataGenerator.generate: infeasible %s", access);
-      return TestDataProvider.empty();
+      return EmptyIterator.<TestData>get();
     }
 
     // Assign the tag, index and offset according to the dependencies.
@@ -194,7 +196,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     Logger.debug("MemoryDataGenerator.generate: addressObject[%d]=%s",
         System.identityHashCode(addressObject), addressObject);
 
-    return TestDataProvider.singleton(testData);
+    return new SingleValueIterator<>(testData);
   }
 
   private void fillEntries(

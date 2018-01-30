@@ -15,8 +15,10 @@
 package ru.ispras.microtesk.mips.test.branch;
 
 import ru.ispras.testbase.TestBaseQuery;
-import ru.ispras.testbase.TestDataProvider;
+import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.generator.DataGenerator;
+import ru.ispras.testbase.knowledge.iterator.EmptyIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * {@link MipsGotoDataGenerator} is a test data generator for unconditional branch instruction.
@@ -28,7 +30,7 @@ public final class MipsGotoDataGenerator implements DataGenerator {
   }
 
   @Override
-  public TestDataProvider generate(final TestBaseQuery query) {
-    return TestDataProvider.empty();
+  public Iterator<TestData> generate(final TestBaseQuery query) {
+    return EmptyIterator.<TestData>get();
   }
 }

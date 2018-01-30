@@ -16,14 +16,15 @@ package ru.ispras.microtesk.mips.test.branch;
 
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.testbase.TestBaseQuery;
-import ru.ispras.testbase.TestDataProvider;
+import ru.ispras.testbase.TestData;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * {@link MipsNeqDataGenerator} is a test data generator for BNE-family instructions.
  */
 public final class MipsNeqDataGenerator extends MipsBranchDataGenerator {
   @Override
-  public TestDataProvider generateThen(final TestBaseQuery query) {
+  public Iterator<TestData> generateThen(final TestBaseQuery query) {
     final Pair<Integer, Integer> values = generateDistinct(
         // rs is always unknown because it is chosen to be used as a stream register.
         null, // getValue("rs", query),
@@ -32,7 +33,7 @@ public final class MipsNeqDataGenerator extends MipsBranchDataGenerator {
   }
 
   @Override
-  public TestDataProvider generateElse(final TestBaseQuery query) {
+  public Iterator<TestData> generateElse(final TestBaseQuery query) {
     final int value = generateEqual(
         // rs is always unknown because it is chosen to be used as a stream register.
         null, // getValue("rs", query),
