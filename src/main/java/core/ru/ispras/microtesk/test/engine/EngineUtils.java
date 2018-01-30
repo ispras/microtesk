@@ -77,8 +77,6 @@ import ru.ispras.testbase.generator.DataGenerator;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class EngineUtils {
-  public static final TestData NO_TEST_DATA = new TestData(Collections.<String, Object>emptyMap());
-
   private EngineUtils() {}
 
   public static TestBase newTestBase(final GeneratorSettings settings) {
@@ -167,7 +165,7 @@ public final class EngineUtils {
       situation.setTestData(testData);
     }
 
-    if (testData == NO_TEST_DATA) {
+    if (testData.isEmpty()) {
       return Collections.emptyList();
     }
 
@@ -227,7 +225,7 @@ public final class EngineUtils {
       }
     }
 
-    return bindings.isEmpty() ? NO_TEST_DATA : new TestData(bindings);
+    return bindings.isEmpty() ? TestData.EMPTY : new TestData(bindings);
   }
 
   public static TestData getTestData(
@@ -254,7 +252,7 @@ public final class EngineUtils {
         engineContext.getOptions().getValueAsBoolean(Option.DEFAULT_TEST_DATA);
 
     if (situation == null) {
-      return isDefaultTestData ? newDefaultTestData(query) : NO_TEST_DATA;
+      return isDefaultTestData ? newDefaultTestData(query) : TestData.EMPTY;
     }
 
     final TestBase testBase = engineContext.getTestBase();
@@ -267,7 +265,7 @@ public final class EngineUtils {
 
     final java.util.Iterator<TestData> dataProvider = queryResult.getDataProvider();
     if (!dataProvider.hasNext()) {
-      return NO_TEST_DATA;
+      return TestData.EMPTY;
     }
 
     return dataProvider.next();
