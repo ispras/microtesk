@@ -8,8 +8,8 @@ segment DIRECT (va: VA) = (pa: PA)
   }
 
 memory buffer PageTable(va: VA)
-  ways  = 1
-  sets  = 2 ** 6
+  ways = 1
+  sets = 2 ** 6
   entry = (vpn: 6, pfn: 6, unused: 4)
   index = va.value<13..8>
   match = va.value<13..8> == vpn
@@ -71,48 +71,24 @@ var pa: PA;
 }
 
 buffer MEM (pa: PA)
-  ways = 1
-  sets = 2 ** 13
+  ways  = 1
+  sets  = 2 ** 13
   entry = (data: 16)
   index = pa.value<13..1>
   match = 0
 
-buffer L1 (pa : PA)
-  ways = 4
-  sets = 2
-  entry = (tag: 12, data: 16)
-  index = pa.value<1>
-  match = pa.value<13..2> == tag
-  policy = PLRU
-
 mmu vmem (va: VA) = (data: 16)
   var pa: PA;
-  var l1Entry: L1.entry;
   var memEntry: MEM.entry;
 
   read = {
     pa = TranslateAddress(va);
-
-    if (L1(pa).hit) then
-      l1Entry = L1(pa);
-    else
-      memEntry = MEM(pa);
-
-      l1Entry.tag = pa.value<13..2>;
-      l1Entry.data = memEntry.data;
-      L1(pa) = l1Entry;
-    endif;
-
-    data = l1Entry.data;
+    memEntry = MEM(pa);
+    data = memEntry.data;
   }
 
   write = {
     pa = TranslateAddress(va);
-
-    l1Entry.tag = pa.value<13..2>;
-    l1Entry.data = data;
-    L1(pa) = l1Entry;
-
     memEntry.data = data;
     MEM(pa) = memEntry;
   }

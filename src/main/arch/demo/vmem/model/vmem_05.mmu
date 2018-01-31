@@ -8,8 +8,8 @@ segment DIRECT (va: VA) = (pa: PA)
   }
 
 memory buffer PageTable(va: VA)
-  ways  = 1
-  sets  = 2 ** 6
+  ways = 1
+  sets = 2 ** 6
   entry = (vpn: 6, pfn: 6, unused: 4)
   index = va.value<13..8>
   match = va.value<13..8> == vpn

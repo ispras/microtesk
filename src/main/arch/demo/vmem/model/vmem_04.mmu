@@ -24,8 +24,8 @@ var pa: PA;
 }
 
 buffer MEM (pa: PA)
-  ways  = 1
-  sets  = 2 ** 13
+  ways = 1
+  sets = 2 ** 13
   entry = (data: 16)
   index = pa.value<13..1>
   match = 0
