@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.utils;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * The {@link SharedObject} class implements a protocol of copying shared
