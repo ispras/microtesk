@@ -620,6 +620,20 @@ class Template
     end
   end
 
+  #
+  # Sign-extends the specified value (currently, supports only LazyValue objects).
+  #
+  def sign_extend(value, size)
+    value.signExtend size
+  end
+
+  #
+  # Zero-extends the specified value (currently, supports only LazyValue objects).
+  #
+  def zero_extend(value, size)
+    value.zeroExtend size
+  end
+
   def prepare(target_mode, value_object, attrs = {})
     preparator_name = attrs[:name]
     if !preparator_name.nil?
