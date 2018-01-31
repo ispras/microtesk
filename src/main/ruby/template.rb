@@ -623,15 +623,17 @@ class Template
   #
   # Sign-extends the specified value (currently, supports only LazyValue objects).
   #
-  def sign_extend(value, size)
-    value.signExtend size
+  def sign_extend(value_object, bit_size)
+    value_object = value_object.java_object if value_object.is_a? WrappedObject
+    value_object.signExtend bit_size
   end
 
   #
   # Zero-extends the specified value (currently, supports only LazyValue objects).
   #
-  def zero_extend(value, size)
-    value.zeroExtend size
+  def zero_extend(value_object, bit_size)
+    value_object = value_object.java_object if value_object.is_a? WrappedObject
+    value_object.zeroExtend bit_size
   end
 
   def prepare(target_mode, value_object, attrs = {})
