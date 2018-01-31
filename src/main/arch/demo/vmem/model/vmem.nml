@@ -68,7 +68,7 @@ op ld(rt: REG, base: REG)
   }
 
 op st(rs: REG, base: REG)
-  syntax = format("ld %s %s", rs.syntax, base.syntax)
+  syntax = format("st %s %s", rs.syntax, base.syntax)
   image  = format("10100000%s%s", rs.image, base.image)
   action = {
     MEM[base >> 1] = rs;

@@ -30,7 +30,7 @@ class VmemBaseTemplate < Template
     # pa: base physical address (used for memory allocation).
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
-    section_text(:pa => 0x0, :va => 0x0) {}
+    section_text(:pa => 0x2000, :va => 0xe000) {}
 
     #
     # Defines .data section.
@@ -38,7 +38,7 @@ class VmemBaseTemplate < Template
     # pa: base physical address (used for memory allocation).
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
-    section_data(:pa => 0x0, :va => 0x0) {}
+    section_data(:pa => 0x0100, :va => 0xc100) {}
 
     #
     # The code below specifies an instruction sequence that writes a value
@@ -46,7 +46,7 @@ class VmemBaseTemplate < Template
     # mode.
     #
     preparator(:target => 'REG') {
-      comment 'Initializer for REG: %d', value
+      comment 'Initializer for REG: %x', value
       ml target, value(0, 7)
       mh target, value(8, 15)
     }
@@ -54,10 +54,6 @@ class VmemBaseTemplate < Template
     trace 'Initialization:'
   end
 
-  #
-  # Finalization section. Contains code to be inserted in the end
-  # of a test case.
-  #
   def post
     trace 'Finalization:'
   end

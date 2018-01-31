@@ -16,10 +16,31 @@
 
 require_relative 'vmem_base'
 
-class ExampleTemplate < CpuBaseTemplate
+class ExampleTemplate < VmemBaseTemplate
 
   def run
-    ml reg(0), 0x12
+    pageTableBase = 0xc000
+
+    64.times do |i|
+      vpn = (0x00 + i)
+      pfn = (0x10 + i) % 63 + 1
+      res = (0x0f & i)
+
+      entryData = (vpn << 10) | (pfn << 4) | (res << 0)
+      entryAddr = pageTableBase + (i << 1)
+
+      prepare reg(0), entryData
+      prepare reg(1), entryAddr
+
+      st reg(0), reg(1)
+    end
+
+    prepare reg(10), 0xdead
+    prepare reg(11), 0x1234
+    st reg(10), reg(11)
+
+    prepare reg(11), 0xd234
+    ld reg(10), reg(11)
   end
 
 end
