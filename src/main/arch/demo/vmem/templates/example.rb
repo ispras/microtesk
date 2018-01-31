@@ -18,15 +18,19 @@ require_relative 'vmem_base'
 
 class ExampleTemplate < VmemBaseTemplate
 
+  def translateVpn(vpn)
+    (0x10 + vpn) % 31 + 1
+  end
+
   def run
     pageTableBase = 0xc000
 
     64.times do |i|
-      vpn = (0x00 + i)
-      pfn = (0x10 + i) % 63 + 1
-      res = (0x0f & i)
+      vpn = i
+      pfn = translateVpn(vpn)
+      res = i & 0x0f
 
-      entryData = (vpn << 10) | (pfn << 4) | (res << 0)
+      entryData = (vpn << 0) | (pfn << 6) | (res << 12)
       entryAddr = pageTableBase + (i << 1)
 
       prepare reg(0), entryData
@@ -35,12 +39,24 @@ class ExampleTemplate < VmemBaseTemplate
       st reg(0), reg(1)
     end
 
-    prepare reg(10), 0xdead
-    prepare reg(11), 0x1234
-    st reg(10), reg(11)
+    data = 0xdead
+    addr = 0x1234
 
-    prepare reg(11), 0xd234
+    prepare reg(10), data
+    prepare reg(11), addr
+
+    st reg(10), reg(11)
+    trace "ST: vmem[0x%x] = 0x%x", location("GPR", 11), location("GPR", 10)
+
     ld reg(10), reg(11)
+    trace "LD: vmem[0x%x] = 0x%x", location("GPR", 11), location("GPR", 10)
+
+    addr = (3 << 14) | (translateVpn((addr >> 8) & 0x3f) << 8) | (addr & 0xff)
+
+    prepare reg(11), addr
+
+    ld reg(10), reg(11)
+    trace "LD: vmem[0x%x] = 0x%x", location("GPR", 11), location("GPR", 10)
   end
 
 end
