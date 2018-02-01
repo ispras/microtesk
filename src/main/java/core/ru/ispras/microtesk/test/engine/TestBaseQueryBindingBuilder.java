@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 final class TestBaseQueryBindingBuilder {
-  private EngineContext engineContext;
+  private final EngineContext engineContext;
   private final TestBaseQueryBuilder queryBuilder;
   private final Map<String, Argument> unknownValues;
   private final Map<String, Primitive> modes;
