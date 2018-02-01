@@ -21,7 +21,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +29,8 @@ import java.util.Set;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
@@ -64,9 +61,9 @@ import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.testbase.TestBaseQuery;
-import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestBaseRegistry;
+import ru.ispras.testbase.TestBaseUtils;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.generator.DataGenerator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -197,38 +194,6 @@ public final class EngineUtils {
         );
   }
 
-  /**
-   * Generates random test data for the specified TestBase query. The idea is the following:
-   * it generates random values for unknown variables in the TestBase query bindings and puts
-   * them into a {@link TestData} object.
-   *
-   * @param query TestBase query to be processed.
-   * @return Test data containing random values.
-   *
-   * @throws IllegalArgumentException if the argument is code {@code null}; if any of the unknown
-   *         variables in the TestBase query bindings is not represented by a bit vector.
-   */
-  private static TestData newDefaultTestData(final TestBaseQuery query) {
-    InvariantChecks.checkNotNull(query);
-
-    final Map<String, Object> bindings = new LinkedHashMap<>();
-    for (final Map.Entry<String, Node> entry : query.getBindings().entrySet()) {
-      final String name = entry.getKey();
-      final Node node = entry.getValue();
-
-      if (!ExprUtils.isValue(node)) {
-        InvariantChecks.checkTrue(node.isType(DataTypeId.BIT_VECTOR));
-
-        final BitVector value = BitVector.newEmpty(node.getDataType().getSize());
-        Randomizer.get().fill(value);
-
-        bindings.put(name, NodeValue.newBitVector(value));
-      }
-    }
-
-    return bindings.isEmpty() ? TestData.EMPTY : new TestData(bindings);
-  }
-
   public static TestData getTestData(
       final EngineContext engineContext,
       final Primitive primitive,
@@ -253,7 +218,7 @@ public final class EngineUtils {
         engineContext.getOptions().getValueAsBoolean(Option.DEFAULT_TEST_DATA);
 
     if (situation == null) {
-      return isDefaultTestData ? newDefaultTestData(query) : TestData.EMPTY;
+      return isDefaultTestData ? TestBaseUtils.newRandomTestData(query) : TestData.EMPTY;
     }
 
     final TestBase testBase = engineContext.getTestBase();
@@ -261,7 +226,7 @@ public final class EngineUtils {
 
     if (TestBaseQueryResult.Status.OK != queryResult.getStatus()) {
       Logger.warning(makeErrorMessage(queryResult) + ": default test data will be used");
-      return newDefaultTestData(query);
+      return TestBaseUtils.newRandomTestData(query);
     }
 
     final Iterator<TestData> dataIterator = queryResult.getDataIterator();
@@ -688,30 +653,6 @@ public final class EngineUtils {
     }
 
     return sb.toString();
-  }
-
-  public static void acquireContext(
-      final TestBaseQueryBuilder builder,
-      final String prefix,
-      final Primitive p) {
-    InvariantChecks.checkNotNull(builder);
-    InvariantChecks.checkNotNull(prefix);
-    InvariantChecks.checkNotNull(p);
-
-    for (final Argument arg : p.getArguments().values()) {
-      final String ctxArgName = (prefix.isEmpty())
-                                ? arg.getName()
-                                : prefix + "." + arg.getName();
-      builder.setContextAttribute(ctxArgName, arg.getTypeName());
-      switch (arg.getKind()) {
-      case OP:
-      case MODE:
-        acquireContext(builder, ctxArgName, (Primitive) arg.getValue());
-        break;
-
-      default:
-      }
-    }
   }
 
   public static Set<AddressingModeWrapper> getOutAddressingModes(final List<AbstractCall> calls) {
