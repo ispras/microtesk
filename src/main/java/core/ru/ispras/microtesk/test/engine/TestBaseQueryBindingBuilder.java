@@ -74,25 +74,24 @@ final class TestBaseQueryBindingBuilder {
   private void visit(final String prefix, final Primitive primitive) {
     for (final Argument arg : primitive.getArguments().values()) {
       final String argName = StringUtils.dotConc(prefix, arg.getName());
-      final int argBitSize = arg.getType().getBitSize();
 
       switch (arg.getKind()) {
         case IMM:
-          setBindingValue(argName, (BigInteger) arg.getValue(), argBitSize);
+          setBindingValue(argName, (BigInteger) arg.getValue(), arg.getType().getBitSize());
           break;
 
         case IMM_RANDOM:
         case IMM_LAZY:
         case LABEL:
-          setBindingValue(argName, (Value) arg.getValue(), argBitSize);
+          setBindingValue(argName, (Value) arg.getValue(), arg.getType().getBitSize());
           break;
 
         case IMM_UNKNOWN: {
           final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
           if (unknownValue.isValueSet()) {
-            setBindingValue(argName, unknownValue, argBitSize);
+            setBindingValue(argName, unknownValue, arg.getType().getBitSize());
           } else {
-            setBindingVariable(argName, argBitSize);
+            setBindingVariable(argName, arg.getType().getBitSize());
             unknownValues.put(argName, arg);
           }
           break;
