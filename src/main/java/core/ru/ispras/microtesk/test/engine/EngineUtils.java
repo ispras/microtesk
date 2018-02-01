@@ -61,7 +61,6 @@ import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.testbase.TestBaseQuery;
-import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.TestBaseUtils;
@@ -654,30 +653,6 @@ public final class EngineUtils {
     }
 
     return sb.toString();
-  }
-
-  public static void acquireContext(
-      final TestBaseQueryBuilder builder,
-      final String prefix,
-      final Primitive p) {
-    InvariantChecks.checkNotNull(builder);
-    InvariantChecks.checkNotNull(prefix);
-    InvariantChecks.checkNotNull(p);
-
-    for (final Argument arg : p.getArguments().values()) {
-      final String ctxArgName = (prefix.isEmpty())
-                                ? arg.getName()
-                                : prefix + "." + arg.getName();
-      builder.setContextAttribute(ctxArgName, arg.getTypeName());
-      switch (arg.getKind()) {
-      case OP:
-      case MODE:
-        acquireContext(builder, ctxArgName, (Primitive) arg.getValue());
-        break;
-
-      default:
-      }
-    }
   }
 
   public static Set<AddressingModeWrapper> getOutAddressingModes(final List<AbstractCall> calls) {
