@@ -30,24 +30,41 @@ memory buffer PageTable(va: VA)
   index = va.value<13..8>
   match = va.value<13..8> == vpn
 
+buffer TLB(va: VA)
+  ways = 4
+  sets = 1
+  entry = (vpn: 6, pfn: 6)
+  index = 0
+  match = va.value<13..8> == vpn
+  policy = FIFO
+
 segment MAPPED (va: VA) = (pa: PA)
   range = (0x0000, 0x3fff)
 
+var tlbEntry: TLB.entry;
 var pageTableVa: VA;
 var pageTableEntry: PageTable.entry;
 
   read = {
-    pageTableVa.value = 0;
-    pageTableVa.value<15..14> = 0b11;
-    pageTableVa.value<6..1> = va.value<13..8>;
+    if (TLB(va).hit) then
+      tlbEntry = TLB(va);
+    else
+      pageTableVa.value = 0;
+      pageTableVa.value<15..14> = 0b11;
+      pageTableVa.value<6..1> = va.value<13..8>;
 
-    pageTableEntry = PageTable(pageTableVa);
+      pageTableEntry = PageTable(pageTableVa);
 
-    if (pageTableEntry.vpn != va.value<13..8>) then
-      exception("AddressError");
+      if (pageTableEntry.vpn != va.value<13..8>) then
+        exception("AddressError");
+      endif;
+
+      tlbEntry.vpn = pageTableEntry.vpn;
+      tlbEntry.pfn = pageTableEntry.pfn;
+      TLB(va) = tlbEntry;
     endif;
 
-    pa.value<13..8> = pageTableEntry.pfn;
+    pa.value<13..8> = tlbEntry.pfn;
     pa.value<7..0> = va.value<7..0>;
   }
 

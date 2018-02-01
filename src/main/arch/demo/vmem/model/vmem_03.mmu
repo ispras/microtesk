@@ -17,6 +17,12 @@
 address VA(value: 16)
 address PA(value: 14)
 
+segment DIRECT (va: VA) = (pa: PA)
+  range = (0xc000, 0xffff)
+  read = {
+    pa.value = va.value<13..0>;
+  }
+
 function TranslateAddress(va: VA): PA
 var pa: PA;
 {
@@ -24,7 +30,12 @@ var pa: PA;
     exception("AddressError");
   endif;
 
-  pa.value = va.value<13..0>;
+  if (DIRECT(va).hit) then
+    pa = DIRECT(va);
+  else
+    exception("AddressError");
+  endif;
+
   return pa;
 }
 

@@ -47,8 +47,11 @@ var pageTableEntry: PageTable.entry;
 
   read = {
     if (TLB(va).hit) then
+      trace("TLB(%x).hit", va.value);
       tlbEntry = TLB(va);
     else
+      trace("TLB(%x).miss", va.value);
+
       pageTableVa.value = 0;
       pageTableVa.value<15..14> = 0b11;
       pageTableVa.value<6..1> = va.value<13..8>;
@@ -64,6 +67,7 @@ var pageTableEntry: PageTable.entry;
       TLB(va) = tlbEntry;
     endif;
 
+    trace("Translation: VPN=0x%x -> PFN=0x%x", tlbEntry.vpn, tlbEntry.pfn);
     pa.value<13..8> = tlbEntry.pfn;
     pa.value<7..0> = va.value<7..0>;
   }
@@ -77,8 +81,10 @@ var pa: PA;
 
   if (DIRECT(va).hit) then
     pa = DIRECT(va);
+    trace("TranslateAddress: DIRECT(%x)=%x", va.value, pa.value);
   elif (MAPPED(va).hit) then
     pa = MAPPED(va);
+    trace("TranslateAddress: MAPPED(%x)=%x", va.value, pa.value);
   else
     exception("AddressError");
   endif;

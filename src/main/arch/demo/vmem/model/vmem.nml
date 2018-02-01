@@ -60,18 +60,26 @@ op mh(rt: REG, im: BYTE)
     rt<15..8> = im;
   }
 
-op ld(rt: REG, base: REG)
-  syntax = format("ld %s %s", rt.syntax, base.syntax)
-  image  = format("10010000%s%s", rt.image, base.image)
+op ld(rt: REG, addr: REG)
+  syntax = format("ld %s %s", rt.syntax, addr.syntax)
+  image  = format("10010000%s%s", rt.image, addr.image)
   action = {
-    rt = MEM[base >> 1];
+    if (addr<0> != 0) then
+      exception("AddressError");
+    endif;
+
+    rt = MEM[addr >> 1];
   }
 
-op st(rs: REG, base: REG)
-  syntax = format("st %s %s", rs.syntax, base.syntax)
-  image  = format("10100000%s%s", rs.image, base.image)
+op st(rs: REG, addr: REG)
+  syntax = format("st %s %s", rs.syntax, addr.syntax)
+  image  = format("10100000%s%s", rs.image, addr.image)
   action = {
-    MEM[base >> 1] = rs;
+    if (addr<0> != 0) then
+      exception("AddressError");
+    endif;
+
+    MEM[addr >> 1] = rs;
   }
 
 op command = nop | ml | mh | ld | st

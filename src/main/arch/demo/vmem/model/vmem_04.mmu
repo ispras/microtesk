@@ -23,6 +23,34 @@ segment DIRECT (va: VA) = (pa: PA)
     pa.value = va.value<13..0>;
   }
 
+memory buffer PageTable(va: VA)
+  ways = 1
+  sets = 2 ** 6
+  entry = (vpn: 6, pfn: 6, unused: 4)
+  index = va.value<13..8>
+  match = va.value<13..8> == vpn
+
+segment MAPPED (va: VA) = (pa: PA)
+  range = (0x0000, 0x3fff)
+
+var pageTableVa: VA;
+var pageTableEntry: PageTable.entry;
+
+  read = {
+    pageTableVa.value = 0;
+    pageTableVa.value<15..14> = 0b11;
+    pageTableVa.value<6..1> = va.value<13..8>;
+
+    pageTableEntry = PageTable(pageTableVa);
+
+    if (pageTableEntry.vpn != va.value<13..8>) then
+      exception("AddressError");
+    endif;
+
+    pa.value<13..8> = pageTableEntry.pfn;
+    pa.value<7..0> = va.value<7..0>;
+  }
+
 function TranslateAddress(va: VA): PA
 var pa: PA;
 {
@@ -32,6 +60,8 @@ var pa: PA;
 
   if (DIRECT(va).hit) then
     pa = DIRECT(va);
+  elif (MAPPED(va).hit) then
+    pa = MAPPED(va);
   else
     exception("AddressError");
   endif;
@@ -40,8 +70,8 @@ var pa: PA;
 }
 
 buffer MEM (pa: PA)
-  ways = 1
-  sets = 2 ** 13
+  ways  = 1
+  sets  = 2 ** 13
   entry = (data: 16)
   index = pa.value<13..1>
   match = 0
