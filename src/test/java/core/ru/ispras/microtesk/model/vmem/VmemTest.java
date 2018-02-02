@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,31 +12,25 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.minimips;
-
-import org.junit.Assert;
+package ru.ispras.microtesk.model.vmem;
 
 import ru.ispras.microtesk.Logger.EventType;
 import ru.ispras.microtesk.test.testutils.TemplateTest;
 
-public class MiniMipsTest extends TemplateTest {
-  public MiniMipsTest() {
+import org.junit.Assert;
+
+public abstract class VmemTest extends TemplateTest {
+  public VmemTest() {
     super(
-        "minimips",
-        "src/main/arch/demo/minimips/templates"
+        "vmem",
+        "src/main/arch/demo/vmem/templates"
         );
   }
 
   @Override
   public void onEventLogged(final EventType type, final String message) {
     if (EventType.ERROR == type || EventType.WARNING == type) {
-      if (!isExpectedError(message)) {
-        Assert.fail(message);
-      }
+      Assert.fail(message);
     }
-  }
-
-  protected boolean isExpectedError(final String message) {
-    return false;
   }
 }
