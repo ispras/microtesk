@@ -34,6 +34,7 @@ buffer MEM (pa: PA)
   entry = (data: 16)
   index = pa.value<13..1>
   match = 0
+  policy = NONE
 
 mmu vmem (va: VA) = (data: 16)
   var pa: PA;

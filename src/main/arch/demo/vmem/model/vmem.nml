@@ -15,20 +15,17 @@
  */
 
 //==============================================================================
-// Constants and Data Types
+// Data Types
 
-let GPR_INDEX_WIDTH = 4
-let PHYS_ADDR_WIDTH = 14
-
-type BYTE  = card(8)
+type BYTE = card(8)
 type HWORD = card(16)
-type INDEX = card(GPR_INDEX_WIDTH)
+type INDEX = card(4)
 
 //==============================================================================
 // Registers and Memory
 
-reg GPR[2 ** GPR_INDEX_WIDTH, HWORD]
-mem MEM[2 ** (PHYS_ADDR_WIDTH - 1), HWORD]
+reg GPR[16, HWORD]
+mem MEM[2 ** 13, HWORD]
 reg PC[HWORD]
 
 //==============================================================================
