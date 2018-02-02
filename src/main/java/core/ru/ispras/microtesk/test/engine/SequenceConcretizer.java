@@ -14,13 +14,6 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
@@ -45,6 +38,13 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The {@link SequenceConcretizer} class processes abstract instruction sequences to
