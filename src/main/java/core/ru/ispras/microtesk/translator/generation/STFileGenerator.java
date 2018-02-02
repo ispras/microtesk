@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.translator.generation;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STErrorListener;
 import org.stringtemplate.v4.STGroup;
@@ -27,6 +23,10 @@ import org.stringtemplate.v4.misc.STMessage;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * The STFileGenerator class implements logic that generates a source code file

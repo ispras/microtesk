@@ -14,14 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.analysis;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
@@ -52,6 +44,14 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.utils.FormatMarker;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The {@link ImageAnalyzer} class analyzes the image format of addressing modes

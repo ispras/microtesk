@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.translator.nml.antlrex;
 
-import java.util.Map;
-
 import ru.ispras.microtesk.translator.antlrex.ErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+
+import java.util.Map;
 
 public interface WalkerContext {
   public ErrorReporter getReporter();

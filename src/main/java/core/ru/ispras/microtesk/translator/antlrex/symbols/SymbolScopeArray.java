@@ -14,8 +14,9 @@
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
-import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
+
+import java.util.List;
 
 /**
  * The {@link SymbolScopeArray} class aggregates several scopes located at the same level.

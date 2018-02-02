@@ -16,9 +16,6 @@ package ru.ispras.microtesk.translator.nml.generation;
 
 import static ru.ispras.microtesk.translator.generation.PackageInfo.OP_PACKAGE_FORMAT;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -26,6 +23,9 @@ import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+
+import java.util.ArrayList;
+import java.util.List;
 
 final class STBOperationOr implements STBuilder {
   private final String modelName;

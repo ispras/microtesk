@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import java.math.BigInteger;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -24,6 +22,8 @@ import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+
+import java.math.BigInteger;
 
 final class STBTemporaryVariables implements STBuilder {
   public static final String CLASS_NAME = "TempVars";

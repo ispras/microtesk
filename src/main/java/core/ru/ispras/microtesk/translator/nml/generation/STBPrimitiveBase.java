@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import java.util.EnumMap;
-import java.util.Map;
-
 import org.stringtemplate.v4.ST;
 
 import ru.ispras.fortress.data.DataTypeId;
@@ -32,6 +29,9 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.utils.FormatMarker;
+
+import java.util.EnumMap;
+import java.util.Map;
 
 abstract class STBPrimitiveBase implements STBuilder {
   private static final Map<Attribute.Kind, String> RET_TYPE_MAP =

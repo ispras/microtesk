@@ -20,7 +20,6 @@ package ru.ispras.microtesk.translator.antlrex;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public interface ISemanticError {
   public String getMessage();
 }

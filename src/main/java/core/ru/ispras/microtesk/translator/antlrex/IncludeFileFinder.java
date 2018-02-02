@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
+import org.antlr.runtime.ANTLRFileStream;
+
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import org.antlr.runtime.ANTLRFileStream;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>

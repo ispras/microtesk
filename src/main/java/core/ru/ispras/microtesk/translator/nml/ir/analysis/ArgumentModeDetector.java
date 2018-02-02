@@ -14,16 +14,12 @@
 
 package ru.ispras.microtesk.translator.nml.ir.analysis;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.IdentityHashMap;
-import java.util.Map;
-
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
@@ -39,6 +35,11 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 public final class ArgumentModeDetector implements TranslatorHandler<Ir> {
   @Override

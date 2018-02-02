@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import java.util.Deque;
-import java.util.List;
-import java.util.Set;
-
 import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
@@ -29,6 +25,10 @@ import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolScope;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
+
+import java.util.Deque;
+import java.util.List;
+import java.util.Set;
 
 /**
  * The {@link ParserBase} class is a base class for implementing ANTLR-based parsers.
