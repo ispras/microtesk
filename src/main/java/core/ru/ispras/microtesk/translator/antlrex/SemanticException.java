@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.antlrex;
 
 import org.antlr.runtime.RecognitionException;
+
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 
 /**
@@ -29,14 +30,13 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Where;
  * 
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class SemanticException extends RecognitionException {
   private static final long serialVersionUID = 209516770104977723L;
 
   private final Where where;
   private final ISemanticError error;
 
-  SemanticException(Where location, ISemanticError error) {
+  SemanticException(final Where location, final ISemanticError error) {
     super();
 
     this.where = location; 

@@ -1,25 +1,32 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
- * 
+ * Copyright 2018 ISP RAS (http://www.ispras.ru)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 
-package ru.ispras.microtesk.translator.antlrex;
+package ru.ispras.microtesk.model.vmem;
 
-/**
- * Base interface to be supported by all object describing semantic errors in the specification
- * detected by the translator. 
- * 
- * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
- */
-public interface ISemanticError {
-  public String getMessage();
+import ru.ispras.microtesk.test.Statistics;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+public final class ExampleTestCase extends VmemTest {
+  @Test
+  public void test() {
+    final Statistics statistics = run("example.rb");
+    Assert.assertNotNull(statistics);
+
+    Assert.assertEquals(1, statistics.getPrograms());
+    Assert.assertEquals(0, statistics.getSequences());
+    Assert.assertEquals(329, statistics.getInstructions());
+  }
 }

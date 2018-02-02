@@ -17,10 +17,6 @@ package ru.ispras.microtesk.translator.nml.generation;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.MODE_CLASS_FORMAT;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.OP_PACKAGE_FORMAT;
 
-import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Map;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -35,6 +31,10 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut.Argument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
+
+import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Map;
 
 final class STBOperation extends STBPrimitiveBase {
   private final String modelName;

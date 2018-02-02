@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * The {@link SymbolScopeItem} class describes scopes that contain symbols.

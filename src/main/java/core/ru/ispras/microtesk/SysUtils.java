@@ -188,7 +188,7 @@ public final class SysUtils {
 
     final String[] archDirsArray = archDirs.split(":");
     for (final String archDir : archDirsArray) {
-      final String[] archDirArray = archDir.split("=");
+      final String[] archDirArray = archDir.trim().split("=");
 
       if (archDirArray != null && archDirArray.length > 1 && archName.equals(archDirArray[0])) {
         final File archFile = new File(archDirArray[1]);

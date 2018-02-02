@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import java.io.File;
-
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.tree.CommonTree;
@@ -28,6 +26,8 @@ import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
+
+import java.io.File;
 
 /**
  * The {@link TreeParserEx} class is an extension of the standard ANTLR TreeParser class. It

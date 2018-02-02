@@ -18,9 +18,6 @@ import static ru.ispras.microtesk.translator.generation.PackageInfo.MODEL_PACKAG
 import static ru.ispras.microtesk.translator.generation.PackageInfo.MODE_CLASS_FORMAT;
 import static ru.ispras.microtesk.translator.generation.PackageInfo.OP_CLASS_FORMAT;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -28,6 +25,9 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+
+import java.util.ArrayList;
+import java.util.List;
 
 final class STBModel implements STBuilder {
   public final static String CLASS_NAME = "Model";

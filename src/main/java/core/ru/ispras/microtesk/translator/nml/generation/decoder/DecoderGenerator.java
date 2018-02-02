@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.generation.decoder;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
@@ -31,6 +27,10 @@ import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 public final class DecoderGenerator implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;

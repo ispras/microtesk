@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import java.math.BigInteger;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -27,6 +25,8 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+
+import java.math.BigInteger;
 
 final class STBProcessingElement implements STBuilder {
   public static final String CLASS_NAME = "PE";

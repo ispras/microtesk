@@ -14,21 +14,19 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
+import ru.ispras.microtesk.test.sequence.GeneratorUtils;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.test.GenerationAbortedException;
-
-import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
-import ru.ispras.microtesk.test.sequence.GeneratorUtils;
-
-import ru.ispras.testbase.knowledge.iterator.Iterator;
-import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 public final class BlockBuilder {
   private final BlockId blockId;

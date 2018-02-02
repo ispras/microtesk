@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.antlrex;
 
-import java.util.Map;
-
 import org.antlr.runtime.RecognizerSharedState;
 import org.antlr.runtime.tree.TreeNodeStream;
 
@@ -31,6 +29,8 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFactory;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetFactory;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExprFactory;
 import ru.ispras.microtesk.translator.nml.ir.shared.TypeFactory;
+
+import java.util.Map;
 
 public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
   private Ir ir;
