@@ -45,6 +45,10 @@ public final class NamePath implements Iterable<NamePath>, Comparable<NamePath> 
     return resolve(this.list, other.list);
   }
 
+  public NamePath subpath(final int begin) {
+    return subpath(begin, getNameCount());
+  }
+
   public NamePath subpath(final int begin, final int end) {
     return new NamePath(list.subList(begin, end));
   }
