@@ -303,16 +303,15 @@ public final class SsaAssembler {
     final NodeVariable tmp =
         scope.fetch(String.format("__tmp_%d", numTemps - 1));
 
-    final NamePath namePath = getEffectivePath(path, name);
     final NodeVariable var =
-      changes.rebase(namePath.toString(), tmp.getData(), version);
+      changes.rebase(getVariableName(path, name), tmp.getData(), version);
     addToBatch(Nodes.eq(var, tmp));
 
     return tmp;
   }
 
-  private NamePath getEffectivePath(final NamePath path, final String... tail) {
-    return NamePath.get(this.actualPrefix.resolve(path.subpath(1)), tail);
+  private String getVariableName(final NamePath path, final String... tail) {
+    return NamePath.get(this.actualPrefix.resolve(path.subpath(1)), tail).toString();
   }
 
   private void linkClosure(final NamePath callerPath,
@@ -353,7 +352,7 @@ public final class SsaAssembler {
         final NodeVariable arg =
             changes.rebase(
               //inner.expression, //.substring(origin.expression.length()),
-              getEffectivePath(paramPath).toString(),
+              getVariableName(paramPath),
               parameters.getType(i).valueUninitialized(),
               1);
             addToBatch(Nodes.eq(arg, operand));
@@ -372,9 +371,9 @@ public final class SsaAssembler {
     final Data data = image.getDataType().valueUninitialized();
 
     final NodeVariable target =
-      changes.rebase(getEffectivePath(dstPath).toString(), data, 1);
+      changes.rebase(getVariableName(dstPath), data, 1);
     final NodeVariable source =
-      changes.rebase(getEffectivePath(srcPath).toString(), data, 1);
+      changes.rebase(getVariableName(srcPath), data, 1);
 
     addToBatch(Nodes.eq(target, source));
   }
@@ -487,7 +486,7 @@ public final class SsaAssembler {
         // drop first entry in name for local variables
         final NamePath name = parseName(node.getName()).subpath(1);
 
-        return changes.rebase(getEffectivePath(path.resolve(name)).toString(),
+        return changes.rebase(getVariableName(path.resolve(name)),
                               node.getData(),
                               (Integer) node.getUserData());
       }
