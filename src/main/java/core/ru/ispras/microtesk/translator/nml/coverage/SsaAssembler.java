@@ -19,6 +19,7 @@ import static ru.ispras.microtesk.translator.nml.coverage.Utility.variableOperan
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
@@ -42,36 +43,8 @@ import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.utils.NamePath;
 import ru.ispras.microtesk.utils.StringUtils;
-
-final class Prefix {
-  public final String context;
-  public final String expression;
-
-  public Prefix(final String context, final String expression) {
-    this.context = context;
-    this.expression = expression;
-  }
-
-  public Prefix pushAll(final String suffix) {
-    return new Prefix(StringUtils.dotConc(context, suffix), StringUtils.dotConc(expression, suffix));
-  }
-
-  public Prefix popAll() {
-    final String context = popPrefix(this.context);
-    final String expression = popPrefix(this.expression);
-
-    return new Prefix(context, expression);
-  }
-
-  public static String popPrefix(final String prefix) {
-    final Pair<String, String> splitted = StringUtils.splitOnLast(prefix, '.');
-    if (splitted.second.isEmpty()) {
-      return "";
-    }
-    return splitted.first;
-  }
-}
 
 final class Parameters {
   private final NodeOperation node;
@@ -129,15 +102,19 @@ public final class SsaAssembler {
   private final Map<String, SsaForm> buildingBlocks;
   private Map<String, Object> buildingContext;
 
+  private Map<NamePath, String> context;
+
   private SsaScope scope;
   private int numTemps;
 
-  private Map<String, Integer> contextEnum;
+  private Map<NamePath, Integer> contextEnum;
   private List<Node> statements;
   private Deque<Integer> batchSize;
 
   private Deque<Changes> changesStack;
   private Changes changes;
+
+  private NamePath actualPrefix;
 
   public SsaAssembler(Map<String, SsaForm> buildingBlocks) {
     this.buildingBlocks = buildingBlocks;
@@ -155,52 +132,68 @@ public final class SsaAssembler {
 
   public Node assemble(final Map<String, Object> context, final String entry, final String tag) {
     this.buildingContext = new HashMap<>(context);
+    this.context = parseQuery(context);
+
     this.contextEnum = new HashMap<>();
     this.statements = new ArrayList<>();
     this.batchSize = new ArrayDeque<>();
 
     this.changesStack = new ArrayDeque<>();
+    this.actualPrefix = NamePath.get(tag);
 
     newBatch();
-    step(new Prefix(entry, tag), "action");
+    step(NamePath.get(entry), "action");
 
     return endBatch();
   }
 
-  private void step(final Prefix prefix, final String method) {
-    final String name = (String) buildingContext.get(prefix.context);
+  private static Map<NamePath, String> parseQuery(final Map<String, Object> query) {
+    final Map<NamePath, String> ctx = new HashMap<>();
+    for (final Map.Entry<String, Object> entry : query.entrySet()) {
+      ctx.put(parseName(entry.getKey()), (String) entry.getValue());
+    }
+    return ctx;
+  }
+
+  private static NamePath parseName(final String name) {
+    final String[] parts = name.split("\\.");
+    return NamePath.get(parts[0], Arrays.copyOfRange(parts, 1, parts.length));
+  }
+
+  private void step(final NamePath path, final String method) {
+    final String name = context.get(path);
     final SsaForm ssa = buildingBlocks.get(StringUtils.dotConc(name, method));
-    embedBlock(prefix, ssa.getEntryPoint());
+    embedBlock(path, ssa.getEntryPoint());
   }
 
-  private void stepArgument(final Prefix prefix, final String name, final String method) {
-    step(prefix.pushAll(name), method);
+  private void stepArgument(final NamePath path, final String name, final String method) {
+    step(path.resolve(name), method);
   }
 
-  private Block embedBlock(final Prefix prefix, final Block block) {
+  private Block embedBlock(final NamePath path, final Block block) {
     InvariantChecks.checkNotNull(block);
 
-    walkStatements(prefix, block.getStatements());
+    walkStatements(path, block.getStatements());
     if (blockIsOp(block, SsaOperation.PHI)) {
       return block;
     }
     if (block.getChildren().size() > 1) {
-      return embedBranches(prefix, block);
+      return embedBranches(path, block);
     }
-    return embedSequence(prefix, block);
+    return embedSequence(path, block);
   }
 
-  private Block embedSequence(final Prefix prefix, final Block block) {
+  private Block embedSequence(final NamePath path, final Block block) {
     InvariantChecks.checkNotNull(block);
 
     if (block.getChildren().size() > 0) {
       changes.commit();
-      return embedBlock(prefix, block.getChildren().get(0).block);
+      return embedBlock(path, block.getChildren().get(0).block);
     }
     return null;
   }
 
-  private Block embedBranches(final Prefix prefix, final Block block) {
+  private Block embedBranches(final NamePath path, final Block block) {
     InvariantChecks.checkNotNull(block);
     changes.commit();
 
@@ -212,12 +205,12 @@ public final class SsaAssembler {
 
     changesStack.push(changes);
 
-    final NodeTransformer xform = new NodeTransformer(createRuleset(prefix));
+    final NodeTransformer xform = new NodeTransformer(createRuleset(path));
     for (GuardedBlock guard : block.getChildren()) {
       changes = rebasers.next();
 
       newBatch(Transformer.transform(guard.guard, xform));
-      fence = sameNotNull(fence, embedBlock(prefix, guard.block));
+      fence = sameNotNull(fence, embedBlock(path, guard.block));
       branches.add(endBatch());
     }
     changes = changesStack.pop();
@@ -235,7 +228,7 @@ public final class SsaAssembler {
     addToBatch(endBatch());
     changes.getSummary().clear();
 
-    return embedSequence(prefix, fence);
+    return embedSequence(path, fence);
   }
 
   private static void join(Changes repo, Collection<GuardedBlock> blocks, Collection<Changes> containers, NodeTransformer xform) {
@@ -279,13 +272,15 @@ public final class SsaAssembler {
 
   private final class ModeRule implements TransformerRule {
     private final Enum<?> operation;
-    private final Prefix prefix;
+    private final NamePath path;
     private final String suffix;
+    private final int version;
 
-    ModeRule(final Enum<?> operation, final Prefix prefix, final String suffix) {
+    ModeRule(final Enum<?> operation, final NamePath path, final String suffix) {
       this.operation = operation;
-      this.prefix = prefix;
+      this.path = path;
       this.suffix = suffix;
+      this.version = (operation == SsaOperation.UPDATE) ? 2 : 1;
     }
 
     @Override
@@ -296,86 +291,90 @@ public final class SsaAssembler {
     @Override
     public Node apply(Node node) {
       final Pair<String, String> pair =
-          StringUtils.splitOnLast(variableOperand(0, node).getName(), '.');
+          StringUtils.splitOnLast(literalOperand(0, node), '.');
 
-      return linkMacro(prefix,
-                       pair.second,
-                       suffix,
-                       (this.operation == SsaOperation.UPDATE) ? 2 : 1);
+      return linkMacro(path, pair.second, suffix, version);
     }
   }
 
-  private NodeVariable linkMacro(final Prefix prefix, final String name, final String method, final int version) {
-    stepArgument(prefix, name, method);
+  private NodeVariable linkMacro(final NamePath path, final String name, final String method, final int version) {
+    stepArgument(path, name, method);
 
     final NodeVariable tmp =
         scope.fetch(String.format("__tmp_%d", numTemps - 1));
 
-    final String path = StringUtils.dotConc(prefix.expression, name);
-    final NodeVariable var = changes.rebase(path, tmp.getData(), version);
+    final NamePath namePath = getEffectivePath(path, name);
+    final NodeVariable var =
+      changes.rebase(namePath.toString(), tmp.getData(), version);
     addToBatch(Nodes.eq(var, tmp));
 
     return tmp;
   }
 
-  private void linkClosure(final Prefix origin,
-                           final Prefix current,
+  private NamePath getEffectivePath(final NamePath path, final String... tail) {
+    return NamePath.get(this.actualPrefix.resolve(path.subpath(1)), tail);
+  }
+
+  private void linkClosure(final NamePath callerPath,
+                           final NamePath calleePath,
                            final Closure closure) {
     final Parameters parameters = getParameters(closure.getOriginName());
 
-    buildingContext.put(current.context, closure.getOriginName());
+    context.put(calleePath, closure.getOriginName());
+
     for (int i = 0; i < closure.getArguments().size(); ++i) {
       final Node operand = closure.getArgument(i);
-      final Prefix inner = current.pushAll(parameters.getName(i));
+      final NamePath paramPath = calleePath.resolve(parameters.getName(i));
 
       if (ExprUtils.isOperation(operand, SsaOperation.CLOSURE)) {
-        final Closure arg = new Closure(operand);
-        buildingContext.put(inner.context, arg.getOriginName());
-        linkClosure(origin, inner, arg);
+        linkClosure(callerPath, paramPath, new Closure(operand));
       } else if (ExprUtils.isOperation(operand, SsaOperation.ARGUMENT_LINK)) {
         final String argName = literalOperand(0, operand);
-        final Prefix srcPrefix = origin.pushAll(argName);
+        final NamePath srcPath = callerPath.resolve(argName);
 
-        final Map<String, Object> extension = new HashMap<>();
-        for (final Map.Entry<String, Object> entry : buildingContext.entrySet()) {
-          final Pair<String, String> pair =
-              StringUtils.splitOnLast(entry.getKey(), '.');
-          if (pair.first.equals(srcPrefix.context)) {
-            final Prefix argPrefix = inner.pushAll(pair.second);
-            extension.put(argPrefix.context, (String) entry.getValue());
+        final Map<NamePath, String> extension = new HashMap<>();
+        for (final Map.Entry<NamePath, String> entry : context.entrySet()) {
+          final NamePath path = entry.getKey();
+          if (path.startsWith(srcPath)) {
+            final NamePath tail = path.subpath(srcPath.getNameCount());
+            final NamePath argPath = paramPath.resolve(tail);
+
+            extension.put(argPath, entry.getValue());
             if (entry.getValue().equals("#IMM")) {
-              linkArgument(argPrefix.expression,
-                           srcPrefix,
-                           pair.second);
+              linkArgument(argPath, path);
             }
           }
         }
-        extension.put(inner.context, buildingContext.get(srcPrefix.context));
-        buildingContext.putAll(extension);
+        extension.put(paramPath, context.get(srcPath));
+        context.putAll(extension);
 
-        linkArgument(inner.expression, origin, argName);
+        linkArgument(paramPath, srcPath);
       } else {
         final NodeVariable arg =
-            changes.rebase(inner.expression, //.substring(origin.expression.length()),
-                           parameters.getType(i).valueUninitialized(),
-                           1);
+            changes.rebase(
+              //inner.expression, //.substring(origin.expression.length()),
+              getEffectivePath(paramPath).toString(),
+              parameters.getType(i).valueUninitialized(),
+              1);
             addToBatch(Nodes.eq(arg, operand));
 //        walkStatements(origin, Collections.singleton(EQ(arg, operand)));
       }
     }
   }
 
-  private void linkArgument(final String targetName,
-                            final Prefix prefix,
-                            final String localName) {
-    final String context = (String) buildingContext.get(prefix.context);
-    final NodeVariable image = getParameters(context).find(localName);
+  private void linkArgument(final NamePath dstPath, final NamePath srcPath) {
+    final String argType =
+      context.get(srcPath.subpath(0, srcPath.getNameCount() - 1));
+    final String localName =
+      srcPath.getName(srcPath.getNameCount() - 1).toString();
+
+    final NodeVariable image = getParameters(argType).find(localName);
     final Data data = image.getDataType().valueUninitialized();
 
-    final NodeVariable target = changes.rebase(targetName, data, 1);
-
-    final String sourceName = StringUtils.dotConc(prefix.expression, localName);
-    final NodeVariable source = changes.rebase(sourceName, data, 1);
+    final NodeVariable target =
+      changes.rebase(getEffectivePath(dstPath).toString(), data, 1);
+    final NodeVariable source =
+      changes.rebase(getEffectivePath(srcPath).toString(), data, 1);
 
     addToBatch(Nodes.eq(target, source));
   }
@@ -396,7 +395,7 @@ public final class SsaAssembler {
                       variableOperand(1, node).getName());
   }
 
-  private Map<Enum<?>, TransformerRule> createRuleset(final Prefix prefix) {
+  private Map<Enum<?>, TransformerRule> createRuleset(final NamePath path) {
     final TransformerRule call = new TransformerRule() {
       @Override
       public boolean isApplicable(Node node) {
@@ -407,25 +406,24 @@ public final class SsaAssembler {
       public Node apply(Node node) {
         if (isArgumentCall(node)) {
           final Pair<String, String> pair = getArgumentCall(node);
-          stepArgument(prefix, pair.first, pair.second);
+          stepArgument(path, pair.first, pair.second);
         } else {
           final NodeOperation call = (NodeOperation) node;
           final NodeOperation instance = (NodeOperation) call.getOperand(0);
 
           final String callee = literalOperand(0, instance);
-          final String ctxKey = StringUtils.dotConc(prefix.context, callee);
+          final NamePath ctxKey = path.resolve(callee);
           Integer num = contextEnum.get(ctxKey);
-          if (num == null ) {
-            contextEnum.put(ctxKey, 1);
+          if (num == null) {
             num = 0;
-          } else {
-            contextEnum.put(ctxKey, num + 1);
           }
-          final Prefix inner =
-              prefix.pushAll(String.format("%s_%d", callee, num));
+          contextEnum.put(ctxKey, num + 1);
 
-          linkClosure(prefix, inner, new Closure(instance));
-          step(inner, literalOperand(1, call));
+          final NamePath innerPath =
+            path.resolve(String.format("%s_%d", callee, num));
+
+          linkClosure(path, innerPath, new Closure(instance));
+          step(innerPath, literalOperand(1, call));
         }
         // Prune custom SSA operation
         return Nodes.TRUE;
@@ -440,7 +438,7 @@ public final class SsaAssembler {
 
       @Override
       public Node apply(Node node) {
-        step(prefix, literalOperand(0, node));
+        step(path, literalOperand(0, node));
         // Prune custom SSA operation
         return Nodes.TRUE;
       }
@@ -464,10 +462,10 @@ public final class SsaAssembler {
     rules.put(SsaOperation.SUBSTITUTE, substitute);
 
     rules.put(SsaOperation.EXPAND,
-              new ModeRule(SsaOperation.EXPAND, prefix, "expand"));
+              new ModeRule(SsaOperation.EXPAND, path, "expand"));
 
     rules.put(SsaOperation.UPDATE,
-              new ModeRule(SsaOperation.UPDATE, prefix, "update"));
+              new ModeRule(SsaOperation.UPDATE, path, "update"));
 
     final TransformerRule rebase = new TransformerRule() {
       @Override
@@ -486,10 +484,10 @@ public final class SsaAssembler {
       }
 
       private Node rebaseLocal(NodeVariable node) {
-        final Pair<String, String> pair =
-            StringUtils.splitOnFirst(node.getName(), '.');
+        // drop first entry in name for local variables
+        final NamePath name = parseName(node.getName()).subpath(1);
 
-        return changes.rebase(StringUtils.dotConc(prefix.expression, pair.second),
+        return changes.rebase(getEffectivePath(path.resolve(name)).toString(),
                               node.getData(),
                               (Integer) node.getUserData());
       }
@@ -555,9 +553,9 @@ public final class SsaAssembler {
     return src;
   }
 
-  private void walkStatements(final Prefix prefix, final Collection<? extends Node> statements) {
+  private void walkStatements(final NamePath path, final Collection<? extends Node> statements) {
     final NodeTransformer transformer =
-        new NodeTransformer(createRuleset(prefix));
+        new NodeTransformer(createRuleset(path));
     transformer.walk(statements);
 
     // It is known that resulting sequence will be inverted on block granularity
