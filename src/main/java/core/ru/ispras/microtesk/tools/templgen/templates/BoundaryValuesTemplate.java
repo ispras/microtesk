@@ -34,7 +34,7 @@ public final class BoundaryValuesTemplate extends GeneratedTemplate {
   private void printSequence(final TemplateOperation templateOperation) {
     templatePrinter.startSequence("iterate {");
     templatePrinter.addString(templateOperation.getCommand());
-    CollectionIterator<BitVector> iterator =
+    /*CollectionIterator<BitVector> iterator =
         ru.ispras.testbase.knowledge.iterator.BoundaryValueIterator.getBoundaryIterator(32);
     String iteratorValues = " ";
     boolean tabs = false;
@@ -45,7 +45,7 @@ public final class BoundaryValuesTemplate extends GeneratedTemplate {
       }
       iteratorValues += value + "(" + Long.toHexString(value.longValue()) + ")";
       tabs = true;
-    }
+    }*/
     templatePrinter.addComment(iteratorValues);
     templatePrinter.closeSequence("}");
   }

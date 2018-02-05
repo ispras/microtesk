@@ -44,7 +44,7 @@ public class TemplateOperation {
   private String[] postCommand;
 
   TemplateOperation(final MetaOperation operation, final TemplatePrinter templatePrinter) {
-    // printMetaOperation(operation);
+     printMetaOperation(operation);
 
     name = templatePrinter.formattingOperation(operation.getName());
 
@@ -61,7 +61,8 @@ public class TemplateOperation {
       branchLabel = String.format(":%s_label", name);
       regTitle = getLastArgument(operation.getArguments(), IsaPrimitiveKind.MODE);
 
-      if (regTitle != "JUMP_LABEL" && regTitle != "BRANCH_LABEL") {
+      if (regTitle != "JUMP_LABEL" && regTitle != "BRANCH_LABEL" && regTitle != "BRANCH_LABEL_M2" && regTitle != "JUMP_LABEL_M2") {
+        System.out.println(regTitle);
         preCommand = prepareReg(regTitle);
       } else {
         preCommand = "";
@@ -119,7 +120,8 @@ public class TemplateOperation {
         boolean printLabel = false;
         for (String tempType : tempTypes) {
           if (tempType == "BRANCH_IMM" || tempType == "BRANCH_LABEL" || tempType == "JUMP_IMM"
-              || tempType == "JUMP_LABEL") {
+              || tempType == "JUMP_LABEL" || tempType == "BRANCH_LABEL_M2"
+              || tempType == "JUMP_LABEL_M2") {
             if (!printLabel) {
               tempCommand += branchLabel;
               printLabel = true;
