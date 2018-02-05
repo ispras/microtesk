@@ -46,7 +46,7 @@ public final class BoundaryValuesTemplate extends GeneratedTemplate {
       iteratorValues += value + "(" + Long.toHexString(value.longValue()) + ")";
       tabs = true;
     }*/
-    templatePrinter.addComment(iteratorValues);
+    //templatePrinter.addComment(iteratorValues);
     templatePrinter.closeSequence("}");
   }
 
