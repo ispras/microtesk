@@ -150,7 +150,7 @@ public final class SsaAssembler {
   private static Map<NamePath, String> parseQuery(final Map<String, Object> query) {
     final Map<NamePath, String> ctx = new HashMap<>();
     for (final Map.Entry<String, Object> entry : query.entrySet()) {
-      ctx.put(parseName(entry.getKey()), (String) entry.getValue());
+      ctx.put(parseName(entry.getKey()), entry.getValue().toString());
     }
     return ctx;
   }
