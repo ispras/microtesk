@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.engine;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,10 +25,8 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.test.template.AbstractCall;
-import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -46,12 +45,10 @@ public class InitializerMakerDefault implements InitializerMaker {
       final Primitive primitive,
       final Situation situation,
       final TestData testData,
-      final Map<String, Argument> arguments,
-      final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
+      final Map<String, Primitive> targetModes) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(testData);
-    InvariantChecks.checkNotNull(initializedModes);
 
     if (stage == Stage.PRE) {
       return Collections.<AbstractCall>emptyList();
@@ -61,18 +58,18 @@ public class InitializerMakerDefault implements InitializerMaker {
       return Collections.<AbstractCall>emptyList();
     }
 
+    final Set<AddressingModeWrapper> initializedModes = new HashSet<>();
     final List<AbstractCall> result = new ArrayList<>();
+
     for (final Map.Entry<String, Object> e : testData.getBindings().entrySet()) {
       final String name = e.getKey();
-      final Argument argument = arguments.get(name);
+      final Primitive mode = targetModes.get(name);
 
-      if (null == argument || ArgumentMode.OUT == argument.getMode()) {
+      if (null == mode) {
         continue;
       }
 
-      final Primitive mode = (Primitive) argument.getValue();
       final AddressingModeWrapper targetMode = new AddressingModeWrapper(mode);
-
       if (initializedModes.contains(targetMode)) {
         Logger.debug("%s has already been used to set up the processor state. " +
                      "No initialization code will be created.", targetMode);

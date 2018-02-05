@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -157,12 +157,14 @@ public final class AccessesIterator implements Iterator<List<Access>> {
     for (int j = 0; j < size; j++) {
       final Access access = accesses.get(j);
 
-      final BufferDependency[] dependencies = new BufferDependency[size];
+      access.clearDependencies();
       for (int i = 0; i < j; i++) {
-        dependencies[i] = dependencyIterators[i][j].value();
-      }
+        final BufferDependency dependency = dependencyIterators[i][j].value();
 
-      access.setDependencies(dependencies);
+        if (dependency != null) {
+          access.setDependency(i, dependency);
+        }
+      }
     }
 
     return accesses;
@@ -264,6 +266,10 @@ public final class AccessesIterator implements Iterator<List<Access>> {
 
     if (accessIterator.hasValue()) {
       accesses = accessIterator.value();
+
+      for (final Access access : accesses) {
+        access.clearDependencies();
+      }
 
       if (initDependencies()) {
         return true;

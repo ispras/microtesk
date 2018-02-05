@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.antlrex.log;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FileUtils;
 
 /**
@@ -78,11 +78,10 @@ public final class LogEntry {
       final int line,
       final int position,
       final String message) {
-
-    checkNotNull(kind);
-    checkNotNull(sender);
-    checkNotNull(source);
-    checkNotNull(message);
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(sender);
+    InvariantChecks.checkNotNull(source);
+    InvariantChecks.checkNotNull(message);
 
     this.kind = kind;
     this.sender = sender;

@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
- * 
+ * Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -14,51 +14,51 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.microtesk.test.engine.EngineUtils.makeMode;
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.ArgumentMode;
+import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.model.IsaPrimitive;
+import ru.ispras.microtesk.model.Model;
+import ru.ispras.microtesk.model.data.Type;
+import ru.ispras.microtesk.model.memory.Location;
+import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.test.engine.EngineUtils;
+import ru.ispras.microtesk.test.template.Argument;
+import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.UnknownImmediateValue;
+import ru.ispras.microtesk.test.template.Value;
+import ru.ispras.microtesk.utils.StringUtils;
+import ru.ispras.testbase.TestBaseQueryBuilder;
 
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.ispras.fortress.data.Data;
-import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.ArgumentMode;
-import ru.ispras.microtesk.model.ConfigurationException;
-import ru.ispras.microtesk.model.IsaPrimitive;
-import ru.ispras.microtesk.model.Model;
-import ru.ispras.microtesk.model.memory.Location;
-import ru.ispras.microtesk.test.template.Argument;
-import ru.ispras.microtesk.test.template.LabelValue;
-import ru.ispras.microtesk.test.template.LazyValue;
-import ru.ispras.microtesk.test.template.Primitive;
-import ru.ispras.microtesk.test.template.RandomValue;
-import ru.ispras.microtesk.test.template.UnknownImmediateValue;
-import ru.ispras.testbase.TestBaseQueryBuilder;
-
 final class TestBaseQueryBindingBuilder {
-  private EngineContext engineContext;
+  private final EngineContext engineContext;
   private final TestBaseQueryBuilder queryBuilder;
   private final Map<String, Argument> unknownValues;
-  private final Map<String, Argument> modes;
+  private final Map<String, Primitive> modes;
 
   public TestBaseQueryBindingBuilder(
       final EngineContext engineContext,
       final TestBaseQueryBuilder queryBuilder,
       final Primitive primitive) {
-    checkNotNull(engineContext);
-    checkNotNull(queryBuilder);
-    checkNotNull(primitive);
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(queryBuilder);
+    InvariantChecks.checkNotNull(primitive);
 
     this.engineContext = engineContext;
     this.queryBuilder = queryBuilder;
-    this.unknownValues = new HashMap<String, Argument>();
-    this.modes = new HashMap<String, Argument>();
+    this.unknownValues = new HashMap<>();
+    this.modes = new HashMap<>();
+
+    if (primitive.getKind() == Primitive.Kind.MODE) {
+      visitMode(primitive);
+    }
 
     visit(primitive.getName(), primitive);
   }
@@ -67,98 +67,49 @@ final class TestBaseQueryBindingBuilder {
     return unknownValues;
   }
 
-  public Map<String, Argument> getModes() {
+  public Map<String, Primitive> getTargetModes() {
     return modes;
   }
 
-  private void visit(final String prefix, final Primitive p) {
-    for (final Argument arg : p.getArguments().values()) {
-      final String argName = prefix.isEmpty() ?
-          arg.getName() : String.format("%s.%s", prefix, arg.getName());
+  private void visit(final String prefix, final Primitive primitive) {
+    for (final Argument arg : primitive.getArguments().values()) {
+      final String argName = StringUtils.dotConc(prefix, arg.getName());
 
       switch (arg.getKind()) {
         case IMM:
-          queryBuilder.setBinding(
-              argName,
-              new NodeValue(Data.newBitVector(BitVector.valueOf(
-                  (BigInteger) arg.getValue(), arg.getType().getBitSize())))
-              );
+          setBindingValue(argName, (BigInteger) arg.getValue(), arg.getType().getBitSize());
           break;
 
         case IMM_RANDOM:
-          queryBuilder.setBinding(
-              argName, 
-              new NodeValue(Data.newBitVector(BitVector.valueOf(
-                  ((RandomValue) arg.getValue()).getValue(), arg.getType().getBitSize())))
-              );
-          break;
-
         case IMM_LAZY:
-          queryBuilder.setBinding(
-              argName, 
-              new NodeValue(Data.newBitVector(BitVector.valueOf(
-                  ((LazyValue) arg.getValue()).getValue(), arg.getType().getBitSize())))
-              );
-          break;
-
         case LABEL:
-          queryBuilder.setBinding(
-              argName, 
-              new NodeValue(Data.newBitVector(BitVector.valueOf(
-                  ((LabelValue) arg.getValue()).getValue(), arg.getType().getBitSize())))
-              );
+          setBindingValue(argName, (Value) arg.getValue(), arg.getType().getBitSize());
           break;
 
-        case IMM_UNKNOWN:
+        case IMM_UNKNOWN: {
           final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
-
-          if (!unknownValue.isValueSet()) {
-            queryBuilder.setBinding(
-                argName,
-                new NodeVariable(argName, DataType.bitVector(arg.getType().getBitSize()))
-                );
-
-            unknownValues.put(argName, arg);
+          if (unknownValue.isValueSet()) {
+            setBindingValue(argName, unknownValue, arg.getType().getBitSize());
           } else {
-            queryBuilder.setBinding(
-                argName,
-                new NodeValue(Data.newBitVector(BitVector.valueOf(
-                    unknownValue.getValue(), arg.getType().getBitSize())))
-                );
+            setBindingVariable(argName, arg.getType().getBitSize());
+            unknownValues.put(argName, arg);
           }
           break;
+        }
 
         case MODE: {
           // The mode's arguments should be processed before processing the mode.
           // Otherwise, if there are unknown values, the mode cannot be instantiated.
-          visit(argName, (Primitive) arg.getValue());
+          final Primitive modePrimitive = (Primitive) arg.getValue();
+          visit(argName, modePrimitive);
 
           // If a MODE has no return expression it is treated as OP and
           // it is NOT added to bindings and mode list
           if (arg.getMode() != ArgumentMode.NA) {
-            final DataType dataType = DataType.bitVector(arg.getType().getBitSize());
-            Node bindingValue = null;
-
-            try {
-                final IsaPrimitive mode = makeMode(engineContext, arg);
-                final Model model = engineContext.getModel();
-                final Location location = mode.access(model.getPE(), model.getTempVars());
-
-                if (location.isInitialized()) {
-                  bindingValue = NodeValue.newBitVector(
-                      BitVector.valueOf(location.getValue(), location.getBitSize()));
-                } else {
-                  bindingValue = new NodeVariable(argName, dataType);
-                }
-            } catch (final ConfigurationException e) {
-              Logger.error("Failed to read data from %s. Reason: %s",
-                  arg.getTypeName(), e.getMessage());
-
-              bindingValue = new NodeVariable(argName, dataType);
+            setBindingMode(argName, modePrimitive);
+            if (arg.getMode().isIn()) {
+              modes.put(argName, (Primitive) arg.getValue());
             }
-
-            queryBuilder.setBinding(argName, bindingValue);
-            modes.put(argName, arg);
           }
 
           break;
@@ -170,8 +121,53 @@ final class TestBaseQueryBindingBuilder {
 
         default:
           throw new IllegalArgumentException(String.format(
-            "Illegal kind of argument %s: %s.", argName, arg.getKind()));
+              "Illegal kind of argument %s: %s.", argName, arg.getKind()));
       }
+    }
+  }
+
+  private void visitMode(final Primitive modePrimitive) {
+    final String name = modePrimitive.getName();
+    final Model model = engineContext.getModel();
+
+    final MetaAddressingMode metaMode = model.getMetaData().getAddressingMode(name);
+    InvariantChecks.checkNotNull(metaMode);
+
+    final Type type = metaMode.getDataType();
+    if (null == type) {
+      // No return expression.
+      return;
+    }
+
+    setBindingMode(name, modePrimitive);
+    modes.put(name, modePrimitive);
+  }
+
+  private void setBindingValue(final String name, final BigInteger value, int bitSize) {
+    queryBuilder.setBinding(name, NodeValue.newBitVector(value, bitSize));
+  }
+
+  private void setBindingValue(final String name, final Value value, int bitSize) {
+    setBindingValue(name, value.getValue(), bitSize);
+  }
+
+  private void setBindingVariable(final String name, final int bitSize) {
+    queryBuilder.setBinding(name, new NodeVariable(name, DataType.bitVector(bitSize)));
+  }
+
+  private void setBindingMode(final String name, final Primitive modePrimitive) {
+    final Model model = engineContext.getModel();
+    try {
+      final IsaPrimitive mode = EngineUtils.makeMode(engineContext, modePrimitive);
+      final Location location = mode.access(model.getPE(), model.getTempVars());
+
+      if (location.isInitialized()) {
+        setBindingValue(name, location.getValue(), location.getBitSize());
+      } else {
+        setBindingVariable(name, location.getBitSize());
+      }
+    } catch (final ConfigurationException e) {
+      throw new IllegalArgumentException(e);
     }
   }
 }

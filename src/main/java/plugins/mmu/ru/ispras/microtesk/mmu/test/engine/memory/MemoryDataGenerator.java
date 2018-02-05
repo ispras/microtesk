@@ -1,11 +1,11 @@
 /*
  * Copyright 2006-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -13,13 +13,6 @@
  */
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
@@ -36,8 +29,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorEqualConstraint;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRangeConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorVariableInitializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -61,8 +52,17 @@ import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
-import ru.ispras.testbase.TestDataProvider;
 import ru.ispras.testbase.generator.DataGenerator;
+import ru.ispras.testbase.knowledge.iterator.EmptyIterator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * {@link MemoryDataGenerator} implements a solver of memory-related constraints (hit, miss, etc.).
@@ -86,7 +86,7 @@ public final class MemoryDataGenerator implements DataGenerator {
   }
 
   @Override
-  public TestDataProvider generate(final TestBaseQuery query) {
+  public Iterator<TestData> generate(final TestBaseQuery query) {
     InvariantChecks.checkNotNull(query);
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
@@ -104,7 +104,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     // Generate the basic address object constraints.
     final Collection<Node> conditions = new ArrayList<>();
-    final Collection<BitVectorConstraint> constraints = new ArrayList<>();
+    final Collection<Node> constraints = new ArrayList<>();
 
     final MemoryAccessType accessType = access.getType();
     final MemoryDataType dataType = accessType.getDataType();
@@ -135,7 +135,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     if (values == null) {
       Logger.debug("MemoryDataGenerator.generate: infeasible %s", access);
-      return TestDataProvider.empty();
+      return EmptyIterator.<TestData>get();
     }
 
     // Assign the tag, index and offset according to the dependencies.
@@ -196,7 +196,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     Logger.debug("MemoryDataGenerator.generate: addressObject[%d]=%s",
         System.identityHashCode(addressObject), addressObject);
 
-    return TestDataProvider.singleton(testData);
+    return new SingleValueIterator<>(testData);
   }
 
   private void fillEntries(
@@ -392,7 +392,9 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     for (final MmuBufferAccess bufferAccess : path.getBufferChecks()) {
       if (!bufferAccess.getBuffer().isReplaceable()) {
-        // Hit/miss conditions are constructed for replaceable buffers only.
+        // FIXME:
+        // This check was introduced to avoid the following problem.
+        // Register-mapped buffers' seeData() returns incorrect addresses. 
         continue;
       }
 
@@ -545,10 +547,10 @@ public final class MemoryDataGenerator implements DataGenerator {
     return getMissCondition(bufferAccess, addressWithoutTag);
   }
 
-  private Collection<BitVectorConstraint> getAddressConstraints(
+  private Collection<Node> getAddressConstraints(
       final MmuAddressInstance addressType,
       final MemoryDataType dataType) {
-    final Collection<BitVectorConstraint> constraints = new ArrayList<>();
+    final Collection<Node> constraints = new ArrayList<>();
     final MmuSubsystem memory = MmuPlugin.getSpecification();
 
     final GeneratorSettings settings = GeneratorSettings.get();
@@ -558,17 +560,20 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     // Range constraint.
     constraints.add(
-        new BitVectorRangeConstraint(
+        BitVectorConstraint.range(
           addressVariable,
           BitVector.valueOf(region.getMin(), addressType.getBitSize()),
-          BitVector.valueOf(region.getMax(), addressType.getBitSize()))); 
+          BitVector.valueOf(region.getMax(), addressType.getBitSize()))
+    ); 
 
     // Alignment constraint (if required).
     if (dataType.getSizeInBytes() > 1) {
       constraints.add(
-          new BitVectorEqualConstraint(
-            Nodes.bvextract(dataType.getSizeInBytes() - 2, 0, addressVariable),
-            BitVector.valueOf(0, dataType.getSizeInBytes() - 1)));
+          Nodes.eq(
+              Nodes.bvextract(dataType.getSizeInBytes() - 2, 0, addressVariable),
+              NodeValue.newBitVector(0, dataType.getSizeInBytes() - 1)
+          )
+      );
     }
 
     return constraints;
@@ -596,14 +601,14 @@ public final class MemoryDataGenerator implements DataGenerator {
       final NodeVariable dataVariable,
       final BitVector dataValue,
       final Collection<Node> conditions,
-      final Collection<BitVectorConstraint> constraints) {
+      final Collection<Node> constraints) {
 
     Logger.debug("Refine address: conditions=%s", conditions);
     Logger.debug("Refine address: constraints=%s", constraints);
 
     addressObject.setData(dataVariable, dataValue);
 
-    final Collection<BitVectorConstraint> allConstraints = new ArrayList<>(constraints);
+    final Collection<Node> allConstraints = new ArrayList<>(constraints);
 
     // Fix known values of the data.
     final Map<NodeVariable, BitVector> data = addressObject.getData();
@@ -611,7 +616,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       final NodeVariable variable = entry.getKey();
       final BitVector value = entry.getValue();
 
-      allConstraints.add(new BitVectorEqualConstraint(variable, value));
+      allConstraints.add(Nodes.eq(variable, NodeValue.newBitVector(value)));
     }
 
     // Fix known values of the addresses.
@@ -619,7 +624,8 @@ public final class MemoryDataGenerator implements DataGenerator {
     for (final Map.Entry<MmuAddressInstance, BitVector> entry : addresses.entrySet()) {
       final NodeVariable variable = entry.getKey().getVariable();
       final BitVector value = entry.getValue();
-      allConstraints.add(new BitVectorEqualConstraint(variable, value));
+
+      allConstraints.add(Nodes.eq(variable, NodeValue.newBitVector(value)));
     }
 
     Logger.debug("Constraints for refinement: %s", allConstraints);

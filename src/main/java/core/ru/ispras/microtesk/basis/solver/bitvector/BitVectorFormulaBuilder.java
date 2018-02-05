@@ -29,10 +29,10 @@ public abstract class BitVectorFormulaBuilder {
    * @param constraint the constraint to be added.
    * @throws IllegalArgumentException if {@code constraint} is null.
    */
-  public final void addConstraint(final BitVectorConstraint constraint) {
-    InvariantChecks.checkNotNull(constraint);
-    addFormula(constraint.getFormula());
-  }
+//  public final void addConstraint(final BitVectorConstraint constraint) {
+//    InvariantChecks.checkNotNull(constraint);
+//    addFormula(constraint.getFormula());
+//  }
 
   /**
    * Adds the sub-formula to the formula.

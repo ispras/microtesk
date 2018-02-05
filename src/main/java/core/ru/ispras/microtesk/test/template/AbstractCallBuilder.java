@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.util.InvariantChecks;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public final class AbstractCallBuilder {
   private PreparatorReference preparatorReference;
 
   protected AbstractCallBuilder(final BlockId blockId) {
-    checkNotNull(blockId);
+    InvariantChecks.checkNotNull(blockId);
 
     this.blockId = blockId;
     this.where = null;
@@ -59,17 +59,17 @@ public final class AbstractCallBuilder {
   }
 
   public void setWhere(final Where where) {
-    checkNotNull(where);
+    InvariantChecks.checkNotNull(where);
     this.where = where;
   }
 
   public void setText(final String text) {
-    checkNotNull(text);
+    InvariantChecks.checkNotNull(text);
     this.text = text;
   }
 
   public void setRootOperation(final Primitive rootOperation) {
-    checkNotNull(rootOperation);
+    InvariantChecks.checkNotNull(rootOperation);
 
     if (rootOperation.getKind() != Primitive.Kind.OP) {
       throw new IllegalArgumentException("Illegal kind: " + rootOperation.getKind());
@@ -79,38 +79,38 @@ public final class AbstractCallBuilder {
   }
 
   public void addLabel(final Label label) {
-    checkNotNull(label);
+    InvariantChecks.checkNotNull(label);
     labels.add(label);
   }
 
   public void addLabelReference(final LabelValue label) {
-    checkNotNull(label);
+    InvariantChecks.checkNotNull(label);
 
     final LabelReference labelRef = new LabelReference(label);
     labelRefs.add(labelRef);
   }
 
   public void addOutput(final Output output) {
-    checkNotNull(output);
+    InvariantChecks.checkNotNull(output);
     outputs.add(output);
   }
 
   public void setOrigin(final BigInteger value, final boolean isRelative) {
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(value);
     this.origin = value;
     this.relativeOrigin = isRelative;
   }
 
   public void setAlignment(final BigInteger value, final BigInteger valueInBytes) {
-    checkNotNull(value);
-    checkNotNull(valueInBytes);
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkNotNull(valueInBytes);
 
     alignment = value;
     alignmentInBytes = valueInBytes;
   }
 
   public void setPreparatorReference(final PreparatorReference preparatorReference) {
-    checkNotNull(preparatorReference);
+    InvariantChecks.checkNotNull(preparatorReference);
     this.preparatorReference = preparatorReference;
   }
 

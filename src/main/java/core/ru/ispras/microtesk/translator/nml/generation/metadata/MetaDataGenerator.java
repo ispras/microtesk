@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.generation.metadata;
 
-import java.io.IOException;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
@@ -30,6 +28,8 @@ import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+
+import java.io.IOException;
 
 public final class MetaDataGenerator implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;

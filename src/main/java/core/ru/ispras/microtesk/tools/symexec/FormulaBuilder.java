@@ -20,6 +20,7 @@ import ru.ispras.microtesk.model.memory.Location;
 import ru.ispras.microtesk.translator.nml.coverage.PathConstraintBuilder;
 import ru.ispras.microtesk.translator.nml.coverage.SsaAssembler;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+import ru.ispras.microtesk.utils.NamePath;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
@@ -74,26 +75,29 @@ public final class FormulaBuilder {
       final Map<String, Object> ctx,
       final Map<String, BitVector> consts,
       final IsaPrimitive p) {
-    buildContext(ctx, consts, p.getName() + ".", p);
+    buildContext(ctx, consts, NamePath.get(p.getName()), p);
     ctx.put(TestBaseContext.INSTRUCTION, p.getName());
   }
 
   private static void buildContext(
     final Map<String, Object> ctx,
     final Map<String, BitVector> consts,
-    final String prefix,
+    final NamePath prefix,
     final IsaPrimitive src) {
     for (final Map.Entry<String, IsaPrimitive> entry : src.getArguments().entrySet()) {
-      final String key = prefix + entry.getKey();
+      final NamePath path = prefix.resolve(entry.getKey());
+      final String key = path.toString();
       final IsaPrimitive arg = entry.getValue();
 
+      ctx.put(key, arg.getName());
       if (arg instanceof Immediate) {
         final Location location = ((Immediate) arg).access();
         consts.put(key, BitVector.valueOf(location.getValue(), location.getBitSize()));
+        // override context for immediates
+        ctx.put(key, Immediate.TYPE_NAME);
       }
 
-      ctx.put(key, arg.getName());
-      buildContext(ctx, consts, key + ".", arg);
+      buildContext(ctx, consts, path, arg);
     }
   }
 }

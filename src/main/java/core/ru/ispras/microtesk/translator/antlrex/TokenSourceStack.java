@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.translator.antlrex;
 
-import java.util.Stack;
-
 import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenSource;
 
 import ru.ispras.fortress.util.InvariantChecks;
+
+import java.util.Stack;
 
 /**
  * Composite token source for hierarchically organized sub-sources.

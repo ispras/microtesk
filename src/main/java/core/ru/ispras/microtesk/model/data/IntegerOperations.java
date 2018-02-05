@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.model.data;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.fortress.util.InvariantChecks;
+
+import java.math.BigInteger;
 
 final class IntegerOperations implements Operations {
   private static Operations instance = null;

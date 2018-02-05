@@ -14,13 +14,10 @@
 
 package ru.ispras.microtesk.translator.nml.generation.metadata;
 
-import java.math.BigInteger;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-
 import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
@@ -30,6 +27,8 @@ import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+
+import java.math.BigInteger;
 
 final class STBModel implements STBuilder {
   public static final String CLASS_NAME = "MetaModelFactory";

@@ -547,8 +547,8 @@ public final class Template {
     return new OutputBuilder(kind, format);
   }
 
-  public Situation.Builder newSituation(String name) {
-    return new Situation.Builder(name);
+  public Situation.Builder newSituation(final String name, final boolean testDataProvider) {
+    return new Situation.Builder(name, testDataProvider);
   }
 
   public void setDefaultSituation(final String name, final Situation situation) {

@@ -6,6 +6,18 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2018/02/05 MicroTESK 2.4.38 beta
+
+- Enhancements in the branch engine
+- Refactoring in the memory engine
+- New demo specifications and templates: Vmem ISA aimed to demonstrate
+  the facilities of the memory engine
+- Changes in the nML language translator: special constructs to specify
+  label-based instruction operands
+- Improvements in the simulator: correct handling of jump instructions
+- Improvements in the symbolic executor: correct SMT-formulae
+- Other general improvements
+
 2017/09/18 MicroTESK 2.4.37 beta
 
 - Bug fix in engine for constraint-based test data generation

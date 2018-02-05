@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.generation.metadata;
 
-import java.util.Map;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -28,6 +26,8 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
+
+import java.util.Map;
 
 final class STBAddressingMode implements STBuilder {
   private final String modelName;

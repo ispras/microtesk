@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -29,9 +29,10 @@ import ru.ispras.microtesk.settings.MemorySettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestData;
-import ru.ispras.testbase.TestDataProvider;
 import ru.ispras.testbase.generator.DataGenerator;
 import ru.ispras.testbase.generator.Utils;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 /**
  * {@link AddressDataGenerator} randomly generates an address from a given memory region.
@@ -88,7 +89,7 @@ public final class AddressDataGenerator implements DataGenerator {
   }
 
   @Override
-  public TestDataProvider generate(final TestBaseQuery query) {
+  public Iterator<TestData> generate(final TestBaseQuery query) {
     final Object base = Utils.getParameter(query, PARAM_ADDRESS_BASE);
     final Object offset = Utils.getParameter(query, PARAM_ADDRESS_OFFSET);
     final Object region = Utils.getParameter(query, PARAM_MEMORY_REGION);
@@ -131,6 +132,6 @@ public final class AddressDataGenerator implements DataGenerator {
       }
     }
 
-    return TestDataProvider.singleton(new TestData(bindings));
+    return new SingleValueIterator<>(new TestData(bindings));
   }
 }

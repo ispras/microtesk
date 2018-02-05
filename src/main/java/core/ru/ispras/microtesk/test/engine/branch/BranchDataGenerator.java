@@ -1,11 +1,11 @@
 /*
  * Copyright 2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -21,14 +21,15 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.TestBaseQuery;
-import ru.ispras.testbase.TestDataProvider;
+import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.generator.DataGenerator;
 import ru.ispras.testbase.generator.Utils;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * {@link BranchDataGenerator} is a base class for test data generators for conditional branch
  * instructions.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class BranchDataGenerator implements DataGenerator {
@@ -72,7 +73,7 @@ public abstract class BranchDataGenerator implements DataGenerator {
    * @param query the test data generation query.
    * @return the test data provider.
    */
-  public abstract TestDataProvider generateThen(final TestBaseQuery query);
+  public abstract Iterator<TestData> generateThen(final TestBaseQuery query);
 
   /**
    * Generates test data that violates the branch condition.
@@ -80,10 +81,10 @@ public abstract class BranchDataGenerator implements DataGenerator {
    * @param query the test data generation query.
    * @return the test data provider.
    */
-  public abstract TestDataProvider generateElse(final TestBaseQuery query);
+  public abstract Iterator<TestData> generateElse(final TestBaseQuery query);
 
   @Override
-  public final TestDataProvider generate(final TestBaseQuery query) {
+  public final Iterator<TestData> generate(final TestBaseQuery query) {
     final Object condition = Utils.getParameter(query, PARAM_CONDITION);
 
     if (condition == null) {

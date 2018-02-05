@@ -22,10 +22,11 @@ TESTS = aligned_calls\
         groups\
         insertion_sort\
         int_divide\
+        int_exception\
+        int_exception1\
         int_exception2\
         int_exception3\
         int_exception_branch\
-        int_exception\
         int_sqrt4\
         int_sqrt\
         jump\

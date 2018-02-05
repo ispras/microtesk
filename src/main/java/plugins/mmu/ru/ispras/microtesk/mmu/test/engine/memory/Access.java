@@ -37,8 +37,7 @@ public final class Access {
   private final MemoryAccessType type;
   private final AccessPath path;
   private final AccessConstraints constraints;
-
-  private BufferDependency[] dependencies;
+  private final Map<Integer, BufferDependency> dependencies;
 
   /** Symbolic representation of the memory access. */
   private SymbolicResult symbolicResult; 
@@ -54,15 +53,12 @@ public final class Access {
     this.type = type;
     this.path = path;
     this.constraints = constraints;
+    this.dependencies = new LinkedHashMap<>();
+    this.symbolicResult = null;
   }
 
   public Access(final Access other) {
-    this.type = other.type;
-    this.path = other.path;
-    this.constraints = other.constraints;
-
-    this.dependencies = null;
-    this.symbolicResult = null;
+    this(other.type, other.path, other.constraints);
   }
 
   public MemoryAccessType getType() {
@@ -77,39 +73,28 @@ public final class Access {
     return constraints;
   }
 
-  /**
-   * Returns the dependency of this memory access from the {@code i}-th memory access.
-   * 
-   * @param i the index of the primary memory access.
-   * @return the dependency.
-   */
+  public boolean hasDependencies() {
+    return !dependencies.isEmpty();
+  }
+
   public BufferDependency getDependency(final int i) {
-    InvariantChecks.checkBounds(i, dependencies.length);
-    return dependencies[i];
+    return dependencies.get(i);
   }
 
-  public BufferDependency[] getDependencies() {
-    return dependencies;
+  public void setDependency(final int i, final BufferDependency dependency) {
+    InvariantChecks.checkNotNull(dependency);
+    dependencies.put(i, dependency);
   }
 
-  public void setDependencies(final BufferDependency[] dependencies) {
-    this.dependencies = dependencies;
+  public void clearDependencies() {
+    dependencies.clear();
   }
 
-  /**
-   * Returns the united dependency of the {@code j}-th memory access on the previous accesses.
-   * 
-   * @return the united dependency.
-   */
   public BufferUnitedDependency getUnitedDependency() {
     final Map<BufferDependency, Integer> result = new LinkedHashMap<>();
 
-    for (int i = 0; i < dependencies.length; i++) {
-      final BufferDependency dependency = dependencies[i];
-
-      if (dependency != null) {
-        result.put(dependency, i);
-      }
+    for (final Map.Entry<Integer, BufferDependency> entry : dependencies.entrySet()) {
+      result.put(entry.getValue(), entry.getKey());
     }
 
     return new BufferUnitedDependency(result);
@@ -137,18 +122,16 @@ public final class Access {
     builder.append("Access: ");
     builder.append(String.format("%s, %s", type, path));
 
-    if (dependencies != null) {
-      builder.append(", ");
-      builder.append("Dependencies: ");
+    builder.append(", ");
+    builder.append("Dependencies: ");
 
-      boolean comma = false;
-      for (int i = 0; i < dependencies.length; i++) {
-        if (comma) {
-          builder.append(separator);
-        }
-        builder.append(String.format("[%d]=%s", i, dependencies[i]));
-        comma = true;
+    boolean comma = false;
+    for (final Map.Entry<Integer, BufferDependency> entry : dependencies.entrySet()) {
+      if (comma) {
+        builder.append(separator);
       }
+      builder.append(String.format("[%d]=%s", entry.getKey(), entry.getValue()));
+      comma = true;
     }
 
     builder.append("]");

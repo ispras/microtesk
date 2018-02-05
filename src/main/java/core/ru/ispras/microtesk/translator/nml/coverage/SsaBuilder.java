@@ -14,14 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import java.math.BigInteger;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
@@ -56,6 +48,14 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.utils.StringUtils;
+
+import java.math.BigInteger;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.List;
 
 final class SsaBuilder {
   private static final String ARRAY_INDEX = "index";

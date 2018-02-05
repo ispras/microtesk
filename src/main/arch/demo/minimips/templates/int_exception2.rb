@@ -21,7 +21,7 @@ require_relative 'minimips_base'
 #
 # This test template demonstrates how to generate test cases for integer arithmetics.
 # It uses predefined situations 'add' and 'sub' that can cause an overflow for addition
-# and substraction depending on the specified case ('normal' or 'overflow').
+# and subtraction depending on the specified case ('normal' or 'overflow').
 #
 class IntExceptionTemplate < MiniMipsBaseTemplate
 

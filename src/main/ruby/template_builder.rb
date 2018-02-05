@@ -43,9 +43,19 @@ def define_addressing_mode(mode)
   name = mode.getName().to_s
   #puts "Defining mode #{name}..."
 
-  p = lambda do |*arguments|
+  p = lambda do |*arguments, &situations|
     builder = @template.newAddressingModeBuilder name
     set_arguments builder, arguments
+
+    if situations != nil
+      builder.setSituation @situation_manager.instance_eval &situations
+    else
+      default_situation = @template.getDefaultSituation name
+      if default_situation != nil
+        builder.setSituation default_situation
+      end
+    end
+
     builder.build
   end
 
@@ -54,13 +64,28 @@ end
 
 #
 # Defines methods for addressing mode groups (added to the Template class)
-# 
+#
 def define_addressing_mode_group(name)
   #puts "Defining mode group #{name}..."
 
-  p = lambda do |*arguments|
+  p = lambda do |*arguments, &situations|
     builder = @template.newAddressingModeBuilderForGroup name
     set_arguments builder, arguments
+
+    if situations != nil
+      builder.setSituation @situation_manager.instance_eval &situations
+    else
+      default_situation = @template.getDefaultSituation group_name.to_s
+
+      if default_situation == nil
+        default_situation = @template.getDefaultSituation name
+      end
+
+      if default_situation != nil
+        builder.setSituation default_situation
+      end
+    end
+
     builder.build
   end
 
@@ -69,7 +94,7 @@ end
 
 #
 # Defines methods for operations (added to the Template class)
-# 
+#
 def define_operation(op)
   name = op.getName().to_s
   #puts "Defining operation #{name}..."

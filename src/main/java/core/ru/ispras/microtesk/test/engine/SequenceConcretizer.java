@@ -14,14 +14,6 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
@@ -46,6 +38,13 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The {@link SequenceConcretizer} class processes abstract instruction sequences to
@@ -372,7 +371,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     private final AbstractSequence abstractSequence;
     private final ConcreteSequence concreteSequence;
     private final Map<ConcreteCall, CallEntry> callMap;
-    private final Set<AddressingModeWrapper> initializedModes;
     private final ExecutorListener listenerForInitializers;
     private final ConcreteSequence.Builder testSequenceBuilder;
 
@@ -387,7 +385,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       this.abstractSequence = abstractSequence;
       this.concreteSequence = concreteSequence;
       this.callMap = new IdentityHashMap<>();
-      this.initializedModes = new HashSet<>();
       this.listenerForInitializers = new ExecutorListener();
 
       final List<AbstractCall> abstractCalls = abstractSequence.getSequence();
@@ -536,19 +533,23 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
       // Unrolls shortcuts to establish correspondence between abstract and concrete primitives.
       final IsaPrimitive fixedConcretePrimitive =
-          findConcretePrimitive(abstractPrimitive, concretePrimitive);
+          findConcretePrimitive(abstractPrimitive.getName(), concretePrimitive);
 
       InvariantChecks.checkNotNull(
           fixedConcretePrimitive, abstractPrimitive.getName() + " not found.");
 
       for (final Argument argument : abstractPrimitive.getArguments().values()) {
-        if (Argument.Kind.OP == argument.getKind()) {
+        if (Argument.Kind.OP == argument.getKind() || Argument.Kind.MODE == argument.getKind()) {
           final String argumentName = argument.getName();
           final Primitive abstractArgument = (Primitive) argument.getValue();
 
-          final IsaPrimitive concreteArgument =
-              fixedConcretePrimitive.getArguments().get(argumentName);
+          IsaPrimitive concreteArgument = fixedConcretePrimitive.getArguments().get(argumentName);
+          if (null == concreteArgument) {
+            concreteArgument =
+                findConcreteArgument(abstractArgument.getName(), argumentName, concretePrimitive);
+          }
 
+          InvariantChecks.checkNotNull(concreteArgument);
           processPrimitive(
               engineContext,
               processingCount,
@@ -561,6 +562,10 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       }
 
       final Situation situation = abstractPrimitive.getSituation();
+      if (null == situation && Primitive.Kind.MODE == abstractPrimitive.getKind()) {
+        // No default data generation for addressing modes.
+        return;
+      }
 
       final List<AbstractCall> initializer = EngineUtils.makeInitializer(
           engineContext,
@@ -570,7 +575,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           abstractSequence,
           abstractPrimitive,
           situation,
-          initializedModes,
           fixedConcretePrimitive
           );
 
@@ -602,17 +606,40 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     }
 
     private IsaPrimitive findConcretePrimitive(
-        final Primitive abstractPrimitive,
-        final IsaPrimitive concretePrimitive) {
-      InvariantChecks.checkNotNull(abstractPrimitive);
-      InvariantChecks.checkNotNull(concretePrimitive);
+        final String primitiveName,
+        final IsaPrimitive rootPrimitive) {
+      InvariantChecks.checkNotNull(primitiveName);
+      InvariantChecks.checkNotNull(rootPrimitive);
 
-      if (abstractPrimitive.getName().equals(concretePrimitive.getName())) {
-        return concretePrimitive;
+      if (primitiveName.equals(rootPrimitive.getName())) {
+        return rootPrimitive;
       }
 
-      for (final IsaPrimitive concreteArgument : concretePrimitive.getArguments().values()) {
-        final IsaPrimitive result = findConcretePrimitive(abstractPrimitive, concreteArgument);
+      for (final IsaPrimitive argument : rootPrimitive.getArguments().values()) {
+        final IsaPrimitive result = findConcretePrimitive(primitiveName, argument);
+        if (null != result) {
+          return result;
+        }
+      }
+
+      return null;
+    }
+
+    private IsaPrimitive findConcreteArgument(
+        final String primitiveName,
+        final String argumentName,
+        final IsaPrimitive rootPrimitive) {
+      InvariantChecks.checkNotNull(primitiveName);
+      InvariantChecks.checkNotNull(argumentName);
+      InvariantChecks.checkNotNull(rootPrimitive);
+
+      final IsaPrimitive namedArgument = rootPrimitive.getArguments().get(argumentName);
+      if (null != namedArgument && primitiveName.equals(namedArgument.getName())) {
+        return namedArgument;
+      }
+
+      for (final IsaPrimitive argument : rootPrimitive.getArguments().values()) {
+        final IsaPrimitive result = findConcreteArgument(primitiveName, argumentName, argument);
         if (null != result) {
           return result;
         }

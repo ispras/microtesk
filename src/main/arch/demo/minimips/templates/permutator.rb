@@ -28,7 +28,7 @@ class PermutatorTemplate < MiniMipsBaseTemplate
     org 0x00020000
 
     # Ordered as is:
-    sequence(:permutator => 'trivial') {
+    sequence(:obfuscator => 'trivial') {
       Add reg(_), reg(_), reg(_)
       Sub reg(_), reg(_), reg(_)
       And reg(_), reg(_), reg(_)
@@ -38,7 +38,7 @@ class PermutatorTemplate < MiniMipsBaseTemplate
     }.run 5
 
     # Random ordering:
-    sequence(:permutator => 'random') {
+    sequence(:obfuscator => 'random') {
       # Needed as a place to return from an exception
       epilogue {
         nop

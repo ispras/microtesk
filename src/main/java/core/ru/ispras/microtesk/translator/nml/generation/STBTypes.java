@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import java.util.Map;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -24,6 +22,8 @@ import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+
+import java.util.Map;
 
 final class STBTypes implements STBuilder {
   public static final String CLASS_NAME = "TypeDefs";

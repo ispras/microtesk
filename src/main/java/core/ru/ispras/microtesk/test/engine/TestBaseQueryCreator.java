@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import static ru.ispras.microtesk.test.engine.EngineUtils.acquireContext;
-
-import java.util.Map;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -26,9 +22,12 @@ import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
+import ru.ispras.microtesk.utils.StringUtils;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryBuilder;
+
+import java.util.Map;
 
 /**
  * The {@link TestBaseQueryCreator} class forms a query for test data that will be sent to
@@ -70,7 +69,7 @@ public final class TestBaseQueryCreator {
   private boolean isCreated;
   private TestBaseQuery query;
   private Map<String, Argument> unknownImmValues;
-  private Map<String, Argument> modes;
+  private Map<String, Primitive> modes;
 
   public TestBaseQueryCreator(
       final EngineContext engineContext,
@@ -107,7 +106,7 @@ public final class TestBaseQueryCreator {
     return unknownImmValues;
   }
 
-  public Map<String, Argument> getModes() {
+  public Map<String, Primitive> getTargetModes() {
     createQuery();
 
     InvariantChecks.checkNotNull(modes);
@@ -130,14 +129,14 @@ public final class TestBaseQueryCreator {
         new TestBaseQueryBindingBuilder(engineContext, queryBuilder, primitive);
 
     unknownImmValues = bindingBuilder.getUnknownValues();
-    modes = bindingBuilder.getModes();
+    modes = bindingBuilder.getTargetModes();
 
     query = queryBuilder.build();
 
     isCreated = true;
   }
 
-  private void createContext(TestBaseQueryBuilder queryBuilder) {
+  private void createContext(final TestBaseQueryBuilder queryBuilder) {
     queryBuilder.setContextAttribute(TestBaseContext.PROCESSOR, engineContext.getModel().getName());
     queryBuilder.setContextAttribute(TestBaseContext.INSTRUCTION, primitive.getName());
     queryBuilder.setContextAttribute(TestBaseContext.TESTCASE, situation.getName());
@@ -154,6 +153,24 @@ public final class TestBaseQueryCreator {
   private void createParameters(final TestBaseQueryBuilder queryBuilder) {
     for (final Map.Entry<String, Object> attrEntry : situation.getAttributes().entrySet()) {
       queryBuilder.setParameter(attrEntry.getKey(), attrEntry.getValue());
+    }
+  }
+
+  private static void acquireContext(
+      final TestBaseQueryBuilder builder,
+      final String prefix,
+      final Primitive primitive) {
+    InvariantChecks.checkNotNull(builder);
+    InvariantChecks.checkNotNull(prefix);
+    InvariantChecks.checkNotNull(primitive);
+
+    for (final Argument arg : primitive.getArguments().values()) {
+      final String ctxArgName = StringUtils.dotConc(prefix, arg.getName());
+      builder.setContextAttribute(ctxArgName, arg.getTypeName());
+
+      if (Argument.Kind.MODE == arg.getKind() || Argument.Kind.OP == arg.getKind()) {
+        acquireContext(builder, ctxArgName, (Primitive) arg.getValue());
+      }
     }
   }
 }

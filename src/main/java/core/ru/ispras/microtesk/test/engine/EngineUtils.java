@@ -1,11 +1,11 @@
 /*
  * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -14,29 +14,14 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import java.io.File;
-import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
-import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.InstructionCall;
@@ -64,11 +49,24 @@ import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.testbase.TestBaseQuery;
-import ru.ispras.testbase.TestBaseQueryBuilder;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestBaseRegistry;
+import ru.ispras.testbase.TestBaseUtils;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.generator.DataGenerator;
+import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.io.File;
+import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * {@link EngineUtils} implements functions shared among test data generators.
@@ -77,8 +75,6 @@ import ru.ispras.testbase.generator.DataGenerator;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class EngineUtils {
-  public static final TestData NO_TEST_DATA = new TestData(Collections.<String, Object>emptyMap());
-
   private EngineUtils() {}
 
   public static TestBase newTestBase(final GeneratorSettings settings) {
@@ -125,8 +121,7 @@ public final class EngineUtils {
       final AbstractCall abstractCall,
       final AbstractSequence abstractSequence,
       final Primitive primitive,
-      final Situation situation,
-      final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
+      final Situation situation) throws ConfigurationException {
     return makeInitializer(
         engineContext,
         processingCount,
@@ -135,7 +130,6 @@ public final class EngineUtils {
         abstractSequence,
         primitive,
         situation,
-        initializedModes,
         null
         );
   }
@@ -148,11 +142,9 @@ public final class EngineUtils {
       final AbstractSequence abstractSequence,
       final Primitive primitive,
       final Situation situation,
-      final Set<AddressingModeWrapper> initializedModes,
       final IsaPrimitive concretePrimitive) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(primitive);
-    InvariantChecks.checkNotNull(initializedModes);
     // Parameter {@code situation} can be null.
     // Parameter {@code concretePrimitive} can be null.
 
@@ -171,7 +163,7 @@ public final class EngineUtils {
       situation.setTestData(testData);
     }
 
-    if (testData == NO_TEST_DATA) {
+    if (testData.isEmpty()) {
       return Collections.emptyList();
     }
 
@@ -198,49 +190,8 @@ public final class EngineUtils {
         primitive,
         situation,
         testData,
-        queryCreator.getModes(),
-        initializedModes
+        queryCreator.getTargetModes()
         );
-  }
-
-  private static TestData getDefaultTestData(
-      final EngineContext engineContext,
-      final Primitive primitive,
-      final TestBaseQueryCreator queryCreator) {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(primitive);
-    InvariantChecks.checkNotNull(queryCreator);
-
-    final Map<String, Argument> args = new HashMap<>();
-    args.putAll(queryCreator.getUnknownImmValues());
-    args.putAll(queryCreator.getModes());
-
-    final Map<String, Object> bindings = new HashMap<>();
-    for (final Map.Entry<String, Argument> entry : args.entrySet()) {
-      final String name = entry.getKey();
-      final Argument arg = entry.getValue();
-
-      if (arg.getMode() == ArgumentMode.IN || arg.getMode() == ArgumentMode.INOUT) {
-        if (arg.getKind() == Argument.Kind.MODE) {
-          try {
-            final IsaPrimitive concreteMode = makeMode(engineContext, arg);
-            final Model model = engineContext.getModel();
-            if (concreteMode.access(model.getPE(), model.getTempVars()).isInitialized()) {
-              continue;
-            }
-          } catch (ConfigurationException e) {
-            Logger.error(e.getMessage());
-          }
-        }
-
-        final BitVector value = BitVector.newEmpty(arg.getType().getBitSize());
-        Randomizer.get().fill(value);
-
-        bindings.put(name, NodeValue.newBitVector(value));
-      }
-    }
-
-    return new TestData(bindings);
   }
 
   public static TestData getTestData(
@@ -252,11 +203,7 @@ public final class EngineUtils {
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(queryCreator);
 
-    Logger.debug("Processing situation %s for %s...", situation, primitive.getSignature());
-    if (situation == null) {
-      return engineContext.getOptions().getValueAsBoolean(Option.DEFAULT_TEST_DATA) ?
-          getDefaultTestData(engineContext, primitive, queryCreator) : NO_TEST_DATA;
-    }
+    Logger.debug("Processing %s for %s...", situation, primitive.getSignature());
 
     final TestBaseQuery query = queryCreator.getQuery();
     Logger.debug("Query to TestBase: " + query);
@@ -264,23 +211,32 @@ public final class EngineUtils {
     final Map<String, Argument> unknownImmediateValues = queryCreator.getUnknownImmValues();
     Logger.debug("Unknown immediate values: " + unknownImmediateValues.keySet());
 
-    final Map<String, Argument> modes = queryCreator.getModes();
-    Logger.debug("Modes used as arguments: " + modes);
+    final Map<String, Primitive> modes = queryCreator.getTargetModes();
+    Logger.debug("Modes used as input arguments: " + modes);
+
+    final boolean isDefaultTestData =
+        engineContext.getOptions().getValueAsBoolean(Option.DEFAULT_TEST_DATA);
+
+    if (situation == null) {
+      return isDefaultTestData ? TestBaseUtils.newRandomTestData(query) : TestData.EMPTY;
+    }
 
     final TestBase testBase = engineContext.getTestBase();
     final TestBaseQueryResult queryResult = testBase.executeQuery(query);
 
     if (TestBaseQueryResult.Status.OK != queryResult.getStatus()) {
       Logger.warning(makeErrorMessage(queryResult) + ": default test data will be used");
-      return getDefaultTestData(engineContext, primitive, queryCreator);
+      return TestBaseUtils.newRandomTestData(query);
     }
 
-    final java.util.Iterator<TestData> dataProvider = queryResult.getDataProvider();
-    if (!dataProvider.hasNext()) {
-      return NO_TEST_DATA;
+    final Iterator<TestData> dataIterator = queryResult.getDataIterator();
+    dataIterator.init();
+
+    if (!dataIterator.hasValue()) {
+      return TestData.EMPTY;
     }
 
-    return dataProvider.next();
+    return dataIterator.value();
   }
 
   public static void setUnknownImmValue(
@@ -697,30 +653,6 @@ public final class EngineUtils {
     }
 
     return sb.toString();
-  }
-
-  public static void acquireContext(
-      final TestBaseQueryBuilder builder,
-      final String prefix,
-      final Primitive p) {
-    InvariantChecks.checkNotNull(builder);
-    InvariantChecks.checkNotNull(prefix);
-    InvariantChecks.checkNotNull(p);
-
-    for (final Argument arg : p.getArguments().values()) {
-      final String ctxArgName = (prefix.isEmpty())
-                                ? arg.getName()
-                                : prefix + "." + arg.getName();
-      builder.setContextAttribute(ctxArgName, arg.getTypeName());
-      switch (arg.getKind()) {
-      case OP:
-      case MODE:
-        acquireContext(builder, ctxArgName, (Primitive) arg.getValue());
-        break;
-
-      default:
-      }
-    }
   }
 
   public static Set<AddressingModeWrapper> getOutAddressingModes(final List<AbstractCall> calls) {

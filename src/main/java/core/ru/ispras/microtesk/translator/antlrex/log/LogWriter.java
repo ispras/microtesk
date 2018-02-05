@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.antlrex.log;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * The LogWriter is a helper class that provides facilities to post messages to the log.
@@ -27,9 +27,9 @@ public class LogWriter {
   private final LogStore log;
 
   public LogWriter(final SenderKind sender, final String fileName, final LogStore log) {
-    checkNotNull(sender);
-    checkNotNull(fileName);
-    checkNotNull(log);
+    InvariantChecks.checkNotNull(sender);
+    InvariantChecks.checkNotNull(fileName);
+    InvariantChecks.checkNotNull(log);
 
     this.sender = sender;
     this.fileName = fileName;

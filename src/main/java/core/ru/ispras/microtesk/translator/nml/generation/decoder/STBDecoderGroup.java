@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.generation.decoder;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -28,6 +25,9 @@ import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+
+import java.util.ArrayList;
+import java.util.List;
 
 final class STBDecoderGroup implements STBuilder {
   private final String modelName;

@@ -1,11 +1,11 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
- * 
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -14,17 +14,16 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessStatus;
+import ru.ispras.microtesk.utils.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessStatus;
-import ru.ispras.microtesk.utils.StringUtils;
 
 /**
  * The Shortcut class describes a shortcut (a short way) to address a group of operations within the
@@ -34,13 +33,13 @@ import ru.ispras.microtesk.utils.StringUtils;
  * in test templates, all such paths are saved as shortcuts associated with their target operations
  * (the point there the path ends, the most important operation that distinguishes a specific path
  * from other similar paths).
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Shortcut {
   /**
    * The Argument class describes shortcut arguments (arguments of a composite operation).
-   * 
+   *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   public static final class Argument {
@@ -62,7 +61,7 @@ public final class Shortcut {
 
     /**
      * Returns a name the uniquely identifies the given argument in the set of shortcut arguments.
-     * 
+     *
      * @return Unique argument name.
      */
     public String getUniqueName() {
@@ -71,7 +70,7 @@ public final class Shortcut {
 
     /**
      * Returns the primitive describing the argument type.
-     * 
+     *
      * @return Argument type.
      */
     public Primitive getType() {
@@ -81,7 +80,7 @@ public final class Shortcut {
     /**
      * Returns the argument name as it is defined in the signature of the operation it will be
      * actually passed to.
-     * 
+     *
      * @return Argument name from the source operation signature.
      */
     public String getName() {
@@ -90,7 +89,7 @@ public final class Shortcut {
 
     /**
      * Returns the operation on the shortcut path the argument is actually passed to.
-     * 
+     *
      * @return Source operation.
      */
     public PrimitiveAND getSource() {
@@ -114,23 +113,23 @@ public final class Shortcut {
    * and all other operations it requires from the starting point called entry. The context is the
    * name of the operation that accepts as an argument the composite operation built with the help
    * of the shortcut. The map of arPrimitiveguments is built by traversing the path.
-   * 
+   *
    * @param entry The entry point where the path starts (the top point).
    * @param target The target operation of the shortcut.
    * @param contextNames The list of names that identify the contexts in which the shortcut can be
    *        called.
-   * 
-   * @throws IllegalArgumentException if any of the parameters equals null.
-   * @throws IllegalArgumentException if target or entry is not an operation; if an operation on the
-   *         shortcut path is an OR rule (all OR rules must be resolved at this point).
+   *
+   * @throws IllegalArgumentException if any of the arguments is {@code null}; if target or
+   *         entry is not an operation; if an operation on the shortcut path is an OR-rule
+   *         (all OR-rules must be resolved at this point).
    */
   public Shortcut(
       final PrimitiveAND entry,
       final PrimitiveAND target,
       final List<String> contextNames) {
-    checkNotNull(entry);
-    checkNotNull(target);
-    checkNotNull(contextNames);
+    InvariantChecks.checkNotNull(entry);
+    InvariantChecks.checkNotNull(target);
+    InvariantChecks.checkNotNull(contextNames);
 
     opCheck(entry);
     opCheck(target);
@@ -156,19 +155,27 @@ public final class Shortcut {
 
   /**
    * Constructor than uses one context name.
+   *
+   * @param entry The entry point where the path starts (the top point).
+   * @param target The target operation of the shortcut.
+   * @param contextName The name that identify the context in which the shortcut can be called.
+   *
+   * @throws IllegalArgumentException if any of the arguments is {@code null}; if target or
+   *         entry is not an operation; if an operation on the shortcut path is an OR-rule
+   *         (all OR-rules must be resolved at this point).
    */
   public Shortcut(
       final PrimitiveAND entry,
       final PrimitiveAND target,
       final String contextName) {
     this(entry, target, Collections.singletonList(contextName));
-    checkNotNull(contextName);
+    InvariantChecks.checkNotNull(contextName);
   }
 
   /**
    * Adds arguments of the specified operation and of all its child operations to the argument map.
    * The method is called recursively until the target operation is reached.
-   * 
+   *
    * @param root The operation to be processed.
    * @param reachedTarget Specifies whether the target operation is reached. It it is, the recursion
    *        stops and all child operations are added as arguments.
@@ -232,7 +239,7 @@ public final class Shortcut {
    * on the name of the argument of the operation on the shortcut path which takes the given
    * argument. When there are arguments that use the same name (different operation on the shortcut
    * path use the same name) a unique name is created by adding an index to the original name.
-   * 
+   *
    * @param name Original name.
    * @return A unique argument name.
    */
@@ -249,7 +256,7 @@ public final class Shortcut {
 
   /**
    * Returns the name of the shortcut. Corresponds to the name of the target operation.
-   * 
+   *
    * @return Shortcut name.
    */
   public String getName() {
@@ -258,7 +265,7 @@ public final class Shortcut {
 
   /**
    * Returns the entry operation.
-   * 
+   *
    * @return Entry operation.
    */
   public PrimitiveAND getEntry() {
@@ -267,7 +274,7 @@ public final class Shortcut {
 
   /**
    * Returns the target operation.
-   * 
+   *
    * @return Target operation.
    */
   public PrimitiveAND getTarget() {
@@ -286,7 +293,7 @@ public final class Shortcut {
 
   /**
    * Returns a collection of shortcut arguments.
-   * 
+   *
    * @return Shortcut arguments.
    */
   public Collection<Argument> getArguments() {

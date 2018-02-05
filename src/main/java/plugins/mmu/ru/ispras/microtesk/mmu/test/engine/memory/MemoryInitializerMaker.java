@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2006-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,17 +13,6 @@
  */
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -42,12 +31,10 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.memory.Sections;
-import ru.ispras.microtesk.test.engine.AddressingModeWrapper;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineUtils;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.template.AbstractCall;
-import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.BufferPreparator;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
@@ -59,6 +46,17 @@ import ru.ispras.microtesk.test.template.MemoryPreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.TestData;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * {@link MemoryInitializerMaker} implements the memory engine initializer maker.
@@ -87,8 +85,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       final Primitive primitive,
       final Situation situation,
       final TestData testData,
-      final Map<String, Argument> modes,
-      final Set<AddressingModeWrapper> initializedModes /* OUT */) {
+      final Map<String, Primitive> targetModes) {
     InvariantChecks.checkTrue(MemoryEngine.ID.equals(testData.getId()));
 
     if (stage == Stage.PRE || stage == Stage.POST || processingCount != 0) {
@@ -354,10 +351,9 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(addressObject);
 
     final List<AbstractCall> preparation = new ArrayList<>();
-    final Set<AddressingModeWrapper> initializedModes = new HashSet<>();
 
     final List<AbstractCall> initializer = prepareAddress(
-        engineContext, primitive, situation, addressObject, initializedModes);
+        engineContext, primitive, situation, addressObject);
     InvariantChecks.checkNotNull(initializer);
 
     Logger.debug("Call preparation: %s", initializer);
@@ -381,11 +377,9 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       final EngineContext engineContext,
       final Primitive primitive,
       final Situation situation,
-      final AddressObject addressObject,
-      final Set<AddressingModeWrapper> initializedModes) {
+      final AddressObject addressObject) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(situation);
-    InvariantChecks.checkNotNull(initializedModes);
 
     final MmuSubsystem memory = MmuPlugin.getSpecification();
     final Map<String, Object> attributes = situation.getAttributes();
@@ -405,8 +399,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
           null /* Abstract call */,
           null /* Abstract sequence */,
           primitive,
-          newSituation,
-          initializedModes
+          newSituation
           );
 
       InvariantChecks.checkNotNull(abstractInitializer, "Abstract initializer is null");

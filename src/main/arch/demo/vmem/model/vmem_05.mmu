@@ -1,0 +1,112 @@
+/*
+ * Copyright 2018 ISP RAS (http://www.ispras.ru)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+address VA(value: 16)
+address PA(value: 14)
+
+segment DIRECT (va: VA) = (pa: PA)
+  range = (0xc000, 0xffff)
+  read = {
+    pa.value = va.value<13..0>;
+  }
+
+memory buffer PageTable(va: VA)
+  ways = 1
+  sets = 2 ** 6
+  entry = (vpn: 6, pfn: 6, unused: 4)
+  index = va.value<13..8>
+  match = va.value<13..8> == vpn
+  policy = NONE
+
+buffer TLB(va: VA)
+  ways = 4
+  sets = 1
+  entry = (vpn: 6, pfn: 6)
+  index = 0
+  match = va.value<13..8> == vpn
+  policy = FIFO
+
+segment MAPPED (va: VA) = (pa: PA)
+  range = (0x0000, 0x3fff)
+
+var tlbEntry: TLB.entry;
+var pteAddr: VA;
+var pteData: PageTable.entry;
+
+  read = {
+    if (TLB(va).hit) then
+      tlbEntry = TLB(va);
+    else
+      pteAddr.value = 0;
+      pteAddr.value<15..14> = 0b11;
+      pteAddr.value<6..1> = va.value<13..8>;
+
+      pteData = PageTable(pteAddr);
+
+      if (pteData.vpn != va.value<13..8>) then
+        exception("AddressError");
+      endif;
+
+      tlbEntry.vpn = pteData.vpn;
+      tlbEntry.pfn = pteData.pfn;
+      TLB(va) = tlbEntry;
+    endif;
+
+    pa.value<13..8> = tlbEntry.pfn;
+    pa.value<7..0> = va.value<7..0>;
+  }
+
+function TranslateAddress(va: VA): PA
+var pa: PA;
+{
+  if (va.value<0> != 0) then
+    exception("AddressError");
+  endif;
+
+  if (DIRECT(va).hit) then
+    pa = DIRECT(va);
+  elif (MAPPED(va).hit) then
+    pa = MAPPED(va);
+  else
+    exception("AddressError");
+  endif;
+
+  return pa;
+}
+
+buffer MEM (pa: PA)
+  ways  = 1
+  sets  = 2 ** 13
+  entry = (data: 16)
+  index = pa.value<13..1>
+  match = 0
+  policy = NONE
+
+mmu vmem (va: VA) = (data: 16)
+  var pa: PA;
+  var memEntry: MEM.entry;
+
+  read = {
+    pa = TranslateAddress(va);
+    memEntry = MEM(pa);
+    data = memEntry.data;
+  }
+
+  write = {
+    pa = TranslateAddress(va);
+    memEntry.data = data;
+    MEM(pa) = memEntry;
+  }

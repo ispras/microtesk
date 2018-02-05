@@ -14,31 +14,28 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.test.engine.EngineContext;
+import ru.ispras.microtesk.test.engine.EngineUtils;
+import ru.ispras.microtesk.test.engine.InitializerMaker;
+import ru.ispras.microtesk.test.engine.TestBaseQueryCreator;
+import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.microtesk.utils.FortressUtils;
+import ru.ispras.testbase.TestData;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.ArgumentMode;
-import ru.ispras.microtesk.model.ConfigurationException;
-import ru.ispras.microtesk.test.engine.AddressingModeWrapper;
-import ru.ispras.microtesk.test.engine.EngineContext;
-import ru.ispras.microtesk.test.engine.EngineUtils;
-import ru.ispras.microtesk.test.engine.InitializerMaker;
-import ru.ispras.microtesk.test.engine.TestBaseQueryCreator;
-import ru.ispras.microtesk.test.template.AbstractCall;
-import ru.ispras.microtesk.test.template.Argument;
-import ru.ispras.microtesk.test.template.Primitive;
-import ru.ispras.microtesk.test.template.Situation;
-import ru.ispras.microtesk.utils.FortressUtils;
-import ru.ispras.testbase.TestData;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -138,8 +135,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
       final Primitive primitive,
       final Situation situation,
       final TestData testData, /* Unused */
-      final Map<String, Argument> modes,
-      final Set<AddressingModeWrapper> initializedModes) throws ConfigurationException {
+      final Map<String, Primitive> targetModes) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(abstractCall);
     InvariantChecks.checkNotNull(primitive);
@@ -263,18 +259,15 @@ public final class BranchInitializerMaker implements InitializerMaker {
     // Initialize test data to ensure branch execution.
     for (final Map.Entry<String, Object> testDatum : testData.getBindings().entrySet()) {
       final String name = testDatum.getKey();
-      final Argument arg = queryCreator.getModes().get(name);
+      final Primitive mode = queryCreator.getTargetModes().get(name);
 
-      if (arg == null
-          || arg.getKind() != Argument.Kind.MODE
-          || arg.getMode() == ArgumentMode.OUT) {
+      if (mode == null) {
         continue;
       }
 
-      final Primitive mode = (Primitive) arg.getValue();
       final BitVector value = FortressUtils.extractBitVector((Node) testDatum.getValue());
-
       initializer.addAll(EngineUtils.makeInitializer(engineContext, mode, value));
+
       if (writeIntoStream) {
         final String testDataStream = BranchEngine.getTestDataStream(abstractCall);
         initializer.addAll(EngineUtils.makeStreamWrite(engineContext, testDataStream));

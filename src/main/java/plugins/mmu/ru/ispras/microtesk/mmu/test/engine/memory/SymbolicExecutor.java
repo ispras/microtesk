@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,13 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
@@ -33,11 +26,8 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorDomainConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaBuilderSimple;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorRangeConstraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -55,6 +45,14 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.utils.FortressUtils;
+import ru.ispras.microtesk.utils.HierarchicalMap;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * {@link SymbolicExecutor} implements a simple symbolic executor of memory access structures.
@@ -89,11 +87,6 @@ public final class SymbolicExecutor {
   public Boolean execute(final MemoryDataType dataType) {
     InvariantChecks.checkNotNull(dataType);
     return executeAlignment(result, null, dataType, -1);
-  }
-
-  public Boolean execute(final BitVectorConstraint constraint) {
-    InvariantChecks.checkNotNull(constraint);
-    return executeFormula(result, null, constraint.getFormula(), -1);
   }
 
   public Boolean execute(final Node condition) {
@@ -202,10 +195,10 @@ public final class SymbolicExecutor {
         lowerZeroBit,
         addrType.getVariable());
 
-    final BitVectorConstraint constraint =
-        new BitVectorDomainConstraint(field, BitVector.valueOf(0, FortressUtils.getBitSize(field)));
+    final Node constraint =
+        Nodes.eq(field, NodeValue.newBitVector(0, FortressUtils.getBitSize(field)));
 
-    return executeFormula(result, defines, constraint.getFormula(), pathIndex);
+    return executeFormula(result, defines, constraint, pathIndex);
   }
 
   private Boolean executeDependency(
@@ -321,11 +314,10 @@ public final class SymbolicExecutor {
     final MemoryAccessContext context = result.getContext(pathIndex);
 
     if (restrictor != null) {
-      final Collection<BitVectorConstraint> constraints =
-          restrictor.getConstraints(isStart, transition, context);
+      final Collection<Node> constraints = restrictor.getConstraints(isStart, transition, context);
 
-      for (final BitVectorConstraint constraint : constraints) {
-        executeFormula(result, defines, constraint.getFormula(), pathIndex);
+      for (final Node constraint : constraints) {
+        executeFormula(result, defines, constraint, pathIndex);
       }
     }
   }
@@ -339,11 +331,11 @@ public final class SymbolicExecutor {
     final MemoryAccessContext context = result.getContext(pathIndex);
 
     if (restrictor != null) {
-      final Collection<BitVectorConstraint> constraints =
+      final Collection<Node> constraints =
           restrictor.getConstraints(isStart, program, context);
 
-      for (final BitVectorConstraint constraint : constraints) {
-        executeFormula(result, defines, constraint.getFormula(), pathIndex);
+      for (final Node constraint : constraints) {
+        executeFormula(result, defines, constraint, pathIndex);
       }
     }
   }
@@ -488,7 +480,6 @@ public final class SymbolicExecutor {
     }
 
     if (statement.isEmpty()) {
-      Logger.debug("Conflict: empty statement");
       result.setConflict(true);
       return Boolean.FALSE;
     }
@@ -514,7 +505,6 @@ public final class SymbolicExecutor {
     }
 
     if (switchResults.isEmpty()) {
-      Logger.debug("Conflict: empty results");
       result.setConflict(true);
       return Boolean.FALSE;
     }
@@ -562,7 +552,9 @@ public final class SymbolicExecutor {
           caseResult.addFormula(
               Nodes.eq(
                   new NodeVariable(newVersion),
-                  new NodeVariable(oldVersion)));
+                  new NodeVariable(oldVersion)
+              )
+          );
         }
       }
 
@@ -577,8 +569,13 @@ public final class SymbolicExecutor {
       final Node caseFormula = caseBuilder.build();
 
       result.addFormula(caseFormula);
-      // TODO: Constant propagation can be optimized.
-      result.getConstants().putAll(caseResult.getConstants());
+
+      // Constant propagation.
+      final HierarchicalMap<Variable, BitVector> constants =
+          (HierarchicalMap<Variable, BitVector>) caseResult.getConstants();
+
+      // Only new constants to be added.
+      result.getConstants().putAll(constants.getLocal());
     } else {
       // Join the control flows.
       final int width = getWidth(statement.size());
@@ -590,7 +587,7 @@ public final class SymbolicExecutor {
       for (int i = 0; i < switchResults.size(); i++) {
         switchBuilder.add(Nodes.eq(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
       }
-  
+
       result.addFormula(Nodes.or(switchBuilder));
 
       for (int i = 0; i < switchResults.size(); i++) {
@@ -685,12 +682,12 @@ public final class SymbolicExecutor {
       if (guard.isHit()) {
         final MmuAddressInstance address = segment.getVaType().getInstance(null, context);
 
-        final BitVectorRangeConstraint constraint =
-            new BitVectorRangeConstraint(address.getVariable().getVariable(),
+        final Node constraint = BitVectorConstraint.range(
+            address.getVariable().getVariable(),
             segment.getMin(),
             segment.getMax());
 
-        status = executeFormula(result, defines, constraint.getFormula(), pathIndex);
+        status = executeFormula(result, defines, constraint, pathIndex);
       } else {
         // FIXME: Handle segment miss.
         // InvariantChecks.checkTrue(false);
@@ -792,7 +789,6 @@ public final class SymbolicExecutor {
     if (value != null) {
       // If the result is false, there is a conflict.
       // If the result is true, the condition is redundant.
-      Logger.debug("Conflict: constant condition %s", condition);
       result.setConflict(!value.booleanValue());
       return value;
     }
@@ -844,8 +840,6 @@ public final class SymbolicExecutor {
       final List<Node> clauseBuilder,
       final Node atom,
       final int pathIndex) {
-    Logger.debug("Condition atom: %s", atom);
-
     final NodeOperation equality = (NodeOperation) atom;
     InvariantChecks.checkTrue(
            equality.getOperationId() == StandardOperation.EQ
@@ -887,7 +881,6 @@ public final class SymbolicExecutor {
 
             if (!truthValue && operation == StandardOperation.AND) {
               // Condition is always false.
-              Logger.debug("Conflict: false atom");
               result.setConflict(true);
               return Boolean.FALSE;
             }
@@ -1029,7 +1022,6 @@ public final class SymbolicExecutor {
                   );
 
         clauseBuilder.add(Nodes.eq(lhsField, rhsField));
-        Logger.debug("Clause builder: %s", clauseBuilder);
 
         rhsTerms.add(rhsField);
 
@@ -1045,8 +1037,9 @@ public final class SymbolicExecutor {
         clauseBuilder.add(
             Nodes.eq(
                 Nodes.bvextract(lhsUpperBit, offset, newLhsVar),
-                NodeValue.newBitVector(BitVector.valueOf(0, (lhsUpperBit - offset) + 1))));
-        Logger.debug("Clause builder: %s", clauseBuilder);
+                NodeValue.newBitVector(BitVector.valueOf(0, (lhsUpperBit - offset) + 1))
+            )
+        );
       }
 
       // Equation for the suffix part.
@@ -1146,8 +1139,6 @@ public final class SymbolicExecutor {
     final List<Node> clauseBuilder1 = new ArrayList<>();
     final List<Node> clauseBuilder2 = new ArrayList<>();
 
-    Logger.debug("Get if-then formula: %s", formula);
-
     // Introduce a Boolean variable: C == (PHI == i).
     final Node condition = getIfThenField(FortressUtils.getVariable(phi), i);
 
@@ -1167,7 +1158,6 @@ public final class SymbolicExecutor {
 
     for (final Node operand : clauses.getOperands()) {
       final NodeOperation clause = (NodeOperation) operand;
-      Logger.debug("Clause: %s", clause);
 
       if (clause.getOperationId() == StandardOperation.OR) {
         // C -> (A | B) == (~C | A | B).

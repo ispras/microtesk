@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.utils;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * The {@link AdjacencyList} class is an implementation of list that facilitates

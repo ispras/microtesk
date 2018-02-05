@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -27,7 +27,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaBuilder;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaProblemSat4j;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaSolverSat4j;
@@ -216,7 +215,7 @@ public final class MemoryEngineUtils {
   public static Map<Variable, BitVector> generateData(
       final Access access,
       final Collection<Node> conditions,
-      final Collection<BitVectorConstraint> constraints,
+      final Collection<Node> constraints,
       final BitVectorVariableInitializer initializer) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(constraints);
@@ -270,7 +269,7 @@ public final class MemoryEngineUtils {
   private static SolverResult<Map<Variable, BitVector>> solve(
       final Access access,
       final Collection<Node> conditions,
-      final Collection<BitVectorConstraint> constraints,
+      final Collection<Node> constraints,
       final BitVectorVariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(access);
@@ -305,8 +304,8 @@ public final class MemoryEngineUtils {
     final BitVectorFormulaBuilder builder = symbolicResult.getBuilder().clone();
 
     // Supplement the formula with the constraints.
-    for (final BitVectorConstraint constraint : constraints) {
-      builder.addFormula(constraint.getFormula());
+    for (final Node constraint : constraints) {
+      builder.addFormula(constraint);
     }
 
     final Solver<Map<Variable, BitVector>> solver = newSolver(builder, initializer);
