@@ -54,7 +54,7 @@ import java.util.TreeMap;
 public final class TestBase {
   private final String path;
   private final Map<String, Map<String, SsaForm>> storage;
-  private final ru.ispras.testbase.stub.TestBase testBase;
+  private final ru.ispras.testbase.TestBase testBase;
 
   private static TestBase instance = null;
   private static SolverId solverId = SolverId.CVC4_TEXT;
@@ -69,13 +69,13 @@ public final class TestBase {
   public static void setSolverId(final SolverId value) {
     InvariantChecks.checkNotNull(value);
     solverId = value;
-    ru.ispras.testbase.stub.TestBase.setSolverId(value);
+    ru.ispras.testbase.TestBase.setSolverId(value);
   }
 
   private TestBase(final String path) {
     this.path = path;
     this.storage = new HashMap<>();
-    this.testBase = ru.ispras.testbase.stub.TestBase.get();
+    this.testBase = ru.ispras.testbase.TestBase.get();
   }
 
   private TestBase() {

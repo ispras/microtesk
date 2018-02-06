@@ -14,14 +14,6 @@
 
 package ru.ispras.microtesk;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.OptionReader;
 import ru.ispras.microtesk.options.Options;
@@ -36,9 +28,17 @@ import ru.ispras.microtesk.tools.transform.TraceTransformer;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorContext;
 import ru.ispras.microtesk.utils.FileUtils;
+import ru.ispras.testbase.TestBase;
 import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.generator.DataGenerator;
-import ru.ispras.testbase.stub.TestBase;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public final class MicroTESK {
   private MicroTESK() {}
