@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.engine.InitializerMakerDefault;
@@ -26,6 +22,10 @@ import ru.ispras.microtesk.test.engine.branch.BranchInitializerMaker;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.nml.NmlTranslator;
 import ru.ispras.testbase.generator.DataGenerator;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * MicroTESK {@link Core} is organized as a MicroTESK {@link Plugin}.

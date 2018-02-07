@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,16 +14,16 @@
 
 package ru.ispras.microtesk;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.Model;
+import ru.ispras.microtesk.model.ModelBuilder;
+import ru.ispras.microtesk.translator.generation.PackageInfo;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.Model;
-import ru.ispras.microtesk.model.ModelBuilder;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
 
 /**
  * The {@link SysUtils} class provides utility methods to interact with the environment.
