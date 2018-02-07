@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * {@link AccessesIteratorRandom} implements a random iterator of memory access skeletons,

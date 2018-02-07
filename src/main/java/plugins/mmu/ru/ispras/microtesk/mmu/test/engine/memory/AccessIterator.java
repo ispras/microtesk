@@ -14,14 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -38,6 +30,14 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * {@link AccessIterator} implements a DFS-based iterator of memory access paths.

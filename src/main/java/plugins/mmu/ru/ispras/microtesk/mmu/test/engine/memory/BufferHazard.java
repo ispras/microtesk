@@ -14,15 +14,15 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * {@link BufferHazard} describes a buffer access hazard.

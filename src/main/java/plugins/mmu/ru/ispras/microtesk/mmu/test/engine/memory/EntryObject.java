@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
+
+import java.util.Collection;
+import java.util.LinkedHashSet;
 
 /**
  * {@link EntryObject} stores information about a buffer entry.

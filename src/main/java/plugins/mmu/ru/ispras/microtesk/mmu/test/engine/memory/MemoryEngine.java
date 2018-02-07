@@ -14,11 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.basis.MemoryDataType;
@@ -34,6 +29,11 @@ import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@link MemoryEngine} implements a test engine for memory management units (MMU).

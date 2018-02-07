@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -33,6 +29,10 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * {@link SymbolicRestrictor} produces a constraint for a given memory access.

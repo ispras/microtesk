@@ -14,18 +14,18 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
  * {@link Graph} represents a memory subsystem's control flow graph (CFG).

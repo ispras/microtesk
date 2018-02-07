@@ -14,11 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
@@ -38,6 +33,11 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.utils.HierarchicalMap;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * {@link SymbolicExecutor} represents a result of symbolic execution.

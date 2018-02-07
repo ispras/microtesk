@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.ArrayList;
 import java.util.Collection;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link BufferDependency} describes a dependency, i.e. a number of buffer access hazards.

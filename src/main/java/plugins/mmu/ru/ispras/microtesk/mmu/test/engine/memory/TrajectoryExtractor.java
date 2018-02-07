@@ -14,6 +14,13 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,13 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 
 /**
  * Given a memory subsystem specification and an abstraction (labeling) function,

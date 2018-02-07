@@ -14,13 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
@@ -34,6 +27,13 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 /**
  * {@link AccessPath} represents an execution path of a memory access instruction.

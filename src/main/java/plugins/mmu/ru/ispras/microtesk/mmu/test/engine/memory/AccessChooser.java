@@ -14,12 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -27,6 +21,12 @@ import ru.ispras.microtesk.basis.solver.BiasedConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public final class AccessChooser {
   private final MmuSubsystem memory;

@@ -14,12 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
@@ -44,6 +38,12 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.utils.FortressUtils;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * {@link MemoryEngineUtils} implements utilities used in the memory engine.

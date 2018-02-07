@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link EntryTracker} tracks entries to be written to a memory-mapped buffer.

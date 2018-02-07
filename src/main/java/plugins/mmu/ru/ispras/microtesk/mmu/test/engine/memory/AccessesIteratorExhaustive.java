@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.ProductIterator;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * {@link AccessesIteratorExhaustive} implements an exhaustive iterator of memory access

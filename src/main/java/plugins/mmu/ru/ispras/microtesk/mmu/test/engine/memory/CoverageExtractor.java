@@ -14,17 +14,17 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>

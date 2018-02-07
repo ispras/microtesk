@@ -14,12 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.math.BigInteger;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -31,6 +25,12 @@ import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.test.engine.allocator.AllocationStrategyId;
 import ru.ispras.microtesk.test.engine.allocator.AllocationTable;
 import ru.ispras.microtesk.utils.function.Supplier;
+
+import java.math.BigInteger;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * {@link EntryIdAllocator} implements an allocator of entry identifiers (indices) for

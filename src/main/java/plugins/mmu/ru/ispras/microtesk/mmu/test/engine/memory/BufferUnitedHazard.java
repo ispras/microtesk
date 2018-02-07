@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+
 import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 
 /**
  * {@link BufferUnitedHazard} represents a united buffer access hazard,

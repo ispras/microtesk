@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -25,6 +22,9 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * {@link AddressObject} represents test data for a single memory access.

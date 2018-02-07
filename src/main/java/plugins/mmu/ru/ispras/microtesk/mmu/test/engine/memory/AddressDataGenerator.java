@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.math.BigInteger;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
@@ -33,6 +29,10 @@ import ru.ispras.testbase.generator.DataGenerator;
 import ru.ispras.testbase.generator.Utils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
+
+import java.math.BigInteger;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * {@link AddressDataGenerator} randomly generates an address from a given memory region.

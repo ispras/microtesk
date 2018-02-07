@@ -14,17 +14,17 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * {@link DependencyIterator} is a base iterator of dependencies between two memory accesses.

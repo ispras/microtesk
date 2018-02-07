@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * {@link Access} describes an execution path of a memory access instruction.
