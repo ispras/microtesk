@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.ModelStateManager;
 import ru.ispras.microtesk.utils.SparseArray;
+
+import java.math.BigInteger;
 
 /**
  * This is an abstract representation of a partially associative cache memory. A cache unit is
@@ -101,7 +101,7 @@ public abstract class Cache<D extends Data, A extends Address>
     Set<D, A> result = sets.get(index);
 
     if (null == result) {
-      result = new Set<D, A>(associativity, policyId, matcher);
+      result = new Set<>(associativity, policyId, matcher);
       sets.set(index, result);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.mmu.basis;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
-
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
 
 /**
  * {@link MemoryAccessStack} represents a memory access stack.

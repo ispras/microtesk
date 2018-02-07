@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.utils.SparseArray;
+
+import java.math.BigInteger;
 
 /**
  * The {@link RegisterMapping} class implements a register-mapped buffer.

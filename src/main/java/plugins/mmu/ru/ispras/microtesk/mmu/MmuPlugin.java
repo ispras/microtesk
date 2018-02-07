@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,9 +13,6 @@
  */
 
 package ru.ispras.microtesk.mmu;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -37,6 +34,9 @@ import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.testbase.generator.DataGenerator;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * {@code MmuPlugin} is a MicroTESK plugin responsible for specifying and testing memory management
