@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,8 +25,10 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 
+import java.util.Map;
+
 /**
- * Test for {@link BitVectorRangeConstraint}.
+ * Test for {@link BitVectorConstraint}.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

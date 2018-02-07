@@ -14,12 +14,6 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -28,6 +22,12 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.BitUtils;
 import ru.ispras.fortress.util.InvariantChecks;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * {@link BitVectorConstraint} is generic interface of a bit-vector constraint.

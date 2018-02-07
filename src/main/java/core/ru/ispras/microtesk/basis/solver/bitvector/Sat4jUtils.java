@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
-import java.math.BigInteger;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
@@ -31,6 +27,10 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
+
+import java.math.BigInteger;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * {@link Sat4jUtils} contains a number of utilities to deal with SAT4J.
