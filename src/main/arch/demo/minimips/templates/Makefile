@@ -47,7 +47,8 @@ TESTS = aligned_calls\
         random_sequence\
         random_situation\
         register_allocation\
-        selfchecks
+        selfchecks\
+        testdata
 
 all: $(TESTS)
 
