@@ -31,14 +31,14 @@ package ru.ispras.microtesk.utils;
  */
 public interface Predicate<T> {
 
-    /**
-     * Use the specified parameter to perform a test that returns true or false.
-     *
-     * @param object  the object to evaluate, should not be changed
-     * @return true or false
-     * @throws ClassCastException (runtime) if the input is the wrong class
-     * @throws IllegalArgumentException (runtime) if the input is invalid
-     */
-    boolean evaluate(T object);
+  /**
+   * Use the specified parameter to perform a test that returns true or false.
+   *
+   * @param object the object to evaluate, should not be changed
+   * @return true or false
+   * @throws ClassCastException (runtime) if the input is the wrong class
+   * @throws IllegalArgumentException (runtime) if the input is invalid
+   */
+  boolean evaluate(T object);
 
 }
