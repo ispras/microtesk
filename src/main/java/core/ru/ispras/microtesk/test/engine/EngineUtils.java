@@ -227,7 +227,8 @@ public final class EngineUtils {
     final TestBaseQueryResult queryResult = testBase.executeQuery(query);
 
     if (TestBaseQueryResult.Status.OK != queryResult.getStatus()) {
-      Logger.warning(makeErrorMessage(queryResult) + ": default test data will be used");
+      Logger.warning("Query processing has failed: %s", queryResult);
+      Logger.warning("Default test data will be used.");
       return TestBaseUtils.newRandomTestData(query);
     }
 
@@ -562,23 +563,6 @@ public final class EngineUtils {
     InvariantChecks.checkNotNull(stream);
 
     return stream.getWrite();
-  }
-
-  public static String makeErrorMessage(final TestBaseQueryResult queryResult) {
-    InvariantChecks.checkNotNull(queryResult);
-
-    final StringBuilder sb = new StringBuilder(String.format(
-        "Failed to execute the query. Status: %s.", queryResult.getStatus()));
-
-    if (!queryResult.hasErrors()) {
-      return sb.toString();
-    }
-    sb.append(" Errors: ");
-    for (String error : queryResult.getErrors()) {
-      sb.append(System.lineSeparator() + "  " + error);
-    }
-
-    return sb.toString();
   }
 
   public static Set<AddressingModeWrapper> getOutAddressingModes(final List<AbstractCall> calls) {
