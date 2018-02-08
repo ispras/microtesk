@@ -63,7 +63,7 @@ public final class SelfCheckEngine {
     Logger.debug("Processing %s...", check);
 
     final Primitive abstractMode = check.getMode().getModePrimitive();
-    final IsaPrimitive concreteMode = EngineUtils.makeMode(engineContext, abstractMode);
+    final IsaPrimitive concreteMode = EngineUtils.makeConcretePrimitive(engineContext, abstractMode);
     final Model model = engineContext.getModel();
 
     final BitVector value =

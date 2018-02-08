@@ -20,6 +20,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.ConfigurationException;
@@ -42,13 +43,13 @@ import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
-import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.test.template.Value;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryResult;
 import ru.ispras.testbase.TestBaseRegistry;
@@ -356,7 +357,7 @@ public final class EngineUtils {
       final Primitive rootOp = abstractCall.getRootOperation();
       checkRootOp(rootOp);
 
-      final IsaPrimitive op = makeOp(engineContext, rootOp);
+      final IsaPrimitive op = makeConcretePrimitive(engineContext, rootOp);
       final InstructionCall executable = engineContext.getModel().newCall(op);
 
       return new ConcreteCall(
@@ -440,26 +441,25 @@ public final class EngineUtils {
         ));
   }
 
-  public static IsaPrimitive makeMode(
+  public static IsaPrimitive makeConcretePrimitive(
       final EngineContext engineContext,
-      final Argument argument) throws ConfigurationException {
+      final Primitive primitive) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
-    checkArgKind(argument, Argument.Kind.MODE);
+    InvariantChecks.checkNotNull(primitive);
 
-    final Primitive abstractMode = (Primitive) argument.getValue();
-    return makeMode(engineContext, abstractMode);
-  }
+    final String name = primitive.getName();
+    final IsaPrimitiveBuilder builder;
 
-  public static IsaPrimitive makeMode(
-      final EngineContext engineContext,
-      final Primitive abstractMode) throws ConfigurationException {
-    InvariantChecks.checkNotNull(engineContext);
-    checkMode(abstractMode);
+    if (Primitive.Kind.MODE == primitive.getKind() ) {
+      builder = engineContext.getModel().newMode(name);
+    } else if (Primitive.Kind.OP == primitive.getKind()) {
+      builder = engineContext.getModel().newOp(name, primitive.getContextName());
+    } else {
+      throw new IllegalArgumentException(String.format(
+          String.format("%s is not an addressing mode or an operation.", primitive.getName())));
+    }
 
-    final IsaPrimitiveBuilder builder =
-        engineContext.getModel().newMode(abstractMode.getName());
-
-    for (Argument arg : abstractMode.getArguments().values()) {
+    for (final Argument arg : primitive.getArguments().values()) {
       final String argName = arg.getName();
       switch (arg.getKind()) {
         case IMM:
@@ -487,77 +487,17 @@ public final class EngineUtils {
             labelRefs.add(labelReference);
           }
 
-          if (abstractMode.isLabel()) {
+          if (primitive.isLabel()) {
             builder.setLabelReference(labelReference);
           }
 
           break;
         }
 
-        default:
-          throw new IllegalArgumentException(String.format(
-            "Illegal kind of argument %s: %s.", argName, arg.getKind()));
-      }
-    }
-
-    return builder.build();
-  }
-
-  public static IsaPrimitive makeOp(
-      final EngineContext engineContext,
-      final Argument argument) throws ConfigurationException {
-    InvariantChecks.checkNotNull(engineContext);
-    checkArgKind(argument, Argument.Kind.OP);
-
-    final Primitive abstractOp = (Primitive) argument.getValue();
-    return makeOp(engineContext, abstractOp);
-  }
-
-  public static IsaPrimitive makeOp(
-      final EngineContext engineContext,
-      final Primitive abstractOp) throws ConfigurationException {
-    InvariantChecks.checkNotNull(engineContext);
-    checkOp(abstractOp);
-
-    final String name = abstractOp.getName();
-    final String context = abstractOp.getContextName();
-
-    final IsaPrimitiveBuilder builder =
-        engineContext.getModel().newOp(name, context);
-
-    for (Argument arg : abstractOp.getArguments().values()) {
-      final String argName = arg.getName();
-      switch (arg.getKind()) {
-        case IMM:
-        case IMM_RANDOM:
-        case IMM_UNKNOWN:
-          builder.setArgument(argName, getImmediateValue(arg));
-          break;
-
-        case IMM_LAZY: {
-          final LocationAccessor locationAccessor =
-              builder.setArgument(argName, getImmediateValue(arg));
-          if (arg.getValue() == LazyValue.ADDRESS && addressRefs != null) {
-            addressRefs.add(locationAccessor);
-          }
-          break;
-        }
-
-        case LABEL: {
-          final LocationAccessor locationAccessor =
-              builder.setArgument(argName, getImmediateValue(arg));
-          if (null != labelRefs) {
-            labelRefs.add(new LabelReference((LabelValue) arg.getValue(), locationAccessor));
-          }
-          break;
-        }
-
         case MODE:
-          builder.setArgument(argName, makeMode(engineContext, arg));
-          break;
-
         case OP:
-          builder.setArgument(argName, makeOp(engineContext, arg));
+          builder.setArgument(
+              argName, makeConcretePrimitive(engineContext, (Primitive) arg.getValue()));
           break;
 
         default:
@@ -584,8 +524,8 @@ public final class EngineUtils {
       return preparator.makeInitializer(preparators, mode, value, null);
     }
 
-    throw new GenerationAbortedException(
-        String.format("No suitable preparator is found for %s.", mode.getSignature()));
+    throw new GenerationAbortedException(String.format(
+        "No suitable preparator is found for %s.", mode.getSignature()));
   }
 
   public static List<AbstractCall> makeStreamInit(
@@ -628,7 +568,7 @@ public final class EngineUtils {
     InvariantChecks.checkNotNull(queryResult);
 
     final StringBuilder sb = new StringBuilder(String.format(
-      "Failed to execute the query. Status: %s.", queryResult.getStatus()));
+        "Failed to execute the query. Status: %s.", queryResult.getStatus()));
 
     if (!queryResult.hasErrors()) {
       return sb.toString();
@@ -673,33 +613,15 @@ public final class EngineUtils {
     }
   }
 
-  public static void checkOp(final Primitive op) {
-    InvariantChecks.checkNotNull(op);
-    InvariantChecks.checkTrue(
-        Primitive.Kind.OP == op.getKind(),
-        String.format("%s is not an operation.", op.getName())
-        );
-  }
+  public static void checkRootOp(final Primitive primitive) {
+    InvariantChecks.checkNotNull(primitive);
 
-  public static void checkMode(final Primitive mode) {
-    InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkTrue(
-        Primitive.Kind.MODE == mode.getKind(),
-        String.format("%s is not an addressing mode.", mode.getName())
-        );
-  }
+        Primitive.Kind.OP == primitive.getKind(),
+        String.format("%s is not an operation.", primitive.getName()));
 
-  public static void checkRootOp(final Primitive op) {
-    checkOp(op);
-    InvariantChecks.checkTrue(op.isRoot(), op.getName() + " is not a root operation!");
-  }
-
-  public static void checkArgKind(final Argument arg, final Argument.Kind expected) {
-    InvariantChecks.checkNotNull(arg);
     InvariantChecks.checkTrue(
-        arg.getKind() == expected,
-        String.format("Argument %s has kind %s while %s is expected.",
-            arg.getName(), arg.getKind(), expected)
-        );
+        primitive.isRoot(),
+        primitive.getName() + " is not a root operation!");
   }
 }

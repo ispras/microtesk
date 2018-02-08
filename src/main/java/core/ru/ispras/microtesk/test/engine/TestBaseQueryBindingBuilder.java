@@ -158,7 +158,7 @@ final class TestBaseQueryBindingBuilder {
   private void setBindingMode(final String name, final Primitive modePrimitive) {
     final Model model = engineContext.getModel();
     try {
-      final IsaPrimitive mode = EngineUtils.makeMode(engineContext, modePrimitive);
+      final IsaPrimitive mode = EngineUtils.makeConcretePrimitive(engineContext, modePrimitive);
       final Location location = mode.access(model.getPE(), model.getTempVars());
 
       if (location.isInitialized()) {

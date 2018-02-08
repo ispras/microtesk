@@ -588,7 +588,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           final Stream stream = engineContext.getStreams().getStream(streamId);
 
           final IsaPrimitive indexSource =
-              EngineUtils.makeMode(engineContext, stream.getIndexSource());
+              EngineUtils.makeConcretePrimitive(engineContext, stream.getIndexSource());
 
           final LocationAccessor streamIndex = indexSource.access(
               engineContext.getModel().getPE(), engineContext.getModel().getTempVars());
