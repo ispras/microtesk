@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.test;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.EnumMap;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 
 /**
  * The {@link Statistics} class collects statistical information and performance metrics

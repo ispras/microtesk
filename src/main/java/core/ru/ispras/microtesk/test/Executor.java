@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.test;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
@@ -30,6 +28,8 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
+
+import java.math.BigInteger;
 
 /**
  * The role of the {@link Executor} class is to execute (simulate) instruction calls

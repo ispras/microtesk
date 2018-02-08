@@ -14,15 +14,15 @@
 
 package ru.ispras.microtesk.test;
 
-import java.io.IOException;
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.template.DataSection;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * The {@link PrinterUtils} class provides utility methods for printing test programs and their

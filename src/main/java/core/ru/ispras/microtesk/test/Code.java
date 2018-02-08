@@ -14,16 +14,16 @@
 
 package ru.ispras.microtesk.test;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.test.template.ConcreteCall;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.test.template.ConcreteCall;
 
 /**
  * The {@link Code} class describes the organization of code sections to be simulated.

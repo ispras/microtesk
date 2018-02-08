@@ -14,17 +14,17 @@
 
 package ru.ispras.microtesk.test;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.test.template.BlockId.Distance;
+import ru.ispras.microtesk.test.template.Label;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.test.template.BlockId.Distance;
-import ru.ispras.microtesk.test.template.Label;
 
 /**
  * The role of the {@link LabelManager} class is resolving references to labels that have the same

@@ -14,11 +14,6 @@
 
 package ru.ispras.microtesk.test;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Date;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -30,6 +25,11 @@ import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.generation.STFileGenerator;
+
+import java.io.File;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Date;
 
 final class LinkerScriptPrinter {
   private final String fileName;

@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The {@link ConcreteSequence} class describes a test sequence, a symbolic test program (or a part

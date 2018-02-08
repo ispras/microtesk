@@ -14,13 +14,6 @@
 
 package ru.ispras.microtesk.test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
@@ -39,6 +32,13 @@ import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelUniqualizer;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The {@link TestEngineUtils} class provides utility methods to be

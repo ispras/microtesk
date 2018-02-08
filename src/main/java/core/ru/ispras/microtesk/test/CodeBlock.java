@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.test;
 
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.test.template.ConcreteCall;
+
+import java.util.List;
 
 /**
  * The {@link CodeBlock} class describes a block of code to be simulated.

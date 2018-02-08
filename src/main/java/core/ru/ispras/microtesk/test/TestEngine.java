@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.test;
 
-import java.io.File;
-import java.util.List;
-
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
 
@@ -24,6 +21,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.solver.Environment;
 import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
@@ -39,6 +37,9 @@ import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * The {@link TestEngine} class is responsible for generation of test programs.

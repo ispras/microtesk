@@ -14,13 +14,6 @@
 
 package ru.ispras.microtesk.test;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
@@ -36,6 +29,13 @@ import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
 import ru.ispras.microtesk.utils.FileUtils;
 import ru.ispras.microtesk.utils.BinaryWriter;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 /**
  * The {@link Printer} class is responsible for printing generated symbolic test programs

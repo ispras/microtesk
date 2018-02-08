@@ -14,6 +14,13 @@
 
 package ru.ispras.microtesk.test;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.test.template.Block;
+import ru.ispras.microtesk.test.template.DataSection;
+import ru.ispras.microtesk.utils.AdjacencyList;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,13 +28,6 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.test.template.Block;
-import ru.ispras.microtesk.test.template.DataSection;
-import ru.ispras.microtesk.utils.AdjacencyList;
 
 /**
  * This structure describes test program being generated.
