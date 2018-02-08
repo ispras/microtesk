@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.model.metadata;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.ArgumentMode;
@@ -25,6 +21,10 @@ import ru.ispras.microtesk.model.data.Type;
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.IsaPrimitiveKind;
 import ru.ispras.microtesk.utils.StringUtils;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * The {@code MetaArgument} class describes arguments or addressing modes and operations.

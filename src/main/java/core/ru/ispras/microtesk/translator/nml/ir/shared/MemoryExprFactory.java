@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
-import java.math.BigInteger;
-
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
@@ -23,6 +21,8 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+
+import java.math.BigInteger;
 
 public final class MemoryExprFactory extends WalkerFactoryBase {
 

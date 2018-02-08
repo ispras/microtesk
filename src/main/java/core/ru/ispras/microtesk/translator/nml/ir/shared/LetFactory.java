@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,15 +14,15 @@
 
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class LetFactory extends WalkerFactoryBase {
   private static final String    ID_REX = "[a-zA-Z][\\w]*";

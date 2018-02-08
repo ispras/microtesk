@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import static ru.ispras.microtesk.translator.generation.PackageInfo.MODE_PACKAGE_FORMAT;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -23,8 +21,8 @@ import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
-import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -50,7 +48,7 @@ final class STBAddressingMode extends STBPrimitiveBase {
   private void buildHeader(final STGroup group, final ST t) {
     t.add("name", mode.getName());
     t.add("type", null != mode.getReturnType() ? mode.getReturnType().getJavaText() : "null");
-    t.add("pack", String.format(MODE_PACKAGE_FORMAT, modelName));
+    t.add("pack", String.format(PackageInfo.MODE_PACKAGE_FORMAT, modelName));
 
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());

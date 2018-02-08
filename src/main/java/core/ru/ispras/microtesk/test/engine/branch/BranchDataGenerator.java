@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -25,6 +22,9 @@ import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.generator.DataGenerator;
 import ru.ispras.testbase.generator.Utils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * {@link BranchDataGenerator} is a base class for test data generators for conditional branch

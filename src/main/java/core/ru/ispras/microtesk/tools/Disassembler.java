@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.tools;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -31,6 +27,10 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.utils.BinaryReader;
 import ru.ispras.microtesk.utils.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * {@link Disassembler} is a class responsible for disassembling binary files.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,16 +14,16 @@
 
 package ru.ispras.microtesk.utils;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 
 /**
  * The {@link Mask} class implements masks applied to bit vectors.

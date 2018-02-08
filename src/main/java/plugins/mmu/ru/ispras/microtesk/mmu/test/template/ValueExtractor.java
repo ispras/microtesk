@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,11 +14,6 @@
 
 package ru.ispras.microtesk.mmu.test.template;
 
-import java.math.BigInteger;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBiased;
 import ru.ispras.fortress.randomizer.VariateCollection;
@@ -26,6 +21,11 @@ import ru.ispras.fortress.randomizer.VariateComposite;
 import ru.ispras.fortress.randomizer.VariateInterval;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
+
+import java.math.BigInteger;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 final class ValueExtractor {
   private final Set<BigInteger> values;

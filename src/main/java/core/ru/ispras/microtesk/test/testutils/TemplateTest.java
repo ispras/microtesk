@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.test.testutils;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.MicroTESK;
@@ -26,6 +22,10 @@ import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.utils.FileUtils;
 import ru.ispras.microtesk.utils.StringUtils;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * The {@link TemplateTest} class is a base class for all JUnit test

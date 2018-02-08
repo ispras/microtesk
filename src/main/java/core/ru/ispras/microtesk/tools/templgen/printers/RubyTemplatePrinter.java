@@ -29,7 +29,6 @@ import java.nio.charset.Charset;
  *
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-
 public class RubyTemplatePrinter implements TemplatePrinter {
   public static final String[] RUBY_KEYWORDS = {"and", "or"};
   public static final String RUBY_TAB = "  ";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.model.data;
 
-import ru.ispras.microtesk.model.data.floatx.FloatX;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+
+import ru.ispras.microtesk.model.data.floatx.FloatX;
 
 import java.math.BigInteger;
 

@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.utils;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link HierarchicalMap} implements a map composed of two ones.

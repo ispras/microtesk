@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.model.vmem;
 
-import ru.ispras.microtesk.test.Statistics;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import ru.ispras.microtesk.test.Statistics;
 
 public final class ExampleTestCase extends VmemTest {
   @Test

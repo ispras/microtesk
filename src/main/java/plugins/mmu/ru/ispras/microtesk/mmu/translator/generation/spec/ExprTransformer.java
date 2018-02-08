@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,11 +14,9 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import static ru.ispras.fortress.expression.ExprUtils.isOperation;
-import static ru.ispras.fortress.expression.ExprUtils.isValue;
-
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -83,7 +81,7 @@ public final class ExprTransformer {
   private static final class ZeroExtendRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node expr) {
-      return isOperation(expr, StandardOperation.BVZEROEXT);
+      return ExprUtils.isOperation(expr, StandardOperation.BVZEROEXT);
     }
 
     @Override
@@ -109,8 +107,8 @@ public final class ExprTransformer {
   private static final class LeftShiftRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node expr) {
-      if (!isOperation(expr, StandardOperation.BVLSHL) &&
-          !isOperation(expr, StandardOperation.BVASHL)) {
+      if (!ExprUtils.isOperation(expr, StandardOperation.BVLSHL) &&
+          !ExprUtils.isOperation(expr, StandardOperation.BVASHL)) {
         return false;
       }
 
@@ -145,7 +143,7 @@ public final class ExprTransformer {
   private static final class RightShiftRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node expr) {
-      if (!isOperation(expr, StandardOperation.BVLSHR)) {
+      if (!ExprUtils.isOperation(expr, StandardOperation.BVLSHR)) {
         return false;
       }
 
@@ -180,7 +178,7 @@ public final class ExprTransformer {
   private static final class NestedFieldRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node expr) {
-      if (!isOperation(expr, StandardOperation.BVEXTRACT)) {
+      if (!ExprUtils.isOperation(expr, StandardOperation.BVEXTRACT)) {
         return false;
       }
 
@@ -190,8 +188,8 @@ public final class ExprTransformer {
       }
 
       final Node nested = op.getOperand(2);
-      return isOperation(nested, StandardOperation.BVEXTRACT) ||
-             isOperation(nested, StandardOperation.BVCONCAT);
+      return ExprUtils.isOperation(nested, StandardOperation.BVEXTRACT)
+          || ExprUtils.isOperation(nested, StandardOperation.BVCONCAT);
     }
 
     @Override
@@ -212,8 +210,8 @@ public final class ExprTransformer {
   private static final class BitMaskRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node expr) {
-      if (!isOperation(expr, StandardOperation.BVOR) && 
-          !isOperation(expr, StandardOperation.BVAND)) {
+      if (!ExprUtils.isOperation(expr, StandardOperation.BVOR)
+          && !ExprUtils.isOperation(expr, StandardOperation.BVAND)) {
         return false;
       }
 
@@ -225,8 +223,8 @@ public final class ExprTransformer {
       final Node operand1 = op.getOperand(0);
       final Node operand2 = op.getOperand(1);
 
-      return ((isValue(operand1) && !isValue(operand2)) ||
-              (isValue(operand2) && !isValue(operand1)));
+      return ((ExprUtils.isValue(operand1) && !ExprUtils.isValue(operand2))
+          || (ExprUtils.isValue(operand2) && !ExprUtils.isValue(operand1)));
     }
 
     @Override
@@ -238,10 +236,10 @@ public final class ExprTransformer {
       final NodeValue mask;
       final Node operand;
 
-      if (isValue(operand1) && !isValue(operand2)) {
+      if (ExprUtils.isValue(operand1) && !ExprUtils.isValue(operand2)) {
         mask = (NodeValue) operand1;
         operand = operand2;
-      } else if (isValue(operand2) && !isValue(operand1)) {
+      } else if (ExprUtils.isValue(operand2) && !ExprUtils.isValue(operand1)) {
         mask = (NodeValue) operand2;
         operand = operand1;
       } else {
@@ -345,16 +343,16 @@ public final class ExprTransformer {
       return expr;
     }
 
-    if (isValue(expr)) {
+    if (ExprUtils.isValue(expr)) {
       final BitVector value = ((NodeValue) expr).getBitVector();
       return NodeValue.newBitVector(value.field(from, to));
     }
 
-    if (isOperation(expr, StandardOperation.BVEXTRACT)) {
+    if (ExprUtils.isOperation(expr, StandardOperation.BVEXTRACT)) {
       return newNestedField((NodeOperation) expr, from, to);
     }
 
-    if (isOperation(expr, StandardOperation.BVCONCAT)) {
+    if (ExprUtils.isOperation(expr, StandardOperation.BVCONCAT)) {
       return newFieldForConcat((NodeOperation) expr, from, to);
     }
 
@@ -365,7 +363,7 @@ public final class ExprTransformer {
     InvariantChecks.checkNotNull(op);
     InvariantChecks.checkTrue(op.isType(DataTypeId.BIT_VECTOR));
 
-    InvariantChecks.checkTrue(isOperation(op, StandardOperation.BVEXTRACT));
+    InvariantChecks.checkTrue(ExprUtils.isOperation(op, StandardOperation.BVEXTRACT));
     InvariantChecks.checkTrue(op.getOperandCount() == 3);
 
     final int bitSize = op.getDataType().getSize();
@@ -396,7 +394,7 @@ public final class ExprTransformer {
   private static Node newFieldForConcat(final NodeOperation op, final int from, final int to) {
     InvariantChecks.checkNotNull(op);
     InvariantChecks.checkTrue(op.isType(DataTypeId.BIT_VECTOR));
-    InvariantChecks.checkTrue(isOperation(op, StandardOperation.BVCONCAT));
+    InvariantChecks.checkTrue(ExprUtils.isOperation(op, StandardOperation.BVCONCAT));
 
     final int bitSize = op.getDataType().getSize();
     InvariantChecks.checkBounds(from, bitSize);
@@ -442,7 +440,7 @@ public final class ExprTransformer {
 
     final List<Node> newFields = new ArrayList<>(fields.size());
     for (final Node field : fields) {
-      if (isOperation(field, StandardOperation.BVCONCAT)) {
+      if (ExprUtils.isOperation(field, StandardOperation.BVCONCAT)) {
         newFields.addAll(((NodeOperation) field).getOperands());
       } else {
         newFields.add(field);

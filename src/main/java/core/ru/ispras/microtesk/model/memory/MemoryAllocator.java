@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,15 +14,15 @@
 
 package ru.ispras.microtesk.model.memory;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.GenerationAbortedException;
+
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.GenerationAbortedException;
 
 /**
  * The job of the MemoryAllocator class is to place data in the memory storage.

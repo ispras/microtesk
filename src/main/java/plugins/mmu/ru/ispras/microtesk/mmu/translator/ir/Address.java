@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkGreaterThanZero;
+import ru.ispras.fortress.util.InvariantChecks;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +28,8 @@ public final class Address {
   public Address(
       final String id,
       final int bitSize) {
-    checkNotNull(id);
-    checkGreaterThanZero(bitSize);
+    InvariantChecks.checkNotNull(id);
+    InvariantChecks.checkGreaterThanZero(bitSize);
 
     this.id = id;
     this.contentType = new Type(bitSize);
@@ -42,9 +41,9 @@ public final class Address {
       final String id,
       final Type type,
       final List<String> accessChain) {
-    checkNotNull(id);
-    checkNotNull(type);
-    checkNotNull(accessChain);
+    InvariantChecks.checkNotNull(id);
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(accessChain);
 
     this.id = id;
     this.contentType = type;

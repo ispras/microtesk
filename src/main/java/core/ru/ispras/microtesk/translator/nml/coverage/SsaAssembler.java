@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,20 +13,6 @@
  */
 
 package ru.ispras.microtesk.translator.nml.coverage;
-
-import static ru.ispras.microtesk.translator.nml.coverage.Utility.literalOperand;
-import static ru.ispras.microtesk.translator.nml.coverage.Utility.variableOperand;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
@@ -43,8 +29,20 @@ import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.translator.nml.coverage.Utility;
 import ru.ispras.microtesk.utils.NamePath;
 import ru.ispras.microtesk.utils.StringUtils;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 final class Parameters {
   private final NodeOperation node;
@@ -55,7 +53,7 @@ final class Parameters {
   }
 
   public String getName(final int i) {
-    return literalOperand(i, node);
+    return Utility.literalOperand(i, node);
   }
 
   final DataType getType(final int i) {
@@ -86,7 +84,7 @@ final class Closure {
   }
 
   public String getOriginName() {
-    return literalOperand(0, node);
+    return Utility.literalOperand(0, node);
   }
 
   public List<Node> getArguments() {
@@ -291,7 +289,7 @@ public final class SsaAssembler {
     @Override
     public Node apply(Node node) {
       final Pair<String, String> pair =
-          StringUtils.splitOnLast(literalOperand(0, node), '.');
+          StringUtils.splitOnLast(Utility.literalOperand(0, node), '.');
 
       return linkMacro(path, pair.second, suffix, version);
     }
@@ -328,7 +326,7 @@ public final class SsaAssembler {
       if (ExprUtils.isOperation(operand, SsaOperation.CLOSURE)) {
         linkClosure(callerPath, paramPath, new Closure(operand));
       } else if (ExprUtils.isOperation(operand, SsaOperation.ARGUMENT_LINK)) {
-        final String argName = literalOperand(0, operand);
+        final String argName = Utility.literalOperand(0, operand);
         final NamePath srcPath = callerPath.resolve(argName);
 
         final Map<NamePath, String> extension = new HashMap<>();
@@ -390,8 +388,8 @@ public final class SsaAssembler {
   }
 
   private static Pair<String, String> getArgumentCall(final Node node) {
-    return new Pair<>(variableOperand(0, node).getName(),
-                      variableOperand(1, node).getName());
+    return new Pair<>(Utility.variableOperand(0, node).getName(),
+        Utility.variableOperand(1, node).getName());
   }
 
   private Map<Enum<?>, TransformerRule> createRuleset(final NamePath path) {
@@ -410,7 +408,7 @@ public final class SsaAssembler {
           final NodeOperation call = (NodeOperation) node;
           final NodeOperation instance = (NodeOperation) call.getOperand(0);
 
-          final String callee = literalOperand(0, instance);
+          final String callee = Utility.literalOperand(0, instance);
           final NamePath ctxKey = path.resolve(callee);
           Integer num = contextEnum.get(ctxKey);
           if (num == null) {
@@ -422,7 +420,7 @@ public final class SsaAssembler {
             path.resolve(String.format("%s_%d", callee, num));
 
           linkClosure(path, innerPath, new Closure(instance));
-          step(innerPath, literalOperand(1, call));
+          step(innerPath, Utility.literalOperand(1, call));
         }
         // Prune custom SSA operation
         return Nodes.TRUE;
@@ -437,7 +435,7 @@ public final class SsaAssembler {
 
       @Override
       public Node apply(Node node) {
-        step(path, literalOperand(0, node));
+        step(path, Utility.literalOperand(0, node));
         // Prune custom SSA operation
         return Nodes.TRUE;
       }
@@ -451,7 +449,7 @@ public final class SsaAssembler {
 
       @Override
       public Node apply(Node node) {
-        return createTemporary(variableOperand(0, node).getDataType());
+        return createTemporary(Utility.variableOperand(0, node).getDataType());
       }
     };
 

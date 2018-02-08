@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.utils;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link HierarchicalSet} implements a set composed of two ones.

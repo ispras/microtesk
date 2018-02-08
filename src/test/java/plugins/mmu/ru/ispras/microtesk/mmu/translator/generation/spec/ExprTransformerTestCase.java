@@ -14,8 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import static org.junit.Assert.*;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.fortress.data.DataType;
@@ -73,7 +72,7 @@ public final class ExprTransformerTestCase {
     System.out.println("Expected: " + expected);
     */
 
-    assertEquals(expected, result);
+    Assert.assertEquals(expected, result);
   }
 
   @Test
@@ -113,7 +112,7 @@ public final class ExprTransformerTestCase {
     System.out.println("Expected: " + expected);
     */
 
-    assertEquals(expected, result);
+    Assert.assertEquals(expected, result);
   }
 
   private static void testLeftShift(
@@ -146,7 +145,7 @@ public final class ExprTransformerTestCase {
     System.out.println("Expected: " + expected);
     */
 
-    assertEquals(expected, result);
+    Assert.assertEquals(expected, result);
   }
 
   private static void testRightShift(
@@ -179,7 +178,7 @@ public final class ExprTransformerTestCase {
     System.out.println("Expected: " + expected);
     */
 
-    assertEquals(expected, result);
+    Assert.assertEquals(expected, result);
   }
 
   @Test
@@ -464,7 +463,7 @@ public final class ExprTransformerTestCase {
     System.out.println("Expected: " + expected);
     */
 
-    assertEquals(expected, result);
+    Assert.assertEquals(expected, result);
   }
 
   @Test
@@ -499,7 +498,7 @@ public final class ExprTransformerTestCase {
     System.out.println("Expected: " + expected);
     */
 
-    assertEquals(expected, result);
+    Assert.assertEquals(expected, result);
   }
 
   private static void testBitMask(
@@ -507,7 +506,7 @@ public final class ExprTransformerTestCase {
       final Node x,
       final BitVector mask,
       final Node expected) {
-    assertTrue(x.getDataType().getSize() == mask.getBitSize());
+    Assert.assertTrue(x.getDataType().getSize() == mask.getBitSize());
 
     final Node initial = new NodeOperation(
         operator,
@@ -523,7 +522,7 @@ public final class ExprTransformerTestCase {
     System.out.println("Expected: " + expected);
     */
 
-    assertEquals(expected, result);
+    Assert.assertEquals(expected, result);
   }
 
   private static Node transform(final Node expr) {

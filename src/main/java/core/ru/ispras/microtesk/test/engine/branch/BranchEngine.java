@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,18 +14,6 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
-import static ru.ispras.microtesk.test.engine.EngineUtils.getSituationName;
-import static ru.ispras.microtesk.test.engine.EngineUtils.makeStreamRead;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
@@ -34,6 +22,7 @@ import ru.ispras.microtesk.test.engine.AbstractSequence;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineParameterInteger;
+import ru.ispras.microtesk.test.engine.EngineUtils;
 import ru.ispras.microtesk.test.engine.SequenceSelector;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
@@ -45,6 +34,15 @@ import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.Value;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * {@link BranchEngine} implements a test engine that constructs test cases by enumerating
@@ -83,7 +81,7 @@ public final class BranchEngine implements Engine {
 
   static boolean isIfThen(final AbstractCall abstractCall) {
     // Self check.
-    final String situationName = getSituationName(abstractCall);
+    final String situationName = EngineUtils.getSituationName(abstractCall);
     final boolean flag = situationName != null && situationName.endsWith(IF_THEN_SITUATION_SUFFIX);
 
     /*
@@ -99,7 +97,7 @@ public final class BranchEngine implements Engine {
 
   static boolean isGoto(final AbstractCall abstractCall) {
     // Self check.
-    final String situationName = getSituationName(abstractCall);
+    final String situationName = EngineUtils.getSituationName(abstractCall);
     final boolean flag = situationName != null && situationName.endsWith(GOTO_SITUATION_SUFFIX);
 
     /*
@@ -498,7 +496,7 @@ public final class BranchEngine implements Engine {
 
       final String testDataStream = getTestDataStream(abstractCall);
       final List<AbstractCall> controlCode =
-          AbstractCall.copyAll(makeStreamRead(engineContext, testDataStream));
+          AbstractCall.copyAll(EngineUtils.makeStreamRead(engineContext, testDataStream));
 
       if (!controlCode.isEmpty()) {
         controlCode.get(0).getAttributes().put("dependsOn", abstractCall);

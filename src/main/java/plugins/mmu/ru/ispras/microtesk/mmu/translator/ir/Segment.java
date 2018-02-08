@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,13 +14,12 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.util.InvariantChecks;
 
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Map;
-
-import ru.ispras.fortress.data.DataType;
 
 public final class Segment extends AbstractStorage {
   private final BigInteger min;
@@ -46,8 +45,8 @@ public final class Segment extends AbstractStorage {
         createAttributes(attrs)
         );
 
-    checkNotNull(min);
-    checkNotNull(max);
+    InvariantChecks.checkNotNull(min);
+    InvariantChecks.checkNotNull(max);
 
     this.min = min;
     this.max = max;

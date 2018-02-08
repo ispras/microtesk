@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.translator.nml.ir.shared;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 
@@ -31,8 +31,8 @@ public final class LetConstant {
   private final Expr expr;
 
   LetConstant(final String name, final Expr expr) {
-    checkNotNull(name);
-    checkNotNull(expr);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(expr);
 
     this.name = name;
     this.expr = expr;

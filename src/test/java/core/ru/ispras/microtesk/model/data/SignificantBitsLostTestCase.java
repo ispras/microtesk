@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,13 +14,10 @@
 
 package ru.ispras.microtesk.model.data;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.math.BigInteger;
-
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigInteger;
 
 public class SignificantBitsLostTestCase {
 
@@ -32,47 +29,47 @@ public class SignificantBitsLostTestCase {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Size is Greater
 
-    assertFalse(check(Type.CARD(64), 0xFFFFFFFF));
-    assertFalse(check(Type.CARD(64), 0x00000000));
-    assertFalse(check(Type.CARD(64), Integer.MAX_VALUE));
-    assertFalse(check(Type.CARD(64), Integer.MIN_VALUE));
+    Assert.assertFalse(check(Type.CARD(64), 0xFFFFFFFF));
+    Assert.assertFalse(check(Type.CARD(64), 0x00000000));
+    Assert.assertFalse(check(Type.CARD(64), Integer.MAX_VALUE));
+    Assert.assertFalse(check(Type.CARD(64), Integer.MIN_VALUE));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Size is Equal
 
-    assertFalse(check(Type.CARD(32), 0xFFFFFFFF));
-    assertFalse(check(Type.CARD(32), 0x00000000));
-    assertFalse(check(Type.CARD(32), Integer.MAX_VALUE));
-    assertFalse(check(Type.CARD(32), Integer.MIN_VALUE));
+    Assert.assertFalse(check(Type.CARD(32), 0xFFFFFFFF));
+    Assert.assertFalse(check(Type.CARD(32), 0x00000000));
+    Assert.assertFalse(check(Type.CARD(32), Integer.MAX_VALUE));
+    Assert.assertFalse(check(Type.CARD(32), Integer.MIN_VALUE));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Size is Smaller (a multiple of byte (8-bits))
 
-    assertFalse(check(Type.CARD(16), 0x00000001));
-    assertFalse(check(Type.CARD(16), 0x0000FFFF));
-    assertFalse(check(Type.CARD(16), 0xFFFFFFFF));
-    assertFalse(check(Type.CARD(16), 0xFFFF8000));
+    Assert.assertFalse(check(Type.CARD(16), 0x00000001));
+    Assert.assertFalse(check(Type.CARD(16), 0x0000FFFF));
+    Assert.assertFalse(check(Type.CARD(16), 0xFFFFFFFF));
+    Assert.assertFalse(check(Type.CARD(16), 0xFFFF8000));
 
-    assertTrue(check(Type.CARD(16),  0x00010000));
-    assertTrue(check(Type.CARD(16),  0xFFFF0000));
-    assertTrue(check(Type.CARD(16),  0xF7FFFFFF));
-    assertTrue(check(Type.CARD(16),  0xFFFF7000));
-    assertTrue(check(Type.CARD(16),  0xFFFE8000));
+    Assert.assertTrue(check(Type.CARD(16),  0x00010000));
+    Assert.assertTrue(check(Type.CARD(16),  0xFFFF0000));
+    Assert.assertTrue(check(Type.CARD(16),  0xF7FFFFFF));
+    Assert.assertTrue(check(Type.CARD(16),  0xFFFF7000));
+    Assert.assertTrue(check(Type.CARD(16),  0xFFFE8000));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Size is Smaller (not a multiple of byte (8-bits))
 
-    assertFalse(check(Type.CARD(11), 0x00000001));
-    assertFalse(check(Type.CARD(11), 0x000007FF));
-    assertFalse(check(Type.CARD(11), 0xFFFFFFFF));
-    assertFalse(check(Type.CARD(11), 0xFFFFFD00));
+    Assert.assertFalse(check(Type.CARD(11), 0x00000001));
+    Assert.assertFalse(check(Type.CARD(11), 0x000007FF));
+    Assert.assertFalse(check(Type.CARD(11), 0xFFFFFFFF));
+    Assert.assertFalse(check(Type.CARD(11), 0xFFFFFD00));
 
-    assertTrue(check(Type.CARD(11),  0x00000800));
-    assertTrue(check(Type.CARD(11),  0xFFFFF800));
-    assertTrue(check(Type.CARD(11),  0xFFF7FFFF));
-    assertTrue(check(Type.CARD(11),  0x7FFFFFFF));
-    assertTrue(check(Type.CARD(11),  0xFFFFF3FF));
-    assertTrue(check(Type.CARD(11),  0xFFFFECFF));
+    Assert.assertTrue(check(Type.CARD(11),  0x00000800));
+    Assert.assertTrue(check(Type.CARD(11),  0xFFFFF800));
+    Assert.assertTrue(check(Type.CARD(11),  0xFFF7FFFF));
+    Assert.assertTrue(check(Type.CARD(11),  0x7FFFFFFF));
+    Assert.assertTrue(check(Type.CARD(11),  0xFFFFF3FF));
+    Assert.assertTrue(check(Type.CARD(11),  0xFFFFECFF));
   }
 
   private static boolean check(Type type, long value) {

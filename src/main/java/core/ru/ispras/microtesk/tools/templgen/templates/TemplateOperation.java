@@ -27,7 +27,6 @@ import java.util.Iterator;
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-
 public class TemplateOperation {
   private static final int JUMP_REG = 3;
 

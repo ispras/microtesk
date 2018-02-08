@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.TreeVisitor.Status;
@@ -31,6 +27,10 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public final class IrWalkerFlow {
   private final Ir ir;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,15 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import ru.ispras.fortress.solver.constraint.Constraint;
+import ru.ispras.fortress.solver.xml.XmlConstraintLoader;
+import ru.ispras.fortress.solver.xml.XmlConstraintSaver;
+import ru.ispras.fortress.solver.xml.XmlNotLoadedException;
+import ru.ispras.fortress.solver.xml.XmlNotSavedException;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.utils.FileUtils;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,15 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import ru.ispras.fortress.solver.constraint.Constraint;
-import ru.ispras.fortress.solver.xml.XmlConstraintLoader;
-import ru.ispras.fortress.solver.xml.XmlConstraintSaver;
-import ru.ispras.fortress.solver.xml.XmlNotLoadedException;
-import ru.ispras.fortress.solver.xml.XmlNotSavedException;
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.utils.FileUtils;
 
 final class SsaStorage {
   private SsaStorage() {}

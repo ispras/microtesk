@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,13 +13,6 @@
  */
 
 package ru.ispras.microtesk.mmu.translator;
-
-import java.io.FileReader;
-import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
-import java.util.Set;
 
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.CharStream;
@@ -44,6 +37,13 @@ import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
 import ru.ispras.microtesk.utils.FileUtils;
+
+import java.io.FileReader;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
+import java.util.Set;
 
 public final class MmuTranslator extends Translator<Ir> {
   private static final Set<String> FILTER = Collections.singleton(".mmu");

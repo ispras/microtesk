@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,18 +14,16 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
+import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.mmu.model.api.PolicyId;
+import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.microtesk.mmu.model.api.PolicyId;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 public final class Buffer extends AbstractStorage {
   private final MmuBuffer.Kind kind;
@@ -58,12 +56,12 @@ public final class Buffer extends AbstractStorage {
         createAttributes(addressArg, dataArg)
     );
 
-    checkNotNull(kind);
-    checkTrue(ways.compareTo(BigInteger.ZERO) > 0);
-    checkTrue(sets.compareTo(BigInteger.ZERO) > 0);
-    checkNotNull(index);
-    checkNotNull(match);
-    checkNotNull(policy);
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkTrue(ways.compareTo(BigInteger.ZERO) > 0);
+    InvariantChecks.checkTrue(sets.compareTo(BigInteger.ZERO) > 0);
+    InvariantChecks.checkNotNull(index);
+    InvariantChecks.checkNotNull(match);
+    InvariantChecks.checkNotNull(policy);
 
     this.kind = kind;
     this.ways = ways;
@@ -78,8 +76,8 @@ public final class Buffer extends AbstractStorage {
       final Var addressArg,
       final Var dataArg) {
 
-    checkNotNull(addressArg);
-    checkNotNull(dataArg);
+    InvariantChecks.checkNotNull(addressArg);
+    InvariantChecks.checkNotNull(dataArg);
 
     final Attribute[] attrs = new Attribute[] { 
         new Attribute(HIT_ATTR_NAME, DataType.BOOLEAN),

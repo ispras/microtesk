@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.test.sequence;
 
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.rearranger.Rearranger;
+
+import java.util.List;
 
 public final class GeneratorRearranger<T> implements Generator<T> {
   private final Rearranger<T> rearranger;

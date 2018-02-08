@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,13 +13,6 @@
  */
 
 package ru.ispras.microtesk.translator;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
 
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.TokenSource;
@@ -35,6 +28,13 @@ import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.utils.FileUtils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 
 /**
  * The {@link Translator} is a base class for all translators. It implements all common

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,17 +14,17 @@
 
 package ru.ispras.microtesk.test.sequence.rearranger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.GeneratorUtils;
 import ru.ispras.testbase.knowledge.iterator.ArrayIterator;
 import ru.ispras.testbase.knowledge.iterator.EmptyIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * The {@link RearrangerSample} rearranger samples the sequences

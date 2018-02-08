@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.utils;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link HierarchicalCollection} implements a collection composed of two ones.

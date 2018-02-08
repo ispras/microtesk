@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,14 +14,12 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotEmpty;
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 import java.util.Collections;
 import java.util.List;
-
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.util.Pair;
 
 public final class StmtIf extends Stmt {
   private final List<Pair<Node, List<Stmt>>> ifBlocks;
@@ -32,8 +30,8 @@ public final class StmtIf extends Stmt {
       final List<Stmt> elseBlock) {
     super(Kind.IF);
 
-    checkNotEmpty(ifBlocks);
-    checkNotNull(elseBlock);
+    InvariantChecks.checkNotEmpty(ifBlocks);
+    InvariantChecks.checkNotNull(elseBlock);
 
     this.ifBlocks = Collections.unmodifiableList(ifBlocks);
     this.elseBlock = Collections.unmodifiableList(elseBlock);

@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.model.metadata;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.data.Type;
 
 /**
@@ -40,8 +40,8 @@ public final class MetaShortcut implements MetaData {
   public MetaShortcut(
       final String contextName,
       final MetaOperation operation) {
-    checkNotNull(contextName);
-    checkNotNull(operation);
+    InvariantChecks.checkNotNull(contextName);
+    InvariantChecks.checkNotNull(operation);
 
     this.contextName = contextName;
     this.operation = operation;

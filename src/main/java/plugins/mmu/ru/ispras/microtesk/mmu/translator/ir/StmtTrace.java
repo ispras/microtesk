@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,13 +14,12 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.FormatMarker;
 
 import java.util.Collections;
 import java.util.List;
-
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.microtesk.utils.FormatMarker;
 
 public final class StmtTrace extends Stmt {
   private final String format;
@@ -37,9 +36,9 @@ public final class StmtTrace extends Stmt {
       final List<Node> args) {
     super(Kind.TRACE);
 
-    checkNotNull(format);
-    checkNotNull(markers);
-    checkNotNull(args);
+    InvariantChecks.checkNotNull(format);
+    InvariantChecks.checkNotNull(markers);
+    InvariantChecks.checkNotNull(args);
 
     this.format = format;
     this.markers = markers;

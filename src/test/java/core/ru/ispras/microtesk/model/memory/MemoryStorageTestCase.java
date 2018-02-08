@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,14 +14,13 @@
 
 package ru.ispras.microtesk.model.memory;
 
-import static org.junit.Assert.assertEquals;
-
-import java.math.BigInteger;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
+
+import java.math.BigInteger;
 
 public final class MemoryStorageTestCase {
   @Test
@@ -53,13 +52,13 @@ public final class MemoryStorageTestCase {
     final MemoryStorage ms = new MemoryStorage(1024, 64);
 
     ms.write(256, BitVector.valueOf(0xDEADBEEFBAADF00DL, 64));
-    assertEquals(BitVector.valueOf(0xDEADBEEFBAADF00DL, 64), ms.read(256));
+    Assert.assertEquals(BitVector.valueOf(0xDEADBEEFBAADF00DL, 64), ms.read(256));
 
     ms.write(256, BitVector.valueOf(0, 32));
-    assertEquals(BitVector.valueOf(0xDEADBEEF00000000L, 64), ms.read(256));
+    Assert.assertEquals(BitVector.valueOf(0xDEADBEEF00000000L, 64), ms.read(256));
 
     ms.write(256, 32, BitVector.valueOf(-1, 32));
-    assertEquals(BitVector.valueOf(0xFFFFFFFF00000000L, 64), ms.read(256));
+    Assert.assertEquals(BitVector.valueOf(0xFFFFFFFF00000000L, 64), ms.read(256));
   }
 
   @Test
@@ -77,16 +76,16 @@ public final class MemoryStorageTestCase {
 
     ms.write(address, data);
 
-    assertEquals(data, ms.read(0));
-    assertEquals(data, ms.read(address));
+    Assert.assertEquals(data, ms.read(0));
+    Assert.assertEquals(data, ms.read(address));
 
     // Smaller than ms.getAddressBitSize()
     final BitVector smallAddress = BitVector.valueOf(0, 48);
-    assertEquals(data, ms.read(smallAddress));
+    Assert.assertEquals(data, ms.read(smallAddress));
 
     // Larger than ms.getAddressBitSize()
     final BitVector largeAddress = BitVector.valueOf(0, 64);
-    assertEquals(data, ms.read(largeAddress));
+    Assert.assertEquals(data, ms.read(largeAddress));
   }
 
   private void test(BigInteger regionCount, int regionBitSize) {
@@ -104,7 +103,7 @@ public final class MemoryStorageTestCase {
 
       // System.out.printf("Accessing address 0x%s, data: %s%n", address.toHexString(), data);
       ms.write(address, data);
-      assertEquals(data, ms.read(address));
+      Assert.assertEquals(data, ms.read(address));
     }
   }
 
@@ -115,27 +114,27 @@ public final class MemoryStorageTestCase {
 
     final MemoryStorage storage1 = new MemoryStorage(regionCount, regionBitSize);
 
-    assertEquals(BitVector.newEmpty(regionBitSize), storage1.read(0xDEADBEEF));
-    assertEquals(BitVector.newEmpty(regionBitSize), storage1.read(0xBAADF00D));
+    Assert.assertEquals(BitVector.newEmpty(regionBitSize), storage1.read(0xDEADBEEF));
+    Assert.assertEquals(BitVector.newEmpty(regionBitSize), storage1.read(0xBAADF00D));
 
     storage1.write(0xDEADBEEF, BitVector.valueOf(0x10L, regionBitSize));
     storage1.write(0xBAADF00D, BitVector.valueOf(0x20L, regionBitSize));
 
-    assertEquals(BitVector.valueOf(0x10L, regionBitSize), storage1.read(0xDEADBEEF));
-    assertEquals(BitVector.valueOf(0x20L, regionBitSize), storage1.read(0xBAADF00D));
+    Assert.assertEquals(BitVector.valueOf(0x10L, regionBitSize), storage1.read(0xDEADBEEF));
+    Assert.assertEquals(BitVector.valueOf(0x20L, regionBitSize), storage1.read(0xBAADF00D));
 
     final MemoryStorage storage2 = new MemoryStorage(storage1);
 
-    assertEquals(BitVector.valueOf(0x10L, regionBitSize), storage2.read(0xDEADBEEF));
-    assertEquals(BitVector.valueOf(0x20L, regionBitSize), storage2.read(0xBAADF00D));
+    Assert.assertEquals(BitVector.valueOf(0x10L, regionBitSize), storage2.read(0xDEADBEEF));
+    Assert.assertEquals(BitVector.valueOf(0x20L, regionBitSize), storage2.read(0xBAADF00D));
 
     storage2.write(0xDEADBEEF, BitVector.valueOf(0xFFFF10L, regionBitSize));
     storage2.write(0xBAADF00D, BitVector.valueOf(0xF0F020L, regionBitSize));
 
-    assertEquals(BitVector.valueOf(0xFFFF10L, regionBitSize), storage2.read(0xDEADBEEF));
-    assertEquals(BitVector.valueOf(0xF0F020L, regionBitSize), storage2.read(0xBAADF00D));
+    Assert.assertEquals(BitVector.valueOf(0xFFFF10L, regionBitSize), storage2.read(0xDEADBEEF));
+    Assert.assertEquals(BitVector.valueOf(0xF0F020L, regionBitSize), storage2.read(0xBAADF00D));
 
-    assertEquals(BitVector.valueOf(0x10L, regionBitSize), storage1.read(0xDEADBEEF));
-    assertEquals(BitVector.valueOf(0x20L, regionBitSize), storage1.read(0xBAADF00D));
+    Assert.assertEquals(BitVector.valueOf(0x10L, regionBitSize), storage1.read(0xDEADBEEF));
+    Assert.assertEquals(BitVector.valueOf(0x20L, regionBitSize), storage1.read(0xBAADF00D));
   }
 }

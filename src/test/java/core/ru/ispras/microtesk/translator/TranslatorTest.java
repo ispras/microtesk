@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.translator;
 
-import static org.junit.Assert.fail;
-
-import java.util.Collections;
+import org.junit.Assert;
 
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreListener;
 import ru.ispras.microtesk.utils.FileUtils;
+
+import java.util.Collections;
 
 /**
  * The {@code TranslatorTest} class is a base class to be implemented by units test for translators.
@@ -53,7 +53,7 @@ public abstract class TranslatorTest<Ir> {
   private final IrChecker irChecker = new IrChecker(); 
 
   protected void checkLogEntry(final LogEntry entry) {
-    fail(entry.toString());
+    Assert.fail(entry.toString());
   }
 
   protected void checkIr(final Ir ir) {

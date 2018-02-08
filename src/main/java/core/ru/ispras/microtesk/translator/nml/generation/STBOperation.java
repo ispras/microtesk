@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,9 +13,6 @@
  */
 
 package ru.ispras.microtesk.translator.nml.generation;
-
-import static ru.ispras.microtesk.translator.generation.PackageInfo.MODE_CLASS_FORMAT;
-import static ru.ispras.microtesk.translator.generation.PackageInfo.OP_PACKAGE_FORMAT;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -45,7 +42,7 @@ final class STBOperation extends STBPrimitiveBase {
 
   private void importModeDependencies(final ST t) {
     if (!modesImported) {
-      t.add("imps", String.format(MODE_CLASS_FORMAT, modelName, "*"));
+      t.add("imps", String.format(PackageInfo.MODE_CLASS_FORMAT, modelName, "*"));
       modesImported = true;
     }
   }
@@ -67,7 +64,7 @@ final class STBOperation extends STBPrimitiveBase {
 
   private void buildHeader(final ST t) {
     t.add("name", op.getName());
-    t.add("pack", String.format(OP_PACKAGE_FORMAT, modelName));
+    t.add("pack", String.format(PackageInfo.OP_PACKAGE_FORMAT, modelName));
 
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());
