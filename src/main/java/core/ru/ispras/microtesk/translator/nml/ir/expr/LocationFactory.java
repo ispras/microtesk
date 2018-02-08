@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -35,13 +31,16 @@ import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
-import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Struct;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.utils.StringUtils;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 
 public final class LocationFactory extends WalkerFactoryBase {
   private static final String OUT_OF_BOUNDS =

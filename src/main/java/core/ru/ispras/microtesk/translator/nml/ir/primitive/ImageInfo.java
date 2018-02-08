@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+
+import java.util.Collections;
+import java.util.List;
 
 public final class ImageInfo {
   private final int maxImageSize;

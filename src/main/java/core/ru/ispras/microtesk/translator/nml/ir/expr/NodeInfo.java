@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class NodeInfo {
 

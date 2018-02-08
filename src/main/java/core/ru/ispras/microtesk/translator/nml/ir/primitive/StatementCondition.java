@@ -14,9 +14,10 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import java.util.List;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+
+import java.util.List;
 
 public final class StatementCondition extends Statement {
   public static final class Block {

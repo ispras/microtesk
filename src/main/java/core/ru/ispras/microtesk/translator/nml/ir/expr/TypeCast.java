@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -25,6 +22,9 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 public final class TypeCast {
   private TypeCast() {}

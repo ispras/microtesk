@@ -14,12 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
@@ -35,6 +29,12 @@ import ru.ispras.microtesk.translator.nml.errors.UnsupportedParameterType;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public final class PrimitiveFactory extends WalkerFactoryBase {
   public PrimitiveFactory(final WalkerContext context) {

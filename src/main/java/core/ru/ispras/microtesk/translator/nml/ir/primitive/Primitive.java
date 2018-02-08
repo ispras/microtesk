@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public class Primitive {
   public static enum Kind {

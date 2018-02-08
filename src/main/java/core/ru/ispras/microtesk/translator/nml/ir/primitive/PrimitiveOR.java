@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class PrimitiveOR extends Primitive {
   private final List<Primitive> ors;

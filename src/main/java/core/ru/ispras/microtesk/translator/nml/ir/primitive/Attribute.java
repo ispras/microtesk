@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.util.InvariantChecks;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,9 +51,9 @@ public final class Attribute {
       final String name,
       final Kind kind,
       final List<Statement> stmts) {
-    checkNotNull(name);
-    checkNotNull(kind);
-    checkNotNull(stmts);
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(kind);
+    InvariantChecks.checkNotNull(stmts);
 
     this.name = name;
     this.kind = kind;
@@ -82,7 +82,7 @@ public final class Attribute {
   }
 
   void insertStatement(final Statement stmt) {
-    checkNotNull(stmt);
+    InvariantChecks.checkNotNull(stmt);
     stmts.add(0, stmt);
   }
 }

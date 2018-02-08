@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ArgumentMode;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class PrimitiveInfo {
   private boolean exception;

@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -41,6 +37,10 @@ import ru.ispras.microtesk.translator.nml.errors.UndefinedConstant;
 
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public final class ExprFactory extends WalkerFactoryBase {
 

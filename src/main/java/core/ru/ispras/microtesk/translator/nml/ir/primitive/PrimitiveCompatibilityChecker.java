@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import java.util.Set;
-
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+
+import java.util.Set;
 
 final class PrimitiveCompatibilityChecker extends WalkerFactoryBase {
   private static final String COMMON_ERROR =

@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
@@ -28,6 +24,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.model.data.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
@@ -43,6 +40,10 @@ import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.utils.FormatMarker;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public final class StatementFactory extends WalkerFactoryBase {
   private static final String UNDEFINED_ARG =

@@ -14,23 +14,22 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.util.InvariantChecks;
 
 import java.util.List;
 
 /**
  * The Instance class describes a statically created instance of a MODE or OP.
- * 
- * @author Andrei Tatarnikov
+ *
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class Instance {
   private final PrimitiveAND primitive;
   private final List<InstanceArgument> arguments;
 
   Instance(final PrimitiveAND primitive, final List<InstanceArgument> arguments) {
-    checkNotNull(primitive);
-    checkNotNull(arguments);
+    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkNotNull(arguments);
 
     this.primitive = primitive;
     this.arguments = arguments;

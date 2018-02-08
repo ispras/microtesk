@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
-import java.util.List;
-
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FormatMarker;
+
+import java.util.List;
 
 public final class StatementFormat extends Statement {
   private final String funcName;

@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -25,6 +23,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
+
+import java.math.BigInteger;
 
 public final class Expr {
   private final Node node;
