@@ -14,16 +14,16 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
+import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.randomizer.VariateBiased;
+import ru.ispras.microtesk.utils.function.Supplier;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-
-import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.fortress.randomizer.VariateBiased;
-import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link AllocationStrategyId} defines some resource allocation strategies.

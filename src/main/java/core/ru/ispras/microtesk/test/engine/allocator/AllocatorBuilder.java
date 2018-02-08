@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
+import ru.ispras.microtesk.test.GenerationAbortedException;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import ru.ispras.microtesk.test.GenerationAbortedException;
 
 /**
  * Builds an allocator.

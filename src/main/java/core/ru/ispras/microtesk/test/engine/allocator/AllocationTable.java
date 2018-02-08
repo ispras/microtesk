@@ -14,15 +14,15 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.function.Supplier;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link AllocationTable} implements a resource allocation table, which is a finite set of objects

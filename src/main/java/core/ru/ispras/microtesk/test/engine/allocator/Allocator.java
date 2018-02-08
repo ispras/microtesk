@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
-import java.util.Collection;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.function.Supplier;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Allocates resources using a specific strategy with specific attributes.

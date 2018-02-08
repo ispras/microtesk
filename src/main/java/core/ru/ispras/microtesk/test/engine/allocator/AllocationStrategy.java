@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
+import ru.ispras.microtesk.utils.function.Supplier;
+
 import java.util.Collection;
 import java.util.Map;
-
-import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link AllocationStrategy} defines an interface of resource allocation strategies.
@@ -28,7 +28,7 @@ public interface AllocationStrategy {
 
   /**
    * Chooses an object.
-   * 
+   *
    * @param <T> type of objects.
    * @param domain the set of all available objects. 
    * @param exclude the set of objects to be excluded. 
@@ -44,7 +44,7 @@ public interface AllocationStrategy {
 
   /**
    * Generates an object.
-   * 
+   *
    * @param <T> type of objects.
    * @param supplier the object generator. 
    * @param exclude the set of objects to be excluded. 

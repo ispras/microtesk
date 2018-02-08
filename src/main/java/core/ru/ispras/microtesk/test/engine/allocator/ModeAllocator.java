@@ -14,14 +14,6 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.settings.AllocationSettings;
@@ -37,6 +29,14 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.test.template.Value;
+
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * {@code ModeAllocator} allocates addressing modes for a given abstract sequence.
