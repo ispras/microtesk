@@ -14,11 +14,9 @@
 
 package ru.ispras.microtesk.tools.templgen.templates;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
-import ru.ispras.testbase.knowledge.iterator.CollectionIterator;
 
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
@@ -32,22 +30,12 @@ public final class BoundaryValuesTemplate extends GeneratedTemplate {
   }
 
   private void printSequence(final TemplateOperation templateOperation) {
-    templatePrinter.startSequence("iterate {");
-    templatePrinter.addString(templateOperation.getCommand());
-    /*CollectionIterator<BitVector> iterator =
-        ru.ispras.testbase.knowledge.iterator.BoundaryValueIterator.getBoundaryIterator(32);
-    String iteratorValues = " ";
-    boolean tabs = false;
-    for (iterator.init(); iterator.hasValue(); iterator.next()) {
-      BitVector value = iterator.value();
-      if (tabs) {
-        iteratorValues += ", ";
-      }
-      iteratorValues += value + "(" + Long.toHexString(value.longValue()) + ")";
-      tabs = true;
-    }*/
-    //templatePrinter.addComment(iteratorValues);
-    templatePrinter.closeSequence("}");
+    templatePrinter.addString("");
+    templatePrinter.startSequence("sequence {");
+    templatePrinter.addAlignedText(templateOperation.getCommand());
+    templatePrinter.addText(" do testdata('boundary') end");
+    templatePrinter.addString("");
+    templatePrinter.closeSequence("}.run");
   }
 
   @Override

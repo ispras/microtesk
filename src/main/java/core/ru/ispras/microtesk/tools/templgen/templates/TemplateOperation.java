@@ -14,15 +14,15 @@
 
 package ru.ispras.microtesk.tools.templgen.templates;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.IsaPrimitiveKind;
 import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
@@ -44,7 +44,7 @@ public class TemplateOperation {
   private String[] postCommand;
 
   TemplateOperation(final MetaOperation operation, final TemplatePrinter templatePrinter) {
-     printMetaOperation(operation);
+    printMetaOperation(operation);
 
     name = templatePrinter.formattingOperation(operation.getName());
 
@@ -61,7 +61,8 @@ public class TemplateOperation {
       branchLabel = String.format(":%s_label", name);
       regTitle = getLastArgument(operation.getArguments(), IsaPrimitiveKind.MODE);
 
-      if (regTitle != "JUMP_LABEL" && regTitle != "BRANCH_LABEL" && regTitle != "BRANCH_LABEL_M2" && regTitle != "JUMP_LABEL_M2") {
+      if (regTitle != "JUMP_LABEL" && regTitle != "BRANCH_LABEL" && regTitle != "BRANCH_LABEL_M2"
+          && regTitle != "JUMP_LABEL_M2") {
         System.out.println(regTitle);
         preCommand = prepareReg(regTitle);
       } else {
@@ -113,8 +114,9 @@ public class TemplateOperation {
       MetaArgument argument = (MetaArgument) iterator.next();
 
       Collection<String> tempTypes = argument.getTypeNames();
-      if (commaIndicator)
+      if (commaIndicator) {
         tempCommand += ", ";
+      }
 
       if ((argument.getKind() == IsaPrimitiveKind.MODE)) {
         boolean printLabel = false;
@@ -140,8 +142,11 @@ public class TemplateOperation {
 
       if (argument.getKind() == IsaPrimitiveKind.IMM) {
         if (!branch) {
-          tempCommand += String.format("rand(%s, %s)", 0,
-              (long) Math.pow(2, argument.getDataType().getBitSize()) - 1);
+          /*
+           * tempCommand += String.format("rand(%s, %s)", 0, (long) Math.pow(2,
+           * argument.getDataType().getBitSize()) - 1);
+           */
+          tempCommand += String.format("_");
         } else {
           tempCommand += branchLabel;
         }
@@ -197,7 +202,7 @@ public class TemplateOperation {
 
   /**
    * Returns the command syntax.
-   * 
+   *
    * @return command syntax.
    */
   public String getCommand() {
@@ -228,11 +233,17 @@ public class TemplateOperation {
     return arithmetic;
   }
 
+  /**
+   * Prints operation to the {@code TemplatePrinter}.
+   *
+   * @param templatePrinter the templates printer.
+   */
   public void printOperationBlock(final TemplatePrinter templatePrinter) {
     if (branch) {
       String tempPreCommand = this.getPreCommand();
-      if (tempPreCommand != null && !tempPreCommand.isEmpty())
+      if (tempPreCommand != null && !tempPreCommand.isEmpty()) {
         templatePrinter.addString(tempPreCommand);
+      }
     }
     templatePrinter.addString(this.getCommand());
     if (branch) {

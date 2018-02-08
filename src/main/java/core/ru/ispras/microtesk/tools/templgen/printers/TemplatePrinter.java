@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,7 +16,7 @@ package ru.ispras.microtesk.tools.templgen.printers;
 
 /**
  * The {@code TemplatePrinter} interface is used to create data printers for templates.
- * 
+ *
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 
@@ -29,7 +29,7 @@ public interface TemplatePrinter {
   /**
    * Checks for a match with the keywords and returns not a keyword for the printer with the same
    * value. Example: add - keyword, ADD - not keyword for some languages.
-   * 
+   *
    * @param operationName name of the operation.
    * @return not keyword name of the operation for the printer.
    */
@@ -59,6 +59,13 @@ public interface TemplatePrinter {
    * @param addText text.
    */
   public abstract void addText(String addText);
+
+  /**
+   * Adds the aligned (in accordance of the text structure) text to template file.
+   *
+   * @param addText text.
+   */
+  public abstract void addAlignedText(String addText);
 
   /**
    * Adds the comment to template file.
