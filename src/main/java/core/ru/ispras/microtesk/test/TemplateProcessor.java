@@ -14,15 +14,6 @@
 
 package ru.ispras.microtesk.test;
 
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
@@ -46,9 +37,18 @@ import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.SectionKind;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
- * The {@link TemplateProcessor2} class is responsible for template processing.
- * 
+ * The {@link TemplateProcessor} class is responsible for template processing.
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class TemplateProcessor implements Template.Processor {
