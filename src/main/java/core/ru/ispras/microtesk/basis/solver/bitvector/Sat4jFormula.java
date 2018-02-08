@@ -18,11 +18,11 @@ import org.sat4j.core.Vec;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link Sat4jFormula} represents a SAT4J formula, which is a set of clauses.
