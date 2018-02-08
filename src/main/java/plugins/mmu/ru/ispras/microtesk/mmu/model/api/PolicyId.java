@@ -56,7 +56,7 @@ public enum PolicyId {
   PLRU {
     @Override
     public Policy newPolicy(final int associativity) {
-      return new PolicyPLRU(associativity);
+      return new PolicyPlru(associativity);
     }
   },
 
