@@ -47,6 +47,7 @@ import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
+import ru.ispras.microtesk.test.template.Value;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryResult;
@@ -420,29 +421,23 @@ public final class EngineUtils {
     return false;
   }
 
-  public static BigInteger makeImm(final Argument argument) {
-    checkArgKind(argument, Argument.Kind.IMM);
-    return (BigInteger) argument.getValue();
-  }
+  private static BigInteger getImmediateValue(final Argument argument) {
+    InvariantChecks.checkNotNull(argument);
+    final Object value = argument.getValue();
 
-  public static BigInteger makeImmRandom(final Argument argument) {
-    checkArgKind(argument, Argument.Kind.IMM_RANDOM);
-    return ((RandomValue) argument.getValue()).getValue();
-  }
+    if (value instanceof BigInteger) {
+      return (BigInteger) value;
+    }
 
-  public static BigInteger makeImmUnknown(final Argument argument) {
-    checkArgKind(argument, Argument.Kind.IMM_UNKNOWN);
-    return ((UnknownImmediateValue) argument.getValue()).getValue();
-  }
+    if (value instanceof Value) {
+      return ((Value) value).getValue();
+    }
 
-  public static BigInteger makeImmLazy(final Argument argument) {
-    checkArgKind(argument, Argument.Kind.IMM_LAZY);
-    return ((LazyValue) argument.getValue()).getValue();
-  }
-
-  public static BigInteger makeLabel(final Argument argument) {
-    checkArgKind(argument, Argument.Kind.LABEL);
-    return ((LabelValue) argument.getValue()).getValue();
+    throw new IllegalArgumentException(String.format(
+        "Cannot get an immediate values from argument %s that has kind %s.",
+        argument.getName(),
+        argument.getKind()
+        ));
   }
 
   public static IsaPrimitive makeMode(
@@ -468,19 +463,14 @@ public final class EngineUtils {
       final String argName = arg.getName();
       switch (arg.getKind()) {
         case IMM:
-          builder.setArgument(argName, makeImm(arg));
-          break;
-
         case IMM_RANDOM:
-          builder.setArgument(argName, makeImmRandom(arg));
-          break;
-
         case IMM_UNKNOWN:
-          builder.setArgument(argName, makeImmUnknown(arg));
+          builder.setArgument(argName, getImmediateValue(arg));
           break;
 
         case IMM_LAZY: {
-          final LocationAccessor locationAccessor = builder.setArgument(argName, makeImmLazy(arg));
+          final LocationAccessor locationAccessor =
+              builder.setArgument(argName, getImmediateValue(arg));
           if (arg.getValue() == LazyValue.ADDRESS && addressRefs != null) {
             addressRefs.add(locationAccessor);
           }
@@ -489,7 +479,7 @@ public final class EngineUtils {
 
         case LABEL: {
           final LocationAccessor locationAccessor =
-              builder.setArgument(argName, makeLabel(arg));
+              builder.setArgument(argName, getImmediateValue(arg));
           final LabelReference labelReference =
               new LabelReference((LabelValue) arg.getValue(), locationAccessor);
 
@@ -539,19 +529,14 @@ public final class EngineUtils {
       final String argName = arg.getName();
       switch (arg.getKind()) {
         case IMM:
-          builder.setArgument(argName, makeImm(arg));
-          break;
-
         case IMM_RANDOM:
-          builder.setArgument(argName, makeImmRandom(arg));
-          break;
-
         case IMM_UNKNOWN:
-          builder.setArgument(argName, makeImmUnknown(arg));
+          builder.setArgument(argName, getImmediateValue(arg));
           break;
 
         case IMM_LAZY: {
-          final LocationAccessor locationAccessor = builder.setArgument(argName, makeImmLazy(arg));
+          final LocationAccessor locationAccessor =
+              builder.setArgument(argName, getImmediateValue(arg));
           if (arg.getValue() == LazyValue.ADDRESS && addressRefs != null) {
             addressRefs.add(locationAccessor);
           }
@@ -559,7 +544,8 @@ public final class EngineUtils {
         }
 
         case LABEL: {
-          final LocationAccessor locationAccessor = builder.setArgument(argName, makeLabel(arg));
+          final LocationAccessor locationAccessor =
+              builder.setArgument(argName, getImmediateValue(arg));
           if (null != labelRefs) {
             labelRefs.add(new LabelReference((LabelValue) arg.getValue(), locationAccessor));
           }
@@ -576,7 +562,7 @@ public final class EngineUtils {
 
         default:
           throw new IllegalArgumentException(String.format(
-            "Illegal kind of argument %s: %s.", argName, arg.getKind()));
+              "Illegal kind of argument %s: %s.", argName, arg.getKind()));
       }
     }
 
