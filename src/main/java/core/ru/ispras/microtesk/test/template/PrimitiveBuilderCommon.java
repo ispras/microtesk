@@ -14,13 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -33,6 +26,13 @@ import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.model.metadata.MetaShortcut;
 import ru.ispras.microtesk.test.template.Primitive.Kind;
+
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   private interface Strategy {

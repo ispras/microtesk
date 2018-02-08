@@ -14,14 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
@@ -32,6 +24,14 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.utils.Mask;
 import ru.ispras.microtesk.utils.SharedObject;
 import ru.ispras.microtesk.utils.StringUtils;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class Preparator {
   private final Where where;

@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * The {@link BufferPreparatorAddressEntry} class an address and buffer entry

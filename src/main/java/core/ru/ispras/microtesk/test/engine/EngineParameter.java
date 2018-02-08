@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.test.engine;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link EngineParameter} defines an interface of engine parameters.

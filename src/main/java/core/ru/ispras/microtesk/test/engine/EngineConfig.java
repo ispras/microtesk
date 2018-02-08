@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.test.engine;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link EngineConfig} implements a test engine configuration.

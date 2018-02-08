@@ -14,12 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -27,6 +21,12 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.model.metadata.MetaShortcut;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   private final String name;

@@ -14,16 +14,16 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ExecutionException;
 import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.ProcessingElement;
 import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.model.memory.Section;
+
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The {@link ConcreteCall} class describes an instruction call with fixed arguments

@@ -14,8 +14,9 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
 import ru.ispras.fortress.randomizer.Variate;
+
+import java.math.BigInteger;
 
 public interface PrimitiveBuilder {
   Primitive build();

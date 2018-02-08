@@ -14,16 +14,15 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Output.Argument;
 import ru.ispras.microtesk.test.template.Output.ArgumentLocation;
 import ru.ispras.microtesk.test.template.Output.ArgumentValue;
 import ru.ispras.microtesk.utils.FormatMarker;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The {@link OutputBuilder} class helps build {@link Output} objects.
@@ -48,8 +47,8 @@ public final class OutputBuilder {
   OutputBuilder(
       final String kindName,
       final String format) {
-    checkNotNull(kindName);
-    checkNotNull(format);
+    InvariantChecks.checkNotNull(kindName);
+    InvariantChecks.checkNotNull(format);
 
     this.kind = Output.Kind.valueOf(kindName.toUpperCase());
     this.format = format;
@@ -77,7 +76,7 @@ public final class OutputBuilder {
    * @throws IllegalAccessError if the parameter equals {@code null}.
    */
   public OutputBuilder addArgument(final String value) {
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(value);
     addArgument(new ArgumentValue(value));
     return this;
   }
@@ -92,7 +91,7 @@ public final class OutputBuilder {
    * @throws IllegalArgumentException if the parameter equals {@code null}.
    */
   public OutputBuilder addArgument(final Value value) {
-    checkNotNull(value);
+    InvariantChecks.checkNotNull(value);
     addArgument(new ArgumentValue(value));
     return this;
   }
@@ -119,7 +118,7 @@ public final class OutputBuilder {
    * @throws IllegalArgumentException if the name parameter equals {@code null}.
    */
   public OutputBuilder addArgument(final String name, final Value index) {
-    checkNotNull(name);
+    InvariantChecks.checkNotNull(name);
 
     final FormatMarker marker = getMarker(getArgumentCount());
     final boolean isBinaryText =

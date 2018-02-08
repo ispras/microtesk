@@ -14,15 +14,15 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.model.ProcessingElement;
 import ru.ispras.microtesk.utils.SharedObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The {@link Output} class holds information to be printed to the simulation output to inserted

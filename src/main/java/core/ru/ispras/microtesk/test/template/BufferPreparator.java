@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 
 /**
  * The {@link BufferPreparator} describes instruction sequences to set up the state of MMU buffers.

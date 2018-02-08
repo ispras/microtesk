@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.memory.Section;
+
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.memory.Section;
 
 /**
  * The {@link ExceptionHandler} class holds template descriptions of

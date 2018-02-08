@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 public final class MapBuilder {
   private final Map<String, Object> attributes;

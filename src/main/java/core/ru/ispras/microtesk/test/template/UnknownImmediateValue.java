@@ -14,17 +14,18 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
+
 import ru.ispras.microtesk.model.data.Type;
 import ru.ispras.microtesk.model.data.TypeId;
 import ru.ispras.microtesk.test.engine.allocator.Allocator;
 import ru.ispras.microtesk.utils.SharedObject;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The {@link UnknownImmediateValue} class describes an unknown immediate value to be specified as

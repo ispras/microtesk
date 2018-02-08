@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * The {@link BufferPreparatorStore} class stores a collection of buffer preparators.

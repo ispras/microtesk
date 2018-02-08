@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Model;
@@ -23,6 +21,8 @@ import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.engine.EngineContext;
+
+import java.math.BigInteger;
 
 /**
  * The {@link DataManager} class create internal representation of data sections.

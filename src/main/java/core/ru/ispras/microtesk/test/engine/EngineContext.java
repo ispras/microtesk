@@ -14,11 +14,6 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import static ru.ispras.microtesk.test.engine.EngineUtils.newTestBase;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.options.Options;
@@ -32,6 +27,9 @@ import ru.ispras.microtesk.test.template.MemoryPreparatorStore;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@link EngineContext} contains information required by an {@link Engine}.
@@ -74,7 +72,7 @@ public final class EngineContext {
     final GeneratorSettings settings = GeneratorSettings.get();
     InvariantChecks.checkNotNull(settings, "Settings were not loaded.");
 
-    this.testBase = newTestBase(settings);
+    this.testBase = EngineUtils.newTestBase(settings);
     this.statistics = statistics;
 
     final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();

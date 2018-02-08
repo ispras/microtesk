@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.util.InvariantChecks;
+
+import java.math.BigInteger;
 
 public final class FixedValue implements Value {
   private final BigInteger value;

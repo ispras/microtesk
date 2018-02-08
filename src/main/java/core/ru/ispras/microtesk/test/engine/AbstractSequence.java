@@ -14,17 +14,17 @@
 
 package ru.ispras.microtesk.test.engine;
 
+import ru.ispras.fortress.util.CollectionUtils;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.test.template.AbstractCall;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import ru.ispras.fortress.util.CollectionUtils;
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.test.template.AbstractCall;
 
 public final class AbstractSequence {
   public static final class Builder {

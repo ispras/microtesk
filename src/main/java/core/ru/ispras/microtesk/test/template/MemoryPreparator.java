@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The {@link MemoryPreparator} describes instruction sequences to set up memory state.

@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
-
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateInterval;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.SharedObject;
+
+import java.math.BigInteger;
 
 public final class RandomValue extends SharedObject<RandomValue> implements Value {
   private final Variate<?> variate;

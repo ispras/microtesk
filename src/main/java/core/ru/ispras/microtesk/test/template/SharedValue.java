@@ -14,9 +14,10 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.SharedObject;
+
+import java.math.BigInteger;
 
 /**
  * The {@link SharedValue} class describes a modifiable value that can be shared among two owners.

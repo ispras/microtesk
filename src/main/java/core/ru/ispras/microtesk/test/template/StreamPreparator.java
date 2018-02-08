@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
+
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.List;
 
 public final class StreamPreparator {
   private final LabelManager memoryMap;

@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.Collections;
 import java.util.List;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 public final class Stream {
   private final String startLabelName;

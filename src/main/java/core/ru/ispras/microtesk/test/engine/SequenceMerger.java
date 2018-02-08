@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The {@link SequenceMerger} class is responsible for merging instruction sequences describing

@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.SharedObject;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.utils.SharedObject;
 
 public final class LabelValue extends SharedObject<LabelValue> implements Value {
 

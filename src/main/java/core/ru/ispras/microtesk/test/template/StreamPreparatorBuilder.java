@@ -14,14 +14,12 @@
 
 package ru.ispras.microtesk.test.template;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.test.LabelManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class StreamPreparatorBuilder {
   private final LabelManager memoryMap;
@@ -88,7 +86,7 @@ public final class StreamPreparatorBuilder {
   }
 
   public void addCall(final AbstractCall call) {
-    checkNotNull(call);
+    InvariantChecks.checkNotNull(call);
 
     if (null == currentMethod) {
       throw new IllegalStateException(

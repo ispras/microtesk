@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import java.util.Map;
-
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.util.Map;
 
 /**
  * {@link Engine} defines an interface of abstract sequence processing engines.

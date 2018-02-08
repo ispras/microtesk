@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.memory.LocationAccessor;
+import ru.ispras.microtesk.test.LabelManager;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.memory.LocationAccessor;
-import ru.ispras.microtesk.test.LabelManager;
 
 /**
  * The {@link LabelReference} class describes a reference to a label. This means a label specified

@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import java.util.List;
-
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -32,6 +30,8 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
+
+import java.util.List;
 
 public final class SelfCheckEngine {
   private SelfCheckEngine() {}

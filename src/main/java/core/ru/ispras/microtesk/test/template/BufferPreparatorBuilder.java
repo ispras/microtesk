@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * The {@link BufferPreparatorBuilder} class is responsible for construction

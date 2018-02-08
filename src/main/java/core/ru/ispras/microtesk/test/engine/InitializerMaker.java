@@ -14,14 +14,14 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.TestData;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
