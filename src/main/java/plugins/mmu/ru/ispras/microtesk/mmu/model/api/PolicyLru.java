@@ -15,38 +15,47 @@
 package ru.ispras.microtesk.mmu.model.api;
 
 /**
- * Base interface to be implemented by all data replacement policies.
+ * The LRU (Least Recently Used) data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-abstract class Policy {
-  /** The associativity. */
-  protected final int associativity;
+final class PolicyLru extends Policy {
+  /** Maps index to time. */
+  private int times[];
+  /** Current time. */
+  private int time = 0;
 
   /**
-   * Constructs a data replacement controller.
+   * Constructs an LRU data replacement controller.
    *
    * @param associativity the buffer associativity.
    */
-  protected Policy(final int associativity) {
-    if (associativity <= 0) {
-      throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
-    }
+  PolicyLru(final int associativity) {
+    super(associativity);
 
-    this.associativity = associativity;
+    times = new int[associativity];
+    for (int i = 0; i < associativity; i++) {
+      times[i] = time++;
+    }
   }
 
-  /**
-   * Handles a buffer hit.
-   * 
-   * @param index the line being hit.
-   */
-  public abstract void accessLine(int index);
+  @Override
+  public void accessLine(final int index) {
+    times[index] = time++;
+  }
 
-  /**
-   * Handles a buffer miss.
-   * 
-   * @return the line to be replaced.
-   */
-  public abstract int chooseVictim();
+  @Override
+  public int chooseVictim() {
+    int victim = 0;
+    int minTime = times[0];
+
+    for (int i = 1; i < times.length; i++) {
+      if (times[i] < minTime) {
+        victim = i;
+        minTime = times[i];
+      }
+    }
+
+    return victim;
+  }
 }

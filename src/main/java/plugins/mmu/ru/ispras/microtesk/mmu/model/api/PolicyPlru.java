@@ -15,38 +15,53 @@
 package ru.ispras.microtesk.mmu.model.api;
 
 /**
- * Base interface to be implemented by all data replacement policies.
+ * The PLRU (Pseudo Least Recently Used) data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-abstract class Policy {
-  /** The associativity. */
-  protected final int associativity;
+final class PolicyPlru extends Policy {
+  /** The PLRU bits. */
+  private int bits;
+  /** The last access. */
+  private int last;
 
   /**
-   * Constructs a data replacement controller.
+   * Constructs a PLRU data replacement controller.
    *
    * @param associativity the buffer associativity.
    */
-  protected Policy(final int associativity) {
-    if (associativity <= 0) {
+  PolicyPlru(final int associativity) {
+    super(associativity);
+
+    if (associativity > 32) {
       throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
     }
-
-    this.associativity = associativity;
   }
 
-  /**
-   * Handles a buffer hit.
-   * 
-   * @param index the line being hit.
-   */
-  public abstract void accessLine(int index);
+  @Override
+  public void accessLine(final int index) {
+    setBit(index);
+  }
 
-  /**
-   * Handles a buffer miss.
-   * 
-   * @return the line to be replaced.
-   */
-  public abstract int chooseVictim();
+  @Override
+  public int chooseVictim() {
+    for (int i = 0; i < associativity; i++) {
+      final int j = (last + i) % associativity;
+
+      if ((bits & (1 << j)) == 0) {
+        return j;
+      }
+    }
+
+    throw new IllegalStateException("All bits are set to 1");
+  }
+
+  private void setBit(final int i) {
+    final int mask = (1 << (last = i));
+
+    bits |= mask;
+    if (bits == ((1 << associativity) - 1)) {
+      bits = mask;
+    }
+  }
 }

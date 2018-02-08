@@ -14,39 +14,30 @@
 
 package ru.ispras.microtesk.mmu.model.api;
 
+import ru.ispras.fortress.randomizer.Randomizer;
+
 /**
- * Base interface to be implemented by all data replacement policies.
+ * The random data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-abstract class Policy {
-  /** The associativity. */
-  protected final int associativity;
-
+final class PolicyRandom extends Policy {
   /**
-   * Constructs a data replacement controller.
+   * Constructs a random data replacement controller.
    *
    * @param associativity the buffer associativity.
    */
-  protected Policy(final int associativity) {
-    if (associativity <= 0) {
-      throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
-    }
-
-    this.associativity = associativity;
+  PolicyRandom(final int associativity) {
+    super(associativity);
   }
 
-  /**
-   * Handles a buffer hit.
-   * 
-   * @param index the line being hit.
-   */
-  public abstract void accessLine(int index);
+  @Override
+  public void accessLine(final int index) {
+    // Do nothing.
+  }
 
-  /**
-   * Handles a buffer miss.
-   * 
-   * @return the line to be replaced.
-   */
-  public abstract int chooseVictim();
+  @Override
+  public int chooseVictim() {
+    return Randomizer.get().nextIntRange(0, associativity - 1);
+  }
 }

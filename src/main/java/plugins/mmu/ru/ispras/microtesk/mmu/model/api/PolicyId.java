@@ -36,7 +36,7 @@ public enum PolicyId {
   FIFO {
     @Override
     public Policy newPolicy(final int associativity) {
-      return new PolicyFIFO(associativity);
+      return new PolicyFifo(associativity);
     }
   },
 
@@ -46,7 +46,7 @@ public enum PolicyId {
   LRU {
     @Override
     public Policy newPolicy(final int associativity) {
-      return new PolicyLRU(associativity);
+      return new PolicyLru(associativity);
     }
   },
 
