@@ -14,15 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -33,6 +24,15 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.TransformerRule;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public final class IntegerCast {
   public static Map<Enum<?>, TransformerRule> rules() {
@@ -186,139 +186,138 @@ public final class IntegerCast {
     return false;
   }
 
-
-private interface TypeGetter {
-  DataType getType(Node node);
-}
-
-private static final class AttributeTypeGetter implements TypeGetter {
-  final int attrIndex;
-
-  public AttributeTypeGetter(final int index) {
-    this.attrIndex = index;
+  private interface TypeGetter {
+    DataType getType(Node node);
   }
 
-  @Override
-  public DataType getType(final Node node) {
-    return (DataType) node.getDataType().getParameters()[this.attrIndex];
-  }
-}
+  private static final class AttributeTypeGetter implements TypeGetter {
+    final int attrIndex;
 
-private static final class CastOperationRule implements TransformerRule {
-  private final Map<Enum<?>, Enum<?>> operations;
-  private final TransformerRule castRule;
+    public AttributeTypeGetter(final int index) {
+      this.attrIndex = index;
+    }
 
-  CastOperationRule(final Map<Enum<?>, Enum<?>> operations,
-                    final TransformerRule castRule) {
-    this.operations = operations;
-    this.castRule = castRule;
+    @Override
+    public DataType getType(final Node node) {
+      return (DataType) node.getDataType().getParameters()[this.attrIndex];
+    }
   }
 
-  @Override
-  public boolean isApplicable(final Node node) {
-    for (final Enum<?> id : operations.keySet()) {
-      if (ExprUtils.isOperation(node, id)) {
-        return castRule.isApplicable(node);
+  private static final class CastOperationRule implements TransformerRule {
+    private final Map<Enum<?>, Enum<?>> operations;
+    private final TransformerRule castRule;
+
+    CastOperationRule(final Map<Enum<?>, Enum<?>> operations,
+                      final TransformerRule castRule) {
+      this.operations = operations;
+      this.castRule = castRule;
+    }
+
+    @Override
+    public boolean isApplicable(final Node node) {
+      for (final Enum<?> id : operations.keySet()) {
+        if (ExprUtils.isOperation(node, id)) {
+          return castRule.isApplicable(node);
+        }
       }
-    }
-    return false;
-  }
-
-  @Override
-  public Node apply(final Node node) {
-    final NodeOperation op = (NodeOperation) castRule.apply(node);
-    return new NodeOperation(operations.get(op.getOperationId()), op.getOperands());
-  }
-}
-
-private static class CommonBitVectorTypeRule implements TransformerRule {
-  @Override
-  public boolean isApplicable(final Node node) {
-    return IntegerCast.getBitVectorOperandIndex(node, 0) >= 0 &&
-           nodeHasTypeMismatch(node);
-  }
-
-  @Override
-  public Node apply(final Node node) {
-    final NodeOperation op = (NodeOperation) node;
-    final DataType type = IntegerCast.findCommonType(op.getOperands());
-
-    final List<Node> operands = new ArrayList<>(op.getOperandCount());
-    for (final Node operand : op.getOperands()) {
-      operands.add(IntegerCast.cast(operand, type));
-    }
-    return new NodeOperation(op.getOperationId(), operands);
-  }
-
-  private static boolean nodeHasTypeMismatch(final Node input) {
-    if (input.getKind() != Node.Kind.OPERATION) {
       return false;
     }
-    return IntegerCast.hasTypeMismatch(((NodeOperation) input).getOperands());
+
+    @Override
+    public Node apply(final Node node) {
+      final NodeOperation op = (NodeOperation) castRule.apply(node);
+      return new NodeOperation(operations.get(op.getOperationId()), op.getOperands());
+    }
   }
 
-}
+  private static class CommonBitVectorTypeRule implements TransformerRule {
+    @Override
+    public boolean isApplicable(final Node node) {
+      return IntegerCast.getBitVectorOperandIndex(node, 0) >= 0 &&
+             nodeHasTypeMismatch(node);
+    }
 
-private static final class DependentOperandRule implements TransformerRule {
-  private final int domIndex;
-  private final TypeGetter domGetter;
-  private final int[] indices;
+    @Override
+    public Node apply(final Node node) {
+      final NodeOperation op = (NodeOperation) node;
+      final DataType type = IntegerCast.findCommonType(op.getOperands());
 
-  public DependentOperandRule(
-      final int domIndex,
-      final TypeGetter domGetter,
-      final int ... indices) {
-    this.domIndex = domIndex;
-    this.domGetter = domGetter;
-    this.indices = indices;
-  }
-
-  @Override
-  public boolean isApplicable(Node node) {
-    final NodeOperation op = (NodeOperation) node;
-    final DataType type = domGetter.getType(op.getOperand(domIndex));
-    for (final int index : indices) {
-      if (!type.equals(op.getOperand(index).getDataType())) {
-        return true;
+      final List<Node> operands = new ArrayList<>(op.getOperandCount());
+      for (final Node operand : op.getOperands()) {
+        operands.add(IntegerCast.cast(operand, type));
       }
+      return new NodeOperation(op.getOperationId(), operands);
     }
-    return false;
+
+    private static boolean nodeHasTypeMismatch(final Node input) {
+      if (input.getKind() != Node.Kind.OPERATION) {
+        return false;
+      }
+      return IntegerCast.hasTypeMismatch(((NodeOperation) input).getOperands());
+    }
+
   }
 
-  @Override
-  public Node apply(final Node node) {
-    final NodeOperation op = (NodeOperation) node;
-    final DataType type = domGetter.getType(op.getOperand(domIndex));
-    final List<Node> operands = new ArrayList<>(op.getOperands());
-    for (final int index : indices) {
-      operands.set(index, IntegerCast.cast(operands.get(index), type));
-    }
-    return new NodeOperation(op.getOperationId(), operands);
-  }
-}
+  private static final class DependentOperandRule implements TransformerRule {
+    private final int domIndex;
+    private final TypeGetter domGetter;
+    private final int[] indices;
 
-private static final class IteRule implements TransformerRule {
-  @Override
-  public boolean isApplicable(final Node node) {
-    if (ExprUtils.isOperation(node, StandardOperation.ITE) &&
-           IntegerCast.getBitVectorOperandIndex(node, 1) >= 1) {
-      final List<Node> operands = ((NodeOperation) node).getOperands();
-      return IntegerCast.hasTypeMismatch(operands.subList(1, operands.size()));
+    public DependentOperandRule(
+        final int domIndex,
+        final TypeGetter domGetter,
+        final int ... indices) {
+      this.domIndex = domIndex;
+      this.domGetter = domGetter;
+      this.indices = indices;
     }
-    return false;
+
+    @Override
+    public boolean isApplicable(Node node) {
+      final NodeOperation op = (NodeOperation) node;
+      final DataType type = domGetter.getType(op.getOperand(domIndex));
+      for (final int index : indices) {
+        if (!type.equals(op.getOperand(index).getDataType())) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    @Override
+    public Node apply(final Node node) {
+      final NodeOperation op = (NodeOperation) node;
+      final DataType type = domGetter.getType(op.getOperand(domIndex));
+      final List<Node> operands = new ArrayList<>(op.getOperands());
+      for (final int index : indices) {
+        operands.set(index, IntegerCast.cast(operands.get(index), type));
+      }
+      return new NodeOperation(op.getOperationId(), operands);
+    }
   }
 
-  @Override
-  public Node apply(final Node node) {
-    final NodeOperation ite = (NodeOperation) node;
-    final List<Node> source = ite.getOperands().subList(1, ite.getOperandCount());
-    final DataType type = IntegerCast.findCommonType(source);
-    final List<Node> operands = new ArrayList<>(ite.getOperandCount());
-    operands.add(ite.getOperand(0));
-    for (final Node operand : source) {
-      operands.add(IntegerCast.cast(operand, type));
+  private static final class IteRule implements TransformerRule {
+    @Override
+    public boolean isApplicable(final Node node) {
+      if (ExprUtils.isOperation(node, StandardOperation.ITE) &&
+             IntegerCast.getBitVectorOperandIndex(node, 1) >= 1) {
+        final List<Node> operands = ((NodeOperation) node).getOperands();
+        return IntegerCast.hasTypeMismatch(operands.subList(1, operands.size()));
+      }
+      return false;
     }
-    return new NodeOperation(StandardOperation.ITE, operands);
+
+    @Override
+    public Node apply(final Node node) {
+      final NodeOperation ite = (NodeOperation) node;
+      final List<Node> source = ite.getOperands().subList(1, ite.getOperandCount());
+      final DataType type = IntegerCast.findCommonType(source);
+      final List<Node> operands = new ArrayList<>(ite.getOperandCount());
+      operands.add(ite.getOperand(0));
+      for (final Node operand : source) {
+        operands.add(IntegerCast.cast(operand, type));
+      }
+      return new NodeOperation(StandardOperation.ITE, operands);
+    }
   }
-}
 }
