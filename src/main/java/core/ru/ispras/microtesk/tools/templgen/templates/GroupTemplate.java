@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.tools.templgen.templates;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public final class GroupTemplate extends GeneratedTemplate {
   public static final String GROUP_TEMPLATE_NAME = "group";

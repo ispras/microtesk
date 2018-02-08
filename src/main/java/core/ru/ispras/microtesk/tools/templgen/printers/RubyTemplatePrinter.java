@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.tools.templgen.printers;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,11 +24,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 
-import ru.ispras.fortress.util.InvariantChecks;
-
 /**
  * The {@code RubyTemplatePrinter} class prints data of template into a ruby file.
- * 
+ *
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 
@@ -40,6 +40,11 @@ public class RubyTemplatePrinter implements TemplatePrinter {
 
   private PrintWriter printWriter;
 
+  /**
+   * Constructs a ruby printer with the specified template name.
+   *
+   * @param templateName the template name.
+   */
   public RubyTemplatePrinter(String templateName) {
     final File templateFile = new File(templateName + TEMPLATE_NAME);
 
@@ -67,13 +72,14 @@ public class RubyTemplatePrinter implements TemplatePrinter {
     }
   }
 
-  /**
-   * Creates new {@code PrintWriter}
-   * 
-   * @param file filename of new {@code PrintWriter}
-   * @return new {@code PrintWriter}
+  /*
+   * Creates new {@code PrintWriter}.
+   *
+   * @param file filename of new {@code PrintWriter}.
+   *
+   * @return new {@code PrintWriter}.
    */
-  public PrintWriter newPrintWriter(final File file) {
+  private PrintWriter newPrintWriter(final File file) {
     InvariantChecks.checkNotNull(file);
     return new PrintWriter(newBufferedWriter(file));
   }
@@ -99,7 +105,7 @@ public class RubyTemplatePrinter implements TemplatePrinter {
 
   /**
    * Adds the operation to template file.
-   * 
+   *
    * @param operation Operation syntax.
    */
   public void addOperation(String operation) {
@@ -125,6 +131,13 @@ public class RubyTemplatePrinter implements TemplatePrinter {
   @Override
   public void addText(String addText) {
     InvariantChecks.checkNotNull(addText);
+    this.printWriter.format("%s", addText);
+  }
+
+  @Override
+  public void addAlignedText(String addText) {
+    InvariantChecks.checkNotNull(addText);
+    this.addTab(nowLevel);
     this.printWriter.format("%s", addText);
   }
 
