@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.math.BigInteger;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -25,6 +23,8 @@ import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+
+import java.math.BigInteger;
 
 public final class STBOperation implements STBuilder {
   public static final Class<?> BINDING_CLASS =

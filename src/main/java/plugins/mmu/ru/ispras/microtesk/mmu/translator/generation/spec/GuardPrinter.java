@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -28,11 +25,15 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 final class GuardPrinter {
   private final Ir ir;

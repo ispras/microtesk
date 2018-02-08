@@ -14,14 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.math.BigInteger;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
@@ -36,10 +28,19 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.microtesk.utils.StringUtils;
+
+import java.math.BigInteger;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 final class BufferExprAnalyzer {
   private final Var addressVariable;

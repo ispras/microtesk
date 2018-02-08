@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.util.Map;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -24,6 +22,8 @@ import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+
+import java.util.Map;
 
 final class STBStruct implements STBuilder {
   public static final Class<?> STRUCT_CLASS =

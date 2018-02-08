@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
-import java.math.BigInteger;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -32,6 +30,8 @@ import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.Kind;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+
+import java.math.BigInteger;
 
 final class STBBuffer extends STBCommon implements STBuilder {
   private static final String DATA_NAME = "data";

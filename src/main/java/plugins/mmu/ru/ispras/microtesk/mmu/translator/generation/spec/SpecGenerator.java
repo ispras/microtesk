@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.io.IOException;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
@@ -30,6 +28,8 @@ import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
+
+import java.io.IOException;
 
 public final class SpecGenerator implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;

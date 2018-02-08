@@ -14,13 +14,14 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
-import java.math.BigInteger;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+
+import java.math.BigInteger;
 
 final class STBOperation extends STBCommon implements STBuilder {
   public static final Class<?> OPERATION_CLASS =

@@ -14,16 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
-import static ru.ispras.fortress.util.InvariantChecks.checkTrue;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -38,6 +28,7 @@ import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
@@ -54,6 +45,13 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtMark;
 import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 final class ControlFlowBuilder {
   public static final Class<?> BUFFER_EVENT_CLASS =
@@ -638,11 +636,11 @@ final class ControlFlowBuilder {
       final Node lhs,
       final Callable callee,
       final List<Node> args) {
-    checkNotNull(source);
-    checkNotNull(callee);
-    checkNotNull(args);
-    checkTrue((lhs == null) == (callee.getOutput() == null));
-    checkTrue(callee.getParameters().size() == args.size());
+    InvariantChecks.checkNotNull(source);
+    InvariantChecks.checkNotNull(callee);
+    InvariantChecks.checkNotNull(args);
+    InvariantChecks.checkTrue((lhs == null) == (callee.getOutput() == null));
+    InvariantChecks.checkTrue(callee.getParameters().size() == args.size());
 
     final StringBuilder builder = new StringBuilder();
 
@@ -670,7 +668,7 @@ final class ControlFlowBuilder {
         break;
 
       default:
-        checkTrue(false);
+        InvariantChecks.checkTrue(false);
       };
     }
     builder.append(");");

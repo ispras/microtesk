@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.math.BigInteger;
-import java.util.List;
-
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
@@ -27,11 +24,15 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.printer.JavaExprPrinter;
 import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.mmu.translator.generation.sim.ExprPrinter;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.utils.FortressUtils;
+
+import java.math.BigInteger;
+import java.util.List;
 
 public final class Utils {
   private Utils() {}

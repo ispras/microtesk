@@ -14,16 +14,16 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public final class Condition {
   public static enum Type {

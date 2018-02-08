@@ -14,14 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
-import java.math.BigInteger;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -42,6 +34,14 @@ import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
+
+import java.math.BigInteger;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public final class ExprPrinter extends MapBasedPrinter {
   private static ExprPrinter instance = null;

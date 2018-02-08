@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
@@ -31,6 +29,8 @@ import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.generation.STFileGenerator;
+
+import java.util.Map;
 
 final class SimGeneratorFactory {
   private static final String MMU_STG_DIR = "stg/mmu/sim/";

@@ -14,11 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -28,6 +23,11 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 final class STBBuffer implements STBuilder {
   public static final Class<?> BINDING_CLASS =

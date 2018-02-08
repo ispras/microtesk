@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
-import java.io.IOException;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.generation.spec.MemoryControlFlowExplorer;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
@@ -32,6 +29,9 @@ import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.FileGenerator;
+
+import java.io.IOException;
+import java.util.Map;
 
 public final class SimGenerator implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;

@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
-import java.math.BigInteger;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -24,6 +22,8 @@ import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.generation.STBuilder;
+
+import java.math.BigInteger;
 
 final class STBFunction extends STBCommon implements STBuilder {
   private final Callable function;

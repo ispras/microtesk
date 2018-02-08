@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.util.List;
-import java.util.ListIterator;
-
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -35,6 +32,9 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 import ru.ispras.microtesk.mmu.translator.ir.StmtCall;
 import ru.ispras.microtesk.mmu.translator.ir.StmtIf;
 import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
+
+import java.util.List;
+import java.util.ListIterator;
 
 public final class MemoryControlFlowExplorer {
   private final Buffer target;

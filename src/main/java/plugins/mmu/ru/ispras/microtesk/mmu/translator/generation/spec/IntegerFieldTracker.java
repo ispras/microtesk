@@ -14,15 +14,15 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This class is to track fields in a variable by exclusion.

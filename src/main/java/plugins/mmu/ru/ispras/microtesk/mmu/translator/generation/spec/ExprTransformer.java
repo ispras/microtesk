@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import static ru.ispras.fortress.expression.ExprUtils.isOperation;
 import static ru.ispras.fortress.expression.ExprUtils.isValue;
 
@@ -32,6 +28,10 @@ import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Class {@link ExprTransformer} transforms operations that involve shifts and 

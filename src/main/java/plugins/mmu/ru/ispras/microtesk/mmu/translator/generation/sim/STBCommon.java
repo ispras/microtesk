@@ -14,12 +14,6 @@
 
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
-import java.math.BigInteger;
-import java.util.Collection;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -45,6 +39,12 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.utils.FormatMarker;
+
+import java.math.BigInteger;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 abstract class STBCommon {
   public static final Class<?> BIT_VECTOR_CLASS =
