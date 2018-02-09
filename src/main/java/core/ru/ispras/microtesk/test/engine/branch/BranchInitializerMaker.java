@@ -254,7 +254,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
     Logger.debug("Test data: %s", testData);
 
     // Set unknown immediate values (if there are any).
-    EngineUtils.setUnknownImmValues(queryCreator.getUnknownImmValues(), testData);
+    EngineUtils.setUnknownImmValues(testData, queryCreator.getUnknownImmValues());
 
     // Initialize test data to ensure branch execution.
     for (final Map.Entry<String, Object> testDatum : testData.getBindings().entrySet()) {
