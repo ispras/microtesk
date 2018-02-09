@@ -650,7 +650,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
       final Situation situation) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(stage);
-    InvariantChecks.checkNotNull(situation);
 
     final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
     final LocationManager locationsToBeRestored;
