@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -27,7 +27,7 @@ import java.nio.file.Paths;
 
 /**
  * The {@link SysUtils} class provides utility methods to interact with the environment.
- *  
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class SysUtils {
@@ -37,18 +37,25 @@ public final class SysUtils {
   private SysUtils() {}
 
   /**
-   * Returns the path to MicroTESK home folder.
-   * 
-   * @return Path to MicroTESK home folder or {@code null} if the MICROTESK_HOME
-   *         variable that stores this information is not defined in the system.
+   * Returns the path to MicroTESK home folder, which is stored
+   * in the {@code MICROTESK_HOME} environment variable.
+   *
+   * @return Path to MicroTESK home folder.
+   * @throws IllegalStateException if the {@code MICROTESK_HOME} environment variable
+   *         is not defined.
    */
   public static String getHomeDir() {
-    return System.getenv(MICROTESK_HOME);
+    final String homeDir = System.getenv(MICROTESK_HOME);
+    if (null == homeDir) {
+      throw new IllegalStateException(String.format(
+          "The %s environment variable is not defined.", MICROTESK_HOME));
+    }
+    return homeDir;
   }
 
   /**
    * Results current directory path.
-   * 
+   *
    * @return Results current directory path.
    */
   public static String getCurrentDir() {
@@ -56,27 +63,24 @@ public final class SysUtils {
   }
 
   /**
-   * Returns absolute path to the {@code models.jar} file that stores compiled microprocessor models.
-   * The file's relative file is {@code $MICROTESK_HOME/lib/jars/models.jar}.
+   * Returns absolute path to the {@code models.jar} file that stores compiled microprocessor
+   * models. The file's relative file is {@code $MICROTESK_HOME/lib/jars/models.jar}.
    *
    * @return Absolute path to the {@code models.jar} file.
-   * @throws IllegalStateException if the {@code MICROTESK_HOME} environment variable is undefined.
+   * @throws IllegalStateException if the {@code MICROTESK_HOME} environment variable
+   *         is not defined.
    */
   public static String getModelsJarPath() {
     final String homeDir = getHomeDir();
-    if (null == homeDir) {
-      throw new IllegalStateException(String.format(
-          "The %s environment variable is not defined.", MICROTESK_HOME));
-    }
     return Paths.get(homeDir, "lib", "jars", "models.jar").toString();
   }
 
   /**
    * Loads a model with the specified name from {@code models.jar}.
-   * 
+   *
    * @param modelName Model name.
    * @return New model instance.
-   * 
+   *
    * @throws IllegalArgumentException if the model name is {@code null} or
    *         if for some reason it cannot be loaded.
    */
@@ -94,10 +98,10 @@ public final class SysUtils {
 
   /**
    * Loads a class with the specified name from {@code models.jar}.
-   * 
+   *
    * @param className Name of the class to be loaded.
    * @return New instance of the specified class.
-   * 
+   *
    * @throws IllegalArgumentException if the class name is {@code null} or
    *         if for some reason the class cannot be loaded.
    */
@@ -145,10 +149,10 @@ public final class SysUtils {
 
   /**
    * Loads a plug-in implemented by the specified class from {@code microtesk.jar}.
-   * 
+   *
    * @param className Name of the plug-in class.
    * @return New plug-in instance.
-   * 
+   *
    * @throws IllegalArgumentException if the class name is {@code null} or
    *         if  for some reason the class cannot be loaded.
    */
@@ -167,10 +171,10 @@ public final class SysUtils {
 
   /**
    * Returns an URL for the specified resource file stored in {@code microtesk.jar}.
-   * 
+   *
    * @param resourceName Resource file name.
    * @return URL for the specified resource file.
-   * 
+   *
    * @throws IllegalArgumentException if the argument is {@code null}.
    */
   public static URL getResourceUrl(final String resourceName) {
@@ -191,6 +195,7 @@ public final class SysUtils {
    * @return Architecture directory path or {@code null} if no such path is found.
    *
    * @throws IllegalArgumentException if any of the arguments is {@code null}.
+   * @throws IllegalStateException if the {@code MICROTESK_HOME} environment variable is undefined.
    */
   public static String getArchDir(final String archDirs, final String archName) {
     InvariantChecks.checkNotNull(archDirs);

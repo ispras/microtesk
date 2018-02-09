@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.test;
 
-import org.jruby.embed.PathType;
-import org.jruby.embed.ScriptingContainer;
-
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.solver.Environment;
 import ru.ispras.fortress.solver.SolverId;
@@ -24,6 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
+import ru.ispras.microtesk.ScriptRunner;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.Execution;
 import ru.ispras.microtesk.model.Model;
@@ -139,7 +137,11 @@ public final class TestEngine {
     Environment.setDebugMode(options.getValueAsBoolean(Option.SOLVER_DEBUG));
 
     instance = new TestEngine(model, options, plugins, statistics);
-    if  (!instance.processTemplate(templateFile)) {
+
+    try {
+      ScriptRunner.run(options, templateFile);
+    } catch (final GenerationAbortedException e) {
+      reportAborted(e.getMessage());
       return false;
     }
 
@@ -176,36 +178,6 @@ public final class TestEngine {
       // Makes sense only for sequences of significant length (>= 1000)
       Logger.error("Generation rate is too slow. At least %d is expected.", rateLimit);
       return false;
-    }
-
-    return true;
-  }
-
-  private boolean processTemplate(final String templateFile) throws Throwable {
-    final String scriptsPath = String.format(
-        "%s/lib/ruby/microtesk.rb", SysUtils.getHomeDir());
-
-    // Number of threads used by JRuby can be limited to prevent hitting OS limit.
-    org.jruby.util.cli.Options.THREADPOOL_MAX.force(
-        options.getValue(Option.JRUBY_THREAD_POOL_MAX).toString());
-
-    final ScriptingContainer container = new ScriptingContainer();
-    container.setArgv(new String[] {templateFile});
-
-    // To make sure that THREADPOOL_MAX has an expected value.
-    //Logger.message("THREADPOOL_MAX=%d", org.jruby.util.cli.Options.THREADPOOL_MAX.load());
-
-    try {
-      container.runScriptlet(PathType.ABSOLUTE, scriptsPath);
-    } catch (final org.jruby.embed.EvalFailedException e) {
-      // JRuby wraps exceptions that occur in Java libraries it calls into
-      // EvalFailedException. To handle them correctly, we need to unwrap them.
-
-      try {
-        throw e.getCause();
-      } catch (final GenerationAbortedException e2) {
-        reportAborted(e2.getMessage());
-      }
     }
 
     return true;
