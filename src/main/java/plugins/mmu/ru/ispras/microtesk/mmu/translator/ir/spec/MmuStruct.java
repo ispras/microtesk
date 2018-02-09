@@ -162,7 +162,7 @@ public class MmuStruct {
     final Iterator<NodeVariable> thisIt = this.fields.iterator();
     final Iterator<NodeVariable> otherIt = other.fields.iterator();
 
-    while(thisIt.hasNext() && otherIt.hasNext()) {
+    while (thisIt.hasNext() && otherIt.hasNext()) {
       final NodeVariable thisVar = thisIt.next();
       final NodeVariable otherVar = otherIt.next();
 

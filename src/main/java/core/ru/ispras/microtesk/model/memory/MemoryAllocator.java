@@ -134,8 +134,8 @@ public final class MemoryAllocator {
   }
 
   public int getAddressBitSize() {
-    return memory.getAddressBitSize() + 
-        MemoryStorage.calculateAddressSize(BigInteger.valueOf(addressableUnitsInRegion));
+    return memory.getAddressBitSize()
+        + MemoryStorage.calculateAddressSize(BigInteger.valueOf(addressableUnitsInRegion));
   }
 
   /**
@@ -201,8 +201,8 @@ public final class MemoryAllocator {
     final MemoryTracker.Region overlapping = memoryTracker.use(startAddress, endAddress);
     if (null != overlapping) {
       throw new GenerationAbortedException(String.format(
-          "Failed to allocate memory at physical address 0x%016x. " + 
-          "Address range %s is already in use.",
+          "Failed to allocate memory at physical address 0x%016x. "
+              + "Address range %s is already in use.",
           startAddress,
           overlapping
           ));
@@ -378,9 +378,9 @@ public final class MemoryAllocator {
 
     final BigInteger alignmentLength = BigInteger.valueOf(alignment);
     final BigInteger unaligned = address.mod(alignmentLength);
-    return unaligned.equals(BigInteger.ZERO) ? 
-        address :
-        address.add(alignmentLength.subtract(unaligned));
+    return unaligned.equals(BigInteger.ZERO)
+        ? address
+        : address.add(alignmentLength.subtract(unaligned));
   }
 
   @Override

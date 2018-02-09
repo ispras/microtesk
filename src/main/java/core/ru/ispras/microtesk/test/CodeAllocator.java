@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -258,8 +258,8 @@ public final class CodeAllocator {
         } else { // Label is not found
           if (abortOnUndefined) {
             throw new GenerationAbortedException(String.format(
-                "Label '%s' passed to '%s' (0x%x) is not defined or%n" +
-                "is not accessible in the scope of the current test sequence.",
+                "Label '%s' passed to '%s' (0x%x) is not defined or%n"
+                    + "is not accessible in the scope of the current test sequence.",
                 source.getName(), call.getText(), call.getAddress()));
           }
         }

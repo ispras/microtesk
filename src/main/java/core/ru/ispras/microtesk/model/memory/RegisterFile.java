@@ -53,8 +53,9 @@ final class RegisterFile extends Memory {
     final int bitSize = type.getBitSize();
     final int indexBitSize = getIndexBitSize(count);
 
-    for(int index = 0; index < count; ++index) {
-      final RegisterAtom atom = new RegisterAtom(memory, BitVector.valueOf(index, indexBitSize), bitSize);
+    for (int index = 0; index < count; ++index) {
+      final RegisterAtom atom =
+          new RegisterAtom(memory, BitVector.valueOf(index, indexBitSize), bitSize);
       atoms.add(atom);
 
       final Location location = Location.newLocationForAtom(type, atom);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -78,7 +78,7 @@ final class Float128Operations implements Operations {
     final Float128 value1 = newFloat128(first);
     final Float128 value2 = newFloat128(second);
 
-    if (JSoftFloat.float128_eq(value1, value2)){
+    if (JSoftFloat.float128_eq(value1, value2)) {
       return 0;
     }
 

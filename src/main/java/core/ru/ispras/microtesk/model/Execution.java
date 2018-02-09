@@ -77,6 +77,7 @@ public final class Execution {
 
   public static abstract class InternalVariable {
     public abstract int load();
+
     public abstract void store(final int value);
 
     public final void store(final Data data) {

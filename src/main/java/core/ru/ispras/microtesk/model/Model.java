@@ -152,7 +152,7 @@ public final class Model implements ModelStateManager {
   public void setUseTempState(final boolean value) {
     Sections.get().setUseTempState(value);
 
-    for(final ModelStateManager stateManager : stateManagers) {
+    for (final ModelStateManager stateManager : stateManagers) {
       stateManager.setUseTempState(value);
     }
 
@@ -172,7 +172,7 @@ public final class Model implements ModelStateManager {
   public void resetState() {
     Sections.get().resetState();
 
-    for(final ModelStateManager stateManager : stateManagers) {
+    for (final ModelStateManager stateManager : stateManagers) {
       stateManager.resetState();
     }
 
@@ -272,7 +272,7 @@ public final class Model implements ModelStateManager {
         }
         final IsaPrimitive primitive = builder.build();
         primitive.execute(procElems.get(index), tempVars);
-      } catch(final ConfigurationException e) {
+      } catch (final ConfigurationException e) {
         throw new IllegalStateException(e);
       }
     }

@@ -72,13 +72,13 @@ public enum Option {
   NO_SIMULATION("no-simulation", "Disables simulation of generated code", false, GENERATE),
   DEBUG("debug-print", "Enables printing detailed debug messages", false, GENERATE),
   COMMENTS_ENABLED("comments-enabled", "Enables generation of comments", false, GENERATE),
-  COMMENTS_DEBUG("comments-debug", "Enables generation of detailed comments, depends on --" +
-      COMMENTS_ENABLED.getName(), false, GENERATE),
+  COMMENTS_DEBUG("comments-debug", "Enables generation of detailed comments, depends on --"
+      + COMMENTS_ENABLED.getName(), false, GENERATE),
   TIME_STATISTICS("time-statistics", "Enables printing time statistics", false, GENERATE),
   RESERVE_EXPLICIT("reserve-explicit", "Enables reservation of explicitly specified mode arguments",
       false, GENERATE),
-  GENERATE_BINARY("generate-binary", "Enables generating binary files of test programs. " + 
-      "Limited functionality. Required for debugging.", false, GENERATE),
+  GENERATE_BINARY("generate-binary", "Enables generating binary files of test programs. "
+      + "Limited functionality. Required for debugging.", false, GENERATE),
 
   BIN_EXT("binary-file-extension", "Binary file extension", "bin", GENERATE),
   BIN_USE_BIG_ENDIAN("binary-file-use-big-endian", "Use big endian for binary files", false),

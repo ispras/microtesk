@@ -47,7 +47,7 @@ public final class Code {
     InvariantChecks.checkNotNull(newBlock);
 
     CodeBlock blockToLink = null;
-    for(final CodeBlock block : blocks.values()) {
+    for (final CodeBlock block : blocks.values()) {
       final Pair<Long, Long> overlapping = block.getOverlapping(newBlock);
       if (null != overlapping) {
         throw newOverlappingException(overlapping);

@@ -26,11 +26,14 @@ import java.util.Map;
  */
 public interface Engine {
   String getId();
+
   SequenceSelector getSequenceSelector();
 
   void configure(Map<String, Object> attributes);
+
   Iterator<AbstractSequence> solve(EngineContext engineContext, AbstractSequence abstractSequence);
 
   void onStartProgram();
+
   void onEndProgram();
 }

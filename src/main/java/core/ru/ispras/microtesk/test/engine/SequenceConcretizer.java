@@ -55,7 +55,7 @@ import java.util.Set;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-final class SequenceConcretizer implements Iterator<ConcreteSequence>{
+final class SequenceConcretizer implements Iterator<ConcreteSequence> {
   private final EngineContext engineContext;
   private final boolean isPresimulation;
   private final Iterator<AbstractSequence> sequenceIterator;
@@ -168,8 +168,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
     if (Logger.isDebug()) {
       Logger.debugHeader("Abstract Sequence");
-      Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics()).
-          printSequence(engineContext.getModel().getPE(), builder.build());
+      Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics())
+          .printSequence(engineContext.getModel().getPE(), builder.build());
     }
 
     final ConcreteSequenceCreator creator =
@@ -406,9 +406,9 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
             "%3d (%10d) %s %s",
             index,
             System.identityHashCode(concreteCall),
-            abstractCall.getAttributes().containsKey("dependsOnIndex") ?
-                String.format("Ref=%3d", abstractCall.getAttributes().get("dependsOnIndex")) :
-                "       ",
+            abstractCall.getAttributes().containsKey("dependsOnIndex")
+                ? String.format("Ref=%3d", abstractCall.getAttributes().get("dependsOnIndex"))
+                : "       ",
             concreteCall.getText()
             );
 

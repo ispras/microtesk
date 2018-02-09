@@ -84,8 +84,8 @@ public enum Precision {
 
   public static Precision find(final int fractionSize, final int exponentSize) {
     for (final Precision precision : Precision.values()) {
-      if (precision.getFractionSize() == fractionSize &&
-          precision.getExponentSize() == exponentSize) {
+      if (precision.getFractionSize() == fractionSize
+          && precision.getExponentSize() == exponentSize) {
         return precision;
       }
     }

@@ -76,8 +76,8 @@ public final class Printer {
     final File file = FileUtils.newFile(
         outDir, fileName, options.getValueAsString(Option.CODE_EXT));
 
-    final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY) ?
-        FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
+    final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY)
+        ? FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
     return new Printer(options, false, file, binaryFile);
   }
@@ -129,16 +129,16 @@ public final class Printer {
     final File file = FileUtils.newFile(
         outDir, fileName, options.getValueAsString(Option.CODE_EXT));
 
-    final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY) ?
-        FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
+    final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY)
+        ? FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
 
     return new Printer(options, false, file, binaryFile);
   }
 
   public static String getOutDir(final Options options) {
     InvariantChecks.checkNotNull(options);
-    return options.hasValue(Option.OUTDIR) ?
-        options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
+    return options.hasValue(Option.OUTDIR)
+        ? options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
   }
 
   private Printer(
@@ -160,8 +160,8 @@ public final class Printer {
     this.commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
     this.indentToken = options.getValueAsString(Option.INDENT_TOKEN);
     this.separatorToken = options.getValueAsString(Option.SEPARATOR_TOKEN);
-    this.separator = commentToken +
-        newSeparator(LINE_WIDTH - indentToken.length() - commentToken.length(), separatorToken);
+    this.separator = commentToken
+        + newSeparator(LINE_WIDTH - indentToken.length() - commentToken.length(), separatorToken);
 
     printFileHeader();
   }
@@ -315,8 +315,8 @@ public final class Printer {
       }
 
       final boolean printComment =
-          options.getValueAsBoolean(Option.COMMENTS_ENABLED) &&
-          options.getValueAsBoolean(Option.COMMENTS_DEBUG);
+          options.getValueAsBoolean(Option.COMMENTS_ENABLED)
+              && options.getValueAsBoolean(Option.COMMENTS_DEBUG);
 
       String text = output.evaluate(observer);
       switch (output.getKind()) {
@@ -511,8 +511,8 @@ public final class Printer {
       printToFile("");
       final int index = dataSection.getSequenceIndex();
       if (index != currentTestCaseIndex) {
-        printSeparatorToFile(index == Label.NO_SEQUENCE_INDEX ?
-            "Global Data" : String.format("Test Case %d", index));
+        printSeparatorToFile(index == Label.NO_SEQUENCE_INDEX
+            ? "Global Data" : String.format("Test Case %d", index));
         currentTestCaseIndex = index;
       }
 

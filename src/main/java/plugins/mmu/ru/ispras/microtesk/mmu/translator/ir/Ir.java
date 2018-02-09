@@ -141,8 +141,8 @@ public final class Ir {
   @Override
   public String toString() {
     return String.format(
-        "Mmu Ir(%s):%n constants=%s%n externals=%s%n addresses=%s%n segments=%s" +
-        "%n buffers=%s%n memories=%s%n types=%s%n functions=%s%n operations=%s",
+        "Mmu Ir(%s):%n constants=%s%n externals=%s%n addresses=%s%n segments=%s"
+            + "%n buffers=%s%n memories=%s%n types=%s%n functions=%s%n operations=%s",
         modelName,
         mapToString(constants),
         mapToString(externs),

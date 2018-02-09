@@ -75,8 +75,8 @@ public class IsaPrimitiveBuilder {
 
     if (Data.isLossOfSignificantBits(type, value)) {
       Logger.warning(
-         "The value of the %s argument (= %d) of %s " +
-         "will be truncated to suit %s. This will cause loss of significant bits. Result: %d",
+         "The value of the %s argument (= %d) of %s "
+             + "will be truncated to suit %s. This will cause loss of significant bits. Result: %d",
          name, value, info.getName(), type, data.bigIntegerValue()
          );
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -112,14 +112,15 @@ public final class ConcreteSequence {
     final List<ConcreteCall> allCalls = merge(prologue, body);
     this.all = Collections.unmodifiableList(allCalls);
 
-    this.prologue = prologue.isEmpty() ?
-        Collections.<ConcreteCall>emptyList() :
-        Collections.unmodifiableList(allCalls.subList(0, prologue.size()));
+    this.prologue = prologue.isEmpty()
+        ? Collections.<ConcreteCall>emptyList()
+        : Collections.unmodifiableList(allCalls.subList(0, prologue.size()));
 
-    this.body = body.isEmpty() ?
-        Collections.<ConcreteCall>emptyList() :
-        prologue.isEmpty() ?
-            all : Collections.unmodifiableList(allCalls.subList(prologue.size(), allCalls.size()));
+    this.body = body.isEmpty()
+        ? Collections.<ConcreteCall>emptyList()
+        : prologue.isEmpty()
+            ? all
+            : Collections.unmodifiableList(allCalls.subList(prologue.size(), allCalls.size()));
 
     this.instructionCount = instructionCount;
     this.title = "";

@@ -71,8 +71,8 @@ public class InitializerMakerDefault implements InitializerMaker {
 
       final AddressingModeWrapper targetMode = new AddressingModeWrapper(mode);
       if (initializedModes.contains(targetMode)) {
-        Logger.debug("%s has already been used to set up the processor state. " +
-                     "No initialization code will be created.", targetMode);
+        Logger.debug("%s has already been used to set up the processor state. "
+            + "No initialization code will be created.", targetMode);
         continue;
       }
 

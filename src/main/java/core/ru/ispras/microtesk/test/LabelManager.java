@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -307,9 +307,9 @@ public final class LabelManager {
 
       // If reference numbers or sequence indexes (except for global labels) do not match,
       // it is a different label that cannot be chosen.
-      if (referenceLabel.getReferenceNumber() == targetLabel.getReferenceNumber() &&
-          (referenceLabel.getSequenceIndex() == targetLabel.getSequenceIndex() ||
-          Label.NO_SEQUENCE_INDEX == targetLabel.getSequenceIndex())) {
+      if (referenceLabel.getReferenceNumber() == targetLabel.getReferenceNumber()
+          && (referenceLabel.getSequenceIndex() == targetLabel.getSequenceIndex()
+              || Label.NO_SEQUENCE_INDEX == targetLabel.getSequenceIndex())) {
         final Distance distance = referenceLabel.getBlockId().getDistance(targetLabel.getBlockId());
         distances.add(new TargetDistance(target, distance));
       }

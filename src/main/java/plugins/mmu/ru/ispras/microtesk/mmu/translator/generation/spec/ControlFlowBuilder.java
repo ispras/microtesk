@@ -306,8 +306,9 @@ final class ControlFlowBuilder {
       throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
     }
 
-    final String address = value.getUserData() instanceof AttributeRef ?
-        getVariableName(((AttributeRef) value.getUserData()).getAddressArgValue().toString()) : null;
+    final String address = value.getUserData() instanceof AttributeRef
+        ? getVariableName(((AttributeRef) value.getUserData()).getAddressArgValue().toString())
+        : null;
 
     final String target = newAssign();
     final String targetBindings = buildBindings(lhs, rhs);
@@ -393,9 +394,9 @@ final class ControlFlowBuilder {
       final Node elseCondition = Nodes.not(condition);
       if (ExprUtils.isOperation(condition, StandardOperation.EQ)
           || ExprUtils.isOperation(condition, StandardOperation.NOTEQ)) {
-        jointElseCondition = null == jointElseCondition ?
-            elseCondition :
-            Nodes.and(jointElseCondition, elseCondition);
+        jointElseCondition = null == jointElseCondition
+            ? elseCondition
+            : Nodes.and(jointElseCondition, elseCondition);
       } else {
         elseConditions.add(elseCondition);
       }

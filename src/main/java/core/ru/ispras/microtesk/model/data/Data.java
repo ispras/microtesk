@@ -83,8 +83,8 @@ public final class Data implements Comparable<Data> {
     final BitVector fieldRawData = rawData.field(start, end);
     final int fieldBitSize = fieldRawData.getBitSize();
 
-    final Type fieldType = type.isInteger() ?
-        type.resize(fieldBitSize) : Type.CARD(fieldBitSize);
+    final Type fieldType = type.isInteger()
+        ? type.resize(fieldBitSize) : Type.CARD(fieldBitSize);
 
     return new Data(fieldRawData, fieldType);
   }
@@ -448,8 +448,8 @@ public final class Data implements Comparable<Data> {
     final BitVector whole = BitVector.valueOf(value, valueBitSize);
     final BitVector truncated = whole.field(type.getBitSize(), whole.getBitSize() - 1);
 
-    return !(truncated.isAllReset() ||
-             whole.getBit(type.getBitSize() - 1) && truncated.isAllSet());
+    return !(truncated.isAllReset()
+        || whole.getBit(type.getBitSize() - 1) && truncated.isAllSet());
   }
 
   public static int getFloatRoundingMode() {

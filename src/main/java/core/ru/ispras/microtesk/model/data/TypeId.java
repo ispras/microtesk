@@ -107,6 +107,7 @@ public enum TypeId {
   }
 
   protected abstract Type newType(final int... params);
+
   protected abstract Operations getOperations();
 
   protected final void checkParamCount(final int paramCount) {

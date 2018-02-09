@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -95,6 +95,7 @@ public final class Executor {
    */
   public interface Listener {
     void onBeforeExecute(EngineContext context, ConcreteCall call);
+
     void onAfterExecute(EngineContext context, ConcreteCall call);
   }
 
@@ -470,15 +471,15 @@ public final class Executor {
   private void checkExecutionCount(final ConcreteCall call) {
     if (branchExecutionLimit > 0 && call.getExecutionCount() >= branchExecutionLimit) {
       throw new GenerationAbortedException(String.format(
-          "Instruction %s reached its limit on execution count (%d). " +
-          "Probably, the program entered an endless loop. Generation was aborted.",
+          "Instruction %s reached its limit on execution count (%d). "
+              + "Probably, the program entered an endless loop. Generation was aborted.",
           call.getText(), branchExecutionLimit
           ));
     }
   }
 
   private void logCall(final ConcreteCall call) throws ConfigurationException {
-    if(!isLoggingEnabled) {
+    if (!isLoggingEnabled) {
       return;
     }
 
@@ -506,7 +507,7 @@ public final class Executor {
   }
 
   private void logJump(final long address, final Label label) {
-    if(!isLoggingEnabled) {
+    if (!isLoggingEnabled) {
       return;
     }
 

@@ -188,11 +188,15 @@ public abstract class Memory {
   }
 
   public abstract Location access(int address);
+
   public abstract Location access(long address);
+
   public abstract Location access(BigInteger address);
+
   public abstract Location access(Data address);
 
   public abstract Memory copy();
+
   public abstract void reset();
 
   @Override

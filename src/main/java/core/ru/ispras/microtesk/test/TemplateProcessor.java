@@ -354,9 +354,9 @@ final class TemplateProcessor implements Template.Processor {
       runExecutionFromStart();
     }
 
-    final ConcreteSequence prevEntry = testProgram.hasEntry(entry) ?
-                                       testProgram.getPrevEntry(entry) :
-                                       testProgram.getLastEntry(entry.getSection());
+    final ConcreteSequence prevEntry = testProgram.hasEntry(entry)
+        ? testProgram.getPrevEntry(entry)
+        : testProgram.getLastEntry(entry.getSection());
 
     final int instanceIndex = TestEngineUtils.findAtEndOf(executorStatuses, prevEntry);
     if (-1 == instanceIndex) {
@@ -366,17 +366,18 @@ final class TemplateProcessor implements Template.Processor {
 
     // This is needed to prevent allocation of postponed sequences in middle
     // of sequences constructed by a block (interrupting a block).
-    if (!executorStatuses.isEmpty() &&
-        TestEngineUtils.isAtEndOfAny(executorStatuses.get(instanceIndex), interruptedSequences)) {
+    if (!executorStatuses.isEmpty()
+        && TestEngineUtils.isAtEndOfAny(
+            executorStatuses.get(instanceIndex), interruptedSequences)) {
       Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
       return false;
     }
 
     engineContext.getModel().setActivePE(instanceIndex);
 
-    long allocationAddress =  null != prevEntry ?
-        prevEntry.getEndAddress() :
-        entry.getSection().physicalToVirtual(entry.getSection().getPa()).longValue();
+    long allocationAddress =  null != prevEntry
+        ? prevEntry.getEndAddress()
+        : entry.getSection().physicalToVirtual(entry.getSection().getPa()).longValue();
 
     // The placeholder entry is marked allocated at allocationAddress in case no sequences are
     // produced. In this situation, the placeholder sequences will be printed as empty.
@@ -419,8 +420,8 @@ final class TemplateProcessor implements Template.Processor {
           runExecution(sequence);
 
           final Executor.Status status = executorStatuses.get(instanceIndex);
-          if (!TestEngineUtils.isAtEndOf(status, sequence) &&
-              !TestEngineUtils.isAtEndOfAny(status, interruptedSequences)) {
+          if (!TestEngineUtils.isAtEndOf(status, sequence)
+              && !TestEngineUtils.isAtEndOfAny(status, interruptedSequences)) {
             interruptedSequences.push(sequence);
             processPostponedBlocks();
             interruptedSequences.pop();
@@ -472,9 +473,9 @@ final class TemplateProcessor implements Template.Processor {
       final ConcreteSequence entry) throws ConfigurationException {
     final ConcreteSequence prevEntry = testProgram.getPrevEntry(entry);
 
-    long allocationAddress = null != prevEntry ?
-        prevEntry.getEndAddress() :
-        entry.getSection().physicalToVirtual(entry.getSection().getPa()).longValue();
+    long allocationAddress = null != prevEntry
+        ? prevEntry.getEndAddress()
+        : entry.getSection().physicalToVirtual(entry.getSection().getPa()).longValue();
 
     final Section section = block.getSection();
     ConcreteSequence previous = entry;
@@ -675,8 +676,8 @@ final class TemplateProcessor implements Template.Processor {
       Logger.debug("Execution status: %s%n", status);
 
       final boolean isUndefinedLabel =
-          status.isLabelReference() &&
-          engineContext.getLabelManager().resolve(
+          status.isLabelReference()
+              && engineContext.getLabelManager().resolve(
               status.getLabelReference().getReference()) == null;
 
       if (!code.hasAddress(address) || isUndefinedLabel) {

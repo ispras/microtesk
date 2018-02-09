@@ -95,9 +95,9 @@ public final class OptionReader {
     InvariantChecks.checkNotNull(option);
 
     if (commandLine.hasOption(option.getShortName())) {
-      return option.isFlag() ?
-          true :
-          parseValue(option.getValueClass(), commandLine.getOptionValue(option.getShortName()));
+      return option.isFlag()
+          ? true
+          : parseValue(option.getValueClass(), commandLine.getOptionValue(option.getShortName()));
     }
 
     if (configuration.containsKey(option.getName())) {

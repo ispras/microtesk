@@ -66,9 +66,9 @@ public final class MmuDynamicConst implements Value<Data> {
 
     if (object instanceof BitVector) {
       final BitVector bitVector = (BitVector) object;
-      return bitVector.getBitSize() == bitSize ?
-          Data.newBitVector(bitVector) :
-          Data.newBitVector(bitVector.bigIntegerValue(false), bitSize);
+      return bitVector.getBitSize() == bitSize
+          ? Data.newBitVector(bitVector)
+          : Data.newBitVector(bitVector.bigIntegerValue(false), bitSize);
     }
 
     if (object instanceof Boolean) {

@@ -60,9 +60,9 @@ final class IntegerOperations implements Operations {
   public Data divide(final Data lhs, final Data rhs) {
     final boolean signed = isSigned(lhs) && isSigned(rhs);
 
-    final BitVector result = signed ?
-        BitVectorMath.sdiv(lhs.getRawData(), rhs.getRawData()) :
-        BitVectorMath.udiv(lhs.getRawData(), rhs.getRawData());
+    final BitVector result = signed
+        ? BitVectorMath.sdiv(lhs.getRawData(), rhs.getRawData())
+        : BitVectorMath.udiv(lhs.getRawData(), rhs.getRawData());
 
     return newData(signed, result);
   }
@@ -71,9 +71,9 @@ final class IntegerOperations implements Operations {
   public Data mod(final Data lhs, final Data rhs) {
     final boolean signed = isSigned(lhs) && isSigned(rhs);
 
-    final BitVector result = signed ?
-        BitVectorMath.srem(lhs.getRawData(), rhs.getRawData()) :
-        BitVectorMath.urem(lhs.getRawData(), rhs.getRawData());
+    final BitVector result = signed
+        ? BitVectorMath.srem(lhs.getRawData(), rhs.getRawData())
+        : BitVectorMath.urem(lhs.getRawData(), rhs.getRawData());
 
     return newData(signed, result);
   }
@@ -125,9 +125,9 @@ final class IntegerOperations implements Operations {
     final boolean signed = isSigned(value);
     final BigInteger shiftAmount = amount.getRawData().bigIntegerValue(isSigned(amount));
 
-    final BitVector result = signed ?
-        BitVectorMath.ashr(value.getRawData(), shiftAmount) :
-        BitVectorMath.lshr(value.getRawData(), shiftAmount);
+    final BitVector result = signed
+        ? BitVectorMath.ashr(value.getRawData(), shiftAmount)
+        : BitVectorMath.lshr(value.getRawData(), shiftAmount);
 
     return newData(signed, result);
   }
@@ -151,9 +151,9 @@ final class IntegerOperations implements Operations {
     }
 
     final boolean signed = isSigned(lhs) && isSigned(rhs);
-    final boolean greater = signed ?
-        BitVectorMath.sgt(lhs.getRawData(), rhs.getRawData()) :
-        BitVectorMath.ugt(lhs.getRawData(), rhs.getRawData());
+    final boolean greater = signed
+        ? BitVectorMath.sgt(lhs.getRawData(), rhs.getRawData())
+        : BitVectorMath.ugt(lhs.getRawData(), rhs.getRawData());
 
     return greater ? 1 : -1;
   }

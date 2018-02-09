@@ -69,8 +69,8 @@ public final class Immediate extends IsaPrimitive {
 
     @Override
     public boolean isSupported(final IsaPrimitive primitive) {
-      return primitive instanceof Immediate &&
-             getType().equals(((Immediate) primitive).getType());
+      return primitive instanceof Immediate
+          && getType().equals(((Immediate) primitive).getType());
     }
   }
 }

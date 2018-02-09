@@ -110,8 +110,7 @@ public final class Type extends Nested<Type> {
     }
 
     final Type type = (Type) o;
-    return bitSize == type.bitSize &&
-           fields.equals(type.fields);
+    return bitSize == type.bitSize && fields.equals(type.fields);
   }
 
   @Override

@@ -46,6 +46,7 @@ public class MmuBuffer extends MmuStruct {
 
     private final String text;
     private Kind(final String text) { this.text = text; }
+
     public String getText() { return text; }
   }
 

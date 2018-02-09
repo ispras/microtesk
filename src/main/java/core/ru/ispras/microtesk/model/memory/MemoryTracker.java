@@ -63,8 +63,8 @@ public final class MemoryTracker {
       }
 
       final Region other = (Region) obj;
-      return this.startAddress.equals(other.startAddress) && 
-             this.endAddress.equals(other.endAddress);
+      return this.startAddress.equals(other.startAddress)
+          && this.endAddress.equals(other.endAddress);
     }
 
     @Override
