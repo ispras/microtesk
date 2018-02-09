@@ -20,6 +20,7 @@ import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.memory.LocationAccessor;
+import ru.ispras.microtesk.model.memory.LocationManager;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.Code;
 import ru.ispras.microtesk.test.CodeAllocator;
@@ -38,7 +39,6 @@ import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;

@@ -12,11 +12,10 @@
  * the License.
  */
 
-package ru.ispras.microtesk.test.engine;
+package ru.ispras.microtesk.model.memory;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.model.memory.LocationAccessor;
 
 import java.math.BigInteger;
 
@@ -26,7 +25,7 @@ import java.math.BigInteger;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-final class LocationManager {
+public final class LocationManager {
   private final LocationAccessor[] locations;
   private BigInteger values[];
 
