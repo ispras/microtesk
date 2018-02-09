@@ -577,29 +577,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
           fixedConcretePrimitive
           );
 
-      final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
-      final LocationManager locationsToBeRestored;
-
-      if (stage == InitializerMaker.Stage.MAIN) {
-        final String streamId =
-            null != situation ? (String) situation.getAttributes().get("stream") : null;
-
-        if (streamId != null) {
-          final Stream stream = engineContext.getStreams().getStream(streamId);
-
-          final IsaPrimitive indexSource =
-              EngineUtils.makeConcretePrimitive(engineContext, stream.getIndexSource());
-
-          final LocationAccessor streamIndex = indexSource.access(
-              engineContext.getModel().getPE(), engineContext.getModel().getTempVars());
-
-          locationsToBeRestored = new LocationManager(programCounter, streamIndex);
-        } else {
-          locationsToBeRestored = new LocationManager(programCounter);
-        }
-      } else {
-        locationsToBeRestored = new LocationManager(programCounter);
-      }
+      final LocationManager locationsToBeRestored =
+          getLocationsToBeRestored(engineContext, stage, situation);
 
       processInitializer(engineContext, initializer, locationsToBeRestored);
     }
@@ -663,6 +642,41 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
         }
       }
     }
+  }
+
+  private static LocationManager getLocationsToBeRestored(
+      final EngineContext engineContext,
+      final InitializerMaker.Stage stage,
+      final Situation situation) throws ConfigurationException {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(stage);
+    InvariantChecks.checkNotNull(situation);
+
+    final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
+    final LocationManager locationsToBeRestored;
+
+    if (stage == InitializerMaker.Stage.MAIN) {
+      final String streamId =
+          null != situation ? (String) situation.getAttributes().get("stream") : null;
+
+      if (streamId != null) {
+        final Stream stream = engineContext.getStreams().getStream(streamId);
+
+        final IsaPrimitive indexSource =
+            EngineUtils.makeConcretePrimitive(engineContext, stream.getIndexSource());
+
+        final LocationAccessor streamIndex = indexSource.access(
+            engineContext.getModel().getPE(), engineContext.getModel().getTempVars());
+
+        locationsToBeRestored = new LocationManager(programCounter, streamIndex);
+      } else {
+        locationsToBeRestored = new LocationManager(programCounter);
+      }
+    } else {
+      locationsToBeRestored = new LocationManager(programCounter);
+    }
+
+    return locationsToBeRestored;
   }
 
   private static List<SelfCheck> createSelfChecks(final List<AbstractCall> abstractSequence) {
