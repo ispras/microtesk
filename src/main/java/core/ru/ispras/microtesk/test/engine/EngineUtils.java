@@ -77,6 +77,7 @@ import java.util.Set;
 public final class EngineUtils {
   private EngineUtils() {}
 
+  // Register the user-defined test data generators.
   public static TestBase newTestBase(final GeneratorSettings settings) {
     final TestBase testBase = TestBase.get();
     final TestBaseRegistry registry = testBase.getRegistry();
@@ -85,14 +86,11 @@ public final class EngineUtils {
       return testBase;
     }
 
-    // Register the user-defined test data generators.
-    final String home = SysUtils.getHomeDir();
-    final File file = new File(new File(new File(new File(home), "lib"), "jars"), "models.jar");
-
+    final File file = new File(SysUtils.getModelsJarPath());
     final URL url;
     try {
       url = file.toURI().toURL();
-    } catch (MalformedURLException e1) {
+    } catch (final MalformedURLException e1) {
       Logger.error(e1.getMessage());
       return testBase;
     }

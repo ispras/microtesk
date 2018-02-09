@@ -56,6 +56,22 @@ public final class SysUtils {
   }
 
   /**
+   * Returns absolute path to the {@code models.jar} file that stores compiled microprocessor models.
+   * The file's relative file is {@code $MICROTESK_HOME/lib/jars/models.jar}.
+   *
+   * @return Absolute path to the {@code models.jar} file.
+   * @throws IllegalStateException if the {@code MICROTESK_HOME} environment variable is undefined.
+   */
+  public static String getModelsJarPath() {
+    final String homeDir = getHomeDir();
+    if (null == homeDir) {
+      throw new IllegalStateException(String.format(
+          "The %s environment variable is not defined.", MICROTESK_HOME));
+    }
+    return Paths.get(homeDir, "lib", "jars", "models.jar").toString();
+  }
+
+  /**
    * Loads a model with the specified name from {@code models.jar}.
    * 
    * @param modelName Model name.
@@ -88,13 +104,7 @@ public final class SysUtils {
   public static Object loadFromModel(final String className) {
     InvariantChecks.checkNotNull(className);
 
-    final String homeDir = getHomeDir();
-    if (null == homeDir) {
-      throw new IllegalArgumentException(String.format(
-          "The %s environment variable is not defined.", MICROTESK_HOME));
-    }
-
-    final String modelsJarPath = Paths.get(homeDir, "lib", "jars", "models.jar").toString();
+    final String modelsJarPath = getModelsJarPath();
     final File file = new File(modelsJarPath);
     if (!file.exists()) {
       throw new IllegalArgumentException(String.format(
