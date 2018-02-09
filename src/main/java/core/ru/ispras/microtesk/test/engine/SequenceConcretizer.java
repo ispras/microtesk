@@ -578,7 +578,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           );
 
       final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
-      final LocationAccessor[] locationsToBeRestored;
+      final LocationManager locationsToBeRestored;
 
       if (stage == InitializerMaker.Stage.MAIN) {
         final String streamId =
@@ -593,12 +593,12 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
           final LocationAccessor streamIndex = indexSource.access(
               engineContext.getModel().getPE(), engineContext.getModel().getTempVars());
 
-          locationsToBeRestored = new LocationAccessor[] { programCounter, streamIndex };
+          locationsToBeRestored = new LocationManager(programCounter, streamIndex);
         } else {
-          locationsToBeRestored = new LocationAccessor[] { programCounter };
+          locationsToBeRestored = new LocationManager(programCounter);
         }
       } else {
-        locationsToBeRestored = new LocationAccessor[] { programCounter };
+        locationsToBeRestored = new LocationManager(programCounter);
       }
 
       processInitializer(engineContext, initializer, locationsToBeRestored);
@@ -607,7 +607,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     private void processInitializer(
         final EngineContext engineContext,
         final List<AbstractCall> abstractCalls,
-        final LocationAccessor[] locationsToBeRestored) throws ConfigurationException {
+        final LocationManager locationsToBeRestored) throws ConfigurationException {
       InvariantChecks.checkNotNull(engineContext);
       InvariantChecks.checkNotNull(abstractCalls);
 
@@ -622,22 +622,11 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
 
       testSequenceBuilder.addToPrologue(concreteCalls);
 
-      final int length = locationsToBeRestored.length;
-      final BigInteger[] savedValues = new BigInteger[length];
-
-      Logger.debug("Saved values:");
-      for (int i = 0; i < length; i++) {
-        savedValues[i] = locationsToBeRestored[i].getValue();
-        Logger.debug("0x%016X", locationsToBeRestored[i].getValue());
-      }
-
-      //final LocationAccessor programCounter = engineContext.getModel().getPE().accessLocation("PC");
-      //final BigInteger programCounterValue = programCounter.getValue();
-
       if (!concreteCalls.isEmpty()) {
         Logger.debug("Executing initializing code...");
       }
 
+      locationsToBeRestored.save();
       try {
         execute(
             engineContext,
@@ -647,14 +636,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
             sequenceIndex
             );
       } finally {
-        //programCounter.setValue(programCounterValue);
-
-        Logger.debug("Restored values:");
-        for (int i = 0; i < length; i++) {
-          locationsToBeRestored[i].setValue(savedValues[i]);
-          Logger.debug("0x%016X", locationsToBeRestored[i].getValue());
-        }
-
+        locationsToBeRestored.restore();
         setAllocationAddress(listenerForInitializers.getAllocationAddress());
         Logger.debug("");
       }
