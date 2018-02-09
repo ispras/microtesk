@@ -229,13 +229,9 @@ public final class TestEngine {
     statistics.setTraceLengthLimit(options.getValueAsInteger(Option.TRACE_LIMIT));
     statistics.pushActivity(Statistics.Activity.PARSING);
 
-    final EngineContext context = new EngineContext(
-        options,
-        model,
-        statistics
-        );
-
+    final EngineContext context = new EngineContext(options, model, statistics);
     final Template.Processor processor = new TemplateProcessor(context);
+
     return new Template(context, processor);
   }
 
