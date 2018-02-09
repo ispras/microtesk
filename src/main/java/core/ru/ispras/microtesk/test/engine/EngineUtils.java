@@ -14,10 +14,8 @@
 
 package ru.ispras.microtesk.test.engine;
 
-import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -172,8 +170,8 @@ public final class EngineUtils {
     // Immediates are assigned only once.
     if (0 == processingCount) {
       setUnknownImmValues(
-          queryCreator.getUnknownImmValues(),
           testData,
+          queryCreator.getUnknownImmValues(),
           null != concretePrimitive ? concretePrimitive.getArguments() : null
           );
     }
@@ -243,20 +241,17 @@ public final class EngineUtils {
   }
 
   public static void setUnknownImmValue(
+      final NodeValue value,
       final Argument argument,
-      final Node value,
       final Immediate argumentToPatch) {
-    InvariantChecks.checkNotNull(argument);
     InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkTrue(value.getKind() == Node.Kind.VALUE);
+    InvariantChecks.checkNotNull(argument);
 
-    final Data data = ((NodeValue) value).getData();
     final BigInteger dataValue;
-
-    if (data.isType(DataTypeId.LOGIC_INTEGER)) {
-      dataValue = data.getInteger();
-    } else if (data.isType(DataTypeId.BIT_VECTOR)) {
-      dataValue = data.getBitVector().bigIntegerValue();
+    if (value.isType(DataTypeId.LOGIC_INTEGER)) {
+      dataValue = value.getInteger();
+    } else if (value.isType(DataTypeId.BIT_VECTOR)) {
+      dataValue = value.getBitVector().bigIntegerValue();
     } else {
       throw new IllegalStateException(String.format("%s cannot be converted to integer", value));
     }
@@ -270,21 +265,21 @@ public final class EngineUtils {
   }
 
   public static void setUnknownImmValues(
-      final Map<String, Argument> unknownImmValues,
-      final TestData testData) {
-    setUnknownImmValues(unknownImmValues, testData, null);
+      final TestData testData,
+      final Map<String, Argument> unknownImmValues) {
+    setUnknownImmValues(testData, unknownImmValues, null);
   }
 
   public static void setUnknownImmValues(
-      final Map<String, Argument> unknownImmValues,
       final TestData testData,
+      final Map<String, Argument> unknownImmValues,
       final Map<String, IsaPrimitive> argumentsToPatch) {
-    InvariantChecks.checkNotNull(unknownImmValues);
     InvariantChecks.checkNotNull(testData);
+    InvariantChecks.checkNotNull(unknownImmValues);
 
     for (final Map.Entry<String, Argument> e : unknownImmValues.entrySet()) {
       final Argument argument = e.getValue();
-      final Node value = (Node) testData.getBindings().get(e.getKey());
+      final NodeValue value = (NodeValue) testData.getBindings().get(e.getKey());
 
       if (null == value) {
         continue;
@@ -298,7 +293,7 @@ public final class EngineUtils {
         argumentToPatch = null;
       }
 
-      setUnknownImmValue(argument, value, argumentToPatch);
+      setUnknownImmValue(value, argument, argumentToPatch);
     }
   }
 
