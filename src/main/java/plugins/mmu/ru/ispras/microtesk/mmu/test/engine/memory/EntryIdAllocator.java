@@ -111,9 +111,9 @@ public final class EntryIdAllocator {
     // Parameter exclude can be null.
 
     final AllocationTable<BitVector, ?> allocator = allocators.get(buffer);
-    return peek ?
-        (exclude != null ? allocator.peek(exclude) : allocator.peek()) :
-        (exclude != null ? allocator.allocate(exclude) : allocator.allocate());
+    return peek
+        ? (exclude != null ? allocator.peek(exclude) : allocator.peek())
+        : (exclude != null ? allocator.allocate(exclude) : allocator.allocate());
   }
 
   public void reset() {

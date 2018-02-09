@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -77,9 +77,9 @@ public final class Line<D extends Data, A extends Address> implements Buffer<D, 
 
   @Override
   public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-    return null != address && null != data ?
-        new Pair<>(address.getValue(), data.asBitVector()) :
-        null
+    return null != address && null != data
+        ? new Pair<>(address.getValue(), data.asBitVector())
+        : null
         ;
   }
 }

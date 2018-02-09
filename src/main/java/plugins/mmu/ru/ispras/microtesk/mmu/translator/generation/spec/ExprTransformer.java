@@ -107,8 +107,8 @@ public final class ExprTransformer {
   private static final class LeftShiftRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node expr) {
-      if (!ExprUtils.isOperation(expr, StandardOperation.BVLSHL) &&
-          !ExprUtils.isOperation(expr, StandardOperation.BVASHL)) {
+      if (!ExprUtils.isOperation(expr, StandardOperation.BVLSHL)
+          && !ExprUtils.isOperation(expr, StandardOperation.BVASHL)) {
         return false;
       }
 
@@ -249,9 +249,7 @@ public final class ExprTransformer {
       InvariantChecks.checkTrue(mask.isType(DataTypeId.BIT_VECTOR));
       InvariantChecks.checkTrue(operand.isType(DataTypeId.BIT_VECTOR));
 
-      InvariantChecks.checkTrue(
-          mask.getDataType().getSize() ==
-          operand.getDataType().getSize());
+      InvariantChecks.checkTrue(mask.getDataType().getSize() == operand.getDataType().getSize());
 
       final BitVector maskValue = mask.getData().getBitVector();
       if (op.getOperationId() == StandardOperation.BVAND) {

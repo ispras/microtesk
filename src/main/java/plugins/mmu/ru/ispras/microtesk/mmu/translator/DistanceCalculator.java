@@ -62,8 +62,8 @@ final class DistanceCalculator {
 
   public Node distance(final Node from, final Node to) {
     final Node expr = new NodeOperation(
-        from.isType(DataTypeId.BIT_VECTOR) ||
-        to.isType(DataTypeId.BIT_VECTOR) ? StandardOperation.BVSUB : StandardOperation.SUB,
+        from.isType(DataTypeId.BIT_VECTOR)
+            || to.isType(DataTypeId.BIT_VECTOR) ? StandardOperation.BVSUB : StandardOperation.SUB,
         to,
         from
         );
@@ -99,15 +99,15 @@ final class DistanceCalculator {
   private static final class ExpandAddRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node expr) {
-      if (!ExprUtils.isOperation(expr, StandardOperation.ADD) &&
-          !ExprUtils.isOperation(expr, StandardOperation.BVADD)) {
+      if (!ExprUtils.isOperation(expr, StandardOperation.ADD)
+          && !ExprUtils.isOperation(expr, StandardOperation.BVADD)) {
         return false;
       }
 
       final NodeOperation operation = (NodeOperation) expr;
       for (final Node operand : operation.getOperands()) {
-        if (ExprUtils.isOperation(operand, StandardOperation.ADD) ||
-            ExprUtils.isOperation(operand, StandardOperation.BVADD)) {
+        if (ExprUtils.isOperation(operand, StandardOperation.ADD)
+            || ExprUtils.isOperation(operand, StandardOperation.BVADD)) {
           return true;
         }
       }
@@ -121,8 +121,8 @@ final class DistanceCalculator {
       final List<Node> operands = new ArrayList<>(operation.getOperandCount());
 
       for (final Node operand : operation.getOperands()) {
-        if (ExprUtils.isOperation(operand, StandardOperation.ADD) ||
-            ExprUtils.isOperation(operand, StandardOperation.BVADD)) {
+        if (ExprUtils.isOperation(operand, StandardOperation.ADD)
+            || ExprUtils.isOperation(operand, StandardOperation.BVADD)) {
           operands.addAll(((NodeOperation) operand).getOperands());
         } else {
           operands.add(operand);
@@ -136,8 +136,8 @@ final class DistanceCalculator {
   private static final class ReplaceSubRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node expr) {
-      return ExprUtils.isOperation(expr, StandardOperation.SUB) ||
-          ExprUtils.isOperation(expr, StandardOperation.BVSUB);
+      return ExprUtils.isOperation(expr, StandardOperation.SUB)
+          || ExprUtils.isOperation(expr, StandardOperation.BVSUB);
     }
 
     @Override
@@ -165,8 +165,8 @@ final class DistanceCalculator {
   private static final class MinimizeAddRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node expr) {
-      if (!ExprUtils.isOperation(expr, StandardOperation.ADD) &&
-          !ExprUtils.isOperation(expr, StandardOperation.BVADD)) {
+      if (!ExprUtils.isOperation(expr, StandardOperation.ADD)
+          && !ExprUtils.isOperation(expr, StandardOperation.BVADD)) {
         return false;
       }
 
@@ -215,9 +215,9 @@ final class DistanceCalculator {
       }
 
       if (0 == newOperands.size()) {
-        return expr.isType(DataTypeId.BIT_VECTOR) ?
-            NodeValue.newBitVector(BitVector.newEmpty(expr.getDataType().getSize())) :
-            NodeValue.newInteger(0);
+        return expr.isType(DataTypeId.BIT_VECTOR)
+            ? NodeValue.newBitVector(BitVector.newEmpty(expr.getDataType().getSize()))
+            : NodeValue.newInteger(0);
       }
 
       if (1 == newOperands.size()) {
@@ -228,13 +228,13 @@ final class DistanceCalculator {
     }
 
     private boolean isNedation(final Node node1, final Node node2) {
-      if (ExprUtils.isOperation(node1, StandardOperation.MINUS) &&
-          !ExprUtils.isOperation(node2, StandardOperation.MINUS)) {
+      if (ExprUtils.isOperation(node1, StandardOperation.MINUS)
+          && !ExprUtils.isOperation(node2, StandardOperation.MINUS)) {
         return node2.equals(((NodeOperation) node1).getOperand(0));
       }
 
-      if (ExprUtils.isOperation(node2, StandardOperation.MINUS) &&
-          !ExprUtils.isOperation(node1, StandardOperation.MINUS)) {
+      if (ExprUtils.isOperation(node2, StandardOperation.MINUS)
+          && !ExprUtils.isOperation(node1, StandardOperation.MINUS)) {
         return node1.equals(((NodeOperation) node2).getOperand(0));
       }
 

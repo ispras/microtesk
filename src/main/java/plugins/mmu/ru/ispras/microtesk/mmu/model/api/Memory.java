@@ -134,7 +134,9 @@ public abstract class Memory<D extends Data, A extends Address>
   }
 
   protected abstract A newAddress();
+
   protected abstract D newData(final BitVector value);
+
   protected abstract int getDataBitSize();
 
   private BigInteger addressToIndex(final BitVector address, int blockBitSize) {

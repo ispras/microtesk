@@ -21,7 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.generation.STBuilder;
 
-public class STBExtern implements STBuilder{
+public class STBExtern implements STBuilder {
   public static final Class<?> CONSTANT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuDynamicConst.class;
 

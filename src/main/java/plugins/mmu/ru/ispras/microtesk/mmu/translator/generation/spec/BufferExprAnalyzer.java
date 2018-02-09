@@ -170,8 +170,8 @@ final class BufferExprAnalyzer {
       } else if (op == StandardOperation.EQ) {
         if (!opStack.isEmpty() && opStack.peek() != StandardOperation.AND) {
           throw new IllegalStateException(
-              "Illegal match expression. EQ cannot be used as part of " +
-              opStack.peek() + " expression");
+              "Illegal match expression. EQ cannot be used as part of "
+                  + opStack.peek() + " expression");
         }
 
         if (node.getOperandCount() != 2) {

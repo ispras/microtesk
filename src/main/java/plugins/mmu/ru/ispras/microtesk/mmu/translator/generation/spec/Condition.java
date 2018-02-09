@@ -134,10 +134,10 @@ public final class Condition {
   private Condition merge(final Type mergeType, final Condition other) {
     InvariantChecks.checkNotNull(other);
 
-    if ((this.type == mergeType && other.type == mergeType) ||
-        (this.isSingle() && other.isSingle()) ||
-        (this.type == mergeType && other.isSingle()) ||
-        (other.type == mergeType && this.isSingle())) {
+    if ((this.type == mergeType && other.type == mergeType)
+        || (this.isSingle() && other.isSingle())
+        || (this.type == mergeType && other.isSingle())
+        || (other.type == mergeType && this.isSingle())) {
       final List<Node> newAtoms = new ArrayList<Node>(this.atoms);
       newAtoms.addAll(other.atoms);
       return new Condition(mergeType, newAtoms);

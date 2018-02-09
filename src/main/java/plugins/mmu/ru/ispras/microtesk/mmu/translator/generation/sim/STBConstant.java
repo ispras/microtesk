@@ -37,7 +37,7 @@ final class STBConstant implements STBuilder {
     this.packageName = packageName;
     this.constant = constant;
 
-    switch(constant.getExpression().getDataTypeId()) {
+    switch (constant.getExpression().getDataTypeId()) {
       case BIT_VECTOR:
         type = STBCommon.BIT_VECTOR_CLASS;
         break;

@@ -156,8 +156,8 @@ public final class ConstraintFactory {
       events.add(BufferAccessEvent.MISS);
     }
 
-    final Set<BufferAccessEvent> eventSet = events.isEmpty() ?
-        EnumSet.noneOf(BufferAccessEvent.class) : EnumSet.copyOf(events);
+    final Set<BufferAccessEvent> eventSet = events.isEmpty()
+        ? EnumSet.noneOf(BufferAccessEvent.class) : EnumSet.copyOf(events);
 
     final MmuBuffer buffer = getBuffer(bufferName);
     final BufferEventConstraint constraint =
@@ -241,6 +241,7 @@ public final class ConstraintFactory {
   }
 
   private static final Pattern FIELD_PATTERN = Pattern.compile("[<][\\d]+([.][.][\\d]+)?[>]");
+
   private static Pair<String, String> splitBitfield(final String fieldName) {
     InvariantChecks.checkNotNull(fieldName);
 
@@ -260,6 +261,7 @@ public final class ConstraintFactory {
   }
 
   private static final Pattern INTEGER_PATTERN = Pattern.compile("\\d+");
+
   private static Pair<Integer, Integer> parseRange(final String range) {
     InvariantChecks.checkNotNull(range);
     final Matcher matcher = INTEGER_PATTERN.matcher(range);

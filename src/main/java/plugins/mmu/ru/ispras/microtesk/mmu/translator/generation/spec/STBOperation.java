@@ -94,8 +94,8 @@ public final class STBOperation implements STBuilder {
 
     if (stmt.getKind() != Stmt.Kind.ASSIGN) {
       throw new IllegalArgumentException(String.format(
-          "The %s operation contains illegal statement %s.%n" +
-          "Only assignment statements are allowed.",
+          "The %s operation contains illegal statement %s.%n"
+              + "Only assignment statements are allowed.",
           operation.getId(),
           stmt
           ));
@@ -105,8 +105,8 @@ public final class STBOperation implements STBuilder {
     final Atom lhs = AtomExtractor.extract(assignment.getLeft());
     final Atom rhs = AtomExtractor.extract(assignment.getRight());
 
-    if (Atom.Kind.VARIABLE != lhs.getKind() &&
-        Atom.Kind.FIELD != lhs.getKind()) {
+    if (Atom.Kind.VARIABLE != lhs.getKind()
+        && Atom.Kind.FIELD != lhs.getKind()) {
       throw new IllegalArgumentException(
           assignment.getLeft() + " cannot be used as left side of assignment.");
     }

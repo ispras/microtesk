@@ -99,6 +99,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   protected final ConstantPropagator propagator = new ConstantPropagator();
 
   private final NodeTransformer equalityExpander;
+
   private static final class ExpandEqualityRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node expr) {
@@ -107,8 +108,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       final NodeOperation op = (NodeOperation) expr;
-      return op.getOperationId() == StandardOperation.EQ &&
-             op.getOperandCount() > 2;
+      return op.getOperationId() == StandardOperation.EQ
+          && op.getOperandCount() > 2;
     }
 
     @Override
@@ -149,8 +150,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       final Node expr = ((NodeOperation) node).getOperand(0);
-      return ExprUtils.isOperation(expr, operations) &&
-             ((NodeOperation) expr).getOperandCount() == 2;
+      return ExprUtils.isOperation(expr, operations)
+          && ((NodeOperation) expr).getOperandCount() == 2;
     }
 
     @Override
@@ -231,8 +232,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       raiseError(where(id), "Constant is undefined: " + id.getText());
     }
 
-    return constant.isValue() ?
-        constant.getExpression() : constant.getVariable();
+    return constant.isValue() ? constant.getExpression() : constant.getVariable();
   }
 
   /**
@@ -257,11 +257,11 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final String name = id.getText();
     final String sourceName = aliasId.getText();
 
-    if (!isaIr.getMemory().containsKey(sourceName) &&
-        !isaIr.getModes().containsKey(sourceName)) {
+    if (!isaIr.getMemory().containsKey(sourceName)
+        && !isaIr.getModes().containsKey(sourceName)) {
       raiseError(where(id), String.format(
-          "%s is not defined in the ISA specification or cannot be used as an extern variable. " +
-          "It must be a reg, mem or mode element.", sourceName
+          "%s is not defined in the ISA specification or cannot be used as an extern variable. "
+              + "It must be a reg, mem or mode element.", sourceName
       ));
     }
 
@@ -281,8 +281,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final Primitive mode = isaIr.getModes().get(sourceName);
       if (null == mode.getReturnType()) {
         raiseError(where(id), String.format(
-            "Addressing mode %s does not have a return type and cannot be used " +
-            "as an external variable.", sourceName));
+            "Addressing mode %s does not have a return type and cannot be used "
+                + "as an external variable.", sourceName));
       }
 
       final int bitSize = mode.getReturnType().getBitSize();
@@ -465,8 +465,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final Type type = ir.getTypes().get(typeId.getText());
     final Constant constant = ir.getConstants().get(typeId.getText());
 
-    final Node size = null != constant && constant.isValue() ?
-        constant.getExpression() : null;
+    final Node size = null != constant && constant.isValue() ? constant.getExpression() : null;
 
     if (type == null && size == null) {
       raiseError(w, String.format("Unknown type name '%s'.", typeId.getText()));
@@ -576,16 +575,16 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       if (node.getKind() == Node.Kind.OPERATION) {
         final NodeOperation op = (NodeOperation) node;
 
-        if (op.getOperationId() == StandardOperation.BVEXTRACT &&
-            op.getOperandCount() == 3) {
+        if (op.getOperationId() == StandardOperation.BVEXTRACT
+            && op.getOperandCount() == 3) {
           return isAddressField(op.getOperand(2));
         }
 
         return false;
       }
 
-      if (node.getKind() == Node.Kind.VARIABLE &&
-          node.getUserData() instanceof Var) {
+      if (node.getKind() == Node.Kind.VARIABLE
+          && node.getUserData() instanceof Var) {
         final Var variable = (Var) node.getUserData();
         return variable.isParent(addressArg) && !variable.isStruct();
       }
@@ -606,8 +605,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           return true;
         }
 
-        if (userData instanceof Var &&
-           ((Var) userData).getTypeSource() instanceof ExternalSource) {
+        if (userData instanceof Var
+            && ((Var) userData).getTypeSource() instanceof ExternalSource) {
           return true;
         }
 
@@ -617,8 +616,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       if (node.getKind() == Node.Kind.OPERATION) {
         final NodeOperation op = (NodeOperation) node;
 
-        if (op.getOperationId() == StandardOperation.BVEXTRACT &&
-            op.getOperandCount() == 3) {
+        if (op.getOperationId() == StandardOperation.BVEXTRACT
+            && op.getOperandCount() == 3) {
           return isConstant(op.getOperand(2));
         }
 
@@ -728,7 +727,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
       if (qualifiers.contains(MmuBuffer.Kind.MEMORY.getText())) {
         kind = MmuBuffer.Kind.MEMORY;
-      } else if(qualifiers.contains(MmuBuffer.Kind.REGISTER.getText())) {
+      } else if (qualifiers.contains(MmuBuffer.Kind.REGISTER.getText())) {
         final ru.ispras.microtesk.translator.nml.ir.Ir isaIr =
             context.getIr(ru.ispras.microtesk.translator.nml.ir.Ir.class);
 
@@ -1330,9 +1329,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     final Node right;
-    if (rightExpr.getUserData() instanceof Constant &&
-        !((Constant) rightExpr.getUserData()).isValue() &&
-        !((Constant) rightExpr.getUserData()).getVariable().isType(DataTypeId.BIT_VECTOR)) {
+    if (rightExpr.getUserData() instanceof Constant
+        && !((Constant) rightExpr.getUserData()).isValue()
+        && !((Constant) rightExpr.getUserData()).getVariable().isType(DataTypeId.BIT_VECTOR)) {
       right = new NodeVariable(((NodeVariable) rightExpr).getName(), leftExpr.getDataType());
       right.setUserData(rightExpr.getUserData());
     } else {
@@ -1770,8 +1769,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final Where w, final Node expr, final String exprDesc) throws SemanticException {
 
     final BigInteger value = extractBigInteger(w, expr, exprDesc);
-    if (value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) < 0 ||
-        value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+    if (value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) < 0
+        || value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
       raiseError(w, String.format(
           "%s (=%d) is beyond the allowed integer value range.", exprDesc, value)); 
     }

@@ -360,7 +360,7 @@ public final class SymbolicExecutor {
 
     Boolean status = Boolean.TRUE;
 
-    switch(entry.getKind()) {
+    switch (entry.getKind()) {
     case NORMAL:
       status = executeProgram(result, defines, program, pathIndex);
       restrictProgram(result, defines, isStart, program, pathIndex);

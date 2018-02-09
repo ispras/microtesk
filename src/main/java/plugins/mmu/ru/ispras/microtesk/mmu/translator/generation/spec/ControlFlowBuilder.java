@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -235,7 +235,7 @@ final class ControlFlowBuilder {
     String current = start;
 
     for (final Stmt stmt : stmts) {
-      switch(stmt.getKind()) {
+      switch (stmt.getKind()) {
         case ASSIGN:
           current = buildStmtAssign(current, (StmtAssign) stmt);
           break;
@@ -300,9 +300,9 @@ final class ControlFlowBuilder {
     final Atom lhs = AtomExtractor.extract(left);
     final Atom rhs = AtomExtractor.extract(value);
 
-    if (Atom.Kind.VARIABLE != lhs.getKind() && 
-        Atom.Kind.GROUP != lhs.getKind() &&
-        Atom.Kind.FIELD != lhs.getKind()) {
+    if (Atom.Kind.VARIABLE != lhs.getKind()
+        && Atom.Kind.GROUP != lhs.getKind()
+        && Atom.Kind.FIELD != lhs.getKind()) {
       throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
     }
 
@@ -391,8 +391,8 @@ final class ControlFlowBuilder {
       }
 
       final Node elseCondition = Nodes.not(condition);
-      if (ExprUtils.isOperation(condition, StandardOperation.EQ) ||
-          ExprUtils.isOperation(condition, StandardOperation.NOTEQ)) {
+      if (ExprUtils.isOperation(condition, StandardOperation.EQ)
+          || ExprUtils.isOperation(condition, StandardOperation.NOTEQ)) {
         jointElseCondition = null == jointElseCondition ?
             elseCondition :
             Nodes.and(jointElseCondition, elseCondition);
@@ -706,8 +706,8 @@ final class ControlFlowBuilder {
 
     @Override
     public boolean isApplicable(final Node node) {
-      final boolean process = ExprUtils.isOperation(node, MmuSymbolKind.FUNCTION) &&
-          node.getUserData() instanceof Callable;
+      final boolean process = ExprUtils.isOperation(node, MmuSymbolKind.FUNCTION)
+          && node.getUserData() instanceof Callable;
       return process;
     }
 

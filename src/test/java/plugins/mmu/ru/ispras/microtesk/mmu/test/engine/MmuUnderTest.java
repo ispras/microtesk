@@ -257,6 +257,7 @@ public final class MmuUnderTest {
               Nodes.bvextract(39, 13, va))),
       true, jtlb
       );
+
   {
     dtlb.addField(new NodeVariable("VPN2", DataType.bitVector(27)));
 
@@ -285,6 +286,7 @@ public final class MmuUnderTest {
               Nodes.bvextract(PA_BITS - 1, POS_BITS + L1_ROW_BITS, pa))),
       true, null
       );
+
   {
     l1.addField(l1Tag);
     l1.addField(l1Data);
@@ -302,6 +304,7 @@ public final class MmuUnderTest {
               Nodes.bvextract(PA_BITS - 1, POS_BITS + L2_ROW_BITS, pa))),
       true, null
       );
+
   {
     l2.addField(l2Tag);
     l2.addField(l2Data);
@@ -316,6 +319,7 @@ public final class MmuUnderTest {
       Collections.<MmuBinding>emptySet(),
       false, null
       );
+
   {
     mem.addField(data);
   }

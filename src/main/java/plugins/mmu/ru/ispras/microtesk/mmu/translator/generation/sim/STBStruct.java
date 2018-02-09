@@ -52,7 +52,7 @@ final class STBStruct implements STBuilder {
     this.type = address.getContentType();
 
     final StringBuilder sb = new StringBuilder();
-    for(final String name : address.getAccessChain()) {
+    for (final String name : address.getAccessChain()) {
       if (sb.length() > 0) sb.append('.');
       sb.append(name);
     }
@@ -119,9 +119,9 @@ final class STBStruct implements STBuilder {
         fieldValue = String.format("new %s()", fieldTypeName);
       } else {
         fieldTypeName = BIT_VECTOR_CLASS.getSimpleName();
-        fieldValue = fieldType.getDefaultValue() != null ?
-            ExprPrinter.bitVectorToString(fieldType.getDefaultValue()) :
-            String.format("%s.newEmpty(%d)", fieldTypeName, fieldType.getBitSize());
+        fieldValue = fieldType.getDefaultValue() != null
+            ? ExprPrinter.bitVectorToString(fieldType.getDefaultValue())
+            : String.format("%s.newEmpty(%d)", fieldTypeName, fieldType.getBitSize());
       }
 
       stStruct.add("fnames",  fieldName);

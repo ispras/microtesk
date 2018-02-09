@@ -183,8 +183,8 @@ final class STBBuffer extends STBCommon implements STBuilder {
     buildNewLine(st);
     final ST stMethod = group.getInstanceOf("new_data");
 
-    final String entryType = buffer == parentBuffer ?
-        "Entry" : String.format("%s.Entry", parentBuffer.getId());
+    final String entryType = buffer == parentBuffer
+        ? "Entry" : String.format("%s.Entry", parentBuffer.getId());
 
     stMethod.add("type", entryType);
     st.add("members", stMethod);
@@ -213,8 +213,8 @@ final class STBBuffer extends STBCommon implements STBuilder {
       final NodeValue value = (NodeValue) expr;
       if (value.isType(DataTypeId.LOGIC_BOOLEAN)) {
         return Boolean.toString(value.getBoolean());
-      } else if (value.isType(DataTypeId.LOGIC_INTEGER) && 
-                 value.getInteger().equals(BigInteger.ZERO)) {
+      } else if (value.isType(DataTypeId.LOGIC_INTEGER)
+          && value.getInteger().equals(BigInteger.ZERO)) {
         return Boolean.toString(true);
       } else {
         throw new IllegalArgumentException(

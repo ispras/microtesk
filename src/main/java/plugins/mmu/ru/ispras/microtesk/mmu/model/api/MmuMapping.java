@@ -104,7 +104,10 @@ public abstract class MmuMapping<D extends Data, A extends Address & Data>
   }
 
   protected abstract Mmu<A> getMmu();
+
   protected abstract A newAddress();
+
   protected abstract D newData(final BitVector value);
+
   protected abstract int getDataBitSize();
 }

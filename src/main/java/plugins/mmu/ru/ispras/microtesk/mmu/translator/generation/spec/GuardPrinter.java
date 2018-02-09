@@ -106,8 +106,8 @@ final class GuardPrinter {
         return String.format("new MmuGuard(%s)", Utils.toString(ir, context, equalities.get(0)));
       }
 
-      final Node node = cond.getType() == Condition.Type.AND ?
-          Nodes.and(equalities) : Nodes.or(equalities);
+      final Node node = cond.getType() == Condition.Type.AND
+          ? Nodes.and(equalities) : Nodes.or(equalities);
 
       return String.format("new MmuGuard(%s)", Utils.toString(ir, context, node));
     }
@@ -133,8 +133,8 @@ final class GuardPrinter {
     }
 
     throw new UnsupportedOperationException(
-        "Guards for complex conditions that include several condition types " +
-        "are not supported: " + cond);
+        "Guards for complex conditions that include several condition types "
+            + "are not supported: " + cond);
   }
 
   private static boolean isEquality(final Node node) {
@@ -142,8 +142,8 @@ final class GuardPrinter {
 
     if (node.getKind() == Node.Kind.OPERATION) {
       final NodeOperation op = (NodeOperation) node;
-      return op.getOperationId() == StandardOperation.EQ ||
-             op.getOperationId() == StandardOperation.NOTEQ;
+      return op.getOperationId() == StandardOperation.EQ
+          || op.getOperationId() == StandardOperation.NOTEQ;
     }
 
     return false;
@@ -152,16 +152,16 @@ final class GuardPrinter {
   private static boolean isSegmentAccess(final Node node) {
     InvariantChecks.checkNotNull(node);
 
-    if (node.getKind() == Node.Kind.VARIABLE &&
-        node.getUserData() instanceof AttributeRef) {
+    if (node.getKind() == Node.Kind.VARIABLE
+        && node.getUserData() instanceof AttributeRef) {
       final AttributeRef attrRef = (AttributeRef) node.getUserData();
       return attrRef.getTarget() instanceof Segment;
     }
 
     if (node.getKind() == Node.Kind.OPERATION) {
       final NodeOperation op = (NodeOperation) node;
-      return op.getOperationId() == StandardOperation.NOT &&
-             isSegmentAccess(op.getOperand(0));
+      return op.getOperationId() == StandardOperation.NOT
+          && isSegmentAccess(op.getOperand(0));
     }
 
     return false;
@@ -170,16 +170,16 @@ final class GuardPrinter {
   private static boolean isBufferEvent(final Node node) {
     InvariantChecks.checkNotNull(node);
 
-    if (node.getKind() == Node.Kind.VARIABLE &&
-        node.getUserData() instanceof AttributeRef) {
+    if (node.getKind() == Node.Kind.VARIABLE
+        && node.getUserData() instanceof AttributeRef) {
       final AttributeRef attrRef = (AttributeRef) node.getUserData();
       return attrRef.getTarget() instanceof Buffer;
     }
 
     if (node.getKind() == Node.Kind.OPERATION) {
       final NodeOperation op = (NodeOperation) node;
-      return op.getOperationId() == StandardOperation.NOT &&
-             isBufferEvent(op.getOperand(0));
+      return op.getOperationId() == StandardOperation.NOT
+          && isBufferEvent(op.getOperand(0));
     }
 
     return false;
@@ -187,8 +187,8 @@ final class GuardPrinter {
 
   private static boolean isBooleanVariable(final Node node) {
     InvariantChecks.checkNotNull(node);
-    return node.getKind() == Node.Kind.VARIABLE &&
-           node.isType(DataTypeId.LOGIC_BOOLEAN);
+    return node.getKind() == Node.Kind.VARIABLE
+        && node.isType(DataTypeId.LOGIC_BOOLEAN);
   }
   
   private static boolean isNegatedBooleanVariable(final Node node) {
@@ -197,8 +197,8 @@ final class GuardPrinter {
     }
 
     final NodeOperation op = (NodeOperation) node;
-    return op.getOperationId() == StandardOperation.NOT && 
-           isBooleanVariable(op.getOperand(0));
+    return op.getOperationId() == StandardOperation.NOT
+        && isBooleanVariable(op.getOperand(0));
   }
 
   private Pair<String, Boolean> extractSegmentInfo(final Node node) {
@@ -275,8 +275,8 @@ final class GuardPrinter {
 
       final NodeOperation op = (NodeOperation) expr;
       InvariantChecks.checkTrue(
-          op.getOperationId() == StandardOperation.EQ ||
-          op.getOperationId() == StandardOperation.NOTEQ);
+          op.getOperationId() == StandardOperation.EQ
+              || op.getOperationId() == StandardOperation.NOTEQ);
 
       final Atom lhs = AtomExtractor.extract(op.getOperand(0));
       final Atom rhs = AtomExtractor.extract(op.getOperand(1));
@@ -319,8 +319,7 @@ final class GuardPrinter {
     }
 
     public boolean isStruct() {
-      return Atom.Kind.GROUP == lhs.getKind() &&
-             Atom.Kind.GROUP == rhs.getKind();
+      return Atom.Kind.GROUP == lhs.getKind() && Atom.Kind.GROUP == rhs.getKind();
     }
   }
 }

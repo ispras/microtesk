@@ -101,8 +101,8 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
       final Ir ir,
       final SimGeneratorFactory factory) throws IOException {
     for (final Type type : ir.getTypes().values()) {
-      if (!ir.getAddresses().containsKey(type.getId()) &&
-          !ir.getBuffers().containsKey(type.getId().replaceAll(".Entry", ""))) {
+      if (!ir.getAddresses().containsKey(type.getId())
+          && !ir.getBuffers().containsKey(type.getId().replaceAll(".Entry", ""))) {
         final FileGenerator fileGenerator = factory.newStructGenerator(type);
         fileGenerator.generate();
       }

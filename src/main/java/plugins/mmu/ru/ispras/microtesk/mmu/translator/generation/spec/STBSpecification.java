@@ -87,7 +87,7 @@ final class STBSpecification implements STBuilder {
   }
 
   private void registerAddresses(final ST st, final STGroup group) {
-    for(final Address address : ir.getAddresses().values()) {
+    for (final Address address : ir.getAddresses().values()) {
       final String name = address.getId();
       final ST stReg = group.getInstanceOf("address_reg");
 
@@ -101,7 +101,7 @@ final class STBSpecification implements STBuilder {
       st.add("stmts", "");
     }
 
-    for(final Operation operation : ir.getOperations().values()) {
+    for (final Operation operation : ir.getOperations().values()) {
       final String name = operation.getId();
       final ST stReg = group.getInstanceOf("operation_reg");
 
@@ -112,7 +112,7 @@ final class STBSpecification implements STBuilder {
 
   private void registerBuffers(final ST st, final STGroup group) {
     st.add("stmts", "");
-    for(final Buffer buffer : ir.getBuffers().values()) {
+    for (final Buffer buffer : ir.getBuffers().values()) {
       final ST stReg = group.getInstanceOf("buffer_reg");
       stReg.add("name", buffer.getId());
       st.add("stmts", stReg);
@@ -121,7 +121,7 @@ final class STBSpecification implements STBuilder {
 
   private void registerSegments(final ST st, final STGroup group) {
     st.add("stmts", "");
-    for(final Segment segment : ir.getSegments().values()) {
+    for (final Segment segment : ir.getSegments().values()) {
       final ST stReg = group.getInstanceOf("segment_reg");
       stReg.add("name", segment.getId());
       st.add("stmts", stReg);
@@ -130,7 +130,7 @@ final class STBSpecification implements STBuilder {
 
   private void registerMemories(final ST st, final STGroup group) {
     st.add("stmts", "");
-    for(final Memory memory : ir.getMemories().values()) {
+    for (final Memory memory : ir.getMemories().values()) {
       final String id = memory.getId();
       st.add("stmts", String.format("final %s %s = new %s(builder);", id, id, id));
     }

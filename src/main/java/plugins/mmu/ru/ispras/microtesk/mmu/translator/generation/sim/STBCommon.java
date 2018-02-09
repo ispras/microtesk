@@ -133,9 +133,9 @@ abstract class STBCommon {
         value = String.format("new %s()", typeName);
       } else {
         typeName = BIT_VECTOR_CLASS.getSimpleName();
-        value = type.getDefaultValue() != null ?
-            ExprPrinter.bitVectorToString(type.getDefaultValue()) :
-            String.format("%s.newEmpty(%d)", typeName, type.getBitSize());
+        value = type.getDefaultValue() != null
+            ? ExprPrinter.bitVectorToString(type.getDefaultValue())
+            : String.format("%s.newEmpty(%d)", typeName, type.getBitSize());
       }
 
       ExprPrinter.get().addVariableMappings(variable, name);
@@ -154,7 +154,7 @@ abstract class STBCommon {
   }
 
   protected final void buildStmt(final ST st, final STGroup group, final Stmt stmt) {
-    switch(stmt.getKind()) {
+    switch (stmt.getKind()) {
       case ASSIGN:
         buildStmtAssign(st, group, (StmtAssign) stmt);
         break;
@@ -208,16 +208,16 @@ abstract class STBCommon {
   }
 
   private static Node castTo(final Node source, final Node target) {
-    if (source.getKind() == Node.Kind.VALUE &&
-        source.isType(DataTypeId.LOGIC_INTEGER) &&
-        target.isType(DataTypeId.BIT_VECTOR)) {
+    if (source.getKind() == Node.Kind.VALUE
+        && source.isType(DataTypeId.LOGIC_INTEGER)
+        && target.isType(DataTypeId.BIT_VECTOR)) {
       return NodeValue.newBitVector(BitVector.valueOf(
           ((NodeValue) source).getInteger(), target.getDataType().getSize()));
     }
 
-    if (source.getKind() == Node.Kind.VALUE &&
-        source.isType(DataTypeId.LOGIC_BOOLEAN) &&
-        target.isType(DataTypeId.BIT_VECTOR)) {
+    if (source.getKind() == Node.Kind.VALUE
+        && source.isType(DataTypeId.LOGIC_BOOLEAN)
+        && target.isType(DataTypeId.BIT_VECTOR)) {
       final BitVector value = BitVector.valueOf(((NodeValue) source).getBoolean());
       return NodeValue.newBitVector(
           value.resize(target.getDataType().getSize(), false));
@@ -329,8 +329,7 @@ abstract class STBCommon {
       if (argument instanceof NodeValue) {
         isBitVector = argument.isType(DataTypeId.BIT_VECTOR);
       } else if (argument instanceof NodeOperation) {
-        isBitVector = argument.isType(DataTypeId.BIT_VECTOR) || 
-                      argument.isType(DataTypeId.UNKNOWN);
+        isBitVector = argument.isType(DataTypeId.BIT_VECTOR) || argument.isType(DataTypeId.UNKNOWN);
       } else if (argument instanceof NodeVariable) {
         final Type type = getType(argument);
         isBitVector = null != type && !type.isStruct();
@@ -356,7 +355,7 @@ abstract class STBCommon {
       formatIndex = formatIndex + markerEnd;
 
       final String suffix;
-      switch(marker.getKind()) {
+      switch (marker.getKind()) {
         case BIN:
           suffix = isBitVector ? ".toBinString()" : "";
           break;

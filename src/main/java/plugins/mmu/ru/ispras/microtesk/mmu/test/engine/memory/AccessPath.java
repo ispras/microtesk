@@ -279,7 +279,7 @@ public final class AccessPath {
       Entry entry = iterator.next();
       this.firstEntry = entry;
 
-      while(iterator.hasNext()) {
+      while (iterator.hasNext()) {
         entry = iterator.next();
       }
 

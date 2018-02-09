@@ -70,7 +70,7 @@ public final class BitVectorConstraintTestCase {
     final Variable x = new Variable("x", DataType.bitVector(bitSize));
 
     for (int i = 0; i < N; i++) {
-      runTest(x, BitVector.valueOf(i, bitSize), BitVector.valueOf(0xffff0000L + 2*i, bitSize));
+      runTest(x, BitVector.valueOf(i, bitSize), BitVector.valueOf(0xffff0000L + 2 * i, bitSize));
     }
   }
 }

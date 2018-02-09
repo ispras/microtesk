@@ -41,7 +41,7 @@ public final class AtomExtractor {
     final ExprTransformer transformer = new ExprTransformer();
     final Node expr = transformer.transform(node);
 
-    switch(expr.getKind()) {
+    switch (expr.getKind()) {
       case VALUE:
         return extract((NodeValue) expr);
 
@@ -113,8 +113,8 @@ public final class AtomExtractor {
   static Atom extractFromAttributeRef(final AttributeRef attrRef) {
     final String attrName = attrRef.getAttribute().getId();
 
-    if (attrName.equals(AbstractStorage.READ_ATTR_NAME) || 
-        attrName.equals(AbstractStorage.WRITE_ATTR_NAME)) {
+    if (attrName.equals(AbstractStorage.READ_ATTR_NAME)
+        || attrName.equals(AbstractStorage.WRITE_ATTR_NAME)) {
       final Var output = attrRef.getTarget().getDataArg();
       return Atom.newGroup(output);
     }

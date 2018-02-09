@@ -103,9 +103,9 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     @Override
     public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
       final MemoryDevice storage = getRegisterDevice();
-      return storage.isInitialized(registerIndex) ?
-          new Pair<>(registerIndex, storage.load(registerIndex)) :
-          null
+      return storage.isInitialized(registerIndex)
+          ? new Pair<>(registerIndex, storage.load(registerIndex))
+          : null
           ;
     }
 
@@ -229,7 +229,9 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
   }
 
   protected abstract A newAddress();
+
   protected abstract D newData(final BitVector value);
+
   protected abstract int getDataBitSize();
 
   @Override

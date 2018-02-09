@@ -38,7 +38,7 @@ public enum DataType {
   OWORD(32);
 
   public static DataType type(final int sizeInBytes) {
-    switch(sizeInBytes) {
+    switch (sizeInBytes) {
       case 1:
         return BYTE;
       case 2:

@@ -147,6 +147,7 @@ public abstract class Cache<D extends Data, A extends Address>
   }
 
   protected abstract A newAddress();
+
   protected abstract D newData(final BitVector value);
 
   @Override

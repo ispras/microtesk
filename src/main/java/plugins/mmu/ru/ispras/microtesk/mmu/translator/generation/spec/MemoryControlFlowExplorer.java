@@ -58,9 +58,9 @@ public final class MemoryControlFlowExplorer {
 
     if (readTarget != writeTarget) {
       throw new IllegalStateException(String.format(
-          "Invariant is violated: control flow of read and write attributes of %s " +
-          "must use the same buffer for the last access. This buffer will be " + 
-          "recognized as target buffer. Now %s (for read) vs. %s (for write).",
+          "Invariant is violated: control flow of read and write attributes of %s "
+              + "must use the same buffer for the last access. This buffer will be "
+              + "recognized as target buffer. Now %s (for read) vs. %s (for write).",
           memory.getId(),
           readTarget.getId(),
           writeTarget.getId())
@@ -80,7 +80,7 @@ public final class MemoryControlFlowExplorer {
     Buffer latestAccess = null;
     for (final Stmt stmt : stmts) {
       Buffer currentAccess = null;
-      switch(stmt.getKind()) {
+      switch (stmt.getKind()) {
         case IF:
           currentAccess = visitStmtIf((StmtIf) stmt, attrId);
           break;
@@ -160,8 +160,8 @@ public final class MemoryControlFlowExplorer {
   private static boolean isBufferHit(final Node expr) {
     InvariantChecks.checkNotNull(expr);
 
-    if (expr.getKind() != Node.Kind.VARIABLE &&
-        expr.getKind() != Node.Kind.OPERATION) {
+    if (expr.getKind() != Node.Kind.VARIABLE
+        && expr.getKind() != Node.Kind.OPERATION) {
       return false;
     }
 
@@ -180,8 +180,8 @@ public final class MemoryControlFlowExplorer {
 
     if (var.getUserData() instanceof AttributeRef) {
       final AttributeRef attrRef = (AttributeRef) var.getUserData();
-      if (attrRef.getTarget() instanceof Buffer &&
-          attrRef.getAttribute().getId().equals(AbstractStorage.HIT_ATTR_NAME)) {
+      if (attrRef.getTarget() instanceof Buffer
+          && attrRef.getAttribute().getId().equals(AbstractStorage.HIT_ATTR_NAME)) {
         return true;
       }
     }
@@ -192,8 +192,8 @@ public final class MemoryControlFlowExplorer {
   private static boolean isBufferMiss(final Node expr) {
     InvariantChecks.checkNotNull(expr);
 
-    if (expr.getKind() != Node.Kind.VARIABLE &&
-        expr.getKind() != Node.Kind.OPERATION) {
+    if (expr.getKind() != Node.Kind.VARIABLE
+        && expr.getKind() != Node.Kind.OPERATION) {
       return false;
     }
 
@@ -234,8 +234,8 @@ public final class MemoryControlFlowExplorer {
 
     if (expr.getUserData() instanceof AttributeRef) {
       final AttributeRef ref = (AttributeRef) expr.getUserData();
-      if (ref.getTarget() instanceof Buffer &&
-          ref.getAttribute().getId().equals(attrId)) {
+      if (ref.getTarget() instanceof Buffer
+          && ref.getAttribute().getId().equals(attrId)) {
         return (Buffer) ref.getTarget();
       } else if (ref.getTarget() instanceof Segment) {
         final Attribute attribute = ref.getAttribute();

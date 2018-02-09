@@ -75,8 +75,8 @@ public final class Atom {
 
     if (!kind.getObjectClass().isAssignableFrom(object.getClass())) {
       throw new IllegalArgumentException(
-          kind.getObjectClass().getName() + " is expected," +
-          object.getClass().getName() + " is found");
+          String.format("%s is expected,%s is found",
+              kind.getObjectClass().getName(), object.getClass().getName()));
     }
 
     this.kind = kind;

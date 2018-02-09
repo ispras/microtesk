@@ -146,8 +146,8 @@ public final class ExprPrinter extends MapBasedPrinter {
           );
     }
 
-    if (expr.getOperationId() == StandardOperation.BVZEROEXT &&
-        expr.getOperand(1).isType(DataTypeId.LOGIC_INTEGER)) {
+    if (expr.getOperationId() == StandardOperation.BVZEROEXT
+        && expr.getOperand(1).isType(DataTypeId.LOGIC_INTEGER)) {
       return new OperationDescription(
           String.format("%s.valueOf(", BitVector.class.getSimpleName()),
           new String[] {", "},
@@ -297,16 +297,16 @@ public final class ExprPrinter extends MapBasedPrinter {
             break;
 
           case LOGIC_INTEGER:
-            text = variable.isType(DataTypeId.LOGIC_INTEGER) ?
-                variableText :
-                String.format("BitVector.valueOf(%s, %d)",
+            text = variable.isType(DataTypeId.LOGIC_INTEGER)
+                ? variableText
+                : String.format("BitVector.valueOf(%s, %d)",
                     variableText, variable.getDataType().getSize());
             break;
 
           case LOGIC_BOOLEAN:
-            text = variable.isType(DataTypeId.LOGIC_BOOLEAN) ?
-                variableText :
-                String.format("BitVector.valueOf(%s).resize(%d, false)",
+            text = variable.isType(DataTypeId.LOGIC_BOOLEAN)
+                ? variableText
+                : String.format("BitVector.valueOf(%s).resize(%d, false)",
                     variableText, variable.getDataType().getSize());
             break;
 
@@ -329,8 +329,8 @@ public final class ExprPrinter extends MapBasedPrinter {
         final int index) {
       super.onOperandBegin(operation, operand, index);
 
-      if (INT_REQUIRING_OPERATIONS.contains(operation.getOperationId()) &&
-          operand.getKind() == Node.Kind.VALUE) {
+      if (INT_REQUIRING_OPERATIONS.contains(operation.getOperationId())
+          && operand.getKind() == Node.Kind.VALUE) {
         appendText(operand.toString());
         setStatus(Status.SKIP);
       }
@@ -341,8 +341,8 @@ public final class ExprPrinter extends MapBasedPrinter {
         final NodeOperation operation,
         final Node operand,
         final int index) {
-      if (INT_REQUIRING_OPERATIONS.contains(operation.getOperationId()) &&
-          operand.getKind() == Node.Kind.VALUE) {
+      if (INT_REQUIRING_OPERATIONS.contains(operation.getOperationId())
+          && operand.getKind() == Node.Kind.VALUE) {
         setStatus(Status.OK);
       }
     }

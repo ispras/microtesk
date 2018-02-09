@@ -149,7 +149,7 @@ public final class SysUtils {
     try {
       final Class<?> pluginClass = loader.loadClass(className);
       return (Plugin) pluginClass.newInstance();
-    } catch(final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+    } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
       throw new IllegalArgumentException(
           String.format("Failed to load %s. Reason: %s", className, e.getMessage()));
     }
@@ -193,9 +193,9 @@ public final class SysUtils {
       if (archDirArray != null && archDirArray.length > 1 && archName.equals(archDirArray[0])) {
         final File archFile = new File(archDirArray[1]);
 
-        final String archDirPath = archFile.isAbsolute() ?
-            archDirArray[1] :
-            String.format("%s%s%s", getHomeDir(), File.separator, archDirArray[1]);
+        final String archDirPath = archFile.isAbsolute()
+            ? archDirArray[1]
+            : String.format("%s%s%s", getHomeDir(), File.separator, archDirArray[1]);
 
         return archDirPath;
       }

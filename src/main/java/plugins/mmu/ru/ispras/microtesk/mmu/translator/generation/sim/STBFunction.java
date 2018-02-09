@@ -73,8 +73,8 @@ final class STBFunction extends STBCommon implements STBuilder {
       final String name = removePrefix(variable.getName());
       final Type type = variable.getType();
 
-      final String typeName = type.getId() != null ?
-          type.getId() : BIT_VECTOR_CLASS.getSimpleName();
+      final String typeName = type.getId() != null
+          ? type.getId() : BIT_VECTOR_CLASS.getSimpleName();
 
       stBody.add("anames", name);
       stBody.add("atypes", typeName);
