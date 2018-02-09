@@ -219,8 +219,7 @@ public final class Model implements ModelStateManager {
 
     final IsaPrimitiveInfoAnd modeInfo = modes.get(name);
     if (null == modeInfo) {
-      throw new ConfigurationException(
-          String.format("The %s addressing mode is not defined.", name));
+      throw new ConfigurationException("The %s addressing mode is not defined.", name);
     }
 
     return modeInfo.createBuilder();
@@ -232,7 +231,7 @@ public final class Model implements ModelStateManager {
 
     final IsaPrimitiveInfoAnd opInfo = ops.get(name);
     if (null == opInfo) {
-      throw new ConfigurationException(String.format("The %s operation is not defined.", name));
+      throw new ConfigurationException("The %s operation is not defined.", name);
     }
 
     IsaPrimitiveBuilder result = opInfo.createBuilderForShortcut(contextName);

@@ -110,7 +110,7 @@ public abstract class ProcessingElement {
     if (null != label) {
       if (null != index && !index.equals(BigInteger.ZERO)) {
         throw new ConfigurationException(
-            String.format("The %d index is invalid for the %s storage.", index, storageId));
+            "The %d index is invalid for the %s storage.", index, storageId);
       }
 
       return label.access();
@@ -187,8 +187,7 @@ public abstract class ProcessingElement {
   private Memory getStorage(final String storageId) throws ConfigurationException {
     final Memory storage = storageMap.get(storageId);
     if (null == storage) {
-      throw new ConfigurationException(
-          String.format("The %s storage is not defined in the model.", storageId));
+      throw new ConfigurationException("The %s storage is not defined in the model.", storageId);
     }
     return storage;
   }
