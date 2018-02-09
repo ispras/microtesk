@@ -17,9 +17,9 @@ package ru.ispras.microtesk.model.metadata;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.ArgumentMode;
-import ru.ispras.microtesk.model.data.Type;
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.IsaPrimitiveKind;
+import ru.ispras.microtesk.model.data.Type;
 import ru.ispras.microtesk.utils.StringUtils;
 
 import java.util.Collection;

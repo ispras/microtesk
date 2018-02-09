@@ -14,14 +14,15 @@
 
 package ru.ispras.microtesk.model;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.data.Type;
 import ru.ispras.microtesk.model.memory.Memory;
 
 import java.math.BigInteger;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class LargeAddressTestCase {
   public static final Type WORD48 = Type.def("WORD48", Type.CARD(0x30));

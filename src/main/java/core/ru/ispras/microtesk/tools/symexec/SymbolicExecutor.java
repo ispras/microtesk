@@ -20,12 +20,12 @@ import ru.ispras.fortress.solver.engine.smt.SmtTextBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.tools.Disassembler;
-import ru.ispras.microtesk.tools.Disassembler.Output;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.TemporaryVariables;
 import ru.ispras.microtesk.options.Options;
+import ru.ispras.microtesk.tools.Disassembler;
+import ru.ispras.microtesk.tools.Disassembler.Output;
 
 import java.util.ArrayList;
 import java.util.Collection;

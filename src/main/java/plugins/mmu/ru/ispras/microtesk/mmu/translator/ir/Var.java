@@ -14,15 +14,15 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.utils.StringUtils;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Var extends Nested<Var> {
   private final String name;

@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.model.memory;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.model.data.Data;
@@ -21,8 +24,6 @@ import ru.ispras.microtesk.model.data.Type;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
 
 public final class MemoryLocationTestCase {
   public static final Type  LONG = Type.INT(32);

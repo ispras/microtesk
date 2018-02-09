@@ -27,17 +27,17 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.data.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
-import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.utils.FormatMarker;
 

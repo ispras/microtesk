@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.utils.Mask;

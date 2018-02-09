@@ -31,9 +31,9 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.nml.ir.analysis.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
-import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;

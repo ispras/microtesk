@@ -16,10 +16,10 @@ package ru.ispras.microtesk.model;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Label;
+import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
-import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.model.memory.MemoryDeviceWrapper;
 
 import java.math.BigInteger;

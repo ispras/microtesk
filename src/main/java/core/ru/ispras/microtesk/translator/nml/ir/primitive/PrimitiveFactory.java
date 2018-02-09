@@ -16,10 +16,10 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
-import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.antlrex.errors.SymbolTypeMismatch;
 import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
+import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
