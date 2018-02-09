@@ -14,13 +14,14 @@
 
 package ru.ispras.microtesk;
 
-import java.nio.file.Paths;
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
+
+import java.nio.file.Paths;
 
 /**
  * The {@link ScriptRunner} class runs test template scripts with corresponding scripting engines.
