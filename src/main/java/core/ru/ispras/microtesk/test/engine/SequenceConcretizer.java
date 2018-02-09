@@ -604,49 +604,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
       processInitializer(engineContext, initializer, locationsToBeRestored);
     }
 
-    private IsaPrimitive findConcretePrimitive(
-        final String primitiveName,
-        final IsaPrimitive rootPrimitive) {
-      InvariantChecks.checkNotNull(primitiveName);
-      InvariantChecks.checkNotNull(rootPrimitive);
-
-      if (primitiveName.equals(rootPrimitive.getName())) {
-        return rootPrimitive;
-      }
-
-      for (final IsaPrimitive argument : rootPrimitive.getArguments().values()) {
-        final IsaPrimitive result = findConcretePrimitive(primitiveName, argument);
-        if (null != result) {
-          return result;
-        }
-      }
-
-      return null;
-    }
-
-    private IsaPrimitive findConcreteArgument(
-        final String primitiveName,
-        final String argumentName,
-        final IsaPrimitive rootPrimitive) {
-      InvariantChecks.checkNotNull(primitiveName);
-      InvariantChecks.checkNotNull(argumentName);
-      InvariantChecks.checkNotNull(rootPrimitive);
-
-      final IsaPrimitive namedArgument = rootPrimitive.getArguments().get(argumentName);
-      if (null != namedArgument && primitiveName.equals(namedArgument.getName())) {
-        return namedArgument;
-      }
-
-      for (final IsaPrimitive argument : rootPrimitive.getArguments().values()) {
-        final IsaPrimitive result = findConcreteArgument(primitiveName, argumentName, argument);
-        if (null != result) {
-          return result;
-        }
-      }
-
-      return null;
-    }
-
     private void processInitializer(
         final EngineContext engineContext,
         final List<AbstractCall> abstractCalls,
@@ -737,5 +694,48 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence>{
     }
 
     return selfChecks;
+  }
+
+  private static IsaPrimitive findConcretePrimitive(
+      final String primitiveName,
+      final IsaPrimitive rootPrimitive) {
+    InvariantChecks.checkNotNull(primitiveName);
+    InvariantChecks.checkNotNull(rootPrimitive);
+
+    if (primitiveName.equals(rootPrimitive.getName())) {
+      return rootPrimitive;
+    }
+
+    for (final IsaPrimitive argument : rootPrimitive.getArguments().values()) {
+      final IsaPrimitive result = findConcretePrimitive(primitiveName, argument);
+      if (null != result) {
+        return result;
+      }
+    }
+
+    return null;
+  }
+
+  private static IsaPrimitive findConcreteArgument(
+      final String primitiveName,
+      final String argumentName,
+      final IsaPrimitive rootPrimitive) {
+    InvariantChecks.checkNotNull(primitiveName);
+    InvariantChecks.checkNotNull(argumentName);
+    InvariantChecks.checkNotNull(rootPrimitive);
+
+    final IsaPrimitive namedArgument = rootPrimitive.getArguments().get(argumentName);
+    if (null != namedArgument && primitiveName.equals(namedArgument.getName())) {
+      return namedArgument;
+    }
+
+    for (final IsaPrimitive argument : rootPrimitive.getArguments().values()) {
+      final IsaPrimitive result = findConcreteArgument(primitiveName, argumentName, argument);
+      if (null != result) {
+        return result;
+      }
+    }
+
+    return null;
   }
 }
