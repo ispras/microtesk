@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -244,15 +244,15 @@ public final class BlockBuilder {
     InvariantChecks.checkFalse(isPrologue);
     InvariantChecks.checkFalse(isEpilogue);
 
-    if (!isAtomic && !isSequence && !isIterate &&
-        combinatorName == null &&
-        permutatorName == null &&
-        compositorName == null &&
-        rearrangerName == null &&
-        obfuscatorName == null) {
+    if (!isAtomic && !isSequence && !isIterate
+        && combinatorName == null
+        && permutatorName == null
+        && compositorName == null
+        && rearrangerName == null
+        && obfuscatorName == null) {
       throw new GenerationAbortedException(String.format(
-          "Using blocks with no arguments is currently forbidden " + 
-          "due to compatibility issues. At: %s", where)
+          "Using blocks with no arguments is currently forbidden "
+              + "due to compatibility issues. At: %s", where)
           );
     }
 

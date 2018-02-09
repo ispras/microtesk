@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -138,8 +138,7 @@ public final class OutputBuilder {
    * @return Output object.
    */
   public Output build() {
-    return null == args ?
-        new Output(kind, format) : new Output(kind, format, args);
+    return null == args ? new Output(kind, format) : new Output(kind, format, args);
   }
 
   private void addArgument(final Argument arg) {

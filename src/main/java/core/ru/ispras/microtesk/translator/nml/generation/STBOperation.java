@@ -141,8 +141,8 @@ final class STBOperation extends STBPrimitiveBase {
       attrST.add("name", attr.getName());
       attrST.add("rettype", getRetTypeName(attr.getKind()));
       attrST.add("usePE",
-          Attribute.Kind.ACTION == attr.getKind() &&
-          !attr.getName().equals(Attribute.INIT_NAME));
+          Attribute.Kind.ACTION == attr.getKind()
+              && !attr.getName().equals(Attribute.INIT_NAME));
 
       if (Attribute.Kind.ACTION == attr.getKind()) {
         for (Statement stmt : attr.getStatements()) {
@@ -259,7 +259,7 @@ final class STBOperation extends STBPrimitiveBase {
     }
 
     private Shortcut.Argument findShortcutArgument(final String name, final PrimitiveAND source) {
-      for(final Shortcut.Argument sa : shortcut.getArguments()) {
+      for (final Shortcut.Argument sa : shortcut.getArguments()) {
         if (name.equals(sa.getName()) && source.getName().equals(sa.getSource().getName())) {
           return sa;
         }

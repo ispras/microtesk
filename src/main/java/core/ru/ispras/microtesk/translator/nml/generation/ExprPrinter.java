@@ -188,19 +188,19 @@ public final class ExprPrinter extends MapBasedPrinter {
       return new OperationDescription(operationText, "", ")");
     }
 
-    return opId instanceof Operator ?
-        operatorMap.get(opId) : super.getOperationDescription(expr);
+    return opId instanceof Operator
+        ? operatorMap.get(opId) : super.getOperationDescription(expr);
   }
 
   public static String bigIntegerToString(final BigInteger value, final int radix) {
     InvariantChecks.checkNotNull(value);
 
     final String result;
-    if (value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0 && 
-        value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0) {
+    if (value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0
+        && value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0) {
       result = (radix == 10) ? value.toString(radix) : "0x" + value.toString(radix);
-    } else if (value.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) >= 0 && 
-        value.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) <= 0) {
+    } else if (value.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) >= 0
+        && value.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) <= 0) {
       result = ((radix == 10) ? value.toString(radix) : "0x" + value.toString(radix)) + "L";
     } else {
       result = String.format("new %s(\"%s\", %d)",
@@ -271,8 +271,8 @@ public final class ExprPrinter extends MapBasedPrinter {
         final Enum<?> innerOpId = (Enum<?>) nodeInfo.getSource();
         final boolean isLast = (operation.getOperandCount() - 1) == index;
   
-        if ((castOperatorMap.containsKey(opId) ||
-            castOperatorMap.containsKey(innerOpId)) && !isLast) {
+        if ((castOperatorMap.containsKey(opId)
+            || castOperatorMap.containsKey(innerOpId)) && !isLast) {
           // Skips all operands but the last
           setStatus(Status.SKIP);
         }
@@ -293,8 +293,8 @@ public final class ExprPrinter extends MapBasedPrinter {
         final Enum<?> innerOpId = (Enum<?>) nodeInfo.getSource();
         final boolean isLast = (operation.getOperandCount() - 1) == index;
 
-        if ((castOperatorMap.containsKey(opId) ||
-            castOperatorMap.containsKey(innerOpId)) && !isLast) {
+        if ((castOperatorMap.containsKey(opId)
+            || castOperatorMap.containsKey(innerOpId)) && !isLast) {
           // Restores status
           setStatus(Status.OK);
         }
@@ -302,8 +302,8 @@ public final class ExprPrinter extends MapBasedPrinter {
 
       super.onOperandEnd(operation, operand, index);
 
-      if (ExprUtils.isOperation(operand, StandardOperation.BVCONCAT) &&
-         !((NodeInfo) operand.getUserData()).isCoersionApplied()) {
+      if (ExprUtils.isOperation(operand, StandardOperation.BVCONCAT)
+          && !((NodeInfo) operand.getUserData()).isCoersionApplied()) {
         appendText(".load()");
       }
     }

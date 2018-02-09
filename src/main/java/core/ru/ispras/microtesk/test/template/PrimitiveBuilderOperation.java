@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -40,8 +40,8 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   private final Map<String, Argument> argumentMap;
 
   private static final String ERR_WRONG_USE =
-      "Illegal use: Arguments can be added using either " +
-      "addArgument or setArgument methods, but not both.";
+      "Illegal use: Arguments can be added using either "
+          + "addArgument or setArgument methods, but not both.";
 
   PrimitiveBuilderOperation(
       final String name,
@@ -224,7 +224,9 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
 
   private interface Argument {
     boolean hasName();
+
     String getName();
+
     void addToBuilder(PrimitiveBuilder builder);
   }
 

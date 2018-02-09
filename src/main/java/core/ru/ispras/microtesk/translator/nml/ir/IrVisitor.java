@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -192,14 +192,20 @@ public interface IrVisitor extends TreeVisitor {
   void onShortcutEnd(PrimitiveAND andRule, Shortcut shortcut);
 
   void onAssignment(StatementAssignment stmt);
+
   void onFormat(StatementFormat stmt);
+
   void onFunctionCall(StatementFunctionCall stmt);
 
   void onAttributeCallBegin(StatementAttributeCall stmt);
+
   void onAttributeCallEnd(StatementAttributeCall stmt);
 
   void onConditionBegin(StatementCondition stmt);
+
   void onConditionEnd(StatementCondition stmt);
+
   void onConditionBlockBegin(Node condition);
+
   void onConditionBlockEnd(Node condition);
 }

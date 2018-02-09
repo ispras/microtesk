@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -73,9 +73,9 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
-      if (item.getModifier() == Primitive.Modifier.PSEUDO ||
-          item.getModifier() == Primitive.Modifier.LABEL ||
-          visited.containsKey(item)) {
+      if (item.getModifier() == Primitive.Modifier.PSEUDO
+          || item.getModifier() == Primitive.Modifier.LABEL
+          || visited.containsKey(item)) {
         setStatus(Status.SKIP);
         return;
       }
@@ -98,8 +98,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
     @Override
     public void onAlternativeBegin(final PrimitiveOR orRule, final Primitive item) {
-      if (item.getModifier() == Primitive.Modifier.PSEUDO ||
-          item.getModifier() == Primitive.Modifier.LABEL) {
+      if (item.getModifier() == Primitive.Modifier.PSEUDO
+          || item.getModifier() == Primitive.Modifier.LABEL) {
         setStatus(Status.SKIP);
         return;
       }
@@ -130,8 +130,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       } else {
         orRule.getInfo().setImageInfo(targetInfo.or(sourceInfo));
 
-        if (targetInfo.getOpcMask() != null && 
-            targetInfo.getOpcMask().equals(sourceInfo.getOpcMask())) {
+        if (targetInfo.getOpcMask() != null
+            && targetInfo.getOpcMask().equals(sourceInfo.getOpcMask())) {
           orRule.getInfo().getImageInfo().setOpcMask(targetInfo.getOpcMask());
         }
       }
@@ -165,8 +165,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
     @Override
     public void onStatementBegin(
         final PrimitiveAND andRule, final Attribute attr, final Statement stmt) {
-      InvariantChecks.checkTrue(stmt.getKind() == Statement.Kind.FORMAT ||
-                                stmt.getKind() == Statement.Kind.CALL);
+      InvariantChecks.checkTrue(stmt.getKind() == Statement.Kind.FORMAT
+          || stmt.getKind() == Statement.Kind.CALL);
       if (stmt instanceof StatementFormat) {
         onStatementFormat(andRule, (StatementFormat) stmt);
       } else if (stmt instanceof StatementAttributeCall) {
@@ -223,7 +223,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       final List<Pair<Node, ImageInfo>> fields = new ArrayList<>();
 
       final List<Pair<String, Integer>> tokens = FormatMarker.tokenize(format, markers);
-      for(final Pair<String, Integer> token : tokens) {
+      for (final Pair<String, Integer> token : tokens) {
         final String text = token.first;
         final int markerIndex = token.second;
 
@@ -389,8 +389,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
   }
 
   private static ImageInfo getImageInfo(final PrimitiveAND primitive, final Node field) {
-    InvariantChecks.checkTrue(field.isType(DataTypeId.BIT_VECTOR) ||
-                              field.isType(DataTypeId.LOGIC_STRING), primitive.getName());
+    InvariantChecks.checkTrue(field.isType(DataTypeId.BIT_VECTOR)
+        || field.isType(DataTypeId.LOGIC_STRING), primitive.getName());
 
     if (field.isType(DataTypeId.BIT_VECTOR)) {
       return new ImageInfo(field.getDataType().getSize(), true);

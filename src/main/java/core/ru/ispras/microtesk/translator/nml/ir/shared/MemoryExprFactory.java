@@ -44,8 +44,7 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
           "%s: Variable %s cannot be shared. The keyword will be ignored.", where, name);
     }
 
-    final BigInteger size = sizeExpr != null ?
-        sizeExpr.bigIntegerValue() : BigInteger.ONE;
+    final BigInteger size = sizeExpr != null ? sizeExpr.bigIntegerValue() : BigInteger.ONE;
 
     if (null == alias) {
       return new MemoryExpr(kind, name, type, size, shared, null);
@@ -57,8 +56,8 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
     if (Alias.Kind.LOCATION == alias.getKind()) {
       aliasBitSize = alias.getLocation().getType().getBitSize();
     } else { // Alias.Kind.MEMORY == alias.getKind()
-      aliasBitSize = (alias.getMax() - alias.getMin() + 1) * 
-          alias.getMemory().getType().getBitSize();
+      aliasBitSize = (alias.getMax() - alias.getMin() + 1)
+          * alias.getMemory().getType().getBitSize();
     }
 
     if (!bitSize.equals(BigInteger.valueOf(aliasBitSize))) {

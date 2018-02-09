@@ -86,7 +86,7 @@ public final class Output {
      * Evaluates the format argument using the model state observer and returns the resulting
      * object.
      * 
-     * @param peState PE state information.
+     * @param processingElement PE state information.
      * @return Object storing the evaluation result (some data object).
      * @throws ConfigurationException if failed to evaluate the information does to an incorrect
      *         access to the model state.
@@ -130,8 +130,8 @@ public final class Output {
 
     @Override
     public Argument copy() {
-      return value instanceof SharedObject ?
-          new ArgumentValue(((SharedObject<?>) value).getCopy()) : this;
+      return value instanceof SharedObject
+          ? new ArgumentValue(((SharedObject<?>) value).getCopy()) : this;
     }
   }
 
@@ -161,15 +161,15 @@ public final class Output {
 
     @Override
     public String toString() {
-      return index instanceof FixedValue ?
-          String.format("%s[%d]", name, index.getValue()) :
-          String.format("%s[%s]", name, index.getClass().getSimpleName());
+      return index instanceof FixedValue
+          ? String.format("%s[%d]", name, index.getValue())
+          : String.format("%s[%s]", name, index.getClass().getSimpleName());
     }
 
     @Override
     public Argument copy() {
-      return index instanceof SharedObject ?
-          new ArgumentLocation(
+      return index instanceof SharedObject
+          ? new ArgumentLocation(
               name, (Value)((SharedObject<?>) index).getCopy(), isBinaryText) : this;
     }
   }

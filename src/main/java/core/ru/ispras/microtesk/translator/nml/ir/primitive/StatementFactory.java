@@ -53,8 +53,8 @@ public final class StatementFactory extends WalkerFactoryBase {
       "The immediate value %s does not provide any callable attributes.";
 
   private static final String WRONG_FORMAT_ARG_SPEC =
-      "Incorrect format specification. The number of arguments specified in the format string " +
-      "(%d) does not match to the number of provided argumens (%d).";
+      "Incorrect format specification. The number of arguments specified in the format string "
+          + "(%d) does not match to the number of provided argumens (%d).";
 
   private static final String UNDEFINED_ATTR =
       "The %s attribute of the %s object is not defined or is not accessible in this context.";
@@ -193,9 +193,9 @@ public final class StatementFactory extends WalkerFactoryBase {
       return Collections.emptyList();
     }
 
-    if (updatedBlocks.size() == 1 &&
-       (updatedBlocks.get(0).getCondition() == null ||
-        updatedBlocks.get(0).getCondition().getNode().equals(NodeValue.newBoolean(true)))) {
+    if (updatedBlocks.size() == 1
+        && (updatedBlocks.get(0).getCondition() == null
+        || updatedBlocks.get(0).getCondition().getNode().equals(NodeValue.newBoolean(true)))) {
       return updatedBlocks.get(0).getStatements();
     }
 
@@ -280,11 +280,13 @@ public final class StatementFactory extends WalkerFactoryBase {
       final FormatMarker marker = markers.get(index);
       final Node argument = args.get(index);
 
-      if (argument.isType(DataTypeId.LOGIC_STRING) &&
-          !marker.isKind(FormatMarker.Kind.STR) &&
-          !marker.isKind(FormatMarker.Kind.BIN)) {
+      if (argument.isType(DataTypeId.LOGIC_STRING)
+          && !marker.isKind(FormatMarker.Kind.STR)
+          && !marker.isKind(FormatMarker.Kind.BIN)) {
         raiseError(where, String.format(
-            "String %s cannot be converted to the %%%s format.", argument, marker.getKind().getLetter()));
+            "String %s cannot be converted to the %%%s format.",
+            argument,
+            marker.getKind().getLetter()));
       }
 
       if (marker.isKind(FormatMarker.Kind.BIN) || marker.isKind(FormatMarker.Kind.STR)) {
@@ -298,8 +300,8 @@ public final class StatementFactory extends WalkerFactoryBase {
 
         if (markerLength != 0 && argumentLength != 0 && markerLength != argumentLength) {
           raiseError(where, String.format(
-              "Length specified by the %s format marker mismatches the actual data type. " +
-              "Expected length is %d.",
+              "Length specified by the %s format marker mismatches the actual data type. "
+                  + "Expected length is %d.",
               format.substring(marker.getStart(), marker.getEnd()),
               argumentLength
               ));
@@ -353,8 +355,8 @@ public final class StatementFactory extends WalkerFactoryBase {
       final Expr condition,
       final String message) {
     final String name = "assertion";
-    return null != message ?
-        new StatementFunctionCall(name, condition, message) :
-        new StatementFunctionCall(name, condition);
+    return null != message
+        ? new StatementFunctionCall(name, condition, message)
+        : new StatementFunctionCall(name, condition);
   }
 }

@@ -179,9 +179,9 @@ public final class PrimitiveInfo {
   @Override
   public String toString() {
     return String.format(
-        "PrimitiveInfo [exception=%s, branch=%s, conditionalBranch=%s, " +
-        "memoryReference=%s, load=%s, store=%s, blockSize=%s, argsUsage=%s, " +
-        "imageInfo=%s]",
+        "PrimitiveInfo [exception=%s, branch=%s, conditionalBranch=%s, "
+            + "memoryReference=%s, load=%s, store=%s, blockSize=%s, argsUsage=%s, "
+            + "imageInfo=%s]",
         exception,
         branch,
         conditionalBranch,

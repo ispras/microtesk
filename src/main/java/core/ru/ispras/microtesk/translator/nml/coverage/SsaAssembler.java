@@ -235,8 +235,8 @@ public final class SsaAssembler {
       final Node guard = Transformer.transform(block.next().guard, xform);
       for (Map.Entry<String, Node> entry : diff.getSummary().entrySet()) {
         final Node fallback = getJointFallback(entry.getKey(), repo, diff);
-        if (!fallback.equals(entry.getValue()) ||
-            fallback.getUserData() != entry.getValue().getUserData()) {
+        if (!fallback.equals(entry.getValue())
+            || fallback.getUserData() != entry.getValue().getUserData()) {
           final Node ite = Nodes.ite(guard, entry.getValue(), fallback);
           repo.getSummary().put(entry.getKey(), ite);
         }
@@ -264,8 +264,7 @@ public final class SsaAssembler {
 
   private static boolean blockIsOp(Block block, Enum<?> id) {
     final List<NodeOperation> stmts = block.getStatements();
-    return stmts.size() == 1 &&
-           ExprUtils.isOperation(stmts.get(0), id);
+    return stmts.size() == 1 && ExprUtils.isOperation(stmts.get(0), id);
   }
 
   private final class ModeRule implements TransformerRule {
@@ -383,8 +382,8 @@ public final class SsaAssembler {
 
   private static boolean isArgumentCall(final Node node) {
     final NodeOperation op = (NodeOperation) node;
-    return op.getOperand(0).getKind() == Node.Kind.VARIABLE &&
-           op.getOperand(1).getKind() == Node.Kind.VARIABLE;
+    return op.getOperand(0).getKind() == Node.Kind.VARIABLE
+        && op.getOperand(1).getKind() == Node.Kind.VARIABLE;
   }
 
   private static Pair<String, String> getArgumentCall(final Node node) {
@@ -467,8 +466,7 @@ public final class SsaAssembler {
     final TransformerRule rebase = new TransformerRule() {
       @Override
       public boolean isApplicable(Node node) {
-        return node.getKind() == Node.Kind.VARIABLE &&
-               node.getUserData() != null;
+        return node.getKind() == Node.Kind.VARIABLE && node.getUserData() != null;
       }
 
       @Override
@@ -562,8 +560,7 @@ public final class SsaAssembler {
   }
 
   private void addToBatch(Node node) {
-    if (ExprUtils.isOperation(node, SsaOperation.PHI) ||
-        nodeIsTrue(node)) {
+    if (ExprUtils.isOperation(node, SsaOperation.PHI) || nodeIsTrue(node)) {
       return;
     }
     this.statements.add(node);
@@ -583,8 +580,7 @@ public final class SsaAssembler {
       return false;
     }
     final NodeOperation op = (NodeOperation) node;
-    return op.getOperandCount() == 1 &&
-           op.getOperand(0).equals(Nodes.TRUE);
+    return op.getOperandCount() == 1 && op.getOperand(0).equals(Nodes.TRUE);
   }
 
   private void newBatch() {

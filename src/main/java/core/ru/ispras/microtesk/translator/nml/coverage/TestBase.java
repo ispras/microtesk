@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -84,8 +84,8 @@ public final class TestBase {
 
   public TestBaseQueryResult executeQuery(final TestBaseQuery query) {
     final TestBaseQueryResult rc = testBase.executeQuery(query);
-    if (rc.getStatus() == TestBaseQueryResult.Status.OK ||
-        rc.getStatus() == TestBaseQueryResult.Status.ERROR) {
+    if (rc.getStatus() == TestBaseQueryResult.Status.OK
+        || rc.getStatus() == TestBaseQueryResult.Status.ERROR) {
       return rc;
     }
 
@@ -105,8 +105,8 @@ public final class TestBase {
       } else if (!testCase.equals("undefined") && !testCase.equals("unpredicted")) {
         final List<NodeVariable> marks = new ArrayList<>();
         for (final NodeVariable mark : builder.getSpecialMarks()) {
-          if (mark.getName().matches(".*\\.undefined(!(\\d+))?$") ||
-              mark.getName().matches(".*\\.unpredicted(!(\\d+))?$")) {
+          if (mark.getName().matches(".*\\.undefined(!(\\d+))?$")
+              || mark.getName().matches(".*\\.unpredicted(!(\\d+))?$")) {
             marks.add(mark);
           }
         }

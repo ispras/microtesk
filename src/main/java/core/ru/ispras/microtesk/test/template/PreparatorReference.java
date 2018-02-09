@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -59,8 +59,8 @@ public final class PreparatorReference {
     InvariantChecks.checkNotNull(other);
 
     this.target = other.target.newCopy();
-    this.value = other.value instanceof SharedObject ?
-        (Value)((SharedObject<?>) other.value).getCopy() : other.value.copy();
+    this.value = other.value instanceof SharedObject
+        ? (Value)((SharedObject<?>) other.value).getCopy() : other.value.copy();
 
     this.valueBitSize = other.valueBitSize;
     this.preparatorName = other.preparatorName;
@@ -72,9 +72,9 @@ public final class PreparatorReference {
   }
 
   public BitVector getValue() {
-    return value instanceof LazyValue ?
-        ((LazyValue) value).asBitVector() :
-        BitVector.valueOf(value.getValue(), valueBitSize);
+    return value instanceof LazyValue
+        ? ((LazyValue) value).asBitVector()
+        : BitVector.valueOf(value.getValue(), valueBitSize);
   }
 
   public String getPreparatorName() {

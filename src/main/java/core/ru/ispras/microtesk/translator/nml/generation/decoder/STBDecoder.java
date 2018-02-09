@@ -150,7 +150,7 @@ final class STBDecoder implements STBuilder {
     final BitVector opc = imageInfo.getOpc();
     final BitVector opcMask = imageInfo.getOpcMask();
 
-    stConstructor.add("opc", null != opc ? "\"" + opc.toBinString() + "\"": "null");
+    stConstructor.add("opc", null != opc ? "\"" + opc.toBinString() + "\"" : "null");
     stConstructor.add("opc_mask", null != opcMask ? "\"" + opcMask.toBinString() + "\"" : "null");
 
     final List<String> argumentNames = new ArrayList<>();
@@ -195,12 +195,12 @@ final class STBDecoder implements STBuilder {
 
   private void buildOpcCheck(final ST st, final STGroup group, final Node field) {
     InvariantChecks.checkTrue(ExprUtils.isValue(field));
-    InvariantChecks.checkTrue(field.isType(DataTypeId.BIT_VECTOR) ||
-                              field.isType(DataTypeId.LOGIC_STRING));
+    InvariantChecks.checkTrue(field.isType(DataTypeId.BIT_VECTOR)
+        || field.isType(DataTypeId.LOGIC_STRING));
 
     final ST stOpcCheck = group.getInstanceOf("decoder_opc_check");
-    final int size = field.isType(DataTypeId.BIT_VECTOR) ?
-        field.getDataType().getSize() : field.toString().length();
+    final int size = field.isType(DataTypeId.BIT_VECTOR)
+        ? field.getDataType().getSize() : field.toString().length();
 
     stOpcCheck.add("value", field.toString());
     stOpcCheck.add("size", size);

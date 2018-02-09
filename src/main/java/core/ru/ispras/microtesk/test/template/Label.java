@@ -214,9 +214,9 @@ public final class Label {
     }
 
     final Label other = (Label) obj;
-    return this.name.equals(other.name) && 
-           this.blockId.equals(other.blockId) &&
-           this.referenceNumber == other.referenceNumber &&
-           this.sequenceIndex == other.sequenceIndex;
+    return this.name.equals(other.name)
+        && this.blockId.equals(other.blockId)
+        && this.referenceNumber == other.referenceNumber
+        && this.sequenceIndex == other.sequenceIndex;
   }
 }

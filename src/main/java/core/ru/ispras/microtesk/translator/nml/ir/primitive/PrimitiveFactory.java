@@ -82,9 +82,9 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       final Map<String, Primitive> args,
       final Map<String, Attribute> attrs) throws SemanticException {
 
-    final Primitive.Modifier modifier = null == modifierName ?
-        Primitive.Modifier.NORMAL :
-        Primitive.Modifier.valueOf(modifierName.toUpperCase());
+    final Primitive.Modifier modifier = null == modifierName
+        ? Primitive.Modifier.NORMAL
+        : Primitive.Modifier.valueOf(modifierName.toUpperCase());
 
     for (final Map.Entry<String, Primitive> entry : args.entrySet()) {
       final Primitive.Modifier argModifier = entry.getValue().getModifier();
@@ -94,12 +94,13 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
             "Argument %s of %s is not allowed to be internal.", argName, name));
       }
 
-      if (modifier != Primitive.Modifier.PSEUDO &&
-         (argModifier == Primitive.Modifier.PSEUDO || argModifier == Primitive.Modifier.LABEL)) {
+      if (modifier != Primitive.Modifier.PSEUDO
+          && (argModifier == Primitive.Modifier.PSEUDO
+          || argModifier == Primitive.Modifier.LABEL)) {
         final String argName = entry.getKey();
         raiseError(where, String.format(
-            "Argument %s of %s is not allowed to be a %s. " +
-            "Although it can be an OR-rule containing a %3$s.",
+            "Argument %s of %s is not allowed to be a %s. "
+                + "Although it can be an OR-rule containing a %3$s.",
             argName, name, argModifier.name().toLowerCase()));
       }
     }
@@ -228,8 +229,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
           Arrays.<Enum<?>>asList(NmlSymbolKind.MODE, NmlSymbolKind.OP)));
     }
 
-    final Primitive primitive = symbol.getKind() == NmlSymbolKind.MODE ?
-        getIR().getModes().get(name) : getIR().getOps().get(name);
+    final Primitive primitive = symbol.getKind() == NmlSymbolKind.MODE
+        ? getIR().getModes().get(name) : getIR().getOps().get(name);
 
     if (null == primitive) {
       raiseError(where, new UndefinedPrimitive(name, (NmlSymbolKind)symbol.getKind()));
@@ -268,8 +269,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
             );
       }
 
-      if (instanceArg.getKind() == InstanceArgument.Kind.EXPR && 
-          instanceArg.getExpr().isConstant()) {
+      if (instanceArg.getKind() == InstanceArgument.Kind.EXPR
+          && instanceArg.getExpr().isConstant()) {
         final Type argType = arg.getReturnType();
         final Expr newExpr = TypeCast.castConstantTo(instanceArg.getExpr(), argType);
         final InstanceArgument newIe = InstanceArgument.newExpr(newExpr);
@@ -283,7 +284,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
   }
 
   private static boolean checkType(final Primitive argType, final InstanceArgument arg) {
-    switch(arg.getKind()) {
+    switch (arg.getKind()) {
       case EXPR:
         return checkType(argType, arg.getExpr());
       case PRIMITIVE:
@@ -314,8 +315,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
   }
 
   private static boolean checkType(final Primitive argType, final Expr arg) {
-    return argType.getKind() == Primitive.Kind.IMM &&
-           (arg.isConstant() || arg.isTypeOf(argType.getReturnType()));
+    return argType.getKind() == Primitive.Kind.IMM
+        && (arg.isConstant() || arg.isTypeOf(argType.getReturnType()));
   }
 
   public Attribute createAction(final String name, final List<Statement> stmts) {

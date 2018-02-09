@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -105,9 +105,9 @@ public final class ExceptionDetector implements TranslatorHandler<Ir> {
 
     @Override
     public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
-      if (isStatus(Status.SKIP) &&
-          this.primitive == andRule &&
-          attr.getName().equals(Attribute.ACTION_NAME)) {
+      if (isStatus(Status.SKIP)
+          && this.primitive == andRule
+          && attr.getName().equals(Attribute.ACTION_NAME)) {
        setStatus(Status.OK);
       }
     }

@@ -248,9 +248,9 @@ public final class ModeAllocator {
       final Set<Integer> unitedExclude =
           CollectionUtils.uniteSets(globalExclude, localExclude);
 
-      return unitedExclude.isEmpty() ?
-          allocationTable.allocate() :
-          allocationTable.allocate(unitedExclude);
+      return unitedExclude.isEmpty()
+          ? allocationTable.allocate()
+          : allocationTable.allocate(unitedExclude);
     } finally {
       allocationTable.setAllocator(defaultAllocator);
     }

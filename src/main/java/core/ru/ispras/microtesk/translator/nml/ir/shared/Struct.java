@@ -32,9 +32,11 @@ public final class Struct {
     }
 
     public Type getType() { return type; }
+
     public int getBitSize() { return type.getBitSize(); }
 
     public int getMin() { return offset; }
+
     public int getMax() { return offset + getBitSize() - 1; }
   }
 

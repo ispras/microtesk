@@ -125,9 +125,9 @@ final class SsaBuilder {
     }
 
     public boolean hasStaticBitfield() {
-      return hasBitfield() &&
-          minorBit.getKind() == Node.Kind.VALUE &&
-          majorBit.getKind() == Node.Kind.VALUE;
+      return hasBitfield()
+          && minorBit.getKind() == Node.Kind.VALUE
+          && majorBit.getKind() == Node.Kind.VALUE;
     }
 
     public boolean isMacro() {
@@ -745,10 +745,10 @@ final class SsaBuilder {
       @Override
       public boolean isApplicable(final Node node) {
         final NodeInfo info = getNodeInfo(node);
-        return node.getKind() == Node.Kind.VALUE &&
-               node.isType(DataType.INTEGER) &&
-               info != null &&
-               info.isCoersionApplied();
+        return node.getKind() == Node.Kind.VALUE
+            && node.isType(DataType.INTEGER)
+            && info != null
+            && info.isCoersionApplied();
       }
 
       @Override

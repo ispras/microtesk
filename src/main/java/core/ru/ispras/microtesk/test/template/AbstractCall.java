@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -290,16 +290,16 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     this.alignment = other.alignment;
     this.alignmentInBytes = other.alignmentInBytes;
 
-    this.preparatorReference = null != other.preparatorReference ?
-        new PreparatorReference(other.preparatorReference) : null;
+    this.preparatorReference = null != other.preparatorReference
+        ? new PreparatorReference(other.preparatorReference) : null;
 
     this.data = null != other.data ? new DataSection(other.data) : null;
 
-    this.atomicSequence = null != other.atomicSequence ?
-        copyAll(other.atomicSequence) : null;
+    this.atomicSequence = null != other.atomicSequence
+        ? copyAll(other.atomicSequence) : null;
 
-    this.modeToFree = null != other.modeToFree ?
-       (Primitive)((SharedObject<?>) other.modeToFree).getCopy() : null;
+    this.modeToFree = null != other.modeToFree
+        ? (Primitive)((SharedObject<?>) other.modeToFree).getCopy() : null;
 
     this.freeAllModes = other.freeAllModes;
   }
@@ -329,16 +329,16 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
   }
 
   public boolean isEmpty() {
-    return null == text        &&
-           !isExecutable()     &&
-           !isPreparatorCall() &&
-           !hasData()          &&
-           !isAtomicSequence() &&
-           !isModeToFree()     &&
-           labels.isEmpty()    &&
-           outputs.isEmpty()   &&
-           null == origin      &&
-           null == alignment;
+    return null == text
+        && !isExecutable()
+        && !isPreparatorCall()
+        && !hasData()
+        && !isAtomicSequence()
+        && !isModeToFree()
+        && labels.isEmpty()
+        && outputs.isEmpty()
+        && null == origin
+        && null == alignment;
   }
 
   public Where getWhere() {
@@ -451,9 +451,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
   @Override
   public String toString() {
     return String.format(
-        "instruction call %s" + 
-        "(root: %s, " +
-        "preparator: %s, data: %b, atomic: %b, modeToFree: %s)",
+        "instruction call %s"
+            + "(root: %s, "
+            + "preparator: %s, data: %b, atomic: %b, modeToFree: %s)",
         null != text ? text : "", 
         isExecutable() ? rootOperation.getName() : "null",
         isPreparatorCall() ? preparatorReference : "null",

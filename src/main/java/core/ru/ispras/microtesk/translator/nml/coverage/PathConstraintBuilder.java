@@ -45,9 +45,9 @@ public final class PathConstraintBuilder {
 
   public PathConstraintBuilder(final Node node) {
     this(
-        ExprUtils.isOperation(node, StandardOperation.AND) ?
-            ((NodeOperation) node).getOperands() :
-            Collections.singleton(node)
+        ExprUtils.isOperation(node, StandardOperation.AND)
+            ? ((NodeOperation) node).getOperands()
+            : Collections.singleton(node)
     );
   }
 

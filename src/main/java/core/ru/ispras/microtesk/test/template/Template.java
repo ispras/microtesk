@@ -65,9 +65,13 @@ public final class Template {
 
   public interface Processor {
     void process(ExceptionHandler handler);
+
     void process(SectionKind section, Block block);
+
     void process(SectionKind section, Block block, int times);
+
     void process(DataSection data);
+
     void finish();
   }
 
@@ -212,7 +216,7 @@ public final class Template {
       Logger.warning("Unused blocks have been detected at: %s",
           StringUtils.toString(unusedBlocks, ", ", new StringUtils.Converter<Block>() {
               @Override
-              public String toString(final Block o) {return o.getWhere().toString();}
+              public String toString(final Block o) { return o.getWhere().toString(); }
           }));
     }
   }
@@ -264,8 +268,8 @@ public final class Template {
     checkSectionDefined(section,
         context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
 
-    final BlockBuilder current = parent.isExternal() ?
-        new BlockBuilder(false, section) : new BlockBuilder(parent);
+    final BlockBuilder current = parent.isExternal()
+        ? new BlockBuilder(false, section) : new BlockBuilder(parent);
 
     blockBuilders.push(current);
     debug("Begin block: " + current.getBlockId());
@@ -679,10 +683,10 @@ public final class Template {
     InvariantChecks.checkNotNull(targetMode);
     InvariantChecks.checkNotNull(value);
 
-    if (value instanceof LazyValue &&
-        null == preparatorBuilder &&
-        null == bufferPreparatorBuilder && 
-        null == memoryPreparatorBuilder) {
+    if (value instanceof LazyValue
+        && null == preparatorBuilder
+        && null == bufferPreparatorBuilder
+        && null == memoryPreparatorBuilder) {
       throw new IllegalStateException(
           "A preparator with a lazy value can be invoked only inside " +
           "a preparator, buffer_preparator or memory_preparator block."
@@ -1059,12 +1063,12 @@ public final class Template {
     endBuildingCall();
 
     final boolean isGlobalContext =
-        currentBlockBuilder().isExternal() &&
-        preparatorBuilder == null &&
-        bufferPreparatorBuilder == null &&
-        memoryPreparatorBuilder == null &&
-        streamPreparatorBuilder == null &&
-        exceptionHandlerBuilder == null;
+        currentBlockBuilder().isExternal()
+            && preparatorBuilder == null
+            && bufferPreparatorBuilder == null
+            && memoryPreparatorBuilder == null
+            && streamPreparatorBuilder == null
+            && exceptionHandlerBuilder == null;
 
     final boolean isGlobal = isGlobalContext || isGlobalArgument;
     debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
@@ -1196,9 +1200,9 @@ public final class Template {
       final BigInteger pa,
       final BigInteger va,
       final String args) {
-    if (null != pa && !section.getBasePa().equals(pa) ||
-        null != va && !section.getBaseVa().equals(va) ||
-        null != args && !section.getArgs().equals(args)) {
+    if (null != pa && !section.getBasePa().equals(pa)
+        || null != va && !section.getBaseVa().equals(va)
+        || null != args && !section.getArgs().equals(args)) {
       Logger.warning("Changing section attributes is not allowed: %s.", section);
     }
   }

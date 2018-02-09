@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -120,7 +120,7 @@ public class ParserBase extends ParserEx {
     InvariantChecks.checkNotNull(symbols);
 
     final Symbol symbol = symbols.resolve(t.getText());
-    if (null == symbol) {// OK
+    if (null == symbol) { // OK
       return;
     }
 

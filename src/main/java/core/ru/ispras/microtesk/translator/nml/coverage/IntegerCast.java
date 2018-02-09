@@ -233,8 +233,7 @@ public final class IntegerCast {
   private static class CommonBitVectorTypeRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node node) {
-      return IntegerCast.getBitVectorOperandIndex(node, 0) >= 0 &&
-             nodeHasTypeMismatch(node);
+      return IntegerCast.getBitVectorOperandIndex(node, 0) >= 0 && nodeHasTypeMismatch(node);
     }
 
     @Override
@@ -299,8 +298,8 @@ public final class IntegerCast {
   private static final class IteRule implements TransformerRule {
     @Override
     public boolean isApplicable(final Node node) {
-      if (ExprUtils.isOperation(node, StandardOperation.ITE) &&
-             IntegerCast.getBitVectorOperandIndex(node, 1) >= 1) {
+      if (ExprUtils.isOperation(node, StandardOperation.ITE)
+          && IntegerCast.getBitVectorOperandIndex(node, 1) >= 1) {
         final List<Node> operands = ((NodeOperation) node).getOperands();
         return IntegerCast.hasTypeMismatch(operands.subList(1, operands.size()));
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -46,7 +46,8 @@ abstract class STBPrimitiveBase implements STBuilder {
     return RET_TYPE_MAP.get(kind);
   }
 
-  protected static void addStatement(final ST attrST, final Statement stmt, final boolean isReturn) {
+  protected static void addStatement(
+      final ST attrST, final Statement stmt, final boolean isReturn) {
     new StatementBuilder(attrST, isReturn).build(stmt);
   }
 }
@@ -164,9 +165,9 @@ final class StatementBuilder {
 
   private void addStatement(final StatementAttributeCall stmt) {
     final String attrName = stmt.getAttributeName();
-    final boolean usePE = !attrName.equals(Attribute.INIT_NAME) &&
-                          !attrName.equals(Attribute.IMAGE_NAME) &&
-                          !attrName.equals(Attribute.SYNTAX_NAME);
+    final boolean usePE = !attrName.equals(Attribute.INIT_NAME)
+        && !attrName.equals(Attribute.IMAGE_NAME)
+        && !attrName.equals(Attribute.SYNTAX_NAME);
 
     final boolean isAction = attrName.equals(Attribute.ACTION_NAME);
     final boolean isSyntax = attrName.equals(Attribute.SYNTAX_NAME);
@@ -176,7 +177,7 @@ final class StatementBuilder {
       methodName = String.format("%s.%s",
           stmt.getCalleeName(),
           isAction ? "execute" : (isSyntax ? "text" : attrName));
-    } else if(null != stmt.getCalleeInstance()) {
+    } else if (null != stmt.getCalleeInstance()) {
       methodName = String.format("%s.%s",
           PrinterInstance.toString(stmt.getCalleeInstance()),
           isAction ? "execute" : (isSyntax ? "text" : attrName));
@@ -269,8 +270,8 @@ final class StatementBuilder {
     }
 
     if (argument.isType(DataTypeId.LOGIC_STRING)) {
-      InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.STR) ||
-                                marker.isKind(FormatMarker.Kind.BIN));
+      InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.STR)
+          || marker.isKind(FormatMarker.Kind.BIN));
       return ExprPrinter.toString(new Expr(argument));
     }
 

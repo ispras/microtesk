@@ -213,8 +213,8 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, "The type of the right operand is not defined.");
     }
 
-    if (!left.isTypeOf(TypeId.CARD) && !left.isTypeOf(TypeId.INT) ||
-        !right.isTypeOf(TypeId.CARD) && !right.isTypeOf(TypeId.INT)) {
+    if (!left.isTypeOf(TypeId.CARD) && !left.isTypeOf(TypeId.INT)
+        || !right.isTypeOf(TypeId.CARD) && !right.isTypeOf(TypeId.INT)) {
       raiseError(w, "The type of an expression to be concatenated must be card or int.");
     }
 
@@ -499,8 +499,8 @@ public final class ExprFactory extends WalkerFactoryBase {
           src.getNodeInfo().getType().getTypeName()));
     }
 
-    if (src.getNodeInfo().getType().getBitSize() != 32 &&
-        src.getNodeInfo().getType().getBitSize() != 64) {
+    if (src.getNodeInfo().getType().getBitSize() != 32
+        && src.getNodeInfo().getType().getBitSize() != 64) {
       raiseError(w, "Only 32 and 64-bit integers are supported.");
     }
 
@@ -723,9 +723,9 @@ public final class ExprFactory extends WalkerFactoryBase {
     InvariantChecks.checkNotNull(w);
     InvariantChecks.checkNotNull(src);
 
-    if (src.getNode().isType(DataTypeId.LOGIC_INTEGER) ||
-        src.isTypeOf(TypeId.CARD) ||
-        src.isTypeOf(TypeId.INT)) {
+    if (src.getNode().isType(DataTypeId.LOGIC_INTEGER)
+        || src.isTypeOf(TypeId.CARD)
+        || src.isTypeOf(TypeId.INT)) {
       return src;
     }
 
@@ -784,8 +784,8 @@ public final class ExprFactory extends WalkerFactoryBase {
         final DataType currentDataType = operand.getNode().getDataType();
         final DataType previousDataType = commonDataType;
    
-        commonDataType = previousDataType == null ?
-            currentDataType : TypeCast.getCastDataType(previousDataType, currentDataType);
+        commonDataType = previousDataType == null
+            ? currentDataType : TypeCast.getCastDataType(previousDataType, currentDataType);
 
         if (commonDataType == null) {
           raiseError(w, String.format(
@@ -796,8 +796,8 @@ public final class ExprFactory extends WalkerFactoryBase {
         final Type previousType = commonType;
 
         if (currentType != null) { // Current operand is typed
-          commonType = previousType == null ?
-              currentType : TypeCast.getCastType(previousType, currentType);
+          commonType = previousType == null
+              ? currentType : TypeCast.getCastType(previousType, currentType);
 
           if (commonType == null) {
             raiseError(w, String.format("Incompatible operand types: %s and %s",

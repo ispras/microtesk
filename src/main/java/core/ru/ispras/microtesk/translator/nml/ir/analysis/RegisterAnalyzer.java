@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -94,8 +94,8 @@ public class RegisterAnalyzer implements TranslatorHandler<Ir> {
         final PrimitiveAND andRule,
         final Attribute attr,
         final Statement stmt) {
-      InvariantChecks.checkTrue(stmt.getKind() == Statement.Kind.FORMAT ||
-                                stmt.getKind() == Statement.Kind.CALL);
+      InvariantChecks.checkTrue(stmt.getKind() == Statement.Kind.FORMAT
+          || stmt.getKind() == Statement.Kind.CALL);
       if (stmt instanceof StatementFormat) {
         onStatementFormat(andRule, (StatementFormat) stmt);
       } else if (stmt instanceof StatementAttributeCall) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -116,7 +116,7 @@ public final class LabelReference {
    * @return Unique name of the target or referenced label if the target is not assigned.
    */
   public String getName() {
-    final Label label = null != target? target.getLabel() : reference.getLabel();
+    final Label label = null != target ? target.getLabel() : reference.getLabel();
     return label.getUniqueName();
   }
 

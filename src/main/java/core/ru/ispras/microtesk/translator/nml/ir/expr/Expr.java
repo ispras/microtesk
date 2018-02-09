@@ -44,10 +44,10 @@ public final class Expr {
   }
 
   public boolean isInternalVariable() {
-    return isConstant() &&
-           node.isType(DataTypeId.LOGIC_STRING) &&
-           getNodeInfo() != null &&
-           getNodeInfo().getKind() == NodeInfo.Kind.CONST;
+    return isConstant()
+        && node.isType(DataTypeId.LOGIC_STRING)
+        && getNodeInfo() != null
+        && getNodeInfo().getKind() == NodeInfo.Kind.CONST;
   }
 
   public boolean isTypeOf(final TypeId typeId) {
@@ -187,8 +187,7 @@ public final class Expr {
   
     @Override
     public String toString() {
-      return "Reduced [constant=" + constant + 
-             ", polynomial=" + polynomial.getNode() + "]";
+      return "Reduced [constant=" + constant + ", polynomial=" + polynomial.getNode() + "]";
     }
   }
 

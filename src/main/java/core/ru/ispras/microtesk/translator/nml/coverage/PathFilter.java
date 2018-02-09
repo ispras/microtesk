@@ -111,7 +111,6 @@ final class PathFilter {
     filter.push(StandardOperation.AND);
     filter.processNode(node);
 
-    return filter.operands.isEmpty() ?
-        Nodes.TRUE : filter.operands.get(0);
+    return filter.operands.isEmpty() ? Nodes.TRUE : filter.operands.get(0);
   }
 }

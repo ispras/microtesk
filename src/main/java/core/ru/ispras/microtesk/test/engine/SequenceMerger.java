@@ -116,15 +116,15 @@ final class SequenceMerger implements Iterator<AbstractSequence> {
       if (null != indexes) {
         final int index = indexes.get(0);
 
-        final List<AbstractCall> sequencePrologue = null != sequence.getPrologues() ?
-            sequence.getPrologues().get(index) : null;
+        final List<AbstractCall> sequencePrologue = null != sequence.getPrologues()
+            ? sequence.getPrologues().get(index) : null;
 
         if (null != sequencePrologue) {
           prologue.addAll(sequencePrologue);
         }
 
-        final List<AbstractCall> sequenceEpilogue = null != sequence.getEpilogues() ?
-            sequence.getEpilogues().get(index) : null;
+        final List<AbstractCall> sequenceEpilogue = null != sequence.getEpilogues()
+            ? sequence.getEpilogues().get(index) : null;
 
         if (null != sequenceEpilogue) {
           epilogue.addAll(sequenceEpilogue);
@@ -156,8 +156,8 @@ final class SequenceMerger implements Iterator<AbstractSequence> {
         // Call is selected. Old and new selections are significant.
         // New is ignored. Warning is printed.
         Logger.warning(
-            "Instruction at position %d was selected by several engines. " +
-            "Only results of the first engine were accepted.", position);
+            "Instruction at position %d was selected by several engines. "
+                + "Only results of the first engine were accepted.", position);
       }
     }
 

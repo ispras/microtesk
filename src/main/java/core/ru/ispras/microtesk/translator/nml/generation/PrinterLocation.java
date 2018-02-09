@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -27,7 +27,8 @@ public final class PrinterLocation {
   private static final String BITFIELD_FORMAT = ".bitField(%s, %s)";
 
   private PrinterLocation() {}
-  public static boolean addPE = true; 
+
+  public static boolean addPE = true;
 
   public static String toString(final Location location) {
     InvariantChecks.checkNotNull(location);

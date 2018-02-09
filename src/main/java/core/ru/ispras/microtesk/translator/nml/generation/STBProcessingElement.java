@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -65,7 +65,7 @@ final class STBProcessingElement implements STBuilder {
 
       if (null != memory.getAlias()) {
         tCore.add("copies", stMemoryDef);
-      } else if (memory.isShared()){
+      } else if (memory.isShared()) {
         tCore.add("copies",
             String.format("shared ? other.%1$s : other.%1$s.copy()", memory.getName()));
       } else {

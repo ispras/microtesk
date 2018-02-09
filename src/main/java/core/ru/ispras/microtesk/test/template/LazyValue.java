@@ -90,6 +90,7 @@ public class LazyValue extends SharedObject<LazyValue> implements Value {
   }
 
   private static final LazyData DATA = new LazyData();
+
   static {
     DATA.setValue(BitVector.valueOf(0, 1));
   }

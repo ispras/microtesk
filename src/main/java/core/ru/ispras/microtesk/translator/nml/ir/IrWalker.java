@@ -230,7 +230,7 @@ public final class IrWalker {
       }
     }
 
-    for(final Shortcut shortcut : andRule.getShortcuts()) {
+    for (final Shortcut shortcut : andRule.getShortcuts()) {
       visitShortcut(andRule, shortcut);
       if (isStatus(Status.ABORT)) {
         return;

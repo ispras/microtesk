@@ -260,8 +260,8 @@ public final class FormatMarker {
     int markerIndex = 0;
 
     for (final FormatMarker marker : markers) {
-      InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.BIN) ||
-                                marker.isKind(FormatMarker.Kind.STR));
+      InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.BIN)
+          || marker.isKind(FormatMarker.Kind.STR));
 
       if (position < marker.getStart()) {
         tokens.add(new Pair<>(text.substring(position, marker.getStart()), -1));

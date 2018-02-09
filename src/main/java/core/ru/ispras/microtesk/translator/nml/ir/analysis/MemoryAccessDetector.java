@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -71,8 +71,8 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
       if (!item.isOrRule()) {
         final PrimitiveAND primitive = (PrimitiveAND) item;
 
-        final boolean isMemoryReference = primitive.getReturnExpr() != null ?
-            isMemoryReference(primitive.getReturnExpr()) : false;
+        final boolean isMemoryReference = primitive.getReturnExpr() != null
+            ? isMemoryReference(primitive.getReturnExpr()) : false;
 
         primitive.getInfo().setMemoryReference(isMemoryReference);
         contexts.push(new Context(primitive));
@@ -193,8 +193,8 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
 
       // MEMs of length 1 are often used as global variables.
       // For this reason, there such MEMs are excluded.
-      return source.getMemory().getKind() == Memory.Kind.MEM &&
-          memorySize.compareTo(BigInteger.ONE) > 0;
+      return source.getMemory().getKind() == Memory.Kind.MEM
+          && memorySize.compareTo(BigInteger.ONE) > 0;
     }
 
     if ((locationAtom.getSource() instanceof LocationSourcePrimitive)) {

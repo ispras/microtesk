@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -81,9 +81,9 @@ public final class Generator implements TranslatorHandler<Ir> {
 
   private void generateModes() throws IOException {
     for (final Primitive m : ir.getModes().values()) {
-      final FileGenerator mode = m.isOrRule() ? 
-          factory.createAddressingModeOr((PrimitiveOR) m) :
-          factory.createAddressingMode((PrimitiveAND) m);
+      final FileGenerator mode = m.isOrRule()
+          ? factory.createAddressingModeOr((PrimitiveOR) m)
+          : factory.createAddressingMode((PrimitiveAND) m);
 
       mode.generate();
     }
@@ -91,9 +91,9 @@ public final class Generator implements TranslatorHandler<Ir> {
 
   private void generateOps() throws IOException {
     for (final Primitive o : ir.getOps().values()) {
-      final FileGenerator op = o.isOrRule() ? 
-          factory.createOperationOr((PrimitiveOR) o) :
-          factory.createOperation((PrimitiveAND) o);
+      final FileGenerator op = o.isOrRule()
+          ? factory.createOperationOr((PrimitiveOR) o)
+          : factory.createOperation((PrimitiveAND) o);
 
       op.generate();
     }

@@ -226,8 +226,8 @@ public final class Preparator {
         return variant.getCalls();
       } else {
         Logger.warning(
-            "The %s variant is not defined for the current preparator. " +
-            "A random variant will be chosen.",
+            "The %s variant is not defined for the current preparator. "
+                + "A random variant will be chosen.",
             preferedVariantName
             );
       }
@@ -455,7 +455,7 @@ public final class Preparator {
     @Override
     public boolean isMatch(final BigInteger value) {
       InvariantChecks.checkNotNull(value);
-      return value.compareTo(from) >=0 && value.compareTo(to) <= 0;
+      return value.compareTo(from) >= 0 && value.compareTo(to) <= 0;
     }
 
     @Override

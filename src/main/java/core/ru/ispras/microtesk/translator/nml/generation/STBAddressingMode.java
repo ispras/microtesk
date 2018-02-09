@@ -80,8 +80,8 @@ final class STBAddressingMode extends STBPrimitiveBase {
       attrST.add("name", attr.getName());
       attrST.add("rettype", getRetTypeName(attr.getKind()));
       attrST.add("usePE",
-          Attribute.Kind.ACTION == attr.getKind() &&
-          !attr.getName().equals(Attribute.INIT_NAME));
+          Attribute.Kind.ACTION == attr.getKind()
+              && !attr.getName().equals(Attribute.INIT_NAME));
 
       if (Attribute.Kind.ACTION == attr.getKind()) {
         for (final Statement stmt : attr.getStatements()) {

@@ -144,9 +144,9 @@ public final class TypeCast {
 
     final int bitSize = type.getBitSize();
     final BitVector data = getBitVector(value, bitSize, signExtend);
-    final NodeValue node = type.getTypeId() == TypeId.BOOL ?
-        NodeValue.newBoolean(!data.isAllReset()) :
-        NodeValue.newBitVector(data);
+    final NodeValue node = type.getTypeId() == TypeId.BOOL
+        ? NodeValue.newBoolean(!data.isAllReset())
+        : NodeValue.newBitVector(data);
 
     final Expr expr = new Expr(node);
     expr.setNodeInfo(NodeInfo.newConst(type));

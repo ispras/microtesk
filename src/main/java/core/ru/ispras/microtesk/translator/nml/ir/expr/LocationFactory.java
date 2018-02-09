@@ -75,9 +75,9 @@ public final class LocationFactory extends WalkerFactoryBase {
            );
     }
 
-    final Location location = NmlSymbolKind.MEMORY == kind ?
-        newLocationMemory(where, name, null) :
-        newLocationArgument(where, name);
+    final Location location = NmlSymbolKind.MEMORY == kind
+        ? newLocationMemory(where, name, null)
+        : newLocationArgument(where, name);
 
     return newLocationExpr(location);
   }
@@ -303,14 +303,14 @@ public final class LocationFactory extends WalkerFactoryBase {
     final Node newNodeHigh = new NodeOperation(StandardOperation.ADD, high.getNode(), oldNodeLow);
 
     final Expr newLow = new Expr(Reducer.reduce(newNodeLow));
-    newLow.setNodeInfo(newLow.isConstant() ?
-        NodeInfo.newConst(null) :
-        NodeInfo.newOperator(Operator.PLUS, low.getNodeInfo().getType()));
+    newLow.setNodeInfo(newLow.isConstant()
+        ? NodeInfo.newConst(null)
+        : NodeInfo.newOperator(Operator.PLUS, low.getNodeInfo().getType()));
 
     final Expr newHigh = new Expr(Reducer.reduce(newNodeHigh));
-    newHigh.setNodeInfo(newHigh.isConstant() ?
-        NodeInfo.newConst(null) :
-        NodeInfo.newOperator(Operator.PLUS, high.getNodeInfo().getType()));
+    newHigh.setNodeInfo(newHigh.isConstant()
+        ? NodeInfo.newConst(null)
+        : NodeInfo.newOperator(Operator.PLUS, high.getNodeInfo().getType()));
 
     return Location.createBitfield(location, newHigh, newLow, type);
   }
@@ -359,8 +359,8 @@ public final class LocationFactory extends WalkerFactoryBase {
     // Checking bounds for constant values.
     if (index != null && index.isConstant()) {
       final BigInteger indexValue = index.bigIntegerValue();
-      if (indexValue.compareTo(BigInteger.ZERO) < 0 || 
-          indexValue.compareTo(memory.getSize()) >= 0) {
+      if (indexValue.compareTo(BigInteger.ZERO) < 0
+          || indexValue.compareTo(memory.getSize()) >= 0) {
         raiseError(where, String.format("Index is out of bounds: %d. It must be in [0..%d)",
             indexValue, memory.getSize()));
       }
@@ -374,8 +374,8 @@ public final class LocationFactory extends WalkerFactoryBase {
       final String name) throws SemanticException {
     final Primitive primitive = findArgument(where, name);
 
-    if ((Primitive.Kind.MODE != primitive.getKind()) &&
-        (Primitive.Kind.IMM != primitive.getKind())) {
+    if ((Primitive.Kind.MODE != primitive.getKind())
+        && (Primitive.Kind.IMM != primitive.getKind())) {
       raiseError(where, String.format(
           "The %s argument refers to a %s primitive that cannot be used as a location.",
           name,

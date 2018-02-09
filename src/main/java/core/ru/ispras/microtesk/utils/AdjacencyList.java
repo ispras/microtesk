@@ -28,7 +28,7 @@ import java.util.Map;
  *
  * @param <T> List item type.
  */
-public final class AdjacencyList<T> implements Iterable<T>{
+public final class AdjacencyList<T> implements Iterable<T> {
   private static final class Entry<T> {
     private final T value;
     private Entry<T> previous;

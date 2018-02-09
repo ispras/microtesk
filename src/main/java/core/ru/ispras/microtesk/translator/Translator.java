@@ -205,5 +205,6 @@ public abstract class Translator<Ir> {
   }
 
   protected abstract TokenSource newLexer(CharStream stream);
+
   protected abstract boolean start(final Options options, final List<String> fileNames);
 }

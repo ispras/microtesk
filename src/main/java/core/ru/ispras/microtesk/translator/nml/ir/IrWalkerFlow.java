@@ -178,7 +178,7 @@ public final class IrWalkerFlow {
       final PrimitiveAND primitive,
       final Attribute attribute,
       final Statement stmt) {
-    switch(stmt.getKind()) {
+    switch (stmt.getKind()) {
       case ASSIGN:
         visitor.onAssignment((StatementAssignment) stmt);
         break;

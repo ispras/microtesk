@@ -64,7 +64,7 @@ public final class InstanceArgument {
   }
 
   public String getTypeName() {
-    switch(kind) {
+    switch (kind) {
       case EXPR:
         return getExpr().getNodeInfo().getType().getJavaText();
       case PRIMITIVE:

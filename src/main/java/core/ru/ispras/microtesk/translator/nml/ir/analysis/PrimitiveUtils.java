@@ -240,8 +240,8 @@ public final class PrimitiveUtils {
         return 1;
       }
 
-      final Collection<Primitive> childs = source.isOrRule() ?
-        ((PrimitiveOR) source).getOrs() : ((PrimitiveAND) source).getArguments().values();
+      final Collection<Primitive> childs = source.isOrRule()
+          ? ((PrimitiveOR) source).getOrs() : ((PrimitiveAND) source).getArguments().values();
 
       int count = 0;
 

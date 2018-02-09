@@ -39,8 +39,8 @@ public final class Argument {
       if (isImmediate) {
         if (!(Number.class.isAssignableFrom(valueClass) 
            || Value.class.isAssignableFrom(valueClass))) {
-          throw new IllegalArgumentException(valueClass.getSimpleName() +
-              " must implement Value or Number to be used to store immediate values.");
+          throw new IllegalArgumentException(valueClass.getSimpleName()
+              + " must implement Value or Number to be used to store immediate values.");
         }
       }
 
@@ -132,8 +132,8 @@ public final class Argument {
   }
 
   public String getTypeName() {
-    return isImmediate() ?
-        Immediate.TYPE_NAME : ((Primitive) value).getTypeName();
+    return isImmediate()
+        ? Immediate.TYPE_NAME : ((Primitive) value).getTypeName();
   }
 
   public ArgumentMode getMode() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -37,11 +37,17 @@ import java.util.Set;
 final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   private interface Strategy {
     String getName();
+
     String getTypeName();
+
     String getDescription();
+
     boolean isRoot();
+
     String getNextArgumentName();
+
     void checkValidArgument(Argument arg);
+
     void checkAllArgumentsAssigned(Set<String> argNames);
   }
 
@@ -546,8 +552,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
           modeName = name;
         } else {
           Logger.warning(
-              "Ambiguous conversion of the %s argument: addressing mode %s is selected, " +
-              "but %s is equally possible.", metaArgument.getName(), modeName, name
+              "Ambiguous conversion of the %s argument: addressing mode %s is selected, "
+                  + "but %s is equally possible.", metaArgument.getName(), modeName, name
               );
         }
       }
@@ -785,7 +791,9 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     }
 
     public boolean isLoad() { return load; }
+
     public boolean isStore() { return store; }
+
     public int getBlockSize() { return blockSize; }
 
     public MemoryAccessStatus merge(final MemoryAccessStatus other) {

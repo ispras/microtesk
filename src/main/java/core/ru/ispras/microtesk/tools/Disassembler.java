@@ -40,6 +40,7 @@ import java.io.PrintWriter;
 public final class Disassembler {
   public static interface Output {
     void add(final IsaPrimitive primitive);
+
     void close();
   }
 
@@ -150,8 +151,8 @@ public final class Disassembler {
   }
 
   private static String getOutDir(final Options options) {
-    return options.hasValue(Option.OUTDIR) ?
-        options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
+    return options.hasValue(Option.OUTDIR)
+        ? options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
   }
 
   private static BinaryReader newReader(final String fileName, final boolean bigEndian) {

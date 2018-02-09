@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,9 +22,9 @@ import ru.ispras.microtesk.utils.StringUtils;
 
 final class Version {
   public static boolean hasVersion(final Node node) {
-    return ExprUtils.isVariable(node) &&
-           node.getUserData() != null &&
-           node.getUserData() instanceof Integer;
+    return ExprUtils.isVariable(node)
+        && node.getUserData() != null
+        && node.getUserData() instanceof Integer;
   }
 
   public static int getVersion(final Node node) {
