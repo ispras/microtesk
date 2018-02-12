@@ -33,12 +33,14 @@ final class TestDataProviderFactory {
 
   public static TestDataProvider newTestDataProvider(
       final EngineContext engineContext,
+      final String combinatorName,
       final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(combinatorName);
     InvariantChecks.checkNotNull(abstractSequence);
 
     final TestDataProviderBuilder dataProviderBuilder =
-        new TestDataProviderBuilder("product");
+        new TestDataProviderBuilder(combinatorName);
 
     for (final AbstractCall abstractCall : abstractSequence.getSequence()) {
       if (abstractCall.isExecutable()) {
