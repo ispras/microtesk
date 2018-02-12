@@ -216,7 +216,9 @@ public final class Template {
       Logger.warning("Unused blocks have been detected at: %s",
           StringUtils.toString(unusedBlocks, ", ", new StringUtils.Converter<Block>() {
               @Override
-              public String toString(final Block o) { return o.getWhere().toString(); }
+              public String toString(final Block o) {
+                return o.getWhere().toString();
+              }
           }));
     }
   }

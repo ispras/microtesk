@@ -271,8 +271,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     public void addToBuilder(PrimitiveBuilder builder) {
       if (hasName()) {
         builder.setArgument(getName(), getValue());
-      }
-      else {
+      } else {
         builder.addArgument(getValue());
       }
     }
@@ -291,8 +290,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     public void addToBuilder(PrimitiveBuilder builder) {
       if (hasName()) {
         builder.setArgument(getName(), getValue());
-      }
-      else {
+      } else {
         builder.addArgument(getValue());
       }
     }
@@ -311,8 +309,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     public void addToBuilder(PrimitiveBuilder builder) {
       if (hasName()) {
         builder.setArgument(getName(), getValue());
-      }
-      else {
+      } else {
         builder.addArgument(getValue());
       }
     }
@@ -331,8 +328,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     public void addToBuilder(PrimitiveBuilder builder) {
       if (hasName()) {
         builder.setArgument(getName(), getValue());
-      }
-      else {
+      } else {
         builder.addArgument(getValue());
       }
     }
@@ -351,8 +347,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     public void addToBuilder(PrimitiveBuilder builder) {
       if (hasName()) {
         builder.setArgument(getName(), getValue());
-      }
-      else {
+      } else {
         builder.addArgument(getValue());
       }
     }
@@ -371,8 +366,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     public void addToBuilder(PrimitiveBuilder builder) {
       if (hasName()) {
         builder.setArgument(getName(), getValue());
-      }
-      else {
+      } else {
         builder.addArgument(getValue());
       }
     }
@@ -391,8 +385,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     public void addToBuilder(PrimitiveBuilder builder) {
       if (hasName()) {
         builder.setArgument(getName(), getValue());
-      }
-      else {
+      } else {
         builder.addArgument(getValue());
       }
     }
@@ -411,8 +404,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     public void addToBuilder(PrimitiveBuilder builder) {
       if (hasName()) {
         builder.setArgument(getName(), getValue());
-      }
-      else {
+      } else {
         builder.addArgument(getValue());
       }
     }

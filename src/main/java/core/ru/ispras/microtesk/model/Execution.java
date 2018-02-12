@@ -87,17 +87,25 @@ public final class Execution {
 
   public static final InternalVariable float_exception_flags = new InternalVariable() {
     @Override
-    public int load() { return Data.getFloatExceptionFlags(); }
+    public int load() {
+      return Data.getFloatExceptionFlags();
+    }
 
     @Override
-    public void store(final int value) { Data.setFloatExceptionFlags(value); }
+    public void store(final int value) {
+      Data.setFloatExceptionFlags(value);
+    }
   };
 
   public static final InternalVariable float_rounding_mode = new InternalVariable() {
     @Override
-    public int load() { return Data.getFloatRoundingMode(); }
+    public int load() {
+      return Data.getFloatRoundingMode();
+    }
 
     @Override
-    public void store(final int value) { Data.setFloatRoundingMode(value); }
+    public void store(final int value) {
+      Data.setFloatRoundingMode(value);
+    }
   };
 }

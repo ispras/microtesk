@@ -162,8 +162,7 @@ public final class LabelManager {
         // Other one is a child block too.
         if (0 == other.distance.getUp()) {
           return this.distance.getDown() - other.distance.getDown();
-        }
-        else {
+        } else {
           return -1; // Otherwise, this one has more priority.
         }
       }
@@ -178,8 +177,7 @@ public final class LabelManager {
         // Other one is a parent block too.
         if (0 == other.distance.getDown()) {
           return this.distance.getUp() - other.distance.getUp();
-        }
-        else {
+        } else {
           return -1; // Otherwise, this one has more priority.
         }
       }

@@ -31,13 +31,21 @@ public final class Struct {
       this.type = type;
     }
 
-    public Type getType() { return type; }
+    public Type getType() {
+      return type;
+    }
 
-    public int getBitSize() { return type.getBitSize(); }
+    public int getBitSize() {
+      return type.getBitSize();
+    }
 
-    public int getMin() { return offset; }
+    public int getMin() {
+      return offset;
+    }
 
-    public int getMax() { return offset + getBitSize() - 1; }
+    public int getMax() {
+      return offset + getBitSize() - 1;
+    }
   }
 
   private final Map<String, Field> fields;
@@ -75,9 +83,13 @@ public final class Struct {
 
     int offset = 0;
     for (final String name : names) {
-      if (null == struct) { return null; }
+      if (null == struct) {
+        return null;
+      }
       field = struct.getField(name);
-      if (null == field) { return null; }
+      if (null == field) {
+        return null;
+      }
 
       offset += field.offset;
       struct = field.getType().getStruct();

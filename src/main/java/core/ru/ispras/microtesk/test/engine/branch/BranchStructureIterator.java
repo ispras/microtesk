@@ -236,9 +236,9 @@ public final class BranchStructureIterator implements Iterator<List<BranchEntry>
         }
 
         branch++;
-      }
-      // Process the basic block.
-      else {
+      } else {
+
+        // Process the basic block.
         int blockClass = 0;
 
         if (blockIterator != null) {

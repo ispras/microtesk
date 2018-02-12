@@ -53,7 +53,9 @@ final class STBStruct implements STBuilder {
 
     final StringBuilder sb = new StringBuilder();
     for (final String name : address.getAccessChain()) {
-      if (sb.length() > 0) sb.append('.');
+      if (sb.length() > 0) {
+        sb.append('.');
+      }
       sb.append(name);
     }
 

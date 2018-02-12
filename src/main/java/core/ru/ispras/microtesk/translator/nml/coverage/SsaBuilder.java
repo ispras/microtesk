@@ -376,8 +376,9 @@ final class SsaBuilder {
     final int olderSize = older.getDataType().getSize();
     final int newerSize = newer.getDataType().getSize();
 
-    if (olderSize != newerSize)
+    if (olderSize != newerSize) {
       throw new IllegalArgumentException("Overlapping variables with different sizes is forbidden");
+    }
 
     final int bitsize = olderSize;
 
@@ -784,8 +785,9 @@ final class SsaBuilder {
   private static Location locationFromNodeVariable(Node node) {
     final NodeInfo info = getNodeInfo(node);
     if (node.getKind() == Node.Kind.VARIABLE && info != null) {
-      if (info.getSource() instanceof Location)
+      if (info.getSource() instanceof Location) {
         return (Location) info.getSource();
+      }
     }
     return null;
   }

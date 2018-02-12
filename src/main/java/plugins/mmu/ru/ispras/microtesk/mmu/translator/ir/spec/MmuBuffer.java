@@ -45,9 +45,13 @@ public class MmuBuffer extends MmuStruct {
     REGISTER ("register");
 
     private final String text;
-    private Kind(final String text) { this.text = text; }
+    private Kind(final String text) {
+      this.text = text;
+    }
 
-    public String getText() { return text; }
+    public String getText() {
+      return text;
+    }
   }
 
   /** Buffer kind (stand-alone, mapped to memory/register */

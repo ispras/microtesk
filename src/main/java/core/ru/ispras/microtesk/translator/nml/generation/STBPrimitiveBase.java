@@ -72,8 +72,9 @@ final class StatementBuilder {
 
   private void decreaseIndent() {
     assert indent > 0;
-    if (indent > 0)
+    if (indent > 0) {
       indent--;
+    }
   }
 
   public void build(final Statement stmt) {
@@ -82,8 +83,9 @@ final class StatementBuilder {
 
   private void addStatement(final Statement stmt) {
     if (null == stmt) {
-      if (isReturn)
+      if (isReturn) {
         addStatement("null;");
+      }
 
       return;
     }
@@ -119,12 +121,13 @@ final class StatementBuilder {
   private void addStatement(final String stmt) {
     final StringBuilder sb = new StringBuilder();
 
-    if (isReturn)
+    if (isReturn) {
       sb.append("return ");
+    }
 
-
-    for (int index = 0; index < indent; ++index)
+    for (int index = 0; index < indent; ++index) {
       sb.append(SINDENT);
+    }
     sb.append(stmt);
 
     sequenceST.add("stmts", sb.toString());

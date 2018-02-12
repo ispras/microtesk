@@ -790,11 +790,17 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
       this.blockSize = blockSize;
     }
 
-    public boolean isLoad() { return load; }
+    public boolean isLoad() {
+      return load;
+    }
 
-    public boolean isStore() { return store; }
+    public boolean isStore() {
+      return store;
+    }
 
-    public int getBlockSize() { return blockSize; }
+    public int getBlockSize() {
+      return blockSize;
+    }
 
     public MemoryAccessStatus merge(final MemoryAccessStatus other) {
       return new MemoryAccessStatus(

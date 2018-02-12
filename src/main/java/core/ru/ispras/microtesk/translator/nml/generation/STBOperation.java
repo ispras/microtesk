@@ -119,8 +119,7 @@ final class STBOperation extends STBPrimitiveBase {
             argType.isOrRule() ? IsaPrimitive.class.getSimpleName() : argType.getName());
 
         argCheckST = group.getInstanceOf("op_arg_check_opmode");
-      } else // if Primitive.Kind.IMM == oa.getKind()
-      {
+      } else { // if Primitive.Kind.IMM == oa.getKind()
         importImmDependencies(t);
         t.add("arg_types", Immediate.class.getSimpleName());
 
@@ -201,8 +200,7 @@ final class STBOperation extends STBPrimitiveBase {
         } else if (Primitive.Kind.OP == argType.getKind()) {
           shortcutST.add("arg_types",
               argType.isOrRule() ? IsaPrimitive.class.getSimpleName() : argType.getName());
-        } else // if Primitive.Kind.IMM == oa.getKind()
-        {
+        } else { // if Primitive.Kind.IMM == oa.getKind()
           importImmDependencies(t);
           shortcutST.add("arg_types", Immediate.class.getSimpleName());
         }
@@ -216,8 +214,9 @@ final class STBOperation extends STBPrimitiveBase {
       final ST shortcutDefST = group.getInstanceOf("shortcut_def");
       shortcutDefST.add("entry", shortcut.getEntry().getName());
 
-      for (final String context : shortcut.getContextName())
+      for (final String context : shortcut.getContextName()) {
         shortcutDefST.add("contexts", context);
+      }
 
       t.add("shortcut_defs", shortcutDefST);
     }
@@ -296,8 +295,9 @@ final class STBOperation extends STBPrimitiveBase {
       final Collection<Argument> arg_defs) {
     for (final Argument a : arg_defs) {
       if (a.getName().equals(arg.getKey())
-          || a.getSource().getName().equals(arg.getValue().getName()))
+          || a.getSource().getName().equals(arg.getValue().getName())) {
         return a.getUniqueName();
+      }
     }
 
     assert false : "Failed to find a unique name.";

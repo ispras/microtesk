@@ -250,8 +250,9 @@ final class ShortcutBuilder {
    * @param entry Primitive to be checked.
    */
   private void checkForMultipleParents(final PrimitiveAND entry) {
-    if (entry.getParentCount() > 1)
+    if (entry.getParentCount() > 1) {
       opsWithMultipleParents.add(entry.getName());
+    }
   }
 
   /**
