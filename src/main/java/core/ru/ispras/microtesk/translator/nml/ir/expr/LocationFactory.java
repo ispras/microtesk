@@ -47,7 +47,8 @@ public final class LocationFactory extends WalkerFactoryBase {
       "The bitfield expression tries to access bit %d which is beyond location bounds (%d bits).";
 
   private static final String FAILED_TO_CALCULATE_SIZE =
-      "Unable to calculate bitfield size. The given bitfield expressions cannot be reduced to constant value.";
+      "Unable to calculate bitfield size."
+          + " The given bitfield expressions cannot be reduced to constant value.";
 
   public LocationFactory(WalkerContext context) {
     super(context);
@@ -121,7 +122,9 @@ public final class LocationFactory extends WalkerFactoryBase {
     final Struct.Field field = struct.getField(fields);
     if (null == field) {
       raiseError(where, String.format(
-          "%s does not have field named %s", location.toString(), StringUtils.toString(fields, ".")));
+          "%s does not have field named %s",
+          location.toString(),
+          StringUtils.toString(fields, ".")));
     }
 
     final Expr from = new Expr(NodeValue.newInteger(field.getMin()));
@@ -260,8 +263,8 @@ public final class LocationFactory extends WalkerFactoryBase {
       raiseError(where, FAILED_TO_CALCULATE_SIZE);
     }
 
-    InvariantChecks.checkNotNull(reducedFrom.polynomial); // Cannot be reduced to constant at this point
-    InvariantChecks.checkNotNull(reducedTo.polynomial); // Cannot be reduced to constant at this point
+    InvariantChecks.checkNotNull(reducedFrom.polynomial); // Can't be reduced to const at this point
+    InvariantChecks.checkNotNull(reducedTo.polynomial); // Can't be reduced to const at this point
 
     if (reducedFrom.polynomial.equals(reducedTo.polynomial)) {
       final int bitfieldSize = Math.abs(reducedTo.constant - reducedFrom.constant) + 1;

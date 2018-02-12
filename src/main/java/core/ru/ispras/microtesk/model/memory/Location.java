@@ -183,7 +183,8 @@ public final class Location implements LocationAccessor {
           newAtoms.add(atom);
         }
       } else if (atomStart <= end && end <= atomEnd) {
-        newAtoms.add(atom.resize(atom.getBitFieldSize() - (atomEnd - end), atom.getBitFieldStart()));
+        newAtoms.add(atom.resize(atom.getBitFieldSize() - (atomEnd - end),
+            atom.getBitFieldStart()));
         break;
       }
 

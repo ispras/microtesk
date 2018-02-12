@@ -1107,7 +1107,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return call;
   }
 
-  protected final Node newCallExpr(final Where w, final NodeOperation call) throws SemanticException {
+  protected final Node newCallExpr(final Where w, final NodeOperation call)
+      throws SemanticException {
     InvariantChecks.checkNotNull(w);
     InvariantChecks.checkNotNull(call);
     InvariantChecks.checkTrue(call.getUserData() instanceof Callable);
@@ -1380,7 +1381,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     return new StmtMark(text.getText());
   }
 
-  protected final Stmt newAssert(final CommonTree place, final Node condition) throws SemanticException {
+  protected final Stmt newAssert(final CommonTree place, final Node condition)
+      throws SemanticException {
     if (!condition.isType(DataTypeId.LOGIC_BOOLEAN)) {
       raiseError(where(place), "Assertion is not a logical expression.");
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -194,7 +194,8 @@ public final class Location {
     }
 
     if (bitfield != null) {
-      sb.append(String.format("<%s..%s>", bitfield.getFrom().getNode(), bitfield.getTo().getNode()));
+      sb.append(String.format("<%s..%s>",
+          bitfield.getFrom().getNode(), bitfield.getTo().getNode()));
     }
 
     return sb.toString();

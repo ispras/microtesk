@@ -210,7 +210,8 @@ public final class MemoryAllocator {
   }
 
   private int regionBitOffsetForAddress(final BigInteger address) {
-    return address.mod(BigInteger.valueOf(addressableUnitsInRegion)).intValue() * addressableUnitBitSize;
+    return address.mod(BigInteger.valueOf(addressableUnitsInRegion)).intValue()
+        * addressableUnitBitSize;
   }
 
   private BigInteger regionIndexForAddress(final BigInteger address) {

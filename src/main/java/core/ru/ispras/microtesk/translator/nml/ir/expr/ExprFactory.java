@@ -98,7 +98,8 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     if (operands.length != op.getOperandCount()) {
-      raiseError(w, String.format("The %s operator requires %d operands.", id, op.getOperandCount()));
+      raiseError(w, String.format(
+          "The %s operator requires %d operands.", id, op.getOperandCount()));
     }
 
     // Unary plus is redundant.
@@ -620,7 +621,8 @@ public final class ExprFactory extends WalkerFactoryBase {
     return result;
   }
 
-  public Expr condition(final Where w, final List<Pair<Expr, Expr>> blocks) throws SemanticException {
+  public Expr condition(final Where w, final List<Pair<Expr, Expr>> blocks)
+      throws SemanticException {
     InvariantChecks.checkNotNull(w);
     InvariantChecks.checkNotNull(blocks);
     InvariantChecks.checkTrue(blocks.size() >= 2);
@@ -665,7 +667,8 @@ public final class ExprFactory extends WalkerFactoryBase {
     return result;
   }
 
-  public Node newCondition(final Where w, final List<Pair<Node, Node>> blocks) throws SemanticException {
+  public Node newCondition(final Where w, final List<Pair<Node, Node>> blocks)
+      throws SemanticException {
     InvariantChecks.checkNotNull(w);
     InvariantChecks.checkNotNull(blocks);
     InvariantChecks.checkTrue(blocks.size() >= 2);
@@ -856,7 +859,8 @@ public final class ExprFactory extends WalkerFactoryBase {
       "The expression cannot be statically calculated.";
 
   private static final String ERR_NOT_CONST_INTEGER =
-      "The expression cannot be used to specify size since it cannot be evaluated to an integer constant.";
+      "The expression cannot be used to specify size"
+          + " since it cannot be evaluated to an integer constant.";
 
   private static final String ERR_NOT_INDEX =
       "The expression cannot be used as an index since it is not an integer value.";

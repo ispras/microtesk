@@ -227,7 +227,8 @@ final class GuardPrinter {
 
     if (node.getKind() == Node.Kind.VARIABLE) {
       final AttributeRef attrRef = (AttributeRef) node.getUserData();
-      final String address = Utils.getVariableName(context, attrRef.getAddressArgValue().toString());
+      final String address =
+          Utils.getVariableName(context, attrRef.getAddressArgValue().toString());
       final Buffer buffer = (Buffer) attrRef.getTarget();
       return new Pair<>(new Pair<>(buffer.getId(), address), BufferAccessEvent.HIT);
     }
@@ -237,7 +238,8 @@ final class GuardPrinter {
       InvariantChecks.checkTrue(op.getOperationId() == StandardOperation.NOT);
 
       final AttributeRef attrRef = (AttributeRef) op.getOperand(0).getUserData();
-      final String address = Utils.getVariableName(context, attrRef.getAddressArgValue().toString());
+      final String address =
+          Utils.getVariableName(context, attrRef.getAddressArgValue().toString());
       final Buffer buffer = (Buffer) attrRef.getTarget();
       return new Pair<>(new Pair<>(buffer.getId(), address), BufferAccessEvent.MISS);
     }

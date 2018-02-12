@@ -116,7 +116,8 @@ public final class MemoryEngineUtils {
           final MmuBuffer buffer = bufferConstraint.getBuffer();
           final Set<BufferAccessEvent> events = bufferConstraint.getEvents();
 
-          if (buffer.equals(bufferAccess.getBuffer()) && !events.contains(bufferAccess.getEvent())) {
+          if (buffer.equals(bufferAccess.getBuffer())
+              && !events.contains(bufferAccess.getEvent())) {
             return false;
           }
         }

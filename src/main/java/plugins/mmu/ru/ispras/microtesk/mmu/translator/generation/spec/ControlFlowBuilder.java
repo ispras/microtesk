@@ -580,7 +580,10 @@ final class ControlFlowBuilder {
     return false;
   }
 
-  private String buildSegmentAccess(final String source, final Node left, final AttributeRef right) {
+  private String buildSegmentAccess(
+      final String source,
+      final Node left,
+      final AttributeRef right) {
     InvariantChecks.checkNotNull(source);
     InvariantChecks.checkNotNull(left);
     InvariantChecks.checkNotNull(right);

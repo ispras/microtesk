@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -66,7 +66,8 @@ public class MmuAddressInstance extends MmuStruct {
     return addrStruct;
   }
 
-  public MmuAddressInstance getInstance(final String instanceId, final MemoryAccessContext context) {
+  public MmuAddressInstance getInstance(
+      final String instanceId, final MemoryAccessContext context) {
     InvariantChecks.checkNotNull(context);
 
     final MmuAddressInstance instance = new MmuAddressInstance(name, addrStruct, address);

@@ -82,7 +82,8 @@ public final class StatementFactory extends WalkerFactoryBase {
 
     // Hack to deal with internal variables described by string constants.
     if (right.isInternalVariable()) {
-      final NodeInfo newNodeInfo = right.getNodeInfo().coerceTo(leftType, NodeInfo.Coercion.IMPLICIT);
+      final NodeInfo newNodeInfo =
+          right.getNodeInfo().coerceTo(leftType, NodeInfo.Coercion.IMPLICIT);
       right.setNodeInfo(newNodeInfo);
       return new StatementAssignment(leftExpr, right);
     }
@@ -93,7 +94,8 @@ public final class StatementFactory extends WalkerFactoryBase {
     }
 
     if (right.getNodeInfo().getType() == null) {
-      final NodeInfo newNodeInfo = right.getNodeInfo().coerceTo(leftType, NodeInfo.Coercion.IMPLICIT);
+      final NodeInfo newNodeInfo =
+          right.getNodeInfo().coerceTo(leftType, NodeInfo.Coercion.IMPLICIT);
       right.setNodeInfo(newNodeInfo);
     } else {
       final Type rightType = right.getNodeInfo().getType();
@@ -103,7 +105,8 @@ public final class StatementFactory extends WalkerFactoryBase {
       }
 
       if (right.isTypeOf(TypeId.BOOL)) {
-        final NodeInfo newNodeInfo = right.getNodeInfo().coerceTo(leftType, NodeInfo.Coercion.IMPLICIT);
+        final NodeInfo newNodeInfo =
+            right.getNodeInfo().coerceTo(leftType, NodeInfo.Coercion.IMPLICIT);
         right.setNodeInfo(newNodeInfo);
       }
     }

@@ -67,7 +67,9 @@ public final class NamePath implements Iterable<NamePath>, Comparable<NamePath> 
     return false;
   }
 
-  private static <T> boolean startsWith(final Iterator<? extends T> lhs, final Iterator<? extends T> rhs) {
+  private static <T> boolean startsWith(
+      final Iterator<? extends T> lhs,
+      final Iterator<? extends T> rhs) {
     boolean eq = true;
     while (lhs.hasNext() && rhs.hasNext() && eq) {
       eq = lhs.next().equals(rhs.next());

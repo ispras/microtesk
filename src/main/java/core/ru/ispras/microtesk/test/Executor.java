@@ -59,7 +59,9 @@ public final class Executor {
       return new Status(address, null);
     }
 
-    public static Status newUndefinedLabel(final long address, final LabelReference labelReference) {
+    public static Status newUndefinedLabel(
+        final long address,
+        final LabelReference labelReference) {
       InvariantChecks.checkNotNull(labelReference);
       return new Status(address, labelReference);
     }
@@ -546,7 +548,8 @@ public final class Executor {
 /////////////////////////////////////////////////////////
 /*
 final MemoryDevice memory = context.getModel().getPE().getMemoryDevice();
-final BitVector data = memory.load(BitVector.valueOf(call.getAddress() >> 2, memory.getAddressBitSize()));
+final BitVector data =
+    memory.load(BitVector.valueOf(call.getAddress() >> 2, memory.getAddressBitSize()));
 System.out.println("!!! 0x" + data.toHexString());
 
 final DecoderResult result = context.getModel().getDecoder().decode(data);

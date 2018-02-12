@@ -229,7 +229,10 @@ public final class SsaAssembler {
     return embedSequence(path, fence);
   }
 
-  private static void join(Changes repo, Collection<GuardedBlock> blocks, Collection<Changes> containers, NodeTransformer xform) {
+  private static void join(
+      Changes repo,
+      Collection<GuardedBlock> blocks,
+      Collection<Changes> containers, NodeTransformer xform) {
     final Iterator<GuardedBlock> block = blocks.iterator();
     for (Changes diff : containers) {
       final Node guard = Transformer.transform(block.next().guard, xform);
@@ -294,7 +297,11 @@ public final class SsaAssembler {
     }
   }
 
-  private NodeVariable linkMacro(final NamePath path, final String name, final String method, final int version) {
+  private NodeVariable linkMacro(
+      final NamePath path,
+      final String name,
+      final String method,
+      final int version) {
     stepArgument(path, name, method);
 
     final NodeVariable tmp =

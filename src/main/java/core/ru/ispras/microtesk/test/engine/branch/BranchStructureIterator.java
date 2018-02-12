@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * {@link BranchExecutionIterator} implements an iterator of valid branch structures for given branch
- * instructions (conditional and unconditional jumps, procedures calls, etc.).
+ * {@link BranchExecutionIterator} implements an iterator of valid branch structures for given
+ * branch instructions (conditional and unconditional jumps, procedures calls, etc.).
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -216,7 +216,8 @@ public final class BranchStructureIterator implements Iterator<List<BranchEntry>
           branchClass = branchIterator.value(branch);
         }
 
-        entry.setType(branchClass < ifThenNumber ? BranchEntry.Type.IF_THEN : BranchEntry.Type.GOTO);
+        entry.setType(branchClass < ifThenNumber
+            ? BranchEntry.Type.IF_THEN : BranchEntry.Type.GOTO);
         entry.setBranchLabel(branchLabel);
         entry.setGroupId(branchClass);
 

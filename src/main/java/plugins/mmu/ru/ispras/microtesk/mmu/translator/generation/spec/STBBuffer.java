@@ -133,9 +133,12 @@ final class STBBuffer implements STBuilder {
     stConstructor.add("addr", buffer.getAddress().getId());
 
     stConstructor.add("tag", Utils.toMmuExpressionText(buffer.getId(), analyzer.getTagFields()));
-    stConstructor.add("index", Utils.toMmuExpressionText(buffer.getId(), analyzer.getIndexFields()));
-    stConstructor.add("offset", Utils.toMmuExpressionText(buffer.getId(), analyzer.getOffsetFields()));
-    stConstructor.add("match", String.format("Collections.<%s>emptyList()", BINDING_CLASS.getSimpleName()));
+    stConstructor.add("index",
+        Utils.toMmuExpressionText(buffer.getId(), analyzer.getIndexFields()));
+    stConstructor.add("offset",
+        Utils.toMmuExpressionText(buffer.getId(), analyzer.getOffsetFields()));
+    stConstructor.add("match",
+        String.format("Collections.<%s>emptyList()", BINDING_CLASS.getSimpleName()));
 
     stConstructor.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
     if (buffer.getParent() != null) {

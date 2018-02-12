@@ -101,7 +101,8 @@ public final class DataSection {
   }
 
   public int getSequenceIndex() {
-    InvariantChecks.checkTrue(global ? sequenceIndex == Label.NO_SEQUENCE_INDEX : sequenceIndex >= 0);
+    InvariantChecks.checkTrue(global
+        ? sequenceIndex == Label.NO_SEQUENCE_INDEX : sequenceIndex >= 0);
     return sequenceIndex;
   }
 

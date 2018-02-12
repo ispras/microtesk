@@ -67,7 +67,9 @@ public class FilterIterator<E> implements Iterator<E> {
    * @param iterator  the iterator to use
    * @param predicate  the predicate to use
    */
-  public FilterIterator(final Iterator<? extends E> iterator, final Predicate<? super E> predicate) {
+  public FilterIterator(
+      final Iterator<? extends E> iterator,
+      final Predicate<? super E> predicate) {
     super();
     this.iterator = iterator;
     this.predicate = predicate;

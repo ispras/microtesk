@@ -224,7 +224,8 @@ final class TemplateProcessor implements Template.Processor {
       return;
     }
 
-    final ConcreteSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
+    final ConcreteSequence sequence =
+        TestEngineUtils.makeExternalTestSequence(engineContext, block);
     allocateSequence(sequence, Label.NO_SEQUENCE_INDEX);
   }
 
@@ -320,7 +321,8 @@ final class TemplateProcessor implements Template.Processor {
 
     final ConcreteSequence prevEntry = testProgram.getPrevEntry(entry);
     if (!TestEngineUtils.canBeAllocatedAfter(prevEntry, block)) {
-      Logger.debug("Processing of external code defined at %s is postponed again.", block.getWhere());
+      Logger.debug("Processing of external code defined at %s is postponed again.",
+          block.getWhere());
       return false;
     }
 
@@ -338,7 +340,8 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getModel().setActivePE(instanceIndex);
     }
 
-    final ConcreteSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
+    final ConcreteSequence sequence =
+        TestEngineUtils.makeExternalTestSequence(engineContext, block);
     allocateSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
 
     runExecution(sequence);
@@ -463,7 +466,8 @@ final class TemplateProcessor implements Template.Processor {
   private void processPostponedExternalBlockNoSimulation(
       final Block block,
       final ConcreteSequence entry) throws ConfigurationException {
-    final ConcreteSequence sequence = TestEngineUtils.makeExternalTestSequence(engineContext, block);
+    final ConcreteSequence sequence =
+        TestEngineUtils.makeExternalTestSequence(engineContext, block);
     allocateSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
   }
 

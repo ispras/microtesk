@@ -269,7 +269,8 @@ public final class MemoryInitializerMaker implements InitializerMaker {
               entryValue.field(offset * dataSizeInBits, (offset + 1) * dataSizeInBits - 1);
 
           Logger.debug("Prepare memory: address=%s, data=%s", bufferAccessAddress, dataValue);
-          initializer = prepareMemory(engineContext, bufferAccessAddress, dataValue, dataSizeInBits);
+          initializer =
+              prepareMemory(engineContext, bufferAccessAddress, dataValue, dataSizeInBits);
         } else {
           // Shadow of the memory-mapped buffer access.
           initializer = Collections.<AbstractCall>emptyList();
@@ -465,7 +466,8 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     final Collection<String> comments = new ArrayList<>();
     comments.add(getMemoryAccessComment(addressObject));
 
-    for (final MmuBufferAccess bufferAccess : addressObject.getAccess().getPath().getBufferAccesses()) {
+    for (final MmuBufferAccess bufferAccess :
+        addressObject.getAccess().getPath().getBufferAccesses()) {
       comments.add(getBufferAccessComment(addressObject, bufferAccess));
     }
 

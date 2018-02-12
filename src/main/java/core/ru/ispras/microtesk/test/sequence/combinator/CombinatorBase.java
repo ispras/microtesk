@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link CombinatorBase} is a basic combinator of iterators. It takes several iterators and produces
- * different combinations of their results.
+ * {@link CombinatorBase} is a basic combinator of iterators. It takes several iterators
+ * and produces different combinations of their results.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

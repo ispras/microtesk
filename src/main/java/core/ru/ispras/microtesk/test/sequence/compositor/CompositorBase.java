@@ -21,9 +21,9 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 import java.util.List;
 
 /**
- * {@link CompositorBase} is a basic compositor of iterators. It takes several iterators and merges them
- * into a single iterator. The main restriction is that a a compositor should not change the order
- * of items returned by an iterator.
+ * {@link CompositorBase} is a basic compositor of iterators. It takes several iterators and merges
+ * them into a single iterator. The main restriction is that a a compositor should not change
+ * the order of items returned by an iterator.
  * 
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

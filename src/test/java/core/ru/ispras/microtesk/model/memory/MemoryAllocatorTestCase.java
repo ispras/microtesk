@@ -67,7 +67,8 @@ public class MemoryAllocatorTestCase {
     Assert.assertEquals(BitVector.valueOf(0x534554ff, 32), memory.read(3));
     Assert.assertEquals(BitVector.valueOf(0x00000054, 32), memory.read(4));
 
-    address = allocator.allocate(BitVector.valueOf(0xDEADBEEF, 32), BitVector.valueOf(0xBAADF00D, 32));
+    address = allocator.allocate(BitVector.valueOf(0xDEADBEEF, 32),
+        BitVector.valueOf(0xBAADF00D, 32));
     Assert.assertEquals(BigInteger.valueOf(20), address);
     Assert.assertEquals(BitVector.valueOf(0xDEADBEEF, 32), memory.read(5));
     Assert.assertEquals(BitVector.valueOf(0xBAADF00D, 32), memory.read(6));

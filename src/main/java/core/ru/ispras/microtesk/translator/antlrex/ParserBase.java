@@ -55,7 +55,9 @@ public class ParserBase extends ParserEx {
     return symbols;
   }
 
-  public void assignRevisions(final Set<String> revisions, final Deque<Boolean> revisionApplicable) {
+  public void assignRevisions(
+      final Set<String> revisions,
+      final Deque<Boolean> revisionApplicable) {
     InvariantChecks.checkNotNull(revisions);
     InvariantChecks.checkNotNull(revisionApplicable);
 

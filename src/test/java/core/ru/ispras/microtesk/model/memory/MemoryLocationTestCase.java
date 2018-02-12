@@ -76,7 +76,9 @@ public final class MemoryLocationTestCase {
           final int end = start + fieldSize - 1;
           
           final BitVector expected = 
-              BitVector.newMapping(etalonData.get(locationIndex).load().getRawData(), start, fieldSize);
+              BitVector.newMapping(etalonData.get(locationIndex).load().getRawData(),
+                  start,
+                  fieldSize);
 
           final Location field = mem.access(locationIndex).bitField(start, end);
           final BitVector current = field.load().getRawData();

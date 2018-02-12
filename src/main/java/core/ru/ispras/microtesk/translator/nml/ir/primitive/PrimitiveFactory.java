@@ -252,7 +252,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
     final List<InstanceArgument> args = new ArrayList<>(arguments);
     final String[] argNames = 
-        primitiveAND.getArguments().keySet().toArray(new String[primitiveAND.getArguments().size()]);
+        primitiveAND.getArguments().keySet().toArray(
+            new String[primitiveAND.getArguments().size()]);
 
     int index = 0;
     for (final InstanceArgument instanceArg : args) {

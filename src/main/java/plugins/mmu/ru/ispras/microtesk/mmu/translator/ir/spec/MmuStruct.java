@@ -166,7 +166,8 @@ public class MmuStruct {
       final NodeVariable thisVar = thisIt.next();
       final NodeVariable otherVar = otherIt.next();
 
-      InvariantChecks.checkTrue(thisVar.getDataType().getSize() == otherVar.getDataType().getSize());
+      InvariantChecks.checkTrue(thisVar.getDataType().getSize() ==
+          otherVar.getDataType().getSize());
       result.add(new MmuBinding(thisVar, otherVar));
     }
 

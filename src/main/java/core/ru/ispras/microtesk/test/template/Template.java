@@ -1128,7 +1128,10 @@ public final class Template {
     callBuilder.setWhere(where);
   }
 
-  public void setAlignment(final BigInteger value, final BigInteger valueInBytes, final Where where) {
+  public void setAlignment(
+      final BigInteger value,
+      final BigInteger valueInBytes,
+      final Where where) {
     debug("Align %d (%d bytes)", value, valueInBytes);
     callBuilder.setAlignment(value, valueInBytes);
     callBuilder.setWhere(where);
@@ -1250,7 +1253,8 @@ public final class Template {
     currentBlockBuilder.setPrologue(false);
 
     if (currentBlockBuilder.isExternal()) {
-      InvariantChecks.checkTrue(globalPrologue.isEmpty(), "Global test case level prologue is already defined");
+      InvariantChecks.checkTrue(globalPrologue.isEmpty(),
+          "Global test case level prologue is already defined");
       globalPrologue = currentBlockBuilder.getPrologue();
     }
   }
@@ -1276,7 +1280,8 @@ public final class Template {
     currentBlockBuilder.setEpilogue(false);
 
     if (currentBlockBuilder.isExternal()) {
-      InvariantChecks.checkTrue(globalEpilogue.isEmpty(), "Global test case level epilogue is already defined");
+      InvariantChecks.checkTrue(globalEpilogue.isEmpty(),
+          "Global test case level epilogue is already defined");
       globalEpilogue = currentBlockBuilder.getEpilogue();
     }
   }

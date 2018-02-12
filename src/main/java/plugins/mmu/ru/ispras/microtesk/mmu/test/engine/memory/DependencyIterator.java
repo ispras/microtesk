@@ -85,11 +85,13 @@ public abstract class DependencyIterator implements Iterator<BufferDependency> {
             && context1.isEmptyStack() // Only top-level accesses
             && context2.isEmptyStack() // Only top-level accesses
             && context1.getBufferAccessId(buffer1) == MemoryAccessContext.BUFFER_ACCESS_INITIAL_ID
-            && context2.getBufferAccessId(buffer1) == MemoryAccessContext.BUFFER_ACCESS_INITIAL_ID) {
+            && context2.getBufferAccessId(buffer1)
+              == MemoryAccessContext.BUFFER_ACCESS_INITIAL_ID) {
           Logger.debug("Enumerating dependencies between %s and %s", bufferAccess1, bufferAccess2);
 
           final Collection<BufferHazard> hazardTypes = BufferHazard.getHazards(buffer1);
-          final Collection<BufferHazard.Instance> hazardInstances = new ArrayList<>(hazardTypes.size());
+          final Collection<BufferHazard.Instance> hazardInstances =
+              new ArrayList<>(hazardTypes.size());
 
           for (final BufferHazard hazardType : hazardTypes) {
             final BufferHazard.Instance hazardInstance =

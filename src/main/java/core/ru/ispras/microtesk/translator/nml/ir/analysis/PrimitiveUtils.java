@@ -46,7 +46,9 @@ public final class PrimitiveUtils {
    * 
    * @throws NullPointerException if any of the parameters equals null.
    */
-  public static void saveAllOrsToList(final Primitive source, final List<PrimitiveAND> destination) {
+  public static void saveAllOrsToList(
+      final Primitive source,
+      final List<PrimitiveAND> destination) {
     InvariantChecks.checkNotNull(source, "source");
     InvariantChecks.checkNotNull(destination, "destination");
 

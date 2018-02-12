@@ -52,12 +52,14 @@ final class STBModel implements STBuilder {
 
   private void buildHeader(final ST st) {
     st.add("name", CLASS_NAME);
-    st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".metadata", ir.getModelName()));
+    st.add("pack", String.format(
+        PackageInfo.MODEL_PACKAGE_FORMAT + ".metadata", ir.getModelName()));
     st.add("imps", BigInteger.class.getName());
     st.add("imps", ru.ispras.microtesk.model.data.Type.class.getName());
     st.add("imps", ru.ispras.microtesk.model.metadata.MetaModel.class.getName());
     st.add("imps", ru.ispras.microtesk.model.metadata.MetaModelBuilder.class.getName());
-    st.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", ir.getModelName()));
+    st.add("simps", String.format(
+        PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", ir.getModelName()));
   }
 
   private void buildBody(final ST st, final STGroup group) {

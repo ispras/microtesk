@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,7 +18,8 @@ import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 
 public class SizeExpressionTypeMismatch implements ISemanticError {
   public static final String FORMAT =
-    "The evaluated expression has a wrong type: %s. An integer type is expected for size expressions.";
+    "The evaluated expression has a wrong type: %s."
+        + " An integer type is expected for size expressions.";
 
   private final Class<?> type;
 

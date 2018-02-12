@@ -26,6 +26,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class Buffer extends AbstractStorage {
+
+  private static final String TO_STRING_FMT =
+      "%sbuffer %s(%s) ="
+          + " {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s, guard=%s, parent=%s}";
   private final MmuBuffer.Kind kind;
   private final BigInteger ways;
   private final BigInteger sets;
@@ -128,7 +132,7 @@ public final class Buffer extends AbstractStorage {
   @Override
   public String toString() {
     return String.format(
-        "%sbuffer %s(%s) = {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s, guard=%s, parent=%s}",
+        TO_STRING_FMT,
         kind.getText(),
         getId(),
         getAddressArg(),

@@ -850,7 +850,10 @@ final class SsaBuilder {
     return SsaForm.newForm(blocks);
   }
 
-  public static SsaForm macroExpansion(final IrInquirer inquirer, final String prefix, final Expr expr) {
+  public static SsaForm macroExpansion(
+      final IrInquirer inquirer,
+      final String prefix,
+      final Expr expr) {
     final SsaBuilder builder = new SsaBuilder(inquirer, prefix);
     builder.acquireBlockBuilder();
 
@@ -866,7 +869,10 @@ final class SsaBuilder {
     return builder.build();
   }
 
-  public static SsaForm macroUpdate(final IrInquirer inquirer, final String prefix, final Expr expr) {
+  public static SsaForm macroUpdate(
+      final IrInquirer inquirer,
+      final String prefix,
+      final Expr expr) {
     final SsaBuilder builder = new SsaBuilder(inquirer, prefix);
     builder.acquireBlockBuilder();
 

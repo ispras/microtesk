@@ -239,7 +239,8 @@ public final class LabelManager {
       for (final Target existingTarget : targets) {
         if (existingTarget.getLabel().equals(target.getLabel())) {
           throw new GenerationAbortedException(String.format(
-              "Incorrect template. Label '%s' is redefined in the same scope.", target.getLabel().getName()));
+              "Incorrect template. Label '%s' is redefined in the same scope.",
+              target.getLabel().getName()));
         }
       }
     } else {

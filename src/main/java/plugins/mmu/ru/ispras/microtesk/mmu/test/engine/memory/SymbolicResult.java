@@ -111,10 +111,10 @@ public final class SymbolicResult {
     this(
         builder,
         new HashMap<Integer, MemoryAccessContext>(other.contexts.size()),
-        new LinkedHashSet<Variable>(other.originals),
-        new HierarchicalMap<String, Integer>(other.versions, new HashMap<String, Integer>()),
-        new HierarchicalMap<String, Variable>(other.cache, new HashMap<String, Variable>()),
-        new HierarchicalMap<Variable, BitVector>(other.constants, new HashMap<Variable, BitVector>())
+        new LinkedHashSet<>(other.originals),
+        new HierarchicalMap<>(other.versions, new HashMap<String, Integer>()),
+        new HierarchicalMap<>(other.cache, new HashMap<String, Variable>()),
+        new HierarchicalMap<>(other.constants, new HashMap<Variable, BitVector>())
     );
 
     // Clone the memory access contexts.

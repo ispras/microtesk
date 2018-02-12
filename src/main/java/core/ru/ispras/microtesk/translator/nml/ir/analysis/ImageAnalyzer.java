@@ -305,7 +305,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
             }
 
             Node argumentNode = argument.getExpr().getNode();
-            argumentNode = mappings.containsKey(argumentNode) ? mappings.get(argumentNode) : argumentNode;
+            argumentNode =
+                mappings.containsKey(argumentNode) ? mappings.get(argumentNode) : argumentNode;
 
             if (ExprUtils.isValue(argumentNode)) {
               final String name = argumentNames[i];

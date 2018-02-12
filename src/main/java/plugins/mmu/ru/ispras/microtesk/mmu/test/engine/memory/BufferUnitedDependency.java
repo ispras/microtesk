@@ -50,7 +50,8 @@ public final class BufferUnitedDependency {
       for (final BufferHazard.Instance instance : dependency.getHazards()) {
         final MmuBufferAccess bufferAccess = instance.getPrimaryAccess();
 
-        Map<BufferHazard, Set<Pair<Integer, BufferHazard.Instance>>> hazards = data.get(bufferAccess);
+        Map<BufferHazard, Set<Pair<Integer, BufferHazard.Instance>>> hazards =
+            data.get(bufferAccess);
         if (hazards == null) {
           data.put(bufferAccess, hazards = new LinkedHashMap<>());
         }
@@ -65,8 +66,8 @@ public final class BufferUnitedDependency {
     }
 
     // Construct the united hazards for buffer accesses.
-    for (final Map.Entry<MmuBufferAccess, Map<BufferHazard, Set<Pair<Integer, BufferHazard.Instance>>>>
-        entry : data.entrySet()) {
+    for (final Map.Entry<MmuBufferAccess,
+        Map<BufferHazard, Set<Pair<Integer, BufferHazard.Instance>>>> entry : data.entrySet()) {
       final MmuBufferAccess bufferAccess = entry.getKey();
       final Map<BufferHazard, Set<Pair<Integer, BufferHazard.Instance>>> hazards = entry.getValue();
 

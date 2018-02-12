@@ -135,7 +135,7 @@ public enum Operator {
                                  rule(TypeId.INT,               StandardOperation.POWER),
                                  rule(TypeId.FLOAT,             StandardOperation.POWER)),
 
-  UPLUS("UPLUS",   1, Kind.COMMON  /* No rules. This operator must be excluded from expressions. */),
+  UPLUS("UPLUS",   1, Kind.COMMON  /* No rules. This operator must be excluded from exprs. */),
 
   UMINUS("UMINUS", 1, Kind.COMMON, rule(DataTypeId.BIT_VECTOR,    StandardOperation.BVNEG),
                                    rule(DataTypeId.LOGIC_INTEGER, StandardOperation.MINUS),

@@ -237,7 +237,9 @@ public final class BlockBuilder {
     return build(Collections.<AbstractCall>emptyList(), Collections.<AbstractCall>emptyList());
   }
 
-  public Block build(final List<AbstractCall> globalPrologue, final List<AbstractCall> globalEpilogue) {
+  public Block build(
+      final List<AbstractCall> globalPrologue,
+      final List<AbstractCall> globalEpilogue) {
     InvariantChecks.checkNotNull(globalPrologue);
     InvariantChecks.checkNotNull(globalEpilogue);
 
