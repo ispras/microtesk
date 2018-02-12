@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test;
 
+import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.template.ConcreteCall;
@@ -109,7 +110,7 @@ public final class ConcreteSequence {
 
     this.section = section;
 
-    final List<ConcreteCall> allCalls = merge(prologue, body);
+    final List<ConcreteCall> allCalls = CollectionUtils.mergeLists(prologue, body);
     this.all = Collections.unmodifiableList(allCalls);
 
     this.prologue = prologue.isEmpty()
@@ -130,21 +131,12 @@ public final class ConcreteSequence {
     this.endAddress = 0;
   }
 
-  private static <T> List<T> merge(final List<T> first, final List<T> second) {
-    if (first.isEmpty()) {
-      return second;
-    }
-
-    if (second.isEmpty()) {
-      return first;
-    }
-
-    final List<T> result = new ArrayList<>(first.size() + second.size());
-
-    result.addAll(first);
-    result.addAll(second);
-
-    return result;
+  public static ConcreteSequence newConcreteSequence(
+      final Section section,
+      final List<ConcreteCall> concreteCalls) {
+    final Builder builder = new Builder(section);
+    builder.add(concreteCalls);
+    return builder.build();
   }
 
   public Section getSection() {

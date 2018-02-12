@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.Section;
@@ -87,14 +88,13 @@ final class TestEngineUtils {
     final List<AbstractCall> expandedAbstractSequence =
         Preparator.expandPreparators(null, engineContext.getPreparators(), abstractSequence);
 
-    final ConcreteSequence.Builder sequenceBuilder =
-        new ConcreteSequence.Builder(block.getSection());
+    final List<ConcreteCall> concreteCalls =
+        EngineUtils.makeConcreteCalls(engineContext, expandedAbstractSequence);
 
-    sequenceBuilder.add(EngineUtils.makeConcreteCalls(engineContext, expandedAbstractSequence));
+    final ConcreteSequence sequence =
+        ConcreteSequence.newConcreteSequence(block.getSection(), concreteCalls);
 
-    final ConcreteSequence sequence = sequenceBuilder.build();
     sequence.setTitle(String.format("%s (%s)", title, block.getWhere()));
-
     return sequence;
   }
 
@@ -194,7 +194,7 @@ final class TestEngineUtils {
    * <p>A sequence has a fixed origin if it starts with an {@code .org} directive
    * that specifies an absolute origin and comes before any executable calls.
    * 
-   * @param sequence Block to be checked.
+   * @param block Block to be checked.
    * @return {@code true} if the sequence has a fixed origin or {@code false} otherwise.
    * 
    * @throws IllegalArgumentException if the argument is {@code null} or it is not
