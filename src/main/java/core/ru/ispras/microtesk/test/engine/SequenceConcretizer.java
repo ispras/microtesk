@@ -69,7 +69,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
 
     this.engineContext = engineContext;
     this.isPresimulation = isPresimulation;
-    this.sequenceIterator = sequenceIterator;
+    this.sequenceIterator = new AbstractSequenceIterator(sequenceIterator);
   }
 
   @Override
@@ -85,7 +85,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
   @Override
   public ConcreteSequence value() {
     final AbstractSequence abstractSequence = sequenceIterator.value();
-    return concretizeSequence(resolveDependencies(abstractSequence));
+    return concretizeSequence(abstractSequence);
   }
 
   @Override
@@ -103,43 +103,15 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
     throw new UnsupportedOperationException();
   }
 
-  private static AbstractSequence resolveDependencies(final AbstractSequence abstractSequence) {
-    final Map<AbstractCall, Integer> abstractCalls = new IdentityHashMap<>();
-
-    for (int index = 0; index < abstractSequence.getSequence().size(); index++) {
-      final AbstractCall abstractCall = abstractSequence.getSequence().get(index);
-      abstractCalls.put(abstractCall, index);
-    }
-
-    for (int index = 0; index < abstractSequence.getSequence().size(); index++) {
-      final AbstractCall abstractCall =
-          abstractSequence.getSequence().get(index);
-
-      final AbstractCall dependencyAbstractCall =
-          (AbstractCall) abstractCall.getAttributes().get("dependsOn");
-
-      if (null != dependencyAbstractCall) {
-        final int dependencyIndex = abstractCalls.get(dependencyAbstractCall);
-        abstractCall.getAttributes().put("dependsOnIndex", dependencyIndex);
-      }
-    }
-
-    return abstractSequence;
-  }
-
   private ConcreteSequence concretizeSequence(final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(abstractSequence);
-
-    // Makes a copy as the adapter may modify the abstract sequence.
-    final AbstractSequence abstractSequenceCopy = new AbstractSequence(
-        abstractSequence.getSection(), AbstractCall.copyAll(abstractSequence.getSequence()));
 
     final boolean isDebug = Logger.isDebug();
     Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG));
 
     try {
       engineContext.getModel().setUseTempState(true);
-      return processSequence(engineContext, abstractSequenceCopy);
+      return processSequence(engineContext, abstractSequence);
     } catch (final ConfigurationException e) {
       throw new GenerationAbortedException(e);
     } finally {
