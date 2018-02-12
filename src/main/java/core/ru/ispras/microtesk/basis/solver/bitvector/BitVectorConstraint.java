@@ -265,7 +265,7 @@ public class BitVectorConstraint {
               Nodes.bvextract(k, e),
               NodeValue.newBitVector(BitVector.TRUE)
           )
-       );
+      );
 
       operands.add(Nodes.or(clauseBuilder3));
 

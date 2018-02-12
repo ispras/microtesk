@@ -197,7 +197,7 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
       InvariantChecks.checkTrue(
           equation.getOperationId() == StandardOperation.EQ
-       || equation.getOperationId() == StandardOperation.NOTEQ);
+          || equation.getOperationId() == StandardOperation.NOTEQ);
 
       final Node lhs = FortressUtils.getVariable(equation.getOperand(0)) != null
           ? equation.getOperand(0)

@@ -114,7 +114,7 @@ public abstract class Memory<D extends Data, A extends Address>
       storage.store(
           BitVector.valueOf(index, storage.getAddressBitSize()),
           mapping
-          );
+      );
 
       index = index.add(BigInteger.ONE);
       bitsWritten += storage.getDataBitSize();

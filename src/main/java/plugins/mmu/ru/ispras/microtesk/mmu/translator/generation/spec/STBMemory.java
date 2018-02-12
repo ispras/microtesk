@@ -86,7 +86,7 @@ final class STBMemory implements STBuilder {
         true,
         st,
         group
-        );
+    );
 
     // FIXME: All addresses are considered singletons. This assumption is not always correct.
     // There may be several local variables having type which corresponds to some address.
@@ -102,7 +102,7 @@ final class STBMemory implements STBuilder {
             false,
             st,
             group
-            );
+        );
       }
     }
 
@@ -121,7 +121,7 @@ final class STBMemory implements STBuilder {
         st,
         stConstructor,
         group
-        );
+    );
     stConstructor.add("stmts", String.format("builder.setDataVariable(%s);%n", dataVariableName));
 
     for (final Var variable : memory.getVariables()) {
@@ -139,7 +139,7 @@ final class STBMemory implements STBuilder {
             st,
             stConstructor,
             group
-            );
+        );
 
         stConstructor.add("stmts", String.format("builder.registerVariable(%s);", name));
         stConstructor.add("stmts", "");
@@ -168,7 +168,7 @@ final class STBMemory implements STBuilder {
         read != null ? read.getStmts() : Collections.<Stmt>emptyList(),
         "IF_WRITE",
         write != null ? write.getStmts() : Collections.<Stmt>emptyList()
-        );
+    );
 
     st.add("members", "");
     st.add("members", stConstructor);

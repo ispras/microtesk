@@ -361,86 +361,86 @@ public final class SymbolicExecutor {
     Boolean status = Boolean.TRUE;
 
     switch (entry.getKind()) {
-    case NORMAL:
-      status = executeProgram(result, defines, program, pathIndex);
-      restrictProgram(result, defines, isStart, program, pathIndex);
+      case NORMAL:
+        status = executeProgram(result, defines, program, pathIndex);
+        restrictProgram(result, defines, isStart, program, pathIndex);
 
-      return status;
+        return status;
 
-    case CALL:
-      InvariantChecks.checkTrue(program.isAtomic());
-      final MmuTransition transition = program.getTransition();
+      case CALL:
+        InvariantChecks.checkTrue(program.isAtomic());
+        final MmuTransition transition = program.getTransition();
 
-      // Execute the action as usual.
-      status = executeTransition(result, defines, transition, pathIndex, true, false);
-      restrictTransition(result, defines, isStart, transition, pathIndex);
+        // Execute the action as usual.
+        status = executeTransition(result, defines, transition, pathIndex, true, false);
+        restrictTransition(result, defines, isStart, transition, pathIndex);
 
-      // Compose bindings.
-      final MmuAction action = transition.getTarget();
+        // Compose bindings.
+        final MmuAction action = transition.getTarget();
 
-      final MmuBufferAccess oldBufferAccess = action.getBufferAccess(context);
-      final MmuAddressInstance oldFormalArg = oldBufferAccess.getAddress();
+        final MmuBufferAccess oldBufferAccess = action.getBufferAccess(context);
+        final MmuAddressInstance oldFormalArg = oldBufferAccess.getAddress();
 
-      // Call.
-      result.updateStack(entry, pathIndex);
+        // Call.
+        result.updateStack(entry, pathIndex);
 
-      final MmuBufferAccess newBufferAccess = action.getBufferAccess(context);
-      final MmuAddressInstance newFormalArg = newBufferAccess.getAddress();
+        final MmuBufferAccess newBufferAccess = action.getBufferAccess(context);
+        final MmuAddressInstance newFormalArg = newBufferAccess.getAddress();
 
-      final Collection<MmuBinding> bindings1 = newFormalArg.bindings(oldFormalArg);
-      executeBindings(result, defines, bindings1, pathIndex);
+        final Collection<MmuBinding> bindings1 = newFormalArg.bindings(oldFormalArg);
+        executeBindings(result, defines, bindings1, pathIndex);
 
-      // The new virtual address is equal to the buffer access address.
-      final MmuAddressInstance virtualAddress = memory.getVirtualAddress();
-      final MmuAddressInstance newVirtualAddress = virtualAddress.getInstance(null, context);
+        // The new virtual address is equal to the buffer access address.
+        final MmuAddressInstance virtualAddress = memory.getVirtualAddress();
+        final MmuAddressInstance newVirtualAddress = virtualAddress.getInstance(null, context);
 
-      final Collection<MmuBinding> bindings2 = newVirtualAddress.bindings(newFormalArg);
-      executeBindings(result, defines, bindings2, pathIndex);
+        final Collection<MmuBinding> bindings2 = newVirtualAddress.bindings(newFormalArg);
+        executeBindings(result, defines, bindings2, pathIndex);
 
-      return status;
+        return status;
 
-    case RETURN:
-      // The entry read from the buffer is the data read from the memory.
-      final NodeVariable preVariable = context.getInstance(null, memory.getDataVariable());
+      case RETURN:
+        // The entry read from the buffer is the data read from the memory.
+        final NodeVariable preVariable = context.getInstance(null, memory.getDataVariable());
 
-      // Return.
-      final MemoryAccessStack.Frame frame = result.updateStack(entry, pathIndex);
+        // Return.
+        final MemoryAccessStack.Frame frame = result.updateStack(entry, pathIndex);
 
-      final MmuTransition callTransition = frame.getTransition();
-      final MmuAction callAction = callTransition.getTarget();
+        final MmuTransition callTransition = frame.getTransition();
+        final MmuAction callAction = callTransition.getTarget();
 
-      final MmuBufferAccess postBufferAccess = callAction.getBufferAccess(context);
+        final MmuBufferAccess postBufferAccess = callAction.getBufferAccess(context);
 
-      final MmuStruct postEntry = postBufferAccess.getEntry();
-      final List<NodeVariable> postFields = postEntry.getFields();
+        final MmuStruct postEntry = postBufferAccess.getEntry();
+        final List<NodeVariable> postFields = postEntry.getFields();
 
-      int bit = 0;
-      final Collection<MmuBinding> bindings = new ArrayList<>();
+        int bit = 0;
+        final Collection<MmuBinding> bindings = new ArrayList<>();
 
-      // Reverse order.
-      for (int i = postFields.size() - 1; i >= 0; i--) {
-        final NodeVariable postVariable = postFields.get(i);
-        final int sizeInBits = postVariable.getDataType().getSize() - 1;
+        // Reverse order.
+        for (int i = postFields.size() - 1; i >= 0; i--) {
+          final NodeVariable postVariable = postFields.get(i);
+          final int sizeInBits = postVariable.getDataType().getSize() - 1;
 
-        final NodeOperation postField = Nodes.bvextract(sizeInBits - 1, 0, postVariable);
-        final NodeOperation preField = Nodes.bvextract((bit + sizeInBits) - 1, 0, preVariable);
+          final NodeOperation postField = Nodes.bvextract(sizeInBits - 1, 0, postVariable);
+          final NodeOperation preField = Nodes.bvextract((bit + sizeInBits) - 1, 0, preVariable);
 
-        // Buffer.Entry = Memory.DATA.
-        final MmuBinding binding = new MmuBinding(postField, preField);
+          // Buffer.Entry = Memory.DATA.
+          final MmuBinding binding = new MmuBinding(postField, preField);
 
-        bindings.add(binding);
-        bit += sizeInBits;
-      }
+          bindings.add(binding);
+          bit += sizeInBits;
+        }
 
-      executeBindings(result, defines, bindings, pathIndex);
+        executeBindings(result, defines, bindings, pathIndex);
 
-      // Variables=Buffer.Entry.
-      status = executeTransition(result, defines, callTransition, pathIndex, false, true);
+        // Variables=Buffer.Entry.
+        status = executeTransition(result, defines, callTransition, pathIndex, false, true);
 
-      return status;
+        return status;
 
-    default:
-      return status;
+      default:
+        return status;
     }
   }
 

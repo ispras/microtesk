@@ -50,8 +50,8 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
    * @param initializer the initializer to be used to fill the unused fields. 
    */
   public BitVectorFormulaSolverSat4j(
-    final BitVectorFormulaBuilder builder,
-    final BitVectorVariableInitializer initializer) {
+      final BitVectorFormulaBuilder builder,
+      final BitVectorVariableInitializer initializer) {
     InvariantChecks.checkNotNull(builder);
     InvariantChecks.checkTrue(builder instanceof BitVectorFormulaProblemSat4j);
     InvariantChecks.checkNotNull(initializer);
@@ -67,8 +67,8 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
    * @param initializer the initializer to be used to fill the unused fields. 
    */
   public BitVectorFormulaSolverSat4j(
-    final Collection<Node> formulae,
-    final BitVectorVariableInitializer initializer) {
+      final Collection<Node> formulae,
+      final BitVectorVariableInitializer initializer) {
     InvariantChecks.checkNotNull(formulae);
     InvariantChecks.checkNotNull(initializer);
 
@@ -87,8 +87,8 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
    * @param initializer the initializer to be used to fill the unused fields. 
    */
   public BitVectorFormulaSolverSat4j(
-    final Node formula,
-    final BitVectorVariableInitializer initializer) {
+      final Node formula,
+      final BitVectorVariableInitializer initializer) {
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(initializer);
 

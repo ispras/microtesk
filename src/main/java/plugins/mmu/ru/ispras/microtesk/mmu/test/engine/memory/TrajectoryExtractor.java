@@ -136,7 +136,7 @@ public final class TrajectoryExtractor {
       if (hasTraversed) {
         if (searchEntry.edges.isEmpty()) {
           actionTrajectories.put(searchEntry.action,
-            Collections.<List<Object>>singleton(Collections.<Object>emptyList()));
+              Collections.<List<Object>>singleton(Collections.<Object>emptyList()));
         } else {
           final Collection<List<Object>> trajectories = new LinkedHashSet<>();
 
@@ -145,7 +145,7 @@ public final class TrajectoryExtractor {
 
             final MmuAction targetAction = transition.getTarget();
             final Collection<List<Object>> targetTrajectories =
-              actionTrajectories.get(targetAction);
+                actionTrajectories.get(targetAction);
 
             // Perform abstraction of the transition.
             final Object label = abstraction.apply(memory, transition);

@@ -66,7 +66,7 @@ public class MmuTestCase {
 
   @Test
   public void testFIFO() {
-   testPolicy(PolicyId.FIFO);
+    testPolicy(PolicyId.FIFO);
   }
 
   @Test

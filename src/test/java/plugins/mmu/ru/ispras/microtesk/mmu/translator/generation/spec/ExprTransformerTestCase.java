@@ -193,14 +193,14 @@ public final class ExprTransformerTestCase {
         x,
         BitVector.valueOf(0xFFFFFFFF, 32),
         x
-        );
+    );
 
     testBitMask(
         StandardOperation.BVAND,
         x,
         BitVector.newEmpty(32),
         NodeValue.newBitVector(BitVector.newEmpty(32))
-        );
+    );
 
     testBitMask(
         StandardOperation.BVAND,
@@ -211,7 +211,7 @@ public final class ExprTransformerTestCase {
             NodeValue.newBitVector(BitVector.newEmpty(16)),
             newField(x, 0, 15)
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVAND,
@@ -222,7 +222,7 @@ public final class ExprTransformerTestCase {
             newField(x, 16, 31),
             NodeValue.newBitVector(BitVector.newEmpty(16))
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVAND,
@@ -235,7 +235,7 @@ public final class ExprTransformerTestCase {
             newField(x, 8, 15),
             NodeValue.newBitVector(BitVector.newEmpty(8))
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVAND,
@@ -248,7 +248,7 @@ public final class ExprTransformerTestCase {
             NodeValue.newBitVector(BitVector.newEmpty(8)),
             newField(x, 0, 7)
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVAND,
@@ -259,7 +259,7 @@ public final class ExprTransformerTestCase {
             NodeValue.newBitVector(BitVector.newEmpty(31)),
             newField(x, 0, 0)
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVAND,
@@ -270,7 +270,7 @@ public final class ExprTransformerTestCase {
             newField(x, 31, 31),
             NodeValue.newBitVector(BitVector.newEmpty(31))
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVAND,
@@ -282,7 +282,7 @@ public final class ExprTransformerTestCase {
             NodeValue.newBitVector(BitVector.newEmpty(30)),
             newField(x, 0, 0)
             )
-        );
+    );
   }
 
   @Test
@@ -303,7 +303,7 @@ public final class ExprTransformerTestCase {
             newField(x, 12, 15),
             NodeValue.newBitVector(BitVector.newEmpty(4))
             )
-        );
+    );
   }
 
   @Test
@@ -318,14 +318,14 @@ public final class ExprTransformerTestCase {
         x,
         BitVector.valueOf(0xFFFFFFFF, 32),
         NodeValue.newBitVector(BitVector.valueOf(-1, 32))
-        );
+    );
 
     testBitMask(
         StandardOperation.BVOR,
         x,
         BitVector.newEmpty(32),
         x
-        );
+    );
 
     testBitMask(
         StandardOperation.BVOR,
@@ -336,7 +336,7 @@ public final class ExprTransformerTestCase {
             newField(x, 16, 31),
             NodeValue.newBitVector(BitVector.valueOf(-1, 16))
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVOR,
@@ -347,7 +347,7 @@ public final class ExprTransformerTestCase {
             NodeValue.newBitVector(BitVector.valueOf(-1, 16)),
             newField(x, 0, 15)
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVOR,
@@ -360,7 +360,7 @@ public final class ExprTransformerTestCase {
             NodeValue.newBitVector(BitVector.valueOf(-1, 8)),
             newField(x, 0, 7)
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVOR,
@@ -373,7 +373,7 @@ public final class ExprTransformerTestCase {
             newField(x, 8, 15),
             NodeValue.newBitVector(BitVector.valueOf(-1, 8))
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVOR,
@@ -384,7 +384,7 @@ public final class ExprTransformerTestCase {
             newField(x, 1, 31),
             NodeValue.newBitVector(BitVector.valueOf(-1, 1))
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVOR,
@@ -395,7 +395,7 @@ public final class ExprTransformerTestCase {
             NodeValue.newBitVector(BitVector.valueOf(-1, 1)),
             newField(x, 0, 30)
             )
-        );
+    );
 
     testBitMask(
         StandardOperation.BVOR,
@@ -407,7 +407,7 @@ public final class ExprTransformerTestCase {
             newField(x, 1, 30),
             NodeValue.newBitVector(BitVector.valueOf(-1, 1))
             )
-        );
+    );
   }
 
   @Test
@@ -428,7 +428,7 @@ public final class ExprTransformerTestCase {
             NodeValue.newBitVector(BitVector.valueOf(-1, 4)),
             newField(x, 8, 11)
             )
-        );
+    );
   }
 
   @Test

@@ -220,6 +220,6 @@ public abstract class IsaPrimitive {
         attrName,
         getName(),
         message
-        );
+    );
   }
 }

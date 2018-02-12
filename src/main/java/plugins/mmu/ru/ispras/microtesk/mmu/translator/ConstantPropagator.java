@@ -133,7 +133,7 @@ public final class ConstantPropagator {
         collectLhs(operand, bag);
       }
     } else if (ExprUtils.isOperation(node, StandardOperation.BVEXTRACT)) {
-       collectLhs(((NodeOperation) node).getOperand(2), bag);
+      collectLhs(((NodeOperation) node).getOperand(2), bag);
     }
 
     if (bag.isEmpty()) {

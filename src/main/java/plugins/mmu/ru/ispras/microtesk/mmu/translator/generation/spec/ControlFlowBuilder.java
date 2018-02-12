@@ -663,16 +663,16 @@ final class ControlFlowBuilder {
 
       builder.append(", ");
       switch (arg.getKind()) {
-      case VARIABLE:
-        builder.append(getVariableName(arg.toString()));
-        break;
+        case VARIABLE:
+          builder.append(getVariableName(arg.toString()));
+          break;
 
-      case VALUE:
-        builder.append(integerLiteral(callee.getParameter(i).getType(), (NodeValue) arg));
-        break;
+        case VALUE:
+          builder.append(integerLiteral(callee.getParameter(i).getType(), (NodeValue) arg));
+          break;
 
-      default:
-        InvariantChecks.checkTrue(false);
+        default:
+          InvariantChecks.checkTrue(false);
       };
     }
     builder.append(");");

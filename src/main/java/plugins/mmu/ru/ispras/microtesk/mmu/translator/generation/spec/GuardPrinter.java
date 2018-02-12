@@ -257,7 +257,7 @@ final class GuardPrinter {
       InvariantChecks.checkFalse(
           equality.isStruct(),
           "Comparing multi-field variables is not allowed in compound equalities."
-          );
+      );
 
       final String conditionAtom = Utils.toString(ir, context, node);
       result.add(conditionAtom);

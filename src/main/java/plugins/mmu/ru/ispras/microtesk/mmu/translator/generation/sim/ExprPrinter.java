@@ -165,7 +165,7 @@ public final class ExprPrinter extends MapBasedPrinter {
         String.format("BitVectorMath.%s(", opMapping),
         ", ",
         ")"
-        );
+    );
   }
 
   public void pushVariableScope() {

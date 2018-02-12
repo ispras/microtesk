@@ -46,13 +46,13 @@ public final class MmuProgram {
 
     public void add(final MmuProgram program) {
       beginSwitch();
-        addCase(program);
+      addCase(program);
       endSwitch();
     }
 
     public void add(final MmuProgram.Builder builder) {
       beginSwitch();
-        addCase(builder);
+      addCase(builder);
       endSwitch();
     }
 

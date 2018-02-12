@@ -67,7 +67,8 @@ public final class BufferUnitedDependency {
 
     // Construct the united hazards for buffer accesses.
     for (final Map.Entry<MmuBufferAccess,
-        Map<BufferHazard, Set<Pair<Integer, BufferHazard.Instance>>>> entry : data.entrySet()) {
+             Map<BufferHazard, Set<Pair<Integer, BufferHazard.Instance>>>> entry
+        : data.entrySet()) {
       final MmuBufferAccess bufferAccess = entry.getKey();
       final Map<BufferHazard, Set<Pair<Integer, BufferHazard.Instance>>> hazards = entry.getValue();
 

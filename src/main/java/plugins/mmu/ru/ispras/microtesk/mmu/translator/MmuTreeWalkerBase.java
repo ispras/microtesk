@@ -516,7 +516,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
             "The %s attribute is not supported for the %s operation.",
             attrId.getText(),
             id.getText())
-            );
+        );
       }
 
       if (null != this.stmts) {
@@ -524,7 +524,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
             "The %s attribute is already defined for the %s operation.",
             attrId.getText(),
             id.getText())
-            );
+        );
       }
 
       for (final Stmt stmt : stmts) {
@@ -555,7 +555,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
             "Only assignments to individual fields of %s are allowed in the %s operation.",
             addressArg.getName(),
             id.getText())
-            );
+        );
       }
 
       if (!isConstant(right)) {
@@ -642,7 +642,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
             "The %s attribute is undefined for the %s operation.",
             ATTRIBUTE_NAME,
             id.getText())
-            );
+        );
       }
 
       for (final Memory memory : ir.getMemories().values()) {
@@ -650,7 +650,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           raiseError(where(id), String.format(
               "The %s operation is not compatible with the %s definition: address type mismatch.",
               id.getText(), memory.getId())
-              );
+          );
         }
       }
 
@@ -1028,30 +1028,30 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       int nexits = 0;
       for (final Stmt s : body) {
         switch (s.getKind()) {
-        case RETURN:
-          final StmtReturn ret = (StmtReturn) s;
-          final boolean retVoid = output == null;
-          final boolean valVoid = ret.getExpr() == null;
+          case RETURN:
+            final StmtReturn ret = (StmtReturn) s;
+            final boolean retVoid = output == null;
+            final boolean valVoid = ret.getExpr() == null;
 
-          if (retVoid != valVoid) {
-            raiseError(w, String.format(
-                "'return' with %s value, in function returning %svoid",
-                (valVoid) ? "no" : "a",
-                (retVoid) ? "" : "non-"));
-          }
-          if (!retVoid) {
-            ret.setStorage(output);
-            nexits += 1;
-          }
-          break;
+            if (retVoid != valVoid) {
+              raiseError(w, String.format(
+                  "'return' with %s value, in function returning %svoid",
+                  (valVoid) ? "no" : "a",
+                  (retVoid) ? "" : "non-"));
+            }
+            if (!retVoid) {
+              ret.setStorage(output);
+              nexits += 1;
+            }
+            break;
 
-        case IF:
-          final StmtIf cond = (StmtIf) s;
-          for (final Pair<Node, List<Stmt>> branch : cond.getIfBlocks()) {
-            nexits += setExit(w, branch.second, output);
-          }
-          nexits += setExit(w, cond.getElseBlock(), output);
-          break;
+          case IF:
+            final StmtIf cond = (StmtIf) s;
+            for (final Pair<Node, List<Stmt>> branch : cond.getIfBlocks()) {
+              nexits += setExit(w, branch.second, output);
+            }
+            nexits += setExit(w, cond.getElseBlock(), output);
+            break;
         }
       }
       return nexits;
@@ -1246,7 +1246,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           raiseError(where, String.format(
               "The %s operation is not compatible with the %s definition: address type mismatch.",
               operation.getId(), id)
-              );
+          );
         }
       }
 

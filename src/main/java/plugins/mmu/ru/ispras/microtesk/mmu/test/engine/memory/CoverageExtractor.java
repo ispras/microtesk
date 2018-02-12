@@ -124,13 +124,13 @@ public final class CoverageExtractor {
       }
 
       choosers.add(
-        new AccessChooser(
-            memory,
-            trajectory,
-            result.getGraph(),
-            type,
-            constraints,
-            recursionLimit)
+          new AccessChooser(
+              memory,
+              trajectory,
+              result.getGraph(),
+              type,
+              constraints,
+              recursionLimit)
       );
     }
 

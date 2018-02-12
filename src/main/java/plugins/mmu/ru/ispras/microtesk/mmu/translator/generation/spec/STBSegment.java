@@ -151,7 +151,7 @@ final class STBSegment implements STBuilder {
           stFunction,
           stConstructor,
           group
-          );
+      );
 
       stConstructor.add("stmts", String.format("builder.registerVariable(%s);", name));
       stConstructor.add("stmts", "");
