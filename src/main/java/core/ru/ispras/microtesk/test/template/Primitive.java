@@ -37,7 +37,7 @@ public interface Primitive {
     public String getText() {
       return text;
     }
-  };
+  }
 
   Primitive newCopy();
 
