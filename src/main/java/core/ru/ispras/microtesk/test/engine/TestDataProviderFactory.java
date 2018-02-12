@@ -31,7 +31,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 final class TestDataProviderFactory {
   private TestDataProviderFactory() {}
 
-  private static TestDataProvider newTestDataProvider(
+  public static TestDataProvider newTestDataProvider(
       final EngineContext engineContext,
       final AbstractSequence abstractSequence) {
     InvariantChecks.checkNotNull(engineContext);
