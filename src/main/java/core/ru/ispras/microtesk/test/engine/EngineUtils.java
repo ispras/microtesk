@@ -56,11 +56,7 @@ import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.generator.DataGenerator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
-import java.io.File;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -86,27 +82,10 @@ public final class EngineUtils {
       return testBase;
     }
 
-    final File file = new File(SysUtils.getModelsJarPath());
-    final URL url;
-    try {
-      url = file.toURI().toURL();
-    } catch (final MalformedURLException e1) {
-      Logger.error(e1.getMessage());
-      return testBase;
-    }
-
-    final URL[] urls = new URL[]{url};
-    final ClassLoader loader = new URLClassLoader(urls);
-
     for (final ExtensionSettings ext : settings.getExtensions().getExtensions()) {
-      try {
-        final Class<?> cls = loader.loadClass(ext.getPath());
-        final DataGenerator generator = DataGenerator.class.cast(cls.newInstance());
-        registry.registerGenerator(ext.getName(), generator);
-      } catch (final Exception e) {
-        Logger.error(e.getMessage());
-        e.printStackTrace();
-      }
+      final Object object = SysUtils.loadFromModel(ext.getPath());
+      final DataGenerator generator = DataGenerator.class.cast(object);
+      registry.registerGenerator(ext.getName(), generator);
     }
 
     return testBase;
