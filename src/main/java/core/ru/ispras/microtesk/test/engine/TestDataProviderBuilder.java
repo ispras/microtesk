@@ -49,6 +49,7 @@ final class TestDataProviderBuilder {
     final Combinator<TestData> combinator =
         GeneratorConfig.<TestData>get().getCombinator(combinatorName);
 
+    combinator.initialize(iterators);
     return new TestDataProvider(situations, combinator);
   }
 }
