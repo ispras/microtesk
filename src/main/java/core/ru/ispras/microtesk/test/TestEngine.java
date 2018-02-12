@@ -142,7 +142,6 @@ public final class TestEngine {
       ScriptRunner.run(options, templateFile);
     } catch (final GenerationAbortedException e) {
       reportAborted(e.getMessage());
-      return false;
     }
 
     final long totalTime = statistics.getTotalTime();
