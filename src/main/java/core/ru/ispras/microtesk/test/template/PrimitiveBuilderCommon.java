@@ -392,7 +392,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     }
 
     final Argument.Kind kind =
-      value.getKind() == Primitive.Kind.MODE ? Argument.Kind.MODE : Argument.Kind.OP;
+        value.getKind() == Primitive.Kind.MODE ? Argument.Kind.MODE : Argument.Kind.OP;
 
     final MetaArgument metaArg = getMetaArgument(name);
 
@@ -554,7 +554,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
           Logger.warning(
               "Ambiguous conversion of the %s argument: addressing mode %s is selected, "
                   + "but %s is equally possible.", metaArgument.getName(), modeName, name
-              );
+          );
         }
       }
     }

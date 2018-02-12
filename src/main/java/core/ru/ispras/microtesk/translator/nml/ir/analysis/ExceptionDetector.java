@@ -108,7 +108,7 @@ public final class ExceptionDetector implements TranslatorHandler<Ir> {
       if (isStatus(Status.SKIP)
           && this.primitive == andRule
           && attr.getName().equals(Attribute.ACTION_NAME)) {
-       setStatus(Status.OK);
+        setStatus(Status.OK);
       }
     }
 

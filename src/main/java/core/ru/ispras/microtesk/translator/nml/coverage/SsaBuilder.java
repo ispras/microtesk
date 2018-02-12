@@ -131,7 +131,7 @@ final class SsaBuilder {
     }
 
     public boolean isMacro() {
-        return macro;
+      return macro;
     }
   }
 
@@ -580,26 +580,26 @@ final class SsaBuilder {
       final Primitive parameter = parameters.next();
 
       switch (arg.getKind()) {
-      case INSTANCE:
-        operands.add(instanceReference(arg.getInstance()));
-        break;
+        case INSTANCE:
+          operands.add(instanceReference(arg.getInstance()));
+          break;
 
-      case PRIMITIVE:
-        if (parameter.getKind() == Primitive.Kind.IMM) {
-          final Location atom =
-              Location.createPrimitiveBased(arg.getName(), arg.getPrimitive());
-          final Node value = createRValue(createLValue(atom));
-          operands.add(value);
-        } else {
-          final Node link = new NodeOperation(SsaOperation.ARGUMENT_LINK,
-                                              newNamed(arg.getName()));
-          operands.add(link);
-        }
-        break;
+        case PRIMITIVE:
+          if (parameter.getKind() == Primitive.Kind.IMM) {
+            final Location atom =
+                Location.createPrimitiveBased(arg.getName(), arg.getPrimitive());
+            final Node value = createRValue(createLValue(atom));
+            operands.add(value);
+          } else {
+            final Node link = new NodeOperation(SsaOperation.ARGUMENT_LINK,
+                                                newNamed(arg.getName()));
+            operands.add(link);
+          }
+          break;
 
-      case EXPR:
-        operands.add(convertExpression(arg.getExpr().getNode()));
-        break;
+        case EXPR:
+          operands.add(convertExpression(arg.getExpr().getNode()));
+          break;
       }
     }
     return new NodeOperation(SsaOperation.CLOSURE, operands);
@@ -661,19 +661,19 @@ final class SsaBuilder {
   private LValue createLValue(Location atom) {
     String name = atom.getName();
     switch (atom.getSource().getSymbolKind()) {
-    case ARGUMENT:
-      name = StringUtils.dotConc(prefix, atom.getName());
-      break;
+      case ARGUMENT:
+        name = StringUtils.dotConc(prefix, atom.getName());
+        break;
 
-    case MEMORY: // FIXME recursive processing required
-      final MemoryExpr memory = ((LocationSourceMemory) atom.getSource()).getMemory();
-      final Alias alias = memory.getAlias();
-      if (alias != null) {
-        return createLValue((Location) alias.getLocation());
-      }
-      break;
+      case MEMORY: // FIXME recursive processing required
+        final MemoryExpr memory = ((LocationSourceMemory) atom.getSource()).getMemory();
+        final Alias alias = memory.getAlias();
+        if (alias != null) {
+          return createLValue((Location) alias.getLocation());
+        }
+        break;
 
-    default:
+      default:
     }
 
     final boolean macro = isModeArgument(atom);
@@ -733,7 +733,7 @@ final class SsaBuilder {
       public Node apply(Node in) {
         final Location loc = locationFromNodeVariable(in);
         if (loc instanceof Location) {
-          final LValue lval = createLValue((Location) loc);
+          final LValue lval = createLValue(loc);
           return IntegerCast.cast(createRValue(lval), lval.targetType, getCastType(in));
         } /* else if (loc instanceof LocationConcat) // LocationConcat is no longer used
           return CONCAT(createRValues(fetchConcatLValues((LocationConcat) loc))); */
@@ -866,7 +866,7 @@ final class SsaBuilder {
                 expr.isConstant() ? ((NodeValue) expr.getNode()).getData() :
                                     expr.getNode().getDataType().valueUninitialized())
             )
-        );
+    );
 
     return builder.build();
   }
@@ -885,7 +885,7 @@ final class SsaBuilder {
           builder.createOutput(
               expr.isConstant() ? ((NodeValue) expr.getNode()).getData() :
                                   expr.getNode().getDataType().valueUninitialized())
-          );
+      );
     }
 
     return builder.build();

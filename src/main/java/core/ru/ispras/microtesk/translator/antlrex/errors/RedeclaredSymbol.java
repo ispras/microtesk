@@ -19,10 +19,10 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 
 public final class RedeclaredSymbol implements ISemanticError {
   private static final String FORMAT =
-    "The '%s' name is already used to declare another symbol of type %s (position %d:%d).";
+      "The '%s' name is already used to declare another symbol of type %s (position %d:%d).";
 
   private final String FORMAT_KEYWORD =
-    "The '%s' name is already used a reserved keyword (the %s type).";
+      "The '%s' name is already used a reserved keyword (the %s type).";
 
   private final Symbol symbol;
 

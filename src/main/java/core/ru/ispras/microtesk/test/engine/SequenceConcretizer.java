@@ -154,7 +154,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
         engineContext.getCodeAllocationAddress(),
         concreteSequence,
         sequenceIndex
-        );
+    );
 
     if (isPresimulation) {
       creator.finishProcessing();
@@ -379,7 +379,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
                 ? String.format("Ref=%3d", abstractCall.getAttributes().get("dependsOnIndex"))
                 : "       ",
             concreteCall.getText()
-            );
+        );
 
         if (abstractCall.getAttributes().containsKey("dependsOnIndex")) {
           final int dependencyIndex = (int) abstractCall.getAttributes().get("dependsOnIndex");
@@ -485,7 +485,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
           abstractCall,
           abstractPrimitive,
           concretePrimitive
-          );
+      );
     }
 
     private void processPrimitive(
@@ -525,7 +525,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
               abstractCall,
               abstractArgument,
               concreteArgument
-              );
+          );
         }
       }
 
@@ -579,7 +579,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
             getAllocationAddress(),
             concreteSequence,
             sequenceIndex
-            );
+        );
       } finally {
         locationsToBeRestored.restore();
         setAllocationAddress(listenerForInitializers.getAllocationAddress());

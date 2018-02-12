@@ -97,7 +97,7 @@ final class SsaStorage {
       for (final Map.Entry<String, SsaForm> entry : ssa.entrySet()) {
         out.println(entry.getKey());
         for (final Constraint c :
-          BlockConverter.convert(entry.getKey(), entry.getValue().getEntryPoint())) {
+            BlockConverter.convert(entry.getKey(), entry.getValue().getEntryPoint())) {
 
           final XmlConstraintSaver saver = new XmlConstraintSaver(c);
 

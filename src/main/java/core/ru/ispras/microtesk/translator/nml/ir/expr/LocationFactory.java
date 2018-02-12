@@ -69,11 +69,11 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     if (NmlSymbolKind.MEMORY != kind && NmlSymbolKind.ARGUMENT != kind) {
-       raiseError(
-           where,
-           new SymbolTypeMismatch(
-               name, kind, Arrays.<Enum<?>>asList(NmlSymbolKind.MEMORY, NmlSymbolKind.ARGUMENT))
-           );
+      raiseError(
+          where,
+          new SymbolTypeMismatch(
+              name, kind, Arrays.<Enum<?>>asList(NmlSymbolKind.MEMORY, NmlSymbolKind.ARGUMENT))
+      );
     }
 
     final Location location = NmlSymbolKind.MEMORY == kind
@@ -149,7 +149,7 @@ public final class LocationFactory extends WalkerFactoryBase {
           where,
           new SymbolTypeMismatch(
               name, kind, Arrays.<Enum<?>>asList(NmlSymbolKind.MEMORY, NmlSymbolKind.ARGUMENT))
-          );
+      );
     }
 
     if (NmlSymbolKind.MEMORY == kind) {
@@ -181,7 +181,7 @@ public final class LocationFactory extends WalkerFactoryBase {
       raiseError(where, String.format(
           "%s cannot be uses as a value. Only immediate arguments are allowed.",
           argumentName)
-          );
+      );
     }
 
     final String nestedArgumentName = fields.get(0);
@@ -383,7 +383,7 @@ public final class LocationFactory extends WalkerFactoryBase {
           "The %s argument refers to a %s primitive that cannot be used as a location.",
           name,
           primitive.getKind())
-          );
+      );
     }
 
     return Location.createPrimitiveBased(name, primitive);

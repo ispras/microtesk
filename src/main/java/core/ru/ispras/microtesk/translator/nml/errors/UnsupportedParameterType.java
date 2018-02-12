@@ -18,7 +18,7 @@ import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 
 public final class UnsupportedParameterType implements ISemanticError {
   private static final String FORMAT =
-    "The '%s' parameter has unsupported type (%s). This construction supports only %s.";
+      "The '%s' parameter has unsupported type (%s). This construction supports only %s.";
 
   private final String name;
   private final String kind;

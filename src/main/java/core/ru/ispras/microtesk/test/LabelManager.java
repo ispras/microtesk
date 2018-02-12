@@ -346,7 +346,7 @@ public final class LabelManager {
     Logger.warning(
         "Label %s was chosen, while there are other equally possible choices: %s.",
         chosenItem.target, sb
-        );
+    );
   }
 
   /**

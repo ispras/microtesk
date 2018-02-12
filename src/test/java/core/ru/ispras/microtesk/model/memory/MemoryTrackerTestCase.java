@@ -45,7 +45,7 @@ public final class MemoryTrackerTestCase {
     Assert.assertEquals(
         new MemoryTracker.Region(BigInteger.valueOf(0x00000000), BigInteger.valueOf(0x00000500)),
         overlapping
-        );
+    );
   }
 
   private static void use(final MemoryTracker tracker, final long start, final long end) {
@@ -56,13 +56,13 @@ public final class MemoryTrackerTestCase {
     Assert.assertTrue(
         String.format("0x%016x must be used", address),
         tracker.isUsed(BigInteger.valueOf(address))
-        );
+    );
   }
 
   private static void checkUnused(final MemoryTracker tracker, final long address) {
     Assert.assertFalse(
         String.format("0x%016x must be unused", address),
         tracker.isUsed(BigInteger.valueOf(address))
-        );
+    );
   }
 }

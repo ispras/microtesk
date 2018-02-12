@@ -53,11 +53,11 @@ public final class BranchInitializerMaker implements InitializerMaker {
   public void onEndProgram() {}
 
   private List<AbstractCall> makePreInitializer(
-    final EngineContext engineContext,
-    final AbstractCall abstractCall,
-    final Primitive primitive,
-    final Situation situation,
-    final boolean isStreamBased) throws ConfigurationException {
+      final EngineContext engineContext,
+      final AbstractCall abstractCall,
+      final Primitive primitive,
+      final Situation situation,
+      final boolean isStreamBased) throws ConfigurationException {
     final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
     InvariantChecks.checkNotNull(branchEntry);
 
@@ -204,7 +204,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
                 situation,
                 branchCondition,
                 true /* Write into the stream */)
-            );
+        );
       }
 
       return initializer;

@@ -18,7 +18,7 @@ import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 
 public class UnsupportedConstOperation implements ISemanticError {
   private static final String FORMAT =
-    "The %s operation is not supported for the following operand types: %s (\"%s\").";
+      "The %s operation is not supported for the following operand types: %s (\"%s\").";
 
   private final String op;
   private final String text;

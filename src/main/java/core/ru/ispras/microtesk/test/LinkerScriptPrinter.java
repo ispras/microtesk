@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -52,30 +52,30 @@ final class LinkerScriptPrinter {
 
   public void print() throws IOException {
     final STFileGenerator fileGenerator =
-        new STFileGenerator(fileFullName, LINKER_SCRIPT_TEMPLATE, new STBuilder() {
+      new STFileGenerator(fileFullName, LINKER_SCRIPT_TEMPLATE, new STBuilder() {
 
-      @Override
-      public ST build(final STGroup group) {
-        final ST st = group.getInstanceOf("linker_script");
-        st.add("time", new Date().toString());
+          @Override
+          public ST build(final STGroup group) {
+            final ST st = group.getInstanceOf("linker_script");
+            st.add("time", new Date().toString());
 
-        final Section textSection = Sections.get().getTextSection();
-        st.add("text_id", textSection.getName());
-        st.add("text_va", toHexString(textSection.getBaseVa()));
+            final Section textSection = Sections.get().getTextSection();
+            st.add("text_id", textSection.getName());
+            st.add("text_va", toHexString(textSection.getBaseVa()));
 
-        final Section dataSection = Sections.get().getDataSection();
-        st.add("data_id", dataSection.getName());
-        st.add("data_va", toHexString(dataSection.getBaseVa()));
+            final Section dataSection = Sections.get().getDataSection();
+            st.add("data_id", dataSection.getName());
+            st.add("data_va", toHexString(dataSection.getBaseVa()));
 
-        for (final Section section : Sections.get().getSectionsOrderedByVa()) {
-          if (section != textSection && section != dataSection) {
-            st.add("section_ids", section.getName());
-            st.add("section_vas", toHexString(section.getBaseVa()));
+            for (final Section section : Sections.get().getSectionsOrderedByVa()) {
+              if (section != textSection && section != dataSection) {
+                st.add("section_ids", section.getName());
+                st.add("section_vas", toHexString(section.getBaseVa()));
+              }
+            }
+
+            return st;
           }
-        }
-
-        return st;
-      }
     });
 
     fileGenerator.generate();

@@ -298,7 +298,7 @@ public final class SequenceProcessor {
       if (null != abstractSequence.getPrologues()) {
         final List<AbstractCall> prologue = abstractSequence.getPrologues().get(index);
         if (null != prologue) {
-         if (!call.getLabels().isEmpty()) {
+          if (!call.getLabels().isEmpty()) {
             final AbstractCall labelCall = AbstractCall.newEmpty();
             labelCall.getLabels().addAll(call.getLabels());
             abstractCalls.add(labelCall);

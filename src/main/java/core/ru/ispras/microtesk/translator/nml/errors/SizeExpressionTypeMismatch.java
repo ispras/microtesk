@@ -18,7 +18,7 @@ import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 
 public class SizeExpressionTypeMismatch implements ISemanticError {
   public static final String FORMAT =
-    "The evaluated expression has a wrong type: %s."
+      "The evaluated expression has a wrong type: %s."
         + " An integer type is expected for size expressions.";
 
   private final Class<?> type;

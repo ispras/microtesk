@@ -267,7 +267,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
             name,
             instanceArg.getTypeName(),
             arg.getName())
-            );
+        );
       }
 
       if (instanceArg.getKind() == InstanceArgument.Kind.EXPR

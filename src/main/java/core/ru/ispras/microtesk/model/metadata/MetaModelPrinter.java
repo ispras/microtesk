@@ -78,7 +78,7 @@ public final class MetaModelPrinter {
           "Name: %s, Items: [%s]",
           g.getName(),
           MetaDataUtils.toNameListString(g.getItems(), ", ")
-          );
+      );
     }
   }
 
@@ -107,7 +107,7 @@ public final class MetaModelPrinter {
           "Name: %s, Items: [%s]",
           g.getName(),
           MetaDataUtils.toNameListString(g.getItems(), ", ")
-          );
+      );
     }
   }
 

@@ -127,7 +127,7 @@ public final class EngineUtils {
           testData,
           queryCreator.getUnknownImmValues(),
           null != concretePrimitive ? concretePrimitive.getArguments() : null
-          );
+      );
     }
 
     final InitializerMaker initializerMaker = 

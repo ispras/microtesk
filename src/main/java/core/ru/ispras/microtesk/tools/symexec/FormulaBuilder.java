@@ -40,8 +40,8 @@ import java.util.Map;
 
 public final class FormulaBuilder {
   public static List<Node> buildFormulas(
-    final String model,
-    final List<IsaPrimitive> sequence) {
+      final String model,
+      final List<IsaPrimitive> sequence) {
     final SsaAssembler assembler = new SsaAssembler(TestBase.get().getStorage(model));
     final List<Node> formulae = new ArrayList<>(sequence.size());
 
@@ -81,10 +81,10 @@ public final class FormulaBuilder {
   }
 
   private static void buildContext(
-    final Map<String, Object> ctx,
-    final Map<String, BitVector> consts,
-    final NamePath prefix,
-    final IsaPrimitive src) {
+      final Map<String, Object> ctx,
+      final Map<String, BitVector> consts,
+      final NamePath prefix,
+      final IsaPrimitive src) {
     for (final Map.Entry<String, IsaPrimitive> entry : src.getArguments().entrySet()) {
       final NamePath path = prefix.resolve(entry.getKey());
       final String key = path.toString();

@@ -29,7 +29,6 @@ import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.translator.nml.coverage.Utility;
 import ru.ispras.microtesk.utils.NamePath;
 import ru.ispras.microtesk.utils.StringUtils;
 
@@ -308,7 +307,7 @@ public final class SsaAssembler {
         scope.fetch(String.format("__tmp_%d", numTemps - 1));
 
     final NodeVariable var =
-      changes.rebase(getVariableName(path, name), tmp.getData(), version);
+        changes.rebase(getVariableName(path, name), tmp.getData(), version);
     addToBatch(Nodes.eq(var, tmp));
 
     return tmp;
@@ -359,7 +358,7 @@ public final class SsaAssembler {
               getVariableName(paramPath),
               parameters.getType(i).valueUninitialized(),
               1);
-            addToBatch(Nodes.eq(arg, operand));
+        addToBatch(Nodes.eq(arg, operand));
 //        walkStatements(origin, Collections.singleton(EQ(arg, operand)));
       }
     }
@@ -367,17 +366,17 @@ public final class SsaAssembler {
 
   private void linkArgument(final NamePath dstPath, final NamePath srcPath) {
     final String argType =
-      context.get(srcPath.subpath(0, srcPath.getNameCount() - 1));
+        context.get(srcPath.subpath(0, srcPath.getNameCount() - 1));
     final String localName =
-      srcPath.getName(srcPath.getNameCount() - 1).toString();
+        srcPath.getName(srcPath.getNameCount() - 1).toString();
 
     final NodeVariable image = getParameters(argType).find(localName);
     final Data data = image.getDataType().valueUninitialized();
 
     final NodeVariable target =
-      changes.rebase(getVariableName(dstPath), data, 1);
+        changes.rebase(getVariableName(dstPath), data, 1);
     final NodeVariable source =
-      changes.rebase(getVariableName(srcPath), data, 1);
+        changes.rebase(getVariableName(srcPath), data, 1);
 
     addToBatch(Nodes.eq(target, source));
   }
@@ -423,7 +422,7 @@ public final class SsaAssembler {
           contextEnum.put(ctxKey, num + 1);
 
           final NamePath innerPath =
-            path.resolve(String.format("%s_%d", callee, num));
+              path.resolve(String.format("%s_%d", callee, num));
 
           linkClosure(path, innerPath, new Closure(instance));
           step(innerPath, Utility.literalOperand(1, call));

@@ -48,7 +48,7 @@ public abstract class BranchDataGenerator implements DataGenerator {
       if (/* Known registers are considered to be unknown (stream based initialization) */
           value.getDataType().getTypeId() != DataTypeId.LOGIC_INTEGER
           /* Known immediate values are considered to be known */
-        || Utils.isUnknownVariable(value)) { 
+          || Utils.isUnknownVariable(value)) {
         result.put(e.getKey(), value);
       }
     }

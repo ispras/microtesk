@@ -67,7 +67,7 @@ final class SsaScopeVariable implements SsaScope {
       return outers.get(name);
     }
 
-   return parent.fetch(name);
+    return parent.fetch(name);
   }
 
   @Override

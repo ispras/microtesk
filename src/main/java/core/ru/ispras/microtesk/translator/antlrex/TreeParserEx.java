@@ -111,13 +111,13 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
     super.reportError(re);
 
     final LogEntry logEntry = new LogEntry(
-      LogEntry.Kind.ERROR,
-      SenderKind.TREEWALKER,
-      new File(getSourceName()).getName(),
-      re.line,
-      re.charPositionInLine,
-      tempErrorMessage
-      );
+        LogEntry.Kind.ERROR,
+        SenderKind.TREEWALKER,
+        new File(getSourceName()).getName(),
+        re.line,
+        re.charPositionInLine,
+        tempErrorMessage
+    );
 
     log.append(logEntry);
     ++errorCount;

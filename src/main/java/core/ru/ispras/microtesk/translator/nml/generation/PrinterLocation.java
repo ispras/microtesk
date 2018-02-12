@@ -58,7 +58,7 @@ public final class PrinterLocation {
       sb.append(String.format(BITFIELD_FORMAT,
           ExprPrinter.toString(bitfield.getFrom()),
           ExprPrinter.toString(bitfield.getTo()))
-          );
+      );
     }
 
     addPE = true;

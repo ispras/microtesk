@@ -36,7 +36,7 @@ public class Concat64TestCase {
     assertEquals(
         BitVector.valueOf("77777777ffffffff", 16, 64),
         temp.access().load().getRawData()
-        );
+    );
 
     final Location rtemp = Location.concat(
         temp.access().bitField(31, 0), temp.access().bitField(63, 32));
@@ -45,7 +45,7 @@ public class Concat64TestCase {
     assertEquals(
         BitVector.valueOf("ffffffff77777777", 16, 64),
         rtemp.load().getRawData()
-        );
+    );
 
     temp.access().store(Location.concat(
         temp.access().bitField(31, 0), temp.access().bitField(63, 32)).load());
@@ -54,7 +54,7 @@ public class Concat64TestCase {
     assertEquals(
         BitVector.valueOf("ffffffff77777777", 16, 64),
         temp.access().load().getRawData()
-        );
+    );
   }
 
   public static void trace(String format, Object... args) {

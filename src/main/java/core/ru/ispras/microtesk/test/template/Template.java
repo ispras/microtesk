@@ -816,7 +816,7 @@ public final class Template {
         dataSource,
         indexSource,
         length
-        );
+    );
 
     /*
     // THIS IS CODE TO TEST DATA STREAMS. IT ADDS CALLS FROM DATA STREAMS
@@ -1196,8 +1196,8 @@ public final class Template {
   }
 
   public void endSection() {
-     processExternalCode();
-     sections.pop();
+    processExternalCode();
+    sections.pop();
   }
 
   private static void checkSectionRedefined(

@@ -92,7 +92,7 @@ public abstract class Record {
             disasm,
             call.getImage(),
             e.getMessage()
-            );
+        );
 
         this.addr = 0;
       }

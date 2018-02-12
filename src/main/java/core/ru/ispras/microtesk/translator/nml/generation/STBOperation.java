@@ -250,9 +250,9 @@ final class STBOperation extends STBPrimitiveBase {
         } else {
           System.out.printf("link to %s -> %s%n", variableName, argValue.getName());
 
-        if (argValue instanceof PrimitiveAND) {
-          dump(variableName, (PrimitiveAND) argValue);
-        }
+          if (argValue instanceof PrimitiveAND) {
+            dump(variableName, (PrimitiveAND) argValue);
+          }
         }
       }
     }

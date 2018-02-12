@@ -65,8 +65,8 @@ public final class SymbolicExecutor {
   }
 
   private static void writeSmt(
-    final String fileName,
-    final Collection<? extends Node> formulas) {
+      final String fileName,
+      final Collection<? extends Node> formulas) {
     final Cvc4Solver solver = new Cvc4Solver();
 
     try {
@@ -75,7 +75,7 @@ public final class SymbolicExecutor {
           Collections.<String>emptyList(),
           formulas,
           solver.getOperations()
-          );
+      );
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
     }

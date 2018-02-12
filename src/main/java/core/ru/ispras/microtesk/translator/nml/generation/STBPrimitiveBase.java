@@ -138,7 +138,7 @@ final class StatementBuilder {
         String.format("%s.store(%s);",
         ExprPrinter.toString(stmt.getLeft(), true),
         ExprPrinter.toString(stmt.getRight()))
-        );
+    );
   }
 
   private void addStatement(final StatementCondition stmt) {

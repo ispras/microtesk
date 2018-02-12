@@ -855,62 +855,62 @@ public final class SymbolicExecutor {
     final NodeOperation lhsExpr = getConcatOperation(lhs);
 
     if (rhs.getKind() == Node.Kind.VALUE) {
-        boolean isTrue = false;
+      boolean isTrue = false;
 
-        final BitVector rhsConst = FortressUtils.getBitVector(rhs);
+      final BitVector rhsConst = FortressUtils.getBitVector(rhs);
 
-        int offset = 0;
-        for (final Node term : lhsExpr.getOperands()) {
-          final int lo = offset;
-          final int hi = offset + (FortressUtils.getBitSize(term) - 1);
+      int offset = 0;
+      for (final Node term : lhsExpr.getOperands()) {
+        final int lo = offset;
+        final int hi = offset + (FortressUtils.getBitSize(term) - 1);
 
-          final Node field = result.getVersion(term, pathIndex);
-          final BitVector value = rhsConst.field(lo, hi);
+        final Node field = result.getVersion(term, pathIndex);
+        final BitVector value = rhsConst.field(lo, hi);
 
-          // Check whether the field's value is known (via constant propagation).
-          final BitVector constant = result.getConstants().get(FortressUtils.getVariable(field));
+        // Check whether the field's value is known (via constant propagation).
+        final BitVector constant = result.getConstants().get(FortressUtils.getVariable(field));
 
-          if (constant != null) {
-            final int fieldlowerBit = FortressUtils.getLowerBit(field);
-            final int fieldUpperBit = FortressUtils.getUpperBit(field);
+        if (constant != null) {
+          final int fieldlowerBit = FortressUtils.getLowerBit(field);
+          final int fieldUpperBit = FortressUtils.getUpperBit(field);
 
-            final BitVector fieldConst = constant.field(fieldlowerBit, fieldUpperBit);
+          final BitVector fieldConst = constant.field(fieldlowerBit, fieldUpperBit);
 
-            final boolean truthValue =
-                (value.equals(fieldConst) == (equality.getOperationId() == StandardOperation.EQ));
+          final boolean truthValue =
+              (value.equals(fieldConst) == (equality.getOperationId() == StandardOperation.EQ));
 
-            if (!truthValue && operation == StandardOperation.AND) {
-              // Condition is always false.
-              result.setConflict(true);
-              return Boolean.FALSE;
-            }
-
-            if (truthValue && operation == StandardOperation.OR) {
-              // Condition is always true.
-              // Formally, the empty OR clause is false, but it is simply ignored.
-              clauseBuilder.clear();
-              isTrue = true;
-            }
+          if (!truthValue && operation == StandardOperation.AND) {
+            // Condition is always false.
+            result.setConflict(true);
+            return Boolean.FALSE;
           }
 
-          if (!isTrue && constant == null) {
-            if (equality.getOperationId() == StandardOperation.EQ) {
-              clauseBuilder.add(
-                  Nodes.eq(field, NodeValue.newBitVector(value)));
-            } else {
-              clauseBuilder.add(
-                  Nodes.noteq(field, NodeValue.newBitVector(value)));
-            }
-          }
-
-          offset += FortressUtils.getBitSize(term);
-
-          final Variable termVariable = FortressUtils.getVariable(term);
-
-          if (termVariable != null) {
-            result.addOriginalVariable(result.getOriginal(termVariable, pathIndex));
+          if (truthValue && operation == StandardOperation.OR) {
+            // Condition is always true.
+            // Formally, the empty OR clause is false, but it is simply ignored.
+            clauseBuilder.clear();
+            isTrue = true;
           }
         }
+
+        if (!isTrue && constant == null) {
+          if (equality.getOperationId() == StandardOperation.EQ) {
+            clauseBuilder.add(
+                Nodes.eq(field, NodeValue.newBitVector(value)));
+          } else {
+            clauseBuilder.add(
+                Nodes.noteq(field, NodeValue.newBitVector(value)));
+          }
+        }
+
+        offset += FortressUtils.getBitSize(term);
+
+        final Variable termVariable = FortressUtils.getVariable(term);
+
+        if (termVariable != null) {
+          result.addOriginalVariable(result.getOriginal(termVariable, pathIndex));
+        }
+      }
     } else {
       final NodeOperation rhsExpr = getConcatOperation(rhs);
       InvariantChecks.checkTrue(rhsExpr.getOperandCount() == rhsExpr.getOperandCount());

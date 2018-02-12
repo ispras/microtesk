@@ -214,7 +214,7 @@ public final class Expr {
     if (expr.getNodeInfo().isCoersionApplied()) {
       // If a coercion is applied, return without
       // changes as it may affect the result.
-     return new Reduced(0, expr);
+       return new Reduced(0, expr);
     }
  
     final NodeInfo.Kind kind = expr.getNodeInfo().getKind();
@@ -260,7 +260,7 @@ public final class Expr {
 
     if (null != left.polynomial && null != right.polynomial) {
       final Node polynomial = new NodeOperation(
-         nodeExpr.getOperationId(), left.polynomial.getNode(), right.polynomial.getNode());
+          nodeExpr.getOperationId(), left.polynomial.getNode(), right.polynomial.getNode());
 
       polynomial.setUserData(expr.getNodeInfo());
       return new Reduced(constant, new Expr(polynomial));

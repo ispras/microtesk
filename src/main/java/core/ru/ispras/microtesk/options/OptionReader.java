@@ -87,7 +87,7 @@ public final class OptionReader {
         0,
         0,
         ""
-        );
+    );
     return writer.toString();
   }
 

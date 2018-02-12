@@ -58,5 +58,5 @@ public interface LocationAccessor {
    *
    * @param value Binary data packed in a BigInteger object.
    */
-   void setValue(BigInteger value);
+  void setValue(BigInteger value);
 }

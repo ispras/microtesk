@@ -485,7 +485,7 @@ final class TemplateProcessor implements Template.Processor {
     ConcreteSequence previous = entry;
 
     for (int index = 0; index < times; index++) {
-    final Iterator<List<AbstractCall>> abstractIt = block.getIterator();
+      final Iterator<List<AbstractCall>> abstractIt = block.getIterator();
       for (abstractIt.init(); abstractIt.hasValue(); abstractIt.next()) {
         engineContext.setCodeAllocationAddress(allocationAddress);
 

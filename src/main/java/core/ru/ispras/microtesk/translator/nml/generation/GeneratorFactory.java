@@ -85,7 +85,7 @@ final class GeneratorFactory {
 
   public FileGenerator createAddressingModeOr(PrimitiveOR mode) {
     final String outputFileName =
-      String.format(PackageInfo.getModeFileFormat(outDir), modelName, mode.getName());
+        String.format(PackageInfo.getModeFileFormat(outDir), modelName, mode.getName());
 
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
@@ -98,7 +98,7 @@ final class GeneratorFactory {
 
   public FileGenerator createAddressingMode(PrimitiveAND mode) {
     final String outputFileName =
-      String.format(PackageInfo.getModeFileFormat(outDir), modelName, mode.getName());
+        String.format(PackageInfo.getModeFileFormat(outDir), modelName, mode.getName());
 
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
@@ -111,7 +111,7 @@ final class GeneratorFactory {
 
   public FileGenerator createOperationOr(PrimitiveOR op) {
     final String outputFileName = 
-      String.format(PackageInfo.getOpFileFormat(outDir), modelName, op.getName());
+        String.format(PackageInfo.getOpFileFormat(outDir), modelName, op.getName());
 
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",

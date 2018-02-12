@@ -386,7 +386,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         existingName,
         name,
         opc
-        );
+    );
   }
 
   private static ImageInfo getImageInfo(final PrimitiveAND primitive, final Node field) {

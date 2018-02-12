@@ -109,10 +109,10 @@ public class TreeParserBase extends TreeParserEx {
 
     if (expectedKind != symbol.getKind()) {
       raiseError(
-        where(t),
-        new SymbolTypeMismatch(t.getText(),
-        symbol.getKind(),
-        expectedKind)
+          where(t),
+          new SymbolTypeMismatch(t.getText(),
+          symbol.getKind(),
+          expectedKind)
       );
     }
   }
