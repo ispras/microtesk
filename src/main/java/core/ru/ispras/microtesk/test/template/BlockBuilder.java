@@ -289,7 +289,8 @@ public final class BlockBuilder {
     // For an empty sequence block (non-external, explicitly specified),
     // a single empty sequence is inserted.
     if (isEmpty() && !isExternal && (isAtomic || isSequence)) {
-      generatorBuilder.addIterator(new SingleValueIterator<>(Collections.<AbstractCall>emptyList()));
+      generatorBuilder.addIterator(
+          new SingleValueIterator<>(Collections.<AbstractCall>emptyList()));
     }
 
     return new Block(

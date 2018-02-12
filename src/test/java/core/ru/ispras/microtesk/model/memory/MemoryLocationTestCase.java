@@ -103,7 +103,8 @@ public final class MemoryLocationTestCase {
     mem.access(10).store(new Data(BitVector.valueOf(0xFF0000FF, 32), WORD));
     
     System.out.println(mem.access(10).toBinString());
-    System.out.println(mem.access(10).bitField(0, 15).concat(mem.access(10).bitField(16, 31)).toBinString());
+    System.out.println(
+        mem.access(10).bitField(0, 15).concat(mem.access(10).bitField(16, 31)).toBinString());
     */
     
     /*
