@@ -132,16 +132,13 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
     final List<ConcreteCall> concreteCalls =
         EngineUtils.makeConcreteCalls(engineContext, abstractSequence.getSequence());
 
-    final ConcreteSequence.Builder builder =
-        new ConcreteSequence.Builder(abstractSequence.getSection());
-    builder.add(concreteCalls);
-
-    final ConcreteSequence concreteSequence = builder.build();
+    final ConcreteSequence concreteSequence =
+        ConcreteSequence.newConcreteSequence(abstractSequence.getSection(), concreteCalls);
 
     if (Logger.isDebug()) {
       Logger.debugHeader("Abstract Sequence");
       Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics())
-          .printSequence(engineContext.getModel().getPE(), builder.build());
+          .printSequence(engineContext.getModel().getPE(), concreteSequence);
     }
 
     final ConcreteSequenceCreator creator =
