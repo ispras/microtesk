@@ -26,7 +26,6 @@ import ru.ispras.microtesk.test.template.DataDirectiveFactory;
 import ru.ispras.microtesk.test.template.MemoryPreparatorStore;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.StreamStore;
-import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +43,6 @@ public final class EngineContext {
   private final BufferPreparatorStore bufferPreparators;
   private final MemoryPreparatorStore memoryPreparators;
   private final StreamStore streams;
-  private final TestBase testBase;
   private final Statistics statistics;
   private final int delaySlotSize;
   private long codeAllocationAddress;
@@ -72,7 +70,6 @@ public final class EngineContext {
     final GeneratorSettings settings = GeneratorSettings.get();
     InvariantChecks.checkNotNull(settings, "Settings were not loaded.");
 
-    this.testBase = EngineUtils.newTestBase(settings);
     this.statistics = statistics;
 
     final DelaySlotSettings delaySlotSettings = settings.getDelaySlot();
@@ -108,10 +105,6 @@ public final class EngineContext {
 
   public StreamStore getStreams() {
     return streams;
-  }
-
-  public TestBase getTestBase() {
-    return testBase;
   }
 
   public Statistics getStatistics() {

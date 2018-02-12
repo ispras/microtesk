@@ -29,6 +29,7 @@ import ru.ispras.microtesk.model.Reader;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.AllocationSettings;
+import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.engine.EngineContext;
@@ -38,6 +39,8 @@ import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
 import java.io.File;
 import java.util.List;
+import ru.ispras.testbase.TestBaseRegistry;
+import ru.ispras.testbase.generator.DataGenerator;
 
 /**
  * The {@link TestEngine} class is responsible for generation of test programs.
@@ -130,7 +133,14 @@ public final class TestEngine {
       reportAborted("Failed to load generation settings for %s.", modelName);
       return false;
     }
+
     GeneratorSettings.set(settings);
+    try {
+      installDataGeneratorsIntoTestBase(settings);
+    } catch (final Exception e) {
+      reportAborted("Failed to load custom data generators for %s.", modelName);
+      return false;
+    }
 
     setRandomSeed(options.getValueAsInteger(Option.RANDOM));
     setSolver(options.getValueAsString(Option.SOLVER));
@@ -275,6 +285,24 @@ public final class TestEngine {
       TestBase.setSolverId(SolverId.CVC4_TEXT);
     } else {
       Logger.warning("Unknown solver: %s. Default solver will be used.", solverName);
+    }
+  }
+
+  // Register the user-defined test data generators.
+  private static void installDataGeneratorsIntoTestBase(final GeneratorSettings settings) {
+    InvariantChecks.checkNotNull(settings);
+
+    final TestBase testBase = TestBase.get();
+    final TestBaseRegistry registry = testBase.getRegistry();
+
+    if (null == settings.getExtensions()) {
+      return;
+    }
+
+    for (final ExtensionSettings ext : settings.getExtensions().getExtensions()) {
+      final Object object = SysUtils.loadFromModel(ext.getPath());
+      final DataGenerator generator = DataGenerator.class.cast(object);
+      registry.registerGenerator(ext.getName(), generator);
     }
   }
 }

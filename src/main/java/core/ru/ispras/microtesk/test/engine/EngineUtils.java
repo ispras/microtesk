@@ -20,7 +20,6 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.InstructionCall;
@@ -29,8 +28,6 @@ import ru.ispras.microtesk.model.IsaPrimitiveBuilder;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.options.Option;
-import ru.ispras.microtesk.settings.ExtensionSettings;
-import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
@@ -50,10 +47,8 @@ import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryResult;
-import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.TestBaseUtils;
 import ru.ispras.testbase.TestData;
-import ru.ispras.testbase.generator.DataGenerator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 import java.math.BigInteger;
@@ -72,24 +67,6 @@ import java.util.Set;
  */
 public final class EngineUtils {
   private EngineUtils() {}
-
-  // Register the user-defined test data generators.
-  public static TestBase newTestBase(final GeneratorSettings settings) {
-    final TestBase testBase = TestBase.get();
-    final TestBaseRegistry registry = testBase.getRegistry();
-
-    if (null == settings || null == settings.getExtensions()) {
-      return testBase;
-    }
-
-    for (final ExtensionSettings ext : settings.getExtensions().getExtensions()) {
-      final Object object = SysUtils.loadFromModel(ext.getPath());
-      final DataGenerator generator = DataGenerator.class.cast(object);
-      registry.registerGenerator(ext.getName(), generator);
-    }
-
-    return testBase;
-  }
 
   public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
@@ -198,7 +175,7 @@ public final class EngineUtils {
       return isDefaultTestData ? TestBaseUtils.newRandomTestData(query) : TestData.EMPTY;
     }
 
-    final TestBase testBase = engineContext.getTestBase();
+    final TestBase testBase = TestBase.get();
     final TestBaseQueryResult queryResult = testBase.executeQuery(query);
 
     if (TestBaseQueryResult.Status.OK != queryResult.getStatus()) {
