@@ -18,8 +18,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.knowledge.iterator.EmptyIterator;
-import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 import java.util.Collections;
 import java.util.Map;
