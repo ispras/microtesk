@@ -18,8 +18,10 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.testbase.TestData;
 import ru.ispras.testbase.knowledge.iterator.EmptyIterator;
+import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
+import java.util.Collections;
 import java.util.Map;
 
 final class AbstractSequenceTestDataIterator implements Iterator<AbstractSequence> {
@@ -28,6 +30,11 @@ final class AbstractSequenceTestDataIterator implements Iterator<AbstractSequenc
 
   private final Iterator<AbstractSequence> sequenceIterator;
   private Iterator<Map<Situation, TestData>> dataIterator;
+
+  // This is need to process a sequence at least once even if no test data are provided.
+  private static final Iterator<Map<Situation, TestData>> DEFAULT_DATA_PROVIDER =
+      new SingleValueIterator<Map<Situation, TestData>>(
+          Collections.<Situation, TestData>emptyMap());
 
   public AbstractSequenceTestDataIterator(
       final EngineContext engineContext,
@@ -60,11 +67,16 @@ final class AbstractSequenceTestDataIterator implements Iterator<AbstractSequenc
         engineContext, combinatorName, sequenceIterator.value());
 
     dataIterator.init();
+
+    if (!dataIterator.hasValue()) {
+      dataIterator = DEFAULT_DATA_PROVIDER;
+      dataIterator.init();
+    }
   }
 
   @Override
   public boolean hasValue() {
-    return dataIterator.hasValue() || sequenceIterator.hasValue();
+    return dataIterator.hasValue();
   }
 
   @Override
