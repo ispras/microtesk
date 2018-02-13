@@ -70,7 +70,7 @@ public final class Sat4jUtils {
     for (int i = 0; i < n; i++) {
       final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
 
-      final int literals[] = new int[] { rhs.testBit(i) ? xi : -xi };
+      final int[] literals = new int[] { rhs.testBit(i) ? xi : -xi };
       clauses[i] = new VecInt(literals);
     }
 

@@ -21,7 +21,7 @@ package ru.ispras.microtesk.mmu.model.api;
  */
 final class PolicyLru extends Policy {
   /** Maps index to time. */
-  private int times[];
+  private int[] times;
   /** Current time. */
   private int time = 0;
 

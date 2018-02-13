@@ -27,7 +27,7 @@ import java.math.BigInteger;
  */
 public final class LocationManager {
   private final LocationAccessor[] locations;
-  private BigInteger values[];
+  private BigInteger[] values;
 
   public LocationManager(final LocationAccessor... locations) {
     InvariantChecks.checkNotEmpty(locations);

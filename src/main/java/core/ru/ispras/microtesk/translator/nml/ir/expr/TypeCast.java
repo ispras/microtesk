@@ -33,14 +33,14 @@ public final class TypeCast {
       TypeId.INT, TypeId.CARD, TypeId.FLOAT
   );
 
-  private static final TypeId TYPE_CAST_MAP[][] = {
+  private static final TypeId[][] TYPE_CAST_MAP = {
     { null,         TypeId.CARD,  TypeId.INT,   TypeId.BOOL, },
     { TypeId.CARD,  TypeId.CARD,  TypeId.CARD,  null         },
     { TypeId.INT,   TypeId.CARD,  TypeId.INT,   null         },
     { TypeId.BOOL,  null,         null,         TypeId.BOOL  }
   };
 
-  private static final DataTypeId DATA_TYPE_CAST_MAP[][] = {
+  private static final DataTypeId[][] DATA_TYPE_CAST_MAP = {
     { null, DataTypeId.BIT_VECTOR, DataTypeId.LOGIC_INTEGER, DataTypeId.LOGIC_BOOLEAN, },
     { DataTypeId.BIT_VECTOR, DataTypeId.BIT_VECTOR, DataTypeId.BIT_VECTOR, DataTypeId.BIT_VECTOR},
     { DataTypeId.LOGIC_INTEGER, DataTypeId.BIT_VECTOR, DataTypeId.LOGIC_INTEGER, null },

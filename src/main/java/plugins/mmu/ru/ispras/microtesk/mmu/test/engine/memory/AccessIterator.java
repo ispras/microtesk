@@ -75,7 +75,7 @@ public final class AccessIterator implements Iterator<AccessIterator.Result> {
   private static final class OutgoingEdgeIterator implements Iterator<Graph.Edge> {
     final ArrayList<Graph.Edge> edges;
 
-    private final Integer order[];
+    private final Integer[] order;
     private int index;
 
     public OutgoingEdgeIterator(final ArrayList<Graph.Edge> edges) {
