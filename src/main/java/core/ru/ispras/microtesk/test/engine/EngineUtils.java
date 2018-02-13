@@ -68,6 +68,14 @@ import java.util.Set;
 public final class EngineUtils {
   private EngineUtils() {}
 
+  public static AbstractSequence cloneAbstractSequence(final AbstractSequence abstractSequence) {
+    InvariantChecks.checkNotNull(abstractSequence);
+    return new AbstractSequence(
+        abstractSequence.getSection(),
+        AbstractCall.copyAll(abstractSequence.getSequence())
+    );
+  }
+
   public static List<AbstractCall> makeInitializer(
       final EngineContext engineContext,
       final int processingCount,
