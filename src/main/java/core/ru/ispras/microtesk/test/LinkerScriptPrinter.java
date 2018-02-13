@@ -76,7 +76,7 @@ final class LinkerScriptPrinter {
 
             return st;
           }
-    });
+        });
 
     fileGenerator.generate();
   }

@@ -74,6 +74,37 @@ public final class Utils {
         name, FortressUtils.getLowerBit(field), FortressUtils.getUpperBit(field));
   }
 
+  public static String toString(final Ir ir, final String context, final Atom atom) {
+    InvariantChecks.checkNotNull(ir);
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(atom);
+
+    final Object object = atom.getObject();
+    switch (atom.getKind()) {
+      case VALUE:
+        return toString(ir, context, NodeValue.newInteger((BigInteger) object));
+
+      case VARIABLE:
+        return getVariableName(ir, context, (Variable) object);
+
+      case FIELD:
+        return toString(ir, context, (Node) object);
+
+      case GROUP:
+        return getVariableName(context, ((Var) object).getName());
+
+      case CONCAT:
+        return toString(ir, context, (Node) object);
+
+      default:
+        throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
+    }
+  }
+
+  public static String toString(final Ir ir, final String context, final Node node) {
+    return new JavaPrinter(context, ir).toString(node);
+  }
+
   public static String getVariableName(final String context, final String name) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(name);
@@ -132,37 +163,6 @@ public final class Utils {
 
   public static String toMmuExpressionText(final String context, final Node field) {
     return new JavaPrinter(context, null).toString(field);
-  }
-
-  public static String toString(final Ir ir, final String context, final Atom atom) {
-    InvariantChecks.checkNotNull(ir);
-    InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(atom);
-
-    final Object object = atom.getObject();
-    switch (atom.getKind()) {
-      case VALUE:
-        return toString(ir, context, NodeValue.newInteger((BigInteger) object));
-
-      case VARIABLE:
-        return getVariableName(ir, context, (Variable) object);
-
-      case FIELD:
-        return toString(ir, context, (Node) object);
-
-      case GROUP:
-        return getVariableName(context, ((Var) object).getName());
-
-      case CONCAT:
-        return toString(ir, context, (Node) object);
-
-      default:
-        throw new IllegalStateException("Unsupported atom kind: " + atom.getKind());
-    }
-  }
-
-  public static String toString(final Ir ir, final String context, final Node node) {
-    return new JavaPrinter(context, ir).toString(node);
   }
 
   private static final class JavaPrinter extends JavaExprPrinter {
