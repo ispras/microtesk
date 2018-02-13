@@ -70,13 +70,6 @@ final class AbstractSequenceIterator implements Iterator<AbstractSequence> {
     throw new UnsupportedOperationException();
   }
 
-  private static AbstractSequence cloneAbstractSequence(final AbstractSequence abstractSequence) {
-    return new AbstractSequence(
-        abstractSequence.getSection(),
-        AbstractCall.copyAll(abstractSequence.getSequence())
-        );
-  }
-
   private static AbstractSequence resolveDependencies(final AbstractSequence abstractSequence) {
     final Map<AbstractCall, Integer> abstractCalls = new IdentityHashMap<>();
 
@@ -99,5 +92,12 @@ final class AbstractSequenceIterator implements Iterator<AbstractSequence> {
     }
 
     return abstractSequence;
+  }
+
+  private static AbstractSequence cloneAbstractSequence(final AbstractSequence abstractSequence) {
+    return new AbstractSequence(
+        abstractSequence.getSection(),
+        AbstractCall.copyAll(abstractSequence.getSequence())
+    );
   }
 }
