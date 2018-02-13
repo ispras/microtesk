@@ -35,7 +35,7 @@ final class AbstractSequenceIterator implements Iterator<AbstractSequence> {
   @Override
   public void init() {
     sequenceIterator.init();
-    this.abstractSequence = null;
+    abstractSequence = null;
   }
 
   @Override
@@ -57,7 +57,7 @@ final class AbstractSequenceIterator implements Iterator<AbstractSequence> {
   @Override
   public void next() {
     sequenceIterator.next();
-    this.abstractSequence = null;
+    abstractSequence = null;
   }
 
   @Override
