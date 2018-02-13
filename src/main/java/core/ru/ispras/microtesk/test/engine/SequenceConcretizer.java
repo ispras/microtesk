@@ -62,9 +62,11 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
 
   public SequenceConcretizer(
       final EngineContext engineContext,
+      final String dataCombinatorName,
       final boolean isPresimulation,
       final Iterator<AbstractSequence> sequenceIterator) {
     InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(dataCombinatorName);
     InvariantChecks.checkNotNull(sequenceIterator);
 
     this.engineContext = engineContext;
@@ -72,7 +74,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
 
     this.sequenceIterator = new AbstractSequenceTestDataIterator(
         engineContext,
-        "product",
+        dataCombinatorName,
         new AbstractSequenceIterator(sequenceIterator)
     );
   }

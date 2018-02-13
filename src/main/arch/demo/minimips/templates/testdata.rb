@@ -42,7 +42,7 @@ class TestDataTemplate < MiniMipsBaseTemplate
 
   def run
     # Test data for individual registers.
-    sequence {
+    sequence(:data_combinator => 'product') {
       add reg(8),  (reg(9)  do testdata('range', :min => 1, :max => 3) end),
                    (reg(10) do testdata('range', :min => 1, :max => 3) end)
 

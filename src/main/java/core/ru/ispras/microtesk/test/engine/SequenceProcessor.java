@@ -21,6 +21,7 @@ import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.engine.branch.BranchEngine;
+import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.microtesk.test.template.AbstractCall;
@@ -80,10 +81,17 @@ public final class SequenceProcessor {
     final boolean isEnginesEnabled = !Boolean.FALSE.equals(enginesAttribute);
     final boolean isPresimulation = !Boolean.FALSE.equals(attributes.get("presimulation"));
 
+    final String dataCombinatorName = null == attributes.get("data_combinator")
+        ? GeneratorBuilder.DEFAULT_COMPOSITOR : String.valueOf(attributes.get("data_combinator"));
+
     if (!isEnginesEnabled) {
       // All engines are disabled
       return new SequenceConcretizer(
-          engineContext, isPresimulation, new SingleValueIterator<>(abstractSequence));
+          engineContext,
+          dataCombinatorName,
+          isPresimulation,
+          new SingleValueIterator<>(abstractSequence)
+      );
     }
 
     final Map<String, Object> engineAttributeMap = toMap(enginesAttribute);
@@ -102,12 +110,18 @@ public final class SequenceProcessor {
         : new SingleValueIterator<>(abstractSequence);
 
     return new ConcreteSequenceIterator(
-        engineContext, engineAttributeMap, isPresimulation, sequenceIterator);
+        engineContext,
+        engineAttributeMap,
+        dataCombinatorName,
+        isPresimulation,
+        sequenceIterator
+    );
   }
 
   private static final class ConcreteSequenceIterator implements Iterator<ConcreteSequence> {
     private final EngineContext engineContext;
     private final Map<String, Object> engineAttributes;
+    private final String dataCombinatorName;
     private final boolean isPresimulation;
     private final Iterator<AbstractSequence> abstractSequenceIterator;
     private Iterator<ConcreteSequence> concreteSequenceIterator;
@@ -115,10 +129,12 @@ public final class SequenceProcessor {
     public ConcreteSequenceIterator(
         final EngineContext engineContext,
         final Map<String, Object> engineAttributes,
+        final String dataCombinatorName,
         final boolean isPresimulation,
         final Iterator<AbstractSequence> abstractSequenceIterator) {
       this.engineContext = engineContext;
       this.engineAttributes = engineAttributes;
+      this.dataCombinatorName = dataCombinatorName;
       this.isPresimulation = isPresimulation;
       this.abstractSequenceIterator = abstractSequenceIterator;
       this.concreteSequenceIterator = null;
@@ -174,7 +190,7 @@ public final class SequenceProcessor {
           processSequenceWithEngines(engineContext, engineAttributes, abstractSequence);
 
       final Iterator<ConcreteSequence> result = new SequenceConcretizer(
-          engineContext, isPresimulation, abstractSequenceEngineIterator);
+          engineContext, dataCombinatorName, isPresimulation, abstractSequenceEngineIterator);
 
       result.init();
       return result;
