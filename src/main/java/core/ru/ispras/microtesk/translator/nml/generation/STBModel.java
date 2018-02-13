@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class STBModel implements STBuilder {
-  public final static String CLASS_NAME = "Model";
+  public static final String CLASS_NAME = "Model";
   private final Ir ir;
 
   public STBModel(final Ir ir) {

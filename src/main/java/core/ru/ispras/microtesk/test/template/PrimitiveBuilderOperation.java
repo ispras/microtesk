@@ -230,7 +230,7 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     void addToBuilder(PrimitiveBuilder builder);
   }
 
-  private static abstract class AbstractArgument<T> implements Argument {
+  private abstract static class AbstractArgument<T> implements Argument {
     private final String name;
     private final T value;
 

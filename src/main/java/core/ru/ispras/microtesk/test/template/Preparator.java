@@ -337,7 +337,7 @@ public final class Preparator {
     }
   }
 
-  protected static abstract class Argument {
+  protected abstract static class Argument {
     public static Argument newValue(
         final String name,
         final BigInteger value) {

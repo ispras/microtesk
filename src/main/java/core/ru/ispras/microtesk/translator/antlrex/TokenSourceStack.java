@@ -40,7 +40,7 @@ public final class TokenSourceStack implements TokenSource {
     }
   }
 
-  private final static Token EOF_TOKEN = new CommonToken(Token.EOF);
+  private static final Token EOF_TOKEN = new CommonToken(Token.EOF);
   private Stack<TokenSourceEntry> sources = new Stack<>();
 
   public TokenSourceStack() {}

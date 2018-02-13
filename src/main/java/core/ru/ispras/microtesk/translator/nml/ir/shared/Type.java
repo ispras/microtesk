@@ -20,7 +20,7 @@ import ru.ispras.microtesk.model.data.TypeId;
 import java.util.Arrays;
 
 public final class Type {
-  public final static Type BOOLEAN = new Type(TypeId.BOOL, 1);
+  public static final Type BOOLEAN = new Type(TypeId.BOOL, 1);
 
   public static Type STRUCT(final Struct struct) {
     InvariantChecks.checkNotNull(struct);

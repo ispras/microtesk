@@ -81,7 +81,7 @@ public final class SymbolicExecutor {
     }
   }
 
-  private final static class DisassemblerOutput implements Disassembler.Output {
+  private static final class DisassemblerOutput implements Disassembler.Output {
     private final TemporaryVariables tempVars;
     private final List<IsaPrimitive> instructions;
 
@@ -109,7 +109,7 @@ public final class SymbolicExecutor {
     }
   }
 
-  private final static class DisassemblerOutputFactory implements Disassembler.OutputFactory {
+  private static final class DisassemblerOutputFactory implements Disassembler.OutputFactory {
     private DisassemblerOutput output = null;
 
     @Override

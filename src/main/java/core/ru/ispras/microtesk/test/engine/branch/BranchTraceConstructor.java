@@ -55,20 +55,20 @@ final class BranchTraceConstructor {
    */
   private static final class BranchTraceConstructorVisitor extends BranchEntryVisitor {
     /** Contains an execution trace. */
-    final private List<Integer> trace = new ArrayList<>();
+    private final List<Integer> trace = new ArrayList<>();
 
     /** Contains a set of basic blocks having been executed (with counters). */
-    final private Map<Integer, Integer> preBlocks = new LinkedHashMap<>();
+    private final Map<Integer, Integer> preBlocks = new LinkedHashMap<>();
     /** Contains a set of delay slots having been executed. */
-    final private Map<Integer, Integer> preSlots = new LinkedHashMap<>();
+    private final Map<Integer, Integer> preSlots = new LinkedHashMap<>();
 
     /** Maps a register identifier into the current basic block segment. */
-    final private Map<Integer, Map<Integer, Integer>> postBlocks = new LinkedHashMap<>();
+    private final Map<Integer, Map<Integer, Integer>> postBlocks = new LinkedHashMap<>();
     /** Maps a register identifier into the current delay slot segment. */
-    final private Map<Integer, Map<Integer, Integer>> postSlots = new LinkedHashMap<>();
+    private final Map<Integer, Map<Integer, Integer>> postSlots = new LinkedHashMap<>();
 
     /** Contains a set of used branch registers. */
-    final private Set<Integer> branchRegisters = new LinkedHashSet<>();
+    private final Set<Integer> branchRegisters = new LinkedHashSet<>();
 
     public List<Integer> getTrace() {
       return trace;

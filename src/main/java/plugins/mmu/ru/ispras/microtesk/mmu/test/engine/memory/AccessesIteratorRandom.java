@@ -29,7 +29,7 @@ import java.util.List;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AccessesIteratorRandom implements Iterator<List<Access>> {
-  final private List<Collection<AccessChooser>> accessChoosers;
+  private final List<Collection<AccessChooser>> accessChoosers;
 
   private List<Access> accesses = null;
 

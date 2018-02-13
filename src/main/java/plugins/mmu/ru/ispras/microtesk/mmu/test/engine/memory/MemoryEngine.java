@@ -44,7 +44,7 @@ public final class MemoryEngine implements Engine {
   public static final String ID = "memory";
   public static final String PATH = "path";
 
-  final static class ParamAbstraction extends EngineParameter<GraphAbstraction> {
+  static final class ParamAbstraction extends EngineParameter<GraphAbstraction> {
     ParamAbstraction() {
       super("classifier",
           new EngineParameter.Option<>("buffer-access", GraphAbstraction.BUFFER_ACCESS),
@@ -53,7 +53,7 @@ public final class MemoryEngine implements Engine {
     }
   }
 
-  final static class ParamPreparator extends EngineParameter<Boolean> {
+  static final class ParamPreparator extends EngineParameter<Boolean> {
     ParamPreparator() {
       super("preparator",
           new EngineParameter.Option<>("static", Boolean.TRUE),
@@ -61,7 +61,7 @@ public final class MemoryEngine implements Engine {
     }
   }
 
-  final static class ParamIterator extends EngineParameter<AccessesIterator.Mode> {
+  static final class ParamIterator extends EngineParameter<AccessesIterator.Mode> {
     ParamIterator() {
       super("iterator",
           new EngineParameter.Option<>("static", AccessesIterator.Mode.RANDOM),
@@ -69,7 +69,7 @@ public final class MemoryEngine implements Engine {
     }
   }
 
-  final static class ParamRecursionLimit extends EngineParameter<Integer> {
+  static final class ParamRecursionLimit extends EngineParameter<Integer> {
     ParamRecursionLimit() {
       super("recursion-limit");
     }
@@ -88,7 +88,7 @@ public final class MemoryEngine implements Engine {
     }
   }
 
-  final static class ParamCount extends EngineParameter<Integer> {
+  static final class ParamCount extends EngineParameter<Integer> {
     ParamCount() {
       super("count");
     }

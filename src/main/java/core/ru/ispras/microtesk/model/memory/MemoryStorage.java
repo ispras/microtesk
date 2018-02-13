@@ -46,7 +46,7 @@ final class MemoryStorage implements MemoryDevice {
   private final BitVector defaultRegion;
   private final Map<BitVector, Area> addressMap;
 
-  private final static class Index {
+  private static final class Index {
     private static final BitVector ZERO_FIELD = BitVector.valueOf(0, 1);
 
     public final BitVector address;

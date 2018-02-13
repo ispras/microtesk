@@ -25,7 +25,7 @@ import java.util.Map;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class EngineParameter<T> {
-  public final static class Option<T> {
+  public static final class Option<T> {
     private final String name;
     private final T value;
 

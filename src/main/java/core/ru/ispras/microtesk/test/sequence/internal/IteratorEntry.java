@@ -24,7 +24,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
  */
 public class IteratorEntry<T> {
   /** The default point position. */
-  public final static float DEFAULT_POINT_POSITION = 50.0f;
+  public static final float DEFAULT_POINT_POSITION = 50.0f;
 
   /** The index of the current item. */
   public int index;

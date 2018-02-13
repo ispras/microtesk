@@ -161,7 +161,7 @@ public final class DataDirectiveFactory {
     }
   }
 
-  public final static class TypeInfo {
+  public static final class TypeInfo {
     public final Type type;
     public final String text;
 

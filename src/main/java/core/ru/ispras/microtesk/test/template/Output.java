@@ -107,7 +107,7 @@ public final class Output {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-  final static class ArgumentValue implements Argument {
+  static final class ArgumentValue implements Argument {
     private final Object value;
 
     ArgumentValue(final Object value) {
@@ -141,7 +141,7 @@ public final class Output {
    * 
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
-  final static class ArgumentLocation implements Argument {
+  static final class ArgumentLocation implements Argument {
     private final String name;
     private final Value index;
     private final boolean isBinaryText;

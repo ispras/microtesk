@@ -773,7 +773,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     }
   }
 
-  final static class MemoryAccessStatus {
+  static final class MemoryAccessStatus {
     public static final MemoryAccessStatus NO =
         new MemoryAccessStatus(false, false, 0);
 

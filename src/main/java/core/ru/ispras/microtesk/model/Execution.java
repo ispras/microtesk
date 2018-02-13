@@ -75,7 +75,7 @@ public final class Execution {
     assertionsEnabled = value;
   }
 
-  public static abstract class InternalVariable {
+  public abstract static class InternalVariable {
     public abstract int load();
 
     public abstract void store(final int value);

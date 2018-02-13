@@ -43,7 +43,7 @@ import java.util.LinkedHashSet;
 public final class AccessPath {
   public static final AccessPath EMPTY = new AccessPath();
 
-  public final static class Entry {
+  public static final class Entry {
     public static enum Kind {
       NORMAL,
       CALL,
