@@ -214,7 +214,7 @@ public final class Expr {
     if (expr.getNodeInfo().isCoersionApplied()) {
       // If a coercion is applied, return without
       // changes as it may affect the result.
-       return new Reduced(0, expr);
+      return new Reduced(0, expr);
     }
  
     final NodeInfo.Kind kind = expr.getNodeInfo().getKind();

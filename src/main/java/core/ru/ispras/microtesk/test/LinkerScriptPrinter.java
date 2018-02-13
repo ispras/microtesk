@@ -52,7 +52,7 @@ final class LinkerScriptPrinter {
 
   public void print() throws IOException {
     final STFileGenerator fileGenerator =
-      new STFileGenerator(fileFullName, LINKER_SCRIPT_TEMPLATE, new STBuilder() {
+        new STFileGenerator(fileFullName, LINKER_SCRIPT_TEMPLATE, new STBuilder() {
 
           @Override
           public ST build(final STGroup group) {
