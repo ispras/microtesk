@@ -737,8 +737,9 @@ final class SsaBuilder {
           return IntegerCast.cast(createRValue(lval), lval.targetType, getCastType(in));
         } /* else if (loc instanceof LocationConcat) // LocationConcat is no longer used
           return CONCAT(createRValues(fetchConcatLValues((LocationConcat) loc))); */
-        else
+        else {
           throw new UnsupportedOperationException();
+        }
       }
     };
 
