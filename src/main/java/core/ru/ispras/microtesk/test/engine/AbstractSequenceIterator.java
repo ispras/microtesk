@@ -48,10 +48,7 @@ final class AbstractSequenceIterator implements Iterator<AbstractSequence> {
     if (null == abstractSequence) {
       abstractSequence = sequenceIterator.value();
       abstractSequence = resolveDependencies(abstractSequence);
-
-      abstractSequence = new AbstractSequence(
-          abstractSequence.getSection(),
-          AbstractCall.copyAll(abstractSequence.getSequence()));
+      abstractSequence = cloneAbstractSequence(abstractSequence);
     }
 
     return abstractSequence;
@@ -71,6 +68,13 @@ final class AbstractSequenceIterator implements Iterator<AbstractSequence> {
   @Override
   public Iterator<AbstractSequence> clone() {
     throw new UnsupportedOperationException();
+  }
+
+  private static AbstractSequence cloneAbstractSequence(final AbstractSequence abstractSequence) {
+    return new AbstractSequence(
+        abstractSequence.getSection(),
+        AbstractCall.copyAll(abstractSequence.getSequence())
+        );
   }
 
   private static AbstractSequence resolveDependencies(final AbstractSequence abstractSequence) {
