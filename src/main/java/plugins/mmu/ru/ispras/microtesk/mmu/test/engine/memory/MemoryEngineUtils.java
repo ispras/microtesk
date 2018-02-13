@@ -127,6 +127,35 @@ public final class MemoryEngineUtils {
     return true;
   }
 
+  private static boolean checkBufferConstraints(
+      final Access access,
+      final Collection<BufferEventConstraint> bufferConstraints) {
+    InvariantChecks.checkNotNull(access);
+    InvariantChecks.checkNotNull(bufferConstraints);
+
+    final AccessPath path = access.getPath();
+
+    for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
+      final MmuBuffer buffer = bufferConstraint.getBuffer();
+      final Collection<BufferAccessEvent> allowedEvents = bufferConstraint.getEvents();
+      final Collection<BufferAccessEvent> inducedEvents = path.getEvents(buffer);
+
+      // If there is a constraint on a buffer, the buffer should be accessed.
+      if (inducedEvents.isEmpty()) {
+        Logger.debug("Path does not contain %s", buffer);
+        return false;
+      }
+
+      // There should not be events of other types than ones specified in the constraint.
+      if (!allowedEvents.containsAll(inducedEvents)) {
+        Logger.debug("Event mismatch: induced=%s, allowed=%s", inducedEvents, allowedEvents);
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   public static boolean isFeasibleEntry(
       final AccessPath.Entry entry,
       final MemoryAccessType type,
@@ -161,35 +190,6 @@ public final class MemoryEngineUtils {
         solve(partialResult, BitVectorVariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
-  }
-
-  private static boolean checkBufferConstraints(
-      final Access access,
-      final Collection<BufferEventConstraint> bufferConstraints) {
-    InvariantChecks.checkNotNull(access);
-    InvariantChecks.checkNotNull(bufferConstraints);
-
-    final AccessPath path = access.getPath();
-
-    for (final BufferEventConstraint bufferConstraint : bufferConstraints) {
-      final MmuBuffer buffer = bufferConstraint.getBuffer();
-      final Collection<BufferAccessEvent> allowedEvents = bufferConstraint.getEvents();
-      final Collection<BufferAccessEvent> inducedEvents = path.getEvents(buffer);
-
-      // If there is a constraint on a buffer, the buffer should be accessed.
-      if (inducedEvents.isEmpty()) {
-        Logger.debug("Path does not contain %s", buffer);
-        return false;
-      }
-
-      // There should not be events of other types than ones specified in the constraint.
-      if (!allowedEvents.containsAll(inducedEvents)) {
-        Logger.debug("Event mismatch: induced=%s, allowed=%s", inducedEvents, allowedEvents);
-        return false;
-      }
-    }
-
-    return true;
   }
 
   public static boolean isFeasibleAccess(final Access access) {

@@ -161,6 +161,32 @@ public final class MemoryAllocator {
     return address;
   }
 
+  /**
+   * Allocates memory in the memory storage to hold the specified number of the specified data and
+   * returns the address (in addressable units) of the first element. The data is aligned in the
+   * memory by its size (in addressable units). Space between allocations is filled with zeros.
+   *
+   * @param data Data to be placed in the memory storage.
+   * @param count Number of copies to be placed in the memory storage.
+   * @return Address of the allocated memory (in addressable units)
+   *
+   * @throws IllegalArgumentException if the parameter is {@code null}.
+   */
+  public BigInteger allocate(final BitVector data, final int count) {
+    InvariantChecks.checkNotNull(data);
+    InvariantChecks.checkGreaterThanZero(count);
+
+    BigInteger address = BigInteger.ZERO;
+    for (int index = 0; index < count; ++index) {
+      final BigInteger allocatedAddress = allocate(data);
+      if (0 == index) {
+        address = allocatedAddress;
+      }
+    }
+
+    return address;
+  }
+
   public void allocateAt(final BitVector data, final BigInteger address) {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkNotNull(address);
@@ -216,32 +242,6 @@ public final class MemoryAllocator {
 
   private BigInteger regionIndexForAddress(final BigInteger address) {
     return address.divide(BigInteger.valueOf(addressableUnitsInRegion));
-  }
-
-  /**
-   * Allocates memory in the memory storage to hold the specified number of the specified data and
-   * returns the address (in addressable units) of the first element. The data is aligned in the
-   * memory by its size (in addressable units). Space between allocations is filled with zeros.
-   * 
-   * @param data Data to be placed in the memory storage.
-   * @param count Number of copies to be placed in the memory storage.
-   * @return Address of the allocated memory (in addressable units)
-   * 
-   * @throws IllegalArgumentException if the parameter is {@code null}.
-   */
-  public BigInteger allocate(final BitVector data, final int count) {
-    InvariantChecks.checkNotNull(data);
-    InvariantChecks.checkGreaterThanZero(count);
-
-    BigInteger address = BigInteger.ZERO;
-    for (int index = 0; index < count; ++index) {
-      final BigInteger allocatedAddress = allocate(data);
-      if (0 == index) {
-        address = allocatedAddress;
-      }
-    }
-
-    return address;
   }
 
   /**

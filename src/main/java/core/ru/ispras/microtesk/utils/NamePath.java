@@ -45,6 +45,14 @@ public final class NamePath implements Iterable<NamePath>, Comparable<NamePath> 
     return resolve(this.list, other.list);
   }
 
+  private static NamePath resolve(final List<String> lead, final List<String> tail) {
+    final List<String> list = Arrays.asList(new String[lead.size() + tail.size()]);
+    Collections.copy(list, lead);
+    Collections.copy(list.subList(lead.size(), list.size()), tail);
+
+    return new NamePath(list);
+  }
+
   public NamePath subpath(final int begin) {
     return subpath(begin, getNameCount());
   }
@@ -60,13 +68,6 @@ public final class NamePath implements Iterable<NamePath>, Comparable<NamePath> 
     return false;
   }
 
-  public boolean endsWith(final NamePath other) {
-    if (other != null) {
-      return startsWith(new InverseIterator<>(this.list), new InverseIterator<>(other.list));
-    }
-    return false;
-  }
-
   private static <T> boolean startsWith(
       final Iterator<? extends T> lhs,
       final Iterator<? extends T> rhs) {
@@ -75,6 +76,13 @@ public final class NamePath implements Iterable<NamePath>, Comparable<NamePath> 
       eq = lhs.next().equals(rhs.next());
     }
     return eq && !rhs.hasNext();
+  }
+
+  public boolean endsWith(final NamePath other) {
+    if (other != null) {
+      return startsWith(new InverseIterator<>(this.list), new InverseIterator<>(other.list));
+    }
+    return false;
   }
 
   private static final class InverseIterator<T> implements Iterator<T> {
@@ -145,19 +153,6 @@ public final class NamePath implements Iterable<NamePath>, Comparable<NamePath> 
     return this.toString(DEFAULT_SEPARATOR);
   }
 
-  @Override
-  public boolean equals(final Object other) {
-    if (other != null && other instanceof NamePath) {
-      return this.list.equals(((NamePath) other).list);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    return this.list.hashCode();
-  }
-
   public String toString(final String sep) {
     if (list.size() > 1) {
       final Iterator<String> it = list.iterator();
@@ -170,6 +165,19 @@ public final class NamePath implements Iterable<NamePath>, Comparable<NamePath> 
       return list.get(0);
     }
     return "";
+  }
+
+  @Override
+  public boolean equals(final Object other) {
+    if (other != null && other instanceof NamePath) {
+      return this.list.equals(((NamePath) other).list);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return this.list.hashCode();
   }
 
   public static NamePath get(final NamePath head, final NamePath... tail) {
@@ -204,13 +212,5 @@ public final class NamePath implements Iterable<NamePath>, Comparable<NamePath> 
       return new NamePath(Collections.singletonList(head));
     }
     return resolve(Collections.singletonList(head), Arrays.asList(tail));
-  }
-
-  private static NamePath resolve(final List<String> lead, final List<String> tail) {
-    final List<String> list = Arrays.asList(new String[lead.size() + tail.size()]);
-    Collections.copy(list, lead);
-    Collections.copy(list.subList(lead.size(), list.size()), tail);
-
-    return new NamePath(list);
   }
 }

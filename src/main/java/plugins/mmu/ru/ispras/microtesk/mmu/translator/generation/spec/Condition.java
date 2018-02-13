@@ -108,46 +108,6 @@ public final class Condition {
     }
   }
 
-  public Condition not() {
-    if (isSingle()) {
-      return new Condition(not(atoms.get(0)));
-    }
-
-    final List<Node> notAtoms = new ArrayList<Node>(atoms.size());
-    for (final Node atom : atoms) {
-      notAtoms.add(not(atom));
-    }
-
-    return new Condition(Type.not(type), notAtoms);
-  }
-
-  public Condition and(final Condition other) {
-    InvariantChecks.checkNotNull(other);
-    return merge(Type.AND, other);
-  }
-
-  public Condition or(final Condition other) {
-    InvariantChecks.checkNotNull(other);
-    return merge(Type.OR, other);
-  }
-
-  private Condition merge(final Type mergeType, final Condition other) {
-    InvariantChecks.checkNotNull(other);
-
-    if ((this.type == mergeType && other.type == mergeType)
-        || (this.isSingle() && other.isSingle())
-        || (this.type == mergeType && other.isSingle())
-        || (other.type == mergeType && this.isSingle())) {
-      final List<Node> newAtoms = new ArrayList<Node>(this.atoms);
-      newAtoms.addAll(other.atoms);
-      return new Condition(mergeType, newAtoms);
-    }
-
-    throw new IllegalStateException(String.format(
-        "Cannot perform %s with %s and %s. Condition types must be equal.",
-        mergeType, this, other));
-  }
-
   private static Condition extract(final NodeOperation expr) {
     InvariantChecks.checkNotNull(expr);
     final Enum<?> op = expr.getOperationId();
@@ -169,6 +129,19 @@ public final class Condition {
 
     throw new IllegalStateException(String.format(
         "Unsupported operatior %s in a condition expression: %s", op, expr));
+  }
+
+  public Condition not() {
+    if (isSingle()) {
+      return new Condition(not(atoms.get(0)));
+    }
+
+    final List<Node> notAtoms = new ArrayList<Node>(atoms.size());
+    for (final Node atom : atoms) {
+      notAtoms.add(not(atom));
+    }
+
+    return new Condition(Type.not(type), notAtoms);
   }
 
   private static Node not(final Node expr) {
@@ -203,4 +176,32 @@ public final class Condition {
     throw new IllegalStateException(String.format(
         "Unsupported operatior %s in a condition expression: %s", op, expr));
   }
+
+  public Condition and(final Condition other) {
+    InvariantChecks.checkNotNull(other);
+    return merge(Type.AND, other);
+  }
+
+  public Condition or(final Condition other) {
+    InvariantChecks.checkNotNull(other);
+    return merge(Type.OR, other);
+  }
+
+  private Condition merge(final Type mergeType, final Condition other) {
+    InvariantChecks.checkNotNull(other);
+
+    if ((this.type == mergeType && other.type == mergeType)
+        || (this.isSingle() && other.isSingle())
+        || (this.type == mergeType && other.isSingle())
+        || (other.type == mergeType && this.isSingle())) {
+      final List<Node> newAtoms = new ArrayList<Node>(this.atoms);
+      newAtoms.addAll(other.atoms);
+      return new Condition(mergeType, newAtoms);
+    }
+
+    throw new IllegalStateException(String.format(
+        "Cannot perform %s with %s and %s. Condition types must be equal.",
+        mergeType, this, other));
+  }
+
 }

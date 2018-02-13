@@ -103,6 +103,37 @@ public final class LocationFactory extends WalkerFactoryBase {
     return newLocationExpr(locationField);
   }
 
+  public Expr location(
+      final Where where,
+      final String name,
+      final List<String> fields) throws SemanticException {
+
+    final Symbol symbol = findSymbol(where, name);
+    final Enum<?> kind = symbol.getKind();
+
+    if (NmlSymbolKind.MEMORY != kind && NmlSymbolKind.ARGUMENT != kind) {
+      raiseError(
+          where,
+          new SymbolTypeMismatch(
+              name, kind, Arrays.<Enum<?>>asList(NmlSymbolKind.MEMORY, NmlSymbolKind.ARGUMENT))
+      );
+    }
+
+    if (NmlSymbolKind.MEMORY == kind) {
+      final Location location = newLocationMemory(where, name, null);
+      final Location locationField = namedField(where, location, fields);
+      return newLocationExpr(locationField);
+    }
+
+    final Primitive argument = getThisArgs().get(name);
+    if (null == argument) {
+      raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.ARGUMENT));
+    }
+
+    final Location location = argumentField(where, argument, name, fields);
+    return newLocationExpr(location);
+  }
+
   private Location namedField(
       final Where where,
       final Location location,
@@ -134,37 +165,6 @@ public final class LocationFactory extends WalkerFactoryBase {
     to.setNodeInfo(NodeInfo.newConst(null));
 
     return createBitfield(where, location, from, to, field.getType());
-  }
-
-  public Expr location(
-      final Where where,
-      final String name,
-      final List<String> fields) throws SemanticException {
-
-    final Symbol symbol = findSymbol(where, name);
-    final Enum<?> kind = symbol.getKind();
-
-    if (NmlSymbolKind.MEMORY != kind && NmlSymbolKind.ARGUMENT != kind) {
-      raiseError(
-          where,
-          new SymbolTypeMismatch(
-              name, kind, Arrays.<Enum<?>>asList(NmlSymbolKind.MEMORY, NmlSymbolKind.ARGUMENT))
-      );
-    }
-
-    if (NmlSymbolKind.MEMORY == kind) {
-      final Location location = newLocationMemory(where, name, null);
-      final Location locationField = namedField(where, location, fields);
-      return newLocationExpr(locationField);
-    }
-
-    final Primitive argument = getThisArgs().get(name);
-    if (null == argument) {
-      raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.ARGUMENT));
-    }
-
-    final Location location = argumentField(where, argument, name, fields);
-    return newLocationExpr(location);
   }
 
   private Location argumentField(

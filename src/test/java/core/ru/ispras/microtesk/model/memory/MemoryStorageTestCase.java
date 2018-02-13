@@ -47,6 +47,25 @@ public final class MemoryStorageTestCase {
     }
   }
 
+  private void test(BigInteger regionCount, int regionBitSize) {
+    final MemoryStorage ms = new MemoryStorage(regionCount, regionBitSize);
+
+    System.out.printf("Test: regions = %d (%x), region size = %d, address size = %d%n",
+        regionCount, regionCount, regionBitSize, ms.getAddressBitSize());
+
+    for (int i = 0; i < 1000; i++) {
+      final BitVector address = BitVector.newEmpty(ms.getAddressBitSize());
+      Randomizer.get().fill(address);
+
+      final BitVector data = BitVector.newEmpty(ms.getRegionBitSize());
+      Randomizer.get().fill(data);
+
+      // System.out.printf("Accessing address 0x%s, data: %s%n", address.toHexString(), data);
+      ms.write(address, data);
+      Assert.assertEquals(data, ms.read(address));
+    }
+  }
+
   @Test
   public void testOffset() {
     final MemoryStorage ms = new MemoryStorage(1024, 64);
@@ -86,25 +105,6 @@ public final class MemoryStorageTestCase {
     // Larger than ms.getAddressBitSize()
     final BitVector largeAddress = BitVector.valueOf(0, 64);
     Assert.assertEquals(data, ms.read(largeAddress));
-  }
-
-  private void test(BigInteger regionCount, int regionBitSize) {
-    final MemoryStorage ms = new MemoryStorage(regionCount, regionBitSize);
-
-    System.out.printf("Test: regions = %d (%x), region size = %d, address size = %d%n",
-        regionCount, regionCount, regionBitSize, ms.getAddressBitSize());
-
-    for (int i = 0; i < 1000; i++) {
-      final BitVector address = BitVector.newEmpty(ms.getAddressBitSize());
-      Randomizer.get().fill(address);
-
-      final BitVector data = BitVector.newEmpty(ms.getRegionBitSize());
-      Randomizer.get().fill(data);
-
-      // System.out.printf("Accessing address 0x%s, data: %s%n", address.toHexString(), data);
-      ms.write(address, data);
-      Assert.assertEquals(data, ms.read(address));
-    }
   }
 
   @Test

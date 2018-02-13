@@ -91,25 +91,6 @@ public final class IrWalkerShortcuts {
     visitor.onPrimitiveEnd(primitive);
   }
 
-  private void visitShortcut(final PrimitiveAND primitive, final Shortcut shortcut) {
-    visitor.onShortcutBegin(primitive, shortcut);
-    if (isStatus(Status.ABORT)) {
-      return;
-    }
-
-    final PrimitiveAND entry = shortcut.getEntry();
-    final PrimitiveAND target = shortcut.getTarget();
-
-    if (isStatus(Status.OK)) {
-      visitPrimitive(entry, target);
-      if (isStatus(Status.ABORT)) {
-        return;
-      }
-    }
-
-    visitor.onShortcutEnd(primitive, shortcut);
-  }
-
   private void visitPrimitive(final PrimitiveAND entry, final PrimitiveAND target) {
     visitor.onPrimitiveBegin(entry);
     if (isStatus(Status.ABORT)) {
@@ -144,5 +125,24 @@ public final class IrWalkerShortcuts {
     }
 
     visitor.onPrimitiveEnd(entry);
+  }
+
+  private void visitShortcut(final PrimitiveAND primitive, final Shortcut shortcut) {
+    visitor.onShortcutBegin(primitive, shortcut);
+    if (isStatus(Status.ABORT)) {
+      return;
+    }
+
+    final PrimitiveAND entry = shortcut.getEntry();
+    final PrimitiveAND target = shortcut.getTarget();
+
+    if (isStatus(Status.OK)) {
+      visitPrimitive(entry, target);
+      if (isStatus(Status.ABORT)) {
+        return;
+      }
+    }
+
+    visitor.onShortcutEnd(primitive, shortcut);
   }
 }

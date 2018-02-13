@@ -98,6 +98,12 @@ public abstract class Memory<D extends Data, A extends Address>
   }
 
   @Override
+  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
+    // NOT SUPPORTED
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public final D setData(final A address, final D data) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
 
@@ -121,12 +127,6 @@ public abstract class Memory<D extends Data, A extends Address>
     }
 
     return null;
-  }
-
-  @Override
-  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
-    // NOT SUPPORTED
-    throw new UnsupportedOperationException();
   }
 
   public final Proxy setData(final A address) {

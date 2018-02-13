@@ -132,6 +132,14 @@ public final class OutputBuilder {
     return addArgument(name, new FixedValue(index));
   }
 
+  private void addArgument(final Argument arg) {
+    if (null == args) {
+      args = new ArrayList<>();
+    }
+
+    args.add(arg);
+  }
+
   /**
    * Build the output object.
    * 
@@ -139,14 +147,6 @@ public final class OutputBuilder {
    */
   public Output build() {
     return null == args ? new Output(kind, format) : new Output(kind, format, args);
-  }
-
-  private void addArgument(final Argument arg) {
-    if (null == args) {
-      args = new ArrayList<>();
-    }
-
-    args.add(arg);
   }
 
   private int getArgumentCount() {

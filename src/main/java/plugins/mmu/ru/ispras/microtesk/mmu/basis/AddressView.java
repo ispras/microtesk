@@ -94,6 +94,28 @@ public final class AddressView<A> {
   }
 
   /**
+   * Returns the address to the given tag, index and offset.
+   *
+   * @param tag the tag.
+   * @param index the index.
+   * @param offset the offset.
+   * @return the address.
+   * @throws IllegalArgumentException if {@code index}, {@code tag} or {@code offset} is null.
+   */
+  public A getAddress(final A tag, final A index, final A offset) {
+    InvariantChecks.checkNotNull(tag);
+    InvariantChecks.checkNotNull(index);
+    InvariantChecks.checkNotNull(offset);
+
+    final List<A> fields = new ArrayList<>();
+    fields.add(tag);
+    fields.add(index);
+    fields.add(offset);
+
+    return merge.apply(fields);
+  }
+
+  /**
    * Returns the tag of the given address ({@code fields[0]}).
    * 
    * @param address the address.
@@ -124,27 +146,5 @@ public final class AddressView<A> {
    */
   public A getOffset(final A address) {
     return getField(address, 2);
-  }
-
-  /**
-   * Returns the address to the given tag, index and offset.
-   * 
-   * @param tag the tag.
-   * @param index the index.
-   * @param offset the offset.
-   * @return the address.
-   * @throws IllegalArgumentException if {@code index}, {@code tag} or {@code offset} is null.
-   */
-  public A getAddress(final A tag, final A index, final A offset) {
-    InvariantChecks.checkNotNull(tag);
-    InvariantChecks.checkNotNull(index);
-    InvariantChecks.checkNotNull(offset);
-
-    final List<A> fields = new ArrayList<>();
-    fields.add(tag);
-    fields.add(index);
-    fields.add(offset);
-
-    return merge.apply(fields);
   }
 }

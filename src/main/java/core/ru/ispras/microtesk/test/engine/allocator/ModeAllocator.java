@@ -148,6 +148,37 @@ public final class ModeAllocator {
     }
   }
 
+  private int allocate(
+      final String mode,
+      final Allocator allocator,
+      final List<Value> retain,
+      final List<Value> exclude) {
+    final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
+    InvariantChecks.checkNotNull(allocationTable);
+
+    final Allocator defaultAllocator = allocationTable.getAllocator();
+    try {
+      if (null != allocator) {
+        allocationTable.setAllocator(allocator);
+      }
+
+      final Set<Integer> globalExclude =
+          excluded.containsKey(mode) ? excluded.get(mode) : Collections.<Integer>emptySet();
+
+      final Set<Integer> localExclude =
+          null != exclude ? toValueSet(exclude) : Collections.<Integer>emptySet();
+
+      final Set<Integer> unitedExclude =
+          CollectionUtils.uniteSets(globalExclude, localExclude);
+
+      return unitedExclude.isEmpty()
+          ? allocationTable.allocate()
+          : allocationTable.allocate(unitedExclude);
+    } finally {
+      allocationTable.setAllocator(defaultAllocator);
+    }
+  }
+
   private void useInitializedModes(final Primitive primitive) {
     for (final Argument arg : primitive.getArguments().values()) {
       switch (arg.getKind()) {
@@ -222,37 +253,6 @@ public final class ModeAllocator {
 
     if (allocationTable != null && allocationTable.exists(value.intValue())) {
       allocationTable.use(value.intValue());
-    }
-  }
-
-  private int allocate(
-      final String mode,
-      final Allocator allocator,
-      final List<Value> retain,
-      final List<Value> exclude) {
-    final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
-    InvariantChecks.checkNotNull(allocationTable);
-
-    final Allocator defaultAllocator = allocationTable.getAllocator();
-    try {
-      if (null != allocator) {
-        allocationTable.setAllocator(allocator);
-      }
-
-      final Set<Integer> globalExclude =
-          excluded.containsKey(mode) ? excluded.get(mode) : Collections.<Integer>emptySet();
-
-      final Set<Integer> localExclude =
-          null != exclude ? toValueSet(exclude) : Collections.<Integer>emptySet();
-
-      final Set<Integer> unitedExclude =
-          CollectionUtils.uniteSets(globalExclude, localExclude);
-
-      return unitedExclude.isEmpty()
-          ? allocationTable.allocate()
-          : allocationTable.allocate(unitedExclude);
-    } finally {
-      allocationTable.setAllocator(defaultAllocator);
     }
   }
 

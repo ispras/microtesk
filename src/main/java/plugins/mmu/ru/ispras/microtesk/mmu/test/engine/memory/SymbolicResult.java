@@ -279,6 +279,23 @@ public final class SymbolicResult {
     });
   }
 
+  public Variable getVersion(final Variable originalVariable) {
+    InvariantChecks.checkNotNull(originalVariable);
+
+    final String originalName = originalVariable.getName();
+    final int versionNumber = getVersionNumber(originalName);
+    final String versionName = getVersionName(originalName, versionNumber);
+
+    return getVariable(versionName, originalVariable.getType(), originalVariable.getData());
+  }
+
+  private Variable getVersion(final String originalName) {
+    final int versionNumber = getVersionNumber(originalName);
+    final String versionName = getVersionName(originalName, versionNumber);
+
+    return cache.get(versionName);
+  }
+
   public Variable getNextVersion(final Variable variable, final int pathIndex) {
     InvariantChecks.checkNotNull(variable);
 
@@ -300,19 +317,13 @@ public final class SymbolicResult {
 
   //------------------------------------------------------------------------------------------------
 
-  public Variable getVersion(final Variable originalVariable) {
-    InvariantChecks.checkNotNull(originalVariable);
-
-    final String originalName = originalVariable.getName();
-    final int versionNumber = getVersionNumber(originalName);
-    final String versionName = getVersionName(originalName, versionNumber);
-
-    return getVariable(versionName, originalVariable.getType(), originalVariable.getData());
-  }
-
   public int getVersionNumber(final Variable originalVariable) {
     InvariantChecks.checkNotNull(originalVariable);
     return getVersionNumber(originalVariable.getName());
+  }
+
+  private int getVersionNumber(final String originalName) {
+    return versions.containsKey(originalName) ? versions.get(originalName) : 0;
   }
 
   public void setVersionNumber(final Variable originalVariable, final int versionNumber) {
@@ -335,17 +346,6 @@ public final class SymbolicResult {
 
   private static String getVersionName(final String originalName, final int versionNumber) {
     return String.format("%s(%d)", originalName, versionNumber);
-  }
-
-  private int getVersionNumber(final String originalName) {
-    return versions.containsKey(originalName) ? versions.get(originalName) : 0;
-  }
-
-  private Variable getVersion(final String originalName) {
-    final int versionNumber = getVersionNumber(originalName);
-    final String versionName = getVersionName(originalName, versionNumber);
-
-    return cache.get(versionName);
   }
 
   private Variable getVariable(final String variableName, final DataType type, final Data data) {

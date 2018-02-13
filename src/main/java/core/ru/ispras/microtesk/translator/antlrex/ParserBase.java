@@ -164,6 +164,11 @@ public class ParserBase extends ParserEx {
     return isRevisionApplicable() && (null == revision || revisions.contains(revision.getText()));
   }
 
+  private boolean isRevisionApplicable() {
+    InvariantChecks.checkNotNull(revisionApplicable);
+    return revisionApplicable.isEmpty() || revisionApplicable.peek();
+  }
+
   protected final void pushRevisionApplicable(final boolean applicable) {
     InvariantChecks.checkNotNull(revisionApplicable);
     revisionApplicable.push(applicable);
@@ -172,11 +177,6 @@ public class ParserBase extends ParserEx {
   protected final void popRevisionApplicable() {
     InvariantChecks.checkNotNull(revisionApplicable);
     revisionApplicable.pop();
-  }
-
-  private boolean isRevisionApplicable() {
-    InvariantChecks.checkNotNull(revisionApplicable);
-    return revisionApplicable.isEmpty() || revisionApplicable.peek();
   }
 
   private boolean isFakeScope() {

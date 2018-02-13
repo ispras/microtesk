@@ -45,19 +45,6 @@ public final class FortressUtils {
     }
   }
 
-  public static Boolean getBoolean(final Node expr) {
-    checkConstantValue(expr);
-    final NodeValue value = (NodeValue) expr;
-
-    switch (value.getDataTypeId()) {
-      case LOGIC_BOOLEAN:
-        return value.getBoolean();
-      default:
-        InvariantChecks.checkTrue(false);
-        return null;
-    }
-  }
-
   public static BigInteger getInteger(final Node expr) {
     checkConstantValue(expr);
     final NodeValue value = (NodeValue) expr;
@@ -69,6 +56,19 @@ public final class FortressUtils {
         return value.getInteger();
       case LOGIC_BOOLEAN:
         return value.getBoolean() ? BigInteger.ONE : BigInteger.ZERO;
+      default:
+        InvariantChecks.checkTrue(false);
+        return null;
+    }
+  }
+
+  public static Boolean getBoolean(final Node expr) {
+    checkConstantValue(expr);
+    final NodeValue value = (NodeValue) expr;
+
+    switch (value.getDataTypeId()) {
+      case LOGIC_BOOLEAN:
+        return value.getBoolean();
       default:
         InvariantChecks.checkTrue(false);
         return null;

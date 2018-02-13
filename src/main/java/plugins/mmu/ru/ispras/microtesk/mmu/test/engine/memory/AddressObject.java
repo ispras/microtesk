@@ -82,14 +82,14 @@ public final class AddressObject {
     return addresses.get(addrType); 
   }
 
+  public BitVector getAddress(final MmuBufferAccess bufferAccess) {
+    return getAddress(bufferAccess.getAddress());
+  }
+
   public void setAddress(final MmuAddressInstance addrType, final BitVector addrValue) {
     InvariantChecks.checkNotNull(addrType);
     InvariantChecks.checkNotNull(addrValue);
     addresses.put(addrType, addrValue);
-  }
-
-  public BitVector getAddress(final MmuBufferAccess bufferAccess) {
-    return getAddress(bufferAccess.getAddress()); 
   }
 
   public void setAddress(final MmuBufferAccess bufferAccess, final BitVector addrValue) {

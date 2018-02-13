@@ -130,16 +130,16 @@ public abstract class Cache<D extends Data, A extends Address>
   }
 
   @Override
+  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
+    final Set<D, A> set = sets.get(index);
+    return null != set ? set.seeData(index, way) : null;
+  }
+
+  @Override
   public final D setData(final A address, final D data) {
     final BitVector index = indexer.getIndex(address);
     final Set<D, A> set = getSet(index);
     return set.setData(address, data);
-  }
-
-  @Override
-  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-    final Set<D, A> set = sets.get(index);
-    return null != set ? set.seeData(index, way) : null;
   }
 
   public final Proxy setData(final A address) {

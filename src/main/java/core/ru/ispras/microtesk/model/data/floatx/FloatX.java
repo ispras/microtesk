@@ -59,6 +59,10 @@ public final class FloatX extends Number implements Comparable<FloatX> {
     );
   }
 
+  public Precision getPrecision() {
+    return precision;
+  }
+
   private Operations getOperations() {
     return precision.getOperations();
   }
@@ -69,10 +73,6 @@ public final class FloatX extends Number implements Comparable<FloatX> {
 
   public int getSize() {
     return data.getBitSize();
-  }
-
-  public Precision getPrecision() {
-    return precision;
   }
 
   @Override

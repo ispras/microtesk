@@ -154,28 +154,6 @@ public final class TypeCast {
     return expr;
   }
 
-  private static BitVector getBitVector(
-      final Expr value, final int bitSize, final boolean signExtend) {
-    InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkTrue(value.isConstant());
-
-    final NodeValue node = (NodeValue) value.getNode();
-    switch (node.getDataTypeId()) {
-      case BIT_VECTOR:
-        return node.getBitVector().resize(bitSize, signExtend);
-
-      case LOGIC_INTEGER:
-        return BitVector.valueOf(node.getInteger(), bitSize);
-
-      case LOGIC_BOOLEAN:
-        return BitVector.valueOf(node.getBoolean()).resize(bitSize, signExtend);
-
-      default:
-        throw new IllegalArgumentException(
-            "Unsupported data type: " + node.getDataType());
-    }
-  }
-
   public static Node castConstantTo(final Node value, final DataType type) {
     InvariantChecks.checkNotNull(value);
     InvariantChecks.checkTrue(value.getKind() == Node.Kind.VALUE);
@@ -183,7 +161,7 @@ public final class TypeCast {
 
     final DataType valueType = value.getDataType();
     if (type.equals(valueType)) {
-      return value; 
+      return value;
     }
 
     if (type.getTypeId() == DataTypeId.BIT_VECTOR) {
@@ -210,6 +188,28 @@ public final class TypeCast {
 
     throw new IllegalArgumentException(String.format(
         "Сoercion from %s to %s is unsupported.", valueType, type));
+  }
+
+  private static BitVector getBitVector(
+      final Expr value, final int bitSize, final boolean signExtend) {
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkTrue(value.isConstant());
+
+    final NodeValue node = (NodeValue) value.getNode();
+    switch (node.getDataTypeId()) {
+      case BIT_VECTOR:
+        return node.getBitVector().resize(bitSize, signExtend);
+
+      case LOGIC_INTEGER:
+        return BitVector.valueOf(node.getInteger(), bitSize);
+
+      case LOGIC_BOOLEAN:
+        return BitVector.valueOf(node.getBoolean()).resize(bitSize, signExtend);
+
+      default:
+        throw new IllegalArgumentException(
+            "Unsupported data type: " + node.getDataType());
+    }
   }
 
   public static DataType getFortressDataType(final Type type) {

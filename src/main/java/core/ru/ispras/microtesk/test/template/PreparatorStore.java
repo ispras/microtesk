@@ -83,6 +83,30 @@ public final class PreparatorStore {
     return getPreparator(preparatorGroups, targetMode, data, preparatorName);
   }
 
+  private static Preparator getPreparator(
+      final Map<String, PreparatorGroup> preparatorGroups,
+      final Primitive targetMode,
+      final BitVector data,
+      final String preparatorName) {
+    InvariantChecks.checkNotNull(targetMode);
+    InvariantChecks.checkNotNull(data);
+
+    final String name = targetMode.getName();
+    final PreparatorGroup group = preparatorGroups.get(name);
+
+    if (null == group) {
+      return null;
+    }
+
+    for (final Preparator preparator : group.getPreparators()) {
+      if (preparator.isMatch(targetMode, data, preparatorName)) {
+        return preparator;
+      }
+    }
+
+    return group.getDefault();
+  }
+
   public Preparator getComparator(
       final Primitive targetMode,
       final BitVector data,
@@ -103,29 +127,5 @@ public final class PreparatorStore {
 
     return preparator.isDefault()
         ? group.setDefault(preparator) : group.addPreparator(preparator);
-  }
-
-  private static Preparator getPreparator(
-      final Map<String, PreparatorGroup> preparatorGroups,
-      final Primitive targetMode,
-      final BitVector data,
-      final String preparatorName) {
-    InvariantChecks.checkNotNull(targetMode);
-    InvariantChecks.checkNotNull(data);
-
-    final String name = targetMode.getName();
-    final PreparatorGroup group = preparatorGroups.get(name);
-
-    if (null == group) {
-      return null;
-    }
-
-    for (final Preparator preparator : group.getPreparators()) {
-      if (preparator.isMatch(targetMode, data, preparatorName)) {
-        return preparator; 
-      }
-    }
-
-    return group.getDefault();
   }
 }

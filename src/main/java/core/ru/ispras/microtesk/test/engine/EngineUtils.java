@@ -148,6 +148,25 @@ public final class EngineUtils {
         );
   }
 
+  public static List<AbstractCall> makeInitializer(
+      final EngineContext engineContext,
+      final Primitive mode,
+      final BitVector value) {
+    InvariantChecks.checkNotNull(engineContext);
+    InvariantChecks.checkNotNull(mode);
+    InvariantChecks.checkNotNull(value);
+
+    final PreparatorStore preparators = engineContext.getPreparators();
+    final Preparator preparator = preparators.getPreparator(mode, value, null);
+
+    if (null != preparator) {
+      return preparator.makeInitializer(preparators, mode, value, null);
+    }
+
+    throw new GenerationAbortedException(String.format(
+        "No suitable preparator is found for %s.", mode.getSignature()));
+  }
+
   public static TestData getTestData(
       final EngineContext engineContext,
       final Primitive primitive,
@@ -457,25 +476,6 @@ public final class EngineUtils {
     }
 
     return builder.build();
-  }
-
-  public static List<AbstractCall> makeInitializer(
-      final EngineContext engineContext,
-      final Primitive mode,
-      final BitVector value) {
-    InvariantChecks.checkNotNull(engineContext);
-    InvariantChecks.checkNotNull(mode);
-    InvariantChecks.checkNotNull(value);
-
-    final PreparatorStore preparators = engineContext.getPreparators();
-    final Preparator preparator = preparators.getPreparator(mode, value, null);
-
-    if (null != preparator) {
-      return preparator.makeInitializer(preparators, mode, value, null);
-    }
-
-    throw new GenerationAbortedException(String.format(
-        "No suitable preparator is found for %s.", mode.getSignature()));
   }
 
   public static List<AbstractCall> makeStreamInit(

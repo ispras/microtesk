@@ -171,6 +171,21 @@ public class MmuBuffer extends MmuStruct {
   }
 
   /**
+   * Returns the address for the given tag, index and offset.
+   *
+   * @param tag the tag.
+   * @param index the index.
+   * @param offset the offset.
+   * @return the value of the address.
+   */
+  public final BitVector getAddress(
+      final BitVector tag,
+      final BitVector index,
+      final BitVector offset) {
+    return addressView.getAddress(tag, index, offset);
+  }
+
+  /**
    * Returns the tag calculation function.
    * 
    * @return the tag calculation function.
@@ -243,21 +258,6 @@ public class MmuBuffer extends MmuStruct {
    */
   public final BitVector getOffset(final BitVector address) {
     return addressView.getOffset(address);
-  }
-
-  /**
-   * Returns the address for the given tag, index and offset.
-   * 
-   * @param tag the tag.
-   * @param index the index.
-   * @param offset the offset.
-   * @return the value of the address.
-   */
-  public final BitVector getAddress(
-      final BitVector tag,
-      final BitVector index,
-      final BitVector offset) {
-    return addressView.getAddress(tag, index, offset);
   }
 
   public final BitVector getTagMask() {

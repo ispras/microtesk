@@ -185,7 +185,10 @@ public final class BranchStructureIterator implements Iterator<List<BranchEntry>
 
   @Override
   public List<BranchEntry> value() {
-    int i, j, branch, block;
+    int i;
+    int j;
+    int branch;
+    int block;
 
     final int length = lengthIterator.value();
     final int branchNumber = branchNumberIterator.value();

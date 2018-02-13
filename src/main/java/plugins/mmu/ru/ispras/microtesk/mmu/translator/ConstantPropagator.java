@@ -95,6 +95,24 @@ public final class ConstantPropagator {
     return Collections.emptySet();
   }
 
+  private static Set<NodeVariable> collectLhs(final Node node, final Set<NodeVariable> bag) {
+    if (ExprUtils.isVariable(node)) {
+      bag.add((NodeVariable) node);
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVCONCAT)) {
+      for (final Node operand : ((NodeOperation) node).getOperands()) {
+        collectLhs(operand, bag);
+      }
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVEXTRACT)) {
+      collectLhs(((NodeOperation) node).getOperand(2), bag);
+    }
+
+    if (bag.isEmpty()) {
+      return Collections.emptySet();
+    }
+
+    return bag;
+  }
+
   private static Set<String> collectNames(final Collection<NodeVariable> nodes) {
     if (nodes.isEmpty()) {
       return Collections.emptySet();
@@ -123,23 +141,5 @@ public final class ConstantPropagator {
     }
 
     return n;
-  }
-
-  private static Set<NodeVariable> collectLhs(final Node node, final Set<NodeVariable> bag) {
-    if (ExprUtils.isVariable(node)) {
-      bag.add((NodeVariable) node);
-    } else if (ExprUtils.isOperation(node, StandardOperation.BVCONCAT)) {
-      for (final Node operand : ((NodeOperation) node).getOperands()) {
-        collectLhs(operand, bag);
-      }
-    } else if (ExprUtils.isOperation(node, StandardOperation.BVEXTRACT)) {
-      collectLhs(((NodeOperation) node).getOperand(2), bag);
-    }
-
-    if (bag.isEmpty()) {
-      return Collections.emptySet();
-    }
-
-    return bag;
   }
 }

@@ -42,6 +42,38 @@ public final class Utils {
     return String.format("new BigInteger(\"%d\", 10)", value);
   }
 
+  public static String toString(final String context, final Node field) {
+    return toString(context, field, true);
+  }
+
+  public static String toString(
+      final String context,
+      final Node field,
+      final boolean printAsVariable) {
+    InvariantChecks.checkNotNull(context);
+    InvariantChecks.checkNotNull(field);
+
+    if (FortressUtils.getVariable(field).hasValue()) {
+      final Data data = FortressUtils.getVariable(field).getData();
+
+      if (data.isType(DataTypeId.BIT_VECTOR)) {
+        return ExprPrinter.bitVectorToString(data.getBitVector());
+      } else if (data.isType(DataTypeId.LOGIC_INTEGER)) {
+        return toString(data.getInteger());
+      } else {
+        return data.getValue().toString();
+      }
+    }
+
+    final String name = getVariableName(context, FortressUtils.getVariable(field).getName());
+    if (field.getKind() == Node.Kind.VARIABLE && printAsVariable) {
+      return name;
+    }
+
+    return String.format("%s.field(%d, %d)",
+        name, FortressUtils.getLowerBit(field), FortressUtils.getUpperBit(field));
+  }
+
   public static String getVariableName(final String context, final String name) {
     InvariantChecks.checkNotNull(context);
     InvariantChecks.checkNotNull(name);
@@ -82,38 +114,6 @@ public final class Utils {
     }
 
     return getVariableName(context, name);
-  }
-
-  public static String toString(final String context, final Node field) {
-    return toString(context, field, true);
-  }
-
-  public static String toString(
-      final String context,
-      final Node field,
-      final boolean printAsVariable) {
-    InvariantChecks.checkNotNull(context);
-    InvariantChecks.checkNotNull(field);
-
-    if (FortressUtils.getVariable(field).hasValue()) {
-      final Data data = FortressUtils.getVariable(field).getData();
-
-      if (data.isType(DataTypeId.BIT_VECTOR)) {
-        return ExprPrinter.bitVectorToString(data.getBitVector());
-      } else if (data.isType(DataTypeId.LOGIC_INTEGER)) {
-        return toString(data.getInteger());
-      } else {
-        return data.getValue().toString();
-      }
-    }
-
-    final String name = getVariableName(context, FortressUtils.getVariable(field).getName());
-    if (field.getKind() == Node.Kind.VARIABLE && printAsVariable) {
-      return name;
-    }
-
-    return String.format("%s.field(%d, %d)",
-        name, FortressUtils.getLowerBit(field), FortressUtils.getUpperBit(field));
   }
 
   public static String toMmuExpressionText(final String context, final List<Node> fields) {

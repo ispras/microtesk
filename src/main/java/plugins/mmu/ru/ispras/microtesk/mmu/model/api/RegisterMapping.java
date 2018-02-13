@@ -213,14 +213,14 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     return set.setData(address, data);
   }
 
+  public final Proxy setData(final A address) {
+    return new Proxy(address);
+  }
+
   @Override
   public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
     final Buffer<D, A> set = sets.get(index);
     return null != set ? set.seeData(index, way) : null;
-  }
-
-  public final Proxy setData(final A address) {
-    return new Proxy(address);
   }
 
   private Buffer<D, A> getSet(final A address) {

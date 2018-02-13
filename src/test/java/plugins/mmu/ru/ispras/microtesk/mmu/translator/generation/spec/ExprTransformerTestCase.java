@@ -44,6 +44,39 @@ public final class ExprTransformerTestCase {
     testLeftShift(StandardOperation.BVLSHL, 32, 32);
   }
 
+  private static void testLeftShift(
+      final StandardOperation operator,
+      final int bitSize,
+      final int shiftAmount) {
+
+    final Node x =
+        new NodeVariable("x", DataType.bitVector(bitSize));
+
+    final Node initial = new NodeOperation(
+        operator,
+        x,
+        NodeValue.newInteger(shiftAmount)
+    );
+
+    final Node expected = shiftAmount % bitSize == 0
+        ? x
+        : new NodeOperation(
+        StandardOperation.BVCONCAT,
+        newField(x, 0, bitSize - shiftAmount - 1),
+        NodeValue.newBitVector(BitVector.newEmpty(shiftAmount))
+    );
+
+    final Node result = transform(initial);
+
+    /*
+    System.out.println("Initial:  " + initial);
+    System.out.println("Result:   " + result);
+    System.out.println("Expected: " + expected);
+    */
+
+    Assert.assertEquals(expected, result);
+  }
+
   @Test
   public void testLeftShiftNestedFields() {
     final int bitSize = 32;
@@ -84,6 +117,39 @@ public final class ExprTransformerTestCase {
     testRightShift(StandardOperation.BVLSHR, 32, 32);
   }
 
+  private static void testRightShift(
+      final StandardOperation operator,
+      final int bitSize,
+      final int shiftAmount) {
+
+    final Node x =
+        new NodeVariable("x", DataType.bitVector(bitSize));
+
+    final Node initial = new NodeOperation(
+        operator,
+        x,
+        NodeValue.newInteger(shiftAmount)
+    );
+
+    final Node expected = shiftAmount % bitSize == 0
+        ? x
+        : new NodeOperation(
+        StandardOperation.BVCONCAT,
+        NodeValue.newBitVector(BitVector.newEmpty(shiftAmount)),
+        newField(x, shiftAmount, bitSize - 1)
+    );
+
+    final Node result = transform(initial);
+
+    /*
+    System.out.println("Initial:  " + initial);
+    System.out.println("Result:   " + result);
+    System.out.println("Expected: " + expected);
+    */
+
+    Assert.assertEquals(expected, result);
+  }
+
   @Test
   public void testRightShiftNestedFields() {
     final int bitSize = 32;
@@ -102,72 +168,6 @@ public final class ExprTransformerTestCase {
         StandardOperation.BVCONCAT,
         NodeValue.newBitVector(BitVector.newEmpty(8)),
         newField(x, 16, 23)
-        );
-
-    final Node result = transform(initial);
-
-    /*
-    System.out.println("Initial:  " + initial);
-    System.out.println("Result:   " + result);
-    System.out.println("Expected: " + expected);
-    */
-
-    Assert.assertEquals(expected, result);
-  }
-
-  private static void testLeftShift(
-      final StandardOperation operator,
-      final int bitSize,
-      final int shiftAmount) {
-
-    final Node x =
-        new NodeVariable("x", DataType.bitVector(bitSize));
-
-    final Node initial = new NodeOperation(
-        operator,
-        x,
-        NodeValue.newInteger(shiftAmount)
-        );
-
-    final Node expected = shiftAmount % bitSize == 0
-        ? x
-        : new NodeOperation(
-            StandardOperation.BVCONCAT,
-            newField(x, 0, bitSize - shiftAmount - 1),
-            NodeValue.newBitVector(BitVector.newEmpty(shiftAmount))
-        );
-
-    final Node result = transform(initial);
-
-    /*
-    System.out.println("Initial:  " + initial);
-    System.out.println("Result:   " + result);
-    System.out.println("Expected: " + expected);
-    */
-
-    Assert.assertEquals(expected, result);
-  }
-
-  private static void testRightShift(
-      final StandardOperation operator,
-      final int bitSize,
-      final int shiftAmount) {
-
-    final Node x =
-        new NodeVariable("x", DataType.bitVector(bitSize));
-
-    final Node initial = new NodeOperation(
-        operator,
-        x,
-        NodeValue.newInteger(shiftAmount)
-        );
-
-    final Node expected = shiftAmount % bitSize == 0
-        ? x
-        : new NodeOperation(
-            StandardOperation.BVCONCAT,
-            NodeValue.newBitVector(BitVector.newEmpty(shiftAmount)),
-            newField(x, shiftAmount, bitSize - 1)
         );
 
     final Node result = transform(initial);

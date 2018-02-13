@@ -71,6 +71,21 @@ public abstract class IsaPrimitiveInfoAnd extends IsaPrimitiveInfo {
     return arguments.get(name);
   }
 
+  /**
+   * Extracts an argument from a table.
+   *
+   * @param name Argument name.
+   * @param args Table of arguments.
+   * @return Argument.
+   *
+   * @throws IllegalArgumentException if there is no such argument in the table.
+   */
+  public static IsaPrimitive getArgument(final String name, final Map<String, IsaPrimitive> args) {
+    final IsaPrimitive arg = args.get(name);
+    InvariantChecks.checkNotNull(arg);
+    return arg;
+  }
+
   public final IsaPrimitiveBuilder createBuilder() {
     return new IsaPrimitiveBuilder(this);
   }
@@ -85,19 +100,4 @@ public abstract class IsaPrimitiveInfoAnd extends IsaPrimitiveInfo {
   }
 
   public abstract IsaPrimitive create(final Map<String, IsaPrimitive> args);
-
-  /**
-   * Extracts an argument from a table.
-   * 
-   * @param name Argument name.
-   * @param args Table of arguments.
-   * @return Argument.
-   * 
-   * @throws IllegalArgumentException if there is no such argument in the table.
-   */
-  public static IsaPrimitive getArgument(final String name, final Map<String, IsaPrimitive> args) {
-    final IsaPrimitive arg = args.get(name);
-    InvariantChecks.checkNotNull(arg);
-    return arg;
-  }
 }

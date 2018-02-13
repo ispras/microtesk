@@ -127,6 +127,19 @@ public class RegisterAnalyzer implements TranslatorHandler<Ir> {
       return register;
     }
 
+    private static boolean isRegister(final NodeVariable variable) {
+      final NodeInfo nodeInfo = (NodeInfo) variable.getUserData();
+      final Location location = (Location) nodeInfo.getSource();
+      final LocationSource locationSource = location.getSource();
+
+      if (locationSource.getSymbolKind() != NmlSymbolKind.MEMORY) {
+        return false;
+      }
+
+      final LocationSourceMemory memory = (LocationSourceMemory) locationSource;
+      return memory.getMemory().getKind() == Memory.Kind.REG;
+    }
+
     @Override
     public void onVariable(final NodeVariable variable) {
       if (isRegister(variable)) {
@@ -147,19 +160,6 @@ public class RegisterAnalyzer implements TranslatorHandler<Ir> {
       if (getStatus() == Status.SKIP) {
         setStatus(Status.OK);
       }
-    }
-
-    private static boolean isRegister(final NodeVariable variable) {
-      final NodeInfo nodeInfo = (NodeInfo) variable.getUserData();
-      final Location location = (Location) nodeInfo.getSource();
-      final LocationSource locationSource = location.getSource();
-
-      if (locationSource.getSymbolKind() != NmlSymbolKind.MEMORY) {
-        return false;
-      }
-
-      final LocationSourceMemory memory = (LocationSourceMemory) locationSource;
-      return memory.getMemory().getKind() == Memory.Kind.REG;
     }
   }
 }
