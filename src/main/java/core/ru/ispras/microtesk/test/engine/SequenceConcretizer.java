@@ -69,7 +69,12 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
 
     this.engineContext = engineContext;
     this.isPresimulation = isPresimulation;
-    this.sequenceIterator = new AbstractSequenceIterator(sequenceIterator);
+
+    this.sequenceIterator = new AbstractSequenceTestDataIterator(
+        engineContext,
+        "product",
+        new AbstractSequenceIterator(sequenceIterator)
+    );
   }
 
   @Override

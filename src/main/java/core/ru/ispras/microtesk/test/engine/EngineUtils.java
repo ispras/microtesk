@@ -202,6 +202,10 @@ public final class EngineUtils {
       return isDefaultTestData ? TestBaseUtils.newRandomTestData(query) : TestData.EMPTY;
     }
 
+    if (situation.isTestDataProvider() && situation.getTestData() != null) {
+      return situation.getTestData();
+    }
+
     final TestBase testBase = TestBase.get();
     final TestBaseQueryResult queryResult = testBase.executeQuery(query);
 

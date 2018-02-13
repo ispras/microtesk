@@ -20,7 +20,7 @@ require_relative 'minimips_base'
 # Description:
 #
 # This test template demonstrates how to use test data generators that are
-# independent of the context and produces multiple sets of test data.
+# independent of the context and produce multiple sets of test data.
 #
 class TestDataTemplate < MiniMipsBaseTemplate
 
@@ -28,17 +28,9 @@ class TestDataTemplate < MiniMipsBaseTemplate
     super
 
     #
-    # Test case level prologue
-    #
-    prologue {
-      align 4
-    }
-
-    #
     # Test case level epilogue
     #
     epilogue {
-      nop
       nop
     }
 
@@ -51,17 +43,11 @@ class TestDataTemplate < MiniMipsBaseTemplate
   def run
     # Test data for individual registers.
     sequence {
-      add reg(8),  (reg(9)  do testdata('boundary') end),
-                   (reg(10) do testdata('boundary') end)
+      add reg(8),  (reg(9)  do testdata('range', :min => 1, :max => 3) end),
+                   (reg(10) do testdata('range', :min => 1, :max => 3) end)
 
-      sub reg(11), (reg(12) do testdata('boundary') end),
-                   (reg(13) do testdata('boundary') end)
-    }.run
-
-    # Test data for entire instructions.
-    sequence {
-      add reg(8),  reg(9),  reg(10) do testdata('boundary') end
-      sub reg(11), reg(12), reg(13) do testdata('boundary') end
+      sub reg(11), (reg(12) do testdata('range', :min => 1, :max => 3) end),
+                   (reg(13) do testdata('range', :min => 1, :max => 3) end)
     }.run
   end
 

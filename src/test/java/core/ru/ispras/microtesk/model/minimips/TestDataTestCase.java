@@ -25,8 +25,8 @@ public final class TestDataTestCase extends MiniMipsTest {
     final Statistics statistics = run("testdata.rb");
     Assert.assertNotNull(statistics);
 
-    Assert.assertEquals(1,  statistics.getPrograms());
-    Assert.assertEquals(2,  statistics.getSequences());
-    Assert.assertEquals(24, statistics.getInstructions());
+    Assert.assertEquals(1, statistics.getPrograms());
+    Assert.assertEquals(81, statistics.getSequences());
+    Assert.assertEquals(575, statistics.getInstructions());
   }
 }
