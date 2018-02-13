@@ -37,10 +37,11 @@ import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
-import java.io.File;
-import java.util.List;
 import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.generator.DataGenerator;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * The {@link TestEngine} class is responsible for generation of test programs.
