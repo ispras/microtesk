@@ -82,7 +82,7 @@ public final class SequenceProcessor {
     final boolean isPresimulation = !Boolean.FALSE.equals(attributes.get("presimulation"));
 
     final String dataCombinatorName = null == attributes.get("data_combinator")
-        ? GeneratorBuilder.DEFAULT_COMPOSITOR : String.valueOf(attributes.get("data_combinator"));
+        ? GeneratorBuilder.DEFAULT_COMBINATOR : String.valueOf(attributes.get("data_combinator"));
 
     if (!isEnginesEnabled) {
       // All engines are disabled
