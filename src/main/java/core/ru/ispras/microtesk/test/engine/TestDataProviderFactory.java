@@ -94,7 +94,7 @@ final class TestDataProviderFactory {
             null,
             situation,
             primitive,
-            false
+            true
         );
 
     Logger.debug("Processing %s for %s...", situation, primitive.getSignature());

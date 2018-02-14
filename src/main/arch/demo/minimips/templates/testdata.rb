@@ -49,6 +49,12 @@ class TestDataTemplate < MiniMipsBaseTemplate
       sub reg(11), (reg(12) do testdata('range', :min => 1, :max => 3) end),
                    (reg(13) do testdata('range', :min => 1, :max => 3) end)
     }.run
+
+    # Test data for entire instructions.
+    sequence(:data_combinator => 'product') {
+      add reg(8),  reg(9),  reg(10) do testdata('range', :min => 1, :max => 3) end
+      sub reg(11), reg(12), reg(13) do testdata('range', :min => 1, :max => 3) end
+    }.run
   end
 
 end

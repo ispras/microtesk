@@ -39,14 +39,14 @@ import java.util.Map;
 
 final class TestBaseQueryBindingBuilder {
   private final EngineContext engineContext;
-  private final boolean bindOutParameters;
+  private final boolean isTestDataGeneration;
   private final TestBaseQueryBuilder queryBuilder;
   private final Map<String, Argument> unknownValues;
   private final Map<String, Primitive> modes;
 
   public TestBaseQueryBindingBuilder(
       final EngineContext engineContext,
-      final boolean bindOutParameters,
+      final boolean isTestDataGeneration,
       final TestBaseQueryBuilder queryBuilder,
       final Primitive primitive) {
     InvariantChecks.checkNotNull(engineContext);
@@ -54,7 +54,7 @@ final class TestBaseQueryBindingBuilder {
     InvariantChecks.checkNotNull(primitive);
 
     this.engineContext = engineContext;
-    this.bindOutParameters = bindOutParameters;
+    this.isTestDataGeneration = isTestDataGeneration;
     this.queryBuilder = queryBuilder;
     this.unknownValues = new HashMap<>();
     this.modes = new HashMap<>();
@@ -108,16 +108,18 @@ final class TestBaseQueryBindingBuilder {
 
           // If a MODE has no return expression it is treated as OP and
           // it is NOT added to bindings and mode list
+          if (arg.getMode() == ArgumentMode.NA) {
+            break;
+          }
 
-          final boolean needBinding =
-              !(arg.getMode() == ArgumentMode.NA
-                  || arg.getMode() == ArgumentMode.OUT && !bindOutParameters);
+          // For context-independent test data generation, out-parameters are not added to bindings.
+          if (isTestDataGeneration && arg.getMode() == ArgumentMode.OUT) {
+            break;
+          }
 
-          if (needBinding) {
-            setBindingMode(argName, modePrimitive);
-            if (arg.getMode().isIn()) {
-              modes.put(argName, (Primitive) arg.getValue());
-            }
+          setBindingMode(argName, modePrimitive);
+          if (arg.getMode().isIn()) {
+            modes.put(argName, (Primitive) arg.getValue());
           }
 
           break;
@@ -169,7 +171,8 @@ final class TestBaseQueryBindingBuilder {
       final IsaPrimitive mode = EngineUtils.makeConcretePrimitive(engineContext, modePrimitive);
       final Location location = mode.access(model.getPE(), model.getTempVars());
 
-      if (location.isInitialized()) {
+      // When test data (context-independent) are generated existing values are ignored.
+      if (!isTestDataGeneration && location.isInitialized()) {
         setBindingValue(name, location.getValue(), location.getBitSize());
       } else {
         setBindingVariable(name, location.getBitSize());
