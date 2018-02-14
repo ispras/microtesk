@@ -94,13 +94,11 @@ final class AbstractSequenceTestDataIterator implements Iterator<AbstractSequenc
 
   @Override
   public void next() {
-    if (dataIterator.hasValue()) {
-      dataIterator.next();
-      return;
+    dataIterator.next();
+    if (!dataIterator.hasValue()) {
+      sequenceIterator.next();
+      initDataIterator();
     }
-
-    sequenceIterator.next();
-    initDataIterator();
   }
 
   @Override
