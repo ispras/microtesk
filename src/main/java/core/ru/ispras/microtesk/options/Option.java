@@ -105,7 +105,10 @@ public enum Option {
   INSTANCE_NUMBER("instance-number", "Number of processing element instances", 1, GENERATE),
 
   JRUBY_THREAD_POOL_MAX("jruby-thread-pool-max",
-      "JRuby: the maximum number of threads to allow in the pool.", Integer.MAX_VALUE, GENERATE);
+      "JRuby: the maximum number of threads to allow in the pool.", Integer.MAX_VALUE, GENERATE),
+
+  BASE_TEMPLATE_NAME("base-template-name",
+      "Name of test template base class.", "", GENERATE_TEMPLATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
