@@ -88,7 +88,14 @@ final class TestDataProviderFactory {
     InvariantChecks.checkNotNull(situation);
 
     final TestBaseQueryCreator queryCreator =
-        new TestBaseQueryCreator(engineContext,0,null, situation, primitive);
+        new TestBaseQueryCreator(
+            engineContext,
+            0,
+            null,
+            situation,
+            primitive,
+            false
+        );
 
     Logger.debug("Processing %s for %s...", situation, primitive.getSignature());
 

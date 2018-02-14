@@ -39,12 +39,14 @@ import java.util.Map;
 
 final class TestBaseQueryBindingBuilder {
   private final EngineContext engineContext;
+  private final boolean bindOutParameters;
   private final TestBaseQueryBuilder queryBuilder;
   private final Map<String, Argument> unknownValues;
   private final Map<String, Primitive> modes;
 
   public TestBaseQueryBindingBuilder(
       final EngineContext engineContext,
+      final boolean bindOutParameters,
       final TestBaseQueryBuilder queryBuilder,
       final Primitive primitive) {
     InvariantChecks.checkNotNull(engineContext);
@@ -52,6 +54,7 @@ final class TestBaseQueryBindingBuilder {
     InvariantChecks.checkNotNull(primitive);
 
     this.engineContext = engineContext;
+    this.bindOutParameters = bindOutParameters;
     this.queryBuilder = queryBuilder;
     this.unknownValues = new HashMap<>();
     this.modes = new HashMap<>();
@@ -105,7 +108,12 @@ final class TestBaseQueryBindingBuilder {
 
           // If a MODE has no return expression it is treated as OP and
           // it is NOT added to bindings and mode list
-          if (arg.getMode() != ArgumentMode.NA) {
+
+          final boolean needBinding =
+              !(arg.getMode() == ArgumentMode.NA
+                  || arg.getMode() == ArgumentMode.OUT && !bindOutParameters);
+
+          if (needBinding) {
             setBindingMode(argName, modePrimitive);
             if (arg.getMode().isIn()) {
               modes.put(argName, (Primitive) arg.getValue());

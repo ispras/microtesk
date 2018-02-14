@@ -65,6 +65,7 @@ public final class TestBaseQueryCreator {
   private final AbstractSequence abstractSequence;
   private final Situation situation;
   private final Primitive primitive;
+  private final boolean bindOutParameters;
 
   private boolean isCreated;
   private TestBaseQuery query;
@@ -77,6 +78,23 @@ public final class TestBaseQueryCreator {
       final AbstractSequence abstractSequence,
       final Situation situation,
       final Primitive primitive) {
+    this(
+        engineContext,
+        processingCount,
+        abstractSequence,
+        situation,
+        primitive,
+        true
+    );
+  }
+
+  public TestBaseQueryCreator(
+      final EngineContext engineContext,
+      final int processingCount,
+      final AbstractSequence abstractSequence,
+      final Situation situation,
+      final Primitive primitive,
+      final boolean bindOutParameters) {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(primitive);
 
@@ -91,6 +109,8 @@ public final class TestBaseQueryCreator {
     this.query = null;
     this.unknownImmValues = null;
     this.modes = null;
+
+    this.bindOutParameters = bindOutParameters;
   }
 
   // TODO: can return null.
@@ -126,7 +146,7 @@ public final class TestBaseQueryCreator {
     }
 
     final TestBaseQueryBindingBuilder bindingBuilder =
-        new TestBaseQueryBindingBuilder(engineContext, queryBuilder, primitive);
+        new TestBaseQueryBindingBuilder(engineContext, bindOutParameters, queryBuilder, primitive);
 
     unknownImmValues = bindingBuilder.getUnknownValues();
     modes = bindingBuilder.getTargetModes();
