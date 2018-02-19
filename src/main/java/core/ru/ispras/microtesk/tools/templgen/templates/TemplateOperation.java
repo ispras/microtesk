@@ -119,7 +119,10 @@ public class TemplateOperation {
 
       if ((argument.getKind() == IsaPrimitiveKind.MODE)) {
         boolean printLabel = false;
-        for (String tempType : tempTypes) {
+        //for (String tempType : tempTypes) {
+        if (tempTypes != null) {System.out.println("!!!!!!!!!!!!!!!             " + tempTypes.size());}
+        Object[] strArray = (Object[]) tempTypes.toArray();
+        String tempType = (String) strArray[0];
           if (tempType == "BRANCH_IMM" || tempType == "BRANCH_LABEL" || tempType == "JUMP_IMM"
               || tempType == "JUMP_LABEL" || tempType == "BRANCH_LABEL_M2"
               || tempType == "JUMP_LABEL_M2") {
@@ -136,7 +139,7 @@ public class TemplateOperation {
               tempCommand += String.format("%s(_)", tempType.toLowerCase());
             }
           }
-        }
+        //}
       }
 
       if (argument.getKind() == IsaPrimitiveKind.IMM) {

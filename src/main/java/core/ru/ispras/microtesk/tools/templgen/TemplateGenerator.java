@@ -19,6 +19,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.metadata.MetaModel;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.templgen.printers.RubyTemplatePrinter;
 import ru.ispras.microtesk.tools.templgen.templates.BoundaryValuesTemplate;
@@ -46,21 +47,27 @@ public final class TemplateGenerator {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(modelName);
 
+    final String baseTemplateName = options.getValueAsString(Option.BASE_TEMPLATE_NAME);
+    if (baseTemplateName.isEmpty()) {
+      Logger.warning("Failed to get the base template name for the %s model.", modelName);
+      // TODO:
+    }
+
     final Model model = loadModel(modelName);
     final MetaModel metaModel = model.getMetaData();
 
     boolean generatedResult = true;
 
-    final SimpleTemplate simpleTemplate =
-        new SimpleTemplate(metaModel, new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME));
+    final SimpleTemplate simpleTemplate = new SimpleTemplate(metaModel,
+        new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME, modelName));
     generatedResult = generatedResult & simpleTemplate.generate();
 
-    final GroupTemplate groupTemplate =
-        new GroupTemplate(metaModel, new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME));
+    final GroupTemplate groupTemplate = new GroupTemplate(metaModel,
+        new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME, modelName));
     generatedResult = generatedResult & groupTemplate.generate();
 
     final BoundaryValuesTemplate boundaryTemplate = new BoundaryValuesTemplate(metaModel,
-        new RubyTemplatePrinter(BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME));
+        new RubyTemplatePrinter(BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME, modelName));
     generatedResult = generatedResult & boundaryTemplate.generate();
 
     return generatedResult;

@@ -41,7 +41,6 @@ public final class BoundaryValuesTemplate extends GeneratedTemplate {
   @Override
   public boolean generate() {
     templatePrinter.templateBegin();
-    templatePrinter.startBlock();
     templatePrinter.addComment(" ARITHMETIC_OPERATIONS");
 
     final Iterable<MetaOperation> operationsIterator = templateMetaModel.getOperations();
@@ -54,7 +53,6 @@ public final class BoundaryValuesTemplate extends GeneratedTemplate {
       }
     }
 
-    templatePrinter.closeBlock();
     templatePrinter.templateEnd();
     templatePrinter.templateClose();
     return true;

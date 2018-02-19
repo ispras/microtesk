@@ -29,13 +29,15 @@ import java.nio.charset.Charset;
  *
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
-public class RubyTemplatePrinter implements TemplatePrinter {
-  public static final String[] RUBY_KEYWORDS = {"and", "or"};
+public final class RubyTemplatePrinter implements TemplatePrinter {
+  public static final String[] RUBY_KEYWORDS = {"and", "or", "not"};
   public static final String RUBY_TAB = "  ";
 
   private int nowLevel;
+  private final String modelName;
+  private final String templateName;
 
-  static final String TEMPLATE_NAME = "_autogentemplate.rb";
+  static final String TEMPLATE_FILE_NAME = "_autogentemplate.rb";
 
   private PrintWriter printWriter;
 
@@ -44,9 +46,11 @@ public class RubyTemplatePrinter implements TemplatePrinter {
    *
    * @param templateName the template name.
    */
-  public RubyTemplatePrinter(String templateName) {
-    final File templateFile = new File(templateName + TEMPLATE_NAME);
+  public RubyTemplatePrinter(final String templateName, final String modelName) {
+    this.modelName = modelName;
+    this.templateName = templateName;
 
+    final File templateFile = new File(templateName + TEMPLATE_FILE_NAME);
     printWriter = newPrintWriter(templateFile);
   }
 
@@ -86,8 +90,9 @@ public class RubyTemplatePrinter implements TemplatePrinter {
   @Override
   public void templateBegin() {
     // Adds xml data
-    this.printWriter.print("require_relative 'minimips_base'\r\n\n"
-        + "class MiniMipsGenTemplate < MiniMipsBaseTemplate\r\n");
+    this.printWriter.print(
+        "require_relative '" + modelName + "_base'\r\n\n" + "class " + templateName.toUpperCase()
+            + "GenTemplate < " + modelName.toUpperCase() + "BaseTemplate\r\n");
     nowLevel++;
     this.addTab(nowLevel);
     this.printWriter.print("def run\r\n");
