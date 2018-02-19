@@ -388,6 +388,7 @@ class Template
     retain = attrs[:retain]
     exclude = attrs[:exclude]
 
+    allocator = @default_mode_allocator if allocator.nil?
     @template.newUnknownImmediate get_caller_location, allocator, retain, exclude
   end
 
@@ -398,16 +399,6 @@ class Template
     @template.newLazyLabel
   end
 
-  # --- Special "no value" method ---
-  # Similar to the above method, but the described object is more complex
-  # than an immediate value (most likely, it will be some MODE or OP).
-  # TODO: Not implemented. Left as a requirement.
-  # Should be implemented in the future.
-  #
-  # def __(aug_value = nil)
-  #   NoValue.new(aug_value)
-  # end
-
   def mode_allocator(name, attrs = {})
     builder = @template.newAllocatorBuilder name
 
@@ -416,6 +407,10 @@ class Template
     end
 
     builder.build
+  end
+
+  def set_default_mode_allocator(allocator)
+    @default_mode_allocator = allocator
   end
 
   def free_allocated_mode(mode)
