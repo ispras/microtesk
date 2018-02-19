@@ -6,26 +6,33 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2018/02/19 MicroTESK 2.4.39 beta
+
+ - Test data iterator functionality was implemented
+ - New demo template testdata.rb (miniMIPS) demonstrating test data iterator
+ - Refactoring in generation logic
+ - Some general code improvements
+
 2018/02/05 MicroTESK 2.4.38 beta
 
-- Enhancements in the branch engine
-- Refactoring in the memory engine
-- New demo specifications and templates: Vmem ISA aimed to demonstrate
-  the facilities of the memory engine
-- Changes in the nML language translator: special constructs to specify
-  label-based instruction operands
-- Improvements in the simulator: correct handling of jump instructions
-- Improvements in the symbolic executor: correct SMT-formulae
-- Other general improvements
+ - Enhancements in the branch engine
+ - Refactoring in the memory engine
+ - New demo specifications and templates: Vmem ISA aimed to demonstrate
+   the facilities of the memory engine
+ - Changes in the nML language translator: special constructs to specify
+   label-based instruction operands
+ - Improvements in the simulator: correct handling of jump instructions
+ - Improvements in the symbolic executor: correct SMT-formulae
+ - Other general improvements
 
 2017/09/18 MicroTESK 2.4.37 beta
 
-- Bug fix in engine for constraint-based test data generation
+ - Bug fix in engine for constraint-based test data generation
 
 2017/09/15 MicroTESK 2.4.36 beta
 
-- Enhancements in the branch engine
-- Bug fixes and general improvements
+ - Enhancements in the branch engine
+ - Bug fixes and general improvements
 
 2017/09/08 MicroTESK 2.4.35 beta
 
@@ -397,7 +404,7 @@
 2016/02/12 MicroTESK 2.3.22 beta
 
  The new build contains the following changes:
- 
+
  - Test Templates: support for assigning default test situations to
    instructions and instruction groups
  - Test Templates: support for preparator overriding
@@ -476,7 +483,7 @@
 
  The new build contains the following changes:
 
-- Possibility of initialize address fields depending on the operation that 
+- Possibility of initialize address fields depending on the operation that
   performs memory access was implemented in the MMU specification language
 - Cases of incorrect use of test template blocks are now reported to the user
 - Several bug fixes and general improvements were made
@@ -777,7 +784,7 @@
  - More test templates for miniMIPS were added
 
  2015/02/19 MicroTESK 2.1.4 beta
- 
+
  The new build contains the following changes:
 
  - The logic of test sequence building and processing has been improved
@@ -797,8 +804,8 @@
  - Facilities to describe the data segment in test templates were implemented
  - Function 'trace' (nML) was supported
  - Possibility to create instances of modes and ops in nML code was implemented
- - Aliases for memory locations (mem, reg, var) were supported 
- - Specification of the miniMIPS ISA was added to examples 
+ - Aliases for memory locations (mem, reg, var) were supported
+ - Specification of the miniMIPS ISA was added to examples
 
  2014/10/31 MicroTESK 2.1.1 beta
 
@@ -818,7 +825,7 @@
  - The test templates library was improved (including new text printing
    facilities and ability to specify unknown immediate values)
  - New examples of test templates demonstrating features of MicroTESK
-   were added  
+   were added
  - Ability to use labels rather than addresses in the generated code
    was implemented
 
