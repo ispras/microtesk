@@ -37,20 +37,20 @@ type   BYTE = int(8)  // 8-bit signed integer
 ////////////////////////////////////////////////////////////////////////////////
 // Registers and Memory
 
-// General-purpose registers. 
+// General-purpose registers.
 reg GPR[REG_NUMBER, BYTE] // Format: <name>[<number>, <type>]
 
-// A register for storing the program counter. 
+// A register for storing the program counter.
 reg PC[INDEX] // This format means that there is 1 register of type INDEX
 
 // A memory line
 mem M[MEM_SIZE, BYTE]
 
 ////////////////////////////////////////////////////////////////////////////////
-// Temporary Variables 
+// Temporary Variables
 //
 // They are not preserved across instruction calls and serve to exchange data
-// between operations that make up an instruction. 
+// between operations that make up an instruction.
 
 var SRC1[BYTE]
 var SRC2[BYTE]
@@ -59,7 +59,7 @@ var DEST[BYTE]
 ////////////////////////////////////////////////////////////////////////////////
 // Addressing Modes
 
-// An addressing mode for an immediate value. 
+// An addressing mode for an immediate value.
 mode IMM(i: int(6)) = sign_extend(BYTE, i) // Value expression
   syntax = format("[%d]", i) // Textual format
   image  = format("%6s", i)  // Binary format
@@ -84,7 +84,7 @@ mode OPRNDR = OPRNDL | IMM
 op ADD()
   syntax = "add"
   image  = "00"
-  action = { 
+  action = {
     DEST = SRC1 + SRC2;
     // Function 'trace' prints text messages to the simulator log
     trace("%d + %d = %d", SRC1, SRC2, DEST);
@@ -104,7 +104,7 @@ op MOV()
 op ALU = ADD | SUB | MOV
 
 // A common specification of all ALU instructions that describes their common
-// format, performs all common actions and delegates unique responsibilities 
+// format, performs all common actions and delegates unique responsibilities
 // to specific operations (or subinstructions).
 
 op alu_instr(command: ALU, op1: OPRNDL, op2: OPRNDR)
