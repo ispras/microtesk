@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * {@link PermutatorBase} is a basic permutator. It takes a list of items and returns an iterator of
  * permuted lists.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 abstract class PermutatorBase<T> implements Permutator<T> {

@@ -71,7 +71,7 @@ public final class NmlTranslator extends Translator<Ir> {
 
     // Detects parent-child connections between primitives
     addHandler(new ReferenceDetector());
-    // Adds the list of root operations to IR 
+    // Adds the list of root operations to IR
     addHandler(new RootDetector());
 
     addHandler(new ImageAnalyzer());

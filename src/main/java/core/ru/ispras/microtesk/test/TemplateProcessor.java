@@ -1,11 +1,11 @@
 /*
  * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -328,7 +328,7 @@ final class TemplateProcessor implements Template.Processor {
 
     // This is needed to prevent allocation of postponed sequences in middle
     // of sequences constructed by a block (interrupting a block).
-    for (final Executor.Status status: executorStatuses) { 
+    for (final Executor.Status status: executorStatuses) {
       if (TestEngineUtils.isAtEndOfAny(status, interruptedSequences)) {
         Logger.debug("Processing of block defined at %s is skipped.", block.getWhere());
         return false;
@@ -638,14 +638,14 @@ final class TemplateProcessor implements Template.Processor {
 
   /**
    * Executes all threads that can resume execution after the current sequence was allocated.
-   * 
+   *
    * <p>A thread can resume execution if the address where execution was stopped is now allocated.
    * Special case: If a thread points for the end of previous code block and it does not match
    * the beginning of the current code block, the thread will be run causing an illegal address
    * error.
    * <p>Threads are executed until they reach the end of allocated code or a jump to an undefined
    * label.
-   * 
+   *
    * @param sequence The most recently allocated sequence which is expected to be executed
    *                 by some of the threads.
    */

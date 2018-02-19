@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -40,7 +40,7 @@ final class PhysicalMemory extends Memory {
     this.storage = new MemoryStorage(length, type.getBitSize()).setId(name);
     this.handler = null;
     this.allocator = null;
-  
+
     // A memory array that corresponds to a real physical memory must satisfy the following
     // precondition: (1) element size is a multiple of 8 bits (byte), (2) element count is
     // greater than one. This is required for MMU handlers and for simple translation logic

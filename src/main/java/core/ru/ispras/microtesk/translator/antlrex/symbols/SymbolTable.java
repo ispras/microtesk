@@ -28,7 +28,7 @@ public final class SymbolTable {
   private SymbolScope scope;
 
   /**
-   * Creates a symbol table with a global scope. 
+   * Creates a symbol table with a global scope.
    */
   public SymbolTable() {
     this.globalScope = new SymbolScopeItem(null);
@@ -158,7 +158,7 @@ public final class SymbolTable {
   }
 
   /**
-   * Searches for a symbol described by an array containing its name 
+   * Searches for a symbol described by an array containing its name
    * preceded with names of the scopes the symbol is nested into. Search
    * starts in the current scope and goes to outer scopes until the first
    * nesting scope is found. Then the search is continued in that scope.

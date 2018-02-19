@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * {@link AddressView} implements an address view, i.e. a set of methods for composing/decomposing
  * address into fields.
- * 
+ *
  * @param <A> address type.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -36,7 +36,7 @@ public final class AddressView<A> {
 
   /**
    * Constructs an address view.
-   * 
+   *
    * @param split the address split functor (it splits an address into the fields).
    * @param merge the address merge functor (it merges fields to produce the address).
    * @throws IllegalArgumentException if {@code split} or {@code merge} is null.
@@ -51,7 +51,7 @@ public final class AddressView<A> {
 
   /**
    * Returns the fields of the address.
-   * 
+   *
    * @param address the address.
    * @return the list of fields.
    * @throws IllegalArgumentException if {@code address} is null.
@@ -64,7 +64,7 @@ public final class AddressView<A> {
 
   /**
    * Returns the field of the address.
-   * 
+   *
    * @param address the address.
    * @param i the field index.
    * @return the list of fields.
@@ -82,7 +82,7 @@ public final class AddressView<A> {
 
   /**
    * Returns the address for the given fields.
-   * 
+   *
    * @param fields the fields.
    * @return the address.
    * @throws IllegalArgumentException if {@code fields} is null.
@@ -117,7 +117,7 @@ public final class AddressView<A> {
 
   /**
    * Returns the tag of the given address ({@code fields[0]}).
-   * 
+   *
    * @param address the address.
    * @return the tag.
    * @throws IllegalArgumentException if {@code address} is null.
@@ -128,7 +128,7 @@ public final class AddressView<A> {
 
   /**
    * Returns the index of the given address ({@code fields[1]}).
-   * 
+   *
    * @param address the address.
    * @return the index.
    * @throws IllegalArgumentException if {@code address} is null.
@@ -139,7 +139,7 @@ public final class AddressView<A> {
 
   /**
    * Returns the offset of the given address ({@code fields[2]}).
-   * 
+   *
    * @param address the address.
    * @return the offset.
    * @throws IllegalArgumentException if {@code address} is null.

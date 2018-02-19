@@ -1,11 +1,11 @@
 /*
  * Copyright 2006-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -20,7 +20,7 @@ import java.math.BigInteger;
 
 /**
  * This enumeration contains basic data types.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public enum MemoryDataType {
@@ -56,7 +56,7 @@ public enum MemoryDataType {
         return null;
     }
   }
-  
+
 
   /** The size in bytes. */
   private final int sizeInBytes;
@@ -65,7 +65,7 @@ public enum MemoryDataType {
 
   /**
    * Constructs a data type for the given size.
-   * 
+   *
    * @param size the size in bytes.
    */
   private MemoryDataType(final int size) {
@@ -82,7 +82,7 @@ public enum MemoryDataType {
 
   /**
    * Returns the size in bytes.
-   * 
+   *
    * @return the size.
    */
   public int getSizeInBytes() {
@@ -91,7 +91,7 @@ public enum MemoryDataType {
 
   /**
    * Returns the lower significant bit of the address.
-   * 
+   *
    * @return the lower significant bit.
    */
   public int getLowerAddressBit() {
@@ -100,7 +100,7 @@ public enum MemoryDataType {
 
   /**
    * Checks whether the address is aligned (contains a sufficient number of zero bits at the end).
-   * 
+   *
    * @param address the address to be checked.
    * @return {@code true} if the address is aligned; {@code false} otherwise.
    */
@@ -110,7 +110,7 @@ public enum MemoryDataType {
 
   /**
    * Returns the aligned address (zero a required number of bits at the end).
-   * 
+   *
    * @param address the address to be aligned.
    * @return the aligned address.
    */

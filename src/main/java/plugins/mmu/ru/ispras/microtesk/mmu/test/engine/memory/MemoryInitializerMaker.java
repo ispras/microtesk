@@ -126,7 +126,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(engineContext);
     InvariantChecks.checkNotNull(addressObject);
 
-    final List<AbstractCall> sequence = new ArrayList<>(); 
+    final List<AbstractCall> sequence = new ArrayList<>();
     final Map<MmuBufferAccess, EntryObject> entries = addressObject.getEntries();
 
     for (final Map.Entry<MmuBufferAccess, EntryObject> entry : entries.entrySet()) {

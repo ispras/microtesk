@@ -21,7 +21,7 @@ import java.util.Stack;
 
 /**
  * {@link CompositorNesting} implements the nesting composition of iterators.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class CompositorNesting<T> extends CompositorBase<T> {

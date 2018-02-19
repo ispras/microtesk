@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -45,16 +45,16 @@ import java.util.Map;
  * Note: Labels that have different reference numbers are considered different. A reference number
  * is a way to distinguish labels with same names. This happens when some subsequences are created
  * using the same template representation (e.g. by instantiating the same preparator).
- * 
+ *
  * For more implementation details, see the {@link LabelManager.TargetDistance} class.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class LabelManager {
   /**
    * The {@link Target} class stores information about the target the specified label points to.
    * It associates a label with an address where an instruction is located.
-   * 
+   *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   public static final class Target {
@@ -115,7 +115,7 @@ public final class LabelManager {
    * method which helps sort targets by their distance from the reference point. This is needed to
    * choose the most suitable target to perform a jump from the specified point (if there is an
    * ambiguity caused by labels that have the same name).
-   * 
+   *
    * <p>
    * Sorting criteria:
    * <ol>
@@ -125,7 +125,7 @@ public final class LabelManager {
    * <li>Finally - labels defined in sibling blocks (by the <code>up</code> path, the
    * <code>down</code> path is considered when up paths are equal).</li>
    * </ol>
-   * 
+   *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   private static final class TargetDistance implements Comparable<TargetDistance> {
@@ -219,10 +219,10 @@ public final class LabelManager {
 
   /**
    * Adds information about a label to the table of label targets.
-   * 
+   *
    * @param label Label to be registered.
    * @param address Address associated with the label.
-   * 
+   *
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
   public void addLabel(final Label label, final long address) {
@@ -252,11 +252,11 @@ public final class LabelManager {
   /**
    * Adds information about label in the specified collection to the table of label targets. It is
    * supposed that all labels in the collection point to the same address.
-   * 
+   *
    * @param labels Collection of labels to be registered.
    * @param address Address the labels in the collection point to.
    * @param sequenceIndex Index of the sequence.
-   * 
+   *
    * @throws IllegalArgumentException if the {@code label} parameter is {@code null}.
    * @throws IllegalArgumentException if an object in the {@code labels} collection is not a
    *         Label object.
@@ -279,12 +279,12 @@ public final class LabelManager {
    * most suitable target (label and its position). The most suitable target is chosen depending on
    * the reference position (see the {@link LabelManager} class comment). If there are several
    * equally possible choices (ambiguity) a warning message is printed.
-   * 
+   *
    * @param referenceLabel A Label object that describes a reference to a label that has a specific
    *        name from a specific block.
    * @return The most suitable target (label and its position) for the given reference or
    *         <code>null</code> if no label having such name is found.
-   * 
+   *
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
   public Target resolve(final Label referenceLabel) {

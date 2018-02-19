@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -21,7 +21,7 @@ import ru.ispras.microtesk.model.memory.MemoryDevice;
 
 import java.math.BigInteger;
 
-public abstract class Memory<D extends Data, A extends Address> 
+public abstract class Memory<D extends Data, A extends Address>
     implements Buffer<D, A>, BufferObserver {
   private final BigInteger byteSize;
   private MemoryDevice storage;
@@ -66,7 +66,7 @@ public abstract class Memory<D extends Data, A extends Address>
 
   @Override
   public boolean isHit(final BitVector value) {
-    final A address = newAddress(); 
+    final A address = newAddress();
     address.getValue().assign(value);
     return isHit(address);
   }
@@ -91,7 +91,7 @@ public abstract class Memory<D extends Data, A extends Address>
       mapping.assign(regionData);
 
       index = index.add(BigInteger.ONE);
-      bitsRead += storage.getDataBitSize(); 
+      bitsRead += storage.getDataBitSize();
     }
 
     return newData(dataValue);

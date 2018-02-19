@@ -138,7 +138,7 @@ public abstract class MipsBranchDataGenerator extends BranchDataGenerator {
       final String name = entry.getKey();
 
       if (values.containsKey(name)) {
-        final int value = values.get(name); 
+        final int value = values.get(name);
         final DataType type = entry.getValue().getDataType();
         final BitVector data = BitVector.valueOf(value, type.getSize());
 

@@ -208,7 +208,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     for (final MmuBufferAccess bufferAccess : path.getBufferReads()) {
       if (!bufferAccess.getBuffer().isReplaceable()) {
-        final EntryObject entryObject = 
+        final EntryObject entryObject =
             allocateEntry(access, addressObject, abstractSequence, bufferAccess);
         InvariantChecks.checkNotNull(entryObject);
 
@@ -394,7 +394,7 @@ public final class MemoryDataGenerator implements DataGenerator {
       if (!bufferAccess.getBuffer().isReplaceable()) {
         // FIXME:
         // This check was introduced to avoid the following problem.
-        // Register-mapped buffers' seeData() returns incorrect addresses. 
+        // Register-mapped buffers' seeData() returns incorrect addresses.
         continue;
       }
 
@@ -564,7 +564,7 @@ public final class MemoryDataGenerator implements DataGenerator {
           addressVariable,
           BitVector.valueOf(region.getMin(), addressType.getBitSize()),
           BitVector.valueOf(region.getMax(), addressType.getBitSize()))
-    ); 
+    );
 
     // Alignment constraint (if required).
     if (dataType.getSizeInBytes() > 1) {

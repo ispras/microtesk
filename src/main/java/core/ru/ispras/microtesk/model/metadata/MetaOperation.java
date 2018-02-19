@@ -1,11 +1,11 @@
 /*
  * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  * The {@link MetaOperation} class stores information on the given operation.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public class MetaOperation implements MetaData {
@@ -135,7 +135,7 @@ public class MetaOperation implements MetaData {
 
   /**
    * Returns the operation name.
-   * 
+   *
    * @return The operation name.
    */
   @Override
@@ -147,7 +147,7 @@ public class MetaOperation implements MetaData {
    * Returns the type name of the operation. If a meta operation describes a shortcut the type name
    * is different from the name. The name means the name of the target operation, while the type
    * name means the name of the entry operation (that encapsulates the path to the target).
-   * 
+   *
    * @return The operation type name (for composite operation the name of the topmost operation).
    */
   public final String getTypeName() {
@@ -162,7 +162,7 @@ public class MetaOperation implements MetaData {
   /**
    * Checks whether the current operation is a root. An operation is a root if it does not have
    * parents.
-   * 
+   *
    * @return {@code true} if it is a root operation or {@code false} otherwise.
    */
   public final boolean isRoot() {
@@ -171,7 +171,7 @@ public class MetaOperation implements MetaData {
 
   /**
    * Returns a collection of operation arguments.
-   * 
+   *
    * @return Collection of operation arguments.
    */
   public final Iterable<MetaArgument> getArguments() {
@@ -180,7 +180,7 @@ public class MetaOperation implements MetaData {
 
   /**
    * Return an argument of the given operation that has the specified name.
-   * 
+   *
    * @param name Argument name.
    * @return Argument with the specified name or {@code null} if no such argument is defined.
    */
@@ -190,7 +190,7 @@ public class MetaOperation implements MetaData {
 
   /**
    * Returns a collection of shortcuts applicable to the given operation in different contexts.
-   * 
+   *
    * @return A collection of shortcuts.
    */
   public final Iterable<MetaShortcut> getShortcuts() {
@@ -199,7 +199,7 @@ public class MetaOperation implements MetaData {
 
   /**
    * Returns a shortcut for the given operation that can be used in the specified context.
-   * 
+   *
    * @param contextName Context name.
    * @return Shortcut for the given context or {@code null} if no such shortcut exists.
    */
@@ -211,7 +211,7 @@ public class MetaOperation implements MetaData {
    * Checks whether the current operation has root shortcuts. This means that the operation can be
    * addressed directly in a test template to specify a complete instruction call (not as a part of
    * a call specified as an argument for other operation).
-   * 
+   *
    * @return {@code true} if it the operation has root shortcuts or {@code false} otherwise.
    */
   public final boolean hasRootShortcuts() {
@@ -220,7 +220,7 @@ public class MetaOperation implements MetaData {
 
   /**
    * Checks whether the operation is a branch operation (causes control transfer).
-   * 
+   *
    * @return {@code true} if the operation is a branch operation
    * or {@code false} otherwise.
    */
@@ -231,7 +231,7 @@ public class MetaOperation implements MetaData {
   /**
    * Checks whether the operation is a conditional branch operation
    * (causes control transfer on some condition).
-   * 
+   *
    * @return {@code true} if the operation is a conditional branch operation
    * or {@code false} otherwise.
    */
@@ -251,7 +251,7 @@ public class MetaOperation implements MetaData {
 
   /**
    * Checks whether the current operation can throw an exception.
-   * 
+   *
    * @return {@code true} if the operation can throw an exception
    * or {@code false} otherwise.
    */
@@ -261,13 +261,13 @@ public class MetaOperation implements MetaData {
 
   /**
    * Checks whether the operation performs a memory load action.
-   * 
+   *
    * <p>NOTE: This covers only situations when a load can be unambiguously defected
    * by exploring operation attributes. For situations when a memory access
    * is performed via parameters (other operation or addressing modes) which
-   * can be dynamically chosen (OR rules), these parameters (their meta data) 
+   * can be dynamically chosen (OR rules), these parameters (their meta data)
    * must be examined additionally to make a conclusion.
-   * 
+   *
    * @return {@code true} if the operation performs a memory load action
    * or {@code false} otherwise.
    */
@@ -277,13 +277,13 @@ public class MetaOperation implements MetaData {
 
   /**
    * Checks whether the operation performs a memory store action.
-   * 
+   *
    * <p>NOTE: This covers only situations when a load can be unambiguously defected
    * by exploring operation attributes. For situations when a memory access
    * is performed via parameters (other operation or addressing modes) which
    * can be dynamically chosen (OR rules), these parameters (their meta data)
    * must be examined additionally to make a conclusion.
-   * 
+   *
    * @return {@code true} if the operation performs a memory store action
    * or {@code false} otherwise.
    */
@@ -294,7 +294,7 @@ public class MetaOperation implements MetaData {
   /**
    * Returns the size of block read or written to memory. Applicable
    * for load or store operations.
-   * 
+   *
    * @return Size of memory block in bits.
    */
   public final int getBlockSize() {

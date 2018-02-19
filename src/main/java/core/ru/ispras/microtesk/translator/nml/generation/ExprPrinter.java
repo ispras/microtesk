@@ -1,11 +1,11 @@
 /*
  * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -139,9 +139,9 @@ public final class ExprPrinter extends MapBasedPrinter {
     addMapping(Operator.IS_NAN,      "", "", ".isNan()");
     addMapping(Operator.IS_SIGN_NAN, "", "", ".isSignalingNan()");
 
-    addMappingForCast(StandardOperation.BVSIGNEXT, "signExtend"); 
+    addMappingForCast(StandardOperation.BVSIGNEXT, "signExtend");
     addMappingForCast(StandardOperation.BVZEROEXT, "zeroExtend");
-    addMappingForCast(Operator.INT_TO_FLOAT, "intToFloat"); 
+    addMappingForCast(Operator.INT_TO_FLOAT, "intToFloat");
     addMappingForCast(Operator.FLOAT_TO_INT, "floatToInt");
     addMappingForCast(Operator.FLOAT_TO_FLOAT, "floatToFloat");
     addMappingForCast(Operator.COERCE, "coerce");
@@ -266,11 +266,11 @@ public final class ExprPrinter extends MapBasedPrinter {
         final int index) {
       if (operation.getUserData() instanceof NodeInfo) {
         final NodeInfo nodeInfo = (NodeInfo) operation.getUserData();
-  
+
         final Enum<?> opId = operation.getOperationId();
         final Enum<?> innerOpId = (Enum<?>) nodeInfo.getSource();
         final boolean isLast = (operation.getOperandCount() - 1) == index;
-  
+
         if ((castOperatorMap.containsKey(opId)
             || castOperatorMap.containsKey(innerOpId)) && !isLast) {
           // Skips all operands but the last
@@ -324,7 +324,7 @@ public final class ExprPrinter extends MapBasedPrinter {
           appendCloseBrackets(coercionCount);
           return;
         }
- 
+
         appendText(String.format("\"%s\"", value.getValue()));
         return;
       }

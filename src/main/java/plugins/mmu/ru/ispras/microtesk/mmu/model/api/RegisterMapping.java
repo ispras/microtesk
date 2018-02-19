@@ -81,7 +81,7 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
       }
 
       final BitVector rawData = storage.load(registerIndex);
-      final D data = newData(rawData); 
+      final D data = newData(rawData);
 
       return matcher.areMatching(data, address);
     }
@@ -90,7 +90,7 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     public D getData(final A address) {
       final MemoryDevice storage = getRegisterDevice();
       final BitVector rawData = storage.load(registerIndex);
-      return newData(rawData); 
+      return newData(rawData);
     }
 
     @Override
@@ -196,7 +196,7 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
 
   @Override
   public final boolean isHit(final BitVector value) {
-    final A address = newAddress(); 
+    final A address = newAddress();
     address.getValue().assign(value);
     return isHit(address);
   }

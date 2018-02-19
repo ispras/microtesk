@@ -1,11 +1,11 @@
 /*
  * Copyright 2009-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -29,7 +29,7 @@ import java.util.Set;
 /**
  * {@link BranchTraceConstructor} implements a branch trace constructor, a component that gathers
  * useful information for a given execution trace.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class BranchTraceConstructor {
@@ -46,10 +46,10 @@ final class BranchTraceConstructor {
 
   /**
    * {@link BranchTraceConstructorVisitor} implements a segment constructor.
-   * 
+   *
    * <p>A segment is a set of basic blocks (delay slots) executed between two subsequent calls of a
    * given branch instruction or before its first call.</p>
-   * 
+   *
    * <p>For each basic block (delay slot), a segment contains a counter that shows how many times
    * the basic block (delay slot) is executed.</p>
    */
@@ -155,7 +155,7 @@ final class BranchTraceConstructor {
 
   /**
    * Construct a branch trace constructor.
-   * 
+   *
    * @param branchStructure the branch structure.
    * @param flags the heuristics flags.
    */
@@ -170,7 +170,7 @@ final class BranchTraceConstructor {
 
   /**
    * Construct a branch trace constructor.
-   * 
+   *
    * @param branchStructure the branch structure.
    */
   public BranchTraceConstructor(final List<BranchEntry> branchStructure) {
@@ -179,7 +179,7 @@ final class BranchTraceConstructor {
 
   /**
    * Constructs trace segments.
-   * 
+   *
    * @return the execution trace.
    */
   private List<Integer> constructSegments() {
@@ -193,7 +193,7 @@ final class BranchTraceConstructor {
 
   /**
    * Returns the union of the basic-block segments of the branch entry executions.
-   * 
+   *
    * @param entry the branch entry.
    * @param controlCodeExecution the control code execution mode.
    * @return the union of the basic-block segments.
@@ -217,7 +217,7 @@ final class BranchTraceConstructor {
 
   /**
    * Returns the intersection of the slots in the segments of the branch entry.
-   * 
+   *
    * @param entry the branch entry.
    * @param controlCodeExecution the control code execution mode.
    * @return the intersection of the slot segments.
@@ -253,7 +253,7 @@ final class BranchTraceConstructor {
 
   /**
    * Returns all basic-block segments executed before or after the branch entry.
-   * 
+   *
    * @param entry the branch entry.
    * @param controlCodeExecution the control code execution mode.
    * @return the list of trace segments.
@@ -289,7 +289,7 @@ final class BranchTraceConstructor {
 
   /**
    * Constructs the block and the slot coverage of the branch entry.
-   * 
+   *
    * @param entry the branch entry.
    * @param controlCodeExecution the control code execution mode.
    * @return {@code true} if the construction is successful; {@code false} otherwise.
@@ -400,7 +400,7 @@ final class BranchTraceConstructor {
 
   /**
    * Constructs the coverage for all branch entries.
-   * 
+   *
    * @return an execution trace if construction is successful; {@code null} otherwise.
    */
   public List<Integer> construct() {

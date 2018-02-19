@@ -1,11 +1,11 @@
 /*
  * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -22,7 +22,7 @@ import java.util.TreeMap;
 
 /**
  * The {@link MemoryTracker} class tracks usage of memory regions.
- *  
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class MemoryTracker {
@@ -98,10 +98,10 @@ public final class MemoryTracker {
   /**
    * Tries to reserve a memory region within the specified address range. If these addresses
    * are already in use, reservation does not occur and the overlapped region is returned.
-   * 
+   *
    * @param startAddress Start address of the region.
    * @param endAddress End address of a region (excluded).
-   * 
+   *
    * @return {@code null} if region is reserved successfully or a overlapping region is the
    *         specified address range is already in use.
    */
@@ -154,8 +154,8 @@ public final class MemoryTracker {
 
   /**
    * Checks whether the specified address is location in one
-   * of regions in use. 
-   *  
+   * of regions in use.
+   *
    * @param address Address to be checked.
    * @return {@code true} if the address is within one of the used
    *         regions of {@code false} othwerwise.

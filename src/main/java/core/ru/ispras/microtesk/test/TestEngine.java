@@ -1,11 +1,11 @@
 /*
  * Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -45,7 +45,7 @@ import java.util.List;
 
 /**
  * The {@link TestEngine} class is responsible for generation of test programs.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class TestEngine {
@@ -184,7 +184,7 @@ public final class TestEngine {
     }
 
     final long rateLimit = options.getValueAsInteger(Option.RATE_LIMIT);
-    if (genRate < rateLimit && statistics.getInstructions() >= 1500) { 
+    if (genRate < rateLimit && statistics.getInstructions() >= 1500) {
       // Makes sense only for sequences of significant length (>= 1000)
       Logger.error("Generation rate is too slow. At least %d is expected.", rateLimit);
       return false;
@@ -235,7 +235,7 @@ public final class TestEngine {
   }
 
   private static void initSolverPaths(final String home) {
-    final ru.ispras.fortress.solver.Solver z3Solver = SolverId.Z3_TEXT.getSolver(); 
+    final ru.ispras.fortress.solver.Solver z3Solver = SolverId.Z3_TEXT.getSolver();
     if (null == z3Solver.getSolverPath()) {
       // If the Z3_PATH environment variable is not set, we set up default solver path
       // in hope to find the the tool there.

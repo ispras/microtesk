@@ -1,11 +1,11 @@
 /*
  * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -28,7 +28,7 @@ import java.util.Set;
 /**
  * The {@link MetaDataUtils} class contains utility methods to deal with objects
  * implementing the {@link MetaData} interface.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class MetaDataUtils {
@@ -60,7 +60,7 @@ public final class MetaDataUtils {
   /**
    * Takes a collection of {@link MetaData} objects and creates a set containing
    * their names. The order of objects is preserved.
-   * 
+   *
    * @param c Collection of {@code MetaData} objects.
    * @return Set of {@code MetaData} object names.
    */
@@ -83,7 +83,7 @@ public final class MetaDataUtils {
    * Takes a collection of {@link MetaData} objects and creates a set containing
    * names of their elements. If an object in the collection is represented by a group,
    * its elements are added to the set in a recursive manner. The order of objects is preserved.
-   * 
+   *
    * @param c Collection of {@code MetaData} objects.
    * @return Set of {@code MetaData} object names.
    */
@@ -109,7 +109,7 @@ public final class MetaDataUtils {
   /**
    * Takes a collection of {@link MetaData} objects and creates a list containing
    * their names. The order of objects is preserved.
-   * 
+   *
    * @param c Collection of {@code MetaData} objects.
    * @return List of {@code MetaData} object names.
    */
@@ -132,7 +132,7 @@ public final class MetaDataUtils {
    * Takes a collection of {@link MetaData} objects and creates a string
    * that consists of their names separated with the specified separator string.
    * The order of objects is preserved.
-   * 
+   *
    * @param c Collection of {@code MetaData} objects.
    * @param sep Separator string.
    * @return String containing a list of {@code MetaData} object names or
@@ -162,7 +162,7 @@ public final class MetaDataUtils {
    * that consists of their names separated with the specified separator string.
    * The order of objects is preserved. If objects in the collection represent
    * groups, they are processed recursively to create a list of their items.
-   * 
+   *
    * @param c Collection of {@code MetaData} objects.
    * @param sep Separator string.
    * @return String containing a list of {@code MetaData} object names or

@@ -1,11 +1,11 @@
 /*
  * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * The {@link SymbolScopeItem} class describes scopes that contain symbols.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class SymbolScopeItem implements SymbolScope {
@@ -32,7 +32,7 @@ final class SymbolScopeItem implements SymbolScope {
   /**
    * Constructs a new scope for the given outer scope and associated symbol.
    * An associated symbol is a symbol than contains the scope to be constructed.
-   * 
+   *
    * @param scope Outer scope or {@code null} if there is no outer scope.
    * @param associatedSymbol Associated symbol or {@code null} if there is
    *        no associated symbol.
@@ -45,7 +45,7 @@ final class SymbolScopeItem implements SymbolScope {
 
   /**
    * Constructs a new scope for the given outer scope.
-   * 
+   *
    * @param scope Outer scope or {@code null} if there is no outer scope.
    */
   public SymbolScopeItem(final SymbolScope scope) {

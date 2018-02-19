@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * {@link CombinatorRandom} implements the random combinator of iterators.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class CombinatorRandom<T> extends CombinatorBase<T> {

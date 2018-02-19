@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * The job of the MemoryAllocator class is to place data in the memory storage.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class MemoryAllocator {
@@ -45,11 +45,11 @@ public final class MemoryAllocator {
   /**
    * Constructs a memory allocator object with the specified parameters. Important precondition:
    * memory region size must be a multiple of addressable unit size.
-   * 
+   *
    * @param memory Memory storage to store the data.
    * @param addressableUnitBitSize Size of an addressable unit in bits.
    * @param baseAddress Address where allocation starts.
-   * 
+   *
    * @throws IllegalArgumentException if the {@code memory} parameter is {@code null};
    *         if the specified size of an addressable unit is negative or is not a divisor
    *         of memory region size.
@@ -108,7 +108,7 @@ public final class MemoryAllocator {
 
   /**
    * Returns the size of an addressable unit.
-   * 
+   *
    * @return Size of an addressable unit in bits.
    */
   public int getAddressableUnitBitSize() {
@@ -117,7 +117,7 @@ public final class MemoryAllocator {
 
   /**
    * Returns the size of memory regions stored in the memory storage.
-   * 
+   *
    * @return Bit size of memory regions stored in the memory storage.
    */
   public int getRegionBitSize() {
@@ -126,7 +126,7 @@ public final class MemoryAllocator {
 
   /**
    * Returns the number of addressable units in a memory region.
-   * 
+   *
    * @return Number of addressable units in a memory region
    */
   public int getAddressableUnitsInRegion() {
@@ -142,10 +142,10 @@ public final class MemoryAllocator {
    * Allocates memory in the memory storage to hold the specified data and returns its address (in
    * addressable units). The data is aligned in the memory by its size (in addressable units). Space
    * between allocations is filled with zeros.
-   * 
+   *
    * @param data Data to be stored in the memory storage.
    * @return Address of the allocated memory (in addressable units).
-   * 
+   *
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
   public BigInteger allocate(final BitVector data) {
@@ -266,10 +266,10 @@ public final class MemoryAllocator {
    * and return the address (in addressable units) of the first element. The data is aligned
    * in memory by the size of data elements (in addressable units). Space between allocations
    * (if any is left) is filled with zeros.
-   * 
+   *
    * @param data Collection of data elements to be stored in the memory storage.
    * @return Address of the first allocated element.
-   * 
+   *
    * @throws IllegalArgumentException if the parameter is {@code null};
    *         if the list is empty or it list elements have different sizes.
    */
@@ -295,7 +295,7 @@ public final class MemoryAllocator {
   /**
    * Checks whether all bit vectors in the list have the same size and throws an exception of the
    * they do not.
-   * 
+   *
    * @param data List of bit vectors to be checked.
    * @throws IllegalArgumentException if bit vectors in the list have different sizes.
    */
@@ -316,11 +316,11 @@ public final class MemoryAllocator {
    * encoding and returns the address of string. The ASCII string is copied to memory byte by byte
    * so that each character could be addressable. Therefore, each byte is aligned by the boundary of
    * an addressable units. If any space is left between characters, it is filled with zeros.
-   * 
+   *
    * @param string String to be placed in the memory.
    * @param zeroTerm Specifies whether the string must be terminated with zero.
    * @return Address of the allocated ASCII string (in addressable units).
-   * 
+   *
    * @throws IllegalArgumentException if the {@code string} parameter equals {@code null};
    *         if failed to convert the string to the "US-ASCII" encoding.
    */
@@ -353,10 +353,10 @@ public final class MemoryAllocator {
   /**
    * Returns the minimal number of addressable units required to store data of the specified size
    * (in bits).
-   * 
+   *
    * @param bitSize Size in bits.
    * @return Size in addressable units.
-   * 
+   *
    * @throws IllegalArgumentException if the {@code bitSize} argument is 0 or negative.
    */
   public int bitsToAddressableUnits(final int bitSize) {
@@ -366,11 +366,11 @@ public final class MemoryAllocator {
 
   /**
    * Aligns the specified address by the specified length and returns the resulting aligned address.
-   * 
+   *
    * @param address Address to be aligned.
    * @param alignment Alignment length.
    * @return Aligned address.
-   * 
+   *
    * @throws IllegalArgumentException if any of the parameters is negative.
    */
   static BigInteger alignAddress(final BigInteger address, final int alignment) {
@@ -393,11 +393,11 @@ public final class MemoryAllocator {
 
   /**
    * Converts the specified Java string to a bit vector that holds its ASCII representation.
-   * 
+   *
    * @param string String to be converted.
    * @param zeroTerm Specifies whether the string must be terminated with zero.
    * @return ASCII representation of the string stored in a bit vector.
-   * 
+   *
    * @throws IllegalArgumentException if the {@code string} argument is {@code null}.
    * @throws IllegalStateException if failed to convert the string to the "US-ASCII" encoding.
    */

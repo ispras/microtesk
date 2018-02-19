@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -52,7 +52,7 @@ import java.util.Set;
 /**
  * The {@link Template} class builds the internal representation of a test template
  * and passes it for further processing.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Template {
@@ -86,7 +86,7 @@ public final class Template {
   private final StreamStore streams;
   private final Processor processor;
 
-  // Variates for mode and operation groups 
+  // Variates for mode and operation groups
   private final Map<String, Variate<String>> groupVariates;
 
   // Default situations for instructions and groups
@@ -600,7 +600,7 @@ public final class Template {
     }
 
     preparatorBuilder = new PreparatorBuilder(targetMode, isComparator);
-    return preparatorBuilder; 
+    return preparatorBuilder;
   }
 
   public void endPreparator() {
@@ -612,7 +612,7 @@ public final class Template {
 
     final Preparator oldPreparator = preparators.addPreparator(preparator);
     if (null != oldPreparator) {
-      Logger.warning("%s defined at %s is redefined at %s", 
+      Logger.warning("%s defined at %s is redefined at %s",
           oldPreparator, oldPreparator.getWhere(), preparator.getWhere());
     }
 
@@ -696,7 +696,7 @@ public final class Template {
     }
 
     endBuildingCall();
-    debug("Preparator reference: %s", targetMode.getName()); 
+    debug("Preparator reference: %s", targetMode.getName());
 
     final MetaAddressingMode metaTargetMode =
         metaModel.getAddressingMode(targetMode.getName());
@@ -777,7 +777,7 @@ public final class Template {
           "The %s keyword cannot be used outside a stream preparator block.", keyword));
     }
   }
-  
+
   public void beginStreamInitMethod() {
     debug("Begin Stream Method: init");
     streamPreparatorBuilder.beginInitMethod();
@@ -796,7 +796,7 @@ public final class Template {
   public void endStreamMethod() {
     debug("End Stream Method");
     endBuildingCall();
-    streamPreparatorBuilder.endMethod(); 
+    streamPreparatorBuilder.endMethod();
   }
 
   public void addStream(

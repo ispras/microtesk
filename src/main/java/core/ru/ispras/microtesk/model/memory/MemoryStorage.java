@@ -27,7 +27,7 @@ import java.util.TreeMap;
 
 /**
  * The {@link MemoryStorage} implements a memory storage.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class MemoryStorage implements MemoryDevice {
@@ -72,7 +72,7 @@ final class MemoryStorage implements MemoryDevice {
 
     private static BitVector adjustSize(final BitVector bv, final int bitSize) {
       if (bv.getBitSize() == bitSize) {
-        return bv; 
+        return bv;
       }
 
       if (bv.getBitSize() > bitSize) {
@@ -153,7 +153,7 @@ final class MemoryStorage implements MemoryDevice {
     }
 
     public BitVector read(final int index) {
-      final BitVector mapping = getRegionMapping(index); 
+      final BitVector mapping = getRegionMapping(index);
       return BitVector.unmodifiable(mapping);
     }
 

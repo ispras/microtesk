@@ -1,11 +1,11 @@
 /*
  * Copyright 2016 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -21,8 +21,8 @@ import ru.ispras.microtesk.model.data.Type;
 
 /**
  * The {@link DataGenerator} class is responsible for generating data values
- * of the specified type using a set of provided methods. 
- * 
+ * of the specified type using a set of provided methods.
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 abstract class DataGenerator {
@@ -47,7 +47,7 @@ abstract class DataGenerator {
   public abstract BitVector nextData();
 
   private static final class Random extends DataGenerator {
-    private final Type type; 
+    private final Type type;
 
     public Random(final Type type) {
       this.type = type;
@@ -62,7 +62,7 @@ abstract class DataGenerator {
   }
 
   private static final class Zero extends DataGenerator {
-    private final BitVector data; 
+    private final BitVector data;
 
     public Zero(final Type type) {
       this.data = BitVector.newEmpty(type.getBitSize());

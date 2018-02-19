@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
@@ -49,7 +49,7 @@ public interface SymbolScope {
   Symbol resolveMember(final String name);
 
   /**
-   * Searches for a symbol described by an array containing its name 
+   * Searches for a symbol described by an array containing its name
    * preceded with names of the scopes the symbol is nested into. Search
    * starts in the current scope and goes to outer scopes until the first
    * nesting scope is found. Then the search is continued in that scope.

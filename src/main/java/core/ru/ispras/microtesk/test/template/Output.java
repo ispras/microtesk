@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * The {@link Output} class holds information to be printed to the simulation output to inserted
  * into the generated test program. The important attributes are:
- * 
+ *
  * <ol>
  * <li>Runtime. Specifies whether the information is evaluated at the simulation time and goes to
  * the simulator log or evaluated after simulation and inserted to the generated test program.</li>
@@ -35,13 +35,13 @@ import java.util.List;
  * <li>Format string. Used to describe the format of the text to be printed.</li>
  * <li>Format arguments. Pieces of information to be inserted into the printed text.</li>
  * </ol>
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Output {
   /**
    * The {@link Kind} enum describes the type of the output.
-   * 
+   *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   public static enum Kind {
@@ -78,14 +78,14 @@ public final class Output {
   /**
    * The Argument interface is a base interface to be implemented by all objects that store format
    * arguments.
-   * 
+   *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   interface Argument {
     /**
      * Evaluates the format argument using the model state observer and returns the resulting
      * object.
-     * 
+     *
      * @param processingElement PE state information.
      * @return Object storing the evaluation result (some data object).
      * @throws ConfigurationException if failed to evaluate the information does to an incorrect
@@ -95,7 +95,7 @@ public final class Output {
 
     /**
      * Creates a copy.
-     * 
+     *
      * @return A new copy.
      */
     Argument copy();
@@ -104,7 +104,7 @@ public final class Output {
   /**
    * The ArgumentValue class describes a format argument that stores a constant value (integer,
    * string or boolean). When being evaluated, just returns the stored value.
-   * 
+   *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   static final class ArgumentValue implements Argument {
@@ -138,7 +138,7 @@ public final class Output {
   /**
    * The ArgumentLocation class describes a format argument that when being evaluated reads a value
    * from the specified location (register or memory address).
-   * 
+   *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   static final class ArgumentLocation implements Argument {
@@ -180,7 +180,7 @@ public final class Output {
 
   /**
    * Constructs an output object.
-   * 
+   *
    * @param kind Output type.
    * @param format Format string.
    * @param args Format arguments.
@@ -200,7 +200,7 @@ public final class Output {
 
   /**
    * Constructs an output object with no format arguments.
-   * 
+   *
    * @param kind Output type.
    * @param format Format string.
    */
@@ -210,7 +210,7 @@ public final class Output {
 
   /**
    * Constructs a copy of an {@link Output} object.
-   * 
+   *
    * @param other Object to be copied.
    */
   public Output(final Output other) {
@@ -223,7 +223,7 @@ public final class Output {
 
   /**
    * Returns the output kind.
-   * 
+   *
    * @return Output kind.
    */
   public Kind getKind() {
@@ -235,7 +235,7 @@ public final class Output {
    * and the evaluation results should be printed to the MicroTESK simulator output or
    * {@code false} if it should be evaluated after simulation and the results should be
    * inserted into the generated test program.
-   * 
+   *
    * @return {@code true} if it is to printed at runtime or {@code false} if it should be
    *         printed into the test program.
    */
@@ -250,7 +250,7 @@ public final class Output {
   /**
    * Evaluates the stored information using the model state observer to read the state of the model
    * (if required) and returns resulting text.
-   * 
+   *
    * @param processingElement PE state information.
    * @return Text to be printed.
    * @throws ConfigurationException if failed to evaluate the information due to an incorrect

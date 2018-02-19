@@ -222,7 +222,7 @@ public final class SymbolicExecutor {
   }
 
   private Boolean executeHazard(
-      final SymbolicResult result, 
+      final SymbolicResult result,
       final Set<Variable> defines,
       final BufferHazard.Instance hazard,
       final int pathIndex1,
@@ -640,8 +640,8 @@ public final class SymbolicExecutor {
     return status;
   }
 
-  
-  
+
+
   private Boolean executeGuard(
       final SymbolicResult result,
       final Set<Variable> defines,
@@ -656,7 +656,7 @@ public final class SymbolicExecutor {
 
     final MemoryAccessContext context = result.getContext(pathIndex);
     final MmuBufferAccess bufferAccess = guard.getBufferAccess(context);
- 
+
     // Buffer(Argument) => (Address == Argument).
     if (bufferAccess != null) {
       final MmuAddressInstance formalArg = bufferAccess.getAddress();

@@ -18,7 +18,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 /**
  * {@link CompositorRotation} implements the rotation (interleaving) composition of iterators.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class CompositorRotation<T> extends CompositorBase<T> {

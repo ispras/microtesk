@@ -164,7 +164,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns the collection of addresses registered in the MMU.
-   * 
+   *
    * @return the collection of addresses.
    */
   public Collection<MmuAddressInstance> getAddresses() {
@@ -178,7 +178,7 @@ public final class MmuSubsystem {
 
   /**
    * Returns an address registered in the MMU by its name.
-   * 
+   *
    * @param name the name of the address.
    * @return address or {@code null} it is undefined.
    */
@@ -366,7 +366,7 @@ public final class MmuSubsystem {
    * The {@link Holder} interface must be implemented by classes generated
    * by the MMU translator which hold MMU specifications. This is needed
    * to deal with such classes in a uniform way.
-   * 
+   *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
 
@@ -461,7 +461,7 @@ public final class MmuSubsystem {
     }
 
     /**
-     * Registers the address type in the MMU. Address that have the same 
+     * Registers the address type in the MMU. Address that have the same
      * name are considered as duplicates and ignored.
      *
      * @param address the address to be registered.
@@ -584,5 +584,5 @@ public final class MmuSubsystem {
       startAction = action;
     }
   }
-  
+
 }

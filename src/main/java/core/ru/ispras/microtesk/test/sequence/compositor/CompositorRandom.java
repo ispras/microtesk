@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * {@link CompositorRandom} implements the random composition (merging) of iterators.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class CompositorRandom<T> extends CompositorBase<T> {

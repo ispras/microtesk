@@ -219,7 +219,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   /**
-   * Returns the value of the specified constant. 
+   * Returns the value of the specified constant.
    *
    * @param id Constant identifier.
    * @return Constant value.
@@ -243,7 +243,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @param aliasId Name of the source entity.
    * @param args Arguments used to access the source entity (e.g. register index,
    *        or addressing mode arguments).
-   * @throws SemanticException 
+   * @throws SemanticException
    */
   protected void newExtern(
       final CommonTree id,
@@ -316,7 +316,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @return New Address IR object.
    * @throws SemanticException (1) if the width expression is {@code null}; (2) if the width
    * expression cannot be reduced to a constant integer value; (3) if the width value is beyond
-   * the Java Integer allowed range; (4) if the width value is less or equal 0. 
+   * the Java Integer allowed range; (4) if the width value is less or equal 0.
    */
   protected final Address newAddress(final CommonTree addressId,
                                      final Type type,
@@ -394,7 +394,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       if (fields.containsKey(id)) {
         raiseError(w, String.format("Duplicate member '%s'.", id));
       }
- 
+
       final int bitSize = extractPositiveInt(w, sizeExpr, id + " field size");
 
       final BitVector defValue;
@@ -693,9 +693,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     /**
      * Constructs a builder for a Buffer object.
-     * 
+     *
      * @param id Buffer identifier.
-     * @param addressArgId Address argument identifier. 
+     * @param addressArgId Address argument identifier.
      * @param addressArgType Address argument type (identifier).
      * @throws SemanticException if the specified address type is not defined.
      */
@@ -821,14 +821,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final PolicyId value = PolicyId.valueOf(attr.getText());
         policy = value;
       } catch (Exception e) {
-        raiseError(where(attr), "Unknown policy: " + attr.getText()); 
+        raiseError(where(attr), "Unknown policy: " + attr.getText());
       }
     }
 
     public Buffer build() throws SemanticException {
       checkUndefined("ways", ways.equals(BigInteger.ZERO));
       checkUndefined("sets", sets.equals(BigInteger.ZERO));
-      checkUndefined("entry", dataArg == null && parent == null); 
+      checkUndefined("entry", dataArg == null && parent == null);
       checkUndefined("index", index == null);
       checkUndefined("match", match == null);
 
@@ -885,7 +885,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final int dataSize = extractPositiveInt(
         where(dataArgId), dataArgSizeExpr, "Data argument size");
 
-    return new CommonBuilder(where(memoryId), 
+    return new CommonBuilder(where(memoryId),
                              memoryId.getText(),
                              address,
                              addressArgId.getText(),
@@ -933,7 +933,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         this.loc = loc;
       }
     }
-    
+
     public CallableBuilder(final CommonTree node) {
       this.location = where(node);
       this.name = node.getText();
@@ -955,7 +955,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     public Map<String, Var> addParameters(
-        final Collection<CommonTree> nodes, 
+        final Collection<CommonTree> nodes,
         final Collection<Type> types) throws SemanticException {
       final Map<String, Var> variables = addLocalVariables(nodes, types);
       parameters.putAll(variables);
@@ -963,7 +963,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     public Map<String, Var> addLocalVariables(
-        final Collection<CommonTree> nodes, 
+        final Collection<CommonTree> nodes,
         final Collection<Type> types) throws SemanticException {
       InvariantChecks.checkNotNull(nodes);
       InvariantChecks.checkNotNull(types);
@@ -1261,7 +1261,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     /**
      * Creates a segment IR object and adds it to the MMU IR.
-     * 
+     *
      * @param rangeStartExpr Range start expression.
      * @param rangeEndExpr Range and expression.
      * @return New Segment IR object.
@@ -1442,14 +1442,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
   /**
    * Creates a new operator-based expression. Works in the following steps:
-   * 
+   *
    * <ol><li>Find Fortress operator</li>
    * <li>Reduce all operands</li>
    * <li>Cast all value operands to common type (bit vector) if required</li>
    * <li>Make NodeOperation and return</li></ol>
-   * 
+   *
    * @param operatorId Operator identifier.
-   * @param operands Array of operands. 
+   * @param operands Array of operands.
    * @return Expression
    * @throws RecognitionException
    */
@@ -1494,8 +1494,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
   /**
    * Creates a conditional expression of the following kind:<p>
-   * {@code if C1 then V1 (elif Ci then Vi)* else Vn endif}. 
-   * 
+   * {@code if C1 then V1 (elif Ci then Vi)* else Vn endif}.
+   *
    * @param id Token that marks location of the construction in code.
    * @param blocks Pairs [code condition expression, value expression].
    * @return New expression.
@@ -1774,7 +1774,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     if (value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) < 0
         || value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
       raiseError(w, String.format(
-          "%s (=%d) is beyond the allowed integer value range.", exprDesc, value)); 
+          "%s (=%d) is beyond the allowed integer value range.", exprDesc, value));
     }
 
     return value.intValue();

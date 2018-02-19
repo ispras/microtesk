@@ -1,11 +1,11 @@
 /*
  * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -29,7 +29,7 @@ import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
  * The TreeParserBase class is a base class for implementing ANTLR-based tree walkers.
  * It includes support for error reporting (inherited from {@link TreeParserEx})
  * and support for working with symbol tables.
- * 
+ *
  * @author Andrei Tatarnikov
  */
 public class TreeParserBase extends TreeParserEx {
@@ -84,7 +84,7 @@ public class TreeParserBase extends TreeParserEx {
 
     symbols.define(symbol);
   }
-  
+
   protected final void declareAndPushSymbolScope(
       CommonTree t, Enum<?> kind) throws SemanticException {
     InvariantChecks.checkNotNull(symbols);
@@ -126,7 +126,7 @@ public class TreeParserBase extends TreeParserEx {
          "The %s symbol must be registered in the symbol table.", scopeID.getText()));
     }
 
-    if (null == scopeSymbol.getInnerScope()) { 
+    if (null == scopeSymbol.getInnerScope()) {
       throw new IllegalStateException(String.format(
           "The %s symbol must be a scoped symbol.", scopeID.getText()));
     }

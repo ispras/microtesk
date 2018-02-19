@@ -80,7 +80,7 @@ public class Primitive {
     this.returnType = other.returnType;
     this.attrNames = other.attrNames;
     this.parents = new HashMap<>();
-    this.info = new PrimitiveInfo(other.info); 
+    this.info = new PrimitiveInfo(other.info);
 
     for (final Map.Entry<String, PrimitiveReference> e : other.parents.entrySet()) {
       final String id = e.getKey();
@@ -92,7 +92,7 @@ public class Primitive {
 
   /**
    * Registers a reference made from the parent primitive to the current primitive.
-   * 
+   *
    * @param parent Parent primitive.
    * @param referenceName The name of the reference (parameter) made from the parent primitive to
    *        the current primitive.
@@ -139,7 +139,7 @@ public class Primitive {
 
   /**
    * Returns names of the public attributes of the primitive.
-   * 
+   *
    * @return Public attribute names.
    */
   public final Set<String> getAttrNames() {
@@ -149,7 +149,7 @@ public class Primitive {
   /**
    * Checks whether the current primitive is a root primitive. A primitive is a root primitive if it
    * does not have parents.
-   * 
+   *
    * @return true if it is a root primitive or false otherwise.
    */
   public final boolean isRoot() {
@@ -159,7 +159,7 @@ public class Primitive {
   /**
    * Returns the collection of primitives (parents) that make references to the current primitive
    * (have parameters of the corresponding type).
-   * 
+   *
    * @return Collection of parent primitives.
    */
   public final Collection<PrimitiveReference> getParents() {
@@ -169,7 +169,7 @@ public class Primitive {
   /**
    * Returns the number of primitives (parents) that make references to the current primitive (have
    * parameters of the corresponding type).
-   * 
+   *
    * @return Parent count.
    */
   public final int getParentCount() {
@@ -179,7 +179,7 @@ public class Primitive {
   /**
    * Returns the total number of references made to the current primitive from parent primitives
    * (the total number of parameters of all parent primitives which have the corresponding type).
-   * 
+   *
    * @return Number of reference to this primitive from all its parents.
    */
   public final int getParentReferenceCount() {

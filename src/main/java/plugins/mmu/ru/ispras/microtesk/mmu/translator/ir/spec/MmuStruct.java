@@ -59,7 +59,7 @@ public class MmuStruct {
 
   /**
    * Returns the structure name.
-   * 
+   *
    * @return structure name.
    */
   public final String getName() {

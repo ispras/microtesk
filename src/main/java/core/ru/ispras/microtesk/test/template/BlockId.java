@@ -153,7 +153,7 @@ public final class BlockId {
    * @param parentId Identifier of the candidate parent block.
    * @return {@code true} if the specified block identifier refers to a parent block or
    *         {@code false} otherwise.
-   * 
+   *
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
   public boolean isParent(final BlockId parentId) {
@@ -174,7 +174,7 @@ public final class BlockId {
    * @param childId Identifier of the candidate child block.
    * @return {@code true} if the specified block identifier refers to a child block or
    *         {@code false} otherwise.
-   * 
+   *
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
   public boolean isChild(final BlockId childId) {
@@ -218,7 +218,7 @@ public final class BlockId {
 
   /**
    * Returns textual representation of the identifier.
-   * 
+   *
    * @return Textual representation of the identifier.
    */
   @Override
@@ -236,7 +236,7 @@ public final class BlockId {
   /**
    * Calculates the hash code of the block identifier based on the elements of the indexes list
    * which describes the relative location of the block.
-   * 
+   *
    * @return Hash code for the block identifier.
    */
   @Override

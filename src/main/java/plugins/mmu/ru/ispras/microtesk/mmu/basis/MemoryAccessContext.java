@@ -81,9 +81,9 @@ public final class MemoryAccessContext {
     final BufferAccessEvent preEvent = bufferAccessEvents.get(buffer);
 
     final boolean nowCheck =
-        nowEvent == BufferAccessEvent.HIT || nowEvent == BufferAccessEvent.MISS; 
+        nowEvent == BufferAccessEvent.HIT || nowEvent == BufferAccessEvent.MISS;
     final boolean preCheck =
-        preEvent == BufferAccessEvent.HIT || preEvent == BufferAccessEvent.MISS; 
+        preEvent == BufferAccessEvent.HIT || preEvent == BufferAccessEvent.MISS;
 
     if ((nowCheck || nowEvent == BufferAccessEvent.READ) && !preCheck) {
       bufferAccessIds.put(buffer, getBufferAccessId(buffer) + 1);

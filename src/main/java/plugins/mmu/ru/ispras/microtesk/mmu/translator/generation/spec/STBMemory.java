@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -62,7 +62,7 @@ final class STBMemory implements STBuilder {
   }
 
   private void buildHeader(final ST st) {
-    st.add("name", memory.getId()); 
+    st.add("name", memory.getId());
     st.add("pack", packageName);
     st.add("instance", false);
 
@@ -90,7 +90,7 @@ final class STBMemory implements STBuilder {
 
     // FIXME: All addresses are considered singletons. This assumption is not always correct.
     // There may be several local variables having type which corresponds to some address.
-    // In this case they will refer to the same instance causing troubles. 
+    // In this case they will refer to the same instance causing troubles.
 
     for (final Var variable : memory.getVariables()) {
       final Address address = ir.getAddresses().get(variable.getType().getId());
@@ -129,7 +129,7 @@ final class STBMemory implements STBuilder {
       if (!ir.getAddresses().containsKey(type.getId())) {
         // FIXME: All addresses are considered singletons. This assumption is not always correct.
         // There may be several local variables having type which corresponds to some address.
-        // In this case they will refer to the same instance causing troubles. 
+        // In this case they will refer to the same instance causing troubles.
 
         final String name = getVariableName(variable.getName());
         STBStruct.buildFieldDecl(

@@ -1,19 +1,19 @@
 /*
  * Copyright (c) 2014 ISPRAS (www.ispras.ru)
- * 
+ *
  * Institute for System Programming of Russian Academy of Sciences
- * 
+ *
  * 25 Alexander Solzhenitsyn st. Moscow 109004 Russia
- * 
+ *
  * All rights reserved.
- * 
+ *
  * LabelManagerTestCase.java, Aug 14, 2014 3:40:58 PM Andrei Tatarnikov
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -36,22 +36,22 @@ import ru.ispras.microtesk.test.template.Label;
  * This is a unit test to check the mechanism of resolving label references. Test cases found
  * different labels located in different places of the block tree below being references from
  * different blocks.
- * 
+ *
  * <p>
  * <i>Block structure:</i>
- * 
+ *
  * <pre>
  *                                       root
- *                 _______________________|_____________________                   
+ *                 _______________________|_____________________
  *                /                       |                     \
  *           child1                    child2                   child3
  *        _____|_____                 ____|____                ____|____
- *       /     |     \               /    |    \              /    |    \ 
+ *       /     |     \               /    |    \              /    |    \
  * child11  child12  child13   child21 child22  child23 child31 child32 child33
- *    |        |        |        |        |        |      |        |        | 
+ *    |        |        |        |        |        |      |        |        |
  * child111 child121 child131 child211 child221 child231 child311 child321 child331
  * </pre>
- * 
+ *
  * @author Andrei Tatarnikov
  */
 

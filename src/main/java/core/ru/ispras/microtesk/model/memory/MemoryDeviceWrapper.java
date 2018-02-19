@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -23,7 +23,7 @@ import ru.ispras.microtesk.model.data.Data;
  * the {@link MemoryDevice} interface. This might be required to map an
  * external (created by a plugin) object modeling a memory storage to
  * a {@link Memory} object.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class MemoryDeviceWrapper implements MemoryDevice {
@@ -49,7 +49,7 @@ public final class MemoryDeviceWrapper implements MemoryDevice {
   @Override
   public BitVector load(final BitVector address) {
     final Location location = memory.access(address.bigIntegerValue(false));
-    final Data data = location.load(); 
+    final Data data = location.load();
     return data.getRawData();
   }
 

@@ -1,11 +1,11 @@
 /*
  * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * {@link BitVectorFormulaSolverSat4j} is a SAT-based bit-vector constraint solver.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, BitVector>> {
@@ -45,9 +45,9 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
 
   /**
    * Constructs a solver.
-   * 
+   *
    * @param builder the builder of the problem to be solved.
-   * @param initializer the initializer to be used to fill the unused fields. 
+   * @param initializer the initializer to be used to fill the unused fields.
    */
   public BitVectorFormulaSolverSat4j(
       final BitVectorFormulaBuilder builder,
@@ -62,9 +62,9 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
 
   /**
    * Constructs a solver.
-   * 
+   *
    * @param formulae the constraints to be solved.
-   * @param initializer the initializer to be used to fill the unused fields. 
+   * @param initializer the initializer to be used to fill the unused fields.
    */
   public BitVectorFormulaSolverSat4j(
       final Collection<Node> formulae,
@@ -82,9 +82,9 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
 
   /**
    * Constructs a solver.
-   * 
+   *
    * @param formula the constraint to be solved.
-   * @param initializer the initializer to be used to fill the unused fields. 
+   * @param initializer the initializer to be used to fill the unused fields.
    */
   public BitVectorFormulaSolverSat4j(
       final Node formula,

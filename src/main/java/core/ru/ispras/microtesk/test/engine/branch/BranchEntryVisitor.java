@@ -1,11 +1,11 @@
 /*
  * Copyright 2009-2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -16,7 +16,7 @@ package ru.ispras.microtesk.test.engine.branch;
 
 /**
  * {@link BranchEntryVisitor} is an abstract class for branch entry visitors.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 abstract class BranchEntryVisitor {
@@ -25,7 +25,7 @@ abstract class BranchEntryVisitor {
 
   /**
    * Returns the branch structure walker.
-   * 
+   *
    * @return the branch structure walker.
    */
   public BranchStructureWalker getBranchStructureWalker() {
@@ -34,7 +34,7 @@ abstract class BranchEntryVisitor {
 
   /**
    * Sets the branch structure walker.
-   * 
+   *
    * @param walker the branch structure walker to be set.
    */
   public void setBranchStructureWalker(final BranchStructureWalker walker) {
@@ -50,7 +50,7 @@ abstract class BranchEntryVisitor {
 
   /**
    * Process the branch entry (conditional or unconditional).
-   * 
+   *
    * @param index the entry index.
    * @param entry the entry.
    * @param execution the execution of the branch entry.
@@ -60,7 +60,7 @@ abstract class BranchEntryVisitor {
 
   /**
    * Process the delay slot entry.
-   * 
+   *
    * @param index the entry index.
    * @param entry the entry.
    */
@@ -68,7 +68,7 @@ abstract class BranchEntryVisitor {
 
   /**
    * Process the basic block entry.
-   * 
+   *
    * @param index the entry index.
    * @param entry the entry.
    */

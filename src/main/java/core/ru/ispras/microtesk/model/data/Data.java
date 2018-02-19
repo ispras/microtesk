@@ -430,7 +430,7 @@ public final class Data implements Comparable<Data> {
    * Checks whether the significant bits are lost when the specified integer is converted to
    * the specified Model API type. This happens when the type is shorter than the value
    * and the truncated part goes beyond sign extension bits.
-   * 
+   *
    * @param type Conversion target type.
    * @param value Value to be converted.
    * @return {@code true} if significant bits will be lost during the conversion

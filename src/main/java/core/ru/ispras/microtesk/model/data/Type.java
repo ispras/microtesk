@@ -50,7 +50,7 @@ public final class Type {
 
     if (null != TypeId.fromName(name) || null != ALIASES.get(name)) {
       throw new IllegalArgumentException(
-          String.format("The %s type is already defined.", name)); 
+          String.format("The %s type is already defined.", name));
     }
 
     ALIASES.put(name, type);
