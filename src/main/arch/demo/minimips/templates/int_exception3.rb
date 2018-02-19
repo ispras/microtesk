@@ -19,7 +19,7 @@ require_relative 'minimips_base'
 #
 # Description:
 #
-# This test template demonstrates how to generate test cases 
+# This test template demonstrates how to generate test cases
 # for integer arithmetics. This includes situations 'Normal' and 'Overflow'
 # extracted from specifications for integer addition and subtraction.
 #
@@ -63,7 +63,7 @@ class IntExceptionTemplate < MiniMipsBaseTemplate
       trace 'Exception handler (EPC = 0x%x)', location('COP0_R', 14)
       mfc0 ra, rcop0(14)
       addi ra, ra, 4
-      jr ra 
+      jr ra
       nop
     }.run
 

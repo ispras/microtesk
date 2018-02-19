@@ -20,15 +20,15 @@ require ENV['TEMPLATE']
 # Description:
 #
 # The VliwDemoTemplate test template is a base template to be inherited by
-# all other templates for the given architecture. It contains gefinitions 
+# all other templates for the given architecture. It contains gefinitions
 # of preparators (rules for creating initialization sequences for specific
-# resources) and other useful code to be reused.   
+# resources) and other useful code to be reused.
 #
 class VliwBaseTemplate < Template
 
   def initialize
     super
-    # Initialize settings here 
+    # Initialize settings here
 
     # Sets the indentation token used in test programs
     set_option_value 'indent-token', "\t"
@@ -54,10 +54,10 @@ class VliwBaseTemplate < Template
   #   addi(r(5), r(0), 10) do situation('normal') end
   # )
   #
-  
+
   ##############################################################################
   # Initialization Section
-  
+
   def pre
     # Physical memory is modelled by array "M:.
     data_config(:target => 'M') {
@@ -101,16 +101,16 @@ class VliwBaseTemplate < Template
     # - The 'target' and 'value' methods specify the target addressing mode
     #   with all its arguments set and the value passed to the preparator
     #   respectively. The arguments of the 'value' method specify which part
-    #   of the value is used. 
+    #   of the value is used.
     #
-    
+
     #
     # The code below specifies an instruction sequence that writes a value
     # to the specified general-purpose register (GPR) using the R addressing
     # mode.
     #
     preparator(:target => 'R') {
-      comment 'Initializer for R'  
+      comment 'Initializer for R'
       vliw(
         (lui target, value(16, 31)),
         (addi target, target, value(0, 15))
@@ -120,7 +120,7 @@ class VliwBaseTemplate < Template
     #
     # The code below specifies an instruction sequence that writes a value
     # to the specified floating-point register (FPR) using the F addressing
-    # mode. 
+    # mode.
     #
     preparator(:target => 'F') {
       comment 'Initializer for F'
@@ -134,13 +134,13 @@ class VliwBaseTemplate < Template
       )
     }
   end
-  
+
   ##############################################################################
   # Reusable Utility Methods
 
   #
   # Creates an argument for text printing methods (e.g. trace or text),
-  # which refers to the specified GPR register. 
+  # which refers to the specified GPR register.
   #
   def gpr(index)
     location('GPR', index)
@@ -156,7 +156,7 @@ class VliwBaseTemplate < Template
 
   #
   # Creates an argument for text printing methods (e.g. trace or text),
-  # which refers to the specified FPR register. 
+  # which refers to the specified FPR register.
   #
   def fpr(index)
     location('FPR', index)

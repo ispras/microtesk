@@ -38,7 +38,7 @@ end
 
 #
 # Defines methods for addressing modes (added to the Template class)
-# 
+#
 def define_addressing_mode(mode)
   name = mode.getName().to_s
   #puts "Defining mode #{name}..."
@@ -119,7 +119,7 @@ def define_operation(op)
       @template.setRootOperation builder.build, get_caller_location
       @template.endBuildingCall
     elsif root_shortcuts
-      # TODO: Dirty hack! Assumes that if a root shortcut exists, we always use it. 
+      # TODO: Dirty hack! Assumes that if a root shortcut exists, we always use it.
       builder.setContext "#root"
       @template.setRootOperation builder.build, get_caller_location
       @template.endBuildingCall
@@ -133,7 +133,7 @@ end
 
 #
 # Defines methods for operation groups (added to the Template class)
-# 
+#
 def define_operation_group(group_name)
   #puts "Defining operation group #{group_name}..."
 
@@ -205,15 +205,15 @@ def set_arguments_from_array(builder, args)
   end
 end
 
-# 
+#
 # Defines a method in the target class. If such method is already defined,
 # the method type is added to the method name as a prefix to make the name unique.
-# If this does not help, an error is reported.  
-# 
+# If this does not help, an error is reported.
+#
 # Parameters:
 #   target_class Target class (Class object)
 #   method_name  Method name (String)
-#   method_type  Method type (String) 
+#   method_type  Method type (String)
 #   method_body  Body for the method (Proc)
 #
 def define_method_for(target_class, method_name, method_type, method_body)

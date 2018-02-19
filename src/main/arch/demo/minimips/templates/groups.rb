@@ -43,7 +43,7 @@ class GroupsTemplate < MiniMipsBaseTemplate
       # Selects from {{add, addu, sub, subu}, {and, or, nor, xor}, {sllv, srav, srlv}}
       alu t6, t7, t8
 
-      # Placeholder to return from an exception 
+      # Placeholder to return from an exception
       nop
     }.run(10)
 
@@ -62,7 +62,7 @@ class GroupsTemplate < MiniMipsBaseTemplate
                       range(:value => 0xffffFFFE..0xffffFFFF,    :bias => 50))
 
     # All instructions of the 'xxx' group will be linked with the 'random_situation'
-    # situation unless another situation is explicitly specified. 
+    # situation unless another situation is explicitly specified.
     set_default_situation 'xxx' do situation('random_biased', :dist => int32_dist) end
 
     sequence {

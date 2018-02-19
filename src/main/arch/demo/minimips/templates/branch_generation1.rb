@@ -20,7 +20,7 @@ require_relative 'minimips_base'
 # Description:
 #
 # This test template demonstrates how to generate test cases with branch instructions
-# including instruction with two parameters such as beq and bne. Currently, there is 
+# including instruction with two parameters such as beq and bne. Currently, there is
 # a limitation: only one parameter is stored and loaded from the stream. Consequently,
 # the second parameter must be a register with a predefined value such as $zero.
 #

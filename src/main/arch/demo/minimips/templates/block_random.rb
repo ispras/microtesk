@@ -23,7 +23,7 @@ require_relative 'minimips_base'
 # sequences using block constructs.
 #
 class BlockRandomTemplate < MiniMipsBaseTemplate
-  
+
   def pre
     super
 

@@ -19,7 +19,7 @@ require_relative 'minimips_base'
 #
 # Description:
 #
-# This test template demonstrates how to generate test cases by using 
+# This test template demonstrates how to generate test cases by using
 # constraints.
 #
 class CoverageTemplate < MiniMipsBaseTemplate

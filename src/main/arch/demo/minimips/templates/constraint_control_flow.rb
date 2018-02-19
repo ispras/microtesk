@@ -59,7 +59,7 @@ class ConstraintControlFlowTemplate < MiniMipsBaseTemplate
       sub t5, t6, t7 do situation('IntegerOverflow') end;
 
       label :exit
-      nop 
+      nop
     }.run(10)
   end
 

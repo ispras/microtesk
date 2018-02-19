@@ -22,7 +22,7 @@ require_relative 'vliw_base'
 # This test template demonstrates how MicroTESK can simulate the execution
 # of a test program to predict the resulting state of a microprocessor
 # design under test. The described program calculates the greatest common
-# divisor of two 5-bit random numbers ([1..63]) by using the Euclidean 
+# divisor of two 5-bit random numbers ([1..63]) by using the Euclidean
 # algorithm.
 #
 

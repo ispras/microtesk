@@ -22,7 +22,7 @@ require_relative 'minimips_base'
 # This test template demonstrates how MicroTESK can simulate the execution
 # of a test program to predict the resulting state of a microprocessor
 # design under test. The described program calculates the quotient and
-# the remainder of division of two random numbers by using 
+# the remainder of division of two random numbers by using
 # the simple algorithm of repeated subtraction.
 #
 class IntDivideTemplate < MiniMipsBaseTemplate

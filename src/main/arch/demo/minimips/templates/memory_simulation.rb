@@ -25,7 +25,7 @@ class MemorySimulationTemplate < MiniMipsBaseTemplate
 
   def pre
     super
-  
+
     data {
       org 0x00010001
       align 8

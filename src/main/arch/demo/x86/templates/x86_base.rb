@@ -22,7 +22,7 @@ class X86BaseTemplate < Template
   end
   def initialize
     super
-    # Initialize settings here 
+    # Initialize settings here
     @setup_memory       = false
     @setup_cache        = false
     @kseg0_cache_policy = 0

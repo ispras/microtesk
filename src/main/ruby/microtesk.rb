@@ -19,7 +19,7 @@ require 'java'
 require_relative 'template'
 require_relative 'utils'
 
-module MicroTESK 
+module MicroTESK
 
 HOME     = ENV["MICROTESK_HOME"]
 TEMPLATE = File.join(HOME, "lib/ruby/template")
@@ -30,7 +30,7 @@ def self.main
   template_classes = prepare_template_classes(template_file)
   template_classes.each do |template_class, template_class_file|
     if template_class_file.eql?(template_file)
-      puts "Processing template #{template_class} defined in #{template_class_file}..." 
+      puts "Processing template #{template_class} defined in #{template_class_file}..."
       template = template_class.new
       template.generate
     end

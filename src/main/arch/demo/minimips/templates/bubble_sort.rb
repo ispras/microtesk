@@ -21,12 +21,12 @@ require_relative 'minimips_base'
 #
 # This test template demonstrates how MicroTESK can simulate the execution
 # of a test program to predict the resulting state of a microprocessor
-# design under test. The described test program is a simple implemention of 
+# design under test. The described test program is a simple implemention of
 # the bubble sort algorithm. The algorithm in pseudocode (from Wikipedia):
 #
 # procedure bubbleSort( A : list of sortable items )
 #   n = length(A)
-#   repeat 
+#   repeat
 #     swapped = false
 #     for i = 1 to n-1 inclusive do
 #       /* if this pair is out of order */

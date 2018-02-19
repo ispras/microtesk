@@ -269,7 +269,7 @@ class Template
   #
   # Creates an object for generating a random integer (to be used as an argument of a mode or op)
   # selected from the specified range or according to the specified distribution.
-  # 
+  #
   def rand(*args)
     if args.count == 1
       distribution = args.at(0)
@@ -347,7 +347,7 @@ class Template
   #
   # Creates an object describing a value range (with corresponding bias)
   # used in random generation. If the bias attribute is not specified,
-  # it will be set to nil, which means the default bias. 
+  # it will be set to nil, which means the default bias.
   #
   def range(attrs = {})
     if !attrs.is_a?(Hash)
@@ -400,7 +400,7 @@ class Template
 
   # --- Special "no value" method ---
   # Similar to the above method, but the described object is more complex
-  # than an immediate value (most likely, it will be some MODE or OP). 
+  # than an immediate value (most likely, it will be some MODE or OP).
   # TODO: Not implemented. Left as a requirement.
   # Should be implemented in the future.
   #
@@ -453,7 +453,7 @@ class Template
   # -------------------------------------------------------------------------- #
 
   #
-  # Creates a location-based format argument for format-like output methods. 
+  # Creates a location-based format argument for format-like output methods.
   #
   def location(name, index)
     Location.new name, index
@@ -517,11 +517,11 @@ class Template
     builder = @template.newOutput kind.to_s, format
 
     args.each do |arg|
-      if arg.is_a?(Integer) or arg.is_a?(String) or 
+      if arg.is_a?(Integer) or arg.is_a?(String) or
          arg.is_a?(TrueClass) or arg.is_a?(FalseClass) or arg.is_a?(Value)
          builder.addArgument arg
       elsif arg.is_a?(Location)
-        builder.addArgument arg.name, arg.index 
+        builder.addArgument arg.name, arg.index
       else
         raise MTRubyError, "Illegal format argument class #{arg.class}"
       end
@@ -942,15 +942,15 @@ class Template
       end
     end
 
-    if attrs.has_key?(:name) 
+    if attrs.has_key?(:name)
       builder.setName attrs[:name].to_s
     end
 
-    if attrs.has_key?(:mode) 
+    if attrs.has_key?(:mode)
       builder.setMode attrs[:mode].to_s
     end
 
-    if attrs.has_key?(:data) 
+    if attrs.has_key?(:data)
       builder.setData attrs[:data]
     end
 
@@ -1240,7 +1240,7 @@ class DataManager
   end
 
   def value(*args)
-    @template.value *args 
+    @template.value *args
   end
 
   def data(attrs = {}, &contents)

@@ -38,7 +38,7 @@ class MemoryObjectTemplate < MiniMipsBaseTemplate
     #
     # 1. name [optional]   : String or Symbol
     # 2. size [compulsory] : Integer, size int bytes, must be a power of 2
-    # 3. mode [optional]   : String "rwx", access mode, by default is "r--" 
+    # 3. mode [optional]   : String "rwx", access mode, by default is "r--"
     # 4. va   [compulsory] : address | address1..address2 | label
     # 5. pa   [compulsory] : address | address1..address2 | region
     # 6. data [optional]   : Integer
