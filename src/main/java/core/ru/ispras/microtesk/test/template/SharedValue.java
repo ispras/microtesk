@@ -21,7 +21,7 @@ import java.math.BigInteger;
 
 /**
  * The {@link SharedValue} class describes a modifiable value that can be shared among two owners.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class SharedValue extends SharedObject<SharedValue> implements Value {

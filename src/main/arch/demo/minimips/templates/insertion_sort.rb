@@ -21,7 +21,7 @@ require_relative 'minimips_base'
 #
 # This test template demonstrates how MicroTESK can simulate the execution
 # of a test program to predict the resulting state of a microprocessor
-# design under test. The described test program is an implemention of 
+# design under test. The described test program is an implemention of
 # the insertion sort algorithm. The algorithm in pseudocode (from Wikipedia):
 #
 # for i = 1 to length(A) - 1

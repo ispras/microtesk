@@ -48,7 +48,7 @@ public abstract class Cache<D extends Data, A extends Address>
   private final Matcher<D, A> matcher;
 
   /**
-   * Proxy class is used to simply code of assignment expressions.  
+   * Proxy class is used to simply code of assignment expressions.
    */
   public final class Proxy {
     private final A address;
@@ -117,7 +117,7 @@ public abstract class Cache<D extends Data, A extends Address>
 
   @Override
   public final boolean isHit(final BitVector value) {
-    final A address = newAddress(); 
+    final A address = newAddress();
     address.getValue().assign(value);
     return isHit(address);
   }

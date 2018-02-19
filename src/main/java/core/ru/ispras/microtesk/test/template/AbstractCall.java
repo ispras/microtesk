@@ -454,7 +454,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         "instruction call %s"
             + "(root: %s, "
             + "preparator: %s, data: %b, atomic: %b, modeToFree: %s)",
-        null != text ? text : "", 
+        null != text ? text : "",
         isExecutable() ? rootOperation.getName() : "null",
         isPreparatorCall() ? preparatorReference : "null",
         hasData(),

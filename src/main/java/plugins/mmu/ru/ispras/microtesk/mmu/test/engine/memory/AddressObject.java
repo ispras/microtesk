@@ -59,12 +59,12 @@ public final class AddressObject {
   }
 
   public Map<NodeVariable, BitVector> getData() {
-    return data; 
+    return data;
   }
 
   public BitVector getData(final NodeVariable variable) {
     InvariantChecks.checkNotNull(variable);
-    return data.get(variable); 
+    return data.get(variable);
   }
 
   public void setData(final NodeVariable variable, final BitVector value) {
@@ -74,12 +74,12 @@ public final class AddressObject {
   }
 
   public Map<MmuAddressInstance, BitVector> getAddresses() {
-    return addresses; 
+    return addresses;
   }
 
   public BitVector getAddress(final MmuAddressInstance addrType) {
     InvariantChecks.checkNotNull(addrType);
-    return addresses.get(addrType); 
+    return addresses.get(addrType);
   }
 
   public BitVector getAddress(final MmuBufferAccess bufferAccess) {

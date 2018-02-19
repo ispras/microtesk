@@ -19,8 +19,8 @@ require_relative 'minimips_base'
 #
 # Description:
 #
-# This test template demonstrates how to generate randomized test cases 
-# by using biased values, intervals, arrays and distributions. 
+# This test template demonstrates how to generate randomized test cases
+# by using biased values, intervals, arrays and distributions.
 #
 class RandomTemplate < MiniMipsBaseTemplate
 

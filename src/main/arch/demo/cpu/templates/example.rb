@@ -22,7 +22,7 @@ require_relative 'cpu_base'
 # The purpose of the Features test template is to demonstrate features of
 # MicroTESK. This includes test template facilities to describe instruction
 # calls, organize the control flow, set up instruction sequences, generate test
-# data for "interesting" situations, add text to the test program, etc. 
+# data for "interesting" situations, add text to the test program, etc.
 #
 class ExampleTemplate < CpuBaseTemplate
 
@@ -35,7 +35,7 @@ class ExampleTemplate < CpuBaseTemplate
     # Sets token for a single-line comment
     set_option_value 'comment-token', ";"
 
-    # Sets starting token for a multi-line comment 
+    # Sets starting token for a multi-line comment
     set_option_value 'comment-token-start', "/="
 
     # Sets terminating token for a multi-line comment
@@ -105,7 +105,7 @@ class ExampleTemplate < CpuBaseTemplate
     newline
 
     # Random values via a test situation.
-    # Values to be generated are specified as '_'. 
+    # Values to be generated are specified as '_'.
     #mov reg(ri = 7), imm(_) do situation('imm_random', :min => 0, :max => 15) end
     add reg(5), reg(ri)
     newline
@@ -135,7 +135,7 @@ class ExampleTemplate < CpuBaseTemplate
 
     # Incrementally decreases value stored in GPR[11] from 5 to 0.
     # Control transfer is performed using labels that are specified
-    # in the following way: label :<label_name> 
+    # in the following way: label :<label_name>
 
     mov reg(11), imm(5)
     mov reg(12), imm(1)

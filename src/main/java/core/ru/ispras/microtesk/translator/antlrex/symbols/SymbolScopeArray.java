@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
@@ -22,7 +22,7 @@ import java.util.List;
  * The {@link SymbolScopeArray} class aggregates several scopes located at the same level.
  * It allows defining symbols in several scopes at the same time. This needed when
  * a single grammar rule defines several symbols.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class SymbolScopeArray implements SymbolScope {

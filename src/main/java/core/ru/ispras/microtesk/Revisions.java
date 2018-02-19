@@ -26,7 +26,7 @@ import java.util.Set;
 
 /**
  * The {@link Revisions} class stores information about revision dependencies.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Revisions {

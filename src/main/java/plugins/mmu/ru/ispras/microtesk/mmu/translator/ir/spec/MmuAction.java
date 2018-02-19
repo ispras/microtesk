@@ -29,7 +29,7 @@ import java.util.Set;
 
 /**
  * {@link MmuAction} describes an action, i.e. a named set of assignments.
- * 
+ *
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 public final class MmuAction {

@@ -24,7 +24,7 @@ import java.util.List;
  * {@link CompositorBase} is a basic compositor of iterators. It takes several iterators and merges
  * them into a single iterator. The main restriction is that a a compositor should not change
  * the order of items returned by an iterator.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 abstract class CompositorBase<T> extends CompositeIterator<T> implements Compositor<T> {
@@ -40,7 +40,7 @@ abstract class CompositorBase<T> extends CompositeIterator<T> implements Composi
 
   /**
    * Constructs a compositor with the given list of iterators.
-   * 
+   *
    * @param iterators the list of iterators to be composed.
    */
   public CompositorBase(final List<Iterator<T>> iterators) {
@@ -63,7 +63,7 @@ abstract class CompositorBase<T> extends CompositeIterator<T> implements Composi
 
   /**
    * Selects an iterator whose value will be used at the current step.
-   * 
+   *
    * @return one of the iterators from the compositor's list.
    */
   protected abstract Iterator<T> choose();

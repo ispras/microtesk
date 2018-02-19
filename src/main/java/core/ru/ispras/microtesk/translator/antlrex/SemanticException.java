@@ -1,11 +1,11 @@
 /*
  * Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -24,10 +24,10 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Where;
  * <p>All semantic errors found in the specification must be reported as
  * {@code SemanticException}. In situations when an error is caused by issues in code (coding
  * mistakes, invariant violations, limitations) an unchecked exception inherited from
- * {@link RuntimeException} must be thrown. 
+ * {@link RuntimeException} must be thrown.
  * <p>The {@code SemanticException} exception is inherited from the {@link RecognitionException}
  * ANTLR exception to allow handling them in the same way.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class SemanticException extends RecognitionException {
@@ -39,7 +39,7 @@ public final class SemanticException extends RecognitionException {
   SemanticException(final Where location, final ISemanticError error) {
     super();
 
-    this.where = location; 
+    this.where = location;
     this.error = error;
 
     this.line = location.getLine();

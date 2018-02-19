@@ -1,11 +1,11 @@
 /*
  * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  * The {@link Model} class implements an ISA model and provides its facilities to external users.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Model implements ModelStateManager {
@@ -93,7 +93,7 @@ public final class Model implements ModelStateManager {
 
   /**
    * Returns the name of the modeled microprocessor design.
-   * 
+   *
    * @return name Microprocessor design name.
    */
   public String getName() {
@@ -102,7 +102,7 @@ public final class Model implements ModelStateManager {
 
   /**
    * Returns a meta description of the model.
-   * 
+   *
    * @return An meta data object (provides access to model's meta data).
    */
   public MetaModel getMetaData() {
@@ -111,7 +111,7 @@ public final class Model implements ModelStateManager {
 
   /**
    * Returns decoder to recover instruction calls from binary data.
-   *  
+   *
    * @return Decoder.
    */
   public Decoder getDecoder() {
@@ -160,7 +160,7 @@ public final class Model implements ModelStateManager {
       InvariantChecks.checkNotNull(activeProcElem);
       InvariantChecks.checkTrue(null == activeProcElemTemp);
       activeProcElemTemp = activeProcElem.copy(false);
-      if (null != memoryHandler) { 
+      if (null != memoryHandler) {
         activeProcElemTemp.setMemoryHandler(memoryHandler.first, memoryHandler.second);
       }
     } else {

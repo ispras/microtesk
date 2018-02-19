@@ -70,7 +70,7 @@ class MiniMipsBaseTemplate < Template
         trace 'Exception handler (EPC = 0x%x)', location('COP0_R', 14)
         mfc0 ra, rcop0(14)
         addi ra, ra, 4
-        jr ra 
+        jr ra
         nop
       }
     }
@@ -136,7 +136,7 @@ class MiniMipsBaseTemplate < Template
     #
     preparator(:target => 'REG', :mask => "0000_0000") {
       # There are three ways (variants) to reset the target register,
-      # which are chosen at random with equal probabilities. 
+      # which are chosen at random with equal probabilities.
 
       variant {
         OR target, zero, zero
@@ -185,14 +185,14 @@ class MiniMipsBaseTemplate < Template
     # are identified by their names. Names serve as an additional key to
     # search for a preparator. Such preparators are called only from other
     # preparators and cannot be not used by generation engines directly since
-    # engines do not use names. 
+    # engines do not use names.
     #
     # "XXXX0000": Preparator for initializing the high halfword that resets
     # the low part.
     #
     preparator(:target => 'REG', :name => 'XXXX0000', :mask => 'XXXX') {
       # There are two ways (variants) to set the target register,
-      # which are have probabilities 25 and 75. 
+      # which are have probabilities 25 and 75.
 
       variant(:bias => 25) {
         lui target, value
@@ -451,15 +451,15 @@ class MiniMipsBaseTemplate < Template
     end_addr = get_address_of(end_label)
 
     count = (end_addr - begin_addr) / 4
-    begin_index = begin_addr / 4 
+    begin_index = begin_addr / 4
 
     trace "\nData starts: 0x%x", begin_addr
     trace "Data ends:   0x%x", end_addr
     trace "Data count:  %d", count
 
     trace "\nData values:"
-    (0..(count-1)).each { |i| 
-      word_index = begin_index + i 
+    (0..(count-1)).each { |i|
+      word_index = begin_index + i
       trace "M[0x%x]: %d", word_index, mem_observer(word_index)
     }
     trace ""

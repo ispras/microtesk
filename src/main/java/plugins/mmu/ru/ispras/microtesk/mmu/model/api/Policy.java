@@ -38,14 +38,14 @@ abstract class Policy {
 
   /**
    * Handles a buffer hit.
-   * 
+   *
    * @param index the line being hit.
    */
   public abstract void accessLine(int index);
 
   /**
    * Handles a buffer miss.
-   * 
+   *
    * @return the line to be replaced.
    */
   public abstract int chooseVictim();

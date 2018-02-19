@@ -37,7 +37,7 @@ public final class Argument {
 
     private Kind(final Class<?> valueClass, final boolean isImmediate) {
       if (isImmediate) {
-        if (!(Number.class.isAssignableFrom(valueClass) 
+        if (!(Number.class.isAssignableFrom(valueClass)
             || Value.class.isAssignableFrom(valueClass))) {
           throw new IllegalArgumentException(valueClass.getSimpleName()
               + " must implement Value or Number to be used to store immediate values.");

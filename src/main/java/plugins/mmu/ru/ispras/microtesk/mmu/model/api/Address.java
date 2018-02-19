@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.model.api;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
- * Interface to be supported by all address classes. Required to 
+ * Interface to be supported by all address classes. Required to
  * check whether an address belongs to a specific segment (see {@link Segment}).
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>

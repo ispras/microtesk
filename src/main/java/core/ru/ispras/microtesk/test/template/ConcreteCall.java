@@ -37,7 +37,7 @@ public final class ConcreteCall {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
   private final InstructionCall executable;
-  private final boolean relativeOrigin; 
+  private final boolean relativeOrigin;
   private final BigInteger origin;
   private final BigInteger alignment;
   private final BigInteger alignmentInBytes;

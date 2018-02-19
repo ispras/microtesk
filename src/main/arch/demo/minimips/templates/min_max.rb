@@ -21,7 +21,7 @@ require_relative 'minimips_base'
 #
 # This test template demonstrates how to work with data declaration constucts.
 # The generated program finds minimum and maximum in a 5-element array
-# storing random numbers from 0 to 9. 
+# storing random numbers from 0 to 9.
 #
 class MinMaxTemplate < MiniMipsBaseTemplate
 
@@ -47,19 +47,19 @@ class MinMaxTemplate < MiniMipsBaseTemplate
     la t1, :end
 
     lw t2, 0, t0
-    add s0, zero, t2 
+    add s0, zero, t2
     add s1, zero, t2
 
     trace ''
     label :cycle
     addi t0, t0, 4
-    beq t0, t1, :done 
+    beq t0, t1, :done
     lw t2, 0, t0
 
     slt t3, t2, s0
     beq t3, zero, :test_max
     nop
-    add s0, zero, t2 
+    add s0, zero, t2
 
     label :test_max
     slt t4, s1, t2

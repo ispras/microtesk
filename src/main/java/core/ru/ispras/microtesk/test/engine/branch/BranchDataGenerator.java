@@ -69,7 +69,7 @@ public abstract class BranchDataGenerator implements DataGenerator {
 
   /**
    * Generates test data that satisfy the branch condition.
-   * 
+   *
    * @param query the test data generation query.
    * @return the test data provider.
    */
@@ -77,7 +77,7 @@ public abstract class BranchDataGenerator implements DataGenerator {
 
   /**
    * Generates test data that violates the branch condition.
-   * 
+   *
    * @param query the test data generation query.
    * @return the test data provider.
    */

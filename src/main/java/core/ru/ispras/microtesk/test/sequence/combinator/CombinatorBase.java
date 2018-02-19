@@ -37,7 +37,7 @@ abstract class CombinatorBase<T> extends CompositeIterator<T> implements Combina
 
   /**
    * Constructs a compositor with the given list of iterators.
-   * 
+   *
    * @param iterators the list of iterators to be composed.
    */
   public CombinatorBase(final List<Iterator<T>> iterators) {
@@ -55,7 +55,7 @@ abstract class CombinatorBase<T> extends CompositeIterator<T> implements Combina
 
   /**
    * The callback method called in the {@code value} method.
-   * 
+   *
    * @param i the iterator index.
    * @return the value of the i-th iterator ({@code null} if the iterator has been exhausted,
    *         i.e., no value is available).
@@ -64,7 +64,7 @@ abstract class CombinatorBase<T> extends CompositeIterator<T> implements Combina
 
   /**
    * The callback method called in the {@code next} method.
-   * 
+   *
    * @return {@code false} iff it the combinator has been exhausted.
    */
   protected abstract boolean doNext();

@@ -28,7 +28,7 @@ import ru.ispras.fortress.util.Pair;
 public interface Buffer<D, A> {
   /**
    * Checks whether the given address causes a hit.
-   * 
+   *
    * @param address the data address.
    * @return {@code true} if the address causes a hit; {@code false} otherwise.
    */

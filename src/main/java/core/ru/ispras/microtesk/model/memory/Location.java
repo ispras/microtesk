@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Location implements LocationAccessor {
@@ -170,7 +170,7 @@ public final class Location implements LocationAccessor {
 
     int position = 0;
     for (final LocationAtom atom : atoms) {
-      final int atomStart = position; 
+      final int atomStart = position;
       final int atomEnd = position + atom.getBitFieldSize() - 1;
 
       if (atomStart <= start && start <= atomEnd) {
@@ -217,7 +217,7 @@ public final class Location implements LocationAccessor {
 
   /**
    * Concatenates the specified locations.
-   * 
+   *
    * @param locations Locations, format is [high, ..., low].
    * @return Concatenated location.
    */

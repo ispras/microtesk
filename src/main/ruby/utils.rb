@@ -17,7 +17,7 @@
 #
 # Description:
 #
-# MTRubyError is class for desribing errors that can occur 
+# MTRubyError is class for desribing errors that can occur
 # in MicroTESK test templates.
 #
 # TODO: Needs a review.
@@ -29,12 +29,12 @@ class MTRubyError < StandardError
 end
 
 #
-# Gets an attribute value from the specified hash. Raises exception if the 
-# 'attrs' parameter is not a hash or if it does not contain the specified key. 
+# Gets an attribute value from the specified hash. Raises exception if the
+# 'attrs' parameter is not a hash or if it does not contain the specified key.
 #
 def get_attribute(attrs, key)
   if !attrs.is_a?(Hash)
-    raise MTRubyError, "#{attrs} mush be a Hash!" 
+    raise MTRubyError, "#{attrs} mush be a Hash!"
   end
 
   if !attrs.has_key?(key)

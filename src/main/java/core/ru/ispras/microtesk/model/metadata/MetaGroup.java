@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -24,7 +24,7 @@ import java.util.Collections;
 /**
  * The {@code MetaGroup} class describes a group of metadata items
  * such as addressing modes and operations.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public class MetaGroup implements MetaData {
@@ -45,11 +45,11 @@ public class MetaGroup implements MetaData {
 
   /**
    * Constructs a {@code MetaGroup} object.
-   * 
+   *
    * @param kind Kind of items being grouped.
    * @param name Group name.
    * @param items Items being grouped.
-   * 
+   *
    * @throws IllegalArgumentException if any parameter is {@code null};
    *         if the collection of items is empty.
    */
@@ -62,11 +62,11 @@ public class MetaGroup implements MetaData {
 
   /**
    * Constructs a {@code MetaGroup} object.
-   * 
+   *
    * @param kind Kind of items being grouped.
    * @param name Group name.
    * @param items Items being grouped.
-   * 
+   *
    * @throws IllegalArgumentException if any parameter is {@code null};
    *         if the collection of items is empty.
    */
@@ -86,7 +86,7 @@ public class MetaGroup implements MetaData {
 
   /**
    * Returns the kind of stored items.
-   * 
+   *
    * @return Item kind.
    */
   public final Kind getKind() {
@@ -95,7 +95,7 @@ public class MetaGroup implements MetaData {
 
   /**
    * Returns the name of the group.
-   * 
+   *
    * @return Group name.
    */
   @Override
@@ -110,7 +110,7 @@ public class MetaGroup implements MetaData {
 
   /**
    * Returns items being grouped.
-   * 
+   *
    * @return Items being grouped (an {@link Iterable} object).
    */
   public final Collection<? extends MetaData> getItems() {

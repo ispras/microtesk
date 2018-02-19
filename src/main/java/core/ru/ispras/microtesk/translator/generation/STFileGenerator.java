@@ -1,11 +1,11 @@
 /*
  * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -31,7 +31,7 @@ import java.net.URL;
 /**
  * The STFileGenerator class implements logic that generates a source code file
  * from string templates.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class STFileGenerator implements FileGenerator {
@@ -68,7 +68,7 @@ public final class STFileGenerator implements FileGenerator {
   /**
    * Creates a class code generator parameterized with a hierarchy template groups, with a builder
    * that will initialized the class code template and with the full name to the target output file.
-   * 
+   *
    * @param outputFile The full name of the target output file.
    * @param templateGroupFiles List of template group files. Important: the order is from the root
    *        of the hierarchy to child groups.
@@ -89,7 +89,7 @@ public final class STFileGenerator implements FileGenerator {
 
   /**
    * Generates the target fail.
-   * 
+   *
    * @throws IOException It is raised if the methods fails to create the target file.
    */
   @Override
@@ -102,7 +102,7 @@ public final class STFileGenerator implements FileGenerator {
 
   /**
    * Loads template groups from the file system and organizes then into a hierarchy.
-   * 
+   *
    * @return A hierarchy of template groups.
    */
   private STGroup loadTemplateGroups() {
@@ -123,7 +123,7 @@ public final class STFileGenerator implements FileGenerator {
 
   /**
    * Create a file and saves an initialized template to it.
-   * 
+   *
    * @param template An initialized file template.
    * @throws IOException It is raised if the methods fails to create the target file.
    */

@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -35,7 +35,7 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 /**
 * The {@link IrVisitor} interface is to be implemented by all visitor objects
 * applied to the IR of an ISA specification.
-* 
+*
 * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
 */
 public interface IrVisitor extends TreeVisitor {
@@ -54,22 +54,22 @@ public interface IrVisitor extends TreeVisitor {
 
   /**
    * Notifies that a let construct describing a constant value has been visited.
-   * 
+   *
    * @param let Object describing the constant.
    */
   void onLetConstant(LetConstant let);
 
   /**
    * Notifies that a let construct associates a symbolic name with a memory location
-   * (in other words, establishes a label). 
-   * 
+   * (in other words, establishes a label).
+   *
    * @param let Object describing the label associated with a memory location.
    */
   void onLetLabel(LetLabel let);
 
   /**
    * Notifies that a type has been visited.
-   * 
+   *
    * @param name Type name.
    * @param type Type description.
    */
@@ -77,7 +77,7 @@ public interface IrVisitor extends TreeVisitor {
 
   /**
    * Notifies that a memory storage has been visited.
-   * 
+   *
    * @param name Memory storage name.
    * @param memory Memory storage description.
    */
@@ -95,21 +95,21 @@ public interface IrVisitor extends TreeVisitor {
 
   /**
    * Notifies that visiting a primitive (object describing a MODE or OP) has been started.
-   * 
+   *
    * @param item Primitive object describing a MODE or OP.
    */
   void onPrimitiveBegin(Primitive item);
 
   /**
    * Notifies that visiting a primitive has been finished.
-   * 
+   *
    * @param item Primitive object.
    */
   void onPrimitiveEnd(Primitive item);
 
   /**
    * Notifies that visiting an item of an OR-rule has been started.
-   * 
+   *
    * @param orRule OR-rule description.
    * @param item Item being visited.
    */
@@ -117,7 +117,7 @@ public interface IrVisitor extends TreeVisitor {
 
   /**
    * Notifies that visiting an item of an OR-rule has been finished.
-   * 
+   *
    * @param orRule OR-rule description.
    * @param item Item being visited.
    */
@@ -125,7 +125,7 @@ public interface IrVisitor extends TreeVisitor {
 
   /**
    * Notifies that visiting an AND-rule argument has been started.
-   * 
+   *
    * @param andRule AND-rule description.
    * @param argName Argument name.
    * @param argType Argument type description.
@@ -134,7 +134,7 @@ public interface IrVisitor extends TreeVisitor {
 
   /**
    * Notifies that visiting an AND-rule argument has been finished.
-   * 
+   *
    * @param andRule AND-rule description.
    * @param argName Argument name.
    * @param argType Argument type description.
@@ -143,7 +143,7 @@ public interface IrVisitor extends TreeVisitor {
 
   /**
    * Notifies that visiting an attribute of an AND-rule has been started.
-   *  
+   *
    * @param andRule AND-rule description.
    * @param attr Attribute description.
    */
@@ -151,7 +151,7 @@ public interface IrVisitor extends TreeVisitor {
 
   /**
    * Notifies that visiting an attribute of an AND-rule has been finished.
-   *  
+   *
    * @param andRule AND-rule description.
    * @param attr Attribute description.
    */
@@ -159,16 +159,16 @@ public interface IrVisitor extends TreeVisitor {
 
   /**
    * Notifies that visiting a statement (in an attribute) has been started.
-   * 
+   *
    * @param andRule AND-rule that contains the statement.
-   * @param attr Attribute that contains the statement. 
+   * @param attr Attribute that contains the statement.
    * @param stmt Statement description.
    */
   void onStatementBegin(PrimitiveAND andRule, Attribute attr, Statement stmt);
 
   /**
    * Notifies that visiting a statement (in an attribute) has been finished.
-   * 
+   *
    * @param andRule AND-rule that contains the statement.
    * @param attr Attribute that contains the statement.
    * @param stmt Statement description.
@@ -177,7 +177,7 @@ public interface IrVisitor extends TreeVisitor {
 
   /**
    * Notifies that visiting a shortcut has been started.
-   * 
+   *
    * @param andRule AND-rule the shortcut refers to.
    * @param shortcut Shortcut description.
    */
@@ -185,7 +185,7 @@ public interface IrVisitor extends TreeVisitor {
 
   /**
    * Notifies that visiting a shortcut has been finished.
-   * 
+   *
    * @param andRule AND-rule the shortcut refers to.
    * @param shortcut Shortcut description.
    */

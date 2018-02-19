@@ -42,7 +42,7 @@ class EuclidTemplate < X86BaseTemplate
       trace "\nCurrent values: ax=%d, bx=%d\n", gpr_observer(0), gpr_observer(3)
       cmp_r16r16 ax, bx
       je :done
-      
+
       jl :if_less
 
       sub_r16r16 ax, bx

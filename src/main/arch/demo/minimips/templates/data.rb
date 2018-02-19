@@ -79,8 +79,8 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
 
     trace_header 'Writing to memory:'
 
-    sw t5, 0, t0 
-    sw t1, 0, t4 
+    sw t5, 0, t0
+    sw t1, 0, t4
 
     trace_memory
 

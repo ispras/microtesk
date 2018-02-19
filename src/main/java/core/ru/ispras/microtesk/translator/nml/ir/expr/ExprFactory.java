@@ -219,7 +219,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       raiseError(w, "The type of an expression to be concatenated must be card or int.");
     }
 
-    final TypeId typeId = 
+    final TypeId typeId =
         left.isTypeOf(TypeId.CARD) || right.isTypeOf(TypeId.CARD) ? TypeId.CARD : TypeId.INT;
 
     final List<Node> operands = new ArrayList<>();
@@ -435,7 +435,7 @@ public final class ExprFactory extends WalkerFactoryBase {
     }
 
     if (newBitSize > oldBitSize) {
-      final boolean isSigned = src.isTypeOf(TypeId.INT); 
+      final boolean isSigned = src.isTypeOf(TypeId.INT);
       return isSigned ? signExtend(w, src, type) : zeroExtend(w, src, type);
     }
 
@@ -786,14 +786,14 @@ public final class ExprFactory extends WalkerFactoryBase {
 
         final DataType currentDataType = operand.getNode().getDataType();
         final DataType previousDataType = commonDataType;
-   
+
         commonDataType = previousDataType == null
             ? currentDataType : TypeCast.getCastDataType(previousDataType, currentDataType);
 
         if (commonDataType == null) {
           raiseError(w, String.format(
               "Incompatible operand data types: %s and %s", previousDataType, currentDataType));
-        } 
+        }
 
         final Type currentType = operand.getNodeInfo().getType();
         final Type previousType = commonType;

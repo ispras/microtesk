@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * {@link PermutatorTrivial} implements a trivial permutator.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class PermutatorTrivial<T> extends PermutatorBase<T> {

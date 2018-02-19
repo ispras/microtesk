@@ -19,7 +19,7 @@ require_relative 'vliw_base'
 #
 # Description:
 #
-# This test template demonstrates the use of test situations and 
+# This test template demonstrates the use of test situations and
 # data generators in MicroTESK (generating integer values).
 #
 class IntExampleTemplate < VliwBaseTemplate
@@ -31,19 +31,19 @@ class IntExampleTemplate < VliwBaseTemplate
         (addi r(rand(1, 31)), r(0), rand(0, 31)),
         (addi r(rand(1, 31)), r(0), rand(0, 31))
       )
-  
+
       # All registers are filled with zeros.
       vliw(
         (add r(1), r(3), r(5)),
         (add r(2), r(4), r(6))
       ) do situation('zero') end
-  
+
       # Random registers are filled with random values.
       vliw(
         (add r(_), r(_), r(_)),
         (add r(_), r(_), r(_))
       ) do situation('random') end
-  
+
       # Random registers are assigned random values from the specified range.
       # The immediate values are also random values from the specified range.
       vliw(

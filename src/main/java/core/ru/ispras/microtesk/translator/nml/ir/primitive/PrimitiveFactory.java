@@ -237,7 +237,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     }
 
     if (primitive.isOrRule()) {
-      raiseError(where, String.format("%s is not an AND rule!", name)); 
+      raiseError(where, String.format("%s is not an AND rule!", name));
     }
 
     final PrimitiveAND primitiveAND = (PrimitiveAND) primitive;
@@ -251,7 +251,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     }
 
     final List<InstanceArgument> args = new ArrayList<>(arguments);
-    final String[] argNames = 
+    final String[] argNames =
         primitiveAND.getArguments().keySet().toArray(
             new String[primitiveAND.getArguments().size()]);
 
@@ -322,7 +322,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
 
   public Attribute createAction(final String name, final List<Statement> stmts) {
     return new Attribute(
-        name, 
+        name,
         Attribute.Kind.ACTION,
         stmts
         );

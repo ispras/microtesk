@@ -1,11 +1,11 @@
 /*
  * Copyright 2009-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * {@link BranchTrace} represents an execution trace of a branch instruction.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class BranchTrace {
@@ -50,7 +50,7 @@ public final class BranchTrace {
 
   /**
    * Returns the last execution of the trace.
-   * 
+   *
    * @return the last execution.
    */
   public BranchExecution getLastExecution() {
@@ -74,7 +74,7 @@ public final class BranchTrace {
 
   /**
    * Adds an execution to the trace.
-   * 
+   *
    * @param conditionalBranch the type of the branch instruction.
    */
   public void addExecution(boolean conditionalBranch) {
@@ -91,7 +91,7 @@ public final class BranchTrace {
 
   /**
    * Returns the number of true conditions in the trace.
-   * 
+   *
    * @return the number of true conditions.
    */
   public int getTrueNumber() {
@@ -108,7 +108,7 @@ public final class BranchTrace {
 
   /**
    * Returns the number of false conditions in the trace.
-   * 
+   *
    * @return the number of false conditions.
    */
   public int getFalseNumber() {
@@ -125,7 +125,7 @@ public final class BranchTrace {
 
   /**
    * Returns the number of condition changes in the trace.
-   * 
+   *
    * @return the number of condition changes.
    */
   public int getChangeNumber() {
@@ -149,7 +149,7 @@ public final class BranchTrace {
 
   /**
    * Returns the first position of condition change for simple branching.
-   * 
+   *
    * @return the first position of condition change or 0.
    */
   public int getChangePosition() {
@@ -168,7 +168,7 @@ public final class BranchTrace {
 
   /**
    * Checks whether the branch is fictitious (condition does not change) or not.
-   * 
+   *
    * @return {@code true} if the branch is fictitious; {@code false} otherwise.
    */
   public boolean isFictitious() {
@@ -177,7 +177,7 @@ public final class BranchTrace {
 
   /**
    * Checks whether the branch is simple (condition does not change more than one time) or not.
-   * 
+   *
    * @return {@code true} if the branch is simple; {@code false} otherwise.
    */
   public boolean isSimple() {
@@ -187,7 +187,7 @@ public final class BranchTrace {
   /**
    * Checks whether the branch is pointed (there is only one branch execution which condition
    * equals to the negation of the first one.
-   * 
+   *
    * @return {@code true} if the branch is pointed; {@code false} otherwise.
    */
   public boolean isPointed() {
@@ -208,7 +208,7 @@ public final class BranchTrace {
 
   /**
    * Returns the condition value of the given execution.
-   * 
+   *
    * @param i the execution index.
    * @return the condition value.
    */

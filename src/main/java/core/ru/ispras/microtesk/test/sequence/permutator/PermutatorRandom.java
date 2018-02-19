@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * {@link PermutatorRandom} implements a random permutator.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class PermutatorRandom<T> extends PermutatorBase<T> {

@@ -19,7 +19,7 @@ require_relative 'minimips_base'
 #
 # Description:
 #
-# This test template demonstrates how to generate test cases 
+# This test template demonstrates how to generate test cases
 # for integer arithmetics. This includes situations  'Normal' and 'Overflow'
 # extracted from specifications for integer addition and subtraction.
 #

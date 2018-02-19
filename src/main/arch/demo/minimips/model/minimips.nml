@@ -328,7 +328,7 @@ op mtlo (rs: REG)
     LO[0] = rs;
   }
 
-op swc0 (cs: RCOP0, offset: SHORT, address: REG)  
+op swc0 (cs: RCOP0, offset: SHORT, address: REG)
   syntax = format("swc0 %s, %d(%s)", cs.syntax, offset, address.syntax)
   image = format("111000%s%s%s", address.image, cs.image, offset)
   action = {

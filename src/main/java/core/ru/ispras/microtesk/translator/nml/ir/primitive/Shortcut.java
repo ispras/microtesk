@@ -288,7 +288,7 @@ public final class Shortcut {
   /**
    * Returns the list of context identifiers (names of operations that accept the composite object
    * created by the shortcut as an argument).
-   * 
+   *
    * @return List of context identifiers.
    */
   public List<String> getContextName() {

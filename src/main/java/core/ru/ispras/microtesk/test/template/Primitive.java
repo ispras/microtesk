@@ -161,7 +161,7 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
       return Collections.emptyMap();
     }
 
-    final Map<String, Argument> result = new LinkedHashMap<>(args.size()); 
+    final Map<String, Argument> result = new LinkedHashMap<>(args.size());
     for (final Map.Entry<String, Argument> entry : args.entrySet()) {
       result.put(entry.getKey(), new Argument(entry.getValue()));
     }
@@ -270,7 +270,7 @@ final class ConcretePrimitive extends SharedObject<ConcretePrimitive>
   }
 }
 
-final class LazyPrimitive extends SharedObject<LazyPrimitive> 
+final class LazyPrimitive extends SharedObject<LazyPrimitive>
                           implements Primitive {
   private Primitive source;
   private final Kind kind;
@@ -441,7 +441,7 @@ final class LazyPrimitive extends SharedObject<LazyPrimitive>
     }
 
     return String.format(
-      "lazy %s %s [type = %s]", kind.getText(), name, typeName); 
+      "lazy %s %s [type = %s]", kind.getText(), name, typeName);
   }
 
   private void checkSourceAssigned() {

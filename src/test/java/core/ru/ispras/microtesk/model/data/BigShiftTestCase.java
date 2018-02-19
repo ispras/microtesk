@@ -1,11 +1,11 @@
 /*
  * Copyright 2015 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -23,7 +23,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 /**
  * This is a test to make sure that shifts work correctly for large shift amounts
  * (shift amount type is more 32-bits wide).
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 
@@ -34,10 +34,10 @@ public class BigShiftTestCase {
 
   @Test
   public void test() {
-    final Data VALUE = 
+    final Data VALUE =
         new Data(BitVector.valueOf(0xF0F10FF0DEADBEEFL, LARGE_SIZE), LARGE);
 
-    final Data SHIFT = 
+    final Data SHIFT =
         new Data(BitVector.valueOf(SHIFT_AMOUNT, LARGE_SIZE), LARGE);
 
     System.out.println(VALUE);

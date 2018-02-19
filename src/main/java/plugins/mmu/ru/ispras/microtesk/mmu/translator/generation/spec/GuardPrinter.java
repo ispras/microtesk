@@ -190,7 +190,7 @@ final class GuardPrinter {
     return node.getKind() == Node.Kind.VARIABLE
         && node.isType(DataTypeId.LOGIC_BOOLEAN);
   }
-  
+
   private static boolean isNegatedBooleanVariable(final Node node) {
     if (node.getKind() != Node.Kind.OPERATION) {
       return false;

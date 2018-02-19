@@ -1,11 +1,11 @@
 /*
  * Copyright 2007-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * {@link AllocationTable} implements a resource allocation table, which is a finite set of objects
  * (registers, pages, etc.) in couple with allocation / deallocation methods.
- * 
+ *
  * @param <T> type of objects.
  * @param <V> type of object values.
  *
@@ -49,7 +49,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Constructs a resource allocation table.
-   * 
+   *
    * @param strategy the allocation strategy.
    * @param attributes the strategy parameters or {@code null}.
    * @param objects the collection of available objects.
@@ -69,7 +69,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Constructs a resource allocation table.
-   * 
+   *
    * @param strategy the allocation strategy.
    * @param objects the collection of available objects.
    */
@@ -79,7 +79,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Constructs a resource allocation table.
-   * 
+   *
    * @param strategy the allocation strategy.
    * @param attributes the strategy parameters or {@code null}.
    * @param supplier the object generator.
@@ -99,7 +99,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Constructs a resource allocation table.
-   * 
+   *
    * @param strategy the allocation strategy.
    * @param supplier the object generator.
    */
@@ -109,7 +109,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Returns the currently used allocator.
-   * 
+   *
    * @return Current allocator.
    */
   public Allocator getAllocator() {
@@ -118,9 +118,9 @@ public final class AllocationTable<T, V> {
 
   /**
    * Replaces the current allocator with a new one.
-   * 
+   *
    * @param allocator New allocator.
-   * 
+   *
    * @throws IllegalArgumentException if the argument is {@code null}.
    */
   public void setAllocator(final Allocator allocator) {
@@ -138,7 +138,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Returns the number of available objects (both free and used).
-   * 
+   *
    * @return the number of objects.
    */
   public int size() {
@@ -147,7 +147,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Returns the number of used objects.
-   * 
+   *
    * @return the number of used objects.
    */
   public int countUsedObjects() {
@@ -156,7 +156,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Returns the number of defined (initialized) objects.
-   * 
+   *
    * @return the number of defined objects.
    */
   public int countDefinedObjects() {
@@ -165,7 +165,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Checks whether the object exists in the allocation table.
-   * 
+   *
    * @param object the object to be checked.
    * @return {@code true} if the object exists; {@code false} otherwise.
    * @throws IllegalArgumentException if {@code object} does not exist (i.e. it is unknown).
@@ -177,7 +177,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Checks whether the object is free (belongs to the initial set of objects and not in use).
-   *  
+   *
    * @param object the object to be checked.
    * @return {@code true} if the object is free; {@code false} otherwise.
    * @throws IllegalArgumentException if {@code object} is null.
@@ -191,7 +191,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Checks whether the object is in use.
-   * 
+   *
    * @param object the object to be checked.
    * @return {@code true} if the object is in use; {@code false} otherwise.
    * @throws IllegalArgumentException if {@code object} is null.
@@ -205,7 +205,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Checks whether the object is defined (initialized).
-   * 
+   *
    * @param object the object to be checked.
    * @return {@code true} if the object is defined; {@code false} otherwise.
    * @throws IllegalArgumentException if {@code object} is null.
@@ -219,7 +219,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Returns the object value (if is defined) or {@code null} (otherwise).
-   * 
+   *
    * @param object the object whose value to be returned.
    * @return the object value if is defined; {@code null} otherwise.
    * @throws IllegalArgumentException if {@code object} is null.
@@ -233,7 +233,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Frees (deallocates) the object.
-   * 
+   *
    * @param object the object to be freed.
    * @throws IllegalArgumentException if {@code object} is null.
    * @throws IllegalArgumentException if {@code object} is unknown.
@@ -247,7 +247,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Marks the object as being in use.
-   * 
+   *
    * @param object the object to be used.
    * @throws IllegalArgumentException if {@code object} is null.
    * @throws IllegalArgumentException if {@code object} is unknown.
@@ -260,7 +260,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Defines (initializes) the object.
-   * 
+   *
    * @param object the object to defined.
    * @param value the object value.
    * @throws IllegalArgumentException if {@code object} is null or {@code value} is null.
@@ -277,7 +277,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Peeks a free object.
-   * 
+   *
    * @return the peeked object.
    * @throws IllegalStateException if an object cannot be peeked.
    */
@@ -307,7 +307,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Allocates an object (peeks an object and marks it as being in use).
-   * 
+   *
    * @return the allocated object.
    * @throws IllegalStateException if an object cannot be allocated.
    */
@@ -335,7 +335,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Allocates an object and defines it.
-   * 
+   *
    * @param value the object value.
    * @return the allocated object.
    * @throws IllegalArgumentException if {@code value} is null.
@@ -352,7 +352,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Allocates an object and defines it.
-   * 
+   *
    * @param exclude the objects that should not be allocated.
    * @param value the object value.
    * @return the allocated object.
@@ -370,7 +370,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Returns the set of used objects.
-   * 
+   *
    * @return the set of used objects.
    */
   public Set<T> getUsedObjects() {
@@ -379,7 +379,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Returns the set of all objects.
-   * 
+   *
    * @return the set of all objects.
    */
   public Set<T> getAllObjects() {
@@ -388,7 +388,7 @@ public final class AllocationTable<T, V> {
 
   /**
    * Returns the object generator.
-   * 
+   *
    * @return the object generator.
    */
   public Supplier<T> getSupplier() {

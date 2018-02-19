@@ -43,7 +43,7 @@ public final class Executor {
   /**
    * The {@link Status} class describes the execution status. It specifies the point
    * where execution was stopped and the reason why it was stopped.
-   * 
+   *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   public static final class Status {
@@ -220,7 +220,7 @@ public final class Executor {
     this.labelManager = labelManager;
     this.isPresimulation = isPresimulation;
     this.isPauseOnUndefinedLabel = true;
-    this.isSelfCheckMode = false; 
+    this.isSelfCheckMode = false;
     this.listener = null;
 
     this.exceptionCall = EngineUtils.makeSpecialConcreteCall(context, "exception");

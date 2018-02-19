@@ -123,10 +123,10 @@ public final class BufferHazard {
 
     /**
      * Returns the condition that characterizes the conflict between two buffer accesses.
-     * 
+     *
      * @param bufferAccess1 the first buffer access.
      * @param bufferAccess2 the second buffer access (depends some how on the first one).
-     * 
+     *
      * @return the hazard condition.
      */
     public abstract Node getCondition(

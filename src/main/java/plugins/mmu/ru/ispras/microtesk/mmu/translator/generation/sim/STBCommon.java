@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -106,7 +106,7 @@ abstract class STBCommon {
   }
 
   protected final void buildHeader(final ST st, final String base) {
-    st.add("name", getId()); 
+    st.add("name", getId());
     st.add("ext", base);
     st.add("pack", packageName);
 
@@ -274,7 +274,7 @@ abstract class STBCommon {
         // Add statements to the current level
         buildStmts(st, group, stmts);
       } else if (condition.equals(NodeValue.newBoolean(false))) {
-        // Ignore the block and its statements 
+        // Ignore the block and its statements
       } else {
         // Create a new block
         final ST stIf = group.getInstanceOf(isFirst ? "if_block" : "elseif_block");

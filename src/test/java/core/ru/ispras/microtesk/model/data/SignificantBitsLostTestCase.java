@@ -1,11 +1,11 @@
 /*
  * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -21,8 +21,8 @@ import java.math.BigInteger;
 
 public class SignificantBitsLostTestCase {
 
-  // Checks whether the loss of significant bits occurs when 
-  // a 32-bit integer value is cast to an N-bit bit vector. 
+  // Checks whether the loss of significant bits occurs when
+  // a 32-bit integer value is cast to an N-bit bit vector.
 
   @Test
   public void test() {
@@ -41,7 +41,7 @@ public class SignificantBitsLostTestCase {
     Assert.assertFalse(check(Type.CARD(32), 0x00000000));
     Assert.assertFalse(check(Type.CARD(32), Integer.MAX_VALUE));
     Assert.assertFalse(check(Type.CARD(32), Integer.MIN_VALUE));
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Size is Smaller (a multiple of byte (8-bits))
 

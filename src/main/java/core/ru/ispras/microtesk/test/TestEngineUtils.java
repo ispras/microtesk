@@ -1,11 +1,11 @@
 /*
  * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -44,7 +44,7 @@ import java.util.Map;
 /**
  * The {@link TestEngineUtils} class provides utility methods to be
  * used by the template processor to construct parts of test programs.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class TestEngineUtils {
@@ -146,11 +146,11 @@ final class TestEngineUtils {
   /**
    * Checks whether the specified label is defined in the abstract sequence.
    * <p>Note: Labels are considered equal if they have the same name.
-   * 
+   *
    * @param sequence Abstract sequence to be checked.
    * @param label Label to be searched for.
    * @return {@code true} if the sequence defines the specified label or {@code false} otherwise.
-   * 
+   *
    * @throws IllegalArgumentException if any of the arguments is {@code null}.
    */
   public static boolean isLabelDefined(final List<AbstractCall> sequence, final Label label) {
@@ -170,10 +170,10 @@ final class TestEngineUtils {
 
   /**
    * Rethows the specified exception. Used to stop propagation of checked exceptions.
-   * 
+   *
    * <p>Unchecked exceptions (extend {@link RuntimeException}) are rethrown as they are.
    * Checked exceptions are wrapped into the {@link GenerationAbortedException} class.
-   * 
+   *
    * @param e Exception to be rethrown.
    */
   public static void rethrowException(final Exception e) {
@@ -193,10 +193,10 @@ final class TestEngineUtils {
    * that hold a single sequence.
    * <p>A sequence has a fixed origin if it starts with an {@code .org} directive
    * that specifies an absolute origin and comes before any executable calls.
-   * 
+   *
    * @param block Block to be checked.
    * @return {@code true} if the sequence has a fixed origin or {@code false} otherwise.
-   * 
+   *
    * @throws IllegalArgumentException if the argument is {@code null} or it is not
    *         an external code block.
    */

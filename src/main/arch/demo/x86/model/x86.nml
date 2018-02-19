@@ -699,8 +699,8 @@ op xchg_r8m8 (seg_ovrd: RSEG16, dst: R8, src: MOFFS)
     dst = dst ^ MEM[base+src];
     src.action;
     instruction_image_size = 3;
-  } 
-  
+  }
+
 op xchg_r16r16 (dst: R16, src: R16)
   init = {}
   syntax = format("xchg %s, %s", dst.syntax, src.syntax)
@@ -781,7 +781,7 @@ op pushA()
   init = {}
   syntax = format("pushA")
   image = format("01100000")
-  action = { 
+  action = {
     SP = SP - 16;
 
     MEM[SS+SP+15] = AH;
@@ -811,7 +811,7 @@ op pop_rseg(dst : RSEG16)
   init = {}
   syntax = format("pop %s", dst.syntax)
   image = format("000%s111", dst.image)
-  action = { 
+  action = {
     base = coerce(addR, SS) << 4;
     dst<0..7> = MEM[base + coerce(addR, cast(SWORD, SP))];
     dst<8..15> = MEM[base + coerce(addR, cast(SWORD, SP + 1))];
@@ -835,7 +835,7 @@ op pop_m16(seg_ovrd: RSEG16, dst: MOFFS)
   init = { mod = 0b0; rm = 0b0; dst.init;}
   syntax = format("pop %s:%s", seg_ovrd.syntax, dst.syntax)
   image = format("001%s11010001111%s000%s%s", seg_ovrd.image, mod, rm, dst.image)
-  action = {  
+  action = {
     base = coerce(addR, seg_ovrd) << 4;
     MEM[base+dst] = MEM[(coerce(addR, SS) << 4) + coerce(addR, cast(SWORD, SP))];
     MEM[base+dst+1] = MEM[(coerce(addR, SS) << 4) + coerce(addR, cast(SWORD, SP + 1))];
@@ -2589,7 +2589,7 @@ op cmp_m16i16 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM16)
     instruction_image_size = 5;
   }
 
-op cmp = cmp_m8r8   | cmp_r8r8   | cmp_r8m8   | cmp_r8i8   | cmp_m8i8 
+op cmp = cmp_m8r8   | cmp_r8r8   | cmp_r8m8   | cmp_r8i8   | cmp_m8i8
        | cmp_r16r16 | cmp_r16m16 | cmp_r16i16 | cmp_m16i16 | cmp_m16r16
 
 // ==================================================================================

@@ -1,11 +1,11 @@
 /*
  * Copyright 2009-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -20,9 +20,9 @@ import java.util.List;
 
 /**
  * Iterator of <code>int[]</code> arrays of the given length containing ordered indexes:
- * 
+ *
  * min <= array[0] < array[1] < ... < array[size - 1] <= max.
- * 
+ *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class IntSampleIterator implements Iterator<List<Integer>> {
@@ -43,11 +43,11 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
 
   /**
    * Constructor.
-   * 
+   *
    * @param <code>min</code> the minimal index.
-   * 
+   *
    * @param <code>max</code> the maximal index.
-   * 
+   *
    * @param <code>size</code> the size of the array.
    */
   public IntSampleIterator(int min, int max, int size) {
@@ -71,7 +71,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
 
   /**
    * Copy constructor.
-   * 
+   *
    * @param <code>r</code> the reference to the iterator object.
    */
   private IntSampleIterator(IntSampleIterator r) {
@@ -90,7 +90,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
 
   /**
    * Returns the minimal index.
-   * 
+   *
    * @return the minimal index.
    */
   public int getMinIndex() {
@@ -99,7 +99,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
 
   /**
    * Sets the minimal index.
-   * 
+   *
    * @param <code>min</code> the minimal index.
    */
   public void setMinIndex(int min) {
@@ -108,7 +108,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
 
   /**
    * Returns the maximal index.
-   * 
+   *
    * @return the maximal index.
    */
   public int getMaxIndex() {
@@ -117,7 +117,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
 
   /**
    * Sets the maximal index.
-   * 
+   *
    * @param <code>max</code> the maximal index.
    */
   public void setMaxIndex(int max) {
@@ -130,7 +130,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
 
   /**
    * Returns the array size.
-   * 
+   *
    * @return the array size.
    */
   public int getArraySize() {
@@ -139,7 +139,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
 
   /**
    * Sets the array size.
-   * 
+   *
    * @param <code>size</code> the array size.
    */
   public void setArraySize(int size) {
@@ -163,7 +163,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
 
   /**
    * Checks if the iterator is not exhausted (value is available).
-   * 
+   *
    * @return <code>true</code> if the iterator is not exhausted; <code>false</code> otherwise.
    */
   public boolean hasValue() {
@@ -178,7 +178,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
 
   /**
    * Returns the current value.
-   * 
+   *
    * @return the current value.
    */
   public int[] indexArrayValue() {
@@ -214,7 +214,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
 
   /**
    * Returns a copy of the iterator.
-   * 
+   *
    * @return a copy of the iterator.
    */
   public IntSampleIterator clone() {

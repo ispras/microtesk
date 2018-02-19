@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -27,13 +27,13 @@ import java.util.regex.Pattern;
 /**
  * The {@link FormatMarker} class provides facilities to identify markers within a format string.
  * Currently, the following markers are supported: %b, %d, %x and %s.
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class FormatMarker {
   /**
    * The {@link Kind} enumeration describes supported types of format markers.
-   * 
+   *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   public static enum Kind {
@@ -75,7 +75,7 @@ public final class FormatMarker {
 
     /**
      * Returns the letter identifying the marker.
-     * 
+     *
      * @return Marker letter.
      */
     public char getLetter() {
@@ -96,7 +96,7 @@ public final class FormatMarker {
 
     /**
      * Returns the marker kind that correspond to the specified letter.
-     * 
+     *
      * @param letter Marker letter.
      * @return Marker kind for the letter or {@code null} if there no such marker is supported.
      */
@@ -127,7 +127,7 @@ public final class FormatMarker {
 
   /**
    * Returns the marker kind.
-   * 
+   *
    * @return Marker kind.
    */
   public Kind getKind() {
@@ -136,7 +136,7 @@ public final class FormatMarker {
 
   /**
    * Check whether the marker of the specified kind.
-   * 
+   *
    * @param kind Marker kind.
    * @return {@code true} if the marker is of the specified kind or {@code false} otherwise.
    */
@@ -146,7 +146,7 @@ public final class FormatMarker {
 
   /**
    * Returns the length specified in the marker.
-   * 
+   *
    * @return Length specified in the marker or {@code 0} if no length is specified.
    */
   public int getLength() {
@@ -156,7 +156,7 @@ public final class FormatMarker {
   /**
    * Returns the start position of the marker (first character of the marker)
    * in the format string.
-   * 
+   *
    * @return Start position of the marker in the format string.
    */
   public int getStart() {
@@ -166,7 +166,7 @@ public final class FormatMarker {
   /**
    * Returns the end position of the marker (first character after the marker)
    * in the format string.
-   * 
+   *
    * @return End position of the marker in the format string.
    */
   public int getEnd() {
@@ -175,7 +175,7 @@ public final class FormatMarker {
 
   /**
    * Returns the token identifier for the given marker type.
-   * 
+   *
    * @return Token identifier.
    */
   public String getTokenId() {
@@ -184,7 +184,7 @@ public final class FormatMarker {
 
   /**
    * Gets the regular expression describing the given marker type.
-   * 
+   *
    * @return Regular expression.
    */
   public String getRegExpr() {
@@ -193,10 +193,10 @@ public final class FormatMarker {
 
   /**
    * Gets the list of format tokens for the specified format string.
-   * 
+   *
    * @param text Format string to be parsed.
    * @return List of extracted tokens.
-   * 
+   *
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
   public static List<FormatMarker> extractMarkers(final String text) {
@@ -240,12 +240,12 @@ public final class FormatMarker {
   /**
    * Tokenizes text using the specified list of markers previously extracted from it.
    * Tokens represent text of markers and text between them.
-   * 
+   *
    * @param text Text to be tokenized.
    * @param markers List of markers.
    * @return List of tokens represented by pairs [text, marker index]. Marker index
    *         is -1 for tokens that does not correspond to any markers.
-   * 
+   *
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
   public static List<Pair<String, Integer>> tokenize(

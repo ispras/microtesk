@@ -51,7 +51,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     void checkAllArgumentsAssigned(Set<String> argNames);
   }
 
-  private final MetaModel metaModel; 
+  private final MetaModel metaModel;
   private final AbstractCallBuilder callBuilder;
 
   private final Strategy strategy;
@@ -191,7 +191,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
       return new Pair<>(false, false);
     }
 
-    final MetaOperation metaOperation = getMetaOperation(); 
+    final MetaOperation metaOperation = getMetaOperation();
     if (metaOperation.isBranch()) {
       return new Pair<>(metaOperation.isBranch(), metaOperation.isConditionalBranch());
     }
@@ -220,7 +220,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
       return MemoryAccessStatus.NO;
     }
 
-    MemoryAccessStatus result = MemoryAccessStatus.NO; 
+    MemoryAccessStatus result = MemoryAccessStatus.NO;
 
     final MetaOperation metaOperation = getMetaOperation();
     result = result.merge(new MemoryAccessStatus(
@@ -347,7 +347,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(value);
 
-    final Label label = new Label(value, callBuilder.getBlockId()); 
+    final Label label = new Label(value, callBuilder.getBlockId());
     final LabelValue labelValue = LabelValue.newUnknown(label);
 
     setArgument(name, labelValue);
@@ -468,7 +468,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     putArgument(arg);
   }
 
-  // For lazy labels (used in data_stream blocks) 
+  // For lazy labels (used in data_stream blocks)
   @Override
   public void setArgument(final String name, final LabelValue value) {
     InvariantChecks.checkNotNull(name);

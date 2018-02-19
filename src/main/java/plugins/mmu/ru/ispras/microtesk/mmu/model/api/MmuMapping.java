@@ -22,7 +22,7 @@ import java.math.BigInteger;
 
 /**
  * The {@link MmuMapping} class describes a buffer mapped to memory.
- * An access to such a buffer causes a access to memory by virtual 
+ * An access to such a buffer causes a access to memory by virtual
  * address using MMU (address translation, caches, physical memory).
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
@@ -72,12 +72,12 @@ public abstract class MmuMapping<D extends Data, A extends Address & Data>
   @Override
   public boolean isHit(final A address) {
     // TODO
-    return getMmu().isHit(address); 
+    return getMmu().isHit(address);
   }
 
   @Override
   public boolean isHit(final BitVector value) {
-    final A address = newAddress(); 
+    final A address = newAddress();
     address.getValue().assign(value);
     return isHit(address);
   }
@@ -86,7 +86,7 @@ public abstract class MmuMapping<D extends Data, A extends Address & Data>
   public D getData(final A address) {
     final BitVector value = getMmu().getData(address);
     InvariantChecks.checkTrue(value.getBitSize() == getDataBitSize());
-    return newData(value); 
+    return newData(value);
   }
 
   @Override

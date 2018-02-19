@@ -19,7 +19,7 @@ require_relative 'vliw_base'
 #
 # Description:
 #
-# This test template demonstrates how to create various combinations 
+# This test template demonstrates how to create various combinations
 # of instructions.
 #
 

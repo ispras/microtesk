@@ -159,12 +159,12 @@ final class ShortcutBuilder {
 
   /**
    * Constructs a ShortcutBuilder object.
-   * 
+   *
    * @param root The root primitive, root of all roots, that provides a common topmost starting
    *        point for all paths.
    * @param target Target primitive.
    * @param pathCounter Path counter object that will be used to exclude ambiguous paths.
-   * 
+   *
    * @throws NullPointerException if any of the parameters equals null.
    */
   public ShortcutBuilder(
@@ -307,21 +307,21 @@ final class ShortcutBuilder {
      * // This is an old more straightforward, more reliable
      * // implementation, but less efficient implementation.
      * // It is left here in case some issues with the current arise.
-     * 
+     *
      * // The canHaveMultiplePaths is set to true by checkForMultipleParents
      * // when it faces a node with multiple parents.
-     * 
+     *
      * if (!canHaveMultiplePaths) {
      *   return true;
      * }
-     * 
-     * final int count = 
+     *
+     * final int count =
      *   pathCounter.getPathCount(source, target.getName());
-     * 
-     * if (count < 1) { 
+     *
+     * if (count < 1) {
      *   throw new IllegalStateException();
      * }
-     * 
+     *
      * return count == 1;
      */
   }
@@ -363,7 +363,7 @@ final class ShortcutBuilder {
      * Creates and registers a shortcut if there are contexts in which it can be used.
      */
     private void createAndRegisterShortcut() {
-      if (!contextNames.isEmpty()) { 
+      if (!contextNames.isEmpty()) {
         final Shortcut shortcut = new Shortcut(entry, target, contextNames);
         target.addShortcut(shortcut);
       }

@@ -21,12 +21,12 @@ require_relative 'x86_base'
 #
 # This test template demonstrates how MicroTESK can simulate the execution
 # of a test program to predict the resulting state of a microprocessor
-# design under test. The described test program is a simple implemention of 
+# design under test. The described test program is a simple implemention of
 # the bubble sort algorithm. The algorithm in pseudocode (from Wikipedia):
 #
 # procedure bubbleSort( A : list of sortable items )
 #   n = length(A)
-#   repeat 
+#   repeat
 #     swapped = false
 #     for i = 1 to n-1 inclusive do
 #       /* if this pair is out of order */
@@ -99,7 +99,7 @@ class BubbleSortTemplatei386 < X86BaseTemplate
       label :next
       add_r16i16 ax, IMM16(2)
       mov_r16i16 dx, IMM16(8)
-      
+
       jmp_long :for
       ############################ Inner loop ends ###############################
       label :exit_for

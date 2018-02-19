@@ -1,11 +1,11 @@
 /*
  * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -40,7 +40,7 @@ import java.util.List;
 /**
  * The {@link Printer} class is responsible for printing generated symbolic test programs
  * (sequences of concrete calls to a file and to the screen).
- * 
+ *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Printer {
@@ -261,7 +261,7 @@ public final class Printer {
 
   /**
    * Prints the specified list of calls (all attributes applicable at generation time).
-   * 
+   *
    * @param calls List of calls.
    * @throws ConfigurationException if failed to evaluate one of the output objects
    *         associated with an instruction call.
@@ -357,8 +357,8 @@ public final class Printer {
   /**
    * Prints the specified text to the screen (as is) and to the file (a comment).
    * The text is followed by an empty line. Note specify parts of code that need
-   * a comment on their purpose. 
-   * 
+   * a comment on their purpose.
+   *
    * @param text Text to be printed.
    */
   private void printNote(final String text) {
@@ -382,7 +382,7 @@ public final class Printer {
   /**
    * Prints text with no indent both to the file and to the screen (if corresponding options are
    * enabled).
-   * 
+   *
    * @param text Text to be printed.
    */
   private void printTextNoIndent(final String text) {
@@ -396,8 +396,8 @@ public final class Printer {
 
   /**
    * Prints a special header comment that specifies the start of a logically separate
-   * part of code. 
-   * 
+   * part of code.
+   *
    * @param text Text of the header.
    */
   private void printHeaderToFile(final String text) {
@@ -411,7 +411,7 @@ public final class Printer {
 
   /**
    * Prints a comment to the file.
-   * 
+   *
    * @param text Text of the comment to be printed.
    */
   private void printCommentToFile(final String text) {
@@ -433,7 +433,7 @@ public final class Printer {
 
   /**
    * Prints a special comment to the file to separate different parts of the code.
-   * 
+   *
    * @param text Text of the separator.
    */
   private void printSeparatorToFile(final String text) {

@@ -113,7 +113,7 @@ public final class MemoryAccessStack {
     final Frame frame = new Frame(getFullId(id), transition);
     return call(frame);
   }
-  
+
   public Frame call(final Frame frame) {
     InvariantChecks.checkNotNull(frame);
     InvariantChecks.checkFalse(stack.contains(frame));

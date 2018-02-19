@@ -136,7 +136,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Returns buffer kind (whether it is stand-alone, mapped to memory/register).
-   * 
+   *
    * @return buffer kind.
    */
   public final Kind getKind() {
@@ -145,7 +145,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Returns the number of ways (associativity).
-   * 
+   *
    * @return the number of ways.
    */
   public final long getWays() {
@@ -154,7 +154,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Returns the number of sets.
-   * 
+   *
    * @return the number of sets.
    */
   public final long getSets() {
@@ -163,7 +163,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Returns the input parameter.
-   * 
+   *
    * @return the input parameter.
    */
   public final MmuAddressInstance getAddress() {
@@ -187,7 +187,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Returns the tag calculation function.
-   * 
+   *
    * @return the tag calculation function.
    */
   public final Node getTagExpression() {
@@ -196,7 +196,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Returns the index calculation function.
-   * 
+   *
    * @return the index calculation function.
    */
   public final Node getIndexExpression() {
@@ -205,7 +205,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Returns the offset calculation function.
-   * 
+   *
    * @return the offset calculation function.
    */
   public final Node getOffsetExpression() {
@@ -223,7 +223,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Returns the address view.
-   * 
+   *
    * @return the address view.
    */
   public final AddressView<BitVector> getAddressView() {
@@ -232,7 +232,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Returns the address tag.
-   * 
+   *
    * @param address the address.
    * @return the value of the tag.
    */
@@ -242,7 +242,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Returns the address index.
-   * 
+   *
    * @param address the address.
    * @return the value of the index.
    */
@@ -252,7 +252,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Returns the address offset.
-   * 
+   *
    * @param address the address.
    * @return the value of the offset.
    */
@@ -290,7 +290,7 @@ public class MmuBuffer extends MmuStruct {
 
   /**
    * Checks whether the buffer support data replacement.
-   * 
+   *
    * @return {@code true} if the buffer supports data replacement; {@code false} otherwise.
    */
   public final boolean isReplaceable() {

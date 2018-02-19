@@ -138,7 +138,7 @@ public final class EngineUtils {
       );
     }
 
-    final InitializerMaker initializerMaker = 
+    final InitializerMaker initializerMaker =
         EngineConfig.get().getInitializerMaker(testData.getId());
 
     InvariantChecks.checkNotNull(

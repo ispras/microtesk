@@ -196,7 +196,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
           }
         }
         return;
-      } 
+      }
 
       if (stmt.getAttributeName().equals(Attribute.IMAGE_NAME)) {
         final Primitive arg = primitive.getArguments().get(stmt.getCalleeName());

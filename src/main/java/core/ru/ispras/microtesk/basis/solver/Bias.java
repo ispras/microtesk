@@ -43,7 +43,7 @@ public final class Bias implements Comparable<Bias> {
     return new Bias(bias);
   }
 
-  private final int bias; 
+  private final int bias;
 
   private Bias(final int bias) {
     InvariantChecks.checkTrue(MIN_BIAS <= bias && bias <= MAX_BIAS);

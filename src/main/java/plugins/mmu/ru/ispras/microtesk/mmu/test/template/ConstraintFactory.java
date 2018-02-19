@@ -173,7 +173,7 @@ public final class ConstraintFactory {
         new AccessConstraints.Builder();
 
     for (final Object constraint : constraints) {
-      InvariantChecks.checkNotNull(constraint); 
+      InvariantChecks.checkNotNull(constraint);
 
       if (constraint instanceof VariableConstraint) {
         builder.addConstraint((VariableConstraint) constraint);
