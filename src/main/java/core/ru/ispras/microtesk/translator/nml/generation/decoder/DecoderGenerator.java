@@ -16,8 +16,8 @@ package ru.ispras.microtesk.translator.nml.generation.decoder;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.FileGenerator;
+import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
-import ru.ispras.microtesk.codegen.STFileGenerator;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
@@ -98,7 +98,7 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
         PackageInfo.NML_TEMPLATE_DIR + "Decoder.stg"
         };
 
-    final FileGenerator generator = new STFileGenerator(
+    final FileGenerator generator = new FileGeneratorStringTemplate(
         getFileName(className), templateGroups, templateBuilder);
 
     try {

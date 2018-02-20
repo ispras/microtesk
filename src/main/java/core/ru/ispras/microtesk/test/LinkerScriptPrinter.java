@@ -18,8 +18,9 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.FileGenerator;
+import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
-import ru.ispras.microtesk.codegen.STFileGenerator;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.options.Option;
@@ -51,9 +52,10 @@ final class LinkerScriptPrinter {
   }
 
   public void print() throws IOException {
-    final STFileGenerator fileGenerator =
-        new STFileGenerator(fileFullName, LINKER_SCRIPT_TEMPLATE, new StringTemplateBuilder() {
-
+    final FileGenerator fileGenerator = new FileGeneratorStringTemplate(
+        fileFullName,
+        LINKER_SCRIPT_TEMPLATE,
+        new StringTemplateBuilder() {
           @Override
           public ST build(final STGroup group) {
             final ST st = group.getInstanceOf("linker_script");

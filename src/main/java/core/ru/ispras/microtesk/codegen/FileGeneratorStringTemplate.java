@@ -27,11 +27,12 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * The {@link STFileGenerator} class generates source code files on the basis of string templates.
+ * The {@link FileGeneratorStringTemplate} class generates source code files
+ * on the basis of StringTemplates descriptions.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class STFileGenerator implements FileGenerator {
+public final class FileGeneratorStringTemplate implements FileGenerator {
   private final String outputFile;
   private final String[] templateGroupFiles;
   private final StringTemplateBuilder templateBuilder;
@@ -45,7 +46,7 @@ public final class STFileGenerator implements FileGenerator {
    *        of the hierarchy to child groups.
    * @param templateBuilder Builder that is responsible for initialization of the template.
    */
-  public STFileGenerator(
+  public FileGeneratorStringTemplate(
       final String outputFile,
       final String[] templateGroupFiles,
       final StringTemplateBuilder templateBuilder) {

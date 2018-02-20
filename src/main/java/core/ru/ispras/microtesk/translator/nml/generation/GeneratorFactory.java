@@ -15,8 +15,8 @@
 package ru.ispras.microtesk.translator.nml.generation;
 
 import ru.ispras.microtesk.codegen.FileGenerator;
+import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
-import ru.ispras.microtesk.codegen.STFileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -41,7 +41,7 @@ final class GeneratorFactory {
     };
 
     final StringTemplateBuilder modelBuilder = new STBModel(ir);
-    return new STFileGenerator(outputFileName, templateGroups, modelBuilder);
+    return new FileGeneratorStringTemplate(outputFileName, templateGroups, modelBuilder);
   }
 
   public FileGenerator createTypesGenerator(final Ir ir) {
@@ -54,7 +54,7 @@ final class GeneratorFactory {
     };
 
     final StringTemplateBuilder builder = new STBTypes(ir);
-    return new STFileGenerator(outputFileName, templateGroups, builder);
+    return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
   public FileGenerator createPEGenerator(final Ir ir) {
@@ -67,7 +67,7 @@ final class GeneratorFactory {
     };
 
     final StringTemplateBuilder builder = new STBProcessingElement(ir);
-    return new STFileGenerator(outputFileName, templateGroups, builder);
+    return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
   public FileGenerator createTempVarGenerator(final Ir ir) {
@@ -80,7 +80,7 @@ final class GeneratorFactory {
     };
 
     final StringTemplateBuilder builder = new STBTemporaryVariables(ir);
-    return new STFileGenerator(outputFileName, templateGroups, builder);
+    return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
   public FileGenerator createAddressingModeOr(PrimitiveOR mode) {
@@ -93,7 +93,7 @@ final class GeneratorFactory {
     };
 
     final StringTemplateBuilder builder = new STBAddressingModeOr(modelName, mode);
-    return new STFileGenerator(outputFileName, templateGroups, builder);
+    return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
   public FileGenerator createAddressingMode(PrimitiveAND mode) {
@@ -106,7 +106,7 @@ final class GeneratorFactory {
     };
 
     final StringTemplateBuilder builder = new STBAddressingMode(modelName, mode);
-    return new STFileGenerator(outputFileName, templateGroups, builder);
+    return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
   public FileGenerator createOperationOr(PrimitiveOR op) {
@@ -119,7 +119,7 @@ final class GeneratorFactory {
     };
 
     final StringTemplateBuilder builder = new STBOperationOr(modelName, op);
-    return new STFileGenerator(outputFileName, templateGroups, builder);
+    return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
   public FileGenerator createOperation(PrimitiveAND op) {
@@ -132,6 +132,6 @@ final class GeneratorFactory {
     };
 
     final StringTemplateBuilder builder = new STBOperation(modelName, op);
-    return new STFileGenerator(outputFileName, templateGroups, builder);
+    return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 }

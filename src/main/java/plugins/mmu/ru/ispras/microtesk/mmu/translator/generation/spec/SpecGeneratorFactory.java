@@ -16,8 +16,8 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.FileGenerator;
+import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
-import ru.ispras.microtesk.codegen.STFileGenerator;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
@@ -82,7 +82,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(extern.getName());
     final StringTemplateBuilder builder = new STBExtern(packageName, extern);
 
-    return new STFileGenerator(outputFileName, CONSTANT_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, CONSTANT_STGS, builder);
   }
 
   public FileGenerator newConstantGenerator(final Constant constant) {
@@ -91,7 +91,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(constant.getId());
     final StringTemplateBuilder builder = new STBConstant(packageName, constant);
 
-    return new STFileGenerator(outputFileName, CONSTANT_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, CONSTANT_STGS, builder);
   }
 
   public FileGenerator newStructGenerator(final Type structType) {
@@ -100,7 +100,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(structType.getId());
     final StringTemplateBuilder builder = new STBStruct(packageName, structType);
 
-    return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, STRUCT_STGS, builder);
   }
 
   public FileGenerator newAddressGenerator(final Address address) {
@@ -109,7 +109,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(address.getId());
     final StringTemplateBuilder builder = new STBAddress(packageName, address);
 
-    return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, STRUCT_STGS, builder);
   }
 
   public FileGenerator newFunctionGenerator(final Ir ir, final Callable func) {
@@ -118,7 +118,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(func.getName());
     final StringTemplateBuilder builder = new STBFunction(packageName, ir, func);
 
-    return new STFileGenerator(outputFileName, FUNCTION_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, FUNCTION_STGS, builder);
   }
 
   public FileGenerator newOperationGenerator(final Ir ir, final Operation operation) {
@@ -127,7 +127,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(operation.getId());
     final StringTemplateBuilder builder = new STBOperation(packageName, ir, operation);
 
-    return new STFileGenerator(outputFileName, OPERATION_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, OPERATION_STGS, builder);
   }
 
   public FileGenerator newBufferGenerator(final Buffer buffer) {
@@ -136,7 +136,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(buffer.getId());
     final StringTemplateBuilder builder = new STBBuffer(packageName, buffer);
 
-    return new STFileGenerator(outputFileName, BUFFER_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, BUFFER_STGS, builder);
   }
 
   public FileGenerator newSegmentGenerator(final Ir ir, final Segment segment) {
@@ -145,7 +145,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(segment.getId());
     final StringTemplateBuilder builder = new STBSegment(packageName, ir, segment);
 
-    return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, SEGMENT_STGS, builder);
   }
 
   public FileGenerator newMemoryGenerator(final Ir ir, final Memory memory) {
@@ -154,7 +154,7 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(memory.getId());
     final StringTemplateBuilder builder = new STBMemory(packageName, ir, memory);
 
-    return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, SEGMENT_STGS, builder);
   }
 
   public FileGenerator newSpecificationGenerator(final Ir ir) {
@@ -163,6 +163,6 @@ final class SpecGeneratorFactory {
     final String outputFileName = getOutputFileName(STBSpecification.CLASS_NAME);
     final StringTemplateBuilder builder = new STBSpecification(packageName, ir);
 
-    return new STFileGenerator(outputFileName, SPEC_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, SPEC_STGS, builder);
   }
 }

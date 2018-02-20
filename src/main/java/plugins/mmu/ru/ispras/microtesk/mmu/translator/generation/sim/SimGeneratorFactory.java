@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.translator.generation.sim;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.FileGenerator;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
-import ru.ispras.microtesk.codegen.STFileGenerator;
+import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
@@ -68,7 +68,7 @@ final class SimGeneratorFactory {
     final String outputFileName = getOutputFileName(STBExtern.CLASS_NAME);
     final StringTemplateBuilder builder = new STBExtern(packageName, externs);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newConstantGenerator(final Constant constant) {
@@ -77,7 +77,7 @@ final class SimGeneratorFactory {
     final String outputFileName = getOutputFileName(constant.getId());
     final StringTemplateBuilder builder = new STBConstant(packageName, constant);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newAddressGenerator(final Address address) {
@@ -86,7 +86,7 @@ final class SimGeneratorFactory {
     final String outputFileName = getOutputFileName(address.getId());
     final StringTemplateBuilder builder = new STBStruct(packageName, address);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newOperationGenerator(final Operation operation) {
@@ -95,7 +95,7 @@ final class SimGeneratorFactory {
     final String outputFileName = getOutputFileName(operation.getId());
     final StringTemplateBuilder builder = new STBOperation(packageName, operation);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newFunctionGenerator(final Ir ir, final Callable function) {
@@ -105,7 +105,7 @@ final class SimGeneratorFactory {
     final String outputFileName = getOutputFileName(function.getName());
     final StringTemplateBuilder builder = new STBFunction(packageName, function);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newStructGenerator(final Type structType) {
@@ -114,7 +114,7 @@ final class SimGeneratorFactory {
     final String outputFileName = getOutputFileName(structType.getId());
     final StringTemplateBuilder builder = new STBStruct(packageName, structType);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newBufferGenerator(
@@ -127,7 +127,7 @@ final class SimGeneratorFactory {
     final String outputFileName = getOutputFileName(buffer.getId());
     final StringTemplateBuilder builder = new STBBuffer(packageName, ir, buffer, isTargetBuffer);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newSegmentGenerator(final Segment segment) {
@@ -136,7 +136,7 @@ final class SimGeneratorFactory {
     final String outputFileName = getOutputFileName(segment.getId());
     final StringTemplateBuilder builder = new STBSegment(packageName, segment);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newMemoryGenerator(final Memory memory) {
@@ -145,7 +145,7 @@ final class SimGeneratorFactory {
     final String outputFileName = getOutputFileName(memory.getId());
     final StringTemplateBuilder builder = new STBMemory(packageName, memory);
 
-    return new STFileGenerator(outputFileName, COMMON_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, COMMON_STGS, builder);
   }
 
   public FileGenerator newModelGenerator(final Ir ir, final Buffer targetBuffer) {
@@ -155,6 +155,6 @@ final class SimGeneratorFactory {
     final String outputFileName = getOutputFileName(STBModel.CLASS_NAME);
     final StringTemplateBuilder builder = new STBModel(packageName, ir, targetBuffer);
 
-    return new STFileGenerator(outputFileName, MODEL_STGS, builder);
+    return new FileGeneratorStringTemplate(outputFileName, MODEL_STGS, builder);
   }
 }
