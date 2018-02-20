@@ -15,13 +15,10 @@
 package ru.ispras.microtesk.codegen;
 
 import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STErrorListener;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
-import org.stringtemplate.v4.misc.STMessage;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.utils.FileUtils;
 
@@ -36,32 +33,6 @@ import java.net.URL;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class STFileGenerator implements FileGenerator {
-  private static final STErrorListener ERROR_LISTENER = new STErrorListener() {
-    private void report(final String s) {
-      Logger.error(s);
-    }
-
-    @Override
-    public void compileTimeError(final STMessage msg) {
-      report("Run-time error: " + msg);
-    }
-
-    @Override
-    public void runTimeError(final STMessage msg) {
-      report("Internal error: " + msg);
-    }
-
-    @Override
-    public void IOError(final STMessage msg) {
-      report("Compile-time error: " + msg);
-    }
-
-    @Override
-    public void internalError(final STMessage msg) {
-      report("I/O error: " + msg);
-    }
-  };
-
   private final String outputFile;
   private final String[] templateGroupFiles;
   private final STBuilder templateBuilder;
@@ -130,6 +101,6 @@ public final class STFileGenerator implements FileGenerator {
    */
   private void saveTemplate(final ST template) throws IOException {
     final File file = FileUtils.newFile(outputFile);
-    template.write(file, ERROR_LISTENER);
+    template.write(file, ErrorListener.get());
   }
 }
