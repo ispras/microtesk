@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,14 +17,13 @@ package ru.ispras.microtesk.codegen;
 import java.io.IOException;
 
 /**
- * The FileGenerator interface is a base interface to be implemented by
- * all code file generators.
+ * The {@link FileGenerator} interface is used to manipulate with code file generators.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public interface FileGenerator {
   /**
-   * Runs generation of a class file.
+   * Runs generation of a code file.
    *
    * @throws IOException if the generator failed to generate the needed
    *         file due to an I/O problem.
