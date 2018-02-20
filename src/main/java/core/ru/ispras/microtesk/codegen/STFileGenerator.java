@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * The STFileGenerator class implements logic that generates a source code file
- * from string templates.
+ * The {@link STFileGenerator} class implements logic that generates a source code
+ * file from string templates.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */

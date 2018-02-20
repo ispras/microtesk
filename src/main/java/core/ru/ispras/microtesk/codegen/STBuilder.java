@@ -18,20 +18,19 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 /**
- * The STBuilder interface is a base interface for all objects that
- * are responsible for initialization of class file templates.
+ * The {@link STBuilder} interface is a base interface for all objects that
+ * are responsible for initialization of code file templates.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public interface STBuilder {
   /**
-   * Performs initialization of the template of the target class based on templates described in the
-   * corresponding template group and information extracted from the intermediate representation of
-   * the target classes.
+   * Performs initialization of the template of the target file based on templates
+   * described in the corresponding template group.
    *
-   * @param group A template group that stores templates required to build generated representation.
+   * @param group A template group that stores templates required to accomplish code generation.
    *
-   * @return Fully initialized template object.
+   * @return Fully initialized string template object.
    */
   ST build(STGroup group);
 }
