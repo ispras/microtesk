@@ -18,14 +18,14 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 /**
- * The {@link StringTemplateBuilder} interface is a base interface for all objects
+ * The {@link StringTemplateBuilder} interface is a base interface for classes
  * that are responsible for initialization of StringTemplate objects.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public interface StringTemplateBuilder {
   /**
-   * Performs initialization of the template of the target file based on templates
+`   * Performs initialization of the template for the target file based on templates
    * described in the corresponding template group.
    *
    * @param group A template group that stores templates required to accomplish code generation.
