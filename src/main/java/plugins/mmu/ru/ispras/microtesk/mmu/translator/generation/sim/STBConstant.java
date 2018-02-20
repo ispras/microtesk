@@ -18,12 +18,12 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
 
 import java.math.BigInteger;
 
-final class STBConstant implements STBuilder {
+final class STBConstant implements StringTemplateBuilder {
   private final String packageName;
   private final Constant constant;
   private final Class<?> type;

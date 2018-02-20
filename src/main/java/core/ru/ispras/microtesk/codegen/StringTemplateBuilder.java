@@ -18,12 +18,12 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 /**
- * The {@link STBuilder} interface is a base interface for all objects
+ * The {@link StringTemplateBuilder} interface is a base interface for all objects
  * that are responsible for initialization of StringTemplate objects.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public interface STBuilder {
+public interface StringTemplateBuilder {
   /**
    * Performs initialization of the template of the target file based on templates
    * described in the corresponding template group.

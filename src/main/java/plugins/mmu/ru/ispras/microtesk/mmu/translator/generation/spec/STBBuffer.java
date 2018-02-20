@@ -20,7 +20,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 
@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-final class STBBuffer implements STBuilder {
+final class STBBuffer implements StringTemplateBuilder {
   public static final Class<?> BINDING_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
 

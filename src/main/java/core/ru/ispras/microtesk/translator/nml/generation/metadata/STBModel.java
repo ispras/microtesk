@@ -19,7 +19,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Memory;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.generation.ExprPrinter;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
@@ -30,7 +30,7 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 
 import java.math.BigInteger;
 
-final class STBModel implements STBuilder {
+final class STBModel implements StringTemplateBuilder {
   public static final String CLASS_NAME = "MetaModelFactory";
 
   private final Ir ir;

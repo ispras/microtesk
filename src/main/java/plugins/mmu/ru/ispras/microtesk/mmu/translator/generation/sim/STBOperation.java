@@ -18,12 +18,12 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.Operation;
 
 import java.math.BigInteger;
 
-final class STBOperation extends STBCommon implements STBuilder {
+final class STBOperation extends STBCommon implements StringTemplateBuilder {
   public static final Class<?> OPERATION_CLASS =
       ru.ispras.microtesk.mmu.model.api.Operation.class;
 

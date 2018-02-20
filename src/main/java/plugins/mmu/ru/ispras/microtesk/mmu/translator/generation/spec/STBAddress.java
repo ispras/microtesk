@@ -18,12 +18,12 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.utils.StringUtils;
 
-final class STBAddress implements STBuilder {
+final class STBAddress implements StringTemplateBuilder {
   public static final Class<?> ADDRESS_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance.class;
 

@@ -18,10 +18,10 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 
-public class STBExtern implements STBuilder {
+public class STBExtern implements StringTemplateBuilder {
   public static final Class<?> CONSTANT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuDynamicConst.class;
 

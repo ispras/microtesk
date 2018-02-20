@@ -18,7 +18,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
@@ -26,7 +26,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 
 import java.math.BigInteger;
 
-public final class STBOperation implements STBuilder {
+public final class STBOperation implements StringTemplateBuilder {
   public static final Class<?> BINDING_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
 

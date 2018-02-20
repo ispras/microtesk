@@ -24,7 +24,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
@@ -33,7 +33,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.Kind;
 
 import java.math.BigInteger;
 
-final class STBBuffer extends STBCommon implements STBuilder {
+final class STBBuffer extends STBCommon implements StringTemplateBuilder {
   private static final String DATA_NAME = "data";
 
   private final Ir ir;

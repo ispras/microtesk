@@ -18,7 +18,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
@@ -27,7 +27,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Var;
 import java.util.ArrayList;
 import java.util.List;
 
-final class STBFunction implements STBuilder {
+final class STBFunction implements StringTemplateBuilder {
   public static final Class<?> INTEGER_CLASS =
       ru.ispras.fortress.expression.NodeVariable.class;
 

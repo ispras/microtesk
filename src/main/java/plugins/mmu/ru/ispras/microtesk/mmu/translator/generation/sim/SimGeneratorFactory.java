@@ -16,7 +16,7 @@ package ru.ispras.microtesk.mmu.translator.generation.sim;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.FileGenerator;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.codegen.STFileGenerator;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
@@ -66,7 +66,7 @@ final class SimGeneratorFactory {
     InvariantChecks.checkNotNull(externs);
 
     final String outputFileName = getOutputFileName(STBExtern.CLASS_NAME);
-    final STBuilder builder = new STBExtern(packageName, externs);
+    final StringTemplateBuilder builder = new STBExtern(packageName, externs);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
@@ -75,7 +75,7 @@ final class SimGeneratorFactory {
     InvariantChecks.checkNotNull(constant);
 
     final String outputFileName = getOutputFileName(constant.getId());
-    final STBuilder builder = new STBConstant(packageName, constant);
+    final StringTemplateBuilder builder = new STBConstant(packageName, constant);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
@@ -84,7 +84,7 @@ final class SimGeneratorFactory {
     InvariantChecks.checkNotNull(address);
 
     final String outputFileName = getOutputFileName(address.getId());
-    final STBuilder builder = new STBStruct(packageName, address);
+    final StringTemplateBuilder builder = new STBStruct(packageName, address);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
@@ -93,7 +93,7 @@ final class SimGeneratorFactory {
     InvariantChecks.checkNotNull(operation);
 
     final String outputFileName = getOutputFileName(operation.getId());
-    final STBuilder builder = new STBOperation(packageName, operation);
+    final StringTemplateBuilder builder = new STBOperation(packageName, operation);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
@@ -103,7 +103,7 @@ final class SimGeneratorFactory {
     InvariantChecks.checkNotNull(function);
 
     final String outputFileName = getOutputFileName(function.getName());
-    final STBuilder builder = new STBFunction(packageName, function);
+    final StringTemplateBuilder builder = new STBFunction(packageName, function);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
@@ -112,7 +112,7 @@ final class SimGeneratorFactory {
     InvariantChecks.checkNotNull(structType);
 
     final String outputFileName = getOutputFileName(structType.getId());
-    final STBuilder builder = new STBStruct(packageName, structType);
+    final StringTemplateBuilder builder = new STBStruct(packageName, structType);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
@@ -125,7 +125,7 @@ final class SimGeneratorFactory {
     InvariantChecks.checkNotNull(buffer);
 
     final String outputFileName = getOutputFileName(buffer.getId());
-    final STBuilder builder = new STBBuffer(packageName, ir, buffer, isTargetBuffer);
+    final StringTemplateBuilder builder = new STBBuffer(packageName, ir, buffer, isTargetBuffer);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
@@ -134,7 +134,7 @@ final class SimGeneratorFactory {
     InvariantChecks.checkNotNull(segment);
 
     final String outputFileName = getOutputFileName(segment.getId());
-    final STBuilder builder = new STBSegment(packageName, segment);
+    final StringTemplateBuilder builder = new STBSegment(packageName, segment);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
@@ -143,7 +143,7 @@ final class SimGeneratorFactory {
     InvariantChecks.checkNotNull(memory);
 
     final String outputFileName = getOutputFileName(memory.getId());
-    final STBuilder builder = new STBMemory(packageName, memory);
+    final StringTemplateBuilder builder = new STBMemory(packageName, memory);
 
     return new STFileGenerator(outputFileName, COMMON_STGS, builder);
   }
@@ -153,7 +153,7 @@ final class SimGeneratorFactory {
     InvariantChecks.checkNotNull(targetBuffer);
 
     final String outputFileName = getOutputFileName(STBModel.CLASS_NAME);
-    final STBuilder builder = new STBModel(packageName, ir, targetBuffer);
+    final StringTemplateBuilder builder = new STBModel(packageName, ir, targetBuffer);
 
     return new STFileGenerator(outputFileName, MODEL_STGS, builder);
   }

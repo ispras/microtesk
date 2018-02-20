@@ -34,7 +34,7 @@ import java.net.URL;
 public final class STFileGenerator implements FileGenerator {
   private final String outputFile;
   private final String[] templateGroupFiles;
-  private final STBuilder templateBuilder;
+  private final StringTemplateBuilder templateBuilder;
 
   /**
    * Constructs a code generator parameterized with a hierarchy template groups, with a builder
@@ -48,7 +48,7 @@ public final class STFileGenerator implements FileGenerator {
   public STFileGenerator(
       final String outputFile,
       final String[] templateGroupFiles,
-      final STBuilder templateBuilder) {
+      final StringTemplateBuilder templateBuilder) {
     InvariantChecks.checkNotNull(outputFile);
     InvariantChecks.checkNotEmpty(templateGroupFiles);
     InvariantChecks.checkNotNull(templateBuilder);

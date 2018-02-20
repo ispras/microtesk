@@ -20,7 +20,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 
@@ -28,7 +28,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
 
-final class STBStruct implements STBuilder {
+final class STBStruct implements StringTemplateBuilder {
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 

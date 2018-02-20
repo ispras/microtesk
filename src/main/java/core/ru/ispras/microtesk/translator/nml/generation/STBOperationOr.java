@@ -19,7 +19,7 @@ import static ru.ispras.microtesk.translator.generation.PackageInfo.OP_PACKAGE_F
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
@@ -27,7 +27,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 import java.util.ArrayList;
 import java.util.List;
 
-final class STBOperationOr implements STBuilder {
+final class STBOperationOr implements StringTemplateBuilder {
   private final String modelName;
   private final PrimitiveOR op;
 

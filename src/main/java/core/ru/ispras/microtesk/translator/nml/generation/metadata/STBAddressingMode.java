@@ -18,7 +18,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.metadata.MetaArgument;
@@ -29,7 +29,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 
 import java.util.Map;
 
-final class STBAddressingMode implements STBuilder {
+final class STBAddressingMode implements StringTemplateBuilder {
   private final String modelName;
   private final PrimitiveAND primitive;
 

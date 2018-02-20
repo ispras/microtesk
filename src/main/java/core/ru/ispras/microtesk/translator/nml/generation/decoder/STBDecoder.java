@@ -25,7 +25,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.decoder.DecoderItem;
@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-final class STBDecoder implements STBuilder {
+final class STBDecoder implements StringTemplateBuilder {
   private final String name;
   private final String modelName;
   private final ImageInfo imageInfo;

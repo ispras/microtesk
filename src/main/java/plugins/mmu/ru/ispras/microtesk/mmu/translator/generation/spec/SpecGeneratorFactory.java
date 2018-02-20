@@ -16,7 +16,7 @@ package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.FileGenerator;
-import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.codegen.STFileGenerator;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
@@ -80,7 +80,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(extern);
 
     final String outputFileName = getOutputFileName(extern.getName());
-    final STBuilder builder = new STBExtern(packageName, extern);
+    final StringTemplateBuilder builder = new STBExtern(packageName, extern);
 
     return new STFileGenerator(outputFileName, CONSTANT_STGS, builder);
   }
@@ -89,7 +89,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(constant);
 
     final String outputFileName = getOutputFileName(constant.getId());
-    final STBuilder builder = new STBConstant(packageName, constant);
+    final StringTemplateBuilder builder = new STBConstant(packageName, constant);
 
     return new STFileGenerator(outputFileName, CONSTANT_STGS, builder);
   }
@@ -98,7 +98,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(structType);
 
     final String outputFileName = getOutputFileName(structType.getId());
-    final STBuilder builder = new STBStruct(packageName, structType);
+    final StringTemplateBuilder builder = new STBStruct(packageName, structType);
 
     return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
   }
@@ -107,7 +107,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(address);
 
     final String outputFileName = getOutputFileName(address.getId());
-    final STBuilder builder = new STBAddress(packageName, address);
+    final StringTemplateBuilder builder = new STBAddress(packageName, address);
 
     return new STFileGenerator(outputFileName, STRUCT_STGS, builder);
   }
@@ -116,7 +116,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(func);
 
     final String outputFileName = getOutputFileName(func.getName());
-    final STBuilder builder = new STBFunction(packageName, ir, func);
+    final StringTemplateBuilder builder = new STBFunction(packageName, ir, func);
 
     return new STFileGenerator(outputFileName, FUNCTION_STGS, builder);
   }
@@ -125,7 +125,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(operation);
 
     final String outputFileName = getOutputFileName(operation.getId());
-    final STBuilder builder = new STBOperation(packageName, ir, operation);
+    final StringTemplateBuilder builder = new STBOperation(packageName, ir, operation);
 
     return new STFileGenerator(outputFileName, OPERATION_STGS, builder);
   }
@@ -134,7 +134,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(buffer);
 
     final String outputFileName = getOutputFileName(buffer.getId());
-    final STBuilder builder = new STBBuffer(packageName, buffer);
+    final StringTemplateBuilder builder = new STBBuffer(packageName, buffer);
 
     return new STFileGenerator(outputFileName, BUFFER_STGS, builder);
   }
@@ -143,7 +143,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(segment);
 
     final String outputFileName = getOutputFileName(segment.getId());
-    final STBuilder builder = new STBSegment(packageName, ir, segment);
+    final StringTemplateBuilder builder = new STBSegment(packageName, ir, segment);
 
     return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
   }
@@ -152,7 +152,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(memory);
 
     final String outputFileName = getOutputFileName(memory.getId());
-    final STBuilder builder = new STBMemory(packageName, ir, memory);
+    final StringTemplateBuilder builder = new STBMemory(packageName, ir, memory);
 
     return new STFileGenerator(outputFileName, SEGMENT_STGS, builder);
   }
@@ -161,7 +161,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(ir);
 
     final String outputFileName = getOutputFileName(STBSpecification.CLASS_NAME);
-    final STBuilder builder = new STBSpecification(packageName, ir);
+    final StringTemplateBuilder builder = new STBSpecification(packageName, ir);
 
     return new STFileGenerator(outputFileName, SPEC_STGS, builder);
   }
