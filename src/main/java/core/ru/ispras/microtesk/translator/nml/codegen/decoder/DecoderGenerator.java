@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.generation.decoder;
+package ru.ispras.microtesk.translator.nml.codegen.decoder;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.FileGenerator;

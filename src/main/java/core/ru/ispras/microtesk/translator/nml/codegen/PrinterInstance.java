@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.generation;
+package ru.ispras.microtesk.translator.nml.codegen;
 
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
