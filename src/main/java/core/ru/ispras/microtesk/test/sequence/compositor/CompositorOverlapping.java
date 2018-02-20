@@ -27,7 +27,7 @@ import java.util.ArrayList;
 public final class CompositorOverlapping<T> extends CompositorBase<T> {
   /** The index of the recently used iterator from the compositor's list. */
   private int n;
-  /** The index of the recently selected iterator from <code>overlap</code>. */
+  /** The index of the recently selected iterator from {@code overlap}. */
   private int k;
   /** The next selection. */
   private int i;

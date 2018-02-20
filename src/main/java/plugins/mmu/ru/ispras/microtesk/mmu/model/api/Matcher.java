@@ -28,8 +28,8 @@ public interface Matcher<D, A extends Address> {
    *
    * @param data the data.
    * @param address the address.
-   * @return <code>true</code> if the data and address are matching each other;
-   *         <code>false</code> otherwise.
+   * @return {@code true} if the data and address are matching each other;
+   *         {@code false} otherwise.
    */
   boolean areMatching(final D data, final A address);
 }

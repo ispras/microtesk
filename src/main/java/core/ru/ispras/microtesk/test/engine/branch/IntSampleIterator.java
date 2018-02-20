@@ -44,11 +44,11 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
   /**
    * Constructor.
    *
-   * @param <code>min</code> the minimal index.
+   * @param {@code min} the minimal index.
    *
-   * @param <code>max</code> the maximal index.
+   * @param {@code max} the maximal index.
    *
-   * @param <code>size</code> the size of the array.
+   * @param {@code size} the size of the array.
    */
   public IntSampleIterator(int min, int max, int size) {
     if (min > max) {
@@ -72,7 +72,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
   /**
    * Copy constructor.
    *
-   * @param <code>r</code> the reference to the iterator object.
+   * @param {@code r} the reference to the iterator object.
    */
   private IntSampleIterator(IntSampleIterator r) {
     min = r.min;
@@ -100,7 +100,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
   /**
    * Sets the minimal index.
    *
-   * @param <code>min</code> the minimal index.
+   * @param {@code min} the minimal index.
    */
   public void setMinIndex(int min) {
     this.min = min;
@@ -118,7 +118,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
   /**
    * Sets the maximal index.
    *
-   * @param <code>max</code> the maximal index.
+   * @param {@code max} the maximal index.
    */
   public void setMaxIndex(int max) {
     if (size > max - min + 1) {
@@ -140,7 +140,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
   /**
    * Sets the array size.
    *
-   * @param <code>size</code> the array size.
+   * @param {@code size} the array size.
    */
   public void setArraySize(int size) {
     if (size > max - min + 1) {
@@ -164,7 +164,7 @@ final class IntSampleIterator implements Iterator<List<Integer>> {
   /**
    * Checks if the iterator is not exhausted (value is available).
    *
-   * @return <code>true</code> if the iterator is not exhausted; <code>false</code> otherwise.
+   * @return {@code true} if the iterator is not exhausted; {@code false} otherwise.
    */
   public boolean hasValue() {
     return hasValue;

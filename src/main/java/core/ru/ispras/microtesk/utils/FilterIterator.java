@@ -42,7 +42,7 @@ public class FilterIterator<E> implements Iterator<E> {
 
   //-----------------------------------------------------------------------
   /**
-   * Constructs a new <code>FilterIterator</code> that will not function
+   * Constructs a new {@code FilterIterator} that will not function
    * until {@link #setIterator(Iterator) setIterator} is invoked.
    */
   public FilterIterator() {
@@ -50,7 +50,7 @@ public class FilterIterator<E> implements Iterator<E> {
   }
 
   /**
-   * Constructs a new <code>FilterIterator</code> that will not function
+   * Constructs a new {@code FilterIterator} that will not function
    * until {@link #setPredicate(Predicate) setPredicate} is invoked.
    *
    * @param iterator  the iterator to use
@@ -61,7 +61,7 @@ public class FilterIterator<E> implements Iterator<E> {
   }
 
   /**
-   * Constructs a new <code>FilterIterator</code> that will use the
+   * Constructs a new {@code FilterIterator} that will use the
    * given iterator and predicate.
    *
    * @param iterator  the iterator to use

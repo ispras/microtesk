@@ -52,12 +52,12 @@ abstract class CompositorBase<T> extends CompositeIterator<T> implements Composi
   //------------------------------------------------------------------------------------------------
 
   /**
-   * The callback method called in the <code>init</code> method.
+   * The callback method called in the {@code init} method.
    */
   protected abstract void onInit();
 
   /**
-   * The callback method called in the <code>next</code> method.
+   * The callback method called in the {@code next} method.
    */
   protected abstract void onNext();
 
