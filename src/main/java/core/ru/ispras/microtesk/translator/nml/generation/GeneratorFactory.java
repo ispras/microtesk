@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.translator.nml.generation;
 
-import ru.ispras.microtesk.translator.generation.FileGenerator;
+import ru.ispras.microtesk.codegen.FileGenerator;
+import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.STFileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
-import ru.ispras.microtesk.translator.generation.STBuilder;
-import ru.ispras.microtesk.translator.generation.STFileGenerator;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;

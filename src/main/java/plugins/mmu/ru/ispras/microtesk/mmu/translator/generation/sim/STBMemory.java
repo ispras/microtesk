@@ -19,10 +19,10 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.codegen.STBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBMemory extends STBCommon implements STBuilder {
   private final Memory memory;

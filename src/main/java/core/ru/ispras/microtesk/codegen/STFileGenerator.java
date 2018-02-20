@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.generation;
+package ru.ispras.microtesk.codegen;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STErrorListener;

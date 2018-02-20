@@ -17,9 +17,9 @@ package ru.ispras.microtesk.translator.nml.generation;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.microtesk.codegen.STBuilder;
 import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;

@@ -18,10 +18,10 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.STBuilder;
 import ru.ispras.microtesk.mmu.translator.generation.spec.Utils;
 import ru.ispras.microtesk.mmu.translator.ir.ExternalSource;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 
 import java.math.BigInteger;
 import java.util.Map;

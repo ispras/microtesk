@@ -12,26 +12,22 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.generation;
+package ru.ispras.microtesk.codegen;
 
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroup;
+import java.io.IOException;
 
 /**
- * The STBuilder interface is a base interface for all objects that
- * are responsible for initialization of class file templates.
+ * The FileGenerator interface is a base interface to be implemented by
+ * all code file generators.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public interface STBuilder {
+public interface FileGenerator {
   /**
-   * Performs initialization of the template of the target class based on templates described in the
-   * corresponding template group and information extracted from the intermediate representation of
-   * the target classes.
+   * Runs generation of a class file.
    *
-   * @param group A template group that stores templates required to build generated representation.
-   *
-   * @return Fully initialized template object.
+   * @throws IOException if the generator failed to generate the needed
+   *         file due to an I/O problem.
    */
-  ST build(STGroup group);
+  void generate() throws IOException;
 }

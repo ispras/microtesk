@@ -20,10 +20,10 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.codegen.STBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 
 final class STBSegment extends STBCommon implements STBuilder {
   private final Segment segment;

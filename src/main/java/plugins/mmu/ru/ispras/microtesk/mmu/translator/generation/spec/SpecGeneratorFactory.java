@@ -15,6 +15,9 @@
 package ru.ispras.microtesk.mmu.translator.generation.spec;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.FileGenerator;
+import ru.ispras.microtesk.codegen.STBuilder;
+import ru.ispras.microtesk.codegen.STFileGenerator;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
@@ -25,10 +28,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
-import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
-import ru.ispras.microtesk.translator.generation.STBuilder;
-import ru.ispras.microtesk.translator.generation.STFileGenerator;
 
 final class SpecGeneratorFactory {
   private static final String MMU_STG_DIR = "stg/mmu/spec/";

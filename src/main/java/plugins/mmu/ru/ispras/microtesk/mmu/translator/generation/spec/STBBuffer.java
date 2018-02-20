@@ -20,9 +20,9 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.codegen.STBuilder;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 
 import java.math.BigInteger;
 import java.util.Arrays;

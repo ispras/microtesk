@@ -24,12 +24,12 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.codegen.STBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.Kind;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 
 import java.math.BigInteger;
 

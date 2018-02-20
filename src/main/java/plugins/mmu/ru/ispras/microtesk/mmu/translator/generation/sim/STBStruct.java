@@ -20,9 +20,9 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
+import ru.ispras.microtesk.codegen.STBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

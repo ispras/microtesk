@@ -19,8 +19,8 @@ import static ru.ispras.microtesk.translator.generation.PackageInfo.MODE_PACKAGE
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.microtesk.codegen.STBuilder;
 import ru.ispras.microtesk.model.IsaPrimitive;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
