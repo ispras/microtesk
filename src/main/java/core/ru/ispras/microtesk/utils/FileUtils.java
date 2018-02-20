@@ -115,12 +115,29 @@ public final class FileUtils {
     InvariantChecks.checkNotNull(ext);
 
     final File file = new File(path, name + "." + ext);
-    final File fileParent = file.getParentFile();
-    if (null != fileParent) {
-      fileParent.mkdirs();
-    }
+    createParentDirs(file);
 
     return file;
+  }
+
+  public static File newFile(final String fileName) {
+    InvariantChecks.checkNotNull(fileName);
+
+    final File file = new File(fileName);
+    createParentDirs(file);
+
+    return file;
+  }
+
+  private static void createParentDirs(final File file) {
+    InvariantChecks.checkNotNull(file);
+
+    if (!file.exists()) {
+      final File parent = file.getParentFile();
+      if (null != parent && !parent.exists()) {
+        parent.mkdirs();
+      }
+    }
   }
 
   public static PrintWriter newPrintWriter(

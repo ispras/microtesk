@@ -23,6 +23,7 @@ import org.stringtemplate.v4.misc.STMessage;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -128,16 +129,7 @@ public final class STFileGenerator implements FileGenerator {
    * @throws IOException It is raised if the methods fails to create the target file.
    */
   private void saveTemplate(final ST template) throws IOException {
-    final File file = new File(outputFile);
-
-    if (!file.exists()) {
-      final File parent = file.getParentFile();
-      if (!parent.exists()) {
-        parent.mkdirs();
-      }
-      file.createNewFile();
-    }
-
+    final File file = FileUtils.newFile(outputFile);
     template.write(file, ERROR_LISTENER);
   }
 }
