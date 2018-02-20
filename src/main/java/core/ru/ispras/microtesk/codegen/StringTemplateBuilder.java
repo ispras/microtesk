@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,26 +12,25 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.generation;
+package ru.ispras.microtesk.codegen;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 /**
- * The STBuilder interface is a base interface for all objects that
- * are responsible for initialization of class file templates.
+ * The {@link StringTemplateBuilder} interface is a base interface for classes
+ * that are responsible for initialization of StringTemplate objects.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public interface STBuilder {
+public interface StringTemplateBuilder {
   /**
-   * Performs initialization of the template of the target class based on templates described in the
-   * corresponding template group and information extracted from the intermediate representation of
-   * the target classes.
+`   * Performs initialization of the template for the target file based on templates
+   * described in the corresponding template group.
    *
-   * @param group A template group that stores templates required to build generated representation.
+   * @param group A template group that stores templates required to accomplish code generation.
    *
-   * @return Fully initialized template object.
+   * @return Fully initialized StringTemplate ({@link ST}) object.
    */
   ST build(STGroup group);
 }

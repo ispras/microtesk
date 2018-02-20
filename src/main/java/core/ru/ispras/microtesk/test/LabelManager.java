@@ -120,10 +120,10 @@ public final class LabelManager {
    * Sorting criteria:
    * <ol>
    * <li>First - labels defined in the current block (zero distance).</li>
-   * <li>Second - labels defined in child blocks (by the <code>down</code> path).</li>
-   * <li>Third - labels defined in parents blocks (by the <code>up</code> path).</li>
-   * <li>Finally - labels defined in sibling blocks (by the <code>up</code> path, the
-   * <code>down</code> path is considered when up paths are equal).</li>
+   * <li>Second - labels defined in child blocks (by the {@code down} path).</li>
+   * <li>Third - labels defined in parents blocks (by the {@code up} path).</li>
+   * <li>Finally - labels defined in sibling blocks (by the {@code up} path, the
+   * {@code down} path is considered when up paths are equal).</li>
    * </ol>
    *
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
@@ -283,7 +283,7 @@ public final class LabelManager {
    * @param referenceLabel A Label object that describes a reference to a label that has a specific
    *        name from a specific block.
    * @return The most suitable target (label and its position) for the given reference or
-   *         <code>null</code> if no label having such name is found.
+   *         {@code null} if no label having such name is found.
    *
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */

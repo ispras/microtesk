@@ -22,14 +22,14 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.generation.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 import java.util.ArrayList;
 import java.util.List;
 
-final class STBModel implements STBuilder {
+final class STBModel implements StringTemplateBuilder {
   public static final String CLASS_NAME = "Model";
   private final Ir ir;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,72 +12,44 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.generation;
+package ru.ispras.microtesk.codegen;
 
 import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STErrorListener;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
-import org.stringtemplate.v4.misc.STMessage;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
 /**
- * The STFileGenerator class implements logic that generates a source code file
- * from string templates.
+ * The {@link FileGeneratorStringTemplate} class generates source code files
+ * on the basis of StringTemplates descriptions.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class STFileGenerator implements FileGenerator {
-  private static final STErrorListener ERROR_LISTENER = new STErrorListener() {
-    private void report(final String s) {
-      Logger.error(s);
-    }
-
-    @Override
-    public void compileTimeError(final STMessage msg) {
-      report("Run-time error: " + msg);
-    }
-
-    @Override
-    public void runTimeError(final STMessage msg) {
-      report("Internal error: " + msg);
-    }
-
-    @Override
-    public void IOError(final STMessage msg) {
-      report("Compile-time error: " + msg);
-    }
-
-    @Override
-    public void internalError(final STMessage msg) {
-      report("I/O error: " + msg);
-    }
-  };
-
+public final class FileGeneratorStringTemplate implements FileGenerator {
   private final String outputFile;
   private final String[] templateGroupFiles;
-  private final STBuilder templateBuilder;
+  private final StringTemplateBuilder templateBuilder;
 
   /**
-   * Creates a class code generator parameterized with a hierarchy template groups, with a builder
-   * that will initialized the class code template and with the full name to the target output file.
+   * Constructs a code generator parameterized with a hierarchy template groups, with a builder
+   * that will initialize the code template and with the full name to the target output file.
    *
    * @param outputFile The full name of the target output file.
    * @param templateGroupFiles List of template group files. Important: the order is from the root
    *        of the hierarchy to child groups.
    * @param templateBuilder Builder that is responsible for initialization of the template.
    */
-  public STFileGenerator(
+  public FileGeneratorStringTemplate(
       final String outputFile,
       final String[] templateGroupFiles,
-      final STBuilder templateBuilder) {
+      final StringTemplateBuilder templateBuilder) {
     InvariantChecks.checkNotNull(outputFile);
     InvariantChecks.checkNotEmpty(templateGroupFiles);
     InvariantChecks.checkNotNull(templateBuilder);
@@ -88,7 +60,7 @@ public final class STFileGenerator implements FileGenerator {
   }
 
   /**
-   * Generates the target fail.
+   * Generates the target file.
    *
    * @throws IOException It is raised if the methods fails to create the target file.
    */
@@ -97,7 +69,8 @@ public final class STFileGenerator implements FileGenerator {
     final STGroup group = loadTemplateGroups();
     final ST template = templateBuilder.build(group);
 
-    saveTemplate(template);
+    final File file = FileUtils.newFile(outputFile);
+    template.write(file, ErrorListener.get());
   }
 
   /**
@@ -119,25 +92,5 @@ public final class STFileGenerator implements FileGenerator {
     }
 
     return parentGroup;
-  }
-
-  /**
-   * Create a file and saves an initialized template to it.
-   *
-   * @param template An initialized file template.
-   * @throws IOException It is raised if the methods fails to create the target file.
-   */
-  private void saveTemplate(final ST template) throws IOException {
-    final File file = new File(outputFile);
-
-    if (!file.exists()) {
-      final File parent = file.getParentFile();
-      if (!parent.exists()) {
-        parent.mkdirs();
-      }
-      file.createNewFile();
-    }
-
-    template.write(file, ERROR_LISTENER);
   }
 }

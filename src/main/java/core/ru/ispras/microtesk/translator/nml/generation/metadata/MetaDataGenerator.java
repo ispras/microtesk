@@ -15,13 +15,13 @@
 package ru.ispras.microtesk.translator.nml.generation.metadata;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.FileGenerator;
+import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
-import ru.ispras.microtesk.translator.generation.FileGenerator;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 
-import ru.ispras.microtesk.translator.generation.STFileGenerator;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
@@ -102,13 +102,13 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
 
   private void generateFile(
       final String className,
-      final STBuilder templateBuilder) {
+      final StringTemplateBuilder templateBuilder) {
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
         PackageInfo.NML_TEMPLATE_DIR + "MetaModel.stg"
         };
 
-    final FileGenerator generator = new STFileGenerator(
+    final FileGenerator generator = new FileGeneratorStringTemplate(
         getFileName(className), templateGroups, templateBuilder);
 
     try {

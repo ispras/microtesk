@@ -19,7 +19,7 @@ import org.stringtemplate.v4.ST;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.generation.STBuilder;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
@@ -33,7 +33,7 @@ import ru.ispras.microtesk.utils.FormatMarker;
 import java.util.EnumMap;
 import java.util.Map;
 
-abstract class STBPrimitiveBase implements STBuilder {
+abstract class STBPrimitiveBase implements StringTemplateBuilder {
   private static final Map<Attribute.Kind, String> RET_TYPE_MAP =
       new EnumMap<>(Attribute.Kind.class);
 

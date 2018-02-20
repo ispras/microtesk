@@ -19,10 +19,10 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.Constant;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 
-public class STBConstant implements STBuilder {
+public class STBConstant implements StringTemplateBuilder {
   public static final Class<?> CONSTANT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuDynamicConst.class;
 

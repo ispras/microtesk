@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.generation.sim;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.FileGenerator;
 import ru.ispras.microtesk.mmu.translator.generation.spec.MemoryControlFlowExplorer;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
@@ -28,7 +29,6 @@ import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
-import ru.ispras.microtesk.translator.generation.FileGenerator;
 
 import java.io.IOException;
 import java.util.Map;

@@ -18,17 +18,17 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 
-final class STBOperation implements STBuilder {
+final class STBOperation implements StringTemplateBuilder {
   private final String modelName;
   private final PrimitiveAND primitive;
 

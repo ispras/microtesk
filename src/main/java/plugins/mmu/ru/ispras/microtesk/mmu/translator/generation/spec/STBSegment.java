@@ -19,6 +19,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.translator.generation.sim.ExprPrinter;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
@@ -26,9 +27,8 @@ import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 
-final class STBSegment implements STBuilder {
+final class STBSegment implements StringTemplateBuilder {
   public static final Class<?> SEGMENT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment.class;
 

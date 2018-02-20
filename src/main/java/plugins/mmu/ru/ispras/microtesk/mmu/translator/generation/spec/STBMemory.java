@@ -18,6 +18,7 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
@@ -26,11 +27,10 @@ import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Stmt;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 
 import java.util.Collections;
 
-final class STBMemory implements STBuilder {
+final class STBMemory implements StringTemplateBuilder {
   public static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 

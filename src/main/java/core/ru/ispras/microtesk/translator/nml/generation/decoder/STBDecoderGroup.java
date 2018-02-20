@@ -19,9 +19,9 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.decoder.DecoderGroup;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
@@ -29,7 +29,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 import java.util.ArrayList;
 import java.util.List;
 
-final class STBDecoderGroup implements STBuilder {
+final class STBDecoderGroup implements StringTemplateBuilder {
   private final String modelName;
   private final String name;
   private final ImageInfo imageInfo;

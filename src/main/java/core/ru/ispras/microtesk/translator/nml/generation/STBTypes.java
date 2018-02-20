@@ -18,14 +18,14 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
-import ru.ispras.microtesk.translator.generation.STBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.Map;
 
-final class STBTypes implements STBuilder {
+final class STBTypes implements StringTemplateBuilder {
   public static final String CLASS_NAME = "TypeDefs";
   private final Ir ir;
 
