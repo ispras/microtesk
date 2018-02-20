@@ -174,7 +174,7 @@ public abstract class SharedObject<T extends SharedObject<T>> {
   }
 
   /**
-   * Returns the most recent shared copy for the specified object or {@null}
+   * Returns the most recent shared copy for the specified object or {@code null}
    * if no shared copy is available.
    *
    * @param original Original object associated with the shared copy.
