@@ -19,7 +19,7 @@ import ru.ispras.testbase.knowledge.iterator.Iterator;
 import java.util.List;
 
 /**
- * Iterator of <code>int[]</code> arrays of the given length containing ordered indexes:
+ * Iterator of {@code int[]} arrays of the given length containing ordered indexes:
  *
  * min <= array[0] < array[1] < ... < array[size - 1] <= max.
  *
