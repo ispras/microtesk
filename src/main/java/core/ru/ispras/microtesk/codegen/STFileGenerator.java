@@ -27,8 +27,7 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * The {@link STFileGenerator} class implements logic that generates a source code
- * file from string templates.
+ * The {@link STFileGenerator} class generates source code files on the basis of string templates.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -38,8 +37,8 @@ public final class STFileGenerator implements FileGenerator {
   private final STBuilder templateBuilder;
 
   /**
-   * Creates a class code generator parameterized with a hierarchy template groups, with a builder
-   * that will initialized the class code template and with the full name to the target output file.
+   * Constructs a code generator parameterized with a hierarchy template groups, with a builder
+   * that will initialize the code template and with the full name to the target output file.
    *
    * @param outputFile The full name of the target output file.
    * @param templateGroupFiles List of template group files. Important: the order is from the root
