@@ -88,7 +88,7 @@ public final class STFileGenerator implements FileGenerator {
   }
 
   /**
-   * Generates the target fail.
+   * Generates the target file.
    *
    * @throws IOException It is raised if the methods fails to create the target file.
    */
