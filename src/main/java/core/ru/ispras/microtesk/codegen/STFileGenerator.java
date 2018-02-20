@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -69,7 +69,8 @@ public final class STFileGenerator implements FileGenerator {
     final STGroup group = loadTemplateGroups();
     final ST template = templateBuilder.build(group);
 
-    saveTemplate(template);
+    final File file = FileUtils.newFile(outputFile);
+    template.write(file, ErrorListener.get());
   }
 
   /**
@@ -91,16 +92,5 @@ public final class STFileGenerator implements FileGenerator {
     }
 
     return parentGroup;
-  }
-
-  /**
-   * Create a file and saves an initialized template to it.
-   *
-   * @param template An initialized file template.
-   * @throws IOException It is raised if the methods fails to create the target file.
-   */
-  private void saveTemplate(final ST template) throws IOException {
-    final File file = FileUtils.newFile(outputFile);
-    template.write(file, ErrorListener.get());
   }
 }
