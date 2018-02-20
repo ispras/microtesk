@@ -29,13 +29,13 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 import java.util.ArrayList;
 import java.util.List;
 
-final class STBDecoderGroup implements StringTemplateBuilder {
+final class StbDecoderGroup implements StringTemplateBuilder {
   private final String modelName;
   private final String name;
   private final ImageInfo imageInfo;
   private final List<String> items;
 
-  public STBDecoderGroup(final String modelName, final PrimitiveOR group) {
+  public StbDecoderGroup(final String modelName, final PrimitiveOR group) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(group);
     InvariantChecks.checkNotNull(group.getInfo().getImageInfo());
@@ -52,7 +52,7 @@ final class STBDecoderGroup implements StringTemplateBuilder {
     }
   }
 
-  public STBDecoderGroup(final String modelName, final List<Primitive> roots) {
+  public StbDecoderGroup(final String modelName, final List<Primitive> roots) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(roots);
 

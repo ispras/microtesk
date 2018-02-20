@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-final class STBDecoder implements StringTemplateBuilder {
+final class StbDecoder implements StringTemplateBuilder {
   private final String name;
   private final String modelName;
   private final ImageInfo imageInfo;
@@ -58,7 +58,7 @@ final class STBDecoder implements StringTemplateBuilder {
   private final Set<String> imported;
   private final Set<String> undecoded;
 
-  public STBDecoder(final String modelName, final PrimitiveAND item) {
+  public StbDecoder(final String modelName, final PrimitiveAND item) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(item);
     InvariantChecks.checkNotNull(item.getInfo().getImageInfo());

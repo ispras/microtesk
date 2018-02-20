@@ -72,7 +72,7 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
       }
     }
 
-    generateFile(null, new STBDecoderGroup(getModelName(), roots));
+    generateFile(null, new StbDecoderGroup(getModelName(), roots));
   }
 
   private final class Visitor extends IrVisitorDefault {
@@ -83,9 +83,9 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
       }
 
       if (item.isOrRule()) {
-        generateFile(item.getName(), new STBDecoderGroup(getModelName(), (PrimitiveOR) item));
+        generateFile(item.getName(), new StbDecoderGroup(getModelName(), (PrimitiveOR) item));
       } else {
-        generateFile(item.getName(), new STBDecoder(getModelName(), (PrimitiveAND) item));
+        generateFile(item.getName(), new StbDecoder(getModelName(), (PrimitiveAND) item));
       }
     }
   }

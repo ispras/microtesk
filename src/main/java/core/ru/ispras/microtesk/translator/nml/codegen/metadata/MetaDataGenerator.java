@@ -84,20 +84,20 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
   }
 
   private void generateGroup(final PrimitiveOR item) {
-    generateFile(item.getName(), new STBGroup(getModelName(), item));
+    generateFile(item.getName(), new StbGroup(getModelName(), item));
   }
 
   private void generateAddressingMode(final PrimitiveAND item) {
-    generateFile(item.getName(), new STBAddressingMode(getModelName(), item));
+    generateFile(item.getName(), new StbAddressingMode(getModelName(), item));
   }
 
   private void generateOperation(final PrimitiveAND item) {
-    generateFile(item.getName(), new STBOperation(getModelName(), item));
+    generateFile(item.getName(), new StbOperation(getModelName(), item));
   }
 
   private void generateModel() {
     InvariantChecks.checkNotNull(ir);
-    generateFile(STBModel.CLASS_NAME, new STBModel(ir));
+    generateFile(StbModel.CLASS_NAME, new StbModel(ir));
   }
 
   private void generateFile(

@@ -30,12 +30,12 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 
 import java.math.BigInteger;
 
-final class STBModel implements StringTemplateBuilder {
+final class StbModel implements StringTemplateBuilder {
   public static final String CLASS_NAME = "MetaModelFactory";
 
   private final Ir ir;
 
-  public STBModel(final Ir ir) {
+  public StbModel(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
     this.ir = ir;
   }
