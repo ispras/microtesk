@@ -45,7 +45,14 @@ public final class GroupTemplate extends GeneratedTemplate {
     for (TemplateOperation operation : operationsGroup) {
       templatePrinter.addString("");
       // operation.printOperationBlock(templatePrinter);
-      operation.printOperation(templatePrinter);
+      if (null != operation.getPreCommand() && !operation.getPreCommand().isEmpty())
+      {
+        templatePrinter.startSequence("sequence {");
+        operation.printOperationBlock(templatePrinter);
+        templatePrinter.closeSequence("}");
+      } else {
+        operation.printOperation(templatePrinter);
+      }
     }
 
     templatePrinter.closeSequence("}");
