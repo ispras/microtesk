@@ -46,7 +46,7 @@ public class TemplateOperation {
   private String[] postCommand;
 
   TemplateOperation(final MetaOperation operation, final TemplatePrinter templatePrinter) {
-    printMetaOperation(operation);
+    // TODO: printMetaOperation(operation);
 
     this.templatePrinter = templatePrinter;
     name = this.templatePrinter.formattingOperation(operation.getName());
