@@ -22,9 +22,14 @@ package ru.ispras.microtesk.tools.templgen.printers;
 
 public interface TemplatePrinter {
   /**
-   * Adds a header to template file.
+   * Adds a title to template file.
    */
   public abstract void templateBegin();
+
+  /**
+   * Adds a header to template file.
+   */
+  public abstract void addHeader();
 
   /**
    * Adds the data region to template file.

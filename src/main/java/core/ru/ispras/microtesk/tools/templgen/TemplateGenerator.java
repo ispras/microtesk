@@ -49,10 +49,25 @@ public final class TemplateGenerator {
 
     String baseTemplateName = options.getValueAsString(Option.BASE_TEMPLATE_NAME);
     if (baseTemplateName.isEmpty()) {
-      Logger.warning(
-          "Failed to get the base template name for the '%s' model. The base template was named as model.",
-          modelName);
+      Logger.warning("Failed to get the base template name for the '%s' model."
+          + " The base template was named as model.", modelName);
       baseTemplateName = modelName;
+    }
+
+    String outPutDirectory;
+    if (options.hasValue(Option.OUTDIR)) {
+      outPutDirectory = options.getValueAsString(Option.OUTDIR);
+    } else {
+      if (!options.hasValue(Option.ARCH_DIRS)) {
+        Logger.error("The --%s option is undefined.", Option.ARCH_DIRS.getName());
+        outPutDirectory = "";
+      } else {
+        final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
+        final String archPath = SysUtils.getArchDir(archDirs, modelName);
+        outPutDirectory = archPath.replaceFirst("settings.xml", "templates/");
+        // System.out.println(outPutDirectory);
+        // TODO:
+      }
     }
 
     final Model model = loadModel(modelName);
@@ -60,17 +75,19 @@ public final class TemplateGenerator {
 
     boolean generatedResult = true;
 
-    final SimpleTemplate simpleTemplate = new SimpleTemplate(metaModel,
-        new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME, modelName, baseTemplateName));
+    final SimpleTemplate simpleTemplate =
+        new SimpleTemplate(metaModel, new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME,
+            modelName, baseTemplateName, outPutDirectory));
     generatedResult = generatedResult & simpleTemplate.generate();
 
-    final GroupTemplate groupTemplate = new GroupTemplate(metaModel,
-        new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME, modelName, baseTemplateName));
+    final GroupTemplate groupTemplate =
+        new GroupTemplate(metaModel, new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME,
+            modelName, baseTemplateName, outPutDirectory));
     generatedResult = generatedResult & groupTemplate.generate();
 
-    final BoundaryValuesTemplate boundaryTemplate =
-        new BoundaryValuesTemplate(metaModel, new RubyTemplatePrinter(
-            BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME, modelName, baseTemplateName));
+    final BoundaryValuesTemplate boundaryTemplate = new BoundaryValuesTemplate(metaModel,
+        new RubyTemplatePrinter(BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME, modelName,
+            baseTemplateName, outPutDirectory));
     generatedResult = generatedResult & boundaryTemplate.generate();
 
     return generatedResult;
