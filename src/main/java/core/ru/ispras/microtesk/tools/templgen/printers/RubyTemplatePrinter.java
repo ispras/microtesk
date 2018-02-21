@@ -15,14 +15,11 @@
 package ru.ispras.microtesk.tools.templgen.printers;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.FileUtils;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.util.Date;
 
 /**
@@ -52,16 +49,23 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
    * @param baseTemplateName the base template name.
    * @param outputDirectory the output directory for template file.
    */
-  public RubyTemplatePrinter(final String templateName, final String modelName,
-      final String baseTemplateName, final String outputDirectory) {
+  public RubyTemplatePrinter(
+      final String templateName,
+      final String modelName,
+      final String baseTemplateName,
+      final String outputDirectory) {
     this.modelName = modelName;
     this.templateName = templateName;
     this.baseTemplateName = baseTemplateName;
 
-    final File templateFile =
-        new File(outputDirectory + templateName.toLowerCase() + TEMPLATE_FILE_NAME);
-    // TODO:
-    printWriter = newPrintWriter(templateFile);
+    final File templateFile = FileUtils.newFile(
+        outputDirectory + templateName.toLowerCase() + TEMPLATE_FILE_NAME);
+
+    try {
+      printWriter = new PrintWriter(templateFile);
+    } catch (final FileNotFoundException e) {
+      throw new IllegalArgumentException(e);
+    }
   }
 
   /**
@@ -84,29 +88,6 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
       }
     }
     return operationName;
-  }
-
-  private BufferedWriter newBufferedWriter(final File file) {
-    InvariantChecks.checkNotNull(file);
-    try {
-      return new BufferedWriter(
-          new OutputStreamWriter(new FileOutputStream(file), Charset.defaultCharset()));
-    } catch (final IOException e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
-
-  /*
-   * Creates new {@code PrintWriter}.
-   *
-   * @param file filename of new {@code PrintWriter}.
-   *
-   * @return new {@code PrintWriter}.
-   */
-  private PrintWriter newPrintWriter(final File file) {
-    InvariantChecks.checkNotNull(file);
-    return new PrintWriter(newBufferedWriter(file));
   }
 
   @Override
