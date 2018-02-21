@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.generation.metadata;
+package ru.ispras.microtesk.translator.nml.codegen.metadata;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -29,11 +29,11 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 
 import java.util.Map;
 
-final class STBAddressingMode implements StringTemplateBuilder {
+final class StbAddressingMode implements StringTemplateBuilder {
   private final String modelName;
   private final PrimitiveAND primitive;
 
-  public STBAddressingMode(final String modelName, final PrimitiveAND primitive) {
+  public StbAddressingMode(final String modelName, final PrimitiveAND primitive) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(primitive);
     this.modelName = modelName;

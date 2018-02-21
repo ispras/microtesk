@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.generation.decoder;
+package ru.ispras.microtesk.translator.nml.codegen.decoder;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -31,7 +31,7 @@ import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.decoder.DecoderItem;
 import ru.ispras.microtesk.model.decoder.DecoderResult;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
-import ru.ispras.microtesk.translator.nml.generation.ExprPrinter;
+import ru.ispras.microtesk.translator.nml.codegen.ExprPrinter;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-final class STBDecoder implements StringTemplateBuilder {
+final class StbDecoder implements StringTemplateBuilder {
   private final String name;
   private final String modelName;
   private final ImageInfo imageInfo;
@@ -58,7 +58,7 @@ final class STBDecoder implements StringTemplateBuilder {
   private final Set<String> imported;
   private final Set<String> undecoded;
 
-  public STBDecoder(final String modelName, final PrimitiveAND item) {
+  public StbDecoder(final String modelName, final PrimitiveAND item) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(item);
     InvariantChecks.checkNotNull(item.getInfo().getImageInfo());

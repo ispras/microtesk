@@ -12,16 +12,16 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.generation.metadata;
+package ru.ispras.microtesk.translator.nml.codegen.metadata;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
+import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
-import ru.ispras.microtesk.translator.nml.generation.ExprPrinter;
+import ru.ispras.microtesk.translator.nml.codegen.ExprPrinter;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
@@ -30,12 +30,12 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 
 import java.math.BigInteger;
 
-final class STBModel implements StringTemplateBuilder {
+final class StbModel implements StringTemplateBuilder {
   public static final String CLASS_NAME = "MetaModelFactory";
 
   private final Ir ir;
 
-  public STBModel(final Ir ir) {
+  public StbModel(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
     this.ir = ir;
   }

@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.generation.metadata;
+package ru.ispras.microtesk.translator.nml.codegen.metadata;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -28,11 +28,11 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 
-final class STBOperation implements StringTemplateBuilder {
+final class StbOperation implements StringTemplateBuilder {
   private final String modelName;
   private final PrimitiveAND primitive;
 
-  public STBOperation(final String modelName, final PrimitiveAND primitive) {
+  public StbOperation(final String modelName, final PrimitiveAND primitive) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(primitive);
     this.modelName = modelName;
@@ -65,13 +65,13 @@ final class STBOperation implements StringTemplateBuilder {
     final PrimitiveInfo info = primitive.getInfo();
 
     final ST stConstructor = group.getInstanceOf("constructor");
-    STBAddressingMode.buildName(primitive.getName(), stConstructor);
+    StbAddressingMode.buildName(primitive.getName(), stConstructor);
 
     stConstructor.add("args", "\"" + primitive.getName() + "\"");
     stConstructor.add("args", primitive.isRoot());
 
     buildFlags(info, stConstructor);
-    STBAddressingMode.buildArguments(group, stConstructor, primitive);
+    StbAddressingMode.buildArguments(group, stConstructor, primitive);
 
     st.add("members", "");
     st.add("members", stConstructor);

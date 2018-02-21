@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.generation.metadata;
+package ru.ispras.microtesk.translator.nml.codegen.decoder;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.FileGenerator;
@@ -21,7 +21,6 @@ import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
-
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
@@ -30,15 +29,16 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
-public final class MetaDataGenerator implements TranslatorHandler<Ir> {
+public final class DecoderGenerator implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;
   private Ir ir;
 
-  public MetaDataGenerator(final Translator<Ir> translator) {
+  public DecoderGenerator(final Translator<Ir> translator) {
     InvariantChecks.checkNotNull(translator);
     this.translator = translator;
-    this.ir = null;
   }
 
   private String getOutDir() {
@@ -51,7 +51,7 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
     this.ir = ir;
 
     generatePrimitives();
-    generateModel();
+    generateDecoder();
   }
 
   private void generatePrimitives() {
@@ -61,43 +61,33 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
     walker.visit(visitor, IrWalker.Direction.LINEAR);
   }
 
+  private void generateDecoder() {
+    InvariantChecks.checkNotNull(ir);
+
+    List<Primitive> roots = Collections.emptyList();
+    for (final Primitive primitive : ir.getRoots()) {
+      if (primitive.getName().equalsIgnoreCase("instruction")) {
+        roots = Collections.singletonList(primitive);
+        break;
+      }
+    }
+
+    generateFile(null, new StbDecoderGroup(getModelName(), roots));
+  }
+
   private final class Visitor extends IrVisitorDefault {
     @Override
     public void onPrimitiveBegin(final Primitive item) {
-      if (item.getModifier() == Primitive.Modifier.INTERNAL) {
+      if (null == item.getInfo().getImageInfo()) {
         return;
       }
 
       if (item.isOrRule()) {
-        generateGroup((PrimitiveOR) item);
-        return;
-      }
-
-      if (item.getKind() == Primitive.Kind.MODE) {
-        generateAddressingMode((PrimitiveAND) item);
-      } else if (item.getKind() == Primitive.Kind.OP) {
-        generateOperation((PrimitiveAND) item);
+        generateFile(item.getName(), new StbDecoderGroup(getModelName(), (PrimitiveOR) item));
       } else {
-        throw new IllegalArgumentException("Unknown kind: " + item.getKind());
+        generateFile(item.getName(), new StbDecoder(getModelName(), (PrimitiveAND) item));
       }
     }
-  }
-
-  private void generateGroup(final PrimitiveOR item) {
-    generateFile(item.getName(), new STBGroup(getModelName(), item));
-  }
-
-  private void generateAddressingMode(final PrimitiveAND item) {
-    generateFile(item.getName(), new STBAddressingMode(getModelName(), item));
-  }
-
-  private void generateOperation(final PrimitiveAND item) {
-    generateFile(item.getName(), new STBOperation(getModelName(), item));
-  }
-
-  private void generateModel() {
-    InvariantChecks.checkNotNull(ir);
-    generateFile(STBModel.CLASS_NAME, new STBModel(ir));
   }
 
   private void generateFile(
@@ -105,7 +95,7 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
       final StringTemplateBuilder templateBuilder) {
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "MetaModel.stg"
+        PackageInfo.NML_TEMPLATE_DIR + "Decoder.stg"
         };
 
     final FileGenerator generator = new FileGeneratorStringTemplate(
@@ -121,15 +111,28 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
   private String getFileName(final String className) {
     InvariantChecks.checkNotNull(ir);
     return String.format(
-        "%s/%s/metadata/%s.java",
+        "%s/%s/decoder/%s.java",
         PackageInfo.getModelOutDir(getOutDir()),
         getModelName(),
-        className
+        getDecoderName(className)
         );
   }
 
   private String getModelName() {
     InvariantChecks.checkNotNull(ir);
     return ir.getModelName();
+  }
+
+  public static String getDecoderName(final String name) {
+    final StringBuilder sb = new StringBuilder("Decoder");
+
+    if (null != name && !name.isEmpty()) {
+      sb.append(Character.toUpperCase(name.charAt(0)));
+      if (name.length() > 1) {
+        sb.append(name.substring(1, name.length()));
+      }
+    }
+
+    return sb.toString();
   }
 }

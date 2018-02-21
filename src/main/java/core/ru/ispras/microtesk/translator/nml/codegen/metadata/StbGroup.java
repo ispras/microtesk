@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.generation.metadata;
+package ru.ispras.microtesk.translator.nml.codegen.metadata;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -24,11 +24,11 @@ import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
-final class STBGroup implements StringTemplateBuilder {
+final class StbGroup implements StringTemplateBuilder {
   private final String modelName;
   private final PrimitiveOR primitive;
 
-  public STBGroup(final String modelName, final PrimitiveOR primitive) {
+  public StbGroup(final String modelName, final PrimitiveOR primitive) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(primitive);
     this.modelName = modelName;
