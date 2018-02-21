@@ -421,6 +421,8 @@ task copyEtc(type: Copy) {
   into "${project.projectDir}/build/target/etc"
 }
 
+copyEtc.dependsOn jar
+
 task translateCpu(type: JavaExec) {
   classpath = files('build/libs/microtesk.jar')
   classpath += sourceSets.main.runtimeClasspath
@@ -558,6 +560,30 @@ compileModels.dependsOn translateVmem
 compileModels.dependsOn translateMinimips
 compileModels.dependsOn translateX86
 
+task copyModelsJar(type: Copy) {
+  from jarModels
+  into "${project.projectDir}/build/target/lib/jars"
+}
+
+copyModelsJar.dependsOn jarModels
+
+task generateMinimipsTemplates(type: JavaExec) {
+  classpath = files("${project.projectDir}/build/libs/microtesk.jar")
+  classpath += sourceSets.main.runtimeClasspath
+  environment 'MICROTESK_HOME', "${project.projectDir}/build/target"
+  main = mainClassName
+  args = [
+    '-gt',
+    'minimips',
+    '-btn',
+    'MiniMipsBaseTemplate'
+  ]
+}
+
+generateMinimipsTemplates.dependsOn copyModelsJar
+
+distTar.dependsOn generateMinimipsTemplates
+
 tasks.withType(Tar) {
   compression = Compression.GZIP
   extension = 'tar.gz'
@@ -573,6 +599,11 @@ distributions {
 
       into('lib') {
         from jarModels
+      }
+
+      // Copies all automatically generated templates
+      from("${project.projectDir}/build/target/arch") {
+        into('arch')
       }
 
       from('src/main/arch') {
