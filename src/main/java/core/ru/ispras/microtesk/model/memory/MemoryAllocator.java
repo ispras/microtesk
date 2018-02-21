@@ -204,6 +204,37 @@ public final class MemoryAllocator {
     return allocate(Arrays.asList(data));
   }
 
+  /**
+   * Allocates memory in the memory storage to hold data elements in the specified list
+   * and return the address (in addressable units) of the first element. The data is aligned
+   * in memory by the size of data elements (in addressable units). Space between allocations
+   * (if any is left) is filled with zeros.
+   *
+   * @param data Collection of data elements to be stored in the memory storage.
+   * @return Address of the first allocated element.
+   *
+   * @throws IllegalArgumentException if the parameter is {@code null};
+   *         if the list is empty or it list elements have different sizes.
+   */
+  public BigInteger allocate(final List<BitVector> data) {
+    InvariantChecks.checkNotNull(data);
+
+    if (data.isEmpty()) {
+      throw new IllegalArgumentException("The list is empty.");
+    }
+
+    checkEqualBitSize(data);
+
+    final Iterator<BitVector> dataIt = data.iterator();
+    final BigInteger address = allocate(dataIt.next());
+
+    while (dataIt.hasNext()) {
+      allocate(dataIt.next());
+    }
+
+    return address;
+  }
+
   public void allocateAt(final BitVector data, final BigInteger address) {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkNotNull(address);
@@ -259,37 +290,6 @@ public final class MemoryAllocator {
 
   private BigInteger regionIndexForAddress(final BigInteger address) {
     return address.divide(BigInteger.valueOf(addressableUnitsInRegion));
-  }
-
-  /**
-   * Allocates memory in the memory storage to hold data elements in the specified list
-   * and return the address (in addressable units) of the first element. The data is aligned
-   * in memory by the size of data elements (in addressable units). Space between allocations
-   * (if any is left) is filled with zeros.
-   *
-   * @param data Collection of data elements to be stored in the memory storage.
-   * @return Address of the first allocated element.
-   *
-   * @throws IllegalArgumentException if the parameter is {@code null};
-   *         if the list is empty or it list elements have different sizes.
-   */
-  public BigInteger allocate(final List<BitVector> data) {
-    InvariantChecks.checkNotNull(data);
-
-    if (data.isEmpty()) {
-      throw new IllegalArgumentException("The list is empty.");
-    }
-
-    checkEqualBitSize(data);
-
-    final Iterator<BitVector> dataIt = data.iterator();
-    final BigInteger address = allocate(dataIt.next());
-
-    while (dataIt.hasNext()) {
-      allocate(dataIt.next());
-    }
-
-    return address;
   }
 
   /**
