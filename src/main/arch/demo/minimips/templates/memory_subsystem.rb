@@ -42,7 +42,6 @@ class MemorySubsystemTemplate < MiniMipsBaseTemplate
       sw t1, 0, t0
     }
 
-    org 0x10000
   end
 
   def run
