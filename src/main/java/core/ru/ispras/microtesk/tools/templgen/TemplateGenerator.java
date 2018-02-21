@@ -47,10 +47,12 @@ public final class TemplateGenerator {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(modelName);
 
-    final String baseTemplateName = options.getValueAsString(Option.BASE_TEMPLATE_NAME);
+    String baseTemplateName = options.getValueAsString(Option.BASE_TEMPLATE_NAME);
     if (baseTemplateName.isEmpty()) {
-      Logger.warning("Failed to get the base template name for the %s model.", modelName);
-      // TODO:
+      Logger.warning(
+          "Failed to get the base template name for the '%s' model. The base template was named as model.",
+          modelName);
+      baseTemplateName = modelName;
     }
 
     final Model model = loadModel(modelName);
@@ -59,15 +61,16 @@ public final class TemplateGenerator {
     boolean generatedResult = true;
 
     final SimpleTemplate simpleTemplate = new SimpleTemplate(metaModel,
-        new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME, modelName));
+        new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME, modelName, baseTemplateName));
     generatedResult = generatedResult & simpleTemplate.generate();
 
     final GroupTemplate groupTemplate = new GroupTemplate(metaModel,
-        new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME, modelName));
+        new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME, modelName, baseTemplateName));
     generatedResult = generatedResult & groupTemplate.generate();
 
-    final BoundaryValuesTemplate boundaryTemplate = new BoundaryValuesTemplate(metaModel,
-        new RubyTemplatePrinter(BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME, modelName));
+    final BoundaryValuesTemplate boundaryTemplate =
+        new BoundaryValuesTemplate(metaModel, new RubyTemplatePrinter(
+            BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME, modelName, baseTemplateName));
     generatedResult = generatedResult & boundaryTemplate.generate();
 
     return generatedResult;

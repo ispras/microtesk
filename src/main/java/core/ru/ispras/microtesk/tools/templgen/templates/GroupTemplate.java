@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class GroupTemplate extends GeneratedTemplate {
-  public static final String GROUP_TEMPLATE_NAME = "group";
+  public static final String GROUP_TEMPLATE_NAME = "Group";
 
   public GroupTemplate(final MetaModel metaModel, final TemplatePrinter printer) {
     super(metaModel, printer);
@@ -44,7 +44,8 @@ public final class GroupTemplate extends GeneratedTemplate {
 
     for (TemplateOperation operation : operationsGroup) {
       templatePrinter.addString("");
-      operation.printOperationBlock(templatePrinter);
+      // operation.printOperationBlock(templatePrinter);
+      operation.printOperation(templatePrinter);
     }
 
     templatePrinter.closeSequence("}");
@@ -53,6 +54,8 @@ public final class GroupTemplate extends GeneratedTemplate {
   @Override
   public boolean generate() {
     templatePrinter.templateBegin();
+    templatePrinter.addString("set_default_mode_allocator mode_allocator('FREE')");
+    templatePrinter.addString("");
 
     Set<TemplateOperation> branchSet = new HashSet<TemplateOperation>();
     Set<TemplateOperation> storeSet = new HashSet<TemplateOperation>();

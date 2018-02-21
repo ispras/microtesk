@@ -29,13 +29,16 @@ import java.util.Iterator;
  */
 public class TemplateOperation {
   private static final int JUMP_REG = 3;
+  private static final int DATA_REG = 5;
 
   private final String name; // Operation name
   private final boolean branch;
+  private final boolean jump;
   private final boolean store;
   private final boolean load;
   private final boolean arithmetic;
   private final String command;
+  private final TemplatePrinter templatePrinter;
 
   private String branchLabel;
   private String regTitle;
@@ -45,10 +48,12 @@ public class TemplateOperation {
   TemplateOperation(final MetaOperation operation, final TemplatePrinter templatePrinter) {
     printMetaOperation(operation);
 
-    name = templatePrinter.formattingOperation(operation.getName());
+    this.templatePrinter = templatePrinter;
+    name = this.templatePrinter.formattingOperation(operation.getName());
 
     // TODO: branch
     branch = (name.startsWith("b") || name.startsWith("j")) ? Boolean.TRUE : Boolean.FALSE;
+    jump = (name.startsWith("j")) ? Boolean.TRUE : Boolean.FALSE;
 
     load = (operation.isLoad()) ? Boolean.TRUE : Boolean.FALSE;
     store = (operation.isStore()) ? Boolean.TRUE : Boolean.FALSE;
@@ -62,22 +67,57 @@ public class TemplateOperation {
 
       if (regTitle != "JUMP_LABEL" && regTitle != "BRANCH_LABEL" && regTitle != "BRANCH_LABEL_M2"
           && regTitle != "JUMP_LABEL_M2") {
-        System.out.println(regTitle);
+        // System.out.println(regTitle);
+        // TODO:
         preCommand = prepareReg(regTitle);
+      } else if (jump) {
+        int temp = getArgumentNumbers(operation.getArguments(), IsaPrimitiveKind.MODE);
+
+        MetaArgument tempArg = null;
+        if (temp > 1) {
+          tempArg = getArgument(operation.getArguments(), IsaPrimitiveKind.MODE, temp - 1);
+        }
+
+        if (null != tempArg) {
+          Collection<String> tempTypes = tempArg.getTypeNames();
+
+          for (String tempType : tempTypes) {
+            preCommand = prepareReg(tempType);
+            break;
+          }
+        }
       } else {
         preCommand = "";
       }
-
       postCommand = new String[3];
       postCommand[0] = String.format("nop");
       postCommand[1] = String.format("label " + branchLabel);
       postCommand[2] = String.format("nop");
     }
 
+    if (load || store) {
+      int temp = getArgumentNumbers(operation.getArguments(), IsaPrimitiveKind.MODE);
+
+      MetaArgument tempArg = null;
+      if (temp > 1) {
+        tempArg = getArgument(operation.getArguments(), IsaPrimitiveKind.MODE, temp);
+      }
+
+      if (null != tempArg) {
+        Collection<String> tempTypes = tempArg.getTypeNames();
+
+        for (String tempType : tempTypes) {
+          preCommand = prepareReg(tempType, DATA_REG, templatePrinter.getDataLabel());
+          // TODO
+          break;
+        }
+      }
+    }
+
     command = setCommand(operation.getArguments(), name);
   }
 
-  private static void printMetaOperation(MetaOperation operation) {
+  private static void printMetaOperation(final MetaOperation operation) {
     System.out.format("getTypeName: %s \n", operation.toString());
     System.out.format("Operation: %s \n", operation.getName());
     System.out.format("getTypeName: %s \n", operation.getTypeName());
@@ -119,37 +159,50 @@ public class TemplateOperation {
 
       if ((argument.getKind() == IsaPrimitiveKind.MODE)) {
         boolean printLabel = false;
-        //for (String tempType : tempTypes) {
-        if (tempTypes != null) {System.out.println("!!!!!!!!!!!!!!!             " + tempTypes.size());}
+        // for (String tempType : tempTypes) {
+        // if (tempTypes != null) {System.out.println("!!!!!!!!!!!!!!! " + tempTypes.size());}
         Object[] strArray = (Object[]) tempTypes.toArray();
         String tempType = (String) strArray[0];
-          if (tempType == "BRANCH_IMM" || tempType == "BRANCH_LABEL" || tempType == "JUMP_IMM"
-              || tempType == "JUMP_LABEL" || tempType == "BRANCH_LABEL_M2"
-              || tempType == "JUMP_LABEL_M2") {
-            if (!printLabel) {
-              tempCommand += branchLabel;
-              printLabel = true;
-            }
-          } else {
-            if (argument.getMode() == ArgumentMode.IN && branch
-                && getArgumentNumbers(arguments, IsaPrimitiveKind.IMM) == 0
-                && !iterator.hasNext()) {
-              tempCommand += String.format("%s(%x)", tempType.toLowerCase(), JUMP_REG);
+        if (tempType == "BRANCH_IMM" || tempType == "BRANCH_LABEL" || tempType == "JUMP_IMM"
+            || tempType == "JUMP_LABEL" || tempType == "BRANCH_LABEL_M2"
+            || tempType == "JUMP_LABEL_M2") {
+          if (!printLabel) {
+            if (null != branchLabel) {
+              if (jump && getArgumentNumbers(arguments, IsaPrimitiveKind.MODE) > 2) {
+                tempCommand += String.format("0");
+              } else {
+                tempCommand += branchLabel;
+              }
             } else {
-              tempCommand += String.format("%s(_)", tempType.toLowerCase());
+              tempCommand += "_";
             }
+            printLabel = true;
           }
-        //}
+        } else {
+          if ((argument.getMode() == ArgumentMode.IN && branch
+              && getArgumentNumbers(arguments, IsaPrimitiveKind.IMM) == 0 && !iterator.hasNext())
+              || (argument.getMode() == ArgumentMode.IN && jump)) {
+            tempCommand += String.format("%s(%x)", tempType.toLowerCase(), JUMP_REG);
+          } else if (tempTypes.size() > 1) {
+            tempCommand += String.format("%s()", tempType.toLowerCase());
+          } else if ((load || store) && argument.getMode() == ArgumentMode.IN) {
+            tempCommand += String.format("%s(%s)", tempType.toLowerCase(), DATA_REG);
+          } else {
+            tempCommand += String.format("%s(_)", tempType.toLowerCase());
+          }
+        }
+        // }
       }
 
       if (argument.getKind() == IsaPrimitiveKind.IMM) {
-        if (!branch) {
-          /*
-           * tempCommand += String.format("rand(%s, %s)", 0, (long) Math.pow(2,
-           * argument.getDataType().getBitSize()) - 1);
-           */
+        if (load || store) {
+          tempCommand += this.templatePrinter.getDataLabel();
+        } else if (!branch) {
+          // tempCommand += String.format("rand(%s, %s)", 0, (long) Math.pow(2,
+          // argument.getDataType().getBitSize()) - 1);
           tempCommand += String.format("_");
         } else {
+          System.out.println("Temp");
           tempCommand += branchLabel;
         }
       }
@@ -177,6 +230,23 @@ public class TemplateOperation {
     return null;
   }
 
+  private static MetaArgument getArgument(final Iterable<MetaArgument> arguments,
+      final IsaPrimitiveKind type, final int number) {
+    // TODO; del
+    InvariantChecks.checkNotNull(arguments);
+    InvariantChecks.checkNotNull(type);
+    int argumentNumbers = 0;
+    for (MetaArgument argument : arguments) {
+      if (argument.getKind() == type) {
+        argumentNumbers++;
+      }
+      if (number == argumentNumbers) {
+        return argument;
+      }
+    }
+    return null;
+  }
+
   private static int getArgumentNumbers(final Iterable<MetaArgument> arguments,
       final IsaPrimitiveKind type) {
     InvariantChecks.checkNotNull(arguments);
@@ -190,15 +260,22 @@ public class TemplateOperation {
     return argumentNumbers;
   }
 
-  private static int getArgumentsNumber(Iterable<MetaArgument> arguments) {
+  private static int getArgumentsNumber(final Iterable<MetaArgument> arguments) {
     if (arguments instanceof Collection<?>) {
       return ((Collection<?>) arguments).size();
     }
     return 0;
   }
 
-  private String prepareReg(String regType) {
-    return String.format("la %s(%x), %s", regType, JUMP_REG, branchLabel);
+  private String prepareReg(final String regType) {
+    return String.format("la %s(%x), %s", regType.toLowerCase(), JUMP_REG, branchLabel);
+    // TODO prepare REG(1), get_address_of(:j_label)
+  }
+
+  private String prepareReg(final String regType, final int number, final String label) {
+    return String.format("la %s(%x), %s", regType.toLowerCase(), number, label);
+    // return String.format("prepare %s(%x), get_address_of(%s)", regType.toLowerCase(), number,
+    // label);
     // TODO prepare REG(1), get_address_of(:j_label)
   }
 
@@ -236,12 +313,12 @@ public class TemplateOperation {
   }
 
   /**
-   * Prints operation to the {@code TemplatePrinter}.
+   * Prints operation (with pre and post commands) to the {@code TemplatePrinter}.
    *
    * @param templatePrinter the templates printer.
    */
   public void printOperationBlock(final TemplatePrinter templatePrinter) {
-    if (branch) {
+    if (branch || store || load) {
       String tempPreCommand = this.getPreCommand();
       if (tempPreCommand != null && !tempPreCommand.isEmpty()) {
         templatePrinter.addString(tempPreCommand);
@@ -255,5 +332,14 @@ public class TemplateOperation {
         templatePrinter.addString(postCommand[i]);
       }
     }
+  }
+
+  /**
+   * Prints operation to the {@code TemplatePrinter}.
+   *
+   * @param templatePrinter the templates printer.
+   */
+  public void printOperation(final TemplatePrinter templatePrinter) {
+    templatePrinter.addString(this.getCommand());
   }
 }

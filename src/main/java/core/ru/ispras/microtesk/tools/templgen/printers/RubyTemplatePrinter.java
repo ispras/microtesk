@@ -36,8 +36,10 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
   private int nowLevel;
   private final String modelName;
   private final String templateName;
+  private final String baseTemplateName;
 
   static final String TEMPLATE_FILE_NAME = "_autogentemplate.rb";
+  static final String TEMPLATE_DATA_LABLE = ":data";
 
   private PrintWriter printWriter;
 
@@ -45,17 +47,21 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
    * Constructs a ruby printer with the specified template name.
    *
    * @param templateName the template name.
+   * @param modelName the model name.
+   * @param baseTemplateName the base template name.
    */
-  public RubyTemplatePrinter(final String templateName, final String modelName) {
+  public RubyTemplatePrinter(final String templateName, final String modelName,
+      final String baseTemplateName) {
     this.modelName = modelName;
     this.templateName = templateName;
+    this.baseTemplateName = baseTemplateName;
 
     final File templateFile = new File(templateName + TEMPLATE_FILE_NAME);
     printWriter = newPrintWriter(templateFile);
   }
 
   @Override
-  public String formattingOperation(String operationName) {
+  public String formattingOperation(final String operationName) {
     for (String rubyKeywords : RUBY_KEYWORDS) {
       if (rubyKeywords == operationName) {
         return operationName.toUpperCase();
@@ -90,21 +96,48 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
   @Override
   public void templateBegin() {
     // Adds xml data
-    this.printWriter.print(
-        "require_relative '" + modelName + "_base'\r\n\n" + "class " + templateName.toUpperCase()
-            + "GenTemplate < " + modelName.toUpperCase() + "BaseTemplate\r\n");
-    nowLevel++;
-    this.addTab(nowLevel);
-    this.printWriter.print("def run\r\n");
-    nowLevel++;
-    this.addTab(nowLevel);
-    this.printWriter.print("org 0x00020000\n");
+    final String tempBaseTemplate =
+        this.baseTemplateName.equals(this.modelName) ? this.modelName.toUpperCase() + "BaseTemplate"
+            : this.baseTemplateName;
+
+    this.addString("require_relative '" + this.modelName + "_base'");
+    this.addString("");
+    this.addString("class " + this.templateName + "GenTemplate < " + tempBaseTemplate);
+
+    this.nowLevel++;
+    this.addDataRegion();
+    this.addString("def run");
+    this.nowLevel++;
+    // this.addString("org 0x00020000");
   }
 
-  private void addTab(int tabCount) {
+  private void addTab(final int tabCount) {
     for (int i = 0; i < tabCount; i++) {
       this.printWriter.print(RUBY_TAB);
     }
+  }
+
+  @Override
+  public void addDataRegion() {
+    this.addString("def pre");
+    this.nowLevel++;
+    this.addString("super");
+    this.addString("data {");
+    this.nowLevel++;
+    this.addString("label " + TEMPLATE_DATA_LABLE);
+    this.addString("word rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9)");
+    this.addString("label :end_data");
+    this.addString("space 1");
+    this.nowLevel--;
+    this.addString("}");
+    this.nowLevel--;
+    this.addString("end");
+    this.addString("");
+  }
+
+  @Override
+  public String getDataLabel() {
+    return TEMPLATE_DATA_LABLE;
   }
 
   /**
@@ -112,41 +145,41 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
    *
    * @param operation Operation syntax.
    */
-  public void addOperation(String operation) {
+  public void addOperation(final String operation) {
     InvariantChecks.checkNotNull(operation);
     this.addTab(nowLevel);
     this.printWriter.format("%s ", formattingOperation(operation));
   }
 
   @Override
-  public void addOperation(String opName, String opArguments) {
+  public void addOperation(final String opName, final String opArguments) {
     InvariantChecks.checkNotNull(opName);
     this.addTab(nowLevel);
     this.printWriter.format("%s %s", formattingOperation(opName), opArguments);
   }
 
   @Override
-  public void addString(String addString) {
+  public void addString(final String addString) {
     InvariantChecks.checkNotNull(addString);
     this.addTab(nowLevel);
     this.printWriter.format("%s\n", addString);
   }
 
   @Override
-  public void addText(String addText) {
+  public void addText(final String addText) {
     InvariantChecks.checkNotNull(addText);
     this.printWriter.format("%s", addText);
   }
 
   @Override
-  public void addAlignedText(String addText) {
+  public void addAlignedText(final String addText) {
     InvariantChecks.checkNotNull(addText);
     this.addTab(nowLevel);
     this.printWriter.format("%s", addText);
   }
 
   @Override
-  public void addComment(String addText) {
+  public void addComment(final String addText) {
     InvariantChecks.checkNotNull(addText);
     this.addTab(nowLevel);
     this.printWriter.format("# %s\n", addText);
@@ -168,14 +201,14 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
   }
 
   @Override
-  public void startSequence(String addText) {
+  public void startSequence(final String addText) {
     InvariantChecks.checkNotNull(addText);
     this.addString(addText);
     nowLevel++;
   }
 
   @Override
-  public void closeSequence(String addText) {
+  public void closeSequence(final String addText) {
     InvariantChecks.checkNotNull(addText);
     nowLevel--;
     this.addString(addText);

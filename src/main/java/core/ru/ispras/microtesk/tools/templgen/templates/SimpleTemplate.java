@@ -26,7 +26,7 @@ import ru.ispras.microtesk.tools.templgen.templates.TemplateOperation;
  */
 
 public final class SimpleTemplate extends GeneratedTemplate {
-  public static final String SIMPLE_TEMPLATE_NAME = "simple";
+  public static final String SIMPLE_TEMPLATE_NAME = "Simple";
 
   public SimpleTemplate(final MetaModel metaModel, final TemplatePrinter printer) {
     super(metaModel, printer);

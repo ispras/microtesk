@@ -271,6 +271,11 @@ class MiniMipsBaseTemplate < Template
       bne zero, target, :check_failed
       nop
     }
+
+    #
+    # Start address
+    #
+    org 0x00020000
   end
 
   def post

@@ -23,7 +23,7 @@ import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
  */
 
 public final class BoundaryValuesTemplate extends GeneratedTemplate {
-  public static final String BOUNDARY_TEMPLATE_NAME = "boundary";
+  public static final String BOUNDARY_TEMPLATE_NAME = "Boundary";
 
   public BoundaryValuesTemplate(MetaModel metaModel, TemplatePrinter printer) {
     super(metaModel, printer);
@@ -41,7 +41,9 @@ public final class BoundaryValuesTemplate extends GeneratedTemplate {
   @Override
   public boolean generate() {
     templatePrinter.templateBegin();
-    templatePrinter.addComment(" ARITHMETIC_OPERATIONS");
+    templatePrinter.addString("set_default_mode_allocator mode_allocator('FREE')");
+    templatePrinter.addString("");
+    templatePrinter.addComment("Only arithmetic operations");
 
     final Iterable<MetaOperation> operationsIterator = templateMetaModel.getOperations();
     for (MetaOperation operation : operationsIterator) {

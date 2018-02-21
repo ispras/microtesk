@@ -27,13 +27,25 @@ public interface TemplatePrinter {
   public abstract void templateBegin();
 
   /**
+   * Adds the data region to template file.
+   */
+  public abstract void addDataRegion();
+
+  /**
+   * Returns the data region label of the template file.
+   *
+   * @return label of the data region.
+   */
+  public abstract String getDataLabel();
+
+  /**
    * Checks for a match with the keywords and returns not a keyword for the printer with the same
    * value. Example: add - keyword, ADD - not keyword for some languages.
    *
    * @param operationName name of the operation.
    * @return not keyword name of the operation for the printer.
    */
-  public String formattingOperation(String operationName);
+  public String formattingOperation(final String operationName);
   /*
    * TODO: public default String formattingOperation(String operationName) { return operationName; }
    */
@@ -44,49 +56,49 @@ public interface TemplatePrinter {
    * @param opName Operation name.
    * @param opArguments Operation arguments.
    */
-  public abstract void addOperation(String opName, String opArguments);
+  public abstract void addOperation(final String opName, final String opArguments);
 
   /**
    * Adds the string to template file.
    *
    * @param addString string.
    */
-  public abstract void addString(String addString);
+  public abstract void addString(final String addString);
 
   /**
    * Adds the text to template file.
    *
    * @param addText text.
    */
-  public abstract void addText(String addText);
+  public abstract void addText(final String addText);
 
   /**
    * Adds the aligned (in accordance of the text structure) text to template file.
    *
    * @param addText text.
    */
-  public abstract void addAlignedText(String addText);
+  public abstract void addAlignedText(final String addText);
 
   /**
    * Adds the comment to template file.
    *
    * @param addComment text.
    */
-  public abstract void addComment(String addComment);
+  public abstract void addComment(final String addComment);
 
   /**
    * Opens the sequence in template file.
    *
    * @param sequenceTitle sequence title.
    */
-  public abstract void startSequence(String sequenceTitle);
+  public abstract void startSequence(final String sequenceTitle);
 
   /**
    * Closes the sequence in template file.
    *
    * @param sequenceEnd sequence end title.
    */
-  public abstract void closeSequence(String sequenceEnd);
+  public abstract void closeSequence(final String sequenceEnd);
 
   /**
    * Adds end title for template.
