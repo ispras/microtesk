@@ -39,7 +39,6 @@ final class TestProgram {
   private ConcreteSequence epilogue;
 
   private final AdjacencyList<ConcreteSequence> entries;
-  private final Map<ConcreteSequence, Pair<Block, Integer>> postponedEntries;
   private final List<Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>>> exceptionHandlers;
 
   private final Map<BigInteger, DataSection> dataSections;
@@ -49,7 +48,6 @@ final class TestProgram {
     this.prologue = null;
     this.epilogue = null;
     this.entries = new AdjacencyList<>();
-    this.postponedEntries = new IdentityHashMap<>();
     this.exceptionHandlers = new ArrayList<>();
     this.dataSections = new TreeMap<>();
     this.globalDataSections = new ArrayList<>();
@@ -99,30 +97,6 @@ final class TestProgram {
   public void addEntryAfter(final ConcreteSequence previous, final ConcreteSequence sequence) {
     InvariantChecks.checkNotNull(sequence);
     entries.addAfter(previous, sequence);
-  }
-
-  public void addPostponedEntry(final Block block) {
-    addPostponedEntry(block, 1);
-  }
-
-  public void addPostponedEntry(final Block block, final int times) {
-    InvariantChecks.checkNotNull(block);
-    final ConcreteSequence sequence = new ConcreteSequence.Builder(block.getSection()).build();
-
-    postponedEntries.put(sequence, new Pair<>(block, times));
-    addEntry(sequence);
-  }
-
-  public boolean isPostponedEntry(final ConcreteSequence sequence) {
-    return postponedEntries.containsKey(sequence);
-  }
-
-  public Pair<Block, Integer> getPostponedEntry(final ConcreteSequence sequence) {
-    return postponedEntries.get(sequence);
-  }
-
-  public void removePostponedEntry(final ConcreteSequence sequence) {
-    postponedEntries.remove(sequence);
   }
 
   public ConcreteSequence getLastEntry(final Section section) {
@@ -185,7 +159,6 @@ final class TestProgram {
 
   public void reset() {
     entries.clear();
-    postponedEntries.clear();
     dataSections.clear();
   }
 }
