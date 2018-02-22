@@ -174,4 +174,29 @@ public final class AdjacencyList<T> implements Iterable<T> {
       tail = entry;
     }
   }
+
+  public void remove(final T obj) {
+    InvariantChecks.checkNotNull(obj);
+
+    final Entry<T> entry = entries.remove(obj);
+    if (null == entry) {
+      return;
+    }
+
+    if (entry == head) {
+      head = entry.next;
+    }
+
+    if (entry == tail) {
+      tail = entry.previous;
+    }
+
+    if (null != entry.previous) {
+      entry.previous.next = entry.next;
+    }
+
+    if (null != entry.next) {
+      entry.next.previous = entry.previous;
+    }
+  }
 }

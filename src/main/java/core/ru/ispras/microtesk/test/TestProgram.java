@@ -127,6 +127,10 @@ final class TestProgram {
     entries.replaceWith(previous, current);
   }
 
+  public void removeEntry(final ConcreteSequence sequence) {
+    entries.remove(sequence);
+  }
+
   public void addData(final DataSection data) {
     InvariantChecks.checkNotNull(data);
     registerData(data);

@@ -544,6 +544,11 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     try {
+      // Removes all postponed entries which will never be processed.
+      for (final BlockEntry blockEntry : postponedBlocks) {
+        testProgram.removeEntry(blockEntry.entry);
+      }
+
       final ConcreteSequence epilogue = testProgram.getEpilogue();
       allocateSequence(epilogue, Label.NO_SEQUENCE_INDEX);
 
