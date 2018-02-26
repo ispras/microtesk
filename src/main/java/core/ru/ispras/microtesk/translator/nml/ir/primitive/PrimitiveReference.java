@@ -42,6 +42,10 @@ public final class PrimitiveReference {
 
   /**
    * Additional constructor for making modified copies.
+   *
+   * @param source Source primitive.
+   * @param target Target primitive.
+   * @param refNames Names of references from the source to the target.
    */
   public PrimitiveReference(
       final PrimitiveAND source,
@@ -54,6 +58,8 @@ public final class PrimitiveReference {
 
   /**
    * Registers a reference from the parent primitive to the current primitive.
+   *
+   * @param referenceName Reference name (name of the argument that describes a reference).
    */
   public void addReference(final String referenceName) {
     refNames.add(referenceName);
@@ -61,6 +67,8 @@ public final class PrimitiveReference {
 
   /**
    * Returns the name of the primitive that makes a reference to the current primitive.
+   *
+   * @return Name of the primitive that makes a reference to the current primitive.
    */
   public String getName() {
     return source.getName();
@@ -68,6 +76,8 @@ public final class PrimitiveReference {
 
   /**
    * Returns the primitive the refers to the current primitive.
+   *
+   * @return Primitive the refers to the current primitive.
    */
   public PrimitiveAND getSource() {
     return source;
@@ -75,6 +85,8 @@ public final class PrimitiveReference {
 
   /**
    * Returns the primitive the reference points to (current primitive).
+   *
+   * @return Primitive the reference points to (current primitive).
    */
   public Primitive getTarget() {
     return target;
@@ -82,6 +94,8 @@ public final class PrimitiveReference {
 
   /**
    * Returns the number of references made from the parent primitive to the current primitive.
+   *
+   * @return Number of references made from the parent primitive to the current primitive.
    */
   public int getReferenceCount() {
     return refNames.size();
