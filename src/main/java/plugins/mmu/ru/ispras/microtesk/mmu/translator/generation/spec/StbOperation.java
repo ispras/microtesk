@@ -26,7 +26,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtAssign;
 
 import java.math.BigInteger;
 
-public final class STBOperation implements StringTemplateBuilder {
+public final class StbOperation implements StringTemplateBuilder {
   public static final Class<?> BINDING_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
 
@@ -38,7 +38,7 @@ public final class STBOperation implements StringTemplateBuilder {
   private final Operation operation;
   private final String context;
 
-  protected STBOperation(
+  protected StbOperation(
       final String packageName,
       final Ir ir,
       final Operation operation) {

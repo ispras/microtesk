@@ -27,7 +27,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Var;
 import java.util.ArrayList;
 import java.util.List;
 
-final class STBFunction implements StringTemplateBuilder {
+final class StbFunction implements StringTemplateBuilder {
   public static final Class<?> INTEGER_CLASS =
       ru.ispras.fortress.expression.NodeVariable.class;
 
@@ -38,7 +38,7 @@ final class STBFunction implements StringTemplateBuilder {
   private final Ir ir;
   private final Callable func;
 
-  protected STBFunction(final String packageName, final Ir ir, final Callable func) {
+  protected StbFunction(final String packageName, final Ir ir, final Callable func) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(func);
@@ -118,7 +118,7 @@ final class STBFunction implements StringTemplateBuilder {
       final String name = getVariableName(variable.getName());
 
       stFunction.add("locals", getVarDecl(func.getName(), variable));
-      stFunction.add("stmts", STBStruct.getFieldDef(name, variable.getType(), group));
+      stFunction.add("stmts", StbStruct.getFieldDef(name, variable.getType(), group));
       stFunction.add("stmts", String.format("builder.registerVariable(%s);", name));
     }
 

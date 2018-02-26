@@ -28,7 +28,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 
-final class STBSegment implements StringTemplateBuilder {
+final class StbSegment implements StringTemplateBuilder {
   public static final Class<?> SEGMENT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment.class;
 
@@ -39,7 +39,7 @@ final class STBSegment implements StringTemplateBuilder {
   private final Ir ir;
   private final Segment segment;
 
-  protected STBSegment(final String packageName, final Ir ir, final Segment segment) {
+  protected StbSegment(final String packageName, final Ir ir, final Segment segment) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(segment);
@@ -144,7 +144,7 @@ final class STBSegment implements StringTemplateBuilder {
       final String name = getVariableName(variable.getName());
       final Type type = variable.getType();
 
-      STBStruct.buildFieldDecl(
+      StbStruct.buildFieldDecl(
           name,
           type,
           false,

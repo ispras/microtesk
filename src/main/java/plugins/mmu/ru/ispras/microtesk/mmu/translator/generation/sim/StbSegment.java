@@ -25,10 +25,10 @@ import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 
-final class STBSegment extends STBCommon implements StringTemplateBuilder {
+final class StbSegment extends StbCommon implements StringTemplateBuilder {
   private final Segment segment;
 
-  public STBSegment(final String packageName, final Segment segment) {
+  public StbSegment(final String packageName, final Segment segment) {
     super(packageName);
 
     InvariantChecks.checkNotNull(segment);

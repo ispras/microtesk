@@ -25,10 +25,10 @@ import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 import java.math.BigInteger;
 
-final class STBFunction extends STBCommon implements StringTemplateBuilder {
+final class StbFunction extends StbCommon implements StringTemplateBuilder {
   private final Callable function;
 
-  public STBFunction(
+  public StbFunction(
       final String packageName,
       final Callable function) {
     super(packageName);
@@ -57,7 +57,7 @@ final class STBFunction extends STBCommon implements StringTemplateBuilder {
     st.add("pack", packageName);
     st.add("imps", BigInteger.class.getName());
     st.add("imps", String.format("%s.*", BIT_VECTOR_CLASS.getPackage().getName()));
-    st.add("imps", STBCommon.EXECUTION_CLASS.getName());
+    st.add("imps", StbCommon.EXECUTION_CLASS.getName());
   }
 
   private void buildBody(final ST st, final STGroup group) {

@@ -28,7 +28,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Segment;
 
 import java.util.Map;
 
-final class STBSpecification implements StringTemplateBuilder {
+final class StbSpecification implements StringTemplateBuilder {
   public static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 
@@ -37,7 +37,7 @@ final class STBSpecification implements StringTemplateBuilder {
   private final String packageName;
   private final Ir ir;
 
-  public STBSpecification(final String packageName, final Ir ir) {
+  public StbSpecification(final String packageName, final Ir ir) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(ir);
 

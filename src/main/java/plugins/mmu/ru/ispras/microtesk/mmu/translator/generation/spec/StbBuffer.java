@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-final class STBBuffer implements StringTemplateBuilder {
+final class StbBuffer implements StringTemplateBuilder {
   public static final Class<?> BINDING_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
 
@@ -51,7 +51,7 @@ final class STBBuffer implements StringTemplateBuilder {
   private final String packageName;
   private final Buffer buffer;
 
-  public STBBuffer(final String packageName, final Buffer buffer) {
+  public StbBuffer(final String packageName, final Buffer buffer) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(buffer);
 
@@ -104,9 +104,9 @@ final class STBBuffer implements StringTemplateBuilder {
     stAddress.add("type", buffer.getAddress().getId());
     st.add("members", stAddress);
 
-    STBStruct.buildFieldDecls(buffer.getEntry(), stEntry, stConstructor, group);
+    StbStruct.buildFieldDecls(buffer.getEntry(), stEntry, stConstructor, group);
     stConstructor.add("stmts", "");
-    STBStruct.buildAddField(buffer.getEntry(), stConstructor, group);
+    StbStruct.buildAddField(buffer.getEntry(), stConstructor, group);
 
     stEntry.add("members", "");
     stEntry.add("members", stConstructor);
@@ -119,9 +119,9 @@ final class STBBuffer implements StringTemplateBuilder {
     final ST stConstructor = group.getInstanceOf("buffer_constructor");
 
     st.add("members", "");
-    STBStruct.buildFieldDecls(buffer.getEntry(), st, stConstructor, group);
+    StbStruct.buildFieldDecls(buffer.getEntry(), st, stConstructor, group);
     stConstructor.add("stmts", "");
-    STBStruct.buildAddField(buffer.getEntry(), stConstructor, group);
+    StbStruct.buildAddField(buffer.getEntry(), stConstructor, group);
 
     final BufferExprAnalyzer analyzer = new BufferExprAnalyzer(
         buffer.getAddress(), buffer.getAddressArg(), buffer.getIndex(), buffer.getMatch());

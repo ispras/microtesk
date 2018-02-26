@@ -23,7 +23,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.utils.StringUtils;
 
-final class STBAddress implements StringTemplateBuilder {
+final class StbAddress implements StringTemplateBuilder {
   public static final Class<?> ADDRESS_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance.class;
 
@@ -36,7 +36,7 @@ final class STBAddress implements StringTemplateBuilder {
   private final String packageName;
   private final Address address;
 
-  protected STBAddress(final String packageName, final Address address) {
+  protected StbAddress(final String packageName, final Address address) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(address);
 
@@ -74,9 +74,9 @@ final class STBAddress implements StringTemplateBuilder {
     stConstructorDef.add("name", address.getId());
     stConstructor.add("name", type.getId());
 
-    STBStruct.buildFieldDecls(type, st, stConstructor, group);
+    StbStruct.buildFieldDecls(type, st, stConstructor, group);
     stConstructor.add("stmts", "");
-    STBStruct.buildAddField(type, stConstructor, group);
+    StbStruct.buildAddField(type, stConstructor, group);
 
     stConstructor.add("stmts", "");
     stConstructor.add("stmts", String.format("setVariable(%s);",

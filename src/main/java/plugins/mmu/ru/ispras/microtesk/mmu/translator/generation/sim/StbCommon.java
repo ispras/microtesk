@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-abstract class STBCommon {
+abstract class StbCommon {
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
@@ -91,7 +91,7 @@ abstract class STBCommon {
 
   protected final String packageName;
 
-  protected STBCommon(final String packageName) {
+  protected StbCommon(final String packageName) {
     InvariantChecks.checkNotNull(packageName);
     this.packageName = packageName;
   }

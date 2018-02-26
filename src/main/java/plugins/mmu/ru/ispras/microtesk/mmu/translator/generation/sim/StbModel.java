@@ -25,7 +25,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 
-final class STBModel implements StringTemplateBuilder {
+final class StbModel implements StringTemplateBuilder {
   public static final String CLASS_NAME = "Model";
 
   private static final Class<?> MODEL_CLASS =
@@ -35,7 +35,7 @@ final class STBModel implements StringTemplateBuilder {
   private final Ir ir;
   private final Buffer targetBuffer;
 
-  public STBModel(final String packageName, final Ir ir, final Buffer targetBuffer) {
+  public StbModel(final String packageName, final Ir ir, final Buffer targetBuffer) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(targetBuffer);

@@ -33,7 +33,7 @@ import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.Kind;
 
 import java.math.BigInteger;
 
-final class STBBuffer extends STBCommon implements StringTemplateBuilder {
+final class StbBuffer extends StbCommon implements StringTemplateBuilder {
   private static final String DATA_NAME = "data";
 
   private final Ir ir;
@@ -43,7 +43,7 @@ final class STBBuffer extends STBCommon implements StringTemplateBuilder {
 
   private final BuildStrategy strategy;
 
-  public STBBuffer(
+  public StbBuffer(
       final String packageName,
       final Ir ir,
       final Buffer buffer,
@@ -122,7 +122,7 @@ final class STBBuffer extends STBCommon implements StringTemplateBuilder {
     final ST stEntry = group.getInstanceOf("buffer_entry");
 
     final Type type = buffer.getEntry();
-    STBStruct.buildFields(stEntry, group, "Entry", type);
+    StbStruct.buildFields(stEntry, group, "Entry", type);
 
     st.add("members", stEntry);
   }
@@ -247,7 +247,7 @@ final class STBBuffer extends STBCommon implements StringTemplateBuilder {
           buffer.getAddress().getId()
           );
 
-      STBBuffer.this.buildHeader(st, baseName);
+      StbBuffer.this.buildHeader(st, baseName);
     }
 
     private void buildMemoryConstructor(final ST st, final STGroup group) {
@@ -286,7 +286,7 @@ final class STBBuffer extends STBCommon implements StringTemplateBuilder {
           buffer.getAddress().getId()
           );
 
-      STBBuffer.this.buildHeader(st, baseName);
+      StbBuffer.this.buildHeader(st, baseName);
     }
   }
 
@@ -311,7 +311,7 @@ final class STBBuffer extends STBCommon implements StringTemplateBuilder {
           buffer.getAddress().getId()
           );
 
-      STBBuffer.this.buildHeader(st, baseName);
+      StbBuffer.this.buildHeader(st, baseName);
     }
 
     private void buildGetMmu(final ST st, final STGroup group) {
@@ -348,7 +348,7 @@ final class STBBuffer extends STBCommon implements StringTemplateBuilder {
           buffer.getAddress().getId()
           );
 
-      STBBuffer.this.buildHeader(st, baseName);
+      StbBuffer.this.buildHeader(st, baseName);
     }
   }
 }

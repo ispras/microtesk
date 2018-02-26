@@ -25,7 +25,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 import java.util.Map;
 
-final class STBStruct implements StringTemplateBuilder {
+final class StbStruct implements StringTemplateBuilder {
   public static final Class<?> STRUCT_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct.class;
 
@@ -38,7 +38,7 @@ final class STBStruct implements StringTemplateBuilder {
   private final String packageName;
   private final Type type;
 
-  protected STBStruct(final String packageName, final Type type) {
+  protected StbStruct(final String packageName, final Type type) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(type);
 

@@ -23,13 +23,13 @@ import ru.ispras.microtesk.mmu.translator.ir.Operation;
 
 import java.math.BigInteger;
 
-final class STBOperation extends STBCommon implements StringTemplateBuilder {
+final class StbOperation extends StbCommon implements StringTemplateBuilder {
   public static final Class<?> OPERATION_CLASS =
       ru.ispras.microtesk.mmu.model.api.Operation.class;
 
   private final Operation operation;
 
-  public STBOperation(
+  public StbOperation(
       final String packageName,
       final Operation operation) {
     super(packageName);
@@ -60,7 +60,7 @@ final class STBOperation extends STBCommon implements StringTemplateBuilder {
     st.add("ext", baseText);
 
     st.add("imps", BigInteger.class.getName());
-    st.add("imps", String.format("%s.*", STBCommon.BIT_VECTOR_CLASS.getPackage().getName()));
+    st.add("imps", String.format("%s.*", StbCommon.BIT_VECTOR_CLASS.getPackage().getName()));
   }
 
   private void buildBody(final ST st, final STGroup group) {

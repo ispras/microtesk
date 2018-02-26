@@ -26,7 +26,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Var;
 import java.math.BigInteger;
 import java.util.Map;
 
-final class STBExtern implements StringTemplateBuilder {
+final class StbExtern implements StringTemplateBuilder {
   public static final String CLASS_NAME = "Extern";
 
   public static final Class<?> READER_CLASS =
@@ -35,7 +35,7 @@ final class STBExtern implements StringTemplateBuilder {
   private final String packageName;
   private final Map<String, Var> externs;
 
-  public STBExtern(
+  public StbExtern(
       final String packageName,
       final Map<String, Var> externs) {
     InvariantChecks.checkNotNull(packageName);
@@ -66,8 +66,8 @@ final class STBExtern implements StringTemplateBuilder {
     st.add("pack", packageName);
 
     st.add("imps", BigInteger.class.getName());
-    st.add("imps", STBCommon.BIT_VECTOR_CLASS.getName());
-    st.add("imps", STBCommon.VALUE_CLASS.getName());
+    st.add("imps", StbCommon.BIT_VECTOR_CLASS.getName());
+    st.add("imps", StbCommon.VALUE_CLASS.getName());
     st.add("imps", READER_CLASS.getName());
   }
 

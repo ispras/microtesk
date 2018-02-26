@@ -24,10 +24,10 @@ import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 
-final class STBMemory extends STBCommon implements StringTemplateBuilder {
+final class StbMemory extends StbCommon implements StringTemplateBuilder {
   private final Memory memory;
 
-  public STBMemory(final String packageName, final Memory memory) {
+  public StbMemory(final String packageName, final Memory memory) {
     super(packageName);
 
     InvariantChecks.checkNotNull(memory);

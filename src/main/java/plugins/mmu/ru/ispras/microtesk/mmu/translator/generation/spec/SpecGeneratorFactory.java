@@ -80,7 +80,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(extern);
 
     final String outputFileName = getOutputFileName(extern.getName());
-    final StringTemplateBuilder builder = new STBExtern(packageName, extern);
+    final StringTemplateBuilder builder = new StbExtern(packageName, extern);
 
     return new FileGeneratorStringTemplate(outputFileName, CONSTANT_STGS, builder);
   }
@@ -89,7 +89,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(constant);
 
     final String outputFileName = getOutputFileName(constant.getId());
-    final StringTemplateBuilder builder = new STBConstant(packageName, constant);
+    final StringTemplateBuilder builder = new StbConstant(packageName, constant);
 
     return new FileGeneratorStringTemplate(outputFileName, CONSTANT_STGS, builder);
   }
@@ -98,7 +98,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(structType);
 
     final String outputFileName = getOutputFileName(structType.getId());
-    final StringTemplateBuilder builder = new STBStruct(packageName, structType);
+    final StringTemplateBuilder builder = new StbStruct(packageName, structType);
 
     return new FileGeneratorStringTemplate(outputFileName, STRUCT_STGS, builder);
   }
@@ -107,7 +107,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(address);
 
     final String outputFileName = getOutputFileName(address.getId());
-    final StringTemplateBuilder builder = new STBAddress(packageName, address);
+    final StringTemplateBuilder builder = new StbAddress(packageName, address);
 
     return new FileGeneratorStringTemplate(outputFileName, STRUCT_STGS, builder);
   }
@@ -116,7 +116,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(func);
 
     final String outputFileName = getOutputFileName(func.getName());
-    final StringTemplateBuilder builder = new STBFunction(packageName, ir, func);
+    final StringTemplateBuilder builder = new StbFunction(packageName, ir, func);
 
     return new FileGeneratorStringTemplate(outputFileName, FUNCTION_STGS, builder);
   }
@@ -125,7 +125,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(operation);
 
     final String outputFileName = getOutputFileName(operation.getId());
-    final StringTemplateBuilder builder = new STBOperation(packageName, ir, operation);
+    final StringTemplateBuilder builder = new StbOperation(packageName, ir, operation);
 
     return new FileGeneratorStringTemplate(outputFileName, OPERATION_STGS, builder);
   }
@@ -134,7 +134,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(buffer);
 
     final String outputFileName = getOutputFileName(buffer.getId());
-    final StringTemplateBuilder builder = new STBBuffer(packageName, buffer);
+    final StringTemplateBuilder builder = new StbBuffer(packageName, buffer);
 
     return new FileGeneratorStringTemplate(outputFileName, BUFFER_STGS, builder);
   }
@@ -143,7 +143,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(segment);
 
     final String outputFileName = getOutputFileName(segment.getId());
-    final StringTemplateBuilder builder = new STBSegment(packageName, ir, segment);
+    final StringTemplateBuilder builder = new StbSegment(packageName, ir, segment);
 
     return new FileGeneratorStringTemplate(outputFileName, SEGMENT_STGS, builder);
   }
@@ -152,7 +152,7 @@ final class SpecGeneratorFactory {
     InvariantChecks.checkNotNull(memory);
 
     final String outputFileName = getOutputFileName(memory.getId());
-    final StringTemplateBuilder builder = new STBMemory(packageName, ir, memory);
+    final StringTemplateBuilder builder = new StbMemory(packageName, ir, memory);
 
     return new FileGeneratorStringTemplate(outputFileName, SEGMENT_STGS, builder);
   }
@@ -160,8 +160,8 @@ final class SpecGeneratorFactory {
   public FileGenerator newSpecificationGenerator(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
 
-    final String outputFileName = getOutputFileName(STBSpecification.CLASS_NAME);
-    final StringTemplateBuilder builder = new STBSpecification(packageName, ir);
+    final String outputFileName = getOutputFileName(StbSpecification.CLASS_NAME);
+    final StringTemplateBuilder builder = new StbSpecification(packageName, ir);
 
     return new FileGeneratorStringTemplate(outputFileName, SPEC_STGS, builder);
   }

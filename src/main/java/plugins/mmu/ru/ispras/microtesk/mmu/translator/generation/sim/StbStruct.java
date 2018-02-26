@@ -28,7 +28,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
 
-final class STBStruct implements StringTemplateBuilder {
+final class StbStruct implements StringTemplateBuilder {
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
@@ -43,7 +43,7 @@ final class STBStruct implements StringTemplateBuilder {
   private final Type type;
   private final String valueFieldName;
 
-  public STBStruct(final String packageName, final Address address) {
+  public StbStruct(final String packageName, final Address address) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(address);
 
@@ -62,7 +62,7 @@ final class STBStruct implements StringTemplateBuilder {
     this.valueFieldName = sb.toString();
   }
 
-  public STBStruct(final String packageName, final Type type) {
+  public StbStruct(final String packageName, final Type type) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(type);
 

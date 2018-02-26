@@ -23,12 +23,12 @@ import ru.ispras.microtesk.mmu.translator.ir.Constant;
 
 import java.math.BigInteger;
 
-final class STBConstant implements StringTemplateBuilder {
+final class StbConstant implements StringTemplateBuilder {
   private final String packageName;
   private final Constant constant;
   private final Class<?> type;
 
-  public STBConstant(
+  public StbConstant(
       final String packageName,
       final Constant constant) {
     InvariantChecks.checkNotNull(packageName);
@@ -39,7 +39,7 @@ final class STBConstant implements StringTemplateBuilder {
 
     switch (constant.getExpression().getDataTypeId()) {
       case BIT_VECTOR:
-        type = STBCommon.BIT_VECTOR_CLASS;
+        type = StbCommon.BIT_VECTOR_CLASS;
         break;
 
       case LOGIC_INTEGER:
@@ -73,7 +73,7 @@ final class STBConstant implements StringTemplateBuilder {
   protected final void buildHeader(final ST st) {
     final String implText = String.format(
         "%s<%s>",
-        STBCommon.VALUE_CLASS.getName(),
+        StbCommon.VALUE_CLASS.getName(),
         type.getSimpleName()
         );
 
@@ -82,7 +82,7 @@ final class STBConstant implements StringTemplateBuilder {
     st.add("impls", implText);
 
     st.add("imps", BigInteger.class.getName());
-    st.add("imps", String.format("%s.*", STBCommon.BIT_VECTOR_CLASS.getPackage().getName()));
+    st.add("imps", String.format("%s.*", StbCommon.BIT_VECTOR_CLASS.getPackage().getName()));
   }
 
   private void buildBody(final ST st, final STGroup group) {

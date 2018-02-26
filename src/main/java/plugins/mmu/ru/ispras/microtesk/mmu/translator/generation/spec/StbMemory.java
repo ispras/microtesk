@@ -30,7 +30,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 import java.util.Collections;
 
-final class STBMemory implements StringTemplateBuilder {
+final class StbMemory implements StringTemplateBuilder {
   public static final Class<?> SPEC_CLASS =
       ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
 
@@ -41,7 +41,7 @@ final class STBMemory implements StringTemplateBuilder {
   private final Ir ir;
   private final Memory memory;
 
-  protected STBMemory(final String packageName, final Ir ir, final Memory memory) {
+  protected StbMemory(final String packageName, final Ir ir, final Memory memory) {
     InvariantChecks.checkNotNull(packageName);
     InvariantChecks.checkNotNull(memory);
 
@@ -79,7 +79,7 @@ final class STBMemory implements StringTemplateBuilder {
   }
 
   private void buildAddress(final ST st, final STGroup group) {
-    STBStruct.buildFieldAlias(
+    StbStruct.buildFieldAlias(
         memory.getId(),
         memory.getAddressArg(),
         memory.getAddress(),
@@ -95,7 +95,7 @@ final class STBMemory implements StringTemplateBuilder {
     for (final Var variable : memory.getVariables()) {
       final Address address = ir.getAddresses().get(variable.getType().getId());
       if (null != address) {
-        STBStruct.buildFieldAlias(
+        StbStruct.buildFieldAlias(
             memory.getId(),
             variable,
             address,
@@ -114,7 +114,7 @@ final class STBMemory implements StringTemplateBuilder {
     stConstructor.add("name", memory.getId());
 
     final String dataVariableName = getVariableName(memory.getDataArg().getName());
-    STBStruct.buildFieldDecl(
+    StbStruct.buildFieldDecl(
         dataVariableName,
         memory.getDataArg().getType(),
         true,
@@ -132,7 +132,7 @@ final class STBMemory implements StringTemplateBuilder {
         // In this case they will refer to the same instance causing troubles.
 
         final String name = getVariableName(variable.getName());
-        STBStruct.buildFieldDecl(
+        StbStruct.buildFieldDecl(
             name,
             type,
             false,
