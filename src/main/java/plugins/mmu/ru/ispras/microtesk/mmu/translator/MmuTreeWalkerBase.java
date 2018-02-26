@@ -25,6 +25,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
@@ -36,6 +37,7 @@ import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.transformer.TypeConversion;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.model.api.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
@@ -243,7 +245,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    * @param aliasId Name of the source entity.
    * @param args Arguments used to access the source entity (e.g. register index,
    *        or addressing mode arguments).
-   * @throws SemanticException
+   *
+   * @throws SemanticException if the variable cannot be linked to the specified ISA entity.
    */
   protected void newExtern(
       final CommonTree id,
@@ -260,7 +263,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     if (!isaIr.getMemory().containsKey(sourceName)
         && !isaIr.getModes().containsKey(sourceName)) {
       raiseError(where(id), String.format(
-          "%s is not defined in the ISA specification or cannot be used as an extern variable. "
+          "%s is not defined in the ISA specification or cannot be used as an external variable. "
               + "It must be a reg, mem or mode element.", sourceName
       ));
     }
@@ -271,7 +274,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final MemoryExpr memory = isaIr.getMemory().get(sourceName);
       if (memory.getKind() == ru.ispras.microtesk.model.memory.Memory.Kind.VAR) {
         raiseError(where(id), String.format(
-            "External variable cannot be defined as var: %s", sourceName));
+            "External variable must not be defined as var: %s", sourceName));
       }
 
       final int bitSize = memory.getType().getBitSize();
@@ -672,9 +675,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   // TODO: Review + comments are needed
 
   /**
-   * Builder for Builder objects. Helps create a Buffer from attributes.
+   * Builder for {@link Buffer} objects. Helps create a Buffer from attributes.
    */
-
   protected final class BufferBuilder {
     private final MmuBuffer.Kind kind;
     private final CommonTree id;
@@ -697,6 +699,9 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
      * @param id Buffer identifier.
      * @param addressArgId Address argument identifier.
      * @param addressArgType Address argument type (identifier).
+     * @param parentBufferId Identifier of the parent buffer.
+     * @param qualifiers List of qualifiers.
+     *
      * @throws SemanticException if the specified address type is not defined.
      */
     public BufferBuilder(
@@ -1450,19 +1455,19 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
    *
    * @param operatorId Operator identifier.
    * @param operands Array of operands.
-   * @return Expression
-   * @throws RecognitionException
+   * @return New expression.
+   *
+   * @throws SemanticException if the specified operator is not defined or does not support
+   *         operands of the specified types.
    */
   protected final Node newExpression(
-      final CommonTree operatorId, final Node ... operands) throws RecognitionException {
-    final String ERR_NO_OPERATOR = "The %s operator is not supported.";
-    final String ERR_NO_OPERATOR_FOR_TYPE = "The %s operator is not supported for the %s type.";
-
+      final CommonTree operatorId,
+      final Node... operands) throws RecognitionException {
     final Operator op = Operator.fromText(operatorId.getText());
     final Where w = where(operatorId);
 
     if (null == op) {
-      raiseError(w, String.format(ERR_NO_OPERATOR, operatorId.getText()));
+      raiseError(w, String.format("The %s operator is not supported.", operatorId.getText()));
     }
 
     // Trying to reduce all operands
@@ -1478,7 +1483,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     final StandardOperation fortressOp = op.toFortressFor(type.getTypeId());
     if (null == fortressOp) {
-      raiseError(w, String.format(ERR_NO_OPERATOR_FOR_TYPE, operatorId.getText(), type));
+      raiseError(w, String.format(
+          "The %s operator is not supported for the %s type.", operatorId.getText(), type));
     }
 
     for (int i = 0; i < folded.length; ++i) {
@@ -1493,17 +1499,17 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   /**
-   * Creates a conditional expression of the following kind:<p>
-   * {@code if C1 then V1 (elif Ci then Vi)* else Vn endif}.
+   * Creates a conditional expression of the following kind:
+   *
+   * <p>{@code if C1 then V1 (elif Ci then Vi)* else Vn endif}.
    *
    * @param id Token that marks location of the construction in code.
    * @param blocks Pairs [code condition expression, value expression].
    * @return New expression.
-   * @throws RecognitionException
    */
   protected final Node newCondExpression(
       final CommonTree id,
-      final List<Pair<Node, Node>> blocks) throws RecognitionException {
+      final List<Pair<Node, Node>> blocks) {
     InvariantChecks.checkNotNull(id);
     InvariantChecks.checkNotNull(blocks);
     InvariantChecks.checkTrue(blocks.size() >= 2);
@@ -1531,12 +1537,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       } else if (condition.equals(NodeValue.newBoolean(false))) {
         // result stays the same
       } else {
-        result = new NodeOperation(
-            StandardOperation.ITE,
-            condition,
-            value,
-            result
-            );
+        result = Nodes.ite(condition, value, result);
       }
     }
 
