@@ -55,7 +55,7 @@ public abstract class SharedObject<T extends SharedObject<T>> {
   /**
    * Constructs a new shared object.
    *
-   * <p>No shared copies a published until an object is copied.
+   * <p>No shared copies are published until an object is copied.
    */
   protected SharedObject() {
   }
