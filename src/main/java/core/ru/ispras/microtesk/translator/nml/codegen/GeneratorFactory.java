@@ -33,53 +33,53 @@ final class GeneratorFactory {
 
   public FileGenerator createModelGenerator(Ir ir) {
     final String outputFileName = String.format(
-        "%s/%s/%s.java", PackageInfo.getModelOutDir(outDir), modelName, STBModel.CLASS_NAME);
+        "%s/%s/%s.java", PackageInfo.getModelOutDir(outDir), modelName, StbModel.CLASS_NAME);
 
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
         PackageInfo.NML_TEMPLATE_DIR + "Model.stg"
     };
 
-    final StringTemplateBuilder modelBuilder = new STBModel(ir);
+    final StringTemplateBuilder modelBuilder = new StbModel(ir);
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, modelBuilder);
   }
 
   public FileGenerator createTypesGenerator(final Ir ir) {
     final String outputFileName = String.format(
-        "%s/%s/%s.java", PackageInfo.getModelOutDir(outDir), modelName, STBTypes.CLASS_NAME);
+        "%s/%s/%s.java", PackageInfo.getModelOutDir(outDir), modelName, StbTypes.CLASS_NAME);
 
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
         PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
     };
 
-    final StringTemplateBuilder builder = new STBTypes(ir);
+    final StringTemplateBuilder builder = new StbTypes(ir);
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
   public FileGenerator createPEGenerator(final Ir ir) {
     final String outputFileName = String.format("%s/%s/%s.java",
-        PackageInfo.getModelOutDir(outDir), modelName, STBProcessingElement.CLASS_NAME);
+        PackageInfo.getModelOutDir(outDir), modelName, StbProcessingElement.CLASS_NAME);
 
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
         PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
     };
 
-    final StringTemplateBuilder builder = new STBProcessingElement(ir);
+    final StringTemplateBuilder builder = new StbProcessingElement(ir);
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
   public FileGenerator createTempVarGenerator(final Ir ir) {
     final String outputFileName = String.format("%s/%s/%s.java",
-        PackageInfo.getModelOutDir(outDir), modelName, STBTemporaryVariables.CLASS_NAME);
+        PackageInfo.getModelOutDir(outDir), modelName, StbTemporaryVariables.CLASS_NAME);
 
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
         PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
     };
 
-    final StringTemplateBuilder builder = new STBTemporaryVariables(ir);
+    final StringTemplateBuilder builder = new StbTemporaryVariables(ir);
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
@@ -92,7 +92,7 @@ final class GeneratorFactory {
         PackageInfo.NML_TEMPLATE_DIR + "AddressingModeOr.stg"
     };
 
-    final StringTemplateBuilder builder = new STBAddressingModeOr(modelName, mode);
+    final StringTemplateBuilder builder = new StbAddressingModeOr(modelName, mode);
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
@@ -105,7 +105,7 @@ final class GeneratorFactory {
         PackageInfo.NML_TEMPLATE_DIR + "AddressingMode.stg"
     };
 
-    final StringTemplateBuilder builder = new STBAddressingMode(modelName, mode);
+    final StringTemplateBuilder builder = new StbAddressingMode(modelName, mode);
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
@@ -118,7 +118,7 @@ final class GeneratorFactory {
         PackageInfo.NML_TEMPLATE_DIR + "OperationOr.stg"
     };
 
-    final StringTemplateBuilder builder = new STBOperationOr(modelName, op);
+    final StringTemplateBuilder builder = new StbOperationOr(modelName, op);
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
@@ -131,7 +131,7 @@ final class GeneratorFactory {
         PackageInfo.NML_TEMPLATE_DIR + "Operation.stg"
     };
 
-    final StringTemplateBuilder builder = new STBOperation(modelName, op);
+    final StringTemplateBuilder builder = new StbOperation(modelName, op);
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 }

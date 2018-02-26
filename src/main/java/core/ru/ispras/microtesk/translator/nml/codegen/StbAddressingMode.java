@@ -31,11 +31,11 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import java.math.BigInteger;
 import java.util.Map;
 
-final class STBAddressingMode extends STBPrimitiveBase {
+final class StbAddressingMode extends StbPrimitiveBase {
   private final String modelName;
   private final PrimitiveAND mode;
 
-  public STBAddressingMode(
+  public StbAddressingMode(
       final String modelName,
       final PrimitiveAND mode) {
 

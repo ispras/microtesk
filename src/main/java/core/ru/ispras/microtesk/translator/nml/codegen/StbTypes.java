@@ -25,11 +25,11 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.Map;
 
-final class STBTypes implements StringTemplateBuilder {
+final class StbTypes implements StringTemplateBuilder {
   public static final String CLASS_NAME = "TypeDefs";
   private final Ir ir;
 
-  public STBTypes(final Ir ir) {
+  public StbTypes(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
     this.ir = ir;
   }

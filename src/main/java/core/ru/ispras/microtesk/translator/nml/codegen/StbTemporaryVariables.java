@@ -25,11 +25,11 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 
 import java.math.BigInteger;
 
-final class STBTemporaryVariables implements StringTemplateBuilder {
+final class StbTemporaryVariables implements StringTemplateBuilder {
   public static final String CLASS_NAME = "TempVars";
   private final Ir ir;
 
-  public STBTemporaryVariables(final Ir ir) {
+  public StbTemporaryVariables(final Ir ir) {
     this.ir = ir;
   }
 
@@ -55,7 +55,7 @@ final class STBTemporaryVariables implements StringTemplateBuilder {
 
       tCore.add("names", memory.getName());
 
-      final ST stMemoryDef = STBProcessingElement.buildMemoryLine(group, memory);
+      final ST stMemoryDef = StbProcessingElement.buildMemoryLine(group, memory);
       tCore.add("defs", stMemoryDef);
     }
 

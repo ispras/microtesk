@@ -29,11 +29,11 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import java.util.ArrayList;
 import java.util.List;
 
-final class STBModel implements StringTemplateBuilder {
+final class StbModel implements StringTemplateBuilder {
   public static final String CLASS_NAME = "Model";
   private final Ir ir;
 
-  public STBModel(final Ir ir) {
+  public StbModel(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
     this.ir = ir;
   }

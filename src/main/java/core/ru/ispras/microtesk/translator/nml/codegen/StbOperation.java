@@ -33,7 +33,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
-final class STBOperation extends STBPrimitiveBase {
+final class StbOperation extends StbPrimitiveBase {
   private final String modelName;
   private final PrimitiveAND op;
 
@@ -55,7 +55,7 @@ final class STBOperation extends STBPrimitiveBase {
     }
   }
 
-  public STBOperation(final String modelName, final PrimitiveAND op) {
+  public StbOperation(final String modelName, final PrimitiveAND op) {
     assert op.getKind() == Primitive.Kind.OP;
 
     this.modelName = modelName;
