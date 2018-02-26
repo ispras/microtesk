@@ -23,8 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * The {@code MetaAddressingMode} class holds information on the specified
- * addressing mode.
+ * The {@code MetaAddressingMode} class holds information on the specified addressing mode.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -52,9 +51,11 @@ public class MetaAddressingMode implements MetaData {
    *        an exception or {@code false} otherwise.
    * @param memoryReference {@code true} if the addressing mode
    *        provides access to memory or {@code false} otherwise.
-   * @param load
-   * @param store
-   * @param blockSize
+   * @param load {@code true} if the addressing mode performs a memory load action or
+   *        {@code false} otherwise.
+   * @param store {@code true} if the addressing mode performs a memory store action or
+   *        {@code false} otherwise.
+   * @param blockSize Size of loaded/stored memory block in bits.
    *
    * @throws IllegalArgumentException if any of the parameters is {@code null}.
    */
@@ -142,8 +143,7 @@ public class MetaAddressingMode implements MetaData {
    * Return an argument of the given addressing mode  that has the specified name.
    *
    * @param name Argument name.
-   * @return Argument with the specified name or {@code null} if no such
-   *         argument is defined.
+   * @return Argument with the specified name or {@code null} if no such argument is defined.
    */
   public final MetaArgument getArgument(final String name) {
     return args.get(name);
@@ -181,8 +181,8 @@ public class MetaAddressingMode implements MetaData {
   /**
    * Checks whether the addressing mode (its attributes) can throw an exception.
    *
-   * @return {@code true} if the addressing mode can throw an exception
-   * or {@code false} otherwise.
+   * @return {@code true} if the addressing mode can throw an exception or
+   *         {@code false} otherwise.
    */
   public final boolean canThrowException() {
     return exception;
@@ -192,8 +192,8 @@ public class MetaAddressingMode implements MetaData {
    * Checks whether the addressing mode provides refers to memory
    * (provides an access to memory via its return expression).
    *
-   * @return {@code true} if the addressing mode provides an reference to memory
-   * or {@code false} otherwise.
+   * @return {@code true} if the addressing mode provides an reference to memory or
+   *         {@code false} otherwise.
    */
   public final boolean isMemoryReference() {
     return memoryReference;
@@ -204,8 +204,8 @@ public class MetaAddressingMode implements MetaData {
    * This does not apply to the return expression, for which the {@code isMemoryReference}
    * must be used.
    *
-   * @return {@code true} if the addressing mode performs a memory load action
-   * or {@code false} otherwise.
+   * @return {@code true} if the addressing mode performs a memory load action or
+   *         {@code false} otherwise.
    */
   public final boolean isLoad() {
     return load;
@@ -216,16 +216,15 @@ public class MetaAddressingMode implements MetaData {
    * This does not apply to the return expression, for which the {@code isMemoryReference}
    * must be used.
    *
-   * @return {@code true} if the addressing mode performs a memory store action
-   * or {@code false} otherwise.
+   * @return {@code true} if the addressing mode performs a memory store action or
+   *         {@code false} otherwise.
    */
   public final boolean isStore() {
     return store;
   }
 
   /**
-   * Returns the size of block read or written to memory. Applicable
-   * for load or store operations.
+   * Returns the size of block read or written to memory. Applicable for load or store operations.
    *
    * @return Size of memory block in bits.
    */
