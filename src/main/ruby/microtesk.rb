@@ -15,9 +15,7 @@
 #
 
 require 'java'
-
 require_relative 'template'
-require_relative 'utils'
 
 module MicroTESK
 
@@ -43,7 +41,7 @@ def self.prepare_template_classes(template_file)
     ENV['TEMPLATE'] = TEMPLATE
     require template_file
   else
-    printf "MTRuby: warning: The %s file does not exist.\r\n", template_file
+    raise "The #{template_file} file does not exist."
   end
 
   Template::template_classes
