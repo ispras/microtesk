@@ -41,7 +41,7 @@ module MmuPlugin
     elsif value.is_a?(Dist)
       @constraint_factory.newEqDist variable_name, value.java_object
     else
-      raise MTRubyError, "#{value} must be Integer, Array, Range or Dist."
+      raise "#{value} must be Integer, Array, Range or Dist."
     end
   end
 

@@ -50,7 +50,7 @@ class Template
       method = Regexp.last_match[3]
       return [file, line, method]
     end
-    raise MTRubyError, "Failed to parse #{at}."
+    raise "Failed to parse #{at}."
   end
 
   # Hack to allow limited use of capslocked characters
@@ -229,7 +229,7 @@ class Template
 
   def get_new_situation(name, attrs, testdata_provider)
     if !attrs.is_a?(Hash)
-      raise MTRubyError, "attrs (#{attrs}) must be a Hash."
+      raise "attrs (#{attrs}) must be a Hash."
     end
 
     builder = @template.newSituation name, testdata_provider
@@ -253,7 +253,7 @@ class Template
 
   def set_default_situation(names, &situations)
     if !names.is_a?(String) and !names.is_a?(Array)
-      raise MTRubyError, "#{names} must be String or Array."
+      raise "#{names} must be String or Array."
     end
 
     default_situation = @situation_manager.instance_eval &situations
@@ -275,7 +275,7 @@ class Template
       distribution = args.at(0)
 
       if !distribution.is_a?(Dist)
-        raise MTRubyError, "the argument must be a distribution."
+        raise "the argument must be a distribution."
       end
 
       @template.newRandom distribution.java_object
@@ -284,12 +284,12 @@ class Template
       to = args.at(1)
 
       if !from.is_a?(Integer) or !to.is_a?(Integer)
-        raise MTRubyError, "the arguments must be integers."
+        raise "the arguments must be integers."
       end
 
       @template.newRandom from, to
     else
-      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 1 or 2."
+      raise "Wrong argument count: #{args.count}. Must be 1 or 2."
     end
   end
 
@@ -300,13 +300,13 @@ class Template
   #
   def dist(*ranges)
     if !ranges.is_a?(Array)
-      raise MTRubyError, "#{ranges} is not an Array."
+      raise "#{ranges} is not an Array."
     end
 
     builder = @template.newVariateBuilder
     ranges.each do |range_item|
       if !range_item.is_a?(ValueRange)
-        raise MTRubyError, "#{range_item} is not a ValueRange."
+        raise "#{range_item} is not a ValueRange."
       end
 
       value = range_item.value
@@ -351,11 +351,11 @@ class Template
   #
   def range(attrs = {})
     if !attrs.is_a?(Hash)
-      raise MTRubyError, "#{attrs} is not a Hash."
+      raise "#{attrs} is not a Hash."
     end
 
     if !attrs.has_key?(:value)
-      raise MTRubyError, "The :value attribute is not specified in #{attrs}."
+      raise "The :value attribute is not specified in #{attrs}."
     end
     value = attrs[:value]
 
@@ -363,7 +363,7 @@ class Template
     if attrs.has_key?(:bias)
       bias = attrs[:bias]
       if !bias.is_a?(Integer)
-        raise MTRubyError, "#{bias} is not an Integer."
+        raise "#{bias} is not an Integer."
       end
     end
 
@@ -382,7 +382,7 @@ class Template
     end
 
     if !attrs.is_a?(Hash)
-      raise MTRubyError, "#{attrs} is not a Hash."
+      raise "#{attrs} is not a Hash."
     end
 
     retain = attrs[:retain]
@@ -427,7 +427,7 @@ class Template
 
   def define_mode_group(name, distribution)
     if !distribution.is_a?(Dist)
-      raise MTRubyError, "#{distribution} is not a distribution."
+      raise "#{distribution} is not a distribution."
     end
 
     @template.defineGroup name, distribution.java_object
@@ -436,7 +436,7 @@ class Template
 
   def define_op_group(name, distribution)
     if !distribution.is_a?(Dist)
-      raise MTRubyError, "#{distribution} is not a distribution."
+      raise "#{distribution} is not a distribution."
     end
 
     @template.defineGroup name, distribution.java_object
@@ -518,7 +518,7 @@ class Template
       elsif arg.is_a?(Location)
         builder.addArgument arg.name, arg.index
       else
-        raise MTRubyError, "Illegal format argument class #{arg.class}"
+        raise "Illegal format argument class #{arg.class}"
       end
     end
 
@@ -563,14 +563,14 @@ class Template
       elsif mask.is_a?(Array)
         builder.setMaskCollection mask
       else
-        raise MTRubyError, "Illegal mask type: #{mask}"
+        raise "Illegal mask type: #{mask}"
       end
     end
 
     arguments = attrs[:arguments]
     if !arguments.nil?
       if !arguments.is_a?(Hash)
-        raise MTRubyError, "#{arguments} is not a Hash."
+        raise "#{arguments} is not a Hash."
       end
 
       arguments.each_pair do |name, value|
@@ -581,7 +581,7 @@ class Template
         elsif value.is_a?(Array)
           builder.addArgumentCollection name, value
         else
-          raise MTRubyError, "Illegal value of #{name} argument: #{value}"
+          raise "Illegal value of #{name} argument: #{value}"
         end
       end
     end
@@ -605,7 +605,7 @@ class Template
 
   def value(*args)
     if args.count != 0 and args.count != 2
-      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 0 or 2."
+      raise "Wrong argument count: #{args.count}. Must be 0 or 2."
     end
 
     if args.count == 2
@@ -712,7 +712,7 @@ class Template
 
   def address(*args)
     if args.count != 0 and args.count != 2
-      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 0 or 2."
+      raise "Wrong argument count: #{args.count}. Must be 0 or 2."
     end
 
     reference = AddressReference.new @template
@@ -725,7 +725,7 @@ class Template
 
   def entry(*args)
     if args.count != 0 and args.count != 2
-      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 0 or 2."
+      raise "Wrong argument count: #{args.count}. Must be 0 or 2."
     end
 
     reference = BufferEntryReference.new @template
@@ -782,7 +782,7 @@ class Template
 
   def data_config(attrs, &contents)
     if nil != @data_manager
-      raise MTRubyError, "Data configuration is already defined"
+      raise "Data configuration is already defined"
     end
 
     target = get_attribute attrs, :target
@@ -799,7 +799,7 @@ class Template
 
   def data(attrs = {}, &contents)
     if nil == @data_manager
-      raise MTRubyError, "Data configuration is not defined"
+      raise "Data configuration is not defined"
     end
 
     if attrs.has_key?(:global)
@@ -829,11 +829,11 @@ class Template
     elsif origin.is_a?(Hash)
       delta = get_attribute origin, :delta
       if !delta.is_a?(Integer)
-        raise MTRubyError, "delta (#{delta}) must be an Integer."
+        raise "delta (#{delta}) must be an Integer."
       end
       @template.setRelativeOrigin delta, get_caller_location
     else
-      raise MTRubyError, "origin (#{origin}) must be an Integer or a Hash."
+      raise "origin (#{origin}) must be an Integer or a Hash."
     end
   end
 
@@ -921,7 +921,7 @@ class Template
       builder.setVa va.to_s
       is_va_label = true
     else
-      raise MTRubyError, "The 'va' attribute has unsupported type #{va.class}."
+      raise "The 'va' attribute has unsupported type #{va.class}."
     end
 
     if !is_va_label
@@ -933,7 +933,7 @@ class Template
       elsif pa.is_a?(String) or pa.is_a?(Symbol)
         builder.setPa pa.to_s
       else
-        raise MTRubyError, "The 'pa' attribute has unsupported type #{pa.class}."
+        raise "The 'pa' attribute has unsupported type #{pa.class}."
       end
     end
 
@@ -954,7 +954,7 @@ class Template
 
   def page_table(attrs = {}, &contents)
     if nil == @data_manager
-      raise MTRubyError, "Data configuration is not defined"
+      raise "Data configuration is not defined"
     end
 
     if attrs.has_key?(:global)
@@ -1090,7 +1090,7 @@ class SituationManager
     if @template.respond_to?(meth)
       @template.send meth, *args, &block
     else
-      raise MTRubyError, "Method '#{meth}' is not available in data sections."
+      raise "Method '#{meth}' is not available in data sections."
     end
   end
 
@@ -1152,11 +1152,11 @@ class DataManager
     elsif origin.is_a?(Hash)
       delta = get_attribute origin, :delta
       if !delta.is_a?(Integer)
-        raise MTRubyError, "delta (#{delta}) must be an Integer."
+        raise "delta (#{delta}) must be an Integer."
       end
       @builder.setRelativeOrigin delta
     else
-      raise MTRubyError, "origin (#{origin}) must be an Integer or a Hash."
+      raise "origin (#{origin}) must be an Integer or a Hash."
     end
   end
 
@@ -1247,7 +1247,7 @@ class DataManager
     if @template.respond_to?(meth) and not Template.instance_methods.include?(meth)
       @template.send meth, *args, &block
     else
-      raise MTRubyError, "Method '#{meth}' is not available in data sections."
+      raise "Method '#{meth}' is not available in data sections."
     end
   end
 end # DataManager
@@ -1354,7 +1354,7 @@ class BufferEntryReference < WrappedObject
 
   def method_missing(meth, *args)
     if args.count != 0 and args.count != 2
-      raise MTRubyError, "Wrong argument count: #{args.count}. Must be 0 or 2."
+      raise "Wrong argument count: #{args.count}. Must be 0 or 2."
     end
 
     if args.count == 2
@@ -1404,33 +1404,32 @@ class PageTable
 
     if attrs.is_a?(Hash)
       unless defined? @preparator
-        raise MTRubyError, "page_table_preparator is not defined."
+        raise "page_table_preparator is not defined."
       end
 
       prep = @preparator
       @data_manager.instance_exec(Entry.new(attrs), &prep)
     elsif attrs.is_a?(MemoryObject)
       unless defined? @adapter
-        raise MTRubyError, "page_table_adapter is not defined."
+        raise "page_table_adapter is not defined."
       end
       @adapter.call attrs
     else
-      raise MTRubyError,
-        "Unsupported class of page_table_entry argument: #{attrs.class}"
+      raise "Unsupported class of page_table_entry argument: #{attrs.class}"
     end
   end
 
   class Entry
     def initialize(attrs)
       if !attrs.is_a?(Hash)
-        raise MTRubyError, "attrs (#{attrs}) must be a Hash."
+        raise "attrs (#{attrs}) must be a Hash."
       end
       @attrs = attrs
     end
 
     def method_missing(name, *args)
       if args.count != 0
-        raise MTRubyError, "Wrong argument count: #{args.count}. Must be 0."
+        raise "Wrong argument count: #{args.count}. Must be 0."
       end
       @attrs[name.to_sym]
     end

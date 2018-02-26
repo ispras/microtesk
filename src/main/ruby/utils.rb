@@ -1,5 +1,5 @@
 #
-# Copyright 2013-2014 ISP RAS (http://www.ispras.ru)
+# Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,30 +15,16 @@
 #
 
 #
-# Description:
-#
-# MTRubyError is class for desribing errors that can occur
-# in MicroTESK test templates.
-#
-# TODO: Needs a review.
-#
-class MTRubyError < StandardError
-  def initialize(msg = "You've triggered an MTRuby Error. TODO: avoid these situations and print stack trace")
-    super
-  end
-end
-
-#
 # Gets an attribute value from the specified hash. Raises exception if the
 # 'attrs' parameter is not a hash or if it does not contain the specified key.
 #
 def get_attribute(attrs, key)
   if !attrs.is_a?(Hash)
-    raise MTRubyError, "#{attrs} mush be a Hash!"
+    raise "#{attrs} mush be a Hash!"
   end
 
   if !attrs.has_key?(key)
-    raise MTRubyError, "The :#{key} attribute is not specified."
+    raise "The :#{key} attribute is not specified."
   end
 
   attrs[key]
