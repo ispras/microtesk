@@ -15,145 +15,54 @@
 package ru.ispras.microtesk.options;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.PropertyMap;
 
 import java.math.BigInteger;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * The {@link Options} stores options.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class Options {
-  private final Map<Option, Object> options;
-
+public final class Options extends PropertyMap<Option> {
   public Options() {
-    this.options = new EnumMap<>(Option.class);
-  }
-
-  public void setValue(final Option option, final Object value) {
-    InvariantChecks.checkNotNull(option);
-    InvariantChecks.checkNotNull(value);
-
-    if (option.getValueClass().isAssignableFrom(value.getClass())) {
-      options.put(option, value);
-      return;
-    }
-
-    if (option.getValueClass().equals(BigInteger.class) && value instanceof Number) {
-      options.put(option, BigInteger.valueOf(((Number) value).longValue()));
-      return;
-    }
-
-    if (option.getValueClass().equals(Integer.class) && value instanceof Long) {
-      options.put(option, Integer.valueOf(((Long) value).intValue()));
-      return;
-    }
-
-    throw new IllegalArgumentException(String.format(
-        "Illegal value type: %s, expected: %s",
-        value.getClass().getSimpleName(),
-        option.getValueClass().getSimpleName()
-        ));
+    super(Option.class);
   }
 
   public void setValue(final String optionName, final Object value) {
-    InvariantChecks.checkNotNull(optionName);
-    final Option option = Option.fromName(optionName);
-    setValue(option, value);
-  }
-
-  public boolean hasValue(final Option option) {
-    InvariantChecks.checkNotNull(option);
-    return options.containsKey(option);
+    setValue(optionFromName(optionName), value);
   }
 
   public boolean hasValue(final String optionName) {
-    InvariantChecks.checkNotNull(optionName);
-    final Option option = Option.fromName(optionName);
-    return hasValue(option);
-  }
-
-  public Object getValue(final Option option) {
-    InvariantChecks.checkNotNull(option);
-    final Object value = options.get(option);
-    return null != value ? value : option.getDefaultValue();
+    return hasValue(optionFromName(optionName));
   }
 
   public Object getValue(final String optionName) {
-    InvariantChecks.checkNotNull(optionName);
-    final Option option = Option.fromName(optionName);
-    return getValue(option);
-  }
-
-  public String getValueAsString(final Option option) {
-    return getValue(option).toString();
+    return getValue(optionFromName(optionName));
   }
 
   public String getValueAsString(final String optionName) {
-    return getValue(optionName).toString();
-  }
-
-  public int getValueAsInteger(final Option option) {
-    final Object value = getValue(option);
-    InvariantChecks.checkTrue(value instanceof Integer);
-    return (Integer) value;
+    return getValueAsString(optionFromName(optionName));
   }
 
   public int getValueAsInteger(final String optionName) {
-    final Object value = getValue(optionName);
-    InvariantChecks.checkTrue(value instanceof Integer);
-    return (Integer) value;
-  }
-
-  public long getValueAsLong(final Option option) {
-    final Object value = getValue(option);
-    InvariantChecks.checkTrue(value instanceof Long);
-    return (Long) value;
+    return getValueAsInteger(optionFromName(optionName));
   }
 
   public long getValueAsLong(final String optionName) {
-    final Object value = getValue(optionName);
-    InvariantChecks.checkTrue(value instanceof Long);
-    return (Long) value;
-  }
-
-  public BigInteger getValueAsBigInteger(final Option option) {
-    final Object value = getValue(option);
-    InvariantChecks.checkTrue(value instanceof BigInteger);
-    return (BigInteger) value;
+    return getValueAsLong(optionFromName(optionName));
   }
 
   public BigInteger getValueAsBigInteger(final String optionName) {
-    final Object value = getValue(optionName);
-    InvariantChecks.checkTrue(value instanceof BigInteger);
-    return (BigInteger) value;
-  }
-
-  public boolean getValueAsBoolean(final Option option) {
-    final Object value = getValue(option);
-    InvariantChecks.checkTrue(value instanceof Boolean);
-    return (Boolean) value;
+    return getValueAsBigInteger(optionFromName(optionName));
   }
 
   public boolean getValueAsBoolean(final String optionName) {
-    final Object value = getValue(optionName);
-    InvariantChecks.checkTrue(value instanceof Boolean);
-    return (Boolean) value;
+    return getValueAsBoolean(optionFromName(optionName));
   }
 
-  @Override
-  public String toString() {
-    final StringBuilder sb = new StringBuilder("Options:");
-    for (final Entry<Option, Object> entry : options.entrySet()) {
-      sb.append(System.lineSeparator());
-      sb.append("    ");
-      sb.append(entry.getKey());
-      sb.append("=");
-      sb.append(entry.getValue());
-    }
-    return sb.toString();
+  private static Option optionFromName(final String optionName) {
+    InvariantChecks.checkNotNull(optionName);
+    return Option.fromName(optionName);
   }
 }

@@ -18,13 +18,14 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import java.util.HashMap;
 import java.util.Map;
+import ru.ispras.microtesk.utils.Property;
 
 /**
  * The {@link Option} enumeration describes options.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public enum Option {
+public enum Option implements Property {
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Common Options
 
