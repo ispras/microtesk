@@ -260,7 +260,7 @@ public final class StatementFactory extends WalkerFactoryBase {
 
   public Statement createFormat(
       final Where where,
-      String format,
+      final String format,
       final List<Node> args) throws SemanticException {
 
     if (null == args) {
@@ -270,9 +270,6 @@ public final class StatementFactory extends WalkerFactoryBase {
           Collections.<Node>emptyList()
           );
     }
-
-    // TODO: Temporary hack to support labels.
-    format = format.replaceAll("%<label>", "<label>%");
 
     final List<FormatMarker> markers = FormatMarker.extractMarkers(format);
     if (markers.size() != args.size()) {
