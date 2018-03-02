@@ -2597,7 +2597,7 @@ op cmp = cmp_m8r8   | cmp_r8r8   | cmp_r8m8   | cmp_r8i8   | cmp_m8i8
 
 op jmp_short(rel: SBYTE)
   init = {}
-  syntax = format("jmp short %<label>d", rel)
+  syntax = format("jmp short %d", rel)
   image  = format("11101011%s", rel)
   action = {
     IP = IP + coerce(WORD, rel);
@@ -2606,7 +2606,7 @@ op jmp_short(rel: SBYTE)
 
 op jmp_long(rel: SWORD)
   init = {}
-  syntax = format("jmp %<label>d", rel)
+  syntax = format("jmp %d", rel)
   image  = format("11101001%s", rel<0..7>::rel<8..15>)
   action = {
     BRANCH = 1;
@@ -2640,7 +2640,7 @@ op jmp = jmp_r16 | jmp_m16 | jmp_long | jmp_short
 
 op jo(rel: SBYTE)
   init = {}
-  syntax = format("jo %<label>d", rel)
+  syntax = format("jo %d", rel)
   image  = format("01110000%s", rel)
   action = {
     if OF == 1 then
@@ -2653,7 +2653,7 @@ op jo(rel: SBYTE)
 
 op jno(rel: SBYTE)
   init = {}
-  syntax = format("jno %<label>d", rel)
+  syntax = format("jno %d", rel)
   image  = format("01110001%s", rel)
   action = {
     if OF == 0 then
@@ -2666,7 +2666,7 @@ op jno(rel: SBYTE)
 
 op jc(rel: SBYTE)
   init = {}
-  syntax = format("jc %<label>d", rel)
+  syntax = format("jc %d", rel)
   image  = format("01110010%s", rel)
   action = {
     if CF == 1 then
@@ -2679,7 +2679,7 @@ op jc(rel: SBYTE)
 
 op jnc(rel: SBYTE)
   init = {}
-  syntax = format("jnc %<label>d", rel)
+  syntax = format("jnc %d", rel)
   image  = format("01110011%s", rel)
   action = {
     if CF == 0 then
@@ -2692,7 +2692,7 @@ op jnc(rel: SBYTE)
 
 op jz(rel: SBYTE)
   init = {}
-  syntax = format("jz %<label>d", rel)
+  syntax = format("jz %d", rel)
   image  = format("01110100%s", rel)
   action = {
     if ZF == 1 then
@@ -2705,7 +2705,7 @@ op jz(rel: SBYTE)
 
 op jnz(rel: SBYTE)
   init = {}
-  syntax = format("jnz %<label>d", rel)
+  syntax = format("jnz %d", rel)
   image  = format("01110101%s", rel)
   action = {
     if ZF == 0 then
@@ -2718,7 +2718,7 @@ op jnz(rel: SBYTE)
 
 op js(rel: SBYTE)
   init = {}
-  syntax = format("js %<label>d", rel)
+  syntax = format("js %d", rel)
   image  = format("01111000%s", rel)
   action = {
     if SF == 1 then
@@ -2731,7 +2731,7 @@ op js(rel: SBYTE)
 
 op jns(rel: SBYTE)
   init = {}
-  syntax = format("jns %<label>d", rel)
+  syntax = format("jns %d", rel)
   image  = format("01111001%s", rel)
   action = {
     if SF == 0 then
@@ -2744,7 +2744,7 @@ op jns(rel: SBYTE)
 
 op jp(rel: SBYTE)
   init = {}
-  syntax = format("jp %<label>d", rel)
+  syntax = format("jp %d", rel)
   image  = format("01111010%s", rel)
   action = {
     if PF == 1 then
@@ -2757,7 +2757,7 @@ op jp(rel: SBYTE)
 
 op jpe(rel: SBYTE)
   init = {}
-  syntax = format("jpe %<label>d", rel)
+  syntax = format("jpe %d", rel)
   image  = format("01111010%s", rel)
   action = {
     if PF == 1 then
@@ -2770,7 +2770,7 @@ op jpe(rel: SBYTE)
 
 op jnp(rel: SBYTE)
   init = {}
-  syntax = format("jnp %<label>d", rel)
+  syntax = format("jnp %d", rel)
   image  = format("01111011%s", rel)
   action = {
     if PF == 0 then
@@ -2783,7 +2783,7 @@ op jnp(rel: SBYTE)
 
 op jpo(rel: SBYTE)
   init = {}
-  syntax = format("jpo %<label>d", rel)
+  syntax = format("jpo %d", rel)
   image  = format("01111011%s", rel)
   action = {
     if PF == 0 then
@@ -2796,7 +2796,7 @@ op jpo(rel: SBYTE)
 
 op ja(rel: SBYTE)
   init = {}
-  syntax = format("ja %<label>d", rel)
+  syntax = format("ja %d", rel)
   image  = format("01110011%s", rel)
   action = {
     if CF == 0 && ZF == 0 then
@@ -2809,7 +2809,7 @@ op ja(rel: SBYTE)
 
 op jae(rel: SBYTE)
   init = {}
-  syntax = format("jae %<label>d", rel)
+  syntax = format("jae %d", rel)
   image  = format("01110011%s", rel)
   action = {
     if CF == 0 then
@@ -2822,7 +2822,7 @@ op jae(rel: SBYTE)
 
 op jb(rel: SBYTE)
   init = {}
-  syntax = format("jb %<label>d", rel)
+  syntax = format("jb %d", rel)
   image  = format("01110010%s", rel)
   action = {
     if CF == 1 then
@@ -2835,7 +2835,7 @@ op jb(rel: SBYTE)
 
 op jbe(rel: SBYTE)
   init = {}
-  syntax = format("jbe %<label>d", rel)
+  syntax = format("jbe %d", rel)
   image  = format("01110110%s", rel)
   action = {
     if CF == 1 && ZF == 1 then
@@ -2848,7 +2848,7 @@ op jbe(rel: SBYTE)
 
 op je(rel: SBYTE)
   init = {}
-  syntax = format("je %<label>d", rel)
+  syntax = format("je %d", rel)
   image  = format("01110100%s", rel)
   action = {
     if ZF == 1 then
@@ -2861,7 +2861,7 @@ op je(rel: SBYTE)
 
 op jne(rel: SBYTE)
   init = {}
-  syntax = format("jne %<label>d", rel)
+  syntax = format("jne %d", rel)
   image  = format("01110100%s", rel)
   action = {
     if ZF == 0 then
@@ -2874,7 +2874,7 @@ op jne(rel: SBYTE)
 
 op jna(rel: SBYTE)
   init = {}
-  syntax = format("jna %<label>d", rel)
+  syntax = format("jna %d", rel)
   image  = format("01110110%s", rel)
   action = {
     if CF == 1 && ZF == 1 then
@@ -2887,7 +2887,7 @@ op jna(rel: SBYTE)
 
 op jnae(rel: SBYTE)
   init = {}
-  syntax = format("jnae %<label>d", rel)
+  syntax = format("jnae %d", rel)
   image  = format("01110010%s", rel)
   action = {
     if CF == 1 then
@@ -2900,7 +2900,7 @@ op jnae(rel: SBYTE)
 
 op jnb(rel: SBYTE)
   init = {}
-  syntax = format("jnb %<label>d", rel)
+  syntax = format("jnb %d", rel)
   image  = format("01110011%s", rel)
   action = {
     if CF == 0 then
@@ -2913,7 +2913,7 @@ op jnb(rel: SBYTE)
 
 op jnbe(rel: SBYTE)
   init = {}
-  syntax = format("jnbe %<label>d", rel)
+  syntax = format("jnbe %d", rel)
   image  = format("01110111%s", rel)
   action = {
     if CF == 0 && ZF == 0 then
@@ -2926,7 +2926,7 @@ op jnbe(rel: SBYTE)
 
 op jg(rel: SBYTE)
   init = {}
-  syntax = format("jg %<label>d", rel)
+  syntax = format("jg %d", rel)
   image  = format("01111111%s", rel)
   action = {
     if ZF == 0 && SF == OF then
@@ -2939,7 +2939,7 @@ op jg(rel: SBYTE)
 
 op jge(rel: SBYTE)
   init = {}
-  syntax = format("jge %<label>d", rel)
+  syntax = format("jge %d", rel)
   image  = format("01111101%s", rel)
   action = {
     if SF == OF then
@@ -2952,7 +2952,7 @@ op jge(rel: SBYTE)
 
 op jl(rel: SBYTE)
   init = {}
-  syntax = format("jl %<label>d", rel)
+  syntax = format("jl %d", rel)
   image  = format("01111100%s", rel)
   action = {
     if SF != OF then
@@ -2965,7 +2965,7 @@ op jl(rel: SBYTE)
 
 op jle(rel: SBYTE)
   init = {}
-  syntax = format("jle %<label>d", rel)
+  syntax = format("jle %d", rel)
   image  = format("01111110%s", rel)
   action = {
     if ZF == 1 || SF != OF then
@@ -2978,7 +2978,7 @@ op jle(rel: SBYTE)
 
 op jng(rel: SBYTE)
   init = {}
-  syntax = format("jng %<label>d", rel)
+  syntax = format("jng %d", rel)
   image  = format("01111110%s", rel)
   action = {
     if ZF == 1 || SF != OF then
@@ -2991,7 +2991,7 @@ op jng(rel: SBYTE)
 
 op jnge(rel: SBYTE)
   init = {}
-  syntax = format("jnge %<label>d", rel)
+  syntax = format("jnge %d", rel)
   image  = format("01111100%s", rel)
   action = {
     if SF != OF then
@@ -3004,7 +3004,7 @@ op jnge(rel: SBYTE)
 
 op jnl(rel: SBYTE)
   init = {}
-  syntax = format("jnl %<label>d", rel)
+  syntax = format("jnl %d", rel)
   image  = format("01111101%s", rel)
   action = {
     if SF == OF then
@@ -3017,7 +3017,7 @@ op jnl(rel: SBYTE)
 
 op jnle(rel: SBYTE)
   init = {}
-  syntax = format("jnle %<label>d", rel)
+  syntax = format("jnle %d", rel)
   image  = format("01111111%s", rel)
   action = {
     if ZF == 0 && SF == OF then
@@ -3041,7 +3041,7 @@ op int_(val: IMM16)
 
 op lea_r16label(op1: R16, rel: SWORD)
   init = {}
-  syntax = format("lea %s, [%<label>d]", op1.syntax, rel)
+  syntax = format("lea %s, [%d]", op1.syntax, rel)
   image  = format("10111%s%s", op1.image, rel)
   action = {
     op1 = coerce(WORD, rel);
