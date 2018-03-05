@@ -60,7 +60,6 @@ package(pack) ::= "package <pack>;<\n>"
  *
  * @param names Full names of classes to be imported.
  */
-
 imports(names) ::= <<
 import <names; separator=";\nimport ">;<\n>
 >>

@@ -35,6 +35,7 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.codegen.Generator;
 import ru.ispras.microtesk.translator.nml.codegen.decoder.DecoderGenerator;
 import ru.ispras.microtesk.translator.nml.codegen.metadata.MetaDataGenerator;
+import ru.ispras.microtesk.translator.nml.codegen.whyml.WhymlGenerator;
 import ru.ispras.microtesk.translator.nml.coverage.Analyzer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
@@ -86,6 +87,9 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new MetaDataGenerator(this));
     addHandler(new DecoderGenerator(this));
     addHandler(new Generator(this));
+
+    // Generate WhyML code for the ISA
+    addHandler(new WhymlGenerator(this));
   }
 
   private void defineSymbolForInternalVariable(final LetConstant constant) {
