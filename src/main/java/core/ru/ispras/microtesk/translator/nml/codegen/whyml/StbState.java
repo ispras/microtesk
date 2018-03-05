@@ -20,13 +20,18 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 final class StbState implements StringTemplateBuilder {
   public static final String FILE_NAME = "State";
 
   private final Ir ir;
+  private final Set<String> imports = new HashSet<>();
 
   public StbState(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
@@ -40,9 +45,30 @@ final class StbState implements StringTemplateBuilder {
     st.add("time", new Date().toString());
     st.add("name", FILE_NAME);
 
-    st.add("imps","mach.int.Int32");
-    st.add("imps","mach.array.Array32");
+    addImport(st, "mach.int.Int32");
+    addImport(st, "mach.array.Array32");
 
+    buildTypes(st);
     return st;
+  }
+
+  private void addImport(final ST st, final String name) {
+    if (!imports.contains(name)) {
+      st.add("imps", name);
+      imports.add(name);
+    }
+  }
+
+  private void buildTypes(final ST st) {
+    for (final Map.Entry<String, Type> entry : ir.getTypes().entrySet()) {
+      final String name = entry.getKey();
+      final Type type = entry.getValue();
+
+      final int typeSize = type.getBitSize();
+      final String typeName = String.format("ispras.BV%d", typeSize);
+
+      addImport(st, typeName);
+      st.add("types", String.format("%s = BV%d.t", name, typeSize));
+    }
   }
 }
