@@ -20,6 +20,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.Date;
@@ -49,6 +50,8 @@ final class StbState implements StringTemplateBuilder {
     addImport(st, "mach.array.Array32");
 
     buildTypes(st);
+    buildMemoryStorages(st);
+
     return st;
   }
 
@@ -69,6 +72,12 @@ final class StbState implements StringTemplateBuilder {
 
       addImport(st, typeName);
       st.add("types", String.format("%s = BV%d.t", name, typeSize));
+    }
+  }
+
+  private void buildMemoryStorages(final ST st) {
+    for (final Map.Entry<String, MemoryExpr> entry : ir.getMemory().entrySet()) {
+
     }
   }
 }
