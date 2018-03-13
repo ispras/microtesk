@@ -284,12 +284,16 @@ public final class Location implements LocationAccessor {
   }
 
   private BitVector readData(final boolean callHandlers) {
+    final int size = atoms.size();
     final BitVector[] dataItems = new BitVector[atoms.size()];
-    for (int index = 0; index < atoms.size(); ++index) {
-      final LocationAtom atom = atoms.get(index);
+
+    int index = size - 1;
+    for (final LocationAtom atom : atoms) {
       dataItems[index] = atom.load(callHandlers);
+      index--;
     }
 
+    // dataItems stores data from HIGH to LOW.
     return BitVector.newMapping(dataItems).copy();
   }
 
