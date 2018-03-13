@@ -24,6 +24,8 @@ public class LocationConcatTestCase {
   public static final Type WORD = Type.def("WORD", Type.INT(32));
   public static final Type DWORD = Type.def("DWORD", Type.INT(64));
   public static final Data DWORD_DATA = Data.valueOf(DWORD, 0xDEADBEEFBAADF00Dl);
+  public static final Data LO_DWORD_DATA = Data.valueOf(WORD, 0xBAADF00Dl);
+  public static final Data HI_DWORD_DATA = Data.valueOf(WORD, 0xDEADBEEFl);
 
   @Test
   public void test() {
@@ -34,6 +36,9 @@ public class LocationConcatTestCase {
 
     final Location concatenation = Location.concat(memory.access(1), memory.access(0));
     concatenation.assign(temp.access());
+
+    Assert.assertEquals(LO_DWORD_DATA.toHexString(), memory.access(0).load().toHexString());
+    Assert.assertEquals(HI_DWORD_DATA.toHexString(), memory.access(1).load().toHexString());
 
     final Data data = concatenation.load();
     Assert.assertEquals(DWORD_DATA.toHexString(), data.toHexString());
