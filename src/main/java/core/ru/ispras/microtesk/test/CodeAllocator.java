@@ -220,7 +220,7 @@ public final class CodeAllocator {
 
         if (Logger.isDebug()) {
           Logger.debug("0x%016x (PA): %s (0x%s)",
-              physicalAddress, call.getText(), image.toHexString());
+              physicalAddress, call.getText(), image.toHexString(true));
         }
 
         memoryAllocator.allocateAt(image, physicalAddress);

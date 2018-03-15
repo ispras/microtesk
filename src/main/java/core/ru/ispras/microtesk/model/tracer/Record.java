@@ -106,7 +106,7 @@ public abstract class Record {
           cpu,
           getTime(),
           addr,
-          instrId.toHexString().toLowerCase(),
+          instrId.toHexString(true).toLowerCase(),
           disasm
           );
     }
