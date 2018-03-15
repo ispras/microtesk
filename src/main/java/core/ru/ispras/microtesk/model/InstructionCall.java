@@ -25,8 +25,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 public final class InstructionCall {
   private final TemporaryVariables temporaryVariables;
   private final IsaPrimitive instruction;
-
-  private String image;
   private int byteSize;
 
   /**
@@ -48,7 +46,6 @@ public final class InstructionCall {
     this.temporaryVariables = temporaryVariables;
     this.instruction = instruction;
 
-    this.image = null;
     this.byteSize = -1;
   }
 
@@ -87,11 +84,7 @@ public final class InstructionCall {
    * @return Image (binary representation) of the instruction call.
    */
   public String getImage() {
-    if (null == image) {
-      image = instruction.image(temporaryVariables);
-    }
-
-    return image;
+    return instruction.image(temporaryVariables);
   }
 
   /**
@@ -110,6 +103,6 @@ public final class InstructionCall {
 
   @Override
   public String toString() {
-    return String.format("%s : %s : %d bytes", getText(), image, byteSize);
+    return String.format("%s : %s : %d bytes", getText(), getImage(), byteSize);
   }
 }
