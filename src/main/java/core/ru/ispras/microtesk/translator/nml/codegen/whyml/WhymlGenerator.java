@@ -14,21 +14,67 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
+import java.io.IOException;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.FileGenerator;
+import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
+import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 
 public final class WhymlGenerator implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;
+  private Ir ir;
 
   public WhymlGenerator(final Translator<Ir> translator) {
     InvariantChecks.checkNotNull(translator);
+
     this.translator = translator;
+    this.ir = null;
   }
 
   @Override
   public void processIr(final Ir ir) {
+    InvariantChecks.checkNotNull(ir);
+    this.ir = ir;
 
+    generateState();
+  }
+
+  private void generateState() {
+    InvariantChecks.checkNotNull(ir);
+    generateFile(StbState.FILE_NAME, new StbState(ir));
+  }
+
+  private void generateFile(
+      final String className,
+      final StringTemplateBuilder templateBuilder) {
+    final String[] templateGroups =
+        new String[] { PackageInfo.COMMON_TEMPLATE_DIR + "Whyml.stg" };
+
+    final FileGenerator generator =
+        new FileGeneratorStringTemplate(getFileName(className), templateGroups, templateBuilder);
+
+    try {
+      generator.generate();
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private String getFileName(final String name) {
+    InvariantChecks.checkNotNull(ir);
+    return String.format("%s/%s/%s.mlw", getOutDir(), getModelName(), name.toLowerCase());
+  }
+
+  private String getOutDir() {
+    return translator.getOutDir() + "/src/whyml";
+  }
+
+  private String getModelName() {
+    InvariantChecks.checkNotNull(ir);
+    return ir.getModelName();
   }
 }
