@@ -1,0 +1,58 @@
+/*
+ * Copyright 2018 ISP RAS (http://www.ispras.ru)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+group WhymlBitVector;
+
+header(year) ::= <<
+(*
+ * Copyright <year> ISP RAS (http://www.ispras.ru)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ *)<\n>
+>>
+
+bit_vector_file(year, bit_size, two_power_size, half_two_power_size, max_int) ::= <<
+<header(year)>
+theory BV<bit_size>
+  constant size                : int = <bit_size>
+  constant two_power_size      : int = <two_power_size>
+  constant half_two_power_size : int = <half_two_power_size>
+
+  use int.Int
+  use ispras.bvgen.BV_Gen
+
+  type bv<bit_size> = \< range 0 <max_int> \>
+
+  clone export ispras.bvgen.BV_Gen with
+    type t = bv<bit_size>,
+    (*function to_int = t'int,*)
+    constant size = size,
+    constant two_power_size = two_power_size,
+    constant half_two_power_size = half_two_power_size,
+    constant max_int = bv<bit_size>'maxInt,
+    goal size_pos,
+    goal two_power_size_val,
+    goal half_two_power_size_val,
+    goal max_int_val
+
+end<\n>
+>>

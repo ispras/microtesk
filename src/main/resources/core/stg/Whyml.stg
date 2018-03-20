@@ -55,7 +55,7 @@ variables(names, types, arrays) ::= <<
 <names, types, arrays:{n, t, is_a | <\n>    <variable(n, t, is_a)>}; separator="; ">
 >>
 
-source_file(time, name, imps, types, var_names, var_types, var_lengths, var_arrays) ::= <<
+state_file(time, name, imps, types, var_names, var_types, var_lengths, var_arrays) ::= <<
 <header(time)>
 module <name>
   <if(imps)><imports(imps)><endif>

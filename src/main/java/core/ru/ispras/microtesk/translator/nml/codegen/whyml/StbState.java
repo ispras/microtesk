@@ -42,7 +42,7 @@ final class StbState implements StringTemplateBuilder {
 
   @Override
   public ST build(final STGroup group) {
-    final ST st = group.getInstanceOf("source_file");
+    final ST st = group.getInstanceOf("state_file");
 
     st.add("time", new Date().toString());
     st.add("name", FILE_NAME);
