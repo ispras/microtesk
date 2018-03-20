@@ -18,7 +18,7 @@ theory BV_Gen
   use export bool.Bool
   use export bool.Ite
   use import int.Int
-  use import Pow2int
+  use import ispras.pow2int.Pow2int
 
   constant size : int
   axiom size_pos : size > 0
@@ -33,7 +33,7 @@ theory BV_Gen
 
   constant zeros : t
   axiom Nth_zeros:
-    forall n:int. nth zeros n = False
+    forall n: int. nth zeros n = False
 
   constant one : t
 
@@ -47,22 +47,22 @@ theory BV_Gen
   nth out of bound axiom *)
   function bw_and (v1 v2 : t) : t
   axiom Nth_bw_and:
-    forall v1 v2:r, n:int. 0 <= n < size ->
+    forall v1 v2: t, n: int. 0 <= n < size ->
       nth (bw_and v1 v2) n = andb (nth v1 n) (nth v2 n)
 
   function bw_or (v1 v2 : t) : t
   axiom Nth_bw_or:
-    forall v1 v2:r, n:int. 0 <= n < size ->
+    forall v1 v2: t, n: int. 0 <= n < size ->
       nth (bw_or v1 v2) n = orb (nth v1 n) (nth v2 n)
 
   function bw_xor (v1 v2 : t) : t
   axiom Nth_bw_xor:
-    forall v1 v2:r, n:int. 0 <= n < size ->
+    forall v1 v2: t, n: int. 0 <= n < size ->
       nth (bw_xor v1 v2) n = xorb (nth v1 n) (nth v2 n)
 
   function bw_not (v : t) : t
   axiom Nth_bw_not:
-    forall v:r, n:int. 0 <= n < size ->
+    forall v: t, n: int. 0 <= n < size ->
       nth (bw_not v) n = notb (nth v n)
 
   (** Shift operators *)
@@ -77,11 +77,11 @@ theory BV_Gen
   function lsr t int : t
 
   axiom Lsr_nth_low:
-    forall b:r,n s:int. 0 <= s -> 0 <= n -> n+s < size ->
+    forall b: t, n s:int. 0 <= s -> 0 <= n -> n+s < size ->
       nth (lsr b s) n = nth b (n+s)
 
   axiom Lsr_nth_high:
-    forall b:r,n s:int. 0 <= s -> 0 <= n -> n+s >= size ->
+    forall b: t, n s: int. 0 <= s -> 0 <= n -> n+s >= size ->
       nth (lsr b s) n = False
 
   lemma lsr_zeros: forall x. lsr x 0 = x
@@ -89,11 +89,11 @@ theory BV_Gen
   function asr t int : t
 
   axiom Asr_nth_low:
-    forall b:r,n s:int. 0 <= s -> 0 <= n < size -> n+s < size ->
+    forall b: t, n s: int. 0 <= s -> 0 <= n < size -> n+s < size ->
       nth (asr b s) n = nth b (n+s)
 
   axiom Asr_nth_high:
-    forall b:r,n s:int. 0 <= s -> 0 <= n < size -> n+s >= size ->
+    forall b: t, n s: int. 0 <= s -> 0 <= n < size -> n+s >= size ->
       nth (asr b s) n = nth b (size-1)
 
   lemma asr_zeros: forall x. asr x 0 = x
@@ -101,11 +101,11 @@ theory BV_Gen
   function lsl t int : t
 
   axiom Lsl_nth_high:
-    forall b:r,n s:int. 0 <= s <= n < size ->
+    forall b: t, n s:int. 0 <= s <= n < size ->
       nth (lsl b s) n = nth b (n-s)
 
   axiom Lsl_nth_low:
-    forall b:r,n s:int. 0 <= n < s ->
+    forall b: t, n s:int. 0 <= n < s ->
       nth (lsl b s) n = False
 
   lemma lsl_zeros: forall x. lsl x 0 = x
@@ -141,10 +141,10 @@ theory BV_Gen
   function of_uint int : t
 
   axiom to_uint_extensionality :
-    forall v,v':r. to_uint v = to_uint v' -> v = v'
+    forall v,v': t. to_uint v = to_uint v' -> v = v'
 
   axiom to_int_extensionality:
-    forall v,v':r. to_int v = to_int v' -> v = v'
+    forall v,v': t. to_int v = to_int v' -> v = v'
 
 (**)
   (*predicate uint_in_range (i : int) = (Int.(<=) 0 i) /\ (Int.(<=) i max_int)*)
@@ -152,20 +152,20 @@ theory BV_Gen
 
 
   axiom to_uint_bounds :
-    forall v:r. 0 <= to_uint v < two_power_size
+    forall v: t. 0 <= to_uint v < two_power_size
 
   axiom to_int_bounds :
-    forall v:r. -half_two_power_size <= to_int v < half_two_power_size
+    forall v: t. -half_two_power_size <= to_int v < half_two_power_size
 
   axiom to_uint_of_int :
     forall i. 0 <= i < two_power_size -> to_uint (of_int i) = i
 
   axiom uint_to_int:
-    forall v:r. 0 <= to_uint v < half_two_power_size ->
+    forall v: t. 0 <= to_uint v < half_two_power_size ->
         to_uint v = to_int v
 
   axiom uint_to_int_o:
-    forall v:r. two_power_size > to_uint v >= half_two_power_size ->
+    forall v: t. two_power_size > to_uint v >= half_two_power_size ->
         to_uint v = to_int v + two_power_size
 
   (*axiom to_uint_of_int_g :
@@ -179,7 +179,7 @@ theory BV_Gen
     forall i. -half_two_power_size <= i < half_two_power_size -> to_int (of_int i) = i
 
   axiom of_int_to_int :
-    forall v:r. of_int (to_int v) = v
+    forall v: t. of_int (to_int v) = v
 
   axiom to_int_of_int_g :
     forall i. two_power_size > i >= half_two_power_size -> to_int (of_int i) =  i - two_power_size
@@ -293,10 +293,10 @@ theory BV_Gen
     forall v. to_uint (neg v) = mod (Int.(-_) (to_uint v)) two_power_size
 
   axiom to_int_neg:
-    forall v:r. to_int v <> -half_two_power_size -> to_int (neg v) = (- (to_int v))
+    forall v: t. to_int v <> -half_two_power_size -> to_int (neg v) = (- (to_int v))
 
   axiom to_int_neg2:
-  forall a:r. (- 2147483648) < to_int a -> to_int (neg a) = (- to_int a)
+  forall a: t. (- 2147483648) < to_int a -> to_int (neg a) = (- to_int a)
 
   axiom to_int_neg_o:
     forall v. to_int v = -half_two_power_size -> to_int (neg v) = -half_two_power_size
@@ -386,10 +386,10 @@ theory BV_Gen
     let mask = lsl_bv (sub (lsl_bv one n) one) i in
       eq_sub_bv a b i n = (bw_and b mask = bw_and a mask)
 
-  predicate eq_sub (a b:r) (i n:int) =
+  predicate eq_sub (a b: t) (i n: int) =
     forall j. i <= j < i + n -> nth a j = nth b j
 
-  axiom eq_sub_equiv: forall a b i n:r.
+  axiom eq_sub_equiv: forall a b i n: t.
       eq_sub    a b (to_uint i) (to_uint n)
   <-> eq_sub_bv a b i n
 
@@ -402,27 +402,27 @@ theory BV_Gen
   axiom Extensionality: forall x y : t [eq x y]. eq x y -> x = y
 
   (*axiom bits_to_uint_g:
-    forall v:r, n:int. 0 <= n < size ->
+    forall v: t, n: int. 0 <= n < size ->
       (nth v n -> to_uint v >= pow2 n)
 
   axiom bits_to_uint:
-    forall v:r, n:int. 0 <= n < size ->
+    forall v: t, n: int. 0 <= n < size ->
       (nth v n -> nth (of_int ((to_uint v) - (pow2 n))) n = False)
 
   axiom bits_to_uint_f:
-    forall v:r, n:int. 0 <= n < size ->
+    forall v: t, n: int. 0 <= n < size ->
       ((pow2 (n+1)) > (to_uint v) /\ (pow2 n) <= (to_uint v) -> nth v n)
 
   axiom uint_to_bits:
-    forall n:int, i. 0 <= n < size ->
+    forall n: int, i. 0 <= n < size ->
       (nth (of_int i) n -> nth (of_int (i - (pow2 n))) n = False)
 
   axiom uint_to_bits_f:
-    forall n:int, i. 0 <= n < size /\ 0 <= i < two_power_size ->
+    forall n: int, i. 0 <= n < size /\ 0 <= i < two_power_size ->
       (pow2 (n+1) > i /\ pow2 n <= i -> nth (of_int i) n)
 
   axiom pow_to_bits:
-    forall n:int. 0 <= n < size ->
+    forall n: int. 0 <= n < size ->
       nth (of_int (pow2 n)) n
 
   function bits2uint (b0 b1 b2 b3 b4 b5 b6 b7: bool) : int
@@ -442,7 +442,7 @@ theory BV_Gen
 
   (*
   axiom Nth_to_uint_e:
-    forall v1:r, n:int. 0 <= n < size ->
+    forall v1: t, n: int. 0 <= n < size ->
       (forall m: int. (0 <= m < size /\ m <> n /\ notb (nth v1 m)) ->
         nth v1 n -> to_uint v1 = pow2 n)*)
 

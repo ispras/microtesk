@@ -18,11 +18,12 @@ theory BV32
   constant half_two_power_size : int = 0x8000_0000
 
   use int.Int (* needed to use range types *)
+  use ispras.bvgen.BV_Gen
 
   type bv32 = < range 0 0xFFFF_FFFF >
 
-  clone export Reg_Gen with
-    type t = r32,
+  clone export ispras.bvgen.BV_Gen with
+    type t = bv32,
     (*function to_int = t'int,*)
     (*function to_int = to_int,*)
     constant size = size,
