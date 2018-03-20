@@ -1,0 +1,449 @@
+(*
+ * Copyright 2018 ISP RAS (http://www.ispras.ru)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ *)
+
+(* Generic theory of Bit Vectors (arbitrary length) *)
+theory BV_Gen
+
+  use export bool.Bool
+  use export bool.Ite
+  use import int.Int
+  use import Pow2int
+
+  constant size : int
+  axiom size_pos : size > 0
+
+  type t
+
+  (** [nth b n] is the n-th bit of b. Bit 0 is
+      the least significant bit *)
+  function nth t int : bool
+
+  axiom nth_out_of_bound: forall x n. n < 0 \/ n >= size -> nth x n = False
+
+  constant zeros : t
+  axiom Nth_zeros:
+    forall n:int. nth zeros n = False
+
+  constant one : t
+
+  constant ones : t
+  axiom Nth_ones:
+    forall n. 0 <= n < size -> nth ones n = True
+
+  (** Bitwise operators *)
+
+  (* /!\ NOTE : both bw_and and bw_or don'r need guard on n because of
+  nth out of bound axiom *)
+  function bw_and (v1 v2 : t) : t
+  axiom Nth_bw_and:
+    forall v1 v2:r, n:int. 0 <= n < size ->
+      nth (bw_and v1 v2) n = andb (nth v1 n) (nth v2 n)
+
+  function bw_or (v1 v2 : t) : t
+  axiom Nth_bw_or:
+    forall v1 v2:r, n:int. 0 <= n < size ->
+      nth (bw_or v1 v2) n = orb (nth v1 n) (nth v2 n)
+
+  function bw_xor (v1 v2 : t) : t
+  axiom Nth_bw_xor:
+    forall v1 v2:r, n:int. 0 <= n < size ->
+      nth (bw_xor v1 v2) n = xorb (nth v1 n) (nth v2 n)
+
+  function bw_not (v : t) : t
+  axiom Nth_bw_not:
+    forall v:r, n:int. 0 <= n < size ->
+      nth (bw_not v) n = notb (nth v n)
+
+  (** Shift operators *)
+
+  (** Warning: shift operators of an amount greater than or equal to
+      the size are specified here, in concordance with SMTLIB. This is
+      not necessarily the case in hardware, where the amount of the
+      shift might be taken modulo the size, eg. [lsr x 64] might be
+      equal to [x], whereas in this theory it is 0.
+  *)
+
+  function lsr t int : t
+
+  axiom Lsr_nth_low:
+    forall b:r,n s:int. 0 <= s -> 0 <= n -> n+s < size ->
+      nth (lsr b s) n = nth b (n+s)
+
+  axiom Lsr_nth_high:
+    forall b:r,n s:int. 0 <= s -> 0 <= n -> n+s >= size ->
+      nth (lsr b s) n = False
+
+  lemma lsr_zeros: forall x. lsr x 0 = x
+
+  function asr t int : t
+
+  axiom Asr_nth_low:
+    forall b:r,n s:int. 0 <= s -> 0 <= n < size -> n+s < size ->
+      nth (asr b s) n = nth b (n+s)
+
+  axiom Asr_nth_high:
+    forall b:r,n s:int. 0 <= s -> 0 <= n < size -> n+s >= size ->
+      nth (asr b s) n = nth b (size-1)
+
+  lemma asr_zeros: forall x. asr x 0 = x
+
+  function lsl t int : t
+
+  axiom Lsl_nth_high:
+    forall b:r,n s:int. 0 <= s <= n < size ->
+      nth (lsl b s) n = nth b (n-s)
+
+  axiom Lsl_nth_low:
+    forall b:r,n s:int. 0 <= n < s ->
+      nth (lsl b s) n = False
+
+  lemma lsl_zeros: forall x. lsl x 0 = x
+
+  use import int.EuclideanDivision
+
+  function rotate_right t int : t
+
+  axiom Nth_rotate_right :
+    forall v n i. 0 <= i < size -> 0 <= n ->
+      nth (rotate_right v n) i = nth v (mod (i + n) size)
+
+  function rotate_left t int : t
+
+  axiom Nth_rotate_left :
+    forall v n i. 0 <= i < size -> 0 <= n ->
+      nth (rotate_left v n) i = nth v (mod (i - n) size)
+
+
+(* Conversions from/to integers *)
+
+  constant two_power_size : int
+  constant half_two_power_size : int
+  constant max_int : int
+
+  axiom two_power_size_val : two_power_size = pow2 size
+  axiom half_two_power_size_val : half_two_power_size = pow2 (size - 1)
+  axiom max_int_val : max_int = two_power_size - 1
+
+  function to_int t : int
+  function to_uint t : int
+  function of_int int : t
+  function of_uint int : t
+
+  axiom to_uint_extensionality :
+    forall v,v':r. to_uint v = to_uint v' -> v = v'
+
+  axiom to_int_extensionality:
+    forall v,v':r. to_int v = to_int v' -> v = v'
+
+(**)
+  (*predicate uint_in_range (i : int) = (Int.(<=) 0 i) /\ (Int.(<=) i max_int)*)
+(**)
+
+
+  axiom to_uint_bounds :
+    forall v:r. 0 <= to_uint v < two_power_size
+
+  axiom to_int_bounds :
+    forall v:r. -half_two_power_size <= to_int v < half_two_power_size
+
+  axiom to_uint_of_int :
+    forall i. 0 <= i < two_power_size -> to_uint (of_int i) = i
+
+  axiom uint_to_int:
+    forall v:r. 0 <= to_uint v < half_two_power_size ->
+        to_uint v = to_int v
+
+  axiom uint_to_int_o:
+    forall v:r. two_power_size > to_uint v >= half_two_power_size ->
+        to_uint v = to_int v + two_power_size
+
+  (*axiom to_uint_of_int_g :
+    forall i. i >= two_power_size -> to_uint (of_int i) = mod i two_power_size
+
+  axiom to_uint_of_int_l :
+    forall i. i < 0 -> to_uint (of_int i) = two_power_size + (mod (i) two_power_size)
+  *)
+
+  axiom to_int_of_int :
+    forall i. -half_two_power_size <= i < half_two_power_size -> to_int (of_int i) = i
+
+  axiom of_int_to_int :
+    forall v:r. of_int (to_int v) = v
+
+  axiom to_int_of_int_g :
+    forall i. two_power_size > i >= half_two_power_size -> to_int (of_int i) =  i - two_power_size
+
+  axiom to_int_of_int_l :
+    forall i. -two_power_size <= i < -half_two_power_size -> to_int (of_int i) = two_power_size + i
+
+  (*
+  axiom to_int_of_int_m :
+    forall i. -half_two_power_size <= mod i two_power_size < half_two_power_size -> to_int (of_int i) = mod i two_power_size
+
+  axiom to_int_of_int_lm :
+    forall i. -two_power_size <= mod i two_power_size < -half_two_power_size -> to_int (of_int i) = two_power_size + (mod i two_power_size)
+
+  axiom to_int_of_int_gm :
+    forall i. two_power_size > mod i two_power_size >= half_two_power_size -> to_int (of_int i) =  (mod i two_power_size) - two_power_size
+  *)
+  constant size_bv : t
+
+  axiom to_uint_size_bv : to_uint size_bv = size
+  axiom to_uint_zeros   : to_uint zeros = 0
+  axiom to_uint_one     : to_uint one = 1
+  axiom to_uint_ones    : to_uint ones = max_int
+
+  axiom to_int_size_bv : to_int size_bv = size
+  axiom to_int_zeros   : to_int zeros = 0
+  axiom to_int_one     : to_int one = 1
+  axiom to_int_ones    : to_int ones = -1
+
+  (* comparison operators *)
+
+  predicate ult (x y : t) =
+    Int.(<) (to_uint x) (to_uint y)
+
+  predicate ule (x y : t) =
+    Int.(<=) (to_uint x) (to_uint y)
+
+  predicate ugt (x y : t) =
+    Int.(>) (to_uint x) (to_uint y)
+
+  predicate uge (x y : t) =
+    Int.(>=) (to_uint x) (to_uint y)
+
+  predicate slt (v1 v2 : t) =
+    Int.(<) (to_int v1) (to_int v2)
+
+  predicate sle (v1 v2 : t) =
+    Int.(<=) (to_int v1) (to_int v2)
+
+  predicate sgt (v1 v2 : t) =
+    Int.(>) (to_int v1) (to_int v2)
+
+  predicate sge (v1 v2 : t) =
+    Int.(>=) (to_int v1) (to_int v2)
+
+  (** Arithmetic operators *)
+
+  function add (v1 v2 : t) : t
+  axiom to_uint_add:
+    forall v1 v2. to_uint (add v1 v2) =  mod (Int.(+) (to_uint v1) (to_uint v2)) two_power_size
+  lemma to_uint_add_bounded:
+    forall v1 v2.
+      to_uint v1 + to_uint v2 < two_power_size ->
+      to_uint (add v1 v2) = to_uint v1 + to_uint v2
+  lemma to_uint_add_unbounded:
+    forall v1 v2.
+      to_uint v1 + to_uint v2 >= two_power_size ->
+      to_uint (add v1 v2) = mod (to_uint v1 + to_uint v2) two_power_size
+
+  axiom to_int_add_bounded:
+    forall v1 v2.
+      -half_two_power_size <= to_int v1 + to_int v2 < half_two_power_size ->
+      to_int (add v1 v2) = to_int v1 + to_int v2
+  axiom to_int_add_unbounded_g:
+    forall v1 v2.
+      half_two_power_size <= to_int v1 + to_int v2 < two_power_size ->
+      to_int (add v1 v2) = to_int v1 + to_int v2 - two_power_size
+  axiom to_int_add_unbounded_l:
+    forall v1 v2.
+      -two_power_size <= to_int v1 + to_int v2 < -half_two_power_size ->
+      to_int (add v1 v2) = to_int v1 + to_int v2 + two_power_size
+
+  function sub (v1 v2 : t) : t
+
+  axiom to_uint_sub:
+    forall v1 v2. to_uint (sub v1 v2) = mod ((Int.(-) (to_uint v1) (to_uint v2)) + two_power_size) two_power_size
+  lemma to_uint_sub_bounded:
+    forall v1 v2.
+      0 <= to_uint v1 - to_uint v2 < two_power_size ->
+      to_uint (sub v1 v2) = to_uint v1 - to_uint v2
+  lemma to_uint_sub_unbounded:
+    forall v1 v2.
+      to_uint v1 - to_uint v2 < 0 ->
+      to_uint (sub v1 v2) = two_power_size + to_uint v1 - to_uint v2
+
+  axiom to_int_sub_bounded:
+    forall v1 v2.
+      -half_two_power_size <= to_int v1 - to_int v2 < half_two_power_size ->
+      to_int (sub v1 v2) = to_int v1 - to_int v2
+  axiom to_int_sub_bounded_g:
+    forall v1 v2.
+      half_two_power_size <= to_int v1 - to_int v2 < two_power_size ->
+      to_int (sub v1 v2) = to_int v1 - to_int v2 - two_power_size
+  axiom to_int_sub_bounded_l:
+    forall v1 v2.
+      -two_power_size <= to_int v1 - to_int v2 < -half_two_power_size ->
+      to_int (sub v1 v2) = to_int v1 - to_int v2 + two_power_size
+
+  function neg (v1 : t) : t
+  axiom to_uint_neg:
+    forall v. to_uint (neg v) = mod (Int.(-_) (to_uint v)) two_power_size
+
+  axiom to_int_neg:
+    forall v:r. to_int v <> -half_two_power_size -> to_int (neg v) = (- (to_int v))
+
+  axiom to_int_neg2:
+  forall a:r. (- 2147483648) < to_int a -> to_int (neg a) = (- to_int a)
+
+  axiom to_int_neg_o:
+    forall v. to_int v = -half_two_power_size -> to_int (neg v) = -half_two_power_size
+
+  function mul (v1 v2 : t) : t
+  axiom to_uint_mul:
+    forall v1 v2. to_uint (mul v1 v2) = mod (Int.( * ) (to_uint v1) (to_uint v2)) two_power_size
+  lemma to_uint_mul_bounded:
+    forall v1 v2.
+      to_uint v1 * to_uint v2 < two_power_size ->
+      to_uint (mul v1 v2) = to_uint v1 * to_uint v2
+
+  function udiv (v1 v2 : t) : t
+  axiom to_uint_udiv:
+    forall v1 v2. to_uint (udiv v1 v2) = div (to_uint v1) (to_uint v2)
+
+  function urem (v1 v2 : t) : t
+  axiom to_uint_urem:
+    forall v1 v2. to_uint (urem v1 v2) = mod (to_uint v1) (to_uint v2)
+
+  (** Bitvector alternatives for shifts, rotations and nth *)
+
+  (** logical shift right *)
+  function lsr_bv t t : t
+
+  axiom lsr_bv_is_lsr:
+    forall x n.
+      lsr_bv x n = lsr x (to_uint n)
+
+  axiom to_uint_lsr:
+    forall v n : t.
+      to_uint (lsr_bv v n) = div (to_uint v) (pow2 ( to_uint n ))
+
+  (** arithmetic shift right *)
+  function asr_bv t t : t
+
+  axiom asr_bv_is_asr:
+    forall x n.
+      asr_bv x n = asr x (to_uint n)
+
+  (*axiom asr_bv_is_asr_i:
+    forall x n.
+      asr_bv x n = asr x (to_int n)*)
+
+  (** logical shift left *)
+  function lsl_bv t t : t
+
+  axiom lsl_bv_is_lsl:
+    forall x n.
+      lsl_bv x n = lsl x (to_uint n)
+
+  axiom to_uint_lsl:
+    forall v n : t.
+         to_uint (lsl_bv v n) = mod (Int.( * ) (to_uint v) (pow2 (to_uint n))) two_power_size
+
+  (** rotations *)
+  function rotate_right_bv (v n : t) : t
+
+  function rotate_left_bv (v n : t) : t
+
+  axiom rotate_left_bv_is_rotate_left :
+    forall v n. rotate_left_bv v n = rotate_left v (to_uint n)
+
+  axiom rotate_right_bv_is_rotate_right :
+    forall v n. rotate_right_bv v n = rotate_right v (to_uint n)
+
+  (** nth_bv *)
+  function nth_bv t t: bool
+
+  axiom nth_bv_def:
+    forall x i.
+      nth_bv x i = not (bw_and (lsr_bv x i) one = zeros)
+
+  axiom Nth_bv_is_nth:
+    forall x i.
+      nth x (to_uint i) = nth_bv x i
+
+  axiom Nth_bv_is_nth2:
+    forall x i. 0 <= i < two_power_size ->
+      nth_bv x (of_int i) = nth x i
+
+  (* equality axioms *)
+
+  predicate eq_sub_bv t t t t
+
+  axiom eq_sub_bv_def: forall a b i n.
+    let mask = lsl_bv (sub (lsl_bv one n) one) i in
+      eq_sub_bv a b i n = (bw_and b mask = bw_and a mask)
+
+  predicate eq_sub (a b:r) (i n:int) =
+    forall j. i <= j < i + n -> nth a j = nth b j
+
+  axiom eq_sub_equiv: forall a b i n:r.
+      eq_sub    a b (to_uint i) (to_uint n)
+  <-> eq_sub_bv a b i n
+
+  predicate eq (v1 v2 : t) =
+    eq_sub v1 v2 0 size
+
+  predicate neq (v1 v2 : t) =
+    not (eq_sub v1 v2 0 size)
+
+  axiom Extensionality: forall x y : t [eq x y]. eq x y -> x = y
+
+  (*axiom bits_to_uint_g:
+    forall v:r, n:int. 0 <= n < size ->
+      (nth v n -> to_uint v >= pow2 n)
+
+  axiom bits_to_uint:
+    forall v:r, n:int. 0 <= n < size ->
+      (nth v n -> nth (of_int ((to_uint v) - (pow2 n))) n = False)
+
+  axiom bits_to_uint_f:
+    forall v:r, n:int. 0 <= n < size ->
+      ((pow2 (n+1)) > (to_uint v) /\ (pow2 n) <= (to_uint v) -> nth v n)
+
+  axiom uint_to_bits:
+    forall n:int, i. 0 <= n < size ->
+      (nth (of_int i) n -> nth (of_int (i - (pow2 n))) n = False)
+
+  axiom uint_to_bits_f:
+    forall n:int, i. 0 <= n < size /\ 0 <= i < two_power_size ->
+      (pow2 (n+1) > i /\ pow2 n <= i -> nth (of_int i) n)
+
+  axiom pow_to_bits:
+    forall n:int. 0 <= n < size ->
+      nth (of_int (pow2 n)) n
+
+  function bits2uint (b0 b1 b2 b3 b4 b5 b6 b7: bool) : int
+
+  axiom from_bits:
+    forall b0 b1 b2 b3 b4 b5 b6 b7: bool.
+      (bits2uint b0 b1 b2 b3 b4 b5 b6 b7) = (ite b7 (pow2 7) 0) + (ite b6 (pow2 6) 0) + (ite b5 (pow2 5) 0) + (ite b4 (pow2 4) 0) +
+                                            (ite b3 (pow2 3) 0) + (ite b2 (pow2 2) 0) + (ite b1 (pow2 1) 0) + (ite b0 (pow2 0) 0)
+
+  axiom r2bits:
+    forall v: t. 0 <= (to_uint v) < 256 ->
+        (to_uint v) = (bits2uint (nth v 0) (nth v 1) (nth v 2) (nth v 3) (nth v 4) (nth v 5) (nth v 6) (nth v 7))
+  axiom uint2bits:
+    forall i: int. 0 <= i < 256 ->
+        i = (bits2uint (nth (of_int i) 0) (nth (of_int i) 1) (nth (of_int i) 2) (nth (of_int i) 3) (nth (of_int i) 4) (nth (of_int i) 5) (nth (of_int i) 6) (nth (of_int i) 7))
+        *)
+
+  (*
+  axiom Nth_to_uint_e:
+    forall v1:r, n:int. 0 <= n < size ->
+      (forall m: int. (0 <= m < size /\ m <> n /\ notb (nth v1 m)) ->
+        nth v1 n -> to_uint v1 = pow2 n)*)
+
+end

@@ -1,0 +1,111 @@
+(*
+ * Copyright 2018 ISP RAS (http://www.ispras.ru)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ *)
+
+(* Powers of two *)
+theory Pow2int
+
+  use import int.Int
+
+  function pow2 (i:int) : int
+
+  axiom Power_0 : pow2 0 = 1
+
+  axiom Power_s : forall n: int. n >= 0 -> pow2 (n+1) = 2 * pow2 n
+
+  lemma Power_1 : pow2 1 = 2
+
+  lemma Power_sum :
+    forall n m: int. n >= 0 /\ m >= 0 -> pow2 (n+m) = pow2 n * pow2 m
+
+  lemma pow2pos: forall i:int. i >= 0 -> pow2 i > 0
+
+  lemma pow2_0: pow2 0   =                  0x1
+  lemma pow2_1: pow2 1   =                  0x2
+  lemma pow2_2: pow2 2   =                  0x4
+  lemma pow2_3: pow2 3   =                  0x8
+  lemma pow2_4: pow2 4   =                 0x10
+  lemma pow2_5: pow2 5   =                 0x20
+  lemma pow2_6: pow2 6   =                 0x40
+  lemma pow2_7: pow2 7   =                 0x80
+  lemma pow2_8: pow2 8   =                0x100
+  lemma pow2_9: pow2 9   =                0x200
+  lemma pow2_10: pow2 10 =                0x400
+  lemma pow2_11: pow2 11 =                0x800
+  lemma pow2_12: pow2 12 =               0x1000
+  lemma pow2_13: pow2 13 =               0x2000
+  lemma pow2_14: pow2 14 =               0x4000
+  lemma pow2_15: pow2 15 =               0x8000
+  lemma pow2_16: pow2 16 =              0x10000
+  lemma pow2_17: pow2 17 =              0x20000
+  lemma pow2_18: pow2 18 =              0x40000
+  lemma pow2_19: pow2 19 =              0x80000
+  lemma pow2_20: pow2 20 =             0x100000
+  lemma pow2_21: pow2 21 =             0x200000
+  lemma pow2_22: pow2 22 =             0x400000
+  lemma pow2_23: pow2 23 =             0x800000
+  lemma pow2_24: pow2 24 =            0x1000000
+  lemma pow2_25: pow2 25 =            0x2000000
+  lemma pow2_26: pow2 26 =            0x4000000
+  lemma pow2_27: pow2 27 =            0x8000000
+  lemma pow2_28: pow2 28 =           0x10000000
+  lemma pow2_29: pow2 29 =           0x20000000
+  lemma pow2_30: pow2 30 =           0x40000000
+  lemma pow2_31: pow2 31 =           0x80000000
+  lemma pow2_32: pow2 32 =          0x100000000
+  lemma pow2_33: pow2 33 =          0x200000000
+  lemma pow2_34: pow2 34 =          0x400000000
+  lemma pow2_35: pow2 35 =          0x800000000
+  lemma pow2_36: pow2 36 =         0x1000000000
+  lemma pow2_37: pow2 37 =         0x2000000000
+  lemma pow2_38: pow2 38 =         0x4000000000
+  lemma pow2_39: pow2 39 =         0x8000000000
+  lemma pow2_40: pow2 40 =        0x10000000000
+  lemma pow2_41: pow2 41 =        0x20000000000
+  lemma pow2_42: pow2 42 =        0x40000000000
+  lemma pow2_43: pow2 43 =        0x80000000000
+  lemma pow2_44: pow2 44 =       0x100000000000
+  lemma pow2_45: pow2 45 =       0x200000000000
+  lemma pow2_46: pow2 46 =       0x400000000000
+  lemma pow2_47: pow2 47 =       0x800000000000
+  lemma pow2_48: pow2 48 =      0x1000000000000
+  lemma pow2_49: pow2 49 =      0x2000000000000
+  lemma pow2_50: pow2 50 =      0x4000000000000
+  lemma pow2_51: pow2 51 =      0x8000000000000
+  lemma pow2_52: pow2 52 =     0x10000000000000
+  lemma pow2_53: pow2 53 =     0x20000000000000
+  lemma pow2_54: pow2 54 =     0x40000000000000
+  lemma pow2_55: pow2 55 =     0x80000000000000
+  lemma pow2_56: pow2 56 =    0x100000000000000
+  lemma pow2_57: pow2 57 =    0x200000000000000
+  lemma pow2_58: pow2 58 =    0x400000000000000
+  lemma pow2_59: pow2 59 =    0x800000000000000
+  lemma pow2_60: pow2 60 =   0x1000000000000000
+  lemma pow2_61: pow2 61 =   0x2000000000000000
+  lemma pow2_62: pow2 62 =   0x4000000000000000
+  lemma pow2_63: pow2 63 =   0x8000000000000000
+  lemma pow2_64: pow2 64 =  0x10000000000000000
+
+  (*** use import int.EuclideanDivision
+
+  lemma Div_pow: forall x i:int.
+    i > 0 -> pow2 (i-1) <= x < pow2 i -> div x (pow2 (i-1)) = 1
+
+  lemma Div_div_pow: forall x i j:int.
+    i > 0 /\ j > 0 -> div (div x (pow2 i)) (pow2 j) = div x (pow2 (i+j))
+
+   lemma Mod_pow2_gen: forall x i k :int.
+    0 <= k < i -> mod (div (x + pow2 i) (pow2 k)) 2 = mod (div x (pow2 k)) 2
+  *)
+
+end
