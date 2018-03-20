@@ -12,14 +12,14 @@
  * the License.
  *)
 
-theory BV16
-  constant size                : int = 16
-  constant two_power_size      : int = 0x1_0000
-  constant half_two_power_size : int = 0x8000
+theory BV8
+  constant size                : int = 8
+  constant two_power_size      : int = 0x1_00
+  constant half_two_power_size : int = 0x80
 
   use int.Int (* needed to use range types *)
 
-  type bv16 = < range 0 0xFFFF >
+  type bv8 = < range 0 0xFF >
 
   clone export Reg_Gen with
     type t = bv16,
@@ -28,7 +28,7 @@ theory BV16
     constant size = size,
     constant two_power_size = two_power_size,
     constant half_two_power_size = half_two_power_size,
-    constant max_int = bv16'maxInt,
+    constant max_int = bv8'maxInt,
     goal size_pos,
     goal two_power_size_val,
     goal max_int_val

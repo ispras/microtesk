@@ -69,7 +69,7 @@ final class StbState implements StringTemplateBuilder {
       final Type type = entry.getValue();
 
       final int typeSize = type.getBitSize();
-      final String typeName = String.format("ispras.BV%d", typeSize);
+      final String typeName = String.format("ispras.bv%d.BV%d", typeSize, typeSize);
 
       addImport(st, typeName);
       st.add("types", String.format("%s = BV%d.t", name, typeSize));

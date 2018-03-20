@@ -622,6 +622,10 @@ distributions {
         into('lib/ruby')
       }
 
+      from('src/main/why3') {
+        into('lib/why3')
+      }
+
       from(sourcesJar) {
         into('src')
       }
