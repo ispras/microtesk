@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
-import java.io.IOException;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.FileGenerator;
 import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
@@ -23,6 +22,8 @@ import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+
+import java.io.IOException;
 
 public final class WhymlGenerator implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;
