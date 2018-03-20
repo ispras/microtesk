@@ -23,6 +23,7 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -77,7 +78,19 @@ final class StbState implements StringTemplateBuilder {
 
   private void buildMemoryStorages(final ST st) {
     for (final Map.Entry<String, MemoryExpr> entry : ir.getMemory().entrySet()) {
+      final MemoryExpr memory = entry.getValue();
 
+      final String name = memory.getName();
+      final BigInteger length = memory.getSize();
+
+      final Type type = memory.getType();
+      final String typeName = type.getAlias() != null
+          ? type.getAlias() : String.format("BV%d.t", type.getBitSize());
+
+      st.add("var_names", name);
+      st.add("var_types", typeName);
+      st.add("var_lengths", length);
+      st.add("var_arrays", !length.equals(BigInteger.ONE));
     }
   }
 }

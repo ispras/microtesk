@@ -39,11 +39,28 @@ typedefs(types) ::= <<
 <types:{t | type <t>}; separator="\n"><\n>
 >>
 
-source_file(time, name, imps, types) ::= <<
+variable_length_invariant(name, length) ::= <<
+  invariant { Int32.to_int self.<name>.length = <length> }<\n>
+>>
+
+variable_length_invariants(names, lengths, arrays) ::= <<
+<names, lengths, arrays:{n, l, is_a | <if(is_a)><variable_length_invariant(n, l)><endif>}>
+>>
+
+variable(name, type, is_array) ::= <<
+<name> : <if(is_array)>Array32.array <endif><type>
+>>
+
+variables(names, types, arrays) ::= <<
+<names, types, arrays:{n, t, is_a | <\n>    <variable(n, t, is_a)>}; separator="; ">
+>>
+
+source_file(time, name, imps, types, var_names, var_types, var_lengths, var_arrays) ::= <<
 <header(time)>
 module <name>
   <if(imps)><imports(imps)><endif>
   <if(types)><typedefs(types)><endif>
-  (* TODO *)
+  type state model {<variables(var_names, var_types, var_arrays)><\n>  }
+  <variable_length_invariants(var_names, var_lengths, var_arrays)>
 end<\n>
 >>
