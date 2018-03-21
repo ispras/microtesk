@@ -25,8 +25,7 @@ theory BV_Gen
 
   type t
 
-  (** [nth b n] is the n-th bit of b. Bit 0 is
-      the least significant bit *)
+  (** [nth b n] is the n-th bit of b. Bit 0 is the least significant bit *)
   function nth t int : bool
 
   axiom nth_out_of_bound: forall x n. n < 0 \/ n >= size -> nth x n = False
