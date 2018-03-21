@@ -71,7 +71,7 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
   }
 
   private String getOutDir() {
-    return translator.getOutDir() + "/src/whyml";
+    return translator.getOutDir() + "/src/why3";
   }
 
   private String getModelName() {

@@ -65,11 +65,12 @@ final class StbState implements StringTemplateBuilder {
 
   private void buildTypes(final ST st) {
     for (final Map.Entry<String, Type> entry : ir.getTypes().entrySet()) {
-      final String name = entry.getKey();
+      final String name = entry.getKey().toLowerCase();
       final Type type = entry.getValue();
 
       final int typeSize = type.getBitSize();
       final String typeName = String.format("ispras.bv%d.BV%d", typeSize, typeSize);
+      BitVectorTheoryGenerator.getInstance().generate(type.getBitSize());
 
       addImport(st, typeName);
       st.add("types", String.format("%s = BV%d.t", name, typeSize));
@@ -80,12 +81,17 @@ final class StbState implements StringTemplateBuilder {
     for (final Map.Entry<String, MemoryExpr> entry : ir.getMemory().entrySet()) {
       final MemoryExpr memory = entry.getValue();
 
-      final String name = memory.getName();
+      final String name = memory.getName().toLowerCase();
       final BigInteger length = memory.getSize();
 
       final Type type = memory.getType();
-      final String typeName = type.getAlias() != null
-          ? type.getAlias() : String.format("BV%d.t", type.getBitSize());
+      final String typeName;
+      if (type.getAlias() != null) {
+        typeName = type.getAlias().toLowerCase();
+      } else {
+        typeName = String.format("BV%d.t", type.getBitSize());
+        BitVectorTheoryGenerator.getInstance().generate(type.getBitSize());
+      }
 
       st.add("var_names", name);
       st.add("var_types", typeName);

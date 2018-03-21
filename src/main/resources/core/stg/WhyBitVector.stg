@@ -40,7 +40,7 @@ theory BV<bit_size>
   use int.Int
   use ispras.bvgen.BV_Gen
 
-  type bv<bit_size> = \< range 0 <max_int> \>
+  type bv<bit_size> = \< range 0 <max_int> >
 
   clone export ispras.bvgen.BV_Gen with
     type t = bv<bit_size>,

@@ -423,6 +423,13 @@ task copyEtc(type: Copy) {
 
 copyEtc.dependsOn jar
 
+task copyWhy3(type: Copy) {
+  from "${project.projectDir}/src/main/why3"
+  into "${project.projectDir}/build/target/lib/why3"
+}
+
+copyEtc.dependsOn copyWhy3
+
 task translateCpu(type: JavaExec) {
   classpath = files('build/libs/microtesk.jar')
   classpath += sourceSets.main.runtimeClasspath
@@ -622,7 +629,7 @@ distributions {
         into('lib/ruby')
       }
 
-      from('src/main/why3') {
+      from("${project.projectDir}/build/target/lib/why3") {
         into('lib/why3')
       }
 
