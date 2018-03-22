@@ -248,14 +248,18 @@ public final class CodeAllocator {
         labelRef.resetTarget();
 
         final Label source = labelRef.getReference();
-        final LabelManager.Target target = labelManager.resolve(source);
+        source.setSequenceIndex(sequenceIndex);
 
+        final LabelManager.Target target = labelManager.resolve(source);
         if (null != target) { // Label is found
-          source.setSequenceIndex(sequenceIndex);
           labelRef.setTarget(target);
           final long address = target.getAddress();
           labelRef.getPatcher().setValue(BigInteger.valueOf(address));
         } else { // Label is not found
+          // References to undefined labels are not assigned sequence index as
+          // they presumably refer to some global labels.
+          // In particular, this applies to jumps to an error handler performed in self-checks.
+          source.setSequenceIndex(Label.NO_SEQUENCE_INDEX);
           if (abortOnUndefined) {
             throw new GenerationAbortedException(String.format(
                 "Label '%s' passed to '%s' (0x%x) is not defined or%n"
