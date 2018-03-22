@@ -19,8 +19,7 @@ require_relative 'minimips_base'
 #
 # Description:
 #
-# This test template is basic example deonstrates how MicroTESK creates
-# self-checking test programs.
+# This test template demonstrates how MicroTESK creates self-checking test programs.
 #
 class SelfChecksTemplate < MiniMipsBaseTemplate
 

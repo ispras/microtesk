@@ -245,7 +245,7 @@ class MiniMipsBaseTemplate < Template
     # addressing mode.
     #
     # Comparators are described using the same syntax as in preparators and can be
-    # overridden in the same way..
+    # overridden in the same way.
     #
     # Default comparator: It is used when no special case is applicable.
     #
