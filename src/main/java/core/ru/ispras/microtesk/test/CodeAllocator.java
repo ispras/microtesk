@@ -248,10 +248,10 @@ public final class CodeAllocator {
         labelRef.resetTarget();
 
         final Label source = labelRef.getReference();
-        source.setSequenceIndex(sequenceIndex);
-
         final LabelManager.Target target = labelManager.resolve(source);
+
         if (null != target) { // Label is found
+          source.setSequenceIndex(sequenceIndex);
           labelRef.setTarget(target);
           final long address = target.getAddress();
           labelRef.getPatcher().setValue(BigInteger.valueOf(address));
