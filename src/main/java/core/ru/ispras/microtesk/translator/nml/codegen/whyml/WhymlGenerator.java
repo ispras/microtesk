@@ -23,6 +23,9 @@ import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive.Modifier;
+
 import java.io.IOException;
 
 public final class WhymlGenerator implements TranslatorHandler<Ir> {
@@ -42,11 +45,22 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
     this.ir = ir;
 
     generateState();
+    generateAddressingModes();
   }
 
   private void generateState() {
     InvariantChecks.checkNotNull(ir);
     generateFile(StbState.FILE_NAME, new StbState(ir));
+  }
+
+  private void generateAddressingModes() {
+    for (final Primitive mode : ir.getModes().values()) {
+      if (!mode.isOrRule() &&
+          mode.getModifier() != Modifier.PSEUDO &&
+          mode.getModifier() != Modifier.LABEL) {
+        generateFile(mode.getName(), new StbAddressingMode(mode));
+      }
+    }
   }
 
   private void generateFile(

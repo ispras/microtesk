@@ -64,3 +64,10 @@ module <name>
   <variable_length_invariants(var_names, var_lengths, var_arrays)>
 end<\n>
 >>
+
+mode_file(time, name, imps) ::= <<
+<header(time)>
+module <name>
+  <if(imps)><imports(imps)><endif>
+end<\n>
+>>
