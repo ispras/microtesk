@@ -65,7 +65,7 @@ module <name>
 end<\n>
 >>
 
-mode_file(time, name, imps) ::= <<
+primitive_file(time, name, imps) ::= <<
 <header(time)>
 module <name>
   <if(imps)><imports(imps)><endif>

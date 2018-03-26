@@ -22,7 +22,6 @@ import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive.Modifier;
 
@@ -46,6 +45,7 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
 
     generateState();
     generateAddressingModes();
+    generateOperations();
   }
 
   private void generateState() {
@@ -54,11 +54,21 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
   }
 
   private void generateAddressingModes() {
-    for (final Primitive mode : ir.getModes().values()) {
-      if (!mode.isOrRule() &&
-          mode.getModifier() != Modifier.PSEUDO &&
-          mode.getModifier() != Modifier.LABEL) {
-        generateFile(mode.getName(), new StbAddressingMode(mode));
+    for (final Primitive primitive : ir.getModes().values()) {
+      if (!primitive.isOrRule() &&
+          primitive.getModifier() != Modifier.PSEUDO &&
+          primitive.getModifier() != Modifier.LABEL) {
+        generateFile(primitive.getName(), new StbPrimitive(primitive));
+      }
+    }
+  }
+
+  private void generateOperations() {
+    for (final Primitive primitive : ir.getOps().values()) {
+      if (!primitive.isOrRule() &&
+          primitive.getModifier() != Modifier.PSEUDO &&
+          primitive.getModifier() != Modifier.LABEL) {
+        generateFile(primitive.getName(), new StbPrimitive(primitive));
       }
     }
   }

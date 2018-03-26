@@ -22,17 +22,17 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
-final class StbAddressingMode implements StringTemplateBuilder {
+final class StbPrimitive implements StringTemplateBuilder {
   private final Primitive primitive;
 
-  public StbAddressingMode(final Primitive primitive) {
+  public StbPrimitive(final Primitive primitive) {
     InvariantChecks.checkNotNull(primitive);
     this.primitive = primitive;
   }
 
   @Override
   public ST build(final STGroup group) {
-    final ST st = group.getInstanceOf("mode_file");
+    final ST st = group.getInstanceOf("primitive_file");
 
     st.add("time", new Date().toString());
     st.add("name", primitive.getName());
