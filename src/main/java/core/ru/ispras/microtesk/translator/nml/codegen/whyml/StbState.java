@@ -69,11 +69,12 @@ final class StbState implements StringTemplateBuilder {
       final Type type = entry.getValue();
 
       final int typeSize = type.getBitSize();
-      final String typeName = String.format("ispras.bv%d.BV%d", typeSize, typeSize);
-      BitVectorTheoryGenerator.getInstance().generate(type.getBitSize());
+      final String typeName = getTypeFullName(typeSize);
 
+      BitVectorTheoryGenerator.getInstance().generate(type.getBitSize());
       addImport(st, typeName);
-      st.add("types", String.format("%s = BV%d.t", name, typeSize));
+
+      st.add("types", String.format("%s = %s", name, getTypeName(typeSize)));
     }
   }
 
@@ -89,8 +90,10 @@ final class StbState implements StringTemplateBuilder {
       if (type.getAlias() != null) {
         typeName = type.getAlias().toLowerCase();
       } else {
-        typeName = String.format("BV%d.t", type.getBitSize());
-        BitVectorTheoryGenerator.getInstance().generate(type.getBitSize());
+        final int typeSize = type.getBitSize();
+        typeName = getTypeName(typeSize);
+        BitVectorTheoryGenerator.getInstance().generate(typeSize);
+        addImport(st, getTypeFullName(typeSize));
       }
 
       st.add("var_names", name);
@@ -98,5 +101,15 @@ final class StbState implements StringTemplateBuilder {
       st.add("var_lengths", length);
       st.add("var_arrays", !length.equals(BigInteger.ONE));
     }
+  }
+
+  private static String getTypeName(final int typeSize) {
+    InvariantChecks.checkGreaterThanZero(typeSize);
+    return String.format("bv%d", typeSize);
+  }
+
+  private static String getTypeFullName(final int typeSize) {
+    InvariantChecks.checkGreaterThanZero(typeSize);
+    return String.format("ispras.bv%d.BV%d", typeSize, typeSize);
   }
 }
