@@ -1399,6 +1399,10 @@ class PageTable
     @data_manager.label id
   end
 
+  def global_label(id)
+    @data_manager.global_label id
+  end
+
   def memory_object(attrs)
     @template.memory_object attrs
   end
