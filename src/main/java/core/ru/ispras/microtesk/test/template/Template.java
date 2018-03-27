@@ -393,8 +393,8 @@ public final class Template {
     }
   }
 
-  public void addLabel(final String name) {
-    final Label label = new Label(name, getCurrentBlockId());
+  public void addLabel(final String name, final boolean global) {
+    final Label label = new Label(name, getCurrentBlockId(), global);
     debug("Label: " + label.toString());
     callBuilder.addLabel(label);
   }

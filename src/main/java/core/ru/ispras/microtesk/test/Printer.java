@@ -350,7 +350,11 @@ public final class Printer {
     InvariantChecks.checkNotNull(labels);
 
     for (final Label label : labels) {
-      printTextNoIndent(label.getUniqueName() + ":");
+      final String name = label.getUniqueName();
+      if (label.isGlobal()) {
+        printText(String.format(".globl %s", name));
+      }
+      printTextNoIndent(name + ":");
     }
   }
 

@@ -28,6 +28,7 @@ import java.util.List;
 public final class Label {
   private final String name;
   private final BlockId blockId;
+  private final boolean global;
 
   public static final int NO_REFERENCE_NUMBER = -1;
   private int referenceNumber;
@@ -36,7 +37,7 @@ public final class Label {
   private int sequenceIndex;
 
   /**
-   * Constructs a label object.
+   * Constructs a label object. The label is considered non-global.
    *
    * @param name The name of the label.
    * @param blockId The identifier of the block where the label is defined.
@@ -44,11 +45,25 @@ public final class Label {
    * @throws IllegalStateException if any of the parameters equals {@code null}.
    */
   public Label(final String name, final BlockId blockId) {
+    this(name, blockId, false);
+  }
+
+  /**
+   * Constructs a label object.
+   *
+   * @param name The name of the label.
+   * @param blockId The identifier of the block where the label is defined.
+   * @param global Specifies whether the label is global.
+   *
+   * @throws IllegalStateException if any of the arguments equals {@code null}.
+   */
+  public Label(final String name, final BlockId blockId, final boolean global) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(blockId);
 
     this.name = name;
     this.blockId = blockId;
+    this.global = global;
     this.referenceNumber = NO_REFERENCE_NUMBER;
     this.sequenceIndex = NO_SEQUENCE_INDEX;
   }
@@ -63,6 +78,7 @@ public final class Label {
 
     this.name = other.name;
     this.blockId = other.blockId;
+    this.global = other.global;
     this.referenceNumber = other.referenceNumber;
     this.sequenceIndex = other.sequenceIndex;
   }
@@ -174,6 +190,15 @@ public final class Label {
    */
   public BlockId getBlockId() {
     return blockId;
+  }
+
+  /**
+   * Checks whether the label is global.
+   *
+   * @return {@code true} if the label is global or {@code false} otherwise.
+   */
+  public boolean isGlobal() {
+    return global;
   }
 
   /**

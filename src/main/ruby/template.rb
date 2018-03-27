@@ -212,7 +212,11 @@ class Template
   end
 
   def label(name)
-    @template.addLabel name
+    @template.addLabel name, false
+  end
+
+  def global_label(name)
+    @template.addLabel name, true
   end
 
   def get_address_of(label)
