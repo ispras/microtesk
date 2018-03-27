@@ -126,7 +126,7 @@ public final class DataManager {
     final DataDirectiveFactory.TypeInfo typeInfo = factory.findTypeInfo(typeId);
     final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
 
-    dataBuilder.addLabel(labelName);
+    dataBuilder.addLabel(labelName, false);
     dataBuilder.addComment(String.format(" Address: 0x%016x", address));
 
     for (int index = 0; index < length; index += 4) {

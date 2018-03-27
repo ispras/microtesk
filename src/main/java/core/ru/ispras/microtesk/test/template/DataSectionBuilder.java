@@ -121,11 +121,11 @@ public final class DataSectionBuilder {
     addDirective(directiveFactory.newAlign(value, valueInBytes));
   }
 
-  public void addLabel(final String id) {
+  public void addLabel(final String id, final boolean global) {
     final Label label = new Label(id, blockId);
     final LabelValue labelValue = LabelValue.newUnknown(label);
 
-    if (separateFile) {
+    if (global || separateFile) {
       addDirective(directiveFactory.newGlobalLabel(labelValue));
     }
 

@@ -1165,7 +1165,11 @@ class DataManager
   end
 
   def label(id)
-    @builder.addLabel id
+    @builder.addLabel id, false
+  end
+
+  def global_label(id)
+    @builder.addLabel id, true
   end
 
   def rand(from, to)
