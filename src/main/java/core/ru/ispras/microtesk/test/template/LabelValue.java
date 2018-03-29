@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -41,12 +41,20 @@ public final class LabelValue extends SharedObject<LabelValue> implements Value 
 
   private Label label;
   private BigInteger address;
+  private String suffix;
 
   public LabelValue(final LabelValue other) {
     super(other);
 
     this.label = other.label != null ? new Label(other.label) : null;
     this.address = other.address;
+    this.suffix = other.suffix;
+  }
+
+  private LabelValue(final Label label, final BigInteger address) {
+    this.label = label;
+    this.address = address;
+    this.suffix = "";
   }
 
   @Override
@@ -72,11 +80,6 @@ public final class LabelValue extends SharedObject<LabelValue> implements Value 
     }
 
     return result;
-  }
-
-  private LabelValue(final Label label, final BigInteger address) {
-    this.label = label;
-    this.address = address;
   }
 
   public String getName() {
@@ -111,6 +114,16 @@ public final class LabelValue extends SharedObject<LabelValue> implements Value 
 
   public boolean hasAddress() {
     return address != null;
+  }
+
+  public String getSuffix() {
+    return suffix;
+  }
+
+  public void setSuffix(final String suffix) {
+    InvariantChecks.checkNotNull(suffix);
+    InvariantChecks.checkTrue(this.suffix.isEmpty());
+    this.suffix = suffix;
   }
 
   @Override

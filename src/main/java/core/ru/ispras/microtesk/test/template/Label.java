@@ -20,15 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The {@link Label} class describes a label set in test templates and
- * symbolic test programs.
+ * The {@link Label} class describes a label set in test templates and symbolic test programs.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Label {
   private final String name;
   private final BlockId blockId;
+
   private final boolean global;
+  private final boolean numeric;
 
   public static final int NO_REFERENCE_NUMBER = -1;
   private int referenceNumber;
@@ -37,7 +38,7 @@ public final class Label {
   private int sequenceIndex;
 
   /**
-   * Constructs a label object. The label is considered non-global.
+   * Constructs a label object. The label is considered non-global and non-numeric.
    *
    * @param name The name of the label.
    * @param blockId The identifier of the block where the label is defined.
@@ -45,7 +46,7 @@ public final class Label {
    * @throws IllegalStateException if any of the parameters equals {@code null}.
    */
   public Label(final String name, final BlockId blockId) {
-    this(name, blockId, false);
+    this(name, blockId, false, false);
   }
 
   /**
@@ -54,16 +55,28 @@ public final class Label {
    * @param name The name of the label.
    * @param blockId The identifier of the block where the label is defined.
    * @param global Specifies whether the label is global.
+   * @param numeric Specifies whether the label is numeric.
    *
-   * @throws IllegalStateException if any of the arguments equals {@code null}.
+   * @throws IllegalStateException if any of the arguments equals {@code null};
+   *                               if the label both global and numeric.
    */
-  public Label(final String name, final BlockId blockId, final boolean global) {
+  public Label(
+      final String name,
+      final BlockId blockId,
+      final boolean global,
+      final boolean numeric) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(blockId);
 
+    // A label cannot be both global and numeric.
+    InvariantChecks.checkTrue(global ? !numeric : true);
+
     this.name = name;
     this.blockId = blockId;
+
     this.global = global;
+    this.numeric = numeric;
+
     this.referenceNumber = NO_REFERENCE_NUMBER;
     this.sequenceIndex = NO_SEQUENCE_INDEX;
   }
@@ -78,7 +91,10 @@ public final class Label {
 
     this.name = other.name;
     this.blockId = other.blockId;
+
     this.global = other.global;
+    this.numeric = other.numeric;
+
     this.referenceNumber = other.referenceNumber;
     this.sequenceIndex = other.sequenceIndex;
   }
@@ -162,10 +178,16 @@ public final class Label {
    * <li>Reference number if it set</li>
    * <li>Sequence index if it set</li>
    * </ol>
+   * N.B. Numeric labels do not have unique names. For such labels, a unique name includes
+   * only label name.
    *
    * @return Unique name based on the label name and the context in which it is defined.
    */
   public String getUniqueName() {
+    if (numeric) {
+      return name;
+    }
+
     final StringBuilder sb = new StringBuilder(name);
 
     if (blockId.parentId() != null) {
@@ -199,6 +221,15 @@ public final class Label {
    */
   public boolean isGlobal() {
     return global;
+  }
+
+  /**
+   * Checks whether the label is numeric.
+   *
+   * @return {@code true} if the label is numeric or {@code false} otherwise.
+   */
+  public boolean isNumeric() {
+    return numeric;
   }
 
   /**

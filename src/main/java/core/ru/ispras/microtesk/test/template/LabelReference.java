@@ -117,7 +117,7 @@ public final class LabelReference {
    */
   public String getName() {
     final Label label = null != target ? target.getLabel() : reference.getLabel();
-    return label.getUniqueName();
+    return label.getUniqueName() + reference.getSuffix();
   }
 
   public void setTarget(final LabelManager.Target target) {

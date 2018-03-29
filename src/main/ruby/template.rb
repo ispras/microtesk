@@ -212,11 +212,26 @@ class Template
   end
 
   def label(name)
-    @template.addLabel name, false
+    if name.is_a?(Integer)
+      if !name.between?(0, 9)
+        raise "#{name} is must be within the range 0..9."
+      end
+      @template.addNumericLabel name
+    else
+      @template.addLabel name.to_s, false
+    end
   end
 
   def global_label(name)
     @template.addLabel name, true
+  end
+
+  def label_b(index)
+    numeric_label_ref index, false
+  end
+
+  def label_f(index)
+    numeric_label_ref index, true
   end
 
   def get_address_of(label)
@@ -1032,6 +1047,18 @@ class Template
       end
     end
     builder
+  end
+
+  def numeric_label_ref(index, forward)
+    if !index.is_a?(Integer)
+      raise "#{index} is not an Integer."
+    end
+
+    if !index.between?(0, 9)
+      raise "#{index} is must be within the range 0..9."
+    end
+
+    @template.newNumericLabelRef index, forward
   end
 
 end # Template
