@@ -26,11 +26,14 @@ import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineUtils;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractCallBuilder;
 import ru.ispras.microtesk.test.template.Block;
+import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelUniqualizer;
+import ru.ispras.microtesk.test.template.Output;
 import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -132,8 +135,15 @@ final class TestEngineUtils {
     InvariantChecks.checkNotNull(entryPoint);
 
     final List<AbstractCall> calls = new ArrayList<>();
-    calls.add(AbstractCall.newComment(String.format("Exceptions: %s", entryPoint.getExceptions())));
-    calls.add(AbstractCall.newOrigin(entryPoint.getOrigin(), false));
+    final AbstractCallBuilder abstractCallBuilder = new AbstractCallBuilder(new BlockId());
+
+    final Output comment = new Output(
+        Output.Kind.COMMENT, String.format("Exceptions: %s", entryPoint.getExceptions()));
+
+    abstractCallBuilder.addOutput(comment);
+    abstractCallBuilder.setOrigin(entryPoint.getOrigin(), false);
+
+    calls.add(abstractCallBuilder.build());
     calls.addAll(entryPoint.getCalls());
 
     final List<ConcreteCall> concreteCalls = EngineUtils.makeConcreteCalls(engineContext, calls);

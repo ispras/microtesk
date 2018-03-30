@@ -38,7 +38,7 @@ public final class AbstractCallBuilder {
 
   private PreparatorReference preparatorReference;
 
-  protected AbstractCallBuilder(final BlockId blockId) {
+  public AbstractCallBuilder(final BlockId blockId) {
     InvariantChecks.checkNotNull(blockId);
 
     this.blockId = blockId;
