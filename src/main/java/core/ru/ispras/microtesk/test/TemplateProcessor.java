@@ -111,6 +111,8 @@ final class TemplateProcessor implements Template.Processor {
       final String outDir = Printer.getOutDir(engineContext.getOptions());
       Tracer.initialize(outDir, engineContext.getOptions().getValueAsString(Option.CODE_PRE));
     }
+
+    engineContext.setCodeAllocator(allocator);
   }
 
   @Override

@@ -19,6 +19,7 @@ import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.settings.DelaySlotSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
+import ru.ispras.microtesk.test.CodeAllocator;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
@@ -46,6 +47,7 @@ public final class EngineContext {
   private final Statistics statistics;
   private final int delaySlotSize;
   private long codeAllocationAddress;
+  private CodeAllocator codeAllocator;
   private DataDirectiveFactory dataDirectiveFactory;
 
   // TODO: temporal solution for extending the context for custom engines.
@@ -76,6 +78,7 @@ public final class EngineContext {
     this.delaySlotSize = delaySlotSettings != null ? delaySlotSettings.getSize() : 0;
 
     this.codeAllocationAddress = 0;
+    this.codeAllocator = null;
     this.dataDirectiveFactory = null;
   }
 
@@ -121,6 +124,15 @@ public final class EngineContext {
 
   public void setCodeAllocationAddress(final long value) {
     this.codeAllocationAddress = value;
+  }
+
+  public CodeAllocator getCodeAllocator() {
+    return codeAllocator;
+  }
+
+  public void setCodeAllocator(final CodeAllocator codeAllocator) {
+    InvariantChecks.checkNotNull(codeAllocator);
+    this.codeAllocator = codeAllocator;
   }
 
   public DataDirectiveFactory getDataDirectiveFactory() {
