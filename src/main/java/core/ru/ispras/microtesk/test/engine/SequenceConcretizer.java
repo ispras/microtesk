@@ -201,8 +201,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
     final boolean isFetchDecodeEnabled =
         engineContext.getOptions().getValueAsBoolean(Option.FETCH_DECODE_ENABLED);
 
-    final CodeAllocator codeAllocator = new CodeAllocator(
-        engineContext.getModel(), labelManager, isFetchDecodeEnabled);
+    final CodeAllocator codeAllocator =
+        new CodeAllocator(engineContext.getModel(), labelManager, isFetchDecodeEnabled);
 
     codeAllocator.init();
     codeAllocator.setAddress(allocationAddress);
@@ -223,6 +223,11 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
 
     final Code code = codeAllocator.getCode();
     final Executor executor = new Executor(engineContext, labelManager, true);
+
+    // Copies exception handler addresses from the global context.
+    // Needed to favorably handle exceptions.
+    code.getHandlerAddresses().putAll(
+        engineContext.getCodeAllocator().getCode().getHandlerAddresses());
 
     executor.setPauseOnUndefinedLabel(false);
     executor.setListener(listener);

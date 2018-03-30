@@ -137,6 +137,10 @@ public final class Code {
     return address;
   }
 
+  public Map<String, Long> getHandlerAddresses() {
+    return handlerAddresses;
+  }
+
   public boolean isBreakAddress(final long address) {
     return breakAddresses.contains(address);
   }
