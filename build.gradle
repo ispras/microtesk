@@ -18,7 +18,7 @@ import java.util.regex.Matcher
 buildscript {
   repositories {
     ivy {
-      url = 'http://forge.ispras.ru/repo'
+      url = 'https://forge.ispras.ru/repo'
       layout 'pattern', {
         artifact '[organization]/[ext]s/[artifact]-[revision](.[ext])'
       }
