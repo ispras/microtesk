@@ -26,10 +26,11 @@ model(file, pack, imps, simps, base, members) ::= <<
        members)> 
 >>
 
-model_constructor(class, name, modes, ops) ::= <<
+model_constructor(class, name, revid, modes, ops) ::= <<
 public <class>() {
   super(
       "<name>",
+      "<revid>",
       MetaModelFactory.newMetaModel(),
       Decoder.get(),
       PE.newFactory(),

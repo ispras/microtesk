@@ -23,6 +23,7 @@ import java.util.Map;
 
 public class ModelBuilder {
   private final String name;
+  private final String revisionId;
   private final MetaModel metaModel;
   private final Decoder decoder;
 
@@ -34,17 +35,20 @@ public class ModelBuilder {
 
   protected ModelBuilder(
       final String name,
+      final String revisionId,
       final MetaModel metaModel,
       final Decoder decoder,
       final ProcessingElement.Factory procElemFactory,
       final TemporaryVariables.Factory tempVarFactory) {
     InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(revisionId);
     InvariantChecks.checkNotNull(metaModel);
 
     InvariantChecks.checkNotNull(procElemFactory);
     InvariantChecks.checkNotNull(tempVarFactory);
 
     this.name = name;
+    this.revisionId = revisionId;
     this.metaModel = metaModel;
     this.decoder = decoder;
     this.procElemFactory = procElemFactory;
@@ -66,6 +70,7 @@ public class ModelBuilder {
   public final Model build() {
     return new Model(
         name,
+        revisionId,
         metaModel,
         decoder,
         procElemFactory,

@@ -29,6 +29,7 @@ import java.util.Map;
 
 public final class Ir {
   private final String modelName;
+  private final String revisionId;
   private final Map<String, LetConstant> consts;
   private final Map<String, LetLabel> labels;
   private final Map<String, Type> types;
@@ -37,9 +38,12 @@ public final class Ir {
   private final Map<String, Primitive> ops;
   private final List<Primitive> roots;
 
-  public Ir(final String modelName) {
+  public Ir(final String modelName, final String revisionId) {
     InvariantChecks.checkNotNull(modelName);
+    InvariantChecks.checkNotNull(revisionId);
+
     this.modelName = modelName;
+    this.revisionId = revisionId;
 
     this.consts  = new LinkedHashMap<>();
 
@@ -55,6 +59,10 @@ public final class Ir {
 
   public String getModelName() {
     return modelName;
+  }
+
+  public String getRevisionId() {
+    return revisionId;
   }
 
   public void add(final String name, final LetConstant value) {

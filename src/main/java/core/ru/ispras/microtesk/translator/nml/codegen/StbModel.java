@@ -65,6 +65,7 @@ final class StbModel implements StringTemplateBuilder {
 
     stConstructor.add("class", CLASS_NAME);
     stConstructor.add("name", ir.getModelName());
+    stConstructor.add("revid", ir.getRevisionId());
 
     addModes(st, stConstructor);
     addOperations(st, stConstructor);

@@ -124,7 +124,7 @@ public final class NmlTranslator extends Translator<Ir> {
     }
 
     final TokenSource source = startLexer(filenames);
-    final Ir ir = startParserAndWalker(modelName, source);
+    final Ir ir = startParserAndWalker(modelName, revisionId, source);
     if (null == ir) {
       return false;
     }
@@ -133,7 +133,10 @@ public final class NmlTranslator extends Translator<Ir> {
     return true;
   }
 
-  private Ir startParserAndWalker(final String modelName, final TokenSource source) {
+  private Ir startParserAndWalker(
+      final String modelName,
+      final String revisionId,
+      final TokenSource source) {
     final CommonTokenStream tokens = new TokenRewriteStream();
     tokens.setTokenSource(source);
 
@@ -166,7 +169,7 @@ public final class NmlTranslator extends Translator<Ir> {
       final CommonTreeNodeStream nodes = new CommonTreeNodeStream(tree);
       nodes.setTokenStream(tokens);
 
-      final Ir ir = new Ir(modelName);
+      final Ir ir = new Ir(modelName, revisionId);
       final NmlTreeWalker walker = new NmlTreeWalker(nodes);
 
       ir.add(LetConstant.FLOAT_EXCEPTION_FLAGS.getName(), LetConstant.FLOAT_EXCEPTION_FLAGS);

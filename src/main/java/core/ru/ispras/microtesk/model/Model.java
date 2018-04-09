@@ -39,6 +39,7 @@ import java.util.Map;
  */
 public final class Model implements ModelStateManager {
   private final String name;
+  private final String revisionId;
   private final MetaModel metaData;
   private final Decoder decoder;
 
@@ -59,6 +60,7 @@ public final class Model implements ModelStateManager {
 
   protected Model(
       final String name,
+      final String revisionId,
       final MetaModel metaData,
       final Decoder decoder,
       final ProcessingElement.Factory procElemFactory,
@@ -66,6 +68,7 @@ public final class Model implements ModelStateManager {
       final Map<String, IsaPrimitiveInfoAnd> modes,
       final Map<String, IsaPrimitiveInfoAnd> ops) {
     InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(revisionId);
     InvariantChecks.checkNotNull(metaData);
     InvariantChecks.checkNotNull(decoder);
 
@@ -73,6 +76,7 @@ public final class Model implements ModelStateManager {
     InvariantChecks.checkNotNull(tempVarFactory);
 
     this.name = name;
+    this.revisionId = revisionId;
     this.metaData = metaData;
     this.decoder = decoder;
     this.procElemFactory = procElemFactory;
@@ -94,16 +98,25 @@ public final class Model implements ModelStateManager {
   /**
    * Returns the name of the modeled microprocessor design.
    *
-   * @return name Microprocessor design name.
+   * @return Microprocessor design name.
    */
   public String getName() {
     return name;
   }
 
   /**
+   * Returns the identifier of the architecture revision used to compile the model.
+   *
+   * @return Architecture revision identifier.
+   */
+  public String getRevisionId() {
+    return revisionId;
+  }
+
+  /**
    * Returns a meta description of the model.
    *
-   * @return An meta data object (provides access to model's meta data).
+   * @return A meta data object (provides access to model's meta data).
    */
   public MetaModel getMetaData() {
     return metaData;
