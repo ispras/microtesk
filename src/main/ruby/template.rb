@@ -1030,6 +1030,18 @@ class Template
     engine.getOptionValue name
   end
 
+  def rev_id
+    java_import Java::Ru.ispras.microtesk.test.TestEngine
+    engine = TestEngine.getInstance
+    engine.getModel.getRevisionId
+  end
+
+  def is_rev(id)
+    java_import Java::Ru.ispras.microtesk.test.TestEngine
+    engine = TestEngine.getInstance
+    engine.isRevision id
+  end
+
   # -------------------------------------------------------------------------- #
   # Private Methods                                                            #
   # -------------------------------------------------------------------------- #

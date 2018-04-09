@@ -19,8 +19,10 @@ import ru.ispras.fortress.solver.Environment;
 import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.Config;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
+import ru.ispras.microtesk.Revisions;
 import ru.ispras.microtesk.ScriptRunner;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.Execution;
@@ -36,12 +38,15 @@ import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
+import ru.ispras.microtesk.utils.FileUtils;
 
 import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.generator.DataGenerator;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The {@link TestEngine} class is responsible for generation of test programs.
@@ -57,20 +62,24 @@ public final class TestEngine {
 
   private final Options options;
   private final Model model;
+  private final Set<String> revisionIds;
   private final List<Plugin> plugins;
   private final Statistics statistics;
 
   private TestEngine(
       final Model model,
+      final Set<String> revisionIds,
       final Options options,
       final List<Plugin> plugins,
       final Statistics statistics) {
     InvariantChecks.checkNotNull(model);
+    InvariantChecks.checkNotNull(revisionIds);
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(plugins);
     InvariantChecks.checkNotNull(statistics);
 
     this.model = model;
+    this.revisionIds = revisionIds;
     this.options = options;
     this.plugins = plugins;
     this.statistics = statistics;
@@ -96,6 +105,10 @@ public final class TestEngine {
 
   public Model getModel() {
     return model;
+  }
+
+  public boolean isRevision(final String revisionId) {
+    return revisionIds.contains(revisionId);
   }
 
   public Statistics getStatistics() {
@@ -135,6 +148,12 @@ public final class TestEngine {
       return false;
     }
 
+    final Set<String> revisionIds = readRevisionIds(options, modelName, model.getRevisionId());
+    if (null == revisionIds) {
+      reportAborted("Failed to load revision IDs for %s.", modelName);
+      return false;
+    }
+
     GeneratorSettings.set(settings);
     try {
       installDataGeneratorsIntoTestBase(settings);
@@ -147,7 +166,7 @@ public final class TestEngine {
     setSolver(options.getValueAsString(Option.SOLVER));
     Environment.setDebugMode(options.getValueAsBoolean(Option.SOLVER_DEBUG));
 
-    instance = new TestEngine(model, options, plugins, statistics);
+    instance = new TestEngine(model, revisionIds, options, plugins, statistics);
 
     try {
       ScriptRunner.run(options, templateFile);
@@ -232,6 +251,33 @@ public final class TestEngine {
     }
 
     return SettingsParser.parse(archPath);
+  }
+
+  private static Set<String> readRevisionIds(
+      final Options options,
+      final String modelName,
+      final String revisionId) {
+    if (revisionId.isEmpty()) {
+      return Collections.emptySet();
+    }
+
+    if (!options.hasValue(Option.ARCH_DIRS)) {
+      Logger.error("The --%s option is undefined.", Option.ARCH_DIRS.getName());
+      return null;
+    }
+
+    final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
+    final String archPath = SysUtils.getArchDir(archDirs, modelName);
+
+    if (null == archPath) {
+      Logger.error("The --%s option does not contain path to settings for %s.",
+          Option.ARCH_DIRS.getName(), modelName);
+    }
+
+    final String path = new File(FileUtils.getFileDir(archPath), "revisions.xml").getPath();
+    final Revisions revisions = Config.loadRevisions(path);
+
+    return revisions.getRevision(revisionId);
   }
 
   private static void initSolverPaths(final String home) {
