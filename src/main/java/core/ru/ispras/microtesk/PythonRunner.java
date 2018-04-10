@@ -14,17 +14,17 @@
 
 package ru.ispras.microtesk;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.GenerationAbortedException;
-import ru.ispras.microtesk.utils.FileUtils;
 
 /**
- * The {@link ScriptRunner} class runs test template scripts with corresponding scripting engines.
+ * The {@link PythonRunner} class runs test template scripts with Jython.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class ScriptRunner {
-  private ScriptRunner() {}
+final class PythonRunner {
+  private PythonRunner() {}
 
   /**
    * Runs the specified test template to generate a set of test programs.
@@ -37,15 +37,10 @@ public final class ScriptRunner {
    *         of the engines invoked by the script decided to abort generation.
    */
   public static void run(final Options options, final String templateFile) throws Throwable {
-    final String extension = FileUtils.getFileExtension(templateFile).toLowerCase();
+    InvariantChecks.checkNotNull(options);
+    InvariantChecks.checkNotNull(templateFile);
 
-    if (".rb".equals(extension)) {
-      RubyRunner.run(options, templateFile);
-    } else if (".py".equals(extension)) {
-      PythonRunner.run(options, templateFile);
-    } else {
-      throw new GenerationAbortedException(
-          String.format("Unsupported template file extension: %s.", extension));
-    }
+    // TODO
+    throw new GenerationAbortedException("Test templates in Python are not yet supported.");
   }
 }
