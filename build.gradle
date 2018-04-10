@@ -150,6 +150,7 @@ macOs {
 
 configurations {
   jruby
+  jython
 }
 
 configurations.all {
@@ -167,6 +168,8 @@ dependencies {
   compile 'commons-lang:commons-lang:2.4'
   compile 'org.jruby:jruby-complete:1.7.25'
   jruby 'org.jruby:jruby-complete:1.7.25'
+  compile 'org.python:jython:2.7.0'
+  jython 'org.python:jython:2.7.0'
   compile 'sat4j:org.sat4j.core:v20130525'
 
   compile ("fortress:fortress:${fortressVersion}") { changing = true }
