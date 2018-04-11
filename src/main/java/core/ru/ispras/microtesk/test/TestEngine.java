@@ -176,7 +176,7 @@ public final class TestEngine {
 
     final long totalTime = statistics.getTotalTime();
     final long genTime = totalTime - statistics.getTimeMetric(Statistics.Activity.INITIALIZING);
-    final long genRate = (1000 * statistics.getInstructions()) / genTime;
+    final long genRate = genTime > 0 ? (1000 * statistics.getInstructions()) / genTime : -1;
 
     Logger.message("Generation Statistics");
     Logger.message("Generation time: %s", Statistics.timeToString(genTime));
