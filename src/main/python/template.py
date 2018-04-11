@@ -17,3 +17,5 @@
 class Template:
     def generate():
         pass
+
+print "Hello from: template.py"

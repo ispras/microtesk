@@ -24,3 +24,8 @@ TEMPLATE_FILE = sys.argv[0]
 print(HOME)
 print(TEMPLATE)
 print(TEMPLATE_FILE)
+
+# Set up lookup path
+#sys.path.append('your/path')
+
+execfile(TEMPLATE_FILE)
