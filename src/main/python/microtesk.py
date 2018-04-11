@@ -15,12 +15,13 @@
 #
 
 import sys
-# import os
+from ru.ispras.microtesk import SysUtils
 
-#HOME = os.environ('MICROTESK_HOME')
-#TEMPLATE = HOME + "lib/python/template"
+HOME = SysUtils.getHomeDir()
+TEMPLATE = HOME + "/lib/python/template"
 template_file = sys.argv[0]
 
-#print(HOME)
-#print(TEMPLATE)
+print(HOME)
+print(TEMPLATE)
 print(template_file)
+
