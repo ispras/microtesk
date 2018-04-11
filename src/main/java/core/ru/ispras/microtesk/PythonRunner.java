@@ -45,14 +45,17 @@ final class PythonRunner {
     InvariantChecks.checkNotNull(templateFile);
     
     final String homeDir = SysUtils.getHomeDir();
-    final String pythonMainPath = Paths.get(homeDir, "lib", "python", "microtesk.py").toString();
+    final String pythonMainPath =
+        Paths.get(homeDir, "lib", "python", "microtesk.py").toString();
 
     final Properties properties = new Properties();
     properties.put("python.import.site","false");
     
     PythonInterpreter interpreter = null;
     try {
-      PythonInterpreter.initialize(System.getProperties(), properties, new String[] {templateFile});
+      PythonInterpreter.initialize(
+          System.getProperties(), properties, new String[] {templateFile});
+
       interpreter = new PythonInterpreter();
       interpreter.execfile(pythonMainPath);
     } finally {
