@@ -18,6 +18,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
+import java.nio.file.Paths;
+
+import org.python.util.PythonInterpreter;
+import java.util.Properties;
+
 /**
  * The {@link PythonRunner} class runs test template scripts with Jython.
  *
@@ -39,8 +44,28 @@ final class PythonRunner {
   public static void run(final Options options, final String templateFile) throws Throwable {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(templateFile);
+    
+    final String homeDir = SysUtils.getHomeDir();
+    final String pythonMainPath = Paths.get(homeDir, "lib", "python", "microtesk.py").toString();
 
-    // TODO
-    throw new GenerationAbortedException("Test templates in Python are not yet supported.");
+    final Properties properties = new Properties();
+    properties.put("python.import.site","false");
+    
+    PythonInterpreter interpreter = null;
+    try {
+      PythonInterpreter.initialize(System.getProperties(), properties, new String[] {templateFile});
+      interpreter = new PythonInterpreter();
+      interpreter.execfile(pythonMainPath);
+    } finally {
+      if (null != interpreter) {
+        interpreter.close();
+      }
+    }
   }
 }
+
+    // TODO
+
+    //throw new GenerationAbortedException("Test templates in Python are not yet supported.");
+
+
