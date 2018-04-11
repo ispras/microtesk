@@ -19,9 +19,8 @@ from ru.ispras.microtesk import SysUtils
 
 HOME = SysUtils.getHomeDir()
 TEMPLATE = HOME + "/lib/python/template"
-template_file = sys.argv[0]
+TEMPLATE_FILE = sys.argv[0]
 
 print(HOME)
 print(TEMPLATE)
-print(template_file)
-
+print(TEMPLATE_FILE)
