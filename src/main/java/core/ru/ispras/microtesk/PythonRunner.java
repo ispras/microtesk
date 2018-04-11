@@ -63,9 +63,3 @@ final class PythonRunner {
     }
   }
 }
-
-    // TODO
-
-    //throw new GenerationAbortedException("Test templates in Python are not yet supported.");
-
-
