@@ -632,6 +632,10 @@ distributions {
         into('lib/ruby')
       }
 
+      from('src/main/python') {
+        into('lib/python')
+      }
+
       from("${project.projectDir}/build/target/lib/why3") {
         into('lib/why3')
       }
