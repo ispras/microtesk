@@ -14,13 +14,12 @@
 
 package ru.ispras.microtesk;
 
+import org.python.util.PythonInterpreter;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.options.Options;
-import ru.ispras.microtesk.test.GenerationAbortedException;
 
 import java.nio.file.Paths;
-
-import org.python.util.PythonInterpreter;
 import java.util.Properties;
 
 /**
