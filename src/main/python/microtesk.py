@@ -13,11 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import os
 
-HOME = os.environ('MICROTESK_HOME')
-TEMPLATE = HOME + "lib/python/template"
+import sys
+# import os
 
-print("test")
-print(HOME)
-print(TEMPLATE)
+#HOME = os.environ('MICROTESK_HOME')
+#TEMPLATE = HOME + "lib/python/template"
+template_file = sys.argv[0]
+
+#print(HOME)
+#print(TEMPLATE)
+print(template_file)
