@@ -19,7 +19,6 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.analysis.IrInquirer;
@@ -29,6 +28,9 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.utils.StringUtils;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,13 +42,13 @@ import java.util.TreeMap;
  * Class for model code coverage extraction from internal representation.
  */
 public final class Analyzer implements TranslatorHandler<Ir> {
-  private final Translator<Ir> translator;
+  private final Path outputDir;
   private IrInquirer inquirer;
   private Map<String, SsaForm> ssa;
 
-  public Analyzer(final Translator<Ir> translator) {
-    InvariantChecks.checkNotNull(translator);
-    this.translator = translator;
+  public Analyzer(final String path) {
+    InvariantChecks.checkNotNull(path);
+    this.outputDir = Paths.get(path);
   }
 
   @Override
@@ -60,7 +62,7 @@ public final class Analyzer implements TranslatorHandler<Ir> {
     processPrimitives(ir.getModes().values());
     processPrimitives(ir.getOps().values());
 
-    SsaStorage.store(translator.getOutDir(), ir.getModelName(), ssa);
+    SsaStorage.store(outputDir, ir.getModelName(), ssa);
   }
 
   private void processPrimitives(final Collection<Primitive> primitives) {

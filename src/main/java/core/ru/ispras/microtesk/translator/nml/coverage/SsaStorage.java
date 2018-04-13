@@ -21,103 +21,101 @@ import ru.ispras.fortress.solver.xml.XmlNotLoadedException;
 import ru.ispras.fortress.solver.xml.XmlNotSavedException;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.utils.FileUtils;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 final class SsaStorage {
   private SsaStorage() {}
 
-  public static Map<String, SsaForm> load(final String model, final String path) {
-    InvariantChecks.checkNotNull(model);
-    InvariantChecks.checkNotNull(path);
+  public static Map<String, SsaForm> load(final Path outPath, final String modelName) {
+    InvariantChecks.checkNotNull(outPath);
+    InvariantChecks.checkNotNull(modelName);
 
-    final String dirName = String.format("%s%sgen", path, File.separator);
-    final File dir = new File(String.format("%s%s%s", dirName, File.separator, model));
-    final Collection<Constraint> constraints = new ArrayList<>();
+    final Path genPath = outPath.resolve("gen");
+    final Path dirPath = genPath.resolve(modelName);
 
-    for (final File file : dir.listFiles()) {
-      try {
-        constraints.add(XmlConstraintLoader.loadFromFile(file.getPath()));
-      } catch (final XmlNotLoadedException e) {
-        System.err.println(e.getMessage());
-      }
-    }
-
-    final SsaConverter converter = new SsaConverter(constraints);
     final Map<String, SsaForm> ssa = new HashMap<>();
-
     try {
-      final BufferedReader reader = new BufferedReader(
-          new FileReader(String.format("%s%s%s.list", dirName, File.separator, model)));
-
-      String line = reader.readLine();
-      while (line != null) {
-        ssa.put(line, converter.convert(line));
-        line = reader.readLine();
+      final Collection<Constraint> constraints = new ArrayList<>();
+      try (final DirectoryStream<Path> files = Files.newDirectoryStream(dirPath)) {
+        for (final Path path : files) {
+          final Constraint c = XmlConstraintLoader.load(Files.newInputStream(path));
+          constraints.add(c);
+        }
       }
 
-      reader.close();
-    } catch (final IOException e) {
-      System.err.println(e.getMessage());
-    }
+      final SsaConverter converter = new SsaConverter(constraints);
 
+      final Path indexPath = genPath.resolve(modelName + ".list");
+      try (final BufferedReader reader =
+            Files.newBufferedReader(indexPath, StandardCharsets.UTF_8)) {
+        String line = reader.readLine();
+        while (line != null) {
+          ssa.put(line, converter.convert(line));
+          line = reader.readLine();
+        }
+      }
+    } catch (final DirectoryIteratorException e) {
+      Logger.error("failed to load coverage model: " + e.getCause().getMessage());
+      return Collections.emptyMap();
+    } catch (final XmlNotLoadedException | IOException e ) {
+      Logger.error("failed to load coverage model: " + e.getMessage());
+      return Collections.emptyMap();
+    }
     return ssa;
   }
 
   public static void store(
-      final String targetDir,
+      final Path outPath,
       final String modelName,
       final Map<String, SsaForm> ssa) {
-    InvariantChecks.checkNotNull(targetDir);
+    InvariantChecks.checkNotNull(outPath);
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(ssa);
 
-    try {
-      final File genDir = new File(FileUtils.getNormalizedPath(targetDir));
+    final Path genPath = outPath.resolve("gen");
+    final Path dirPath = genPath.resolve(modelName);
 
-      if (!genDir.exists()) {
-        genDir.mkdirs();
+    try {
+      if (Files.notExists(dirPath)) {
+        Files.createDirectories(dirPath);
       }
 
-      final PrintWriter out = new PrintWriter(
-          new BufferedWriter(new FileWriter(
-              String.format("%s%s%s.list", genDir.getCanonicalPath(), File.separator, modelName))));
+      final Path indexPath = genPath.resolve(modelName + ".list");
+      try (final BufferedWriter writer =
+            Files.newBufferedWriter(indexPath, StandardCharsets.UTF_8)) {
+        final PrintWriter index = new PrintWriter(writer);
 
-      for (final Map.Entry<String, SsaForm> entry : ssa.entrySet()) {
-        out.println(entry.getKey());
-        for (final Constraint c :
-            BlockConverter.convert(entry.getKey(), entry.getValue().getEntryPoint())) {
+        for (final Map.Entry<String, SsaForm> entry : ssa.entrySet()) {
+          index.println(entry.getKey());
 
-          final XmlConstraintSaver saver = new XmlConstraintSaver(c);
-
-          try {
-            final File path = new File(
-                String.format("%s%s%s", genDir.getCanonicalPath(), File.separator, modelName));
-
-            path.mkdir();
-            saver.saveToFile(
-                String.format("%s%s%s.xml", path.getPath(), File.separator, c.getName()));
-          } catch (final XmlNotSavedException e) {
-            Logger.error("Failed to save coverage model to the XML file: %s", e.getMessage());
+          final Collection<Constraint> constraints =
+            BlockConverter.convert(entry.getKey(), entry.getValue().getEntryPoint());
+          for (final Constraint c : constraints) {
+            final XmlConstraintSaver saver = new XmlConstraintSaver(c);
+            final Path path = dirPath.resolve(c.getName() + ".xml");
+            saver.save(Files.newOutputStream(path));
           }
         }
       }
-
-      out.flush();
-      out.close();
-    } catch (final java.io.IOException e) {
-      Logger.error("Failed to save coverage model to the file system: %s", e.getMessage());
+    } catch (final XmlNotSavedException | IOException e) {
+      Logger.error("failed to save coverage model: " + e.getMessage());
     }
   }
 }

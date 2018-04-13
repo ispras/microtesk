@@ -42,6 +42,8 @@ import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,7 +54,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public final class TestBase {
-  private final String path;
+  private final Path outputDir;
   private final Map<String, Map<String, SsaForm>> storage;
   private final ru.ispras.testbase.TestBase testBase;
 
@@ -73,7 +75,7 @@ public final class TestBase {
   }
 
   private TestBase(final String path) {
-    this.path = path;
+    this.outputDir = Paths.get(path);
     this.storage = new HashMap<>();
     this.testBase = ru.ispras.testbase.TestBase.get();
   }
@@ -294,7 +296,7 @@ public final class TestBase {
       return storage.get(model);
     }
 
-    final Map<String, SsaForm> ssa = SsaStorage.load(model, path);
+    final Map<String, SsaForm> ssa = SsaStorage.load(outputDir, model);
     storage.put(model, ssa);
 
     return ssa;
