@@ -38,7 +38,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 final class SsaStorage {
   private SsaStorage() {}
@@ -52,7 +56,7 @@ final class SsaStorage {
 
     final Map<String, SsaForm> ssa = new HashMap<>();
     try {
-      final Collection<Constraint> constraints = new ArrayList<>();
+      final List<Constraint> constraints = new ArrayList<>();
       try (final DirectoryStream<Path> files = Files.newDirectoryStream(dirPath)) {
         for (final Path path : files) {
           final Constraint c = XmlConstraintLoader.load(Files.newInputStream(path));
@@ -111,6 +115,74 @@ final class SsaStorage {
             final XmlConstraintSaver saver = new XmlConstraintSaver(c);
             final Path path = dirPath.resolve(c.getName() + ".xml");
             saver.save(Files.newOutputStream(path));
+          }
+        }
+      }
+    } catch (final XmlNotSavedException | IOException e) {
+      Logger.error("failed to save coverage model: " + e.getMessage());
+    }
+  }
+
+  public static Map<String, SsaForm> loadZip(final Path outPath, final String modelName) {
+    InvariantChecks.checkNotNull(outPath);
+    InvariantChecks.checkNotNull(modelName);
+
+    final Path zipPath = outPath.resolve("gen").resolve(modelName + ".zip");
+    final Map<String, SsaForm> ssa = new HashMap<>();
+
+    try (final ZipFile zip = new ZipFile(zipPath.toFile())) {
+      final List<? extends ZipEntry> entries = Collections.list(zip.entries());
+      final List<Constraint> constraints = new ArrayList<>();
+
+      for (final ZipEntry entry : entries) {
+        if (!entry.isDirectory()) {
+          final Constraint c = XmlConstraintLoader.load(zip.getInputStream(entry));
+          constraints.add(c);
+        }
+      }
+      final SsaConverter converter = new SsaConverter(constraints);
+      for (final ZipEntry entry : entries) {
+        if (entry.isDirectory()) {
+          final String name = entry.getName().replaceAll("/", "");
+          ssa.put(name, converter.convert(name));
+        }
+      }
+    } catch (final XmlNotLoadedException | IOException e ) {
+      Logger.error("failed to load coverage model: " + e.getMessage());
+      return Collections.emptyMap();
+    }
+    return ssa;
+  }
+
+  public static void storeZip(
+      final Path outPath,
+      final String modelName,
+      final Map<String, SsaForm> ssa) {
+    InvariantChecks.checkNotNull(outPath);
+    InvariantChecks.checkNotNull(modelName);
+    InvariantChecks.checkNotNull(ssa);
+
+    final Path genPath = outPath.resolve("gen");
+    final Path archPath = genPath.resolve(modelName + ".zip");
+
+    try {
+      if (Files.notExists(genPath)) {
+        Files.createDirectories(genPath);
+      }
+      try (final ZipOutputStream zip =
+            new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(archPath)))) {
+        for (final Map.Entry<String, SsaForm> entry : ssa.entrySet()) {
+          zip.putNextEntry(new ZipEntry(entry.getKey() + "/"));
+          zip.closeEntry();
+
+          final Collection<Constraint> constraints =
+            BlockConverter.convert(entry.getKey(), entry.getValue().getEntryPoint());
+          for (final Constraint c : constraints) {
+            final XmlConstraintSaver saver = new XmlConstraintSaver(c);
+            final ZipEntry file =
+              new ZipEntry(String.format("%s/%s.xml", entry.getKey(), c.getName()));
+            zip.putNextEntry(file);
+            saver.save(zip);
           }
         }
       }
