@@ -31,6 +31,7 @@ import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
@@ -132,6 +133,13 @@ public final class LocationFactory extends WalkerFactoryBase {
 
     final Location location = argumentField(where, argument, name, fields);
     return newLocationExpr(location);
+  }
+
+  public Expr location(
+      final Where where,
+      final Instance instance) throws SemanticException {
+    raiseError(where, "Unsupported construct.");
+    return null;
   }
 
   private Location namedField(
