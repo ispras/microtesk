@@ -76,10 +76,10 @@ final class SsaStorage {
         }
       }
     } catch (final DirectoryIteratorException e) {
-      Logger.error("failed to load coverage model: " + e.getCause().getMessage());
+      Logger.error("failed to load coverage model: " + e.getCause().toString());
       return Collections.emptyMap();
     } catch (final XmlNotLoadedException | IOException e ) {
-      Logger.error("failed to load coverage model: " + e.getMessage());
+      Logger.error("failed to load coverage model: " + e.toString());
       return Collections.emptyMap();
     }
     return ssa;
