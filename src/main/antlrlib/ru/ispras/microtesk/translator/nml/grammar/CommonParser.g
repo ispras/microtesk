@@ -348,7 +348,7 @@ attributeCall
     ;
 
 instance
-    :  {!isDeclaredAs(input.LT(1), NmlSymbolKind.FUNCTION)}? ID LEFT_PARENTH (instance_arg (COMMA instance_arg)*)? RIGHT_PARENTH -> ^(INSTANCE ID instance_arg*)
+    :  {!isDeclaredAs(input.LT(1), NmlSymbolKind.FUNCTION)}? ID LEFT_PARENTH (instance_arg? (COMMA instance_arg)*)? RIGHT_PARENTH -> ^(INSTANCE ID instance_arg*)
     ;
 
 instance_arg

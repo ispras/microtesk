@@ -1008,9 +1008,9 @@ $res = getLocationFactory().location(where($id), $id.text);
 {
 $res = getLocationFactory().location(where($id), $id.text, args);
 }
-    |  ^(INSTANCE_CALL w=.)
+    |  ^(INSTANCE_CALL i=instance)
 {
-raiseError(where($w), "Unsupported construct.");
+raiseError(where($i.start), "Unsupported construct.");
 }
     ;
 
