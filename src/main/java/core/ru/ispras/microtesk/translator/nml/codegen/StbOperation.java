@@ -23,11 +23,14 @@ import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.memory.Location;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
+import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut.Argument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -144,13 +147,21 @@ final class StbOperation extends StbPrimitiveBase {
               && !attr.getName().equals(Attribute.INIT_NAME));
 
       if (Attribute.Kind.ACTION == attr.getKind()) {
-        for (Statement stmt : attr.getStatements()) {
+        for (final Statement stmt : attr.getStatements()) {
+          if (isModeInstanceUsed(stmt)) {
+            importModeDependencies(t);
+          }
+
           addStatement(attrST, stmt, false);
         }
       } else if (Attribute.Kind.EXPRESSION == attr.getKind()) {
         final int count = attr.getStatements().size();
         int index = 0;
         for (final Statement stmt : attr.getStatements()) {
+          if (isModeInstanceUsed(stmt)) {
+            importModeDependencies(t);
+          }
+
           addStatement(attrST, stmt, index == count - 1);
           index++;
         }
@@ -161,6 +172,48 @@ final class StbOperation extends StbPrimitiveBase {
       attrST.add("override", attr.isStandard());
       t.add("attrs", attrST);
     }
+  }
+
+  private static boolean isModeInstanceUsed(final Statement stmt) {
+    if (!(stmt instanceof StatementAttributeCall)) {
+      return false;
+    }
+
+    final StatementAttributeCall call = (StatementAttributeCall) stmt;
+    if (null == call.getCalleeInstance()) {
+      return false;
+    }
+
+    final Instance instance = call.getCalleeInstance();
+    return isModeInstanceUsed(instance);
+  }
+
+  private static boolean isModeInstanceUsed(final Instance instance) {
+    if (instance.getPrimitive().getKind() == Primitive.Kind.MODE) {
+      return true;
+    }
+
+    for (final InstanceArgument argument : instance.getArguments()) {
+      switch (argument.getKind()) {
+        case INSTANCE: {
+          if (isModeInstanceUsed(argument.getInstance())) {
+            return true;
+          }
+        }
+
+        case PRIMITIVE: {
+          if (argument.getPrimitive().getKind() == Primitive.Kind.MODE) {
+            return true;
+          }
+        }
+
+        default: {
+          // Nothing
+        }
+      }
+    }
+
+    return false;
   }
 
   private void buildShortcuts(final STGroup group, final ST t) {
