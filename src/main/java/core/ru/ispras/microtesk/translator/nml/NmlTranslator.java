@@ -79,7 +79,7 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new ArgumentModeDetector());
     addHandler(new BranchDetector());
     addHandler(new MemoryAccessDetector());
-    addHandler(new Analyzer(getOutDir()));
+    addHandler(new Analyzer(this));
     addHandler(new PrimitiveSyntesizer(this));
     addHandler(new ExceptionDetector());
 
