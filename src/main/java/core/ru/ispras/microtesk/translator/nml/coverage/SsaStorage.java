@@ -93,15 +93,13 @@ final class SsaStorage {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(ssa);
 
-    final Path genPath = outPath.resolve("gen");
-    final Path dirPath = genPath.resolve(modelName);
-
+    final Path dirPath = outPath.resolve(modelName);
     try {
       if (Files.notExists(dirPath)) {
         Files.createDirectories(dirPath);
       }
 
-      final Path indexPath = genPath.resolve(modelName + ".list");
+      final Path indexPath = outPath.resolve(modelName + ".list");
       try (final BufferedWriter writer =
             Files.newBufferedWriter(indexPath, StandardCharsets.UTF_8)) {
         final PrintWriter index = new PrintWriter(writer);
