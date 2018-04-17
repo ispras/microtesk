@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,14 +17,12 @@ package ru.ispras.microtesk.test;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.test.template.Block;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.utils.AdjacencyList;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -41,7 +39,7 @@ final class TestProgram {
   private final AdjacencyList<ConcreteSequence> entries;
   private final List<Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>>> exceptionHandlers;
 
-  private final Map<BigInteger, DataSection> dataSections;
+  private final Map<BigInteger, List<DataSection>> dataSections;
   private final List<DataSection> globalDataSections;
 
   public TestProgram() {
@@ -150,11 +148,22 @@ final class TestProgram {
   private void registerData(final DataSection data) {
     final BigInteger address = data.getAllocationEndAddress();
     InvariantChecks.checkNotNull(address);
-    dataSections.put(address, data);
+
+    List<DataSection> dataList = dataSections.get(address);
+    if (null == dataList) {
+      dataList = new ArrayList<>();
+      dataSections.put(address, dataList);
+    }
+
+    dataList.add(data);
   }
 
   public Collection<DataSection> getAllData() {
-    return dataSections.values();
+    final List<DataSection> result = new ArrayList<>();
+    for (final List<DataSection> dataList : dataSections.values()) {
+      result.addAll(dataList);
+    }
+    return result;
   }
 
   public Collection<DataSection> getGlobalData() {
