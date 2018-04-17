@@ -161,7 +161,7 @@ public final class Template {
 
   public BigInteger getAddressForLabel(final String label) {
     final LabelManager.Target target =
-        context.getLabelManager().resolve(new Label(label, getCurrentBlockId()));
+        context.getLabelManager().resolve(Label.newLabel(label, getCurrentBlockId()));
 
     if (null == target) {
       throw new GenerationAbortedException(
@@ -826,7 +826,7 @@ public final class Template {
     ModeAllocator.get().exclude(indexSource);
 
     streams.addStream(
-        new Label(startLabelName, getCurrentBlockId()),
+        Label.newLabel(startLabelName, getCurrentBlockId()),
         dataSource,
         indexSource,
         length

@@ -122,7 +122,7 @@ public final class DataSectionBuilder {
   }
 
   public void addLabel(final String id, final boolean global) {
-    final Label label = new Label(id, blockId);
+    final Label label = Label.newLabel(id, blockId);
     final LabelValue labelValue = LabelValue.newUnknown(label);
 
     if (global || separateFile) {

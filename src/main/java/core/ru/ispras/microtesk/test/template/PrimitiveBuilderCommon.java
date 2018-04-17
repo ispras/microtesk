@@ -347,7 +347,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(value);
 
-    final Label label = new Label(value, callBuilder.getBlockId());
+    final Label label = Label.newLabel(value, callBuilder.getBlockId());
     final LabelValue labelValue = LabelValue.newUnknown(label);
 
     setArgument(name, labelValue);

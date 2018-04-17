@@ -43,6 +43,7 @@ public final class Label {
    * @param name The name of the label.
    * @param blockId The identifier of the block where the label is defined.
    *
+   * @return New {@link Label} object.
    * @throws IllegalStateException if any of the arguments is {@code null}.
    */
   public static Label newLabel(final String name, final BlockId blockId) {
@@ -55,6 +56,7 @@ public final class Label {
    * @param name The name of the label.
    * @param blockId The identifier of the block where the label is defined.
    *
+   * @return New {@link Label} object.
    * @throws IllegalStateException if any of the arguments is {@code null}.
    */
   public static Label newGlobal(final String name, final BlockId blockId) {
@@ -67,22 +69,11 @@ public final class Label {
    * @param index The index of the label.
    * @param blockId The identifier of the block where the label is defined.
    *
+   * @return New {@link Label} object.
    * @throws IllegalStateException if the {@code blockId} argument is {@code null}.
    */
   public static Label newNumeric(final int index, final BlockId blockId) {
     return new Label(Integer.toString(index), blockId, false, true);
-  }
-
-  /**
-   * Constructs a label object. The label is considered non-global and non-numeric.
-   *
-   * @param name The name of the label.
-   * @param blockId The identifier of the block where the label is defined.
-   *
-   * @throws IllegalStateException if any of the parameters equals {@code null}.
-   */
-  public Label(final String name, final BlockId blockId) {
-    this(name, blockId, false, false);
   }
 
   /**
@@ -96,7 +87,7 @@ public final class Label {
    * @throws IllegalStateException if any of the arguments equals {@code null};
    *                               if the label both global and numeric.
    */
-  public Label(
+  private Label(
       final String name,
       final BlockId blockId,
       final boolean global,

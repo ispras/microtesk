@@ -353,7 +353,7 @@ public final class BranchEngine implements Engine {
           // Generate the label name.
           final String name = String.format("%s_%d", AUTO_LABEL_PREFIX, autoLabel++);
           final BlockId blockId = new BlockId();
-          final Label targetLabel = new Label(name, blockId);
+          final Label targetLabel = Label.newLabel(name, blockId);
 
           // Put the label in a random position.
           final int randomIndex = Randomizer.get().nextIntRange(0, newSequence.size() - 1);

@@ -87,7 +87,7 @@ public final class MemoryObjectBuilder {
     InvariantChecks.checkNotNull(labelName);
 
     final LabelManager.Target target =
-        memoryMap.resolve(new Label(labelName, new BlockId()));
+        memoryMap.resolve(Label.newLabel(labelName, new BlockId()));
 
     if (null == target) {
       throw new GenerationAbortedException(
