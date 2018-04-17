@@ -38,6 +38,42 @@ public final class Label {
   private int sequenceIndex;
 
   /**
+   * Creates a new label. The label is considered non-global and non-numeric.
+   *
+   * @param name The name of the label.
+   * @param blockId The identifier of the block where the label is defined.
+   *
+   * @throws IllegalStateException if any of the arguments is {@code null}.
+   */
+  public static Label newLabel(final String name, final BlockId blockId) {
+    return new Label(name, blockId, false, false);
+  }
+
+  /**
+   * Creates a new global label.
+   *
+   * @param name The name of the label.
+   * @param blockId The identifier of the block where the label is defined.
+   *
+   * @throws IllegalStateException if any of the arguments is {@code null}.
+   */
+  public static Label newGlobal(final String name, final BlockId blockId) {
+    return new Label(name, blockId, true, false);
+  }
+
+  /**
+   * Creates a new numeric label.
+   *
+   * @param index The index of the label.
+   * @param blockId The identifier of the block where the label is defined.
+   *
+   * @throws IllegalStateException if the {@code blockId} argument is {@code null}.
+   */
+  public static Label newNumeric(final int index, final BlockId blockId) {
+    return new Label(Integer.toString(index), blockId, false, true);
+  }
+
+  /**
    * Constructs a label object. The label is considered non-global and non-numeric.
    *
    * @param name The name of the label.
