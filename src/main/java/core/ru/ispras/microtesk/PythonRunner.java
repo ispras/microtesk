@@ -47,9 +47,12 @@ final class PythonRunner {
     final String homeDir = SysUtils.getHomeDir();
     final String pythonMainPath =
         Paths.get(homeDir, "lib", "python", "microtesk.py").toString();
+    final String pythonPath =
+        Paths.get(homeDir, "lib", "python").toString();
 
     final Properties properties = new Properties();
     properties.put("python.import.site","false");
+    properties.setProperty("python.path", pythonPath);
     
     PythonInterpreter interpreter = null;
     try {
