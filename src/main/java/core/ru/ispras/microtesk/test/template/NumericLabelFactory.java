@@ -37,8 +37,7 @@ final class NumericLabelFactory {
     InvariantChecks.checkBounds(index, referenceNumbers.length);
     InvariantChecks.checkNotNull(blockId);
 
-    final String name = Integer.toString(index);
-    final Label label = new Label(name, blockId, false, true);
+    final Label label = Label.newNumeric(index, blockId);
 
     final int referenceNumber = referenceNumbers[index];
     label.setReferenceNumber(referenceNumber);
@@ -51,8 +50,7 @@ final class NumericLabelFactory {
     InvariantChecks.checkBounds(index, referenceNumbers.length);
     InvariantChecks.checkNotNull(blockId);
 
-    final String name = Integer.toString(index);
-    final Label label = new Label(name, blockId, false, true);
+    final Label label = Label.newNumeric(index, blockId);
 
     final int referenceNumber = referenceNumbers[index];
     if (forward) {
