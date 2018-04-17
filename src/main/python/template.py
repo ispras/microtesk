@@ -19,20 +19,13 @@ class Template:
     
     def __init__(self):
         self.situation_manager = SituationManager(self)
-    
-    #@classmethod
-    #def inherited(cls,subclass):
-        #from inspect import getframeinfo, stack
-        #caller = getframeinfo(stack()[1][0])
-        #subclass_file = caller.filename
-        #print "Loaded template {subclass} defined in {subclass_file}".format(subclass,subclass_file)
-        #template_classes[subclass] = subclass_file
         
     def pre(self):
         pass
     
     def run(self):
         print "Trying to execute the original Template"
+
     def post(self):
         pass
     
@@ -43,8 +36,9 @@ class Template:
         template = engine.newTemplate()
         
         template.beginPreSection()
-        
+        self.pre()
         template.endPreSection()
+
 class SituationManager:
     def __init__(self,template):
         self.template = template
