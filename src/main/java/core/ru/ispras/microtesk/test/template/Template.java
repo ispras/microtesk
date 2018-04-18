@@ -403,7 +403,9 @@ public final class Template {
   }
 
   public void addWeakLabel(final String name) {
-    // TODO
+    final Label label = Label.newWeak(name, getCurrentBlockId());
+    debug("Label: %s", label);
+    callBuilder.addLabel(label);
   }
 
   public void addNumericLabel(final int index) {

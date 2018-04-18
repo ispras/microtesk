@@ -25,11 +25,16 @@ import java.util.List;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Label {
+  public static enum Kind {
+    GLOBAL,
+    NORMAL,
+    NUMERIC,
+    WEAK
+  }
+
   private final String name;
   private final BlockId blockId;
-
-  private final boolean global;
-  private final boolean numeric;
+  private final Kind kind;
 
   public static final int NO_REFERENCE_NUMBER = -1;
   private int referenceNumber;
@@ -38,7 +43,7 @@ public final class Label {
   private int sequenceIndex;
 
   /**
-   * Creates a new label. The label is considered non-global and non-numeric.
+   * Creates a new normal label. The label is considered non-global and non-numeric.
    *
    * @param name The name of the label.
    * @param blockId The identifier of the block where the label is defined.
@@ -47,7 +52,7 @@ public final class Label {
    * @throws IllegalStateException if any of the arguments is {@code null}.
    */
   public static Label newLabel(final String name, final BlockId blockId) {
-    return new Label(name, blockId, false, false);
+    return new Label(name, blockId, Kind.NORMAL);
   }
 
   /**
@@ -60,7 +65,7 @@ public final class Label {
    * @throws IllegalStateException if any of the arguments is {@code null}.
    */
   public static Label newGlobal(final String name, final BlockId blockId) {
-    return new Label(name, blockId, true, false);
+    return new Label(name, blockId, Kind.GLOBAL);
   }
 
   /**
@@ -73,7 +78,20 @@ public final class Label {
    * @throws IllegalStateException if the {@code blockId} argument is {@code null}.
    */
   public static Label newNumeric(final int index, final BlockId blockId) {
-    return new Label(Integer.toString(index), blockId, false, true);
+    return new Label(Integer.toString(index), blockId, Kind.NUMERIC);
+  }
+
+  /**
+   * Creates a new weak label.
+   *
+   * @param name The name of the label.
+   * @param blockId The identifier of the block where the label is defined.
+   *
+   * @return New {@link Label} object.
+   * @throws IllegalStateException if any of the arguments is {@code null}.
+   */
+  public static Label newWeak(final String name, final BlockId blockId) {
+    return new Label(name, blockId, Kind.WEAK);
   }
 
   /**
@@ -81,28 +99,20 @@ public final class Label {
    *
    * @param name The name of the label.
    * @param blockId The identifier of the block where the label is defined.
-   * @param global Specifies whether the label is global.
-   * @param numeric Specifies whether the label is numeric.
+   * @param kind The label kind.
    *
-   * @throws IllegalStateException if any of the arguments equals {@code null};
-   *                               if the label both global and numeric.
+   * @throws IllegalStateException if any of the arguments equals {@code null}.
    */
   private Label(
       final String name,
       final BlockId blockId,
-      final boolean global,
-      final boolean numeric) {
+      final Kind kind) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(blockId);
 
-    // A label cannot be both global and numeric.
-    InvariantChecks.checkTrue(global ? !numeric : true);
-
     this.name = name;
     this.blockId = blockId;
-
-    this.global = global;
-    this.numeric = numeric;
+    this.kind = kind;
 
     this.referenceNumber = NO_REFERENCE_NUMBER;
     this.sequenceIndex = NO_SEQUENCE_INDEX;
@@ -112,15 +122,14 @@ public final class Label {
    * Constructs a copy of the specified label.
    *
    * @param other Label to be copied.
+   * @throws IllegalStateException if the {@code other} argument equals {@code null};
    */
   public Label(final Label other) {
     InvariantChecks.checkNotNull(other);
 
     this.name = other.name;
     this.blockId = other.blockId;
-
-    this.global = other.global;
-    this.numeric = other.numeric;
+    this.kind = other.kind;
 
     this.referenceNumber = other.referenceNumber;
     this.sequenceIndex = other.sequenceIndex;
@@ -211,7 +220,7 @@ public final class Label {
    * @return Unique name based on the label name and the context in which it is defined.
    */
   public String getUniqueName() {
-    if (numeric) {
+    if (isNumeric()) {
       return name;
     }
 
@@ -247,7 +256,7 @@ public final class Label {
    * @return {@code true} if the label is global or {@code false} otherwise.
    */
   public boolean isGlobal() {
-    return global;
+    return kind == Kind.GLOBAL;
   }
 
   /**
@@ -256,7 +265,16 @@ public final class Label {
    * @return {@code true} if the label is numeric or {@code false} otherwise.
    */
   public boolean isNumeric() {
-    return numeric;
+    return kind == Kind.NUMERIC;
+  }
+
+  /**
+   * Checks whether the label is weak.
+   *
+   * @return {@code true} if the label is weak or {@code false} otherwise.
+   */
+  public boolean isWeak() {
+    return kind == Kind.WEAK;
   }
 
   /**
