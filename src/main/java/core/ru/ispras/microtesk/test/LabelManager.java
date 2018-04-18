@@ -228,17 +228,26 @@ public final class LabelManager {
   public void addLabel(final Label label, final long address) {
     InvariantChecks.checkNotNull(label);
 
-    final Target target = new Target(label, address);
+    // Weak symbols always have address 0x0.
+    final Target target = new Target(label, label.isWeak() ? 0x0 : address);
 
     final List<Target> targets;
     if (table.containsKey(label.getName())) {
       targets = table.get(label.getName());
 
-      for (final Target existingTarget : targets) {
-        if (existingTarget.getLabel().equals(target.getLabel())) {
-          throw new GenerationAbortedException(String.format(
-              "Incorrect template. Label '%s' is redefined in the same scope.",
-              target.getLabel().getName()));
+      for (int index = 0; index < targets.size(); ++index) {
+        final Target existingTarget = targets.get(index);
+        final Label existingLabel = existingTarget.getLabel();
+
+        if (existingLabel.equals(label)) {
+          if (existingLabel.isWeak()) {
+            targets.set(index, target);
+            return;
+          } else {
+            throw new GenerationAbortedException(String.format(
+                "Incorrect template. Label '%s' is redefined in the same scope.",
+                label.getName()));
+          }
         }
       }
     } else {

@@ -351,9 +351,16 @@ public final class Printer {
 
     for (final Label label : labels) {
       final String name = label.getUniqueName();
+
+      if (label.isWeak()) {
+        printText(String.format(".weak %s", name));
+        continue;
+      }
+
       if (label.isGlobal()) {
         printText(String.format(".globl %s", name));
       }
+
       printTextNoIndent(name + ":");
     }
   }

@@ -500,7 +500,11 @@ public final class Executor {
     }
 
     for (final Label label : call.getLabels()) {
-      Logger.debug(label.getUniqueName() + ":");
+      if (label.isWeak()) {
+        Logger.debug(".weak %s", label.getUniqueName());
+      } else {
+        Logger.debug(label.getUniqueName() + ":");
+      }
     }
 
     if (invalidCall != call && null != call.getText()) {
