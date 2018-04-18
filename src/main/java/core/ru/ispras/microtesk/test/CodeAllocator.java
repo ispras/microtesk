@@ -183,7 +183,10 @@ public final class CodeAllocator {
         // as a single sequence because empty space between them filled with zeros is
         // treated as NOPs. This assumption may be incorrect for other ISAs.
         // This situation must be handled in a more correct way. Probably, using decoder.
-        startAddress = call.getAlignment() != null ? currentAddress : callAddress;
+        final boolean isAligned = call.getAlignment() != null;
+        final boolean isStartAddress = currentAddress == address;
+        startAddress = isAligned && !isStartAddress ? currentAddress : callAddress;
+
         currentAddress = callAddress;
       }
 
