@@ -226,6 +226,10 @@ class Template
     @template.addLabel name, true
   end
 
+  def weak(name)
+    @template.addWeakLabel name
+  end
+
   def label_b(index)
     numeric_label_ref index, false
   end

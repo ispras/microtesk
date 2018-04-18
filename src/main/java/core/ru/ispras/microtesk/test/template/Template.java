@@ -398,9 +398,12 @@ public final class Template {
   public void addLabel(final String name, final boolean global) {
     final Label label = global ? Label.newGlobal(name, getCurrentBlockId())
                                : Label.newLabel(name, getCurrentBlockId());
-
     debug("Label: %s", label);
     callBuilder.addLabel(label);
+  }
+
+  public void addWeakLabel(final String name) {
+    // TODO
   }
 
   public void addNumericLabel(final int index) {
