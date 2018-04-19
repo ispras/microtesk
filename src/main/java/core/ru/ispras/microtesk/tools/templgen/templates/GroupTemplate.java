@@ -24,8 +24,9 @@ import java.util.Set;
 public final class GroupTemplate extends GeneratedTemplate {
   public static final String GROUP_TEMPLATE_NAME = "Group";
 
-  public GroupTemplate(final MetaModel metaModel, final TemplatePrinter printer) {
-    super(metaModel, printer);
+  public GroupTemplate(final MetaModel metaModel, final TemplatePrinter printer,
+      final Set<String> ignoredInstructions) {
+    super(metaModel, printer, ignoredInstructions);
   }
 
   private void printSequence(final Set<TemplateOperation> operationsGroup) {
@@ -45,8 +46,7 @@ public final class GroupTemplate extends GeneratedTemplate {
     for (TemplateOperation operation : operationsGroup) {
       templatePrinter.addString("");
       // operation.printOperationBlock(templatePrinter);
-      if (null != operation.getPreCommand() && !operation.getPreCommand().isEmpty())
-      {
+      if (null != operation.getPreCommand() && !operation.getPreCommand().isEmpty()) {
         templatePrinter.startSequence("sequence {");
         operation.printOperationBlock(templatePrinter);
         templatePrinter.closeSequence("}");
@@ -71,7 +71,7 @@ public final class GroupTemplate extends GeneratedTemplate {
 
     final Iterable<MetaOperation> operationsIterator = templateMetaModel.getOperations();
     for (MetaOperation operation : operationsIterator) {
-      if (operation.hasRootShortcuts()) {
+      if (operation.hasRootShortcuts() && !ignoredInstructions.contains(operation.getName())) {
         TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter);
         if (templateOperation.isBranchOperation()) {
           branchSet.add(templateOperation);

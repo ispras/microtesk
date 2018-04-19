@@ -46,22 +46,31 @@ public class TemplateOperation {
   private String[] postCommand;
 
   TemplateOperation(final MetaOperation operation, final TemplatePrinter templatePrinter) {
-    // TODO: printMetaOperation(operation);
-
     this.templatePrinter = templatePrinter;
     name = this.templatePrinter.formattingOperation(operation.getName());
 
+    // if (((name.startsWith("b") || name.startsWith("j")) && !name.equals("break_ins")) ||
+    // name.startsWith("j")) {
+    // printMetaOperation(operation);}
+
     // TODO: branch
-    branch = (name.startsWith("b") || name.startsWith("j")) ? Boolean.TRUE : Boolean.FALSE;
-    jump = (name.startsWith("j")) ? Boolean.TRUE : Boolean.FALSE;
+    branch = operation.isConditionalBranch(); // ((name.startsWith("b") || name.startsWith("j")) &&
+                                              // !name.equals("break_ins")) ? Boolean.TRUE :
+                                              // Boolean.FALSE;
+    jump = operation.isBranch();// (name.startsWith("j")) ? Boolean.TRUE : Boolean.FALSE;
+
+    if (branch || jump) {
+      printMetaOperation(operation);
+    }
 
     load = (operation.isLoad()) ? Boolean.TRUE : Boolean.FALSE;
     store = (operation.isStore()) ? Boolean.TRUE : Boolean.FALSE;
-    arithmetic = (!branch && getArgumentsNumber(operation.getArguments()) == 3 && !load && !store)
-        ? Boolean.TRUE
-        : Boolean.FALSE;
+    arithmetic =
+        (!branch && !jump && getArgumentsNumber(operation.getArguments()) == 3 && !load && !store)
+            ? Boolean.TRUE
+            : Boolean.FALSE;
 
-    if (branch) {
+    if (jump) {
       branchLabel = String.format(":%s_label", name);
       regTitle = getLastArgument(operation.getArguments(), IsaPrimitiveKind.MODE);
 
@@ -73,19 +82,20 @@ public class TemplateOperation {
       } else if (jump) {
         int temp = getArgumentNumbers(operation.getArguments(), IsaPrimitiveKind.MODE);
 
-        MetaArgument tempArg = null;
         if (temp > 1) {
+          MetaArgument tempArg = null;
           tempArg = getArgument(operation.getArguments(), IsaPrimitiveKind.MODE, temp - 1);
-        }
 
-        if (null != tempArg) {
-          Collection<String> tempTypes = tempArg.getTypeNames();
+          if (null != tempArg) {
+            Collection<String> tempTypes = tempArg.getTypeNames();
 
-          for (String tempType : tempTypes) {
-            preCommand = prepareReg(tempType);
-            break;
+            for (String tempType : tempTypes) {
+              preCommand = prepareReg(tempType);
+              break;
+            }
           }
         }
+
       } else {
         preCommand = "";
       }
@@ -202,7 +212,7 @@ public class TemplateOperation {
           // argument.getDataType().getBitSize()) - 1);
           tempCommand += String.format("_");
         } else {
-          System.out.println("Temp");
+          // System.out.println("Temp");
           tempCommand += branchLabel;
         }
       }
@@ -268,6 +278,7 @@ public class TemplateOperation {
   }
 
   private String prepareReg(final String regType) {
+    InvariantChecks.checkNotNull(regType);
     return String.format("la %s(%x), %s", regType.toLowerCase(), JUMP_REG, branchLabel);
     // TODO prepare REG(1), get_address_of(:j_label)
   }
@@ -297,7 +308,7 @@ public class TemplateOperation {
   }
 
   public boolean isBranchOperation() {
-    return branch;
+    return branch || jump;
   }
 
   public boolean isStoreOperation() {
@@ -318,14 +329,14 @@ public class TemplateOperation {
    * @param templatePrinter the templates printer.
    */
   public void printOperationBlock(final TemplatePrinter templatePrinter) {
-    if (branch || store || load) {
+    if (jump || store || load) {
       String tempPreCommand = this.getPreCommand();
       if (tempPreCommand != null && !tempPreCommand.isEmpty()) {
         templatePrinter.addString(tempPreCommand);
       }
     }
     templatePrinter.addString(this.getCommand());
-    if (branch) {
+    if (jump) {
       String[] postCommand = this.getPostCommand();
 
       for (int i = 0; i < postCommand.length; i++) {

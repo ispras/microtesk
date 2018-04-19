@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.tools.templgen.templates;
 
+import java.util.Set;
+
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
@@ -28,8 +30,9 @@ import ru.ispras.microtesk.tools.templgen.templates.TemplateOperation;
 public final class SimpleTemplate extends GeneratedTemplate {
   public static final String SIMPLE_TEMPLATE_NAME = "Simple";
 
-  public SimpleTemplate(final MetaModel metaModel, final TemplatePrinter printer) {
-    super(metaModel, printer);
+  public SimpleTemplate(final MetaModel metaModel, final TemplatePrinter printer,
+      final Set<String> ignoredInstructions) {
+    super(metaModel, printer, ignoredInstructions);
   }
 
   @Override
@@ -39,7 +42,7 @@ public final class SimpleTemplate extends GeneratedTemplate {
     final Iterable<MetaOperation> operationsIterator = templateMetaModel.getOperations();
 
     for (MetaOperation operation : operationsIterator) {
-      if (operation.hasRootShortcuts()) {
+      if (operation.hasRootShortcuts() && !ignoredInstructions.contains(operation.getName())) {
         TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter);
         templatePrinter.addString("");
         templateOperation.printOperationBlock(templatePrinter);

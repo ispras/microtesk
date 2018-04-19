@@ -14,6 +14,10 @@
 
 package ru.ispras.microtesk.tools.templgen;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
@@ -64,33 +68,57 @@ public final class TemplateGenerator {
       } else {
         final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
         final String archPath = SysUtils.getArchDir(archDirs, modelName);
-        outPutDirectory = archPath.replaceFirst("settings.xml", "templates/");
-        // System.out.println(outPutDirectory);
         // TODO:
+        outPutDirectory = archPath.replaceFirst("settings.xml", "templates/");
       }
     }
 
     final Model model = loadModel(modelName);
     final MetaModel metaModel = model.getMetaData();
+    final Set<String> ignoredInstructions = getIgnoredInstructions(options);
 
     boolean generatedResult = true;
 
     final SimpleTemplate simpleTemplate =
         new SimpleTemplate(metaModel, new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME,
-            modelName, baseTemplateName, outPutDirectory));
+            modelName, baseTemplateName, outPutDirectory), ignoredInstructions);
     generatedResult = generatedResult & simpleTemplate.generate();
 
     final GroupTemplate groupTemplate =
         new GroupTemplate(metaModel, new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME,
-            modelName, baseTemplateName, outPutDirectory));
+            modelName, baseTemplateName, outPutDirectory), ignoredInstructions);
     generatedResult = generatedResult & groupTemplate.generate();
 
     final BoundaryValuesTemplate boundaryTemplate = new BoundaryValuesTemplate(metaModel,
         new RubyTemplatePrinter(BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME, modelName,
-            baseTemplateName, outPutDirectory));
+            baseTemplateName, outPutDirectory),
+        ignoredInstructions);
     generatedResult = generatedResult & boundaryTemplate.generate();
 
     return generatedResult;
+  }
+
+  /**
+   * Generates a set of templates for a model of microprocessor.
+   *
+   * @param options the generation settings.
+   * @return the set of instructions to ignore.
+   */
+  public static Set<String> getIgnoredInstructions(final Options options) {
+    InvariantChecks.checkNotNull(options);
+
+    final String ignoredInstructions = options.getValueAsString(Option.IGNORED_INSTRUCTIONS);
+
+    if (ignoredInstructions.isEmpty()) {
+      return Collections.emptySet();
+    }
+
+    final Set<String> result = new HashSet<>();
+    for (final String instruction : ignoredInstructions.split(":")) {
+      result.add(instruction.trim());
+    }
+
+    return result;
   }
 
   private static Model loadModel(final String modelName) {

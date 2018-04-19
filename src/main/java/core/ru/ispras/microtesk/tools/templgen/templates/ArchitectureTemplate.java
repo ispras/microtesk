@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,45 +21,37 @@ import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
 
 /**
+ * The {@code ArchitectureTemplate} class generates template for architecture validation.
+ *
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 
-public final class BoundaryValuesTemplate extends GeneratedTemplate {
-  public static final String BOUNDARY_TEMPLATE_NAME = "Boundary";
+public class ArchitectureTemplate extends GeneratedTemplate {
+  public static final String ARCHITECTURE_TEMPLATE_NAME = "Architecture";
 
-  public BoundaryValuesTemplate(MetaModel metaModel, TemplatePrinter printer,
+  public ArchitectureTemplate(final MetaModel metaModel, final TemplatePrinter printer,
       final Set<String> ignoredInstructions) {
     super(metaModel, printer, ignoredInstructions);
-  }
-
-  private void printSequence(final TemplateOperation templateOperation) {
-    templatePrinter.addString("");
-    templatePrinter.startSequence("sequence {");
-    templatePrinter.addAlignedText(templateOperation.getCommand());
-    templatePrinter.addText(" do testdata('boundary') end");
-    templatePrinter.addString("");
-    templatePrinter.closeSequence("}.run");
   }
 
   @Override
   public boolean generate() {
     templatePrinter.templateBegin();
-    templatePrinter.addString("set_default_mode_allocator mode_allocator('FREE')");
-    templatePrinter.addString("");
-    templatePrinter.addComment("Only arithmetic operations");
 
     final Iterable<MetaOperation> operationsIterator = templateMetaModel.getOperations();
+
     for (MetaOperation operation : operationsIterator) {
-      if (operation.hasRootShortcuts() && !ignoredInstructions.contains(operation.getName())) {
-        TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter);
-        if (templateOperation.isArithmeticOperation()) {
-          printSequence(templateOperation);
-        }
-      }
+      if (operation.hasRootShortcuts()) {
+        /*
+         * TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter);
+         * templatePrinter.addString(""); templateOperation.printOperationBlock(templatePrinter);
+         */}
     }
 
     templatePrinter.templateEnd();
     templatePrinter.templateClose();
+
     return true;
+
   }
 }

@@ -49,17 +49,14 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
    * @param baseTemplateName the base template name.
    * @param outputDirectory the output directory for template file.
    */
-  public RubyTemplatePrinter(
-      final String templateName,
-      final String modelName,
-      final String baseTemplateName,
-      final String outputDirectory) {
+  public RubyTemplatePrinter(final String templateName, final String modelName,
+      final String baseTemplateName, final String outputDirectory) {
     this.modelName = modelName;
     this.templateName = templateName;
     this.baseTemplateName = baseTemplateName;
 
-    final File templateFile = FileUtils.newFile(
-        outputDirectory + templateName.toLowerCase() + TEMPLATE_FILE_NAME);
+    final File templateFile =
+        FileUtils.newFile(outputDirectory + templateName.toLowerCase() + TEMPLATE_FILE_NAME);
 
     try {
       printWriter = new PrintWriter(templateFile);
