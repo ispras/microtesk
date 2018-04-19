@@ -108,8 +108,14 @@ public enum Option implements Property {
   JRUBY_THREAD_POOL_MAX("jruby-thread-pool-max",
       "JRuby: the maximum number of threads to allow in the pool.", Integer.MAX_VALUE, GENERATE),
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////
+  // Template Generation Options
+
   BASE_TEMPLATE_NAME("base-template-name",
-      "Name of test template base class.", "", GENERATE_TEMPLATE);
+      "Name of test template base class.", "", GENERATE_TEMPLATE),
+
+  IGNORED_INSTRUCTIONS("ignored-instructions",
+      "Instructions and instruction groups to be ignored.", "", GENERATE_TEMPLATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
