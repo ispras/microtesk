@@ -115,7 +115,7 @@ public enum Option implements Property {
       "Name of test template base class.", "", GENERATE_TEMPLATE),
 
   IGNORED_INSTRUCTIONS("ignored-instructions",
-      "Instructions and instruction groups to be ignored.", "", GENERATE_TEMPLATE);
+      "Instructions to be ignored.", "", GENERATE_TEMPLATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
