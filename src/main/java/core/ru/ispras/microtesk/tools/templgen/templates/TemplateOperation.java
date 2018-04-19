@@ -50,10 +50,14 @@ public class TemplateOperation {
     name = this.templatePrinter.formattingOperation(operation.getName());
 
     branch = operation.isConditionalBranch();
-    jump = operation.isBranch();
+    jump = operation.isBranch() && !branch;
 
     if (branch || jump) {
       //printMetaOperation(operation);
+      /*System.out.println(operation.getName());
+      System.out.print(branch);
+      System.out.print(jump);
+      System.out.println();*/
     }
 
     load = (operation.isLoad()) ? Boolean.TRUE : Boolean.FALSE;
@@ -63,7 +67,7 @@ public class TemplateOperation {
             ? Boolean.TRUE
             : Boolean.FALSE;
 
-    if (jump) {
+    if (branch || jump) {
       branchLabel = String.format(":%s_label", name);
       regTitle = getLastArgument(operation.getArguments(), IsaPrimitiveKind.MODE);
 
@@ -173,6 +177,7 @@ public class TemplateOperation {
             if (null != branchLabel) {
               if (jump && getArgumentNumbers(arguments, IsaPrimitiveKind.MODE) > 2) {
                 tempCommand += String.format("0");
+                //System.out.println("jump " + jump);
               } else {
                 tempCommand += branchLabel;
               }
@@ -322,14 +327,14 @@ public class TemplateOperation {
    * @param templatePrinter the templates printer.
    */
   public void printOperationBlock(final TemplatePrinter templatePrinter) {
-    if (jump || store || load) {
+    if (branch || jump || store || load) {
       String tempPreCommand = this.getPreCommand();
       if (tempPreCommand != null && !tempPreCommand.isEmpty()) {
         templatePrinter.addString(tempPreCommand);
       }
     }
     templatePrinter.addString(this.getCommand());
-    if (jump) {
+    if (branch || jump) {
       String[] postCommand = this.getPostCommand();
 
       for (int i = 0; i < postCommand.length; i++) {
