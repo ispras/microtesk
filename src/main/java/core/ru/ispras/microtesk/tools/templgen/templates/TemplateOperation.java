@@ -49,18 +49,11 @@ public class TemplateOperation {
     this.templatePrinter = templatePrinter;
     name = this.templatePrinter.formattingOperation(operation.getName());
 
-    // if (((name.startsWith("b") || name.startsWith("j")) && !name.equals("break_ins")) ||
-    // name.startsWith("j")) {
-    // printMetaOperation(operation);}
-
-    // TODO: branch
-    branch = operation.isConditionalBranch(); // ((name.startsWith("b") || name.startsWith("j")) &&
-                                              // !name.equals("break_ins")) ? Boolean.TRUE :
-                                              // Boolean.FALSE;
-    jump = operation.isBranch();// (name.startsWith("j")) ? Boolean.TRUE : Boolean.FALSE;
+    branch = operation.isConditionalBranch();
+    jump = operation.isBranch();
 
     if (branch || jump) {
-      printMetaOperation(operation);
+      //printMetaOperation(operation);
     }
 
     load = (operation.isLoad()) ? Boolean.TRUE : Boolean.FALSE;
