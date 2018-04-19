@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -20,6 +20,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
@@ -32,12 +33,16 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
 
 public final class IrInquirer {
   private static final String PC_LABEL = "PC";
+  private static final String DELAY_SLOT_LABEL = "DELAY_SLOT";
 
   private final Ir ir;
+  private final boolean isDelaySlot;
 
   public IrInquirer(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
+
     this.ir = ir;
+    this.isDelaySlot = ir.getLabels().containsKey(DELAY_SLOT_LABEL);
   }
 
   public boolean isPC(final Expr expr) {
@@ -52,7 +57,13 @@ public final class IrInquirer {
 
   public boolean isPC(final Location location) {
     InvariantChecks.checkNotNull(location);
-    return isRegister(location) && (isExplicitPC(location) || isLabelledAsPC(location));
+
+    if (!isRegister(location)) {
+      return false;
+    }
+
+    return isDelaySlot ? isLabelledAsDelaySlot(location)
+                       : (isExplicitPC(location) || isLabelledAsPC(location));
   }
 
   public static boolean isRegister(final Location location) {
@@ -81,11 +92,19 @@ public final class IrInquirer {
   }
 
   private boolean isLabelledAsPC(final Location location) {
-    if (!ir.getLabels().containsKey(PC_LABEL)) {
+    return isLabelled(location, PC_LABEL);
+  }
+
+  private boolean isLabelledAsDelaySlot(final Location location) {
+    return isLabelled(location, DELAY_SLOT_LABEL);
+  }
+
+  private boolean isLabelled(final Location location, final String labelId) {
+    if (!ir.getLabels().containsKey(labelId)) {
       return false;
     }
 
-    final LetLabel label = ir.getLabels().get(PC_LABEL);
+    final LetLabel label = ir.getLabels().get(labelId);
     if (!label.getMemoryName().equals(location.getName())) {
       return false;
     }
