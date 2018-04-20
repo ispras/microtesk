@@ -26,7 +26,7 @@ public class MultipleEnginesTestCase extends MiniMipsTest {
     Assert.assertNotNull(statistics);
 
     Assert.assertEquals(1, statistics.getPrograms());
-    Assert.assertEquals(5, statistics.getSequences());
-    //Assert.assertEquals(209, statistics.getInstructions());
+    Assert.assertEquals(10, statistics.getSequences());
+    Assert.assertEquals(414, statistics.getInstructions());
   }
 }
