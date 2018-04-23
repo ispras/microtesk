@@ -13,8 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from minimips_base import MiniMipsBaseTemplate
 
-class MiniMipsBaseTemplate(Template)
-    def generate():
-        pass
+class EuclidTemplate(MinimipsBaseTemplate):
+    def __init__(self):
+        MiniMipsBaseTemplate.__init__(self)
 
+
+
+template = EuclidTemplate()
+template.generate()
+        
