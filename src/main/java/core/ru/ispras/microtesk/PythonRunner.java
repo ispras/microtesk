@@ -62,7 +62,7 @@ final class PythonRunner {
       interpreter = new PythonInterpreter();
       interpreter.execfile(pythonMainPath);
     } catch(final org.python.core.PyException e) {
-      throw e.getCause();
+      throw e.getCause() != null ? e.getCause() : e;
     } finally {
       if (null != interpreter) {
         interpreter.close();

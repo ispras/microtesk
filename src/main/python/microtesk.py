@@ -15,17 +15,39 @@
 #
 
 import sys
+from template import Template
 from ru.ispras.microtesk import SysUtils
+import __main__
 
 HOME = SysUtils.getHomeDir()
 TEMPLATE = HOME + "/lib/python/template"
 TEMPLATE_FILE = sys.argv[0]
+sys.path.append('/home/luesal/project/microtesk')
+def prepare_template_classes():
+    try:
+        template_file = __import__("empty")
+    except ImportError:
+        print('An error occured trying to import the file.')
+    return Template.template_classes
 
-print(HOME)
-print(TEMPLATE)
-print(TEMPLATE_FILE)
+def main():
+    #print("test")
+    #template_file.test()
+    #template.test()
+    template_classes = prepare_template_classes()
+    for i in template_classes:
+            print i,template_classes[i]
+    #template = Template()
+    #template.generate()
+        
+    
+    
+if __name__ == "__main__":
+    main()
 
-# Set up lookup path
-#sys.path.append('your/path')
+#print(HOME)
+#print(TEMPLATE)
+#print(TEMPLATE_FILE)
 
-execfile(TEMPLATE_FILE)
+
+#execfile(TEMPLATE_FILE)
