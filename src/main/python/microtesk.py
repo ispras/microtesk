@@ -50,4 +50,4 @@ if __name__ == "__main__":
 #print(TEMPLATE_FILE)
 
 
-#execfile(TEMPLATE_FILE)
+execfile(TEMPLATE_FILE)

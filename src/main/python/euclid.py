@@ -15,10 +15,12 @@
 #
 from minimips_base import MiniMipsBaseTemplate
 
-class EuclidTemplate(MinimipsBaseTemplate):
+class EuclidTemplate(MiniMipsBaseTemplate):
     def __init__(self):
         MiniMipsBaseTemplate.__init__(self)
-
+        
+    def run(self):
+        pass
 
 
 template = EuclidTemplate()
