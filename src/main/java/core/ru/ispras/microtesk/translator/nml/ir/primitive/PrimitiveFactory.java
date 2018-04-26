@@ -299,12 +299,12 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
   }
 
   private static boolean checkType(final Primitive argType, final Primitive arg) {
-    if (argType.getKind() != arg.getKind()) {
-      return false;
-    }
-
     if (argType.getKind() == Primitive.Kind.IMM) {
       return argType.getReturnType().equals(arg.getReturnType());
+    }
+
+    if (argType.getKind() != arg.getKind()) {
+      return false;
     }
 
     if (!argType.isOrRule()) {

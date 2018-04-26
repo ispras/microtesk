@@ -17,12 +17,16 @@ package ru.ispras.microtesk.translator.nml.codegen;
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class PrinterInstance {
   private PrinterInstance() {}
 
-  public static String toString(Instance instance) {
+  public static String toString(final Instance instance) {
     final PrimitiveAND primitive = instance.getPrimitive();
 
     final StringBuilder sb = new StringBuilder();
@@ -31,31 +35,44 @@ public final class PrinterInstance {
     sb.append(primitive.getName());
     sb.append('(');
 
-    boolean isFirst = true;
-    for (InstanceArgument arg : instance.getArguments()) {
-      if (!isFirst) {
+    final List<String> argumentNames = new ArrayList<>(primitive.getArguments().keySet());
+    for (int index = 0; index < instance.getArguments().size(); ++index) {
+      if (0 != index) {
         sb.append(", ");
       }
-      isFirst = false;
 
-      switch (arg.getKind()) {
+      final InstanceArgument instanceArgument = instance.getArguments().get(index);
+      switch (instanceArgument.getKind()) {
         case EXPR: {
-          final boolean isLocation = arg.getExpr().getNodeInfo().isLocation();
-          String text = ExprPrinter.toString(arg.getExpr(), isLocation);
+          final boolean isLocation = instanceArgument.getExpr().getNodeInfo().isLocation();
+          final String text = ExprPrinter.toString(instanceArgument.getExpr(), isLocation);
           sb.append(String.format("new %s(%s)", Immediate.class.getSimpleName(), text));
           break;
         }
 
-        case INSTANCE:
-          sb.append(toString(arg.getInstance()));
+        case INSTANCE: {
+          sb.append(toString(instanceArgument.getInstance()));
           break;
+        }
 
-        case PRIMITIVE:
-          sb.append(arg.getName());
+        case PRIMITIVE: {
+          final String argumentName = argumentNames.get(index);
+          final Primitive argument = primitive.getArguments(). get(argumentName);
+
+          if (Primitive.Kind.IMM == argument.getKind() &&
+              Primitive.Kind.MODE == instanceArgument.getPrimitive().getKind()) {
+            sb.append(String.format("new %s(%s.access(pe__, vars__))",
+                Immediate.class.getSimpleName(), instanceArgument.getName()));
+          } else {
+            sb.append(instanceArgument.getName());
+          }
+
           break;
+        }
 
-        default:
-          throw new IllegalArgumentException("Unknown kind: " + arg.getKind());
+        default: {
+          throw new IllegalArgumentException("Unknown kind: " + instanceArgument.getKind());
+        }
       }
     }
 
