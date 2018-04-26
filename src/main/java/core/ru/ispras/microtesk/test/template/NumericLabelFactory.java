@@ -26,59 +26,65 @@ import java.util.Arrays;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class NumericLabelFactory {
-  private final int[] referenceNumbers;
+  private static class NumericLabelTracker {
+    private final int[] referenceNumbers;
+
+    public NumericLabelTracker() {
+      this.referenceNumbers = new int[10];
+      Arrays.fill(referenceNumbers, 0);
+    }
+
+    private int nextReferenceNumberForNumericLabel(final int index) {
+      InvariantChecks.checkBounds(index, referenceNumbers.length);
+
+      final int referenceNumber = referenceNumbers[index];
+      referenceNumbers[index] = referenceNumber + 1;
+
+      return referenceNumber;
+    }
+
+    private int getReferenceNumberForNumericLabel(final int index, final boolean forward) {
+      InvariantChecks.checkBounds(index, referenceNumbers.length);
+
+      final int referenceNumber = referenceNumbers[index];
+
+      if (forward) {
+        return referenceNumber;
+      }
+
+      if (referenceNumber <= 0) {
+        throw new IllegalArgumentException(
+            String.format("Label '%d' is not defined and cannot be referenced as '%<db'.", index));
+      }
+
+      return referenceNumber - 1;
+    }
+  }
+
+  private final NumericLabelTracker labelTracker;
 
   public NumericLabelFactory() {
-    this.referenceNumbers = new int[10];
-    Arrays.fill(referenceNumbers, 0);
+    this.labelTracker = new NumericLabelTracker();
   }
 
   public Label newLabel(final int index, final BlockId blockId) {
-    InvariantChecks.checkBounds(index, referenceNumbers.length);
     InvariantChecks.checkNotNull(blockId);
 
     final Label label = Label.newNumeric(index, blockId);
-    label.setReferenceNumber(nextReferenceNumberForNumericLabel(index));
+    label.setReferenceNumber(labelTracker.nextReferenceNumberForNumericLabel(index));
 
     return label;
   }
 
   public LabelValue newLabelRef(final int index, final BlockId blockId, final boolean forward) {
-    InvariantChecks.checkBounds(index, referenceNumbers.length);
     InvariantChecks.checkNotNull(blockId);
 
     final Label label = Label.newNumeric(index, blockId);
-    label.setReferenceNumber(getReferenceNumberForNumericLabel(index, forward));
+    label.setReferenceNumber(labelTracker.getReferenceNumberForNumericLabel(index, forward));
 
     final LabelValue labelValue = LabelValue.newUnknown(label);
     labelValue.setSuffix(forward ? "f" : "b");
 
     return labelValue;
-  }
-
-  private int nextReferenceNumberForNumericLabel(final int index) {
-    InvariantChecks.checkBounds(index, referenceNumbers.length);
-
-    final int referenceNumber = referenceNumbers[index];
-    referenceNumbers[index] = referenceNumber + 1;
-
-    return referenceNumber;
-  }
-
-  private int getReferenceNumberForNumericLabel(final int index, final boolean forward) {
-    InvariantChecks.checkBounds(index, referenceNumbers.length);
-
-    final int referenceNumber = referenceNumbers[index];
-
-    if (forward) {
-      return referenceNumber;
-    }
-
-    if (referenceNumber <= 0) {
-      throw new IllegalArgumentException(
-          String.format("Label '%d' is not defined and cannot be referenced as '%<db'.", index));
-    }
-
-    return referenceNumber - 1;
   }
 }
