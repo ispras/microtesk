@@ -38,11 +38,8 @@ final class NumericLabelFactory {
     InvariantChecks.checkNotNull(blockId);
 
     final Label label = Label.newNumeric(index, blockId);
+    label.setReferenceNumber(nextReferenceNumberForNumericLabel(index));
 
-    final int referenceNumber = referenceNumbers[index];
-    label.setReferenceNumber(referenceNumber);
-
-    referenceNumbers[index] = referenceNumber + 1;
     return label;
   }
 
@@ -51,21 +48,37 @@ final class NumericLabelFactory {
     InvariantChecks.checkNotNull(blockId);
 
     final Label label = Label.newNumeric(index, blockId);
-
-    final int referenceNumber = referenceNumbers[index];
-    if (forward) {
-      label.setReferenceNumber(referenceNumber);
-    } else {
-      if (referenceNumber <= 0) {
-        throw new IllegalArgumentException(
-            String.format("Label '%d' is not defined and cannot be referenced as '%<db'.", index));
-      }
-      label.setReferenceNumber(referenceNumber - 1);
-    }
+    label.setReferenceNumber(getReferenceNumberForNumericLabel(index, forward));
 
     final LabelValue labelValue = LabelValue.newUnknown(label);
     labelValue.setSuffix(forward ? "f" : "b");
 
     return labelValue;
+  }
+
+  private int nextReferenceNumberForNumericLabel(final int index) {
+    InvariantChecks.checkBounds(index, referenceNumbers.length);
+
+    final int referenceNumber = referenceNumbers[index];
+    referenceNumbers[index] = referenceNumber + 1;
+
+    return referenceNumber;
+  }
+
+  private int getReferenceNumberForNumericLabel(final int index, final boolean forward) {
+    InvariantChecks.checkBounds(index, referenceNumbers.length);
+
+    final int referenceNumber = referenceNumbers[index];
+
+    if (forward) {
+      return referenceNumber;
+    }
+
+    if (referenceNumber <= 0) {
+      throw new IllegalArgumentException(
+          String.format("Label '%d' is not defined and cannot be referenced as '%<db'.", index));
+    }
+
+    return referenceNumber - 1;
   }
 }
