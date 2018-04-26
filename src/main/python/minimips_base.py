@@ -36,11 +36,100 @@ class MiniMipsBaseTemplate(Template):
         pass
     
     def zero(self):
-        pass
+        return self.reg(0)
     
-    def at(self,contents):
-        pass
+    def at(self):
+        return self.reg(1)
     
+    def v0(self):
+        return self.reg(2)
+    
+    def v1(self):
+        return self.reg(3)
+    
+    def a0(self):
+        return self.reg(4)
+    
+    def a1(self):
+        return self.reg(5)
+    
+    def a2(self):
+        return self.reg(6)
+    
+    def a3(self):
+        return self.reg(7)
+    
+    def t0(self):
+        return self.reg(8)
+    
+    def t1(self):
+        return self.reg(9)
+    
+    def t2(self):
+        return self.reg(10)
+    
+    def t3(self):
+        return self.reg(11)
+    
+    def t4(self):
+        return self.reg(12)
+    
+    def t5(self):
+        return self.reg(13)
+    
+    def t6(self):
+        return self.reg(14)
+    
+    def t7(self):
+        return self.reg(15)
+    
+    def s0(self):
+        return self.reg(16)
+    
+    def s1(self):
+        return self.reg(17)
+    
+    def s2(self):
+        return self.reg(18)
+    
+    def s3(self):
+        return self.reg(19)
+    
+    def s4(self):
+        return self.reg(20)
+    
+    def s5(self):
+        return self.reg(21)
+    
+    def s6(self):
+        return self.reg(22)
+    
+    def s7(self):
+        return self.reg(23)
+    
+    def t8(self):
+        return self.reg(24)
+    
+    def t9(self):
+        return self.reg(25)
+    
+    def k0(self):
+        return self.reg(26)
+    
+    def k1(self):
+        return self.reg(27)
+    
+    def gp(self):
+        return self.reg(28)
+    
+    def sp(self):
+        return self.reg(29)
+    
+    def fp(self):
+        return self.reg(30)
+    
+    def ra(self):
+        return self.reg(31)
 
 #template = MiniMipsBaseTemplate()
 #template.generate()

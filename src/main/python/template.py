@@ -15,6 +15,7 @@
 #
 
 from template_builder import define_method_for
+from template_builder import define_runtime_methods
 
 class Template:
     template_classes = {}
@@ -31,6 +32,9 @@ class Template:
     
     def run(self):
         print "Trying to execute the original Template"
+        
+    def get_caller_location(self):
+        return self.template.where("xxx.py",1)
 
     def post(self):
         pass
@@ -40,7 +44,7 @@ class Template:
             raise NameError('Data configuration is already defined')
         
         target = attrs.get('target')
-        contents = kwarg['contents']
+        contents = kwarg.get('contents')
         
         # Default value is 8 bits if other value is not explicitly specified
         
@@ -48,8 +52,6 @@ class Template:
             addressableSize = attrs.get('item_size')
         else:
             addressableSize = 8
-        manager = self.template.getDataManager()
-        print "manager is {}".format(manager)
         self.data_manager = DataManager(self, self.template.getDataManager())
         self.data_manager.beginConfig(target,addressableSize)
         
@@ -117,7 +119,7 @@ class Template:
         engine = TestEngine.getInstance()
         
         self.template = engine.newTemplate()
-        #TemplateBuilder.define_runtime_methods(engine.getModel.getMetaData)
+        define_runtime_methods(engine.getModel().getMetaData())
         
         self.template.beginPreSection()
         self.pre()
