@@ -96,6 +96,10 @@ public final class LabelReference {
     reference.setLabel(label);
   }
 
+  public String getReferenceSuffix() {
+    return reference.getSuffix();
+  }
+
   /**
    * Returns the value assigned (instead of a real address or offset) to the primitive
    * (OP or MODE) argument the label reference is associated with.

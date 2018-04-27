@@ -26,6 +26,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 
+import java.util.Arrays;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.Set;
 public final class CodeAllocator {
   private final Model model;
   private final LabelManager labelManager;
+  private final NumericLabelTracker numericLabelTracker;
   private final boolean placeToMemory;
 
   private Code code;
@@ -49,6 +51,7 @@ public final class CodeAllocator {
 
     this.model = model;
     this.labelManager = labelManager;
+    this.numericLabelTracker = new NumericLabelTracker();
     this.code = null;
     this.address = 0;
     this.placeToMemory = placeToMemory;
@@ -61,6 +64,7 @@ public final class CodeAllocator {
     final Section section = Sections.get().getTextSection();
     InvariantChecks.checkNotNull("Section .text is not defined in the template!");
     address = section.getBaseVa().longValue();
+    numericLabelTracker.reset();
   }
 
   public void reset() {
@@ -70,6 +74,7 @@ public final class CodeAllocator {
     final Section section = Sections.get().getTextSection();
     InvariantChecks.checkNotNull("Section .text is not defined in the template!");
     address = section.getBaseVa().longValue();
+    numericLabelTracker.reset();
   }
 
   public Code getCode() {
@@ -235,9 +240,18 @@ public final class CodeAllocator {
   }
 
   private void registerLabels(final List<ConcreteCall> calls, final int sequenceIndex) {
+    numericLabelTracker.save();
     for (final ConcreteCall call : calls) {
+      for (final Label label : call.getLabels()) {
+        if (label.isNumeric()) {
+          label.setReferenceNumber(
+              numericLabelTracker.nextReferenceNumberForNumericLabel(label.getName()));
+        }
+      }
+
       labelManager.addAllLabels(call.getLabels(), call.getAddress(), sequenceIndex);
     }
+    numericLabelTracker.restore();
   }
 
   private void patchLabels(
@@ -246,12 +260,26 @@ public final class CodeAllocator {
       final boolean abortOnUndefined) {
     // Resolves all label references and patches the instruction call text accordingly.
     for (final ConcreteCall call : calls) {
+      for (final Label label : call.getLabels()) {
+        if (label.isNumeric()) {
+          label.setReferenceNumber(
+              numericLabelTracker.nextReferenceNumberForNumericLabel(label.getName()));
+        }
+      }
+
       // Resolves all label references and patches the instruction call text accordingly.
       for (final LabelReference labelRef : call.getLabelReferences()) {
         labelRef.resetTarget();
 
         final Label source = labelRef.getReference();
         source.setSequenceIndex(sequenceIndex);
+
+        if (source.isNumeric()) {
+          final boolean forward = "f".equals(labelRef.getReferenceSuffix());
+          source.setReferenceNumber(
+              numericLabelTracker.getReferenceNumberForNumericLabel(source.getName(), forward));
+
+        }
 
         final LabelManager.Target target = labelManager.resolve(source);
         if (null != target) { // Label is found
@@ -270,7 +298,64 @@ public final class CodeAllocator {
                 source.getName(), call.getText(), call.getAddress()));
           }
         }
+
       }
+    }
+  }
+
+  private static class NumericLabelTracker {
+    private final int[] referenceNumbers;
+    private final int[] referenceNumbersCache;
+
+    public NumericLabelTracker() {
+      this.referenceNumbers = new int[10];
+      this.referenceNumbersCache = new int[10];
+      reset();
+    }
+
+    public void reset() {
+      Arrays.fill(referenceNumbers, 0);
+      Arrays.fill(referenceNumbersCache, 0);
+    }
+
+    public void save() {
+      for (int index = 0; index < referenceNumbers.length; index++) {
+        referenceNumbersCache[index] = referenceNumbers[index];
+      }
+    }
+
+    public void restore() {
+      for (int index = 0; index < referenceNumbers.length; index++) {
+        referenceNumbers[index] = referenceNumbersCache[index];
+      }
+    }
+
+    private int nextReferenceNumberForNumericLabel(final String indexText) {
+      final int index = Integer.parseInt(indexText, 10);
+      InvariantChecks.checkBounds(index, referenceNumbers.length);
+
+      final int referenceNumber = referenceNumbers[index];
+      referenceNumbers[index] = referenceNumber + 1;
+
+      return referenceNumber;
+    }
+
+    private int getReferenceNumberForNumericLabel(final String indexText, final boolean forward) {
+      final int index = Integer.parseInt(indexText, 10);
+      InvariantChecks.checkBounds(index, referenceNumbers.length);
+
+      final int referenceNumber = referenceNumbers[index];
+
+      if (forward) {
+        return referenceNumber;
+      }
+
+      if (referenceNumber <= 0) {
+        throw new IllegalArgumentException(
+            String.format("Label '%d' is not defined and cannot be referenced as '%<db'.", index));
+      }
+
+      return referenceNumber - 1;
     }
   }
 }
