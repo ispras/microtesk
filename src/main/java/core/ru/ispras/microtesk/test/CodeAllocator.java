@@ -262,8 +262,7 @@ public final class CodeAllocator {
     for (final ConcreteCall call : calls) {
       for (final Label label : call.getLabels()) {
         if (label.isNumeric()) {
-          label.setReferenceNumber(
-              numericLabelTracker.nextReferenceNumberForNumericLabel(label.getName()));
+          numericLabelTracker.nextReferenceNumberForNumericLabel(label.getName());
         }
       }
 
@@ -278,7 +277,6 @@ public final class CodeAllocator {
           final boolean forward = "f".equals(labelRef.getReferenceSuffix());
           source.setReferenceNumber(
               numericLabelTracker.getReferenceNumberForNumericLabel(source.getName(), forward));
-
         }
 
         final LabelManager.Target target = labelManager.resolve(source);
@@ -298,7 +296,6 @@ public final class CodeAllocator {
                 source.getName(), call.getText(), call.getAddress()));
           }
         }
-
       }
     }
   }
