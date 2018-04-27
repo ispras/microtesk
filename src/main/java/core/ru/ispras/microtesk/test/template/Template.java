@@ -109,7 +109,6 @@ public final class Template {
   private List<AbstractCall> globalEpilogue;
 
   private final Set<Block> unusedBlocks;
-  private final NumericLabelFactory numericLabelFactory;
 
   public Template(final EngineContext context, final Processor processor) {
     Logger.debugHeader("Started Processing Template");
@@ -148,7 +147,6 @@ public final class Template {
     this.defaultSituations = new HashMap<>();
 
     this.unusedBlocks = new LinkedHashSet<>();
-    this.numericLabelFactory = new NumericLabelFactory();
   }
 
   public DataManager getDataManager() {
@@ -409,13 +407,18 @@ public final class Template {
   }
 
   public void addNumericLabel(final int index) {
-    final Label label = numericLabelFactory.newLabel(index, getCurrentBlockId());
+    final Label label = Label.newNumeric(index, getCurrentBlockId());
     debug("Label: %s", label);
     callBuilder.addLabel(label);
   }
 
   public LabelValue newNumericLabelRef(final int index, final boolean forward) {
-    return numericLabelFactory.newLabelRef(index, getCurrentBlockId(), forward);
+    final Label label = Label.newNumeric(index, getCurrentBlockId());
+
+    final LabelValue labelValue = LabelValue.newUnknown(label);
+    labelValue.setSuffix(forward ? "f" : "b");
+
+    return labelValue;
   }
 
   public void addOutput(final Output output) {
