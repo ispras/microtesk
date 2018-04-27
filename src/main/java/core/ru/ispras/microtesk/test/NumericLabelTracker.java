@@ -28,6 +28,17 @@ public final class NumericLabelTracker {
     reset();
   }
 
+  public NumericLabelTracker(final NumericLabelTracker other) {
+    this();
+
+    InvariantChecks.checkNotNull(other);
+    System.arraycopy(
+        other.referenceNumbers,0,
+        this.referenceNumbers,0,
+        this.referenceNumbers.length
+    );
+  }
+
   public void reset() {
     Arrays.fill(referenceNumbers, 0);
     Arrays.fill(referenceNumbersCache, 0);
@@ -71,5 +82,10 @@ public final class NumericLabelTracker {
     }
 
     return referenceNumber - 1;
+  }
+
+  @Override
+  public String toString() {
+    return Arrays.toString(referenceNumbers);
   }
 }

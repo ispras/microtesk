@@ -28,6 +28,7 @@ import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.Executor;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
+import ru.ispras.microtesk.test.NumericLabelTracker;
 import ru.ispras.microtesk.test.Printer;
 import ru.ispras.microtesk.test.SelfCheck;
 import ru.ispras.microtesk.test.template.AbstractCall;
@@ -195,14 +196,20 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
     }
 
     final List<ConcreteCall> sequence = concreteSequence.getAll();
-    final LabelManager labelManager = new LabelManager(engineContext.getLabelManager());
+
+    final LabelManager labelManager =
+        new LabelManager(engineContext.getLabelManager());
+
+    final NumericLabelTracker numericLabelTracker =
+        new NumericLabelTracker(engineContext.getNumericLabelTracker());
+
     allocateData(engineContext, labelManager, sequence, sequenceIndex);
 
     final boolean isFetchDecodeEnabled =
         engineContext.getOptions().getValueAsBoolean(Option.FETCH_DECODE_ENABLED);
 
-    final CodeAllocator codeAllocator =
-        new CodeAllocator(engineContext.getModel(), labelManager, isFetchDecodeEnabled);
+    final CodeAllocator codeAllocator = new CodeAllocator(
+        engineContext.getModel(), labelManager, numericLabelTracker, isFetchDecodeEnabled);
 
     codeAllocator.init();
     codeAllocator.setAddress(allocationAddress);

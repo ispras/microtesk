@@ -44,13 +44,16 @@ public final class CodeAllocator {
   public CodeAllocator(
       final Model model,
       final LabelManager labelManager,
+      final NumericLabelTracker numericLabelTracker,
       final boolean placeToMemory) {
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(labelManager);
+    InvariantChecks.checkNotNull(numericLabelTracker);
 
     this.model = model;
     this.labelManager = labelManager;
-    this.numericLabelTracker = new NumericLabelTracker();
+    this.numericLabelTracker = numericLabelTracker;
+
     this.code = null;
     this.address = 0;
     this.placeToMemory = placeToMemory;
@@ -63,7 +66,6 @@ public final class CodeAllocator {
     final Section section = Sections.get().getTextSection();
     InvariantChecks.checkNotNull("Section .text is not defined in the template!");
     address = section.getBaseVa().longValue();
-    numericLabelTracker.reset();
   }
 
   public void reset() {
@@ -73,7 +75,6 @@ public final class CodeAllocator {
     final Section section = Sections.get().getTextSection();
     InvariantChecks.checkNotNull("Section .text is not defined in the template!");
     address = section.getBaseVa().longValue();
-    numericLabelTracker.reset();
   }
 
   public Code getCode() {

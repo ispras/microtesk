@@ -91,6 +91,7 @@ final class TemplateProcessor implements Template.Processor {
 
     final Model model = engineContext.getModel();
     final LabelManager labelManager = engineContext.getLabelManager();
+    final NumericLabelTracker numLabelTracker = engineContext.getNumericLabelTracker();
 
     final boolean isFetchDecodeEnabled =
         engineContext.getOptions().getValueAsBoolean(Option.FETCH_DECODE_ENABLED);
@@ -99,7 +100,7 @@ final class TemplateProcessor implements Template.Processor {
     this.instanceNumber = model.getPENumber();
     this.testProgram = new TestProgram();
     this.postponedBlocks = new LinkedHashSet<>();
-    this.allocator = new CodeAllocator(model, labelManager, isFetchDecodeEnabled);
+    this.allocator = new CodeAllocator(model, labelManager, numLabelTracker, isFetchDecodeEnabled);
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();
@@ -567,6 +568,7 @@ final class TemplateProcessor implements Template.Processor {
       // Clean up all the state
       engineContext.getModel().resetState();
       engineContext.getLabelManager().reset();
+      engineContext.getNumericLabelTracker().reset();
       allocator.reset();
       testProgram.reset();
       executorStatuses.clear();

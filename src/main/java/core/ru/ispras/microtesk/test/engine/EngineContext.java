@@ -21,6 +21,7 @@ import ru.ispras.microtesk.settings.DelaySlotSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.CodeAllocator;
 import ru.ispras.microtesk.test.LabelManager;
+import ru.ispras.microtesk.test.NumericLabelTracker;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory;
@@ -40,6 +41,7 @@ public final class EngineContext {
   private final Options options;
   private final Model model;
   private final LabelManager labelManager;
+  private final NumericLabelTracker numericLabelTracker;
   private final PreparatorStore preparators;
   private final BufferPreparatorStore bufferPreparators;
   private final MemoryPreparatorStore memoryPreparators;
@@ -64,6 +66,7 @@ public final class EngineContext {
     this.options = options;
     this.model = model;
     this.labelManager = new LabelManager();
+    this.numericLabelTracker = new NumericLabelTracker();
     this.preparators = new PreparatorStore();
     this.bufferPreparators = new BufferPreparatorStore();
     this.memoryPreparators = new MemoryPreparatorStore();
@@ -92,6 +95,10 @@ public final class EngineContext {
 
   public LabelManager getLabelManager() {
     return labelManager;
+  }
+
+  public NumericLabelTracker getNumericLabelTracker() {
+    return numericLabelTracker;
   }
 
   public PreparatorStore getPreparators() {
