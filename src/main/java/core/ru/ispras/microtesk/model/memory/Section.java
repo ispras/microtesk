@@ -70,7 +70,18 @@ public final class Section {
   }
 
   public String getAsmText() {
-    return standard ? name : String.format(".section %s, \"%s\"", name, args);
+    if (".data".equals(name) || ".text".equals(name)) {
+      return name;
+    }
+
+    final StringBuilder sb = new StringBuilder(".section ");
+    sb.append(name);
+
+    if (args != null && !args.isEmpty()) {
+      sb.append(String.format(", \"%s\"", args));
+    }
+
+    return sb.toString();
   }
 
   public BigInteger getBasePa() {
