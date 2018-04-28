@@ -61,22 +61,15 @@ final class LinkerScriptPrinter {
             final ST st = group.getInstanceOf("linker_script");
             st.add("time", new Date().toString());
 
-            final Section textSection = Sections.get().getTextSection();
-            if (null != textSection) {
-              st.add("text_id", textSection.getName());
-              st.add("text_va", toHexString(textSection.getBaseVa()));
-            }
-
-            final Section dataSection = Sections.get().getDataSection();
-            if (null != dataSection) {
-              st.add("data_id", dataSection.getName());
-              st.add("data_va", toHexString(dataSection.getBaseVa()));
-            }
-
             for (final Section section : Sections.get().getSectionsOrderedByVa()) {
-              if (section != textSection && section != dataSection) {
-                st.add("section_ids", section.getName());
-                st.add("section_vas", toHexString(section.getBaseVa()));
+              st.add("section_ids", section.getName());
+              st.add("section_vas", toHexString(section.getBaseVa()));
+              st.add("section_flags", false);
+
+              if (section == Sections.get().getDataSection()) {
+                st.add("section_ids", ".bss");
+                st.add("section_vas", null);
+                st.add("section_flags", true);
               }
             }
 

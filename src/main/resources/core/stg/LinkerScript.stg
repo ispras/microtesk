@@ -33,30 +33,21 @@ linker_script_header(time) ::= <<
 
 linker_script(
   time,
-  text_id,
-  text_va,
-  data_id,
-  data_va,
   section_ids,
-  section_vas
+  section_vas,
+  section_flags
 ) ::= <<
 <linker_script_header(time)>
 ENTRY(_start)
 SECTIONS
 {
-  . = <text_va>;
-  <text_id> : { *(<text_id>) }
-  . = <data_va>;
-  <data_id> : { *(<data_id>) }
-  .bss : { *(.bss COMMON) }
-  <section_ids, section_vas : {id, va | <section(id, va)>}; separator="\n">
+  <section_ids, section_vas, section_flags : {id, va, fl | <section(id, va, fl)>}; separator="\n">
   . = ALIGN(8);
   . = . + 0x10000;
   stack_top = .;
 }
 >>
 
-section(id, va) ::= <<
-. = <va>;
-<id> : { *("<id>")}
+section(id, va, common) ::= <<
+<if(va)>. = <va>;<\n><endif><id> : { *("<id><if(common)> COMMON<endif>")}
 >>
