@@ -71,7 +71,7 @@ class MinMaxTemplate < MiniMipsBaseTemplate
     nop
 
     label :done
-    trace "\ns0(min)=%d, s1(max)=%d", gpr_observer(16), gpr_observer(17)
+    trace "\ns0(min)=%d, s1(max)=%d", gpr(16), gpr(17)
   end
 
 end

@@ -47,7 +47,7 @@ class DataFilesTemplate < MiniMipsBaseTemplate
     trace "Data at #{begin_label}:"
     addr = get_address_of(begin_label) / 4
     length.times.each {
-      trace "M[%d]: %d", addr, mem_observer(addr)
+      trace "M[%d]: %d", addr, M(addr)
       addr = addr + 1
     }
     trace ''

@@ -43,7 +43,7 @@ class IntDivideTemplate < MiniMipsBaseTemplate
 
     label :cycle
     trace "\nCurrent register values: $8 = %d, $9 = %d, $10 = %d\n",
-      gpr_observer(8), gpr_observer(9), gpr_observer(10)
+      gpr(8), gpr(9), gpr(10)
 
     sub t2, t1, s1
     slt t3, t2, zero
@@ -59,7 +59,7 @@ class IntDivideTemplate < MiniMipsBaseTemplate
 
     label :done
     trace "\nResult: quotient ($8) = %d, remainder ($9) = %d",
-      gpr_observer(8), gpr_observer(9)
+      gpr(8), gpr(9)
   end
 
 end

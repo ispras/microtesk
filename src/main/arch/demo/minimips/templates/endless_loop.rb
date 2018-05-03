@@ -34,7 +34,7 @@ class EndlessLoopTemplate < MiniMipsBaseTemplate
     add  t2, zero, zero
 
     label :repeat
-    trace "Iteration: %d", gpr_observer(8)
+    trace "Iteration: %d", gpr(8)
 
     # The line below contains a mistake that results in an endless loop.
     slt t2, t2, t1

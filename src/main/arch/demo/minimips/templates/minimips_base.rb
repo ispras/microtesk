@@ -437,18 +437,6 @@ class MiniMipsBaseTemplate < Template
   end
 
   #
-  # Shortcut methods to access memory resources in debug messages
-  #
-
-  def gpr_observer(index)
-    location('GPR', index)
-  end
-
-  def mem_observer(index)
-    location('M', index)
-  end
-
-  #
   # Utility method for printing data stored in memory using labels.
   #
   def trace_data(begin_label, end_label)
@@ -465,7 +453,7 @@ class MiniMipsBaseTemplate < Template
     trace "\nData values:"
     (0..(count-1)).each { |i|
       word_index = begin_index + i
-      trace "M[0x%x]: %d", word_index, mem_observer(word_index)
+      trace "M[0x%x]: %d", word_index, M(word_index)
     }
     trace ""
   end

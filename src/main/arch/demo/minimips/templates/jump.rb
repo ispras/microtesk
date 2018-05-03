@@ -41,7 +41,7 @@ class JumpTemplate < MiniMipsBaseTemplate
     add t4, zero, t1
 
     (9..12).each { |i|
-      trace "$#{i} = %d", gpr_observer(i)
+      trace "$#{i} = %d", gpr(i)
     }
 
     nop
