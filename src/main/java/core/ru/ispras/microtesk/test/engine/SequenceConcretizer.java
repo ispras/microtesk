@@ -152,6 +152,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
     final ConcreteSequenceCreator creator =
         new ConcreteSequenceCreator(sequenceIndex, abstractSequence, concreteSequence);
 
+    creator.setAllocationAddress(engineContext.getCodeAllocationAddress());
+
     if (isPresimulation) {
       creator.startProcessing();
     }
@@ -159,7 +161,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
     execute(
         engineContext,
         creator,
-        engineContext.getCodeAllocationAddress(),
+        creator.getAllocationAddress(),
         concreteSequence,
         sequenceIndex
     );
