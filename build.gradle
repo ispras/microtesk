@@ -150,9 +150,9 @@ macOs {
 
 configurations {
   jruby
-/* // EXCLUDED FROM RELEASE (NOT READY)
+///* // EXCLUDED FROM RELEASE (NOT READY)
   jython
-*/
+//*/
 }
 
 configurations.all {
@@ -170,10 +170,10 @@ dependencies {
   compile 'commons-lang:commons-lang:2.4'
   compile 'org.jruby:jruby-complete:1.7.25'
   jruby 'org.jruby:jruby-complete:1.7.25'
-/* // EXCLUDED FROM RELEASE (NOT READY)
+///* // EXCLUDED FROM RELEASE (NOT READY)
   compile 'org.python:jython:2.7.0'
   jython 'org.python:jython:2.7.0'
-*/
+//*/
   compile 'sat4j:org.sat4j.core:v20130525'
 
   compile ("fortress:fortress:${fortressVersion}") { changing = true }
@@ -637,11 +637,12 @@ distributions {
       from('src/main/ruby') {
         into('lib/ruby')
       }
-/* // EXCLUDED FROM RELEASE (NOT READY)
+///* // EXCLUDED FROM RELEASE (NOT READY)
       from('src/main/python') {
         into('lib/python')
       }
-
+//*/
+/* // EXCLUDED FROM RELEASE (NOT READY)
       from("${project.projectDir}/build/target/lib/why3") {
         into('lib/why3')
       }

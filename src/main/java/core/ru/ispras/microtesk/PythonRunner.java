@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk;
 
-/* // EXCLUDED FROM RELEASE (NOT READY)
+///* // EXCLUDED FROM RELEASE (NOT READY)
 import org.python.util.PythonInterpreter;
-*/
+//*/
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.options.Options;
@@ -43,7 +43,7 @@ final class PythonRunner {
    *         of the engines invoked by the script decided to abort generation.
    */
   public static void run(final Options options, final String templateFile) throws Throwable {
-    /* // EXCLUDED FROM RELEASE (NOT READY)
+    ///* // EXCLUDED FROM RELEASE (NOT READY)
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(templateFile);
     
@@ -71,6 +71,6 @@ final class PythonRunner {
         interpreter.close();
       }
     }
-    */
+    //*/
   }
 }
