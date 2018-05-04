@@ -138,8 +138,22 @@ public final class LocationFactory extends WalkerFactoryBase {
   public Expr location(
       final Where where,
       final Instance instance) throws SemanticException {
+    final Primitive primitive = instance.getPrimitive();
+    if (primitive.getKind() != Primitive.Kind.MODE) {
+      raiseError(where,
+          instance.getPrimitive().getName() + " is not an addressing mode.");
+    }
+
+    if (primitive.getReturnType() == null) {
+      raiseError(where,
+          instance.getPrimitive().getName() + " does not have a return expression.");
+    }
+
+    final Type type = primitive.getReturnType();
+    final Location location = null;
+
     raiseError(where, "Unsupported construct.");
-    return null;
+    return newLocationExpr(location);
   }
 
   private Location namedField(
