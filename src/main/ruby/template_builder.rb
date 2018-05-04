@@ -23,12 +23,6 @@ require_relative 'template'
 module TemplateBuilder
 
 def self.define_runtime_methods(metamodel)
-  registers = metamodel.getRegisters
-  registers.each { |register| define_store register }
-
-  memories = metamodel.getMemoryStores
-  memories.each { |memory| define_store memory }
-
   modes = metamodel.getAddressingModes
   modes.each { |mode| define_addressing_mode mode }
 
@@ -40,6 +34,12 @@ def self.define_runtime_methods(metamodel)
 
   op_groups = metamodel.getOperationGroups
   op_groups.each { |op_group| define_operation_group op_group.getName().to_s }
+
+  registers = metamodel.getRegisters
+  registers.each { |register| define_store register }
+
+  memories = metamodel.getMemoryStores
+  memories.each { |memory| define_store memory }
 end
 
 #
