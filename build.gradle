@@ -150,7 +150,9 @@ macOs {
 
 configurations {
   jruby
+/* // EXCLUDED FROM RELEASE (NOT READY)
   jython
+*/
 }
 
 configurations.all {
@@ -168,8 +170,10 @@ dependencies {
   compile 'commons-lang:commons-lang:2.4'
   compile 'org.jruby:jruby-complete:1.7.25'
   jruby 'org.jruby:jruby-complete:1.7.25'
+/* // EXCLUDED FROM RELEASE (NOT READY)
   compile 'org.python:jython:2.7.0'
   jython 'org.python:jython:2.7.0'
+*/
   compile 'sat4j:org.sat4j.core:v20130525'
 
   compile ("fortress:fortress:${fortressVersion}") { changing = true }
@@ -232,7 +236,7 @@ task getZ3(type: Copy) {
     from zipTree( configurations.testRuntime.fileCollection { dep -> dep.name == 'z3' }.singleFile )
   }
   into 'tools/z3'
-  eachFile { 
+  eachFile {
     it.relativePath = RelativePath.parse( true, it.relativePath.segments[1..-1].join('/') )
   }
 }
@@ -426,12 +430,14 @@ task copyEtc(type: Copy) {
 
 copyEtc.dependsOn jar
 
+/* // EXCLUDED FROM RELEASE (NOT READY)
 task copyWhy3(type: Copy) {
   from "${project.projectDir}/src/main/why3"
   into "${project.projectDir}/build/target/lib/why3"
 }
 
 copyEtc.dependsOn copyWhy3
+*/
 
 task translateCpu(type: JavaExec) {
   classpath = files('build/libs/microtesk.jar')
@@ -631,7 +637,7 @@ distributions {
       from('src/main/ruby') {
         into('lib/ruby')
       }
-
+/* // EXCLUDED FROM RELEASE (NOT READY)
       from('src/main/python') {
         into('lib/python')
       }
@@ -639,7 +645,7 @@ distributions {
       from("${project.projectDir}/build/target/lib/why3") {
         into('lib/why3')
       }
-
+*/
       from(sourcesJar) {
         into('src')
       }

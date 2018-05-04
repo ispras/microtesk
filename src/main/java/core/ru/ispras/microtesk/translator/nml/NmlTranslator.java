@@ -89,7 +89,9 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new Generator(this));
 
     // Generate WhyML code for the ISA
+    /* // EXCLUDED FROM RELEASE (NOT READY)
     addHandler(new WhymlGenerator(this));
+    */
   }
 
   private void defineSymbolForInternalVariable(final LetConstant constant) {
