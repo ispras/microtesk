@@ -199,7 +199,7 @@ def set_arguments_from_array(builder,args):
 def define_method_for(target_class, method_name, method_type, method_body):
     method_name = method_name.lower()
     
-    #print "Defining method {}.{}".format(target_class,method_name)
+    print "Defining method {}.{}".format(target_class,method_name)
     
     if not hasattr(target_class, method_name):
         setattr(target_class,method_name,MethodType(method_body,None,target_class))

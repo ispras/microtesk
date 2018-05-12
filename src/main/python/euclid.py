@@ -20,11 +20,19 @@ class EuclidTemplate(MiniMipsBaseTemplate):
         MiniMipsBaseTemplate.__init__(self)
         
     def run(self):
-            self.add(self.t0(), self.zero(), self.zero())
-            self.addi(self.t1(), self.zero(), 99)
-            self.add(self.t2(), self.zero(), self.zero())
-
-
+        self.sequence({},
+            lambda : [
+                self.add(self.t0(), self.t1(), self.t2()),
+                self.sub(self.t3(), self.t4(), self.t5()),
+                self.or(self.t7(), self.t8(), self.t9())
+            ]
+        ).run()
+        #self.add(self.t0(), self.zero(), self.zero())
+        #self.addi(self.t1(), self.zero(), 99)
+        #self.add(self.t2(), self.zero(), self.zero())
+    def test(self):
+        print self
+        
 template = EuclidTemplate()
 template.generate()
         

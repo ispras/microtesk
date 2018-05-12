@@ -26,18 +26,91 @@ class Template:
         
     def template(self):
         return self.template
-       
+    
+    def get_caller_location(self,caller_index = 1):
+        import inspect
+        (frame, filename, line_number, 
+         function_name, lines, index) = inspect.getouterframes(inspect.currentframe())[2]
+        return self.template.where(filename,line_number)
+        #return self.template.where("xxx.py",1)
+    
+    def define_method(self,method_name,method_body):
+        method_name = method_name.lower()
+        if not hasattr(Template, method_name):
+            setattr(Template,method_name,MethodType(method_body,None,Template))
+        else:
+            print "Error: Failed to define the {} method.".format(method_name)
+            
+  # ------------------------------------------------------------------------- #
+  # Main template writing methods                                             #
+  # ------------------------------------------------------------------------- #
+
+  # Pre-condition instructions template     
     def pre(self):
         pass
     
+  # Main instructions template    
     def run(self):
         print "Trying to execute the original Template"
         
-    def get_caller_location(self):
-        return self.template.where("xxx.py",1)
-
+  # Post-condition instructions template
     def post(self):
         pass
+    
+  # ------------------------------------------------------------------------- #
+  # Methods for template description facilities                               #
+  # ------------------------------------------------------------------------- #
+
+
+    def block(self,attributes,contents):
+        blockBuilder = self.template.beginBlock()
+        blockBuilder.setWhere(self.get_caller_location())
+    
+        blockBuilder.setAtomic(False)
+        blockBuilder.setSequence(False)
+        blockBuilder.setIterate(False)
+        
+        if 'combinator' in attributes:
+            blockBuilder.setCombinator(attributes['combinator'])
+
+        if 'permutator' in attributes:
+          blockBuilder.setPermutator(attributes['permutator'])
+    
+        if 'compositor' in attributes:
+          blockBuilder.setCompositor(attributes['compositor'])
+    
+        if 'rearranger' in attributes:
+          blockBuilder.setRearranger(attributes['rearranger'])
+    
+        if 'obfuscator' in attributes:
+          blockBuilder.setObfuscator(attributes['obfuscator'])
+    
+        self.set_builder_attributes(blockBuilder, attributes)
+        contents()
+        
+        return self.template.endBlock()
+    
+    def sequence(self,attributes,contents):
+        blockBuilder = self.template.beginBlock()
+        blockBuilder.setWhere(self.get_caller_location())
+    
+        blockBuilder.setAtomic(False)
+        blockBuilder.setSequence(True)
+        blockBuilder.setIterate(False)
+    
+        if 'obfuscator' in attributes:
+          blockBuilder.setObfuscator(attributes['obfuscator'])
+    
+        self.set_builder_attributes(blockBuilder, attributes)
+        contents()
+    
+        return self.template.endBlock()
+        
+        
+        
+  # -------------------------------------------------------------------------- #
+  # Data Definition Facilities                                                 #
+  # -------------------------------------------------------------------------- #
     
     def data_config(self,attrs,**kwarg):
         if None != self.data_manager:
@@ -155,6 +228,18 @@ class Template:
         from ru.ispras.microtesk.test import TestEngine
         engine = TestEngine.getInstance()
         engine.isRevision(id)
+        
+    def set_builder_attributes(self,builder,attributes):
+        for key in attributes:
+            value = attributes[key]
+            if isinstance(value, dict):
+                mapBuilder = set_builder_attributes(self.template.newMapBuilder(), value)
+                builder.setAttribute(key, mapBuilder.getMap())
+            else:
+                builder.setAttribute(key,value)
+                
+        return builder
+            
 
 class SituationManager:
     def __init__(self,template):
@@ -202,7 +287,7 @@ class DataManager:
     
     def align(self,value):
         value_in_bytes = self.template.alignment_in_bytes(value)
-        self.builder.align(value,value_in_bytes)
+        return self.builder.align(value,value_in_bytes)
     
     def org(self,origin):
         if type(origin) is int:
@@ -216,7 +301,6 @@ class DataManager:
             raise TypeError("origin must be int or dict")
             
     def type(self,*args):
-        
         return DataManager.Type(*args)
     
     def label(self,id):
@@ -226,13 +310,13 @@ class DataManager:
         self.builder.addLabel(id,True)
     
     def rand(self,from1,to):
-        self.template.rand(from1,to)
+        return self.template.rand(from1,to)
         
     def dist(self,*ranges):
-        self.template.dist(*ranges)
+        return self.template.dist(*ranges)
     
     def range(self,attrs):
-        self.template.range(attrs)
+        return self.template.range(attrs)
     
     def define_type(self,attrs):
         id = attrs.get('id')
@@ -274,13 +358,13 @@ class DataManager:
         define_method_for(DataManager,id,'string',p)
         
     def text(self,value):
-        self.builder.addText(value)
+        return self.builder.addText(value)
         
     def comment(self,value):
-        self.builder.addComment(value)
+        return self.builder.addComment(value)
         
     def value(self,*args):
-        self.template.value(*args)
+        return self.template.value(*args)
         
     def data(self,contents):
         exec(contents)
@@ -312,13 +396,13 @@ class AddressReference(WrappedObject):
         return self
     
     def java_object(self):
-        template.newAddressReference(self.level)
+        return template.newAddressReference(self.level)
     
     def call(self,min,max):
-        bits(min,max)
+        return bits(min,max)
     
     def bits(self,min,max):
-        self.template.newAddressReference(self.level,min,max)
+        return self.template.newAddressReference(self.level,min,max)
         
 class BufferEntryReference(WrappedObject):
     def _init__(self):
@@ -331,13 +415,13 @@ class BufferEntryReference(WrappedObject):
         return self
     
     def java_object(self):
-        self.template.newEntryReference(self.level)
+        return self.template.newEntryReference(self.level)
     
     def call(self,min,max):
-        bits(min,max)
+        return bits(min,max)
     
     def bits(self,min,max):
-        self.template.newEntryReference(self.level,min,max)
+        return self.template.newEntryReference(self.level,min,max)
         
         
 class PageTable:
@@ -346,7 +430,7 @@ class PageTable:
         self.data_manager = data_manager
         
     def text(self,value):
-        self.data_manager.text(value)
+        return self.data_manager.text(value)
      
     def page_table_preparator(self,contents):
         self.preparator = contents
@@ -355,19 +439,19 @@ class PageTable:
         self.adapter = contents
     
     def org(self,address):
-        self.data_manager.org(address)
+        return self.data_manager.org(address)
     
     def align(self,value):
-        self.data_manager.align(value)
+        return self.data_manager.align(value)
         
     def label(self,id):
-        self.data_manager.label(id)
+        return self.data_manager.label(id)
     
     def global_label(self,id):
-        self.data_manager.global_label(id)
+        return self.data_manager.global_label(id)
         
     def memory_object(self,attrs):
-        self.template.memory_object(attrs)
+        return self.template.memory_object(attrs)
         
     def page_table_entry(self,attrs):
         from java.ru.ispras.microtesk.test.template import MemoryObject
