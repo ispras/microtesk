@@ -22,7 +22,9 @@ import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
@@ -45,7 +47,10 @@ public class TemplateOperation {
   private String preCommand;
   private String[] postCommand;
 
+  private Set<String> jumpLabelsSet;
+
   TemplateOperation(final MetaOperation operation, final TemplatePrinter templatePrinter) {
+    this.initLabelsSet();
     this.templatePrinter = templatePrinter;
     name = this.templatePrinter.formattingOperation(operation.getName());
 
@@ -71,8 +76,7 @@ public class TemplateOperation {
       branchLabel = String.format(":%s_label", name);
       regTitle = getLastArgument(operation.getArguments(), IsaPrimitiveKind.MODE);
 
-      if (regTitle != "JUMP_LABEL" && regTitle != "BRANCH_LABEL" && regTitle != "BRANCH_LABEL_M2"
-          && regTitle != "JUMP_LABEL_M2") {
+      if (!jumpLabelsSet.contains(regTitle)) {
         // System.out.println(regTitle);
         // TODO:
         preCommand = prepareReg(regTitle);
@@ -88,6 +92,7 @@ public class TemplateOperation {
 
             for (String tempType : tempTypes) {
               preCommand = prepareReg(tempType);
+
               break;
             }
           }
@@ -122,6 +127,22 @@ public class TemplateOperation {
     }
 
     command = setCommand(operation.getArguments(), name);
+  }
+
+  private void initLabelsSet() {
+    jumpLabelsSet = new HashSet<String>();
+
+    jumpLabelsSet.add("BRANCH_IMM");
+    jumpLabelsSet.add("BRANCH_LABEL");
+    jumpLabelsSet.add("JUMP_IMM");
+    jumpLabelsSet.add("JUMP_LABEL");
+    jumpLabelsSet.add("BRANCH_LABEL_M2");
+    jumpLabelsSet.add("JUMP_LABEL_M2");
+
+    jumpLabelsSet.add("C_JUMP_LABEL");
+    jumpLabelsSet.add("C_JUMP_IMM");
+    jumpLabelsSet.add("C_BRANCH_LABEL_M2");
+    jumpLabelsSet.add("C_BRANCH_IMM");
   }
 
   private static void printMetaOperation(final MetaOperation operation) {
@@ -170,9 +191,7 @@ public class TemplateOperation {
         // if (tempTypes != null) {System.out.println("!!!!!!!!!!!!!!! " + tempTypes.size());}
         Object[] strArray = (Object[]) tempTypes.toArray();
         String tempType = (String) strArray[0];
-        if (tempType == "BRANCH_IMM" || tempType == "BRANCH_LABEL" || tempType == "JUMP_IMM"
-            || tempType == "JUMP_LABEL" || tempType == "BRANCH_LABEL_M2"
-            || tempType == "JUMP_LABEL_M2") {
+        if (jumpLabelsSet.contains(tempType)) {
           if (!printLabel) {
             if (null != branchLabel) {
               if (jump && getArgumentNumbers(arguments, IsaPrimitiveKind.MODE) > 2) {
@@ -282,6 +301,7 @@ public class TemplateOperation {
   }
 
   private String prepareReg(final String regType, final int number, final String label) {
+    InvariantChecks.checkNotNull(regType);
     return String.format("la %s(%x), %s", regType.toLowerCase(), number, label);
     // return String.format("prepare %s(%x), get_address_of(%s)", regType.toLowerCase(), number,
     // label);
