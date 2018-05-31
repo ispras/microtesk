@@ -18,7 +18,6 @@
 #engine = TestEngine.getInstance()
 #define_runtime_methods(engine.getModel().getMetaData())
 
-from types import MethodType
 
 import template
 import globals
