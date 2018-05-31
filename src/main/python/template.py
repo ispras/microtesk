@@ -14,8 +14,10 @@
 # limitations under the License.
 #
 
-from template_builder import define_method_for
-from template_builder import define_runtime_methods
+import template_builder
+import globals
+
+
 
 class Template:
     template_classes = {}
@@ -23,16 +25,16 @@ class Template:
     def __init__(self):
         self.situation_manager = SituationManager(self)
         self.data_manager = None
-        
-    def template(self):
-        return self.template
+         
+    #def template(self):
+     #   return self.template
     
     def get_caller_location(self,caller_index = 1):
-        import inspect
-        (frame, filename, line_number, 
-         function_name, lines, index) = inspect.getouterframes(inspect.currentframe())[2]
-        return self.template.where(filename,line_number)
-        #return self.template.where("xxx.py",1)
+        #import inspect
+        #(frame, filename, line_number, 
+         #function_name, lines, index) = inspect.getouterframes(inspect.currentframe())[2]
+        #return self.template.where(filename,line_number)
+        return self.template.where("xxx.py",1)
     
     def define_method(self,method_name,method_body):
         method_name = method_name.lower()
@@ -57,67 +59,158 @@ class Template:
     def post(self):
         pass
     
-  # ------------------------------------------------------------------------- #
-  # Methods for template description facilities                               #
-  # ------------------------------------------------------------------------- #
-
-
-    def block(self,attributes,contents):
-        blockBuilder = self.template.beginBlock()
-        blockBuilder.setWhere(self.get_caller_location())
-    
-        blockBuilder.setAtomic(False)
-        blockBuilder.setSequence(False)
-        blockBuilder.setIterate(False)
+    def executed(self,contents = lambda : []):
+        return self.set_attributes({'executed' : True}, contents)
         
-        if 'combinator' in attributes:
-            blockBuilder.setCombinator(attributes['combinator'])
-
-        if 'permutator' in attributes:
-          blockBuilder.setPermutator(attributes['permutator'])
+    def nonexecuted(self,contents = lambda : []):
+        return self.set_attributes({'executed' : False}, contents)
     
-        if 'compositor' in attributes:
-          blockBuilder.setCompositor(attributes['compositor'])
+    def branches(self,contents = lambda : []):
+        return self.set_attributes({'branches' : True}, contents)
     
-        if 'rearranger' in attributes:
-          blockBuilder.setRearranger(attributes['rearranger'])
-    
-        if 'obfuscator' in attributes:
-          blockBuilder.setObfuscator(attributes['obfuscator'])
-    
-        self.set_builder_attributes(blockBuilder, attributes)
+    def set_attributes(self,attributes,contents):
+        mapBuilder = set_builder_attributes(self.template.newMapBuilder, attributes)
+        self.template.beginAttributes(mapBuilder)
         contents()
+        self.template.endAttributes()
         
-        return self.template.endBlock()
-    
-    def sequence(self,attributes,contents):
-        blockBuilder = self.template.beginBlock()
-        blockBuilder.setWhere(self.get_caller_location())
-    
-        blockBuilder.setAtomic(False)
-        blockBuilder.setSequence(True)
-        blockBuilder.setIterate(False)
-    
-        if 'obfuscator' in attributes:
-          blockBuilder.setObfuscator(attributes['obfuscator'])
-    
-        self.set_builder_attributes(blockBuilder, attributes)
-        contents()
-    
-        return self.template.endBlock()
+    def label(self,name):
+        if isintance(name, int):
+            if not name in range(0,10):
+                raise NameError('name should be between 0 and 9')
+            
+            return self.template.addNumericLabel(name)
+            
+        else:
+            return self.template.addLabel(name,False)
+            
+    def global_label(self,name):
+        return self.template.addLabel(name,True)
         
+    def weak(self,name):
+        return self.template.addWeakLabel(name)
         
+    def label_b(self,index):
+        return self.numeric_label_ref(index, False)
+        
+    def label_f(self,index):
+        return self.numeric_label_ref(index, True)
+        
+    def get_address_of(self,label):
+        return self.template.getAddressForLabel(label)
+    
+    def testdata(name, attrs = {}):
+        get_new_situation(name, attrs, True)
+        
+    def situation(name, attrs = {}):
+        get_new_situation(name, attrs, False)
+        
+    def get_new_situation(name, attrs, testdata_provider):
+        if not isinstance(attrs,dict):
+            raise TypeError('attrs must be dict')
+        
+        builder = self.template.newSituation(name, testdata_provider)
+        
+        for name,value in attrs.iteritems():
+            if isintance(value,Dist):
+                attr_value = value.java_object
+            else:
+                attr_value = value
+           
+            builder.setAttribute(name,attr_value)
+            
+        return builder.build()
+    
+    def random_situation(dist):
+        return dist.java_object
+    
+    def set_default_situation(names, situations = lambda : []):
+        if not isintance(names,basestring) and not isintance(name,list):
+            raise TypeError("names must be String or List.")
+
+
+        default_situation = self.situation_manager.situations()
+        if isinstance(names,list):
+            for name in names:
+                self.template.setDefaultSituation(name, default_situation)
+        else:
+            self.template.setDefaultSituation(names, default_situation)
+            
+    def rand(self,*args):
+        if args.count() is 1:
+            distribution = args[0]
+            
+            if not isinstance(distribution,Dist):
+                raise TypeError('argument must be a distribution')
+            
+            return self.template.newRandom(distribution.java_object)
+        elif args.count is 2:
+            From = args[0]
+            To = args[1]
+            
+            if not instance(From,int) or not instance(To,int):
+                raise TypeError('arguments must be integers')
+            
+            return self.template.newRandom(From,To)
+        else:
+            raise TypeError('wrong argument count')
+            
+            
+    def dist(self,*ranges):
+        if not isintance(ranges,list):
+            raise TypeError('ranges is not list')
+        
+        builder = self.template.newVariateBuilder()
+        for range_item in ranges:
+            if not isinstance(range_item, ValueRange):
+                raise TypeError('range_item is not ValueRange')
+            
+            value = range_items.value
+            bias = range_items.bias
+            
+            if isintance(value,list):
+                if bias is None:
+                    builder.addCollection(value)
+                else:
+                    builder.addCollection(value,bias)
+            elif isinstance(value,Dist):
+                if bias is None:
+                    builder.addVariate(value.java_object)
+                else:
+                    builder.addVariate(value.java_object,bias)
+            else:
+                if bias is None:
+                    builder.addValue(value)
+                else:
+                    builder.addValuer(value,bias)
+            
+        
+        return Dist(builder.build())
+    
+    def range(self,attrs = {}):
+        if not isintance(attrs,dict):
+            raise TypeError("attrs is not dict")
+        
+        value = attrs.get('value')
+        
+        bias = None
+        
+        bias = attrs.get('bias')
+        
+        return ValueRange(value,bias)
+                
+            
+                
         
   # -------------------------------------------------------------------------- #
   # Data Definition Facilities                                                 #
   # -------------------------------------------------------------------------- #
     
-    def data_config(self,attrs,**kwarg):
+    def data_config(self,attrs,contents = lambda : []):
         if None != self.data_manager:
             raise NameError('Data configuration is already defined')
         
         target = attrs.get('target')
-        contents = kwarg.get('contents')
         
         # Default value is 8 bits if other value is not explicitly specified
         
@@ -128,7 +221,7 @@ class Template:
         self.data_manager = DataManager(self, self.template.getDataManager())
         self.data_manager.beginConfig(target,addressableSize)
         
-        exec(contents)
+        contents()
         self.data_manager.endConfig()
         
         
@@ -137,7 +230,7 @@ class Template:
 # -------------------------------------------------------------------------- #
 # Sections                                                                   #
 # -------------------------------------------------------------------------- #
-    def section(self,attrs):
+    def section(self,attrs,contents = lambda : []):
         from java.math import BigInteger        
 
         name = attrs.get('name')
@@ -150,11 +243,11 @@ class Template:
         va = BigInteger(str(va))
         
         self.template.beginSection(name,pa,va,args)
-        #self.eval(contents)
+        contents()
         self.template.endSection()
         
     
-    def section_text(self,attrs):
+    def section_text(self,attrs,contents = lambda : []):
         from java.math import BigInteger
         
         pa = attrs.get('pa')
@@ -168,10 +261,10 @@ class Template:
         
         
         self.template.beginSectionText(pa,va,args)
-        #self.eval(contents)
+        contents()
         self.template.endSection()
         
-    def section_data(self,attrs):
+    def section_data(self,attrs,contents = lambda : []):
         from java.math import BigInteger
         
         pa = attrs.get('pa')
@@ -184,15 +277,16 @@ class Template:
         
         
         self.template.beginSectionData(pa,va,args)
-        #self.eval(contents)
+        contents()
         self.template.endSection()
     
     def generate(self):
         from ru.ispras.microtesk.test import TestEngine
         engine = TestEngine.getInstance()
         
+        
         self.template = engine.newTemplate()
-        define_runtime_methods(engine.getModel().getMetaData())
+        #define_runtime_methods(engine.getModel().getMetaData())
         
         self.template.beginPreSection()
         self.pre()
@@ -239,6 +333,14 @@ class Template:
                 builder.setAttribute(key,value)
                 
         return builder
+    
+    def numeric_label_ref(self,index,forward):
+        if not isinstance(index,it):
+            raise TypeError('index is not integer')
+        if not index in range(0,10):
+            raise TypeError('index should be within the range 0..9')
+        
+        return self.template.newNumericLabelRef(index,forward)
             
 
 class SituationManager:
@@ -331,19 +433,20 @@ class DataManager:
                 dataBuilder.add(x)
             dataBuilder.build()
         
-        define_method_for(DataManager,id,'type',p)
+        template_builder.define_method_for(DataManager,id,'type',p)
         
     def define_space(self,attrs):
+        from java.math import BigInteger
         id = attrs.get('id')
         text = attrs.get('text')
         fillWith = attrs.get('fill_with')
         
-        self.configurer.defineSpace(id,text,fillWith)
+        self.configurer.defineSpace(id,text,BigInteger(str(fillWith)))
         
         def p(length):
             self.builder.addSpace(length)
         
-        define_method_for(DataManager,id,'space',p)
+        template_builder.define_method_for(DataManager,id,'space',p)
         
     def define_ascii_string(self,attrs):
         id = attrs.get('id')
@@ -355,7 +458,7 @@ class DataManager:
         def p(*strings):
             self.builder.addAsciiStrings(zeroTerm,strings)
         
-        define_method_for(DataManager,id,'string',p)
+        template_builder.define_method_for(DataManager,id,'string',p)
         
     def text(self,value):
         return self.builder.addText(value)
@@ -366,8 +469,8 @@ class DataManager:
     def value(self,*args):
         return self.template.value(*args)
         
-    def data(self,contents):
-        exec(contents)
+    def data(self,contents = lambda : []):
+        contents()
         
         
         
@@ -432,11 +535,13 @@ class PageTable:
     def text(self,value):
         return self.data_manager.text(value)
      
-    def page_table_preparator(self,contents):
+    def page_table_preparator(self,contents = lambda : []):
         self.preparator = contents
+        return self.preparator
     
-    def page_table_adaptor(self,contents):
+    def page_table_adaptor(self,contents = lambda : []):
         self.adapter = contents
+        return self.adapter
     
     def org(self,address):
         return self.data_manager.org(address)
@@ -477,6 +582,106 @@ class PageTable:
             if type(attrs) is not dict:
                 raise TypeError("attrs must be dict")
             self.attrs = attrs
+            
+            
+class Dist:
+    def __init__(self,java_object):
+        self.java_object = java_object
+    
+    def java_object(self):
+        return self.java_object
+        
+    
+
+    def next_value(self):
+        return self.java_object.value()
+    
+class ValueRange:
+    def initialize(self,value, bias):
+        self.value = value
+        self.bias = bias
+    
+
+            
+            
+def sequence(attributes,contents = lambda : []):
+    blockBuilder = globals.template.template.beginBlock()
+    blockBuilder.setWhere(globals.template.get_caller_location())
+
+    blockBuilder.setAtomic(False)
+    blockBuilder.setSequence(True)
+    blockBuilder.setIterate(False)
+
+    if 'obfuscator' in attributes:
+      blockBuilder.setObfuscator(attributes['obfuscator'])
+
+    globals.template.set_builder_attributes(blockBuilder, attributes)
+    contents()
+
+    return globals.template.template.endBlock()
+
+def atomic(attributes,contents = lambda : []):
+    blockBuilder = globals.template.template.beginBlock()
+    blockBuilder.setWhere(globals.template.get_caller_location())
+
+    blockBuilder.setAtomic(True)
+    blockBuilder.setSequence(False)
+    blockBuilder.setIterate(False)
+
+    if 'obfuscator' in attributes:
+      blockBuilder.setObfuscator(attributes['obfuscator'])
+
+    globals.template.set_builder_attributes(blockBuilder, attributes)
+    contents()
+
+    return globals.template.template.endBlock()
+    
+def iterate(attributes,contents = lambda : []):
+    blockBuilder = globals.template.template.beginBlock()
+    blockBuilder.setWhere(globals.template.get_caller_location())
+
+    blockBuilder.setAtomic(False)
+    blockBuilder.setSequence(False)
+    blockBuilder.setIterate(True)
+
+    if 'obfuscator' in attributes:
+      blockBuilder.setObfuscator(attributes['obfuscator'])
+      
+    if 'rearranger' in attributes:
+      blockBuilder.setRearranger(attributes['rearranger'])
+
+    globals.template.set_builder_attributes(blockBuilder, attributes)
+    contents()
+
+    return globals.template.template.endBlock()
+
+def block(attributes,contents = lambda : []):
+    blockBuilder = globals.template.template.beginBlock()
+    blockBuilder.setWhere(globals.template.get_caller_location())
+
+    blockBuilder.setAtomic(False)
+    blockBuilder.setSequence(False)
+    blockBuilder.setIterate(False)
+    
+    if 'combinator' in attributes:
+        blockBuilder.setCombinator(attributes['combinator'])
+
+    if 'permutator' in attributes:
+      blockBuilder.setPermutator(attributes['permutator'])
+
+    if 'compositor' in attributes:
+      blockBuilder.setCompositor(attributes['compositor'])
+
+    if 'rearranger' in attributes:
+      blockBuilder.setRearranger(attributes['rearranger'])
+
+    if 'obfuscator' in attributes:
+      blockBuilder.setObfuscator(attributes['obfuscator'])
+
+    globals.template.set_builder_attributes(blockBuilder, attributes)
+    contents()
+    
+    return globals.template.template.endBlock()
             
         
         

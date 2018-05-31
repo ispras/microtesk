@@ -14,7 +14,9 @@
 # limitations under the License.
 #
 
+from template import reg
 from template import Template
+
 
 class MiniMipsBaseTemplate(Template):
     def __init__(self):
@@ -22,114 +24,127 @@ class MiniMipsBaseTemplate(Template):
         
         self.set_option_value('indent-token',"\t")
         self.set_option_value('separator-token',"=")
+        self.set_option_value('default-test-data',False)
     
     def pre(self):
         
         self.data_config(
             {'target' : 'M'},
-            contents = """self.data_manager.define_type({'id' : 'byte', 'text' : '.byte', 'type' : self.data_manager.type('card',8)})""")
+            lambda : [
+                self.data_manager.define_type({'id' : 'byte', 'text' : '.byte', 'type' : self.data_manager.type('card',8)}),
+                self.data_manager.define_type({'id' : 'half', 'text' : '.half', 'type' : self.data_manager.type('card',16)}),
+                self.data_manager.define_type({'id' : 'word', 'text' : '.word', 'type' : self.data_manager.type('card',32)}),
+                self.data_manager.define_space({'id' : 'space', 'text' : '.space', 'fill_with' : 0}),
+                self.data_manager.define_ascii_string({'id' : 'ascii', 'text' : '.ascii', 'zero_term' : False}),
+                self.data_manager.define_ascii_string({'id' : 'asciiz', 'text' : '.asciiz', 'zero_term' : True}),
+                
+                ]
+            )
         
         self.section_text({'pa' : 0x0, 'va' : 0x0})
+        
+        self.section_data({'pa' : 0x00080000, 'va' : 0x00080000})
         
     
     def post(self):
         pass
     
-    def zero(self):
-        return self.reg(0)
-    
-    def at(self):
-        return self.reg(1)
-    
-    def v0(self):
-        return self.reg(2)
-    
-    def v1(self):
-        return self.reg(3)
-    
-    def a0(self):
-        return self.reg(4)
-    
-    def a1(self):
-        return self.reg(5)
-    
-    def a2(self):
-        return self.reg(6)
-    
-    def a3(self):
-        return self.reg(7)
-    
-    def t0(self):
-        return self.reg(8)
-    
-    def t1(self):
-        return self.reg(9)
-    
-    def t2(self):
-        return self.reg(10)
-    
-    def t3(self):
-        return self.reg(11)
-    
-    def t4(self):
-        return self.reg(12)
-    
-    def t5(self):
-        return self.reg(13)
-    
-    def t6(self):
-        return self.reg(14)
-    
-    def t7(self):
-        return self.reg(15)
-    
-    def s0(self):
-        return self.reg(16)
-    
-    def s1(self):
-        return self.reg(17)
-    
-    def s2(self):
-        return self.reg(18)
-    
-    def s3(self):
-        return self.reg(19)
-    
-    def s4(self):
-        return self.reg(20)
-    
-    def s5(self):
-        return self.reg(21)
-    
-    def s6(self):
-        return self.reg(22)
-    
-    def s7(self):
-        return self.reg(23)
-    
-    def t8(self):
-        return self.reg(24)
-    
-    def t9(self):
-        return self.reg(25)
-    
-    def k0(self):
-        return self.reg(26)
-    
-    def k1(self):
-        return self.reg(27)
-    
-    def gp(self):
-        return self.reg(28)
-    
-    def sp(self):
-        return self.reg(29)
-    
-    def fp(self):
-        return self.reg(30)
-    
-    def ra(self):
-        return self.reg(31)
 
+
+def zero():
+    return reg(0)
+
+def at():
+    return reg(1)
+
+def v0():
+    return reg(2)
+
+def v1():
+    return reg(3)
+
+def a0():
+    return reg(4)
+
+def a1():
+    return reg(5)
+
+def a2():
+    return reg(6)
+
+def a3():
+    return reg(7)
+
+def t0():
+    return reg(8)
+
+def t1():
+    return reg(9)
+
+def t2():
+    return reg(10)
+
+def t3():
+    return reg(11)
+
+def t4():
+    return reg(12)
+
+def t5():
+    return reg(13)
+
+def t6():
+    return reg(14)
+
+def t7():
+    return reg(15)
+
+def s0():
+    return reg(16)
+
+def s1():
+    return reg(17)
+
+def s2():
+    return reg(18)
+
+def s3():
+    return reg(19)
+
+def s4():
+    return reg(20)
+
+def s5():
+    return reg(21)
+
+def s6():
+    return reg(22)
+
+def s7():
+    return reg(23)
+
+def t8():
+    return reg(24)
+
+def t9():
+    return reg(25)
+
+def k0():
+    return reg(26)
+
+def k1():
+    return reg(27)
+
+def gp():
+    return reg(28)
+
+def sp():
+    return reg(29)
+
+def fp():
+    return reg(30)
+
+def ra():
+    return reg(31)
 #template = MiniMipsBaseTemplate()
 #template.generate()

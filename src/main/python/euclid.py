@@ -13,26 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import globals
 from minimips_base import MiniMipsBaseTemplate
+from minimips_base import *
+from template import *
 
 class EuclidTemplate(MiniMipsBaseTemplate):
     def __init__(self):
         MiniMipsBaseTemplate.__init__(self)
         
     def run(self):
-        self.sequence({},
+        iterate({},
             lambda : [
-                self.add(self.t0(), self.t1(), self.t2()),
-                self.sub(self.t3(), self.t4(), self.t5()),
-                self.or(self.t7(), self.t8(), self.t9())
+                add(t0(), t1(), t2()),
+                sub(t3(), t4(), t5()),
+                add(t7(), t8(), t9())
             ]
         ).run()
-        #self.add(self.t0(), self.zero(), self.zero())
-        #self.addi(self.t1(), self.zero(), 99)
-        #self.add(self.t2(), self.zero(), self.zero())
+        #add(t.t0(), t.zero(), t.zero())
+        #addi(t.t1(), t.zero(), 99)
+        #add(t.t2(), t.zero(), t.zero())
     def test(self):
         print self
         
-template = EuclidTemplate()
-template.generate()
+globals.template = EuclidTemplate()
+globals.template.generate()
         

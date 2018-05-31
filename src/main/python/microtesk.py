@@ -13,16 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import globals
 import sys
-from template import Template
 from ru.ispras.microtesk import SysUtils
-import __main__
+#import __main__
 
 HOME = SysUtils.getHomeDir()
 TEMPLATE = HOME + "/lib/python/template"
-TEMPLATE_FILE = sys.argv[0]
-sys.path.append('/home/luesal/project/microtesk')
+globals.TEMPLATE_FILE = sys.argv[0]
+#sys.path.append('/home/luesal/jython2.7.0/Lib') 
+sys.path.append(HOME)
 def prepare_template_classes():
     try:
         template_file = __import__("empty")
@@ -30,24 +30,25 @@ def prepare_template_classes():
         print('An error occured trying to import the file.')
     return Template.template_classes
 
-def main():
+#def main():
     #print("test")
     #template_file.test()
     #template.test()
-    template_classes = prepare_template_classes()
-    for i in template_classes:
-            print i,template_classes[i]
+   # template_classes = prepare_template_classes()
+    #for i in template_classes:
+     #       print i,template_classes[i]
     #template = Template()
     #template.generate()
         
     
     
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
+#execfile('template_builder.py')
 
-#print(HOME)
-#print(TEMPLATE)
-#print(TEMPLATE_FILE)
+from ru.ispras.microtesk.test import TestEngine
+import template_builder
+engine = TestEngine.getInstance()
+template_builder.define_runtime_methods(engine.getModel().getMetaData())
 
-
-execfile(TEMPLATE_FILE)
+execfile(globals.TEMPLATE_FILE)

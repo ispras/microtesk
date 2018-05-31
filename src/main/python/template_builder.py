@@ -14,11 +14,26 @@
 # limitations under the License.
 #
 
+#from ru.ispras.microtesk.test import TestEngine
+#engine = TestEngine.getInstance()
+#define_runtime_methods(engine.getModel().getMetaData())
+
 from types import MethodType
 
 import template
+import globals
+#import importlib
+#import ntpath
+
+#dummy = ntpath.basename(globals.TEMPLATE_FILE[:-3])
+#template_e = importlib.import_module(dummy)
+
+#print template_e.template
+
 
 from java.math import BigInteger
+
+
 
 def define_runtime_methods(metamodel):
     
@@ -47,46 +62,46 @@ def define_addressing_mode(mode):
     #print "Defining mode {}...".format(name)
     
     
-    def p(self,*arguments, **kwargs):
+    def p(*arguments, **kwargs):
         
         
-        builder = self.template.newAddressingModeBuilder(name)
+        builder = globals.template.template.newAddressingModeBuilder(name)
         set_argumets(builder, arguments)
         situations = kwargs.get('situations')
         
         if situations != None:
             pass
         else:
-            default_situation = self.template.getDefaultSituation(name)
+            default_situation = globals.template.template.getDefaultSituation(name)
             if default_situation != None:
                 builder.setSituation(default_situation)
             
         return builder.build()
     
-    define_method_for(template.Template, name, "mode", p)
+    define_method_for(template, name, "mode", p)
     
 def define_addressing_mode_group(name):
     
     #print "Defining mode group {}...".format(name)
     
-    def p(self,*arguments, **kwarg):
-        builder = self.template.newAddressingModeBuilderForGroup(name)
+    def p(*arguments, **kwarg):
+        builder = globals.template.template.newAddressingModeBuilderForGroup(name)
         set_argumets(builder, arguments)
         situations = kwargs.get('situations')
         
         if situations != None:
             pass
         else:
-            default_situation = self.template.getDefaultSituation(group_name)
+            default_situation = globals.template.template.getDefaultSituation(group_name)
             if default_situation == None:
-                default_situation = self.template.getDefaultSituation(name)
+                default_situation = globals.template.template.getDefaultSituation(name)
              
             if default_situation != None:
                 builder.setSituation(default_situation) 
         
         return builder.build()
     
-    define_method_for(template.Template, name, "mode", p)
+    define_method_for(template, name, "mode", p)
 
 def define_operation(op):
     name = op.getName()
@@ -95,9 +110,8 @@ def define_operation(op):
     
     is_root = op.isRoot()
     root_shortcuts = op.hasRootShortcuts()
-    
-    def p(self,*arguments, **kwargs):
-        builder = self.template.newOperationBuilder(name)
+    def p(*arguments, **kwargs):
+        builder = globals.template.template.newOperationBuilder(name)
         set_argumets(builder, arguments)
         situations = kwargs.get('situations')
         
@@ -105,61 +119,61 @@ def define_operation(op):
         if situations != None:
             pass
         else:
-            default_situation = self.template.getDefaultSituation(name)
+            default_situation = globals.template.template.getDefaultSituation(name)
             if default_situation != None:
                 builder.setSituation(default_situation)
                 
         if is_root:
-            self.template.setRootOperation(builder.build(),self.get_caller_location())
-            self.template.endBuildingCall
+            globals.template.template.setRootOperation(builder.build(),globals.template.get_caller_location())
+            globals.template.template.endBuildingCall()
         elif root_shortcuts:
             builder.setContext("#root")
-            self.template.setRootOperation(builder.build(),self.get_caller_location())
-            self.template.endBuildingCall
+            globals.template.template.setRootOperation(builder.build(),globals.template.get_caller_location())
+            globals.template.template.endBuildingCall()
             
         else:
             return builder
         
-    define_method_for(template.Template, name, "op", p)
+    define_method_for(template, name, "op", p)
     
 def define_operation_group(group_name):
     
     #print "Defining operation group {}...".format(group_name)
     
-    def p(self,*arguments, **kwargs):
-        op = self.template.chooseMetaOperationFromGroup(group_name)
+    def p(*arguments, **kwargs):
+        op = globals.template.template.chooseMetaOperationFromGroup(group_name)
         name = op.getName()
         situations = kwargs.get('situations')
     
         is_root = op.isRoot()
         root_shortcuts = op.hasRootShortcuts()
         
-        builder = self.template.newOperationBuilder(name)
+        builder = globals.template.template.newOperationBuilder(name)
         set_argumets(builder, arguments)
         
         
         if situations != None:
             pass
         else:
-            default_situation = self.template.getDefaultSituation(group_name)
+            default_situation = globals.template.template.getDefaultSituation(group_name)
             if default_situation == None:
-                default_situation = self.template.getDefaultSituation(name)
+                default_situation = globals.template.template.getDefaultSituation(name)
             
             if default_situation != None:
                 builder.setSituation(default_situation)
                 
         if is_root:
-            self.template.setRootOperation(builder.build(),self.get_caller_location())
-            self.template.endBuildingCall
+            globals.template.template.setRootOperation(builder.build(),globals.template.get_caller_location())
+            globals.template.template.endBuildingCall()
         elif root_shortcuts:
             builder.setContext("#root")
-            self.template.setRootOperation(builder.build(),self.get_caller_location())
-            self.template.endBuildingCall
+            globals.template.template.setRootOperation(builder.build(),globals.template.get_caller_location())
+            globals.template.template.endBuildingCall()
             
         else:
             return builder
         
-    define_method_for(template.Template, group_name, "op", p)
+    define_method_for(template, group_name, "op", p)
         
     
 def set_argumets(builder,args): 
@@ -199,12 +213,14 @@ def set_arguments_from_array(builder,args):
 def define_method_for(target_class, method_name, method_type, method_body):
     method_name = method_name.lower()
     
-    print "Defining method {}.{}".format(target_class,method_name)
+    #print "Defining method {}.{}".format(target_class,method_name)
     
     if not hasattr(target_class, method_name):
-        setattr(target_class,method_name,MethodType(method_body,None,target_class))
+        #setattr(target_class,method_name,MethodType(method_body,None,target_class))
+        setattr(target_class, method_name, method_body)
     elif not hasattr(target_class, "{}_{}".format(method_type,method_name)):
-        setattr(target_class,"{}_{}".format(method_type,method_name),MethodType(method_body,None,target_class))
+     #   setattr(target_class,"{}_{}".format(method_type,method_name),MethodType(method_body,None,target_class))
+        setattr(target_class,"{}_{}".format(method_type,method_name),method_body)
     else:
         print "Error: Failed to define the {} method ({})".format(method_type,method_name)
     
