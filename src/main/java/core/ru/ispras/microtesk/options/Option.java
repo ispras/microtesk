@@ -114,6 +114,9 @@ public enum Option implements Property {
   BASE_TEMPLATE_NAME("base-template-name",
       "Name of test template base class.", "", GENERATE_TEMPLATE),
 
+  BASE_TEMPLATE_PATH("base-template-path",
+      "Path to test template base class file.", "", GENERATE_TEMPLATE),
+
   IGNORED_INSTRUCTIONS("ignored-instructions",
       "Instructions to be ignored.", "", GENERATE_TEMPLATE);
 
