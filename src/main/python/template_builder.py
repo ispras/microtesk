@@ -191,7 +191,7 @@ def define_operation_group(group_name):
         
     
 def set_argumets(builder,args): 
-    if len(args) == 1 and isinstance(args[0], dict):
+    if len(args) is 1 and isinstance(args[0], dict):
         set_arguments_from_hash(builder, args[0])
     else:
         set_arguments_from_array(builder, args)
@@ -222,7 +222,8 @@ def set_arguments_from_array(builder,args):
             if isinstance(value,int):
                 builder.addArgument(BigInteger(str(value)))
             else:
-                builder.addArgument(value)
+                if not isinstance(value,dict):
+                    builder.addArgument(value)
     
         
 def define_method_for(target_class, method_name, method_type, method_body):
