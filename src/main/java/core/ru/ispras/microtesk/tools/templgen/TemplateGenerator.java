@@ -58,6 +58,13 @@ public final class TemplateGenerator {
       baseTemplateName = modelName;
     }
 
+    String baseTemplatePath = options.getValueAsString(Option.BASE_TEMPLATE_PATH);
+    if (baseTemplatePath.isEmpty()) {
+      Logger.warning("Failed to get the base template path for the '%s' model."
+          + " The base template path was named by default.", modelName);
+      baseTemplatePath = modelName;
+    }
+
     String outPutDirectory;
     if (options.hasValue(Option.OUTDIR)) {
       outPutDirectory = options.getValueAsString(Option.OUTDIR);
@@ -81,17 +88,17 @@ public final class TemplateGenerator {
 
     final SimpleTemplate simpleTemplate =
         new SimpleTemplate(metaModel, new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME,
-            modelName, baseTemplateName, outPutDirectory), ignoredInstructions);
+            modelName, baseTemplateName, baseTemplatePath, outPutDirectory), ignoredInstructions);
     generatedResult = generatedResult & simpleTemplate.generate();
 
     final GroupTemplate groupTemplate =
         new GroupTemplate(metaModel, new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME,
-            modelName, baseTemplateName, outPutDirectory), ignoredInstructions);
+            modelName, baseTemplateName, baseTemplatePath, outPutDirectory), ignoredInstructions);
     generatedResult = generatedResult & groupTemplate.generate();
 
     final BoundaryValuesTemplate boundaryTemplate = new BoundaryValuesTemplate(metaModel,
         new RubyTemplatePrinter(BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME, modelName,
-            baseTemplateName, outPutDirectory),
+            baseTemplateName, baseTemplatePath, outPutDirectory),
         ignoredInstructions);
     generatedResult = generatedResult & boundaryTemplate.generate();
 

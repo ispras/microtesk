@@ -35,6 +35,7 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
   private final String modelName;
   private final String templateName;
   private final String baseTemplateName;
+  private final String baseTemplatePath;
 
   static final String TEMPLATE_FILE_NAME = "_autogentemplate.rb";
   static final String TEMPLATE_DATA_LABLE = ":data";
@@ -47,13 +48,15 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
    * @param templateName the template name.
    * @param modelName the model name.
    * @param baseTemplateName the base template name.
+   * @param baseTemplatePath the base template path.
    * @param outputDirectory the output directory for template file.
    */
   public RubyTemplatePrinter(final String templateName, final String modelName,
-      final String baseTemplateName, final String outputDirectory) {
+      final String baseTemplateName, final String baseTemplatePath, final String outputDirectory) {
     this.modelName = modelName;
     this.templateName = templateName;
     this.baseTemplateName = baseTemplateName;
+    this.baseTemplatePath = baseTemplatePath;
 
     final File templateFile =
         FileUtils.newFile(outputDirectory + templateName.toLowerCase() + TEMPLATE_FILE_NAME);
@@ -71,10 +74,11 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
    * @param templateName the template name.
    * @param modelName the model name.
    * @param baseTemplateName the base template name.
+   * @param baseTemplatePath the base template path.
    */
   public RubyTemplatePrinter(final String templateName, final String modelName,
-      final String baseTemplateName) {
-    this(templateName, modelName, baseTemplateName, "");
+      final String baseTemplateName, final String baseTemplatePath) {
+    this(templateName, modelName, baseTemplateName, baseTemplatePath, "");
   }
 
   @Override
@@ -95,7 +99,11 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
         this.baseTemplateName.equals(this.modelName) ? this.modelName.toUpperCase() + "BaseTemplate"
             : this.baseTemplateName;
 
-    this.addString("require_relative '" + this.modelName + "_base'");
+    final String tempBaseTemplatePath =
+        this.baseTemplatePath.equals(this.modelName) ? this.modelName.toLowerCase() + "_base"
+            : this.baseTemplatePath;
+
+    this.addString("require_relative '" + tempBaseTemplatePath + "'");
     this.addString("");
     this.addString("class " + this.templateName + "GenTemplate < " + tempBaseTemplate);
 
