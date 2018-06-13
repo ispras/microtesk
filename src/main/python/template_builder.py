@@ -191,8 +191,8 @@ def define_operation_group(group_name):
         
     
 def set_argumets(builder,args): 
-    if len(args) == 1 and type(args[0]) is dict:
-        set_arguments_from_hash(builder, args.first())
+    if len(args) == 1 and isinstance(args[0], dict):
+        set_arguments_from_hash(builder, args[0])
     else:
         set_arguments_from_array(builder, args)
         
@@ -203,7 +203,7 @@ def set_arguments_from_hash(builder,args):
             value = value.java_object 
         if isinstance(value, basestring):
             value = value
-        if isintance(value,int):
+        if isinstance(value,int):
             builder.setArgument(name,BigInteger(str(value)))
         else:
             builder.setArgument(name,value)
@@ -211,11 +211,12 @@ def set_arguments_from_hash(builder,args):
         
 def set_arguments_from_array(builder,args):
     for value in args:
-        if type(args) is list:
+        if isinstance(args,list):
             set_arguments_from_array(builder, value)
         else:
+            print "value is {}".format(value)
             if isinstance(value, template.WrappedObject):
-                value = value.java_object 
+                value = value.java_object()
             if isinstance(value, basestring):
                 value = value
             if isinstance(value,int):
@@ -230,7 +231,7 @@ def define_method_for(target_class, method_name, method_type, method_body):
     if method_name == "or" or method_name == "and":
         method_name = method_name.upper()
     
-    print "Defining method {}.{}".format(target_class,method_name)
+    #print "Defining method {}.{}".format(target_class,method_name)
     
     if not hasattr(target_class, method_name):
         #setattr(target_class,method_name,MethodType(method_body,None,target_class))

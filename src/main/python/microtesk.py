@@ -19,10 +19,12 @@ from ru.ispras.microtesk import SysUtils
 #import __main__
 
 HOME = SysUtils.getHomeDir()
-TEMPLATE = HOME + "/lib/python/template"
+PYTHON = HOME + "/lib/python/"
+TEMPLATE = HOME + "/arch/demo/minimips/templates"
 globals.TEMPLATE_FILE = sys.argv[0]
-#sys.path.append('/home/luesal/jython2.7.0/Lib') 
-sys.path.append(HOME)
+sys.path.append(TEMPLATE) 
+sys.path.append(PYTHON)
+
 def prepare_template_classes():
     try:
         template_file = __import__("empty")

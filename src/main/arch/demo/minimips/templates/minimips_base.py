@@ -53,9 +53,9 @@ class MiniMipsBaseTemplate(Template):
                                 lambda : [
                                     self.data({},
                                             lambda: [ 
-                                                self.org({'delta' : 0x10}),
-                                                self.align(4),
-                                                self.label('preparator_data'),
+                                                org({'delta' : 0x10}),
+                                                align(4),
+                                                label('preparator_data'),
                                                 self.data_manager.word(value())
                                                 ]
                                             ),
@@ -173,7 +173,7 @@ class MiniMipsBaseTemplate(Template):
                        nop()
                        ]
                    )
-        self.org(0x00020000)
+        org(0x00020000)
                         
                         
         
@@ -183,12 +183,12 @@ class MiniMipsBaseTemplate(Template):
         nop()
         newline()
     
-        self.label('check_failed')
+        label('check_failed')
         comment('Here must be code for reporting errors detected by self-checks')
         nop()
         newline()
     
-        self.label('exit')
+        label('exit')
         comment('Here must be test program termination code')
         nop()
     
@@ -289,5 +289,19 @@ def fp():
 
 def ra():
     return reg(31)
+
+def get_register(attrs = {}):
+    if None == globals.free_register_allocator:
+        globals.free_register_allocator = mode_allocator('FREE')
+    
+    return reg(u_(globals.free_register_allocator), attrs)
+  
+def free_register(mode):
+    return free_allocated_mode(mode)
+def free_all_registers():
+    return free_all_allocated_modes(reg(u_()))
+
+
+
 #template = MiniMipsBaseTemplate()
 #template.generate()

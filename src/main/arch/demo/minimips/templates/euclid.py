@@ -23,7 +23,7 @@ class EuclidTemplate(MiniMipsBaseTemplate):
         MiniMipsBaseTemplate.__init__(self)
         
     def run(self):
-        self.org(0x00020000)
+        org(0x00020000)
         
         sequence({},
             lambda : [
@@ -35,7 +35,7 @@ class EuclidTemplate(MiniMipsBaseTemplate):
                 prepare(t1(), globals.val1),
                 prepare(t2(), globals.val2),
                 
-                self.label('cycle'),
+                label('cycle'),
                 trace("\nCurrent values: $t1($9)=%d, $t2($10)=%d\n", gpr(9), gpr(10)),
                 beq(t1(), t2(), 'done'),
                 
@@ -47,11 +47,11 @@ class EuclidTemplate(MiniMipsBaseTemplate):
                 j('cycle'),
                 nop(),
                 
-                self.label('if_less'),
+                label('if_less'),
                 subu(t2(), t2(), t1()),
                 j('cycle'),
                 
-                self.label('done'),
+                label('done'),
                 add(t3(), t1(), zero()),
                 
                 trace("\nResult stored in $t3($11): %d", gpr(11))

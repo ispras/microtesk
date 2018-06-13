@@ -25,9 +25,10 @@ class Template:
     def __init__(self):
         self.situation_manager = SituationManager(self)
         self.data_manager = None
+        self.default_mode_allocator = None
          
     #def template(self):
-     #   return self.template
+     #   return self.tempset_default_mode_allocatorlate
     
     def get_caller_location(self,caller_index = 1):
         #import inspect
@@ -74,30 +75,6 @@ class Template:
         contents()
         self.template.endAttributes()
         
-    def label(self,name):
-        if isinstance(name, int):
-            if not name in range(0,10):
-                raise NameError('name should be between 0 and 9')
-            
-            return self.template.addNumericLabel(name)
-            
-        else:
-            return self.template.addLabel(name,False)
-            
-    def global_label(self,name):
-        return self.template.addLabel(name,True)
-        
-    def weak(self,name):
-        return self.template.addWeakLabel(name)
-        
-    def label_b(self,index):
-        return self.numeric_label_ref(index, False)
-        
-    def label_f(self,index):
-        return self.numeric_label_ref(index, True)
-        
-    def get_address_of(self,label):
-        return self.template.getAddressForLabel(label)
     
     def testdata(name, attrs = {}):
         get_new_situation(name, attrs, True)
@@ -174,26 +151,6 @@ class Template:
         contents()
         self.data_manager.endData()
     
-    def org(self,origin):
-        from java.math import BigInteger
-        if isinstance(origin,int):
-            self.template.setOrigin(BigInteger(str(origin)),globals.template.get_caller_location())
-        elif isinstance(origin,dict):
-            delta = origin.get('delta')
-            if not isinstance(delta,int):
-                raise TyperError('delta should be integer')
-            self.template.setRelativeOrigin(BigInteger(str(delta)),globals.template.get_caller_location())
-        else:
-            raise TypeError('origin should be integer or dict')
-    
-    def align(self,value):
-        from java.math import BigInteger
-        value_in_bytes = self.alignment_in_bytes(value)
-        value_in_bytes = BigInteger(str(value_in_bytes))
-        self.template.setAlignment(BigInteger(str(value)),value_in_bytes,globals.template.get_caller_location())
-    
-    def alignment_in_bytes(self,n):
-        return 2**n
                 
             
         
@@ -745,12 +702,12 @@ def u_(allocator = None,attrs = {}):
         raise TypeErro('attrs should be dict')
     
     retain = attrs.get('retain')
-    exclude = attrs.gey('exclude')
+    exclude = attrs.get('exclude')
     
     if allocator is None:
         allocator = globals.template.default_mode_allocator
         
-    return globals.template.template.newUnknownImmediate(globals.template.get_caller_location,allocator,retain,exclude)
+    return globals.template.template.newUnknownImmediate(globals.template.get_caller_location(),allocator,retain,exclude)
     
 def u_label():           
         return globals.template.template.newLazyLabel()
@@ -956,10 +913,53 @@ def prepare(target_mode,value_object,attrs = {}):
         
     return globals.template.template.addPreparatorCall(target_mode,value_object,preparator_name,variant_name)
     
-      
 
+def org(origin):
+    from java.math import BigInteger
+    if isinstance(origin,int):
+        globals.template.template.setOrigin(BigInteger(str(origin)),globals.template.get_caller_location())
+    elif isinstance(origin,dict):
+        delta = origin.get('delta')
+        if not isinstance(delta,int):
+            raise TyperError('delta should be integer')
+        globals.template.template.setRelativeOrigin(BigInteger(str(delta)),globals.template.get_caller_location())
+    else:
+        raise TypeError('origin should be integer or dict')
+
+def align(value):
+    from java.math import BigInteger
+    value_in_bytes = alignment_in_bytes(value)
+    value_in_bytes = BigInteger(str(value_in_bytes))
+    globals.template.template.setAlignment(BigInteger(str(value)),value_in_bytes,globals.template.get_caller_location())
+
+def alignment_in_bytes(n):
+    return 2**n    
+
+
+def label(name):
+    if isinstance(name, int):
+        if not name in range(0,10):
+            raise NameError('name should be between 0 and 9')
+        
+        return globals.template.template.addNumericLabel(name)
+        
+    else:
+        return globals.template.template.addLabel(name,False)
+        
+def global_label(name):
+    return globals.template.template.addLabel(name,True)
     
+def weak(name):
+    return globals.template.template.addWeakLabel(name)
     
+def label_b(index):
+    return globals.template.numeric_label_ref(index, False)
+    
+def label_f(index):
+    return globals.template.numeric_label_ref(index, True)
+    
+def get_address_of(label):
+    return globals.template.template.getAddressForLabel(label)
     
     
     
