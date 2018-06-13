@@ -51,8 +51,23 @@ def define_runtime_methods(metamodel):
     op_groups = metamodel.getOperationGroups()
     for x in op_groups:
         define_operation_group(x.getName())
+        
+    registers = metamodel.getRegisters()
+    for x in registers:
+        define_store(x)
+    
+    memories = metamodel.getMemoryStores()
+    for x in memories:
+        define_store(x)
  
 
+def define_store(store):
+  name = store.getName()
+
+  def p(index):
+    return template.location(name, index)
+
+  define_method_for(template, name, "store", p)
         
 def define_addressing_mode(mode):
     
@@ -212,7 +227,10 @@ def set_arguments_from_array(builder,args):
 def define_method_for(target_class, method_name, method_type, method_body):
     method_name = method_name.lower()
     
-    #print "Defining method {}.{}".format(target_class,method_name)
+    if method_name == "or" or method_name == "and":
+        method_name = method_name.upper()
+    
+    print "Defining method {}.{}".format(target_class,method_name)
     
     if not hasattr(target_class, method_name):
         #setattr(target_class,method_name,MethodType(method_body,None,target_class))

@@ -23,18 +23,41 @@ class EuclidTemplate(MiniMipsBaseTemplate):
         MiniMipsBaseTemplate.__init__(self)
         
     def run(self):
-        iterate({},
+        self.org(0x00020000)
+        
+        sequence({},
             lambda : [
-                add(t0(), t1(), t2()),
-                sub(t3(), t4(), t5()),
-                add(t7(), t8(), t9())
+                setattr(globals,"val1",rand(1,63)),
+                setattr(globals,"val2",rand(1,63)),
+                
+                trace("\nInput parameter values: %d, %d\n", globals.val1, globals.val2),
+
+                prepare(t1(), globals.val1),
+                prepare(t2(), globals.val2),
+                
+                self.label('cycle'),
+                trace("\nCurrent values: $t1($9)=%d, $t2($10)=%d\n", gpr(9), gpr(10)),
+                beq(t1(), t2(), 'done'),
+                
+                slt(t0(), t1(), t2()),
+                bne(t0(), zero(), 'if_less'),
+                nop(),
+                
+                subu(t1(), t1(), t2()),
+                j('cycle'),
+                nop(),
+                
+                self.label('if_less'),
+                subu(t2(), t2(), t1()),
+                j('cycle'),
+                
+                self.label('done'),
+                add(t3(), t1(), zero()),
+                
+                trace("\nResult stored in $t3($11): %d", gpr(11))
+                
             ]
         ).run()
-        #add(t.t0(), t.zero(), t.zero())
-        #addi(t.t1(), t.zero(), 99)
-        #add(t.t2(), t.zero(), t.zero())
-    def test(self):
-        print self
         
 globals.template = EuclidTemplate()
 globals.template.generate()

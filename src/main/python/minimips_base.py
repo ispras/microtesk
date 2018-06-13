@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-from template import reg
+from template import *
 from template import Template
 
 
@@ -24,7 +24,7 @@ class MiniMipsBaseTemplate(Template):
         
         self.set_option_value('indent-token',"\t")
         self.set_option_value('separator-token',"=")
-        self.set_option_value('default-test-data',False)
+        #self.set_option_value('default-test-data',False)
     
     def pre(self):
         
@@ -45,9 +45,152 @@ class MiniMipsBaseTemplate(Template):
         
         self.section_data({'pa' : 0x00080000, 'va' : 0x00080000})
         
+        preparator({'target' : 'RCOP0'})
+        
+        preparator({'target' : 'REG'},
+                   lambda : [
+                        variant({'bias' : 25},
+                                lambda : [
+                                    self.data({},
+                                            lambda: [ 
+                                                self.org({'delta' : 0x10}),
+                                                self.align(4),
+                                                self.label('preparator_data'),
+                                                self.data_manager.word(value())
+                                                ]
+                                            ),
+                                    la(at(),'preparator_data'),
+                                    lw(target(),0,at())
+                                    ]
+                                ),
+                        variant({'bias' : 75},
+                                lambda : [
+                                    prepare(target(),value(16,31),{'name' : 'XXXX0000'}),
+                                    prepare(target(),value(0,15),{'name' : '----XXXX'})
+                                    ]
+                                )
+                        ]
+                    )
+        
+        preparator({'target' : 'REG','arguments' : {'i' : 0}})
+        
+        preparator({'target' : 'REG','mask' : "0000_0000"},
+                   lambda : [
+                       variant({},
+                               lambda : [
+                                   OR(target(),zero(),zero())
+                                   ]
+                               ),
+                        variant({},
+                               lambda : [
+                                   AND(target(),zero(),zero())
+                                   ]
+                               ),
+                        variant({},
+                               lambda : [
+                                   xor(target(),zero(),zero())
+                                   ]
+                               )
+                       ]
+                   )
+        
+        preparator({'target' : 'REG','mask' : "FFFF_FFFF"},
+                   lambda : [
+                       nor(target(),zero(),zero())
+                       ]
+                    )
+        
+        preparator({'target' : 'REG','mask' : "0000_XXXX"},
+                   lambda : [
+                       prepare(target(),value(0,15),{'name' : '0000XXXX'})
+                       ]
+                    )
+        
+        preparator({'target' : 'REG','mask' : "XXXX_0000"},
+                   lambda : [
+                       prepare(target(),value(16,31),{'name' : 'XXXX0000'})
+                       ]
+                    )
+
+        preparator({'target' : 'REG','mask' : "XXXX",'name' : 'XXXX0000'},
+                   lambda : [
+                        variant({'bias' : 25},
+                                lambda : [
+                                    lui(target(),value())
+                                    ]
+                                ),
+                        variant({'bias' : 75},
+                                lambda : [
+                                    prepare(target(),value(),{'name' : '0000XXXX'}),
+                                    sll(target(),target(),16)
+                                    ]
+                                )
+                        ]
+                )
+        
+        preparator({'target' : 'REG','name' : '0000XXXX','mask' : "XXXX"},
+                   lambda :[
+                       variant({},
+                           lambda : [
+                               ori(target(),zero(),value(0,15))
+                               ]
+                           ),
+                       variant({},
+                           lambda : [
+                               xori(target(),zero(),value(0,15))
+                               ]
+                           )
+                       ]
+                   )
+        
+        preparator({'target' : 'REG','name' : '----XXXX','mask' : "XXXX"},
+                   lambda :[
+                       variant({},
+                           lambda : [
+                               ori(target(),target(),value(0,15))
+                               ]
+                           ),
+                       variant({},
+                           lambda : [
+                               xori(target(),target(),value(0,15))
+                               ]
+                           )
+                       ]
+                   )
+        
+        comparator({'target' : 'REG'},
+                   lambda : [
+                       prepare(at(),value()),
+                       bne(at(),target(),'check_failed'),
+                       nop()
+                       ]
+                   )
+        
+        comparator({'target' : 'REG','arguments' : {'i' : 0}})
+        comparator({'target' : 'REG','mask' : "0000_0000"},
+                   lambda : [
+                       bne(zero(),target(),'check_failed'),
+                       nop()
+                       ]
+                   )
+        self.org(0x00020000)
+                        
+                        
+        
     
     def post(self):
-        pass
+        j('exit')
+        nop()
+        newline()
+    
+        self.label('check_failed')
+        comment('Here must be code for reporting errors detected by self-checks')
+        nop()
+        newline()
+    
+        self.label('exit')
+        comment('Here must be test program termination code')
+        nop()
     
 
 

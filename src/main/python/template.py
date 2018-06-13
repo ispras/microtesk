@@ -75,7 +75,7 @@ class Template:
         self.template.endAttributes()
         
     def label(self,name):
-        if isintance(name, int):
+        if isinstance(name, int):
             if not name in range(0,10):
                 raise NameError('name should be between 0 and 9')
             
@@ -136,70 +136,6 @@ class Template:
         else:
             self.template.setDefaultSituation(names, default_situation)
             
-    def rand(self,*args):
-        if args.count() is 1:
-            distribution = args[0]
-            
-            if not isinstance(distribution,Dist):
-                raise TypeError('argument must be a distribution')
-            
-            return self.template.newRandom(distribution.java_object)
-        elif args.count is 2:
-            From = args[0]
-            To = args[1]
-            
-            if not instance(From,int) or not instance(To,int):
-                raise TypeError('arguments must be integers')
-            
-            return self.template.newRandom(From,To)
-        else:
-            raise TypeError('wrong argument count')
-            
-            
-    def dist(self,*ranges):
-        if not isintance(ranges,list):
-            raise TypeError('ranges is not list')
-        
-        builder = self.template.newVariateBuilder()
-        for range_item in ranges:
-            if not isinstance(range_item, ValueRange):
-                raise TypeError('range_item is not ValueRange')
-            
-            value = range_items.value
-            bias = range_items.bias
-            
-            if isintance(value,list):
-                if bias is None:
-                    builder.addCollection(value)
-                else:
-                    builder.addCollection(value,bias)
-            elif isinstance(value,Dist):
-                if bias is None:
-                    builder.addVariate(value.java_object)
-                else:
-                    builder.addVariate(value.java_object,bias)
-            else:
-                if bias is None:
-                    builder.addValue(value)
-                else:
-                    builder.addValuer(value,bias)
-            
-        
-        return Dist(builder.build())
-    
-    def range(self,attrs = {}):
-        if not isintance(attrs,dict):
-            raise TypeError("attrs is not dict")
-        
-        value = attrs.get('value')
-        
-        bias = None
-        
-        bias = attrs.get('bias')
-        
-        return ValueRange(value,bias)
-                
-            
                 
         
   # -------------------------------------------------------------------------- #
@@ -220,10 +156,46 @@ class Template:
             addressableSize = 8
         self.data_manager = DataManager(self, self.template.getDataManager())
         self.data_manager.beginConfig(target,addressableSize)
-        
         contents()
         self.data_manager.endConfig()
+    
+    def data(self,attrs = {},contents = lambda : []):
+        if self.data_manager is None:
+            raise NameError('Data configuration is not defined')
         
+        Global = attrs.get('global')
+        if Global is None:
+            Global = False
+            
+        separate_file = attrs.get('separate_file')
+        if separate_file is None:
+            separate_file = False
+        self.data_manager.beginData(Global,separate_file)
+        contents()
+        self.data_manager.endData()
+    
+    def org(self,origin):
+        from java.math import BigInteger
+        if isinstance(origin,int):
+            self.template.setOrigin(BigInteger(str(origin)),globals.template.get_caller_location())
+        elif isinstance(origin,dict):
+            delta = origin.get('delta')
+            if not isinstance(delta,int):
+                raise TyperError('delta should be integer')
+            self.template.setRelativeOrigin(BigInteger(str(delta)),globals.template.get_caller_location())
+        else:
+            raise TypeError('origin should be integer or dict')
+    
+    def align(self,value):
+        from java.math import BigInteger
+        value_in_bytes = self.alignment_in_bytes(value)
+        value_in_bytes = BigInteger(str(value_in_bytes))
+        self.template.setAlignment(BigInteger(str(value)),value_in_bytes,globals.template.get_caller_location())
+    
+    def alignment_in_bytes(self,n):
+        return 2**n
+                
+            
         
         
 
@@ -427,9 +399,12 @@ class DataManager:
         
         self.configurer.defineType(id,text,type.name,type.args)
         
-        def p(*arguments):
+        print "in define_type it's {}".format(self)
+        
+        def p(self,*arguments):
             dataBuilder = self.builder.addDataValues(id)
             for x in arguments:
+                print "x is {}".format(x)
                 dataBuilder.add(x)
             dataBuilder.build()
         
@@ -443,7 +418,7 @@ class DataManager:
         
         self.configurer.defineSpace(id,text,BigInteger(str(fillWith)))
         
-        def p(length):
+        def p(self,length):
             self.builder.addSpace(length)
         
         template_builder.define_method_for(DataManager,id,'space',p)
@@ -455,7 +430,7 @@ class DataManager:
         
         self.configurer.defineAsciiString(id,text,zeroTerm)
         
-        def p(*strings):
+        def p(self,*strings):
             self.builder.addAsciiStrings(zeroTerm,strings)
         
         template_builder.define_method_for(DataManager,id,'string',p)
@@ -466,13 +441,14 @@ class DataManager:
     def comment(self,value):
         return self.builder.addComment(value)
         
-    def value(self,*args):
-        return self.template.value(*args)
+    #def value(self,*args):
+      #  return self.template.value(*args)
         
     def data(self,contents = lambda : []):
         contents()
         
-        
+    def evaluate(self,contents):
+        contents()    
         
         
         
@@ -597,9 +573,21 @@ class Dist:
         return self.java_object.value()
     
 class ValueRange:
-    def initialize(self,value, bias):
+    def __intit__(self,value, bias):
         self.value = value
         self.bias = bias
+        
+class Location:
+    def __init__(self,name, index):
+        self.name = name
+        self.index = index
+        
+class Range:
+    def __init__(self,min,max):
+        self.min = min
+        self.max = max
+
+
     
 
             
@@ -682,8 +670,322 @@ def block(attributes,contents = lambda : []):
     contents()
     
     return globals.template.template.endBlock()
+
+def rand(*args):
+    from java.math import BigInteger
+    if len(args) is 1:
+        distribution = args[0]
+        
+        if not isinstance(distribution,Dist):
+            raise TypeError('argument must be a distribution')
+        
+        return globals.template.template.newRandom(distribution.java_object)
+    elif len(args) is 2:
+        From = args[0]
+        To = args[1]
+        
+        if not isinstance(From,int) or not isinstance(To,int):
+            raise TypeError('arguments must be integers')
+        
+        return globals.template.template.newRandom(BigInteger(str(From)),BigInteger(str(To)))
+    else:
+        raise TypeError('wrong argument count')
+        
+        
+def dist(*ranges):
+    if not isintance(ranges,list):
+        raise TypeError('ranges is not list')
+    
+    builder = globals.template.template.newVariateBuilder()
+    for range_item in ranges:
+        if not isinstance(range_item, ValueRange):
+            raise TypeError('range_item is not ValueRange')
+        
+        value = range_items.value
+        bias = range_items.bias
+        
+        if isintance(value,list):
+            if bias is None:
+                builder.addCollection(value)
+            else:
+                builder.addCollection(value,bias)
+        elif isinstance(value,Dist):
+            if bias is None:
+                builder.addVariate(value.java_object)
+            else:
+                builder.addVariate(value.java_object,bias)
+        else:
+            if bias is None:
+                builder.addValue(value)
+            else:
+                builder.addValuer(value,bias)
+        
+    
+    return Dist(builder.build())
+
+def Range(attrs = {}):
+    if not isinstance(attrs,dict):
+        raise TypeError("attrs is not dict")
+    
+    value = attrs.get('value')
+    
+    bias = None
+    
+    bias = attrs.get('bias')
+    
+    return ValueRange(value,bias)
             
         
+def u_(allocator = None,attrs = {}):
+    if isinstance(allocator,dict) and not attrs:
+        attrs = allocator
+        allocator = None
+    
+    if not isinstance(attrs,dict):
+        raise TypeErro('attrs should be dict')
+    
+    retain = attrs.get('retain')
+    exclude = attrs.gey('exclude')
+    
+    if allocator is None:
+        allocator = globals.template.default_mode_allocator
+        
+    return globals.template.template.newUnknownImmediate(globals.template.get_caller_location,allocator,retain,exclude)
+    
+def u_label():           
+        return globals.template.template.newLazyLabel()
+    
+def mode_allocator(name,attrs = {}):
+    builder = globals.template.template.newAllocatorBuilder(name)
+    
+    for key,value in attrs.iteritems():
+        builder.setAttribute(key,value)
+        
+    return builder.build()
+
+def set_default_mode_allocator(allocator):
+    globals.template.default_mode_allocator = allocator
+    
+def free_allocated_mode(mode):
+    return globals.template.template.freeAllocatedMode(mode,False)
+        
+def free_all_allocated_mode(mode):
+    return globals.template.template.freeAllocatedMode(mode,True)
+
+def define_mode_group(name, distribution):
+    if not isintance(distribution,Dist):
+      raise TypeError("distribution is not a Dist.")
+    
+    globals.template.template.defineGroup(name, distribution.java_object)
+    template_builder.define_addressing_mode_group(name)
+
+def define_op_group(name, distribution):
+    if not isinstance(distribution,Dist):
+        raise TyperError("distribution is not a Dist.")
+    
+    globals.template.template.defineGroup(name, distribution.java_object)
+    template_builder.define_operation_group(name)
+  
+# -------------------------------------------------------------------------- #
+# Printing Text Messages                                                     #
+# -------------------------------------------------------------------------- #
+
+#
+# Creates a location-based format argument for format-like output methods.
+#
+def location(name, index):
+    return Location(name,index)
+
+#
+# Prints text into the simulator execution log.
+#
+def trace(format, *args):
+    return print_format('TRACE', format, *args)
+
+#
+# Adds the new line character into the test program
+#
+def newline():
+    return text('')
+
+#
+# Adds text into the test program.
+#
+def text(format, *args):
+    if globals.is_multiline_comment:
+        print_format('COMMENT_ML_BODY', format, *args)
+    else:
+        print_format('TEXT', format, *args)
+
+
+#
+# Adds a comment into the test program (uses sl_comment_starts_with).
+#
+def comment(format, *args):
+    print_format('COMMENT', format, *args)
+
+
+#
+# Starts a multi-line comment (uses sl_comment_starts_with)
+#
+def start_comment():
+    globals.is_multiline_comment = True
+    print_format('COMMENT_ML_START', '')
+
+#
+# Ends a multi-line comment (uses ml_comment_ends_with)
+#
+def end_comment():
+    print_format('COMMENT_ML_END', '')
+    globals.is_multiline_comment = False
+
+#
+# Prints a format-based output to the simulator log or to the test program
+# depending of the is_runtime flag.
+#
+def print_format(kind, format, *args):
+    import ru.ispras.microtesk.test.template.Value as Value
+    from java.math import BigInteger
+    
+    builder = globals.template.template.newOutput(kind, format)
+    
+    for arg in args:
+      if isinstance(arg,int) or isinstance(arg,basestring) or isinstance(arg,Value):
+        builder.addArgument(arg)
+      elif isinstance(arg,Location):
+        builder.addArgument(arg.name, BigInteger(str(arg.index)))
+      else:
+        raise TypeError("Illegal format argument class")
+    
+    return globals.template.template.addOutput(builder.build())
+
+#
+# Creates a pseudo instruction call that prints user-specified text.
+#
+def pseudo(text):
+    globals.template.template.setCallText(text)
+    globals.template.template.endBuildingCall()
+
+def preparator(attrs,contents = lambda : []):
+    return create_preparator(False,attrs,contents)
+
+def comparator(attrs,contents = lambda : []):
+    return create_preparator(True,attrs,contents)
+
+def create_preparator(is_comparator,attrs,contents = lambda : []):
+    from java.math import BigInteger
+    target = attrs.get('target')
+    
+    builder = globals.template.template.beginPreparator(target,is_comparator)
+    builder.setWhere(globals.template.get_caller_location())
+    
+    name = attrs.get('name')
+    
+    if name is not None:
+        builder.setName(name)
+        
+    mask = attrs.get('mask')
+    if mask is not None:
+        if isinstance(mask,basestring):
+            builder.setMaskValue(mask)
+        elif isintance(mask,list):
+            builder.setMaskCollection(mask)
+        else:
+            raise TypeError("Illegal mask type")
+        
+    arguments = attrs.get('arguments')
+    if arguments is not None:
+        if not isinstance(arguments,dict):
+            raise TypeError("arguments is not dict")
+        
+        for name,value in arguments.iteritems():
+            if isinstance(value,int):
+                builder.addArgumentValue(name,BigInteger(str(value)))
+            elif isinstance(value,Range):
+                builder.addArgumentRange(name,BigInteger(str(value.min)),BigInteger(str(value.max)))
+            elif isinstance(value,list):
+                builder.addArgumentCollection(name,value)
+            else:
+                raise TypeError("Illegal value of argument")
+            
+    contents()
+    globals.template.template.endPreparator()
+
+def variant(attrs = {},contents = lambda : []):
+    name = attrs.get('name')
+    bias = attrs.get('bias')
+    from java.math import BigInteger
+    if bias is not None:
+        x = BigInteger(str(bias))
+    else:
+        x = bias
+    globals.template.template.beginPreparatorVariant(name,x)
+    contents()
+    globals.template.template.endPreparatorVariant()
+    
+def target():
+    return globals.template.template.getPreparatorTarget()
+
+def value(*args):
+    if len(args) is not 0 and len(args) is not 2:
+        raise TypeError("wrong argument count, should be 0 or 2")
+    
+    if len(args) is 2:
+        return globals.template.template.newLazy(args[0],args[1])
+    else:
+        x = globals.template.template.newLazy()
+        print "new lazy is {}".format(x)
+        return x
+        
+def sign_extend(value_object,bit_size):
+    if isinstance(value_object,WrappedObject):
+        value_object = value_object.java_object
+    return value_object.signExtend(bit_size)
+
+def zero_extend(value_object,bit_size):
+    if isinstance(value_object,WrappedObject):
+        value_object = value_object.java_object
+    return value_object.zeronExtend(bit_size)
+
+def prepare(target_mode,value_object,attrs = {}):
+    preparator_name = attrs.get('name')
+    variant_name = attrs.get('variant')
+    
+    if isinstance(value_object,WrappedObject):
+        value_object = value_object.java_object
+        
+    return globals.template.template.addPreparatorCall(target_mode,value_object,preparator_name,variant_name)
+    
+      
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
         
         
         
