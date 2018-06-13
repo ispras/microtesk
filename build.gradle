@@ -439,6 +439,11 @@ task copyWhy3(type: Copy) {
 copyEtc.dependsOn copyWhy3
 */
 
+task copyPython(type: Copy) {
+  from "${project.projectDir}/src/main/python"
+  into "${project.projectDir}/build/target/lib/python"
+}
+
 task translateCpu(type: JavaExec) {
   classpath = files('build/libs/microtesk.jar')
   classpath += sourceSets.main.runtimeClasspath
