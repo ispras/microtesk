@@ -214,7 +214,6 @@ def set_arguments_from_array(builder,args):
         if isinstance(args,list):
             set_arguments_from_array(builder, value)
         else:
-            print "value is {}".format(value)
             if isinstance(value, template.WrappedObject):
                 value = value.java_object()
             if isinstance(value, basestring):

@@ -998,7 +998,17 @@ def is_rev(id):
     from ru.ispras.microtesk.test import TestEngine
     engine = TestEngine.getInstance()
     return engine.isRevision(id)
-    
+
+def prologue(contents = lambda : []):
+    globals.template.template.beginPrologue()
+    contents()
+    return globals.template.template.endPrologue()
+
+def epilogue(contents = lambda : []):
+    globals.template.template.beginEpilogue()
+    contents()
+    return globals.template.template.endEpilogue()
+  
     
     
     

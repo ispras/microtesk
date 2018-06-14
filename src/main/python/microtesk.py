@@ -24,6 +24,7 @@ TEMPLATE = HOME + "/arch/demo/minimips/templates"
 globals.TEMPLATE_FILE = sys.argv[0]
 sys.path.append(TEMPLATE) 
 sys.path.append(PYTHON)
+#sys.path.append("/home/luesal/jython2.7.0/Lib")
 
 def prepare_template_classes():
     try:
