@@ -439,14 +439,23 @@ task copyWhy3(type: Copy) {
 copyEtc.dependsOn copyWhy3
 */
 
-task copyTemplates(type: Copy) {
+task copyPython(type: Copy) {
   from "${project.projectDir}/src/main/python"
   into "${project.projectDir}/build/target/lib/python"
+}
+
+task copyRuby(type: Copy) {
   from "${project.projectDir}/src/main/ruby"
   into "${project.projectDir}/build/target/lib/ruby"
+}
+
+task copyTemplates(type: Copy) {
   from "${project.projectDir}/src/main/arch"
   into "${project.projectDir}/build/target/arch"
 }
+
+copyTemplates.dependsOn copyPython
+copyTemplates.dependsOn copyRuby
 
 task translateCpu(type: JavaExec) {
   classpath = files('build/libs/microtesk.jar')
