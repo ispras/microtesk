@@ -22,8 +22,8 @@ class MiniMipsBaseTemplate(Template):
     def __init__(self):
         Template.__init__(self)
         
-        self.set_option_value('indent-token',"\t")
-        self.set_option_value('separator-token',"=")
+        set_option_value('indent-token',"\t")
+        set_option_value('separator-token',"=")
         #self.set_option_value('default-test-data',False)
     
     def pre(self):
@@ -45,6 +45,16 @@ class MiniMipsBaseTemplate(Template):
         
         self.section_data({'pa' : 0x00080000, 'va' : 0x00080000})
         
+        exception_handler({'org' : 0x380, 'exception' : ['IntegerOverflow', 'SystemCall', 'Breakpoint']},
+                          lambda : [
+                              trace('Exception handler (EPC = 0x%x)', location('COP0_R', 14)),
+                              mfc0(ra(), rcop0(14)),
+                              addi(ra(), ra(), 4),
+                              jr(ra()),
+                              nop()
+                            ]
+        )
+        
         preparator({'target' : 'RCOP0'})
         
         preparator({'target' : 'REG'},
@@ -53,9 +63,9 @@ class MiniMipsBaseTemplate(Template):
                                 lambda : [
                                     self.data({},
                                             lambda: [ 
-                                                org({'delta' : 0x10}),
-                                                align(4),
-                                                label('preparator_data'),
+                                                self.data_manager.org({'delta' : 0x10}),
+                                                self.data_manager.align(4),
+                                                self.data_manager.label('preparator_data'),
                                                 self.data_manager.word(value())
                                                 ]
                                             ),

@@ -134,7 +134,7 @@ class Template:
         self.data_manager = DataManager(self, self.template.getDataManager())
         self.data_manager.beginConfig(target,addressableSize)
         contents()
-        self.data_manager.endConfig()
+        return self.data_manager.endConfig()
     
     def data(self,attrs = {},contents = lambda : []):
         if self.data_manager is None:
@@ -149,7 +149,7 @@ class Template:
             separate_file = False
         self.data_manager.beginData(Global,separate_file)
         contents()
-        self.data_manager.endData()
+        return self.data_manager.endData()
     
                 
             
@@ -232,25 +232,6 @@ class Template:
         self.template.endMainSection()
         
         
-    def set_option_value(self,name,value):
-        from ru.ispras.microtesk.test import TestEngine
-        engine = TestEngine.getInstance()
-        engine.setOptionValue(name, value)  
-        
-    def get_option_value(self,name):
-        from ru.ispras.microtesk.test import TestEngine
-        engine = TestEngine.getInstance()
-        engine.getOptionValue(name)
-        
-    def rev_id(self):
-        from ru.ispras.microtesk.test import TestEngine
-        engine = TestEngine.getInstance()
-        engine.getModel.getRevisionId()
-        
-    def is_rev(self,id):
-        from ru.ispras.microtesk.test import TestEngine
-        engine = TestEngine.getInstance()
-        engine.isRevision(id)
         
     def set_builder_attributes(self,builder,attributes):
         for key in attributes:
@@ -317,17 +298,19 @@ class DataManager:
             self.builder = None
     
     def align(self,value):
-        value_in_bytes = self.template.alignment_in_bytes(value)
-        return self.builder.align(value,value_in_bytes)
+        from java.math import BigInteger
+        value_in_bytes = alignment_in_bytes(value)
+        return self.builder.align(BigInteger(str(value)),BigInteger(str(value_in_bytes)))
     
     def org(self,origin):
+        from java.math import BigInteger
         if type(origin) is int:
             self.builder.setOrigin(origin)
         elif type(origin) is dict:
             delta = origin.get('delta')
             if type(delta) is not int:
                 raise TypeError("delta must be int")
-            self.builder.setRelativeOrigin(delta)
+            self.builder.setRelativeOrigin(BigInteger(str(delta)))
         else:
             raise TypeError("origin must be int or dict")
             
@@ -539,10 +522,15 @@ class Location:
         self.name = name
         self.index = index
         
-class Range:
+class RangeClass:
     def __init__(self,min,max):
         self.min = min
         self.max = max
+        
+    
+
+        
+        
 
 
     
@@ -858,7 +846,7 @@ def create_preparator(is_comparator,attrs,contents = lambda : []):
         for name,value in arguments.iteritems():
             if isinstance(value,int):
                 builder.addArgumentValue(name,BigInteger(str(value)))
-            elif isinstance(value,Range):
+            elif isinstance(value,RangeClass):
                 builder.addArgumentRange(name,BigInteger(str(value.min)),BigInteger(str(value.max)))
             elif isinstance(value,list):
                 builder.addArgumentCollection(name,value)
@@ -960,6 +948,56 @@ def label_f(index):
     
 def get_address_of(label):
     return globals.template.template.getAddressForLabel(label)
+
+def exception_handler(attrs = {},contents = lambda : []):
+    org = attrs.get('org')
+    exception = attrs.get('exception')
+    id = attrs.get('id')
+    if id is None:
+        id = ''
+    builder = globals.template.template.beginExceptionHandler(id)
+    instance = attrs.get('instance')
+    if instance is None:
+        instance = RangeClass(0,get_option_value('instance-number')-1)
+    
+    if isinstance(instance,RangeClass):
+        print "min is {}\n max is {}\n".format(instance.min,instance.max)
+        builder.setInstances(instance.min,instance.max)
+    else:
+        builder.setInstances(instance)
+        
+    def entry_point(org,exception,contents = lambda : []):
+        from java.math import BigInteger
+        builder.beginEntryPoint(BigInteger(str(org)), exception)
+        contents()
+        return builder.endEntryPoint()
+        
+    entry_point(org,exception,contents)
+    
+    return globals.template.template.endExceptionHandler()
+
+
+
+
+def set_option_value(name,value):
+    from ru.ispras.microtesk.test import TestEngine
+    engine = TestEngine.getInstance()
+    return engine.setOptionValue(name, value)  
+    
+def get_option_value(name):
+    from ru.ispras.microtesk.test import TestEngine
+    engine = TestEngine.getInstance()
+    return engine.getOptionValue(name)
+    
+def rev_id():
+    from ru.ispras.microtesk.test import TestEngine
+    engine = TestEngine.getInstance()
+    return engine.getModel.getRevisionId()
+    
+def is_rev(id):
+    from ru.ispras.microtesk.test import TestEngine
+    engine = TestEngine.getInstance()
+    return engine.isRevision(id)
     
     
     

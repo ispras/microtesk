@@ -17,6 +17,9 @@ import globals
 from minimips_base import MiniMipsBaseTemplate
 from minimips_base import *
 from template import *
+import sys
+
+thismodule = sys.modules[__name__]
 
 class EuclidTemplate(MiniMipsBaseTemplate):
     def __init__(self):
@@ -27,13 +30,13 @@ class EuclidTemplate(MiniMipsBaseTemplate):
         
         sequence({},
             lambda : [
-                setattr(globals,"val1",rand(1,63)),
-                setattr(globals,"val2",rand(1,63)),
+                setattr(thismodule,"val1",rand(1,63)),
+                setattr(thismodule,"val2",rand(1,63)),
                 
-                trace("\nInput parameter values: %d, %d\n", globals.val1, globals.val2),
+                trace("\nInput parameter values: %d, %d\n", val1, val2),
 
-                prepare(t1(), globals.val1),
-                prepare(t2(), globals.val2),
+                prepare(t1(), val1),
+                prepare(t2(), val2),
                 
                 label('cycle'),
                 trace("\nCurrent values: $t1($9)=%d, $t2($10)=%d\n", gpr(9), gpr(10)),
