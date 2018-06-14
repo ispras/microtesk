@@ -439,9 +439,13 @@ task copyWhy3(type: Copy) {
 copyEtc.dependsOn copyWhy3
 */
 
-task copyPython(type: Copy) {
+task copyTemplates(type: Copy) {
   from "${project.projectDir}/src/main/python"
   into "${project.projectDir}/build/target/lib/python"
+  from "${project.projectDir}/src/main/ruby"
+  into "${project.projectDir}/build/target/lib/ruby"
+  from "${project.projectDir}/src/main/arch"
+  into "${project.projectDir}/build/target/arch"
 }
 
 task translateCpu(type: JavaExec) {
