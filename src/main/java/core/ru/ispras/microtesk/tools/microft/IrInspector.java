@@ -38,6 +38,8 @@ public final class IrInspector {
       listOperations(ir.getRoots());
 
     final List<Attribute> attributes = new ArrayList<>();
+    attributes.add(new AttrFormat("syntax"));
+    attributes.add(new AttrFormat("image"));
 
     for (final List<PrimitiveAND> insn : operations) {
       System.out.println(nameOf(insn));
