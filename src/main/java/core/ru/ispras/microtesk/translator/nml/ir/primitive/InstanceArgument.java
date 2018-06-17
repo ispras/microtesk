@@ -77,26 +77,25 @@ public final class InstanceArgument {
   }
 
   public Expr getExpr() {
-    return (Expr) getValueIfAssignable(Expr.class);
+    return getValueIfAssignable(Expr.class);
   }
 
   public Instance getInstance() {
-    return (Instance) getValueIfAssignable(Instance.class);
+    return getValueIfAssignable(Instance.class);
   }
 
   public Primitive getPrimitive() {
-    return (Primitive) getValueIfAssignable(Primitive.class);
+    return getValueIfAssignable(Primitive.class);
   }
 
   public String getName() {
     return name;
   }
 
-  private Object getValueIfAssignable(final Class<?> targetClass) {
-    if (!targetClass.isAssignableFrom(value.getClass())) {
-      throw new IllegalStateException(value.getClass().getName());
+  private <T> T getValueIfAssignable(final Class<T> targetClass) {
+    if (targetClass.isInstance(this.value)) {
+      return targetClass.cast(this.value);
     }
-
-    return value;
+    throw new IllegalStateException(value.getClass().getName());
   }
 }
