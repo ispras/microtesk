@@ -175,6 +175,7 @@ dependencies {
   compile ("fortress:fortress:${fortressVersion}") { changing = true }
   compile ("testbase:testbase:${testbaseVersion}") { changing = true }
   compile ("jsoftfloat:jsoftfloat:${jsoftfloatVersion}") { changing = true }
+  compile ("microft:microft:+") { changing = true }
 
   // TODO: unused Aspectrace dependencies
   // compile 'org.codehaus.woodstox:wstx-asl:3.2.4'
