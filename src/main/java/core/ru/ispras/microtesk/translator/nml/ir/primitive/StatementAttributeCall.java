@@ -67,6 +67,10 @@ public final class StatementAttributeCall extends Statement {
     return calleeInstance;
   }
 
+  public boolean isArgumentCall() {
+    return getCalleeName() != null;
+  }
+
   public boolean isThisCall() {
     return getCalleeName() == null && getCalleeInstance() == null;
   }
