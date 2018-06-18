@@ -44,6 +44,17 @@ public final class IrInspector {
     final List<Attribute> attributes = new ArrayList<>();
     attributes.add(new AttrFormat("syntax"));
     attributes.add(new AttrFormat("image"));
+    attributes.add(new Attribute("mnemonic", "syntax") {
+      @Override
+      public JsonValue get(final List<PrimitiveAND> p, final Map<String, JsonValue> env) {
+        final JsonValue syntax = env.get("syntax");
+        if (syntax.getValueType() == JsonValue.ValueType.STRING) {
+          final String s[] = ((JsonString) syntax).getString().split("\\s+");
+          return JsonUtil.createString(s[0]);
+        }
+        return JsonValue.NULL;
+      }
+    });
 
     for (final List<PrimitiveAND> insn : operations) {
       final Map<String, JsonValue> attrs = inspectInsn(insn, attributes);
