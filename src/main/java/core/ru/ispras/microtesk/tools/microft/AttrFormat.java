@@ -42,8 +42,8 @@ class AttrFormat extends IrInspector.Attribute {
   }
 
   @Override
-  public JsonValue get(final List<PrimitiveAND> primitives) {
-    final String s = evaluateAttribute(this.name, Decl.create(primitives));
+  public JsonValue get(final List<PrimitiveAND> primitives, final Map<String, JsonValue> env) {
+    final String s = evaluateAttribute(getName(), Decl.create(primitives));
     if (s != null) {
       return JsonUtil.createString(s);
     }

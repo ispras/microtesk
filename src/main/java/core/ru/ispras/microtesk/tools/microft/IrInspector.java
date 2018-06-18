@@ -22,11 +22,15 @@ import ru.ispras.microtesk.utils.FormatMarker;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import javax.json.JsonString;
 import javax.json.JsonValue;
 
 /**
@@ -42,12 +46,32 @@ public final class IrInspector {
     attributes.add(new AttrFormat("image"));
 
     for (final List<PrimitiveAND> insn : operations) {
+      final Map<String, JsonValue> attrs = inspectInsn(insn, attributes);
       System.out.println(nameOf(insn));
-      for (final Attribute a : attributes) {
-        System.out.printf("%s: %s%n", a.name, a.get(insn).toString());
+      for (final Map.Entry<String, JsonValue> entry : attrs.entrySet()) {
+        System.out.printf("%s: %s%n", entry.getKey(), entry.getValue().toString());
       }
       System.out.println();
     }
+  }
+
+  private static Map<String, JsonValue> inspectInsn(
+    final List<PrimitiveAND> insn,
+    final List<Attribute> attrs) {
+    final Map<String, JsonValue> values = new TreeMap<>();
+    final List<Attribute> queue = new ArrayList<>(attrs);
+
+    while (!queue.isEmpty()) {
+      final Iterator<Attribute> it = queue.iterator();
+      while (it.hasNext()) {
+        final Attribute attr = it.next();
+        if (values.keySet().containsAll(attr.getDependencies())) {
+          values.put(attr.getName(), attr.get(insn, values));
+          it.remove();
+        }
+      }
+    }
+    return values;
   }
 
   private static String nameOf(final List<PrimitiveAND> insns) {
@@ -107,12 +131,27 @@ public final class IrInspector {
   }
 
   abstract static class Attribute {
-    public final String name;
+    private final String name;
+    private final List<String> deps;
 
     public Attribute(final String name) {
       this.name = name;
+      this.deps = Collections.emptyList();
     }
 
-    public abstract JsonValue get(final List<PrimitiveAND> p);
+    public Attribute(final String name, final String... deps) {
+      this.name = name;
+      this.deps = Arrays.asList(deps);
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public List<String> getDependencies() {
+      return deps;
+    }
+
+    public abstract JsonValue get(final List<PrimitiveAND> p, final Map<String, JsonValue> env);
   }
 }
