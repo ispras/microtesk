@@ -54,7 +54,7 @@ public class TemplateOperation {
     this.templatePrinter = templatePrinter;
     name = this.templatePrinter.formattingOperation(operation.getName());
 
-    branch = operation.isConditionalBranch();
+    branch = operation.isConditionalBranch() || ((name.startsWith("b") || name.startsWith("j")) && (getArgumentsNumber(operation.getArguments()) > 0));
     jump = operation.isBranch() && !branch;
 
     if (branch || jump) {
@@ -73,6 +73,7 @@ public class TemplateOperation {
             : Boolean.FALSE;
 
     if (branch || jump) {
+      // System.out.println(name);
       branchLabel = String.format(":%s_label", name);
       regTitle = getLastArgument(operation.getArguments(), IsaPrimitiveKind.MODE);
 
@@ -143,6 +144,16 @@ public class TemplateOperation {
     jumpLabelsSet.add("C_JUMP_IMM");
     jumpLabelsSet.add("C_BRANCH_LABEL_M2");
     jumpLabelsSet.add("C_BRANCH_IMM");
+
+    jumpLabelsSet.add("BRANCH_FPU_LABEL");
+    jumpLabelsSet.add("BRANCH_FPU_IMM");
+
+    jumpLabelsSet.add("BRANCH_IMM26");
+    jumpLabelsSet.add("BRANCH_LABEL26");
+    jumpLabelsSet.add("BRANCH_IMM21");
+    jumpLabelsSet.add("BRANCH_LABEL21");
+    jumpLabelsSet.add("JUMP_LABEL16");
+    jumpLabelsSet.add("JUMP_IMM16");
   }
 
   private static void printMetaOperation(final MetaOperation operation) {
