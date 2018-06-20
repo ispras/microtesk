@@ -27,6 +27,7 @@ import ru.ispras.microtesk.test.sequence.compositor.CompositorOverlapping;
 import ru.ispras.microtesk.test.sequence.compositor.CompositorRandom;
 import ru.ispras.microtesk.test.sequence.compositor.CompositorRotation;
 import ru.ispras.microtesk.test.sequence.permutator.Permutator;
+import ru.ispras.microtesk.test.sequence.permutator.PermutatorExhaustive;
 import ru.ispras.microtesk.test.sequence.permutator.PermutatorRandom;
 import ru.ispras.microtesk.test.sequence.permutator.PermutatorTrivial;
 import ru.ispras.microtesk.test.sequence.rearranger.Rearranger;
@@ -67,8 +68,10 @@ public final class GeneratorConfig<T> {
     compositors.put("nesting", CompositorNesting.class);
     compositors.put("random", CompositorRandom.class);
 
-    permutators.put("trivial", PermutatorTrivial.class);
+    permutators.put("exhaustive", PermutatorExhaustive.class);
+    permutators.put("full", PermutatorExhaustive.class); // Alias for exhaustive
     permutators.put("random", PermutatorRandom.class);
+    permutators.put("trivial", PermutatorTrivial.class);
 
     rearrangers.put("trivial", RearrangerTrivial.class);
     rearrangers.put("expand", RearrangerExpand.class);

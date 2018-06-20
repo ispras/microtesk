@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.test.sequence.permutator;
 
-import java.util.TreeSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,12 +21,15 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PermutatorTestCase {
+  public static final int SIZE = 10;
 
   @Test
   public void testRandom() {
-    final List<Integer> initialData = newData(10);
+    final List<Integer> initialData = newData(SIZE);
     final Permutator<Integer> permutator = new PermutatorRandom<>();
 
     permutator.initialize(initialData);
@@ -37,7 +39,7 @@ public class PermutatorTestCase {
     final List<Integer> resultData = permutator.value();
 
     Assert.assertNotEquals(initialData, resultData);
-    Assert.assertEquals(new TreeSet<>(initialData), new TreeSet<>(resultData));
+    Assert.assertEquals(new HashSet<>(initialData), new HashSet<>(resultData));
 
     permutator.next();
     Assert.assertFalse(permutator.hasValue());
@@ -45,7 +47,7 @@ public class PermutatorTestCase {
 
   @Test
   public void testTrivial() {
-    final List<Integer> initialData = newData(10);
+    final List<Integer> initialData = newData(SIZE);
     final Permutator<Integer> permutator = new PermutatorTrivial<>();
 
     permutator.initialize(initialData);
@@ -59,6 +61,34 @@ public class PermutatorTestCase {
     Assert.assertFalse(permutator.hasValue());
   }
 
+  @Test
+  public void testExhaustive() {
+    final List<Integer> initialData = newData(SIZE);
+    final Set<Integer> initialDataSet = new HashSet<>(initialData);
+
+    final Permutator<Integer> permutator = new PermutatorExhaustive<>();
+    permutator.initialize(initialData);
+
+    int count = 0;
+    final Set<List<Integer>> resultSet = new HashSet<>();
+
+    for (permutator.init(); permutator.hasValue(); permutator.next()) {
+      final List<Integer> resultData = permutator.value();
+
+      // Result must include the same elements as Initial.
+      Assert.assertEquals(initialDataSet, new HashSet<>(resultData));
+
+      // Result must be unique.
+      Assert.assertFalse(resultSet.contains(resultData));
+
+      count++;
+      resultSet.add(resultData);
+    }
+
+    // SIZE! permutations must be produced.
+    Assert.assertEquals(factorial(SIZE), count);
+  }
+
   private static List<Integer> newData(final int length) {
     InvariantChecks.checkGreaterThanZero(length);
 
@@ -68,5 +98,18 @@ public class PermutatorTestCase {
     }
 
     return data;
+  }
+
+  private static int factorial(final int number) {
+    InvariantChecks.checkGreaterThanZero(number);
+
+    int result = 1;
+
+    for (int factor = 2; factor <= number; factor++) {
+      InvariantChecks.checkGreaterThanZero(result);
+      result *= factor;
+    }
+
+    return result;
   }
 }
