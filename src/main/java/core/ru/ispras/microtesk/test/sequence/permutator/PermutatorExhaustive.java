@@ -68,6 +68,7 @@ public final class PermutatorExhaustive<T> extends PermutatorBase<T> {
     while (indices[index] >= index) {
       indices[index] = 0;
       index++;
+      InvariantChecks.checkGreaterThanZero(index);
 
       if (index >= indices.length) {
         return;
@@ -76,6 +77,7 @@ public final class PermutatorExhaustive<T> extends PermutatorBase<T> {
 
     Collections.swap(sequence, index % 2 == 0 ? 0 : indices[index], index);
     indices[index]++;
+    InvariantChecks.checkGreaterThanZero(indices[index]);
     index = 0;
   }
 
