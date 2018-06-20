@@ -73,11 +73,13 @@ public class TemplateOperation {
             : Boolean.FALSE;
 
     if (branch || jump) {
-      // System.out.println(name);
+      //System.out.println(name);
       branchLabel = String.format(":%s_label", name);
       regTitle = getLastArgument(operation.getArguments(), IsaPrimitiveKind.MODE);
+      //System.out.println(regTitle);
 
-      if (!jumpLabelsSet.contains(regTitle)) {
+      // TODO: only for Jalr riscv: || null != regTitle
+      if (null != regTitle && !jumpLabelsSet.contains(regTitle)) {
         // System.out.println(regTitle);
         // TODO:
         preCommand = prepareReg(regTitle);
