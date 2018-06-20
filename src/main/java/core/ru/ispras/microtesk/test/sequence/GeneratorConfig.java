@@ -69,6 +69,7 @@ public final class GeneratorConfig<T> {
     compositors.put("random", CompositorRandom.class);
 
     permutators.put("exhaustive", PermutatorExhaustive.class);
+    permutators.put("full", PermutatorExhaustive.class); // Alias for exhaustive
     permutators.put("random", PermutatorRandom.class);
     permutators.put("trivial", PermutatorTrivial.class);
 
