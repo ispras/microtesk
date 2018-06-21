@@ -1214,7 +1214,6 @@ public final class Template {
     }
 
     sections.push(section);
-
   }
 
   public void endSection() {
