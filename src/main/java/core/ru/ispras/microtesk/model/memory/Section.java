@@ -78,7 +78,8 @@ public final class Section {
     sb.append(name);
 
     if (args != null && !args.isEmpty()) {
-      sb.append(String.format(", \"%s\"", args));
+      sb.append(',');
+      sb.append(args);
     }
 
     return sb.toString();
