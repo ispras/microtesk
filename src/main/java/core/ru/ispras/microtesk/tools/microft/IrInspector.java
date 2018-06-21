@@ -22,6 +22,10 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 import ru.ispras.microtesk.utils.FormatMarker;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,8 +47,17 @@ public final class IrInspector {
     db.createEntry("arch").set(Json.createArrayBuilder());
 
   public static void inspect(final Ir ir) {
-    final IrInspector inspector = new IrInspector();
-    inspector.inspectIr(ir);
+    try {
+      final IrInspector inspector = new IrInspector();
+      inspector.inspectIr(ir);
+      inspector.store(Files.newOutputStream(Paths.get("microft-db.json")));
+    } catch (final IOException e) {
+      // TODO
+    }
+  }
+
+  private void store(final OutputStream os) throws IOException {
+    this.db.write(os);
   }
 
   private void inspectIr(final Ir ir) {
