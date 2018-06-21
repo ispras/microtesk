@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.tools.microft;
 
+import ru.ispras.fortress.util.Pair;
+import ru.ispras.microft.service.json.JsonStorage;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -30,14 +32,40 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+import javax.json.*;
 
 /**
  * Class for model code coverage extraction from internal representation.
  */
 public final class IrInspector {
+  private final JsonStorage db = new JsonStorage();
+  private final JsonStorage.RefList arch =
+    db.createEntry("arch").set(Json.createArrayBuilder());
+
   public static void inspect(final Ir ir) {
+    final IrInspector inspector = new IrInspector();
+    inspector.inspectIr(ir);
+  }
+
+  private void inspectIr(final Ir ir) {
+    final JsonObjectBuilder builder = Json.createObjectBuilder();
+    builder.add("name", ir.getModelName());
+
+    arch.add(builder.build());
+
+    final JsonStorage.RefItem ref = lastEntryOf(arch).set(builder);
+    inspectInsns(ir, ref);
+  }
+
+  private static JsonStorage.Ref lastEntryOf(final JsonStorage.RefList list) {
+    JsonStorage.Ref last = null;
+    for (final JsonStorage.Ref ref : list) {
+      last = ref;
+    }
+    return last;
+  }
+
+  private void inspectInsns(final Ir ir, final JsonStorage.RefItem entry) {
     final Collection<List<PrimitiveAND>> operations =
       listOperations(ir.getRoots());
 
@@ -56,13 +84,29 @@ public final class IrInspector {
       }
     });
 
+    final TreeMap<String, Map<String, JsonValue>> payload = new TreeMap<>();
     for (final List<PrimitiveAND> insn : operations) {
       final Map<String, JsonValue> attrs = inspectInsn(insn, attributes);
-      System.out.println(nameOf(insn));
-      for (final Map.Entry<String, JsonValue> entry : attrs.entrySet()) {
-        System.out.printf("%s: %s%n", entry.getKey(), entry.getValue().toString());
+      payload.put(nameOf(insn), attrs);
+    }
+
+    final JsonStorage.RefList insns =
+      entry.createEntry("insn").set(Json.createArrayBuilder());
+    final List<JsonObject> index = new ArrayList<>();
+    for (final Map<String, JsonValue> attrs : payload.values()) {
+      final JsonObjectBuilder builder = Json.createObjectBuilder();
+      for (final Map.Entry<String, JsonValue> attr : attrs.entrySet()) {
+        builder.add(attr.getKey(), attr.getValue());
       }
-      System.out.println();
+      final JsonObject jsonInsn = builder.build();
+      insns.add(jsonInsn);
+      index.add(jsonInsn);
+    }
+
+    final IterablePair<JsonStorage.Ref, JsonObject> pairs =
+      IterablePair.create(insns, index);
+    for (final Pair<JsonStorage.Ref, JsonObject> pair : pairs) {
+      pair.first.set(pair.second);
     }
   }
 
