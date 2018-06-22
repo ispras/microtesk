@@ -14,11 +14,19 @@
 
 package ru.ispras.microtesk.tools.microft;
 
-import javax.json.Json;
-import javax.json.JsonString;
+import java.util.Map;
+import javax.json.*;
 
 public class JsonUtil {
   public static JsonString createString(final String s) {
     return Json.createArrayBuilder().add(s).build().getJsonString(0);
+  }
+
+  public static void addAll(
+      final JsonObjectBuilder builder,
+      final Map<String, ? extends JsonValue> map) {
+    for (final Map.Entry<String, ? extends JsonValue> entry : map.entrySet()) {
+      builder.add(entry.getKey(), entry.getValue());
+    }
   }
 }
