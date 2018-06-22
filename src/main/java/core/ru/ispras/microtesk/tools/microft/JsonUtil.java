@@ -22,6 +22,10 @@ public class JsonUtil {
     return Json.createArrayBuilder().add(s).build().getJsonString(0);
   }
 
+  public static JsonNumber createNumber(final int n) {
+    return Json.createArrayBuilder().add(n).build().getJsonNumber(0);
+  }
+
   public static void addAll(
       final JsonObjectBuilder builder,
       final Map<String, ? extends JsonValue> map) {
