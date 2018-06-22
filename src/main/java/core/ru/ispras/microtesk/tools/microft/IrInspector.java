@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -94,29 +95,29 @@ public final class IrInspector {
       }
     });
 
-    final TreeMap<String, Map<String, JsonValue>> payload = new TreeMap<>();
+    final JsonStorage.RefList insns = entry.createList("insn");
+    int index = 0;
     for (final List<PrimitiveAND> insn : operations) {
       final Map<String, JsonValue> attrs = inspectInsn(insn, attributes);
-      payload.put(nameOf(insn), attrs);
-    }
+      attrs.put("id", JsonUtil.createNumber(index++));
 
-    final JsonStorage.RefList insns = entry.createList("insn");
-    final List<JsonObject> index = new ArrayList<>();
-    for (final Map<String, JsonValue> attrs : payload.values()) {
       final JsonObjectBuilder builder = Json.createObjectBuilder();
-      for (final Map.Entry<String, JsonValue> attr : attrs.entrySet()) {
-        builder.add(attr.getKey(), attr.getValue());
-      }
-      final JsonObject jsonInsn = builder.build();
-      insns.add(jsonInsn);
-      index.add(jsonInsn);
-    }
+      JsonUtil.addAll(builder, select(attrs, "id", "name", "mnemonic"));
+      insns.add(builder.build());
 
-    final IterablePair<JsonStorage.Ref, JsonObject> pairs =
-      IterablePair.create(insns, index);
-    for (final Pair<JsonStorage.Ref, JsonObject> pair : pairs) {
-      pair.first.set(pair.second);
+      JsonUtil.addAll(builder, attrs);
+      insns.getLast().set(builder.build());
     }
+  }
+
+  private static <K, V> Map<K, V> select(final Map<? super K, ? extends V> source, final K... keys) {
+    final Map<K, V> target = new LinkedHashMap<>(keys.length);
+    for (final K key : keys) {
+      if (source.containsKey(key)) {
+        target.put(key, source.get(key));
+      }
+    }
+    return target;
   }
 
   private static Map<String, JsonValue> inspectInsn(
