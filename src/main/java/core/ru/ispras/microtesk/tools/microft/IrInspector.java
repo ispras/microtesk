@@ -87,6 +87,12 @@ public final class IrInspector {
         return JsonValue.NULL;
       }
     });
+    attributes.add(new Attribute("name") {
+      @Override
+      public JsonValue get(final List<PrimitiveAND> p, final Map<String, JsonValue> env) {
+        return JsonUtil.createString(p.get(0).getName());
+      }
+    });
 
     final TreeMap<String, Map<String, JsonValue>> payload = new TreeMap<>();
     for (final List<PrimitiveAND> insn : operations) {
