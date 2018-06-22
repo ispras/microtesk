@@ -43,8 +43,7 @@ import javax.json.*;
  */
 public final class IrInspector {
   private final JsonStorage db = new JsonStorage();
-  private final JsonStorage.RefList arch =
-    db.createEntry("arch").set(Json.createArrayBuilder());
+  private final JsonStorage.RefList arch = db.createList("arch");
 
   public static void inspect(final Ir ir) {
     try {
@@ -66,16 +65,8 @@ public final class IrInspector {
 
     arch.add(builder.build());
 
-    final JsonStorage.RefItem ref = lastEntryOf(arch).set(builder);
+    final JsonStorage.RefItem ref = arch.getLast().set(builder);
     inspectInsns(ir, ref);
-  }
-
-  private static JsonStorage.Ref lastEntryOf(final JsonStorage.RefList list) {
-    JsonStorage.Ref last = null;
-    for (final JsonStorage.Ref ref : list) {
-      last = ref;
-    }
-    return last;
   }
 
   private void inspectInsns(final Ir ir, final JsonStorage.RefItem entry) {
@@ -103,8 +94,7 @@ public final class IrInspector {
       payload.put(nameOf(insn), attrs);
     }
 
-    final JsonStorage.RefList insns =
-      entry.createEntry("insn").set(Json.createArrayBuilder());
+    final JsonStorage.RefList insns = entry.createList("insn");
     final List<JsonObject> index = new ArrayList<>();
     for (final Map<String, JsonValue> attrs : payload.values()) {
       final JsonObjectBuilder builder = Json.createObjectBuilder();

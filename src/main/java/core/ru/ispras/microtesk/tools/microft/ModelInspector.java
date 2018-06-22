@@ -41,7 +41,7 @@ public class ModelInspector {
     }
 
     final Iterator<? extends Model> it = models.values().iterator();
-    for (final JsonStorage.Ref ref : db.createEntry("arch").set(archIndex)) {
+    for (final JsonStorage.Ref ref : db.createList("arch").addAll(archIndex.build())) {
       inspectModel(it.next(), ref.getItem());
     }
   }
