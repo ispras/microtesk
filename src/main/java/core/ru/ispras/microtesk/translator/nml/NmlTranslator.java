@@ -50,6 +50,7 @@ import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveSyntesizer;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ReferenceDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.RootDetector;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
+import ru.ispras.microtesk.tools.microft.IrInspector;
 import ru.ispras.microtesk.utils.FileUtils;
 
 import java.util.ArrayDeque;
@@ -90,6 +91,8 @@ public final class NmlTranslator extends Translator<Ir> {
 
     // Generate WhyML code for the ISA
     addHandler(new WhymlGenerator(this));
+
+    addHandler(new IrInspector(this));
   }
 
   private void defineSymbolForInternalVariable(final LetConstant constant) {
