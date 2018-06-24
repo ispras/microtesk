@@ -16,6 +16,8 @@ package ru.ispras.microtesk.tools.microft;
 
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microft.service.json.JsonStorage;
+import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -25,6 +27,7 @@ import ru.ispras.microtesk.utils.FormatMarker;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -42,25 +45,40 @@ import javax.json.*;
 /**
  * Class for model code coverage extraction from internal representation.
  */
-public final class IrInspector {
+public final class IrInspector implements TranslatorHandler<Ir> {
   private final JsonStorage db = new JsonStorage();
   private final JsonStorage.RefList arch = db.createList("arch");
+  private final Translator<?> translator;
+
+  public IrInspector(final Translator<?> translator) {
+    this.translator = translator;
+  }
 
   public static void inspect(final Ir ir) {
+    final IrInspector inspector = new IrInspector(null);
+    inspector.processIr(ir);
+  }
+
+  private OutputStream newOutputStream(final String name) throws IOException {
+    final Path path;
+    if (translator != null) {
+      path = Paths.get(translator.getOutDir(), name + ".json");
+    } else {
+      path = Paths.get(name + ".json");
+    }
+    return Files.newOutputStream(path);
+  }
+
+  private void store(final String modelName) {
     try {
-      final IrInspector inspector = new IrInspector();
-      inspector.inspectIr(ir);
-      inspector.store(Files.newOutputStream(Paths.get("microft-db.json")));
+      this.db.write(newOutputStream(modelName));
     } catch (final IOException e) {
       // TODO
     }
   }
 
-  private void store(final OutputStream os) throws IOException {
-    this.db.write(os);
-  }
-
-  private void inspectIr(final Ir ir) {
+  @Override
+  public void processIr(final Ir ir) {
     final JsonObjectBuilder builder = Json.createObjectBuilder();
     builder.add("name", ir.getModelName());
 
@@ -68,6 +86,7 @@ public final class IrInspector {
 
     final JsonStorage.RefItem ref = arch.getLast().set(builder);
     inspectInsns(ir, ref);
+    store(ir.getModelName());
   }
 
   private void inspectInsns(final Ir ir, final JsonStorage.RefItem entry) {
