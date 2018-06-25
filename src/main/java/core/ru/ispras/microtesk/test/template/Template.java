@@ -33,6 +33,7 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.engine.EngineContext;
+import ru.ispras.microtesk.test.engine.allocator.AllocationData;
 import ru.ispras.microtesk.test.engine.allocator.Allocator;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorBuilder;
 import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
@@ -527,10 +528,11 @@ public final class Template {
       final List<Primitive> retain,
       final List<Primitive> exclude) {
     return new UnknownImmediateValue(
-        allocator,
-        getModeValues(where, retain),
-        getModeValues(where, exclude)
-        );
+        new AllocationData(
+            allocator,
+            getModeValues(where, retain),
+            getModeValues(where, exclude)
+        ));
   }
 
   private static List<Value> getModeValues(final Where where, final List<Primitive> modes) {

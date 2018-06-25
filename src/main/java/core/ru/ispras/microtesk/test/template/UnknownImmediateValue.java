@@ -19,13 +19,10 @@ import ru.ispras.fortress.randomizer.Randomizer;
 
 import ru.ispras.microtesk.model.data.Type;
 import ru.ispras.microtesk.model.data.TypeId;
-import ru.ispras.microtesk.test.engine.allocator.Allocator;
+import ru.ispras.microtesk.test.engine.allocator.AllocationData;
 import ru.ispras.microtesk.utils.SharedObject;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * The {@link UnknownImmediateValue} class describes an unknown immediate value to be specified as
@@ -42,24 +39,17 @@ import java.util.List;
  */
 public final class UnknownImmediateValue extends SharedObject<UnknownImmediateValue>
                                          implements Value {
-  private final Allocator allocator;
-  private final List<Value> retain;
-  private final List<Value> exclude;
+  private final AllocationData allocationData;
   private Type type;
   private BigInteger value;
   private BigInteger defaultValue;
 
   protected UnknownImmediateValue() {
-    this(null, null, null);
+    this(new AllocationData());
   }
 
-  protected UnknownImmediateValue(
-      final Allocator allocator,
-      final List<Value> retain,
-      final List<Value> exclude) {
-    this.allocator = allocator;
-    this.retain = retain;
-    this.exclude = exclude;
+  protected UnknownImmediateValue(final AllocationData allocationData) {
+    this.allocationData = allocationData;
     this.type = null;
     this.value = null;
     this.defaultValue = null;
@@ -68,44 +58,10 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
   protected UnknownImmediateValue(final UnknownImmediateValue other) {
     super(other);
 
-    this.allocator = other.allocator;
-    this.retain = copyValues(other.retain);
-    this.exclude = copyValues(other.exclude);
+    this.allocationData = new AllocationData(other.allocationData);
     this.type = other.type;
     this.value = other.value;
     this.defaultValue = other.defaultValue;
-  }
-
-  private static List<Value> copyValues(final List<Value> values) {
-    if (null == values) {
-      return null;
-    }
-
-    if (values.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    final List<Value> result = new ArrayList<>(values.size());
-    for (final Value value : values) {
-      if (value instanceof SharedObject) {
-        result.add((Value)((SharedObject<?>) value).getCopy());
-      } else {
-        result.add(value);
-      }
-    }
-    return result;
-  }
-
-  public Allocator getAllocator() {
-    return allocator;
-  }
-
-  public List<Value> getRetain() {
-    return retain;
-  }
-
-  public List<Value> getExclude() {
-    return exclude;
   }
 
   @Override
@@ -116,6 +72,10 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
   @Override
   public Value copy() {
     return newCopy();
+  }
+
+  public AllocationData getAllocationData() {
+    return allocationData;
   }
 
   public boolean isValueSet() {

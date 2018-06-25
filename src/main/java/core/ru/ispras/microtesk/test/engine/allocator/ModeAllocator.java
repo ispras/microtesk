@@ -232,11 +232,12 @@ public final class ModeAllocator {
         case IMM_UNKNOWN:
           final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
           if (primitive.getKind() == Primitive.Kind.MODE && !unknownValue.isValueSet()) {
+            final AllocationData allocationData = unknownValue.getAllocationData();
             final int value = allocate(
                 primitive.getName(),
-                unknownValue.getAllocator(),
-                unknownValue.getRetain(),
-                unknownValue.getExclude()
+                allocationData.getAllocator(),
+                allocationData.getRetain(),
+                allocationData.getExclude()
                 );
             unknownValue.setValue(BigInteger.valueOf(value));
           }
