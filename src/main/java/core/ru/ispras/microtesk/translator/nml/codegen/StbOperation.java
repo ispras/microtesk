@@ -110,29 +110,17 @@ final class StbOperation extends StbPrimitiveBase {
           Primitive.Kind.IMM == argType.getKind() ? argType.getName() : String.format("%s.INFO",
               argType.getName()));*/
 
-      final ST argCheckST;
       if (Primitive.Kind.MODE == argType.getKind()) {
         importModeDependencies(t);
         t.add("arg_types",
             argType.isOrRule() ? IsaPrimitive.class.getSimpleName() : argType.getName());
-
-        argCheckST = group.getInstanceOf("op_arg_check_opmode");
       } else if (Primitive.Kind.OP == argType.getKind()) {
         t.add( "arg_types",
             argType.isOrRule() ? IsaPrimitive.class.getSimpleName() : argType.getName());
-
-        argCheckST = group.getInstanceOf("op_arg_check_opmode");
       } else { // if Primitive.Kind.IMM == oa.getKind()
         importImmDependencies(t);
         t.add("arg_types", Immediate.class.getSimpleName());
-
-        argCheckST = group.getInstanceOf("op_arg_check_imm");
       }
-
-      argCheckST.add("arg_name", argName);
-      argCheckST.add("arg_type", argType.getName());
-
-      t.add("arg_checks", argCheckST);
     }
   }
 

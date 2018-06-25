@@ -159,14 +159,6 @@ op_arg_def(name, type) ::= <<
 public final <type> <name>;
 >>
 
-op_arg_check_opmode(arg_type, arg_name) ::= <<
-assert <arg_type>.INFO.isSupported(<arg_name>);
->>
-
-op_arg_check_imm(arg_type, arg_name) ::= <<
-assert <arg_type>.equals(<arg_name>.getType());
->>
-
 op_arg_init(name) ::= <<
 this.<name> = <name>;
 >>
