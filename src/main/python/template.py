@@ -115,41 +115,6 @@ class Template:
             
                 
         
-  # -------------------------------------------------------------------------- #
-  # Data Definition Facilities                                                 #
-  # -------------------------------------------------------------------------- #
-    
-    def data_config(self,attrs,contents = lambda : []):
-        if None != self.data_manager:
-            raise NameError('Data configuration is already defined')
-        
-        target = attrs.get('target')
-        
-        # Default value is 8 bits if other value is not explicitly specified
-        
-        if 'item_zise' in attrs:
-            addressableSize = attrs.get('item_size')
-        else:
-            addressableSize = 8
-        self.data_manager = DataManager(self, self.template.getDataManager())
-        self.data_manager.beginConfig(target,addressableSize)
-        contents()
-        return self.data_manager.endConfig()
-    
-    def data(self,attrs = {},contents = lambda : []):
-        if self.data_manager is None:
-            raise NameError('Data configuration is not defined')
-        
-        Global = attrs.get('global')
-        if Global is None:
-            Global = False
-            
-        separate_file = attrs.get('separate_file')
-        if separate_file is None:
-            separate_file = False
-        self.data_manager.beginData(Global,separate_file)
-        contents()
-        return self.data_manager.endData()
     
                 
             
@@ -795,7 +760,7 @@ def print_format(kind, format, *args):
     builder = globals.template.template.newOutput(kind, format)
     
     for arg in args:
-      if isinstance(arg,int) or isinstance(arg,basestring) or isinstance(arg,Value):
+      if isinstance(arg,long) or isinstance(arg,basestring) or isinstance(arg,Value):
         builder.addArgument(arg)
       elif isinstance(arg,Location):
         builder.addArgument(arg.name, BigInteger(str(arg.index)))
@@ -1008,6 +973,42 @@ def epilogue(contents = lambda : []):
     globals.template.template.beginEpilogue()
     contents()
     return globals.template.template.endEpilogue()
+
+# -------------------------------------------------------------------------- #
+# Data Definition Facilities                                                 #
+# -------------------------------------------------------------------------- #
+
+def data_config(attrs,contents = lambda : []):
+    if None != globals.template.data_manager:
+        raise NameError('Data configuration is already defined')
+    
+    target = attrs.get('target')
+    
+    # Default value is 8 bits if other value is not explicitly specified
+    
+    if 'item_zise' in attrs:
+        addressableSize = attrs.get('item_size')
+    else:
+        addressableSize = 8
+    globals.template.data_manager = DataManager(globals.template, globals.template.template.getDataManager())
+    globals.template.data_manager.beginConfig(target,addressableSize)
+    contents()
+    return globals.template.data_manager.endConfig()
+
+def data(attrs = {},contents = lambda : []):
+    if globals.template.data_manager is None:
+        raise NameError('Data configuration is not defined')
+    
+    Global = attrs.get('global')
+    if Global is None:
+        Global = False
+        
+    separate_file = attrs.get('separate_file')
+    if separate_file is None:
+        separate_file = False
+    globals.template.data_manager.beginData(Global,separate_file)
+    contents()
+    return globals.template.data_manager.endData()
   
     
     

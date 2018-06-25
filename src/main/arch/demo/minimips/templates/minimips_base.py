@@ -28,7 +28,7 @@ class MiniMipsBaseTemplate(Template):
     
     def pre(self):
         
-        self.data_config(
+        data_config(
             {'target' : 'M'},
             lambda : [
                 self.data_manager.define_type({'id' : 'byte', 'text' : '.byte', 'type' : self.data_manager.type('card',8)}),
@@ -61,7 +61,7 @@ class MiniMipsBaseTemplate(Template):
                    lambda : [
                         variant({'bias' : 25},
                                 lambda : [
-                                    self.data({},
+                                    data({},
                                             lambda: [ 
                                                 self.data_manager.org({'delta' : 0x10}),
                                                 self.data_manager.align(4),
@@ -310,6 +310,23 @@ def free_register(mode):
     return free_allocated_mode(mode)
 def free_all_registers():
     return free_all_allocated_modes(reg(u_()))
+
+def trace_data(begin_label, end_label):
+    begin_addr = get_address_of(begin_label)
+    end_addr = get_address_of(end_label)
+
+    count = (end_addr - begin_addr) / 4
+    begin_index = begin_addr / 4
+
+    trace("\nData starts: 0x%x", begin_addr)
+    trace("Data ends:   0x%x", end_addr)
+    trace("Data count:  %d", count)
+
+    trace("\nData values:")
+    for i in range(0,count):
+        word_index = begin_index + i
+        trace("M[0x%x]: %d", word_index, m(word_index))
+    trace("")
 
 
 
