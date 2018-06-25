@@ -84,7 +84,7 @@ def define_addressing_mode(mode):
         situations = kwargs.get('situations')
         
         if situations != None:
-            pass
+            builder.setSituation(situations())
         else:
             default_situation = globals.template.template.getDefaultSituation(name)
             if default_situation != None:
@@ -104,7 +104,7 @@ def define_addressing_mode_group(name):
         situations = kwargs.get('situations')
         
         if situations != None:
-            pass
+            builder.setSituation(situations())
         else:
             default_situation = globals.template.template.getDefaultSituation(group_name)
             if default_situation == None:
@@ -131,7 +131,7 @@ def define_operation(op):
         
         
         if situations != None:
-            pass
+            builder.setSituation(situations())
         else:
             default_situation = globals.template.template.getDefaultSituation(name)
             if default_situation != None:
@@ -167,7 +167,7 @@ def define_operation_group(group_name):
         
         
         if situations != None:
-            pass
+            builder.setSituation(situations())
         else:
             default_situation = globals.template.template.getDefaultSituation(group_name)
             if default_situation == None:
