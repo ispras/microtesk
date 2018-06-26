@@ -422,6 +422,10 @@ class Template
     @template.newLazyLabel
   end
 
+  # -------------------------------------------------------------------------- #
+  # Register Allocation Facilities                                             #
+  # -------------------------------------------------------------------------- #
+
   def mode_allocator(name, attrs = {})
     builder = @template.newAllocatorBuilder name
 
