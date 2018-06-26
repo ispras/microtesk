@@ -59,6 +59,7 @@ public final class AllocatorEngine {
 
   private AllocatorEngine(final AllocationSettings allocation) {
     InvariantChecks.checkNotNull(allocation);
+
     if (allocation != null) {
       for (final ModeSettings mode : allocation.getModes()) {
         final StrategySettings strategy = mode.getStrategy();
@@ -140,16 +141,17 @@ public final class AllocatorEngine {
 
       if (call.isExecutable()) {
         final Primitive primitive = call.getRootOperation();
-        allocateUninitializedModes(primitive);
+        allocateUninitializedModes(primitive, false);
       } else if (call.isPreparatorCall()) {
         final Primitive primitive = call.getPreparatorReference().getTarget();
-        allocateUninitializedModes(primitive);
+        allocateUninitializedModes(primitive, false);
       }
     }
   }
 
   private int allocate(
       final String mode,
+      final boolean isWrite,
       final Allocator allocator,
       final List<Value> retain,
       final List<Value> exclude) {
@@ -168,8 +170,9 @@ public final class AllocatorEngine {
       final Set<Integer> localExclude =
           null != exclude ? AllocatorUtils.toValueSet(exclude) : Collections.<Integer>emptySet();
 
-      final Set<Integer> unitedExclude =
-          CollectionUtils.uniteSets(globalExclude, localExclude);
+      // Global excludes apply only to writes.
+      final Set<Integer> unitedExclude = isWrite ?
+          CollectionUtils.uniteSets(globalExclude, localExclude) : localExclude;
 
       return unitedExclude.isEmpty()
           ? allocationTable.allocate()
@@ -221,7 +224,7 @@ public final class AllocatorEngine {
     }
   }
 
-  private void allocateUninitializedModes(final Primitive primitive) {
+  private void allocateUninitializedModes(final Primitive primitive, final boolean isWrite) {
     for (final Argument arg : primitive.getArguments().values()) {
       switch (arg.getKind()) {
         case IMM:
@@ -229,12 +232,14 @@ public final class AllocatorEngine {
         case IMM_LAZY:
         case LABEL:
           break;
+
         case IMM_UNKNOWN:
           final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
           if (primitive.getKind() == Primitive.Kind.MODE && !unknownValue.isValueSet()) {
             final AllocationData allocationData = unknownValue.getAllocationData();
             final int value = allocate(
                 primitive.getName(),
+                isWrite,
                 allocationData.getAllocator(),
                 allocationData.getRetain(),
                 allocationData.getExclude()
@@ -242,8 +247,9 @@ public final class AllocatorEngine {
             unknownValue.setValue(BigInteger.valueOf(value));
           }
           break;
+
         default:
-          allocateUninitializedModes((Primitive) arg.getValue());
+          allocateUninitializedModes((Primitive) arg.getValue(), arg.getMode().isOut());
           break;
       }
     }
@@ -274,8 +280,7 @@ public final class AllocatorEngine {
       if (arg.getValue() instanceof BigInteger) {
         final BigInteger value = (BigInteger) arg.getValue();
         allocationTable.free(value.intValue());
-      }
-      if (arg.getValue() instanceof UnknownImmediateValue) {
+      } else if (arg.getValue() instanceof UnknownImmediateValue) {
         final UnknownImmediateValue value = (UnknownImmediateValue) arg.getValue();
         if (value.isValueSet()) {
           allocationTable.free(value.getValue().intValue());
