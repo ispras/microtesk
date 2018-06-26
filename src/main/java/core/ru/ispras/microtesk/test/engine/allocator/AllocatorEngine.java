@@ -166,7 +166,7 @@ public final class AllocatorEngine {
           excluded.containsKey(mode) ? excluded.get(mode) : Collections.<Integer>emptySet();
 
       final Set<Integer> localExclude =
-          null != exclude ? toValueSet(exclude) : Collections.<Integer>emptySet();
+          null != exclude ? AllocatorUtils.toValueSet(exclude) : Collections.<Integer>emptySet();
 
       final Set<Integer> unitedExclude =
           CollectionUtils.uniteSets(globalExclude, localExclude);
@@ -285,16 +285,5 @@ public final class AllocatorEngine {
         allocationTable.free(value.intValue());
       }
     }
-  }
-
-  private static Set<Integer> toValueSet(final List<Value> values) {
-    InvariantChecks.checkNotNull(values);
-
-    final Set<Integer> result = new LinkedHashSet<>();
-    for (final Value value : values) {
-      result.add(value.getValue().intValue());
-    }
-
-    return result;
   }
 }

@@ -16,10 +16,7 @@ package ru.ispras.microtesk.test.engine.allocator;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Value;
-import ru.ispras.microtesk.utils.SharedObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -49,28 +46,8 @@ public final class AllocationData {
     InvariantChecks.checkNotNull(other);
 
     this.allocator = other.allocator;
-    this.retain = copyValues(other.retain);
-    this.exclude = copyValues(other.exclude);
-  }
-
-  private static List<Value> copyValues(final List<Value> values) {
-    if (null == values) {
-      return null;
-    }
-
-    if (values.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    final List<Value> result = new ArrayList<>(values.size());
-    for (final Value value : values) {
-      if (value instanceof SharedObject) {
-        result.add((Value)((SharedObject<?>) value).getCopy());
-      } else {
-        result.add(value);
-      }
-    }
-    return result;
+    this.retain = AllocatorUtils.copyValues(other.retain);
+    this.exclude = AllocatorUtils.copyValues(other.exclude);
   }
 
   public Allocator getAllocator() {
