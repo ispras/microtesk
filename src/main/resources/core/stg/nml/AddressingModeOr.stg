@@ -18,7 +18,7 @@ modeor(name, file, pack, imps, base, modes) ::= <<
 <header(file)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
-<class(["public", "abstract"], 
+<class(["public"],
        name,
        base,
        false,
@@ -26,6 +26,8 @@ modeor(name, file, pack, imps, base, modes) ::= <<
 >>
 
 body(name, modes) ::= <<
+private <name>() {}<\n>
+static {new <name>();}<\n>
 <class_string_const("String", "NAME", name)><\n>
 <class_const("IsaPrimitiveInfoOr", "INFO", new_mode_list(modes))> 
 >>

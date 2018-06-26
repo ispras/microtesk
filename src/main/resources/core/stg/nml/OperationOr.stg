@@ -18,7 +18,7 @@ op(name, file, pack, imps, base, ops) ::= <<
 <header(file)>
 <package(pack)>
 <if(imps)><imports(imps)><endif>
-<class(["public", "abstract"], 
+<class(["public"],
        name,
        base,
        false,
@@ -26,6 +26,8 @@ op(name, file, pack, imps, base, ops) ::= <<
 >>
 
 body(name, ops) ::= <<
+private <name>() {}<\n>
+static {new <name>();}<\n>
 <class_string_const("String", "NAME", name)><\n>
 <class_const("IsaPrimitiveInfoOr", "INFO", new_op_list(ops))>
 >>
