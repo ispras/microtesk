@@ -18,8 +18,10 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -41,35 +43,28 @@ class Entity {
   }
 
   public static Entity create(final List<PrimitiveAND> list) {
-    final List<PrimitiveAND> ordered = new ArrayList<>(list);
-    Collections.reverse(ordered);
-
     final Map<Entity, Map<String, Entity>> layout = new IdentityHashMap<>();
     final Map<Entity, Map<String, Entity>> shared =
       Collections.unmodifiableMap(layout);
     final Map<Entity, Map<String, Expr>> values = Collections.emptyMap();
 
-    for (int i = 0; i < ordered.size(); ++i) {
-      final PrimitiveAND p = ordered.get(i);
+    final Deque<Entity> created = new ArrayDeque<>();
+    for (final PrimitiveAND p : list) {
       final Map<String, Entity> args = new HashMap<>();
 
       for (final Map.Entry<String, Primitive> param : p.getArguments().entrySet()) {
         final Primitive child = param.getValue();
 
-        PrimitiveAND arg = null;
         if (child.isOrRule() && child.getKind() == Primitive.Kind.OP) {
-          arg = ordered.get(i + 1);
+          args.put(param.getKey(), created.peekLast());
         } else if (!child.isOrRule()) {
-          arg = (PrimitiveAND) child;
-        }
-        if (arg != null) {
-          args.put(param.getKey(), new Entity(arg, shared, values));
+          args.put(param.getKey(), new Entity((PrimitiveAND) child, shared, values));
         }
       }
-      // FIXME reuse existing entities
       final Entity e = new Entity(p, shared, values);
-      layout.put(e, args);
+      layout.put(e, Collections.unmodifiableMap(args));
+      created.push(e);
     }
-    return null;
+    return created.peekLast();
   }
 }
