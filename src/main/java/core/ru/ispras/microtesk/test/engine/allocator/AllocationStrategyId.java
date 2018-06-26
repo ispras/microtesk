@@ -79,7 +79,12 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
-      return !used.isEmpty() ? Randomizer.get().choose(used) : null;
+      final Collection<T> array = new LinkedHashSet<>(domain);
+
+      array.removeAll(exclude);
+      array.retainAll(used);
+
+      return !array.isEmpty() ? Randomizer.get().choose(array) : null;
     }
 
     @Override
@@ -121,10 +126,11 @@ public enum AllocationStrategyId implements AllocationStrategy {
     private static final String ATTR_USED_BIAS = "used-bias";
 
     private final <T> AllocationStrategy getAllocationStrategy(
+        final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
 
-      if (used.isEmpty()) {
+      if (used.isEmpty() || exclude.containsAll(used)) {
         return FREE;
       }
 
@@ -152,7 +158,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
-      final AllocationStrategy strategy = getAllocationStrategy(used, attributes);
+      final AllocationStrategy strategy = getAllocationStrategy(exclude, used, attributes);
       return strategy.next(domain, exclude, used, attributes);
     }
 
@@ -162,7 +168,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Collection<T> exclude,
         final Collection<T> used,
         final Map<String, String> attributes) {
-      final AllocationStrategy strategy = getAllocationStrategy(used, attributes);
+      final AllocationStrategy strategy = getAllocationStrategy(exclude, used, attributes);
       return strategy.next(supplier, exclude, used, attributes);
     }
   };
