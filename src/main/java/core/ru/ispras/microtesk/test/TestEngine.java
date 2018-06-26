@@ -35,7 +35,7 @@ import ru.ispras.microtesk.settings.ExtensionSettings;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.SettingsParser;
 import ru.ispras.microtesk.test.engine.EngineContext;
-import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
+import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 import ru.ispras.microtesk.utils.FileUtils;
@@ -91,7 +91,7 @@ public final class TestEngine {
     final AllocationSettings allocation = settings.getAllocation();
 
     if (allocation != null) {
-      ModeAllocator.init(allocation);
+      AllocatorEngine.init(allocation);
     }
   }
 

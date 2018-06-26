@@ -19,7 +19,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.Statistics;
-import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
+import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
 import ru.ispras.microtesk.test.engine.branch.BranchEngine;
 import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
 import ru.ispras.microtesk.test.sequence.GeneratorConfig;
@@ -289,9 +289,9 @@ public final class SequenceProcessor {
   private static void allocateModes(
       final List<AbstractCall> abstractSequence,
       final boolean markExplicitAsUsed) {
-    final ModeAllocator modeAllocator = ModeAllocator.get();
-    if (null != modeAllocator) {
-      modeAllocator.allocate(abstractSequence, markExplicitAsUsed);
+    final AllocatorEngine allocatorEngine = AllocatorEngine.get();
+    if (null != allocatorEngine) {
+      allocatorEngine.allocate(abstractSequence, markExplicitAsUsed);
     }
   }
 

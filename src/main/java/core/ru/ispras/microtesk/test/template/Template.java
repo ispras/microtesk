@@ -36,7 +36,7 @@ import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.allocator.AllocationData;
 import ru.ispras.microtesk.test.engine.allocator.Allocator;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorBuilder;
-import ru.ispras.microtesk.test.engine.allocator.ModeAllocator;
+import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
 import ru.ispras.microtesk.utils.StringUtils;
 
 import java.math.BigInteger;
@@ -832,8 +832,8 @@ public final class Template {
         startLabelName, dataSource.getName(), indexSource.getName(), length);
 
     // Stream registers are excluded from random selection.
-    ModeAllocator.get().exclude(dataSource);
-    ModeAllocator.get().exclude(indexSource);
+    AllocatorEngine.get().exclude(dataSource);
+    AllocatorEngine.get().exclude(indexSource);
 
     streams.addStream(
         Label.newLabel(startLabelName, getCurrentBlockId()),

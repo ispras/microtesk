@@ -39,25 +39,25 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * {@code ModeAllocator} allocates addressing modes for a given abstract sequence.
+ * {@code AllocatorEngine} allocates addressing modes for a given abstract sequence.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class ModeAllocator {
-  private static ModeAllocator instance = null;
+public final class AllocatorEngine {
+  private static AllocatorEngine instance = null;
 
   public static void init(final AllocationSettings allocation) {
-    instance = new ModeAllocator(allocation);
+    instance = new AllocatorEngine(allocation);
   }
 
-  public static ModeAllocator get() {
+  public static AllocatorEngine get() {
     return instance;
   }
 
   private final Map<String, AllocationTable<Integer, ?>> allocationTables = new HashMap<>();
   private final Map<String, Set<Integer>> excluded = new HashMap<>();
 
-  private ModeAllocator(final AllocationSettings allocation) {
+  private AllocatorEngine(final AllocationSettings allocation) {
     InvariantChecks.checkNotNull(allocation);
     if (allocation != null) {
       for (final ModeSettings mode : allocation.getModes()) {
