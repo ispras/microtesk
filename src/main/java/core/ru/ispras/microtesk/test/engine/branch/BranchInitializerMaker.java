@@ -20,6 +20,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.EngineUtils;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
@@ -141,7 +142,10 @@ public final class BranchInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(situation);
 
-    Logger.setDebug(true);
+    final boolean isDebug = Logger.isDebug();
+    Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG) &&
+                    engineContext.getOptions().getValueAsBoolean(Option.VERBOSE));
+    try {
 
     final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
     InvariantChecks.checkNotNull(branchEntry);
@@ -211,6 +215,9 @@ public final class BranchInitializerMaker implements InitializerMaker {
     } // Stream based.
 
     return Collections.<AbstractCall>emptyList();
+    } finally {
+      Logger.setDebug(isDebug);
+    }
   }
 
   private List<AbstractCall> makeInitializer(
