@@ -85,11 +85,11 @@ public final class AllocatorEngine {
     }
   }
 
-  public void exclude(final Primitive mode) {
-    InvariantChecks.checkNotNull(mode);
+  public void exclude(final Primitive primitive) {
+    InvariantChecks.checkNotNull(primitive);
 
-    final String name = mode.getName();
-    if (mode.getKind() != Primitive.Kind.MODE) {
+    final String name = primitive.getName();
+    if (!isAddressingMode(primitive)) {
       throw new GenerationAbortedException(name + " is not an addressing mode.");
     }
 
@@ -101,7 +101,7 @@ public final class AllocatorEngine {
       excluded.put(name, excludedValues);
     }
 
-    for (final Argument arg : mode.getArguments().values()) {
+    for (final Argument arg : primitive.getArguments().values()) {
       final BigInteger value;
       if (arg.getValue() instanceof BigInteger) {
         value = (BigInteger) arg.getValue();
@@ -254,8 +254,7 @@ public final class AllocatorEngine {
   private void freeInitializedMode(final Primitive primitive, final boolean isFreeAll) {
     InvariantChecks.checkTrue(isAddressingMode(primitive));
 
-    final String mode = primitive.getName();
-    final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
+    final AllocationTable<Integer, ?> allocationTable = allocationTables.get(primitive.getName());
     InvariantChecks.checkNotNull(allocationTable);
 
     if (isFreeAll) {
@@ -264,16 +263,16 @@ public final class AllocatorEngine {
     }
 
     for (final Argument arg : primitive.getArguments().values()) {
-      if (arg.getValue() instanceof BigInteger) {
-        final BigInteger value = (BigInteger) arg.getValue();
-        allocationTable.free(value.intValue());
-      } else if (arg.getValue() instanceof UnknownImmediateValue) {
+      if (arg.getValue() instanceof UnknownImmediateValue) {
         final UnknownImmediateValue value = (UnknownImmediateValue) arg.getValue();
         if (value.isValueSet()) {
           allocationTable.free(value.getValue().intValue());
         }
       } else if (arg.getValue() instanceof Value) {
         final BigInteger value = ((Value) arg.getValue()).getValue();
+        allocationTable.free(value.intValue());
+      } else if (arg.getValue() instanceof BigInteger) {
+        final BigInteger value = (BigInteger) arg.getValue();
         allocationTable.free(value.intValue());
       }
     }
