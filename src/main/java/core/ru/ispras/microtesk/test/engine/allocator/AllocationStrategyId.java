@@ -29,6 +29,7 @@ import java.util.Map;
  * {@link AllocationStrategyId} defines some resource allocation strategies.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public enum AllocationStrategyId implements AllocationStrategy {
   /** Always returns a free object (throws an exception if all the objects are in use). */
@@ -170,6 +171,43 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Map<String, String> attributes) {
       final AllocationStrategy strategy = getAllocationStrategy(exclude, used, attributes);
       return strategy.next(supplier, exclude, used, attributes);
+    }
+  },
+
+  /** Returns a randomly chosen object (independently of other used/free objects). */
+  ANY() {
+    @Override
+    public <T> T next(
+        final Collection<T> domain,
+        final Collection<T> exclude,
+        final Collection<T> used,
+        final Map<String, String> attributes) {
+      final Collection<T> array = new LinkedHashSet<>(domain);
+      array.removeAll(exclude);
+      return !array.isEmpty() ? Randomizer.get().choose(array) : null;
+    }
+
+    @Override
+    public <T> T next(
+        final Supplier<T> supplier,
+        final Collection<T> exclude,
+        final Collection<T> used,
+        final Map<String, String> attributes) {
+      final int N = 5;
+
+      for (int i = 0; i < N; i++) {
+        final T object = supplier.get();
+
+        if (object == null) {
+          return null;
+        }
+
+        if (!exclude.contains(object)) {
+          return object;
+        }
+      }
+
+      return null;
     }
   };
 }
