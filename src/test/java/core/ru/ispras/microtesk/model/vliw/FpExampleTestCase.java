@@ -27,6 +27,6 @@ public class FpExampleTestCase extends VliwTest {
 
     Assert.assertEquals(1,  statistics.getPrograms());
     Assert.assertEquals(1,  statistics.getSequences());
-    Assert.assertEquals(15, statistics.getInstructions());
+    Assert.assertEquals(13, statistics.getInstructions());
   }
 }

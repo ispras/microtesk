@@ -27,6 +27,6 @@ public class RandomRegistersTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1,   statistics.getPrograms());
     Assert.assertEquals(9,   statistics.getSequences());
-    Assert.assertEquals(124, statistics.getInstructions());
+    Assert.assertEquals(115, statistics.getInstructions());
   }
 }
