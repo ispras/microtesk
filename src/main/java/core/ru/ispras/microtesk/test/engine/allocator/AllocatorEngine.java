@@ -133,7 +133,7 @@ public final class AllocatorEngine {
         allocateUninitializedModes(primitive, false);
       } else if (call.isPreparatorCall()) {
         final Primitive primitive = call.getPreparatorReference().getTarget();
-        allocateUninitializedModes(primitive, false);
+        allocateUninitializedModes(primitive, true);
       }
     }
   }
