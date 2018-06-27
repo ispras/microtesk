@@ -132,8 +132,7 @@ public final class Argument {
   }
 
   public String getTypeName() {
-    return isImmediate()
-        ? Immediate.TYPE_NAME : ((Primitive) value).getTypeName();
+    return isImmediate() ? Immediate.TYPE_NAME : ((Primitive) value).getTypeName();
   }
 
   public ArgumentMode getMode() {
