@@ -23,12 +23,8 @@ import ru.ispras.microtesk.settings.StrategySettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
-import ru.ispras.microtesk.test.template.LabelValue;
-import ru.ispras.microtesk.test.template.LazyValue;
 import ru.ispras.microtesk.test.template.Primitive;
-import ru.ispras.microtesk.test.template.RandomValue;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
-import ru.ispras.microtesk.test.template.Value;
 
 import java.math.BigInteger;
 import java.util.Collections;
@@ -102,14 +98,7 @@ public final class AllocatorEngine {
     }
 
     for (final Argument arg : primitive.getArguments().values()) {
-      final BigInteger value;
-      if (arg.getValue() instanceof BigInteger) {
-        value = (BigInteger) arg.getValue();
-      } else if (arg.getValue() instanceof Value) {
-        value = ((Value) arg.getValue()).getValue();
-      } else {
-        throw new IllegalArgumentException("Illegal argument type: " + arg);
-      }
+      final BigInteger value = arg.getImmediateValue();
       excludedValues.add(value.intValue());
     }
   }
@@ -185,44 +174,28 @@ public final class AllocatorEngine {
 
   private void useInitializedModes(final Primitive primitive) {
     for (final Argument arg : primitive.getArguments().values()) {
-      if (arg.getValue() instanceof Primitive) {
+      if (isPrimitive(arg)) {
         useInitializedModes((Primitive) arg.getValue());
         continue;
       }
 
-      if (!isAddressingMode(primitive)) {
-        continue;
-      }
-
-      if (arg.getValue() instanceof UnknownImmediateValue) {
-        final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
-        if (unknownValue.isValueSet()) {
-          use(primitive.getName(), unknownValue.getValue());
-        }
-      } else if (arg.getValue() instanceof Value) {
-        use(primitive.getName(), ((Value) arg.getValue()).getValue());
-      } else if (arg.getValue() instanceof BigInteger) {
-        use(primitive.getName(), (BigInteger) arg.getValue());
-      } else {
-        throw new IllegalArgumentException("Illegal argument type: " + arg);
+      if (isFixedImmediateValue(arg) && isAddressingMode(primitive)) {
+        use(primitive.getName(), arg.getImmediateValue());
       }
     }
   }
 
   private void allocateUninitializedModes(final Primitive primitive, final boolean isWrite) {
     for (final Argument arg : primitive.getArguments().values()) {
-      if (arg.getValue() instanceof Primitive) {
+      if (isPrimitive(arg)) {
         allocateUninitializedModes((Primitive) arg.getValue(), arg.getMode().isOut());
         continue;
       }
 
-      if (isAddressingMode(primitive) && arg.getValue() instanceof UnknownImmediateValue) {
+      if (isUnknownImmediateValue(arg) && isAddressingMode(primitive)) {
         final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
-        if (!unknownValue.isValueSet()) {
-          final AllocationData allocationData = unknownValue.getAllocationData();
-          final int value = allocate(primitive.getName(), isWrite, allocationData);
-          unknownValue.setValue(BigInteger.valueOf(value));
-        }
+        final int value = allocate(primitive.getName(), isWrite, unknownValue.getAllocationData());
+        unknownValue.setValue(BigInteger.valueOf(value));
       }
     }
   }
@@ -247,17 +220,8 @@ public final class AllocatorEngine {
     }
 
     for (final Argument arg : primitive.getArguments().values()) {
-      if (arg.getValue() instanceof UnknownImmediateValue) {
-        final UnknownImmediateValue value = (UnknownImmediateValue) arg.getValue();
-        if (value.isValueSet()) {
-          allocationTable.free(value.getValue().intValue());
-        }
-      } else if (arg.getValue() instanceof Value) {
-        final BigInteger value = ((Value) arg.getValue()).getValue();
-        allocationTable.free(value.intValue());
-      } else if (arg.getValue() instanceof BigInteger) {
-        final BigInteger value = (BigInteger) arg.getValue();
-        allocationTable.free(value.intValue());
+      if (isFixedImmediateValue(arg)) {
+        allocationTable.free(arg.getImmediateValue().intValue());
       }
     }
   }
@@ -265,5 +229,33 @@ public final class AllocatorEngine {
   private static boolean isAddressingMode(final Primitive primitive) {
     InvariantChecks.checkNotNull(primitive);
     return Primitive.Kind.MODE == primitive.getKind();
+  }
+
+  private static boolean isPrimitive(final Argument argument) {
+    return argument.getValue() instanceof Primitive;
+  }
+
+  private static boolean isFixedImmediateValue(final Argument argument) {
+    if (!argument.isImmediate()) {
+      return false;
+    }
+
+    if (argument.getValue() instanceof UnknownImmediateValue) {
+      return ((UnknownImmediateValue) argument.getValue()).isValueSet();
+    }
+
+    return true;
+  }
+
+  private static boolean isUnknownImmediateValue(final Argument argument) {
+    if (!argument.isImmediate()) {
+      return false;
+    }
+
+    if (argument.getValue() instanceof UnknownImmediateValue) {
+      return !((UnknownImmediateValue) argument.getValue()).isValueSet();
+    }
+
+    return false;
   }
 }
