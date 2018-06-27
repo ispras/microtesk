@@ -49,9 +49,9 @@ class RandomRegisterTemplate < MiniMipsBaseTemplate
 
     # Dependency in form of common register objects.
     sequence(:obfuscator => 'random') {
-      add x=reg(_),  reg(_), reg(_)
-      sub reg(_),    x,      reg(_)
-      slt reg(_),    reg(_), x
+      add x=reg(_), reg(_), reg(_)
+      sub reg(_),   x,      reg(_)
+      slt reg(_),   reg(_), x
     }.run 3
 
     # Dependency in form of common register numbers.

@@ -185,42 +185,26 @@ public final class AllocatorEngine {
 
   private void useInitializedModes(final Primitive primitive) {
     for (final Argument arg : primitive.getArguments().values()) {
-      switch (arg.getKind()) {
-        case IMM:
-          final BigInteger integer = (BigInteger) arg.getValue();
-          if (primitive.getKind() == Primitive.Kind.MODE) {
-            use(primitive.getName(), integer);
-          }
-          break;
-        case IMM_RANDOM:
-          final RandomValue randomValue = (RandomValue) arg.getValue();
-          if (primitive.getKind() == Primitive.Kind.MODE) {
-            use(primitive.getName(), randomValue.getValue());
-          }
-          break;
-        case IMM_UNKNOWN:
-          final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
-          if (primitive.getKind() == Primitive.Kind.MODE && unknownValue.isValueSet()) {
-            use(primitive.getName(), unknownValue.getValue());
-          }
-          break;
-        case IMM_LAZY:
-          final LazyValue lazyValue = (LazyValue) arg.getValue();
-          if (primitive.getKind() == Primitive.Kind.MODE) {
-            use(primitive.getName(), lazyValue.getValue());
-          }
-          break;
+      if (arg.getValue() instanceof Primitive) {
+        useInitializedModes((Primitive) arg.getValue());
+        continue;
+      }
 
-        case LABEL:
-          final LabelValue labelValue = (LabelValue) arg.getValue();
-          if (primitive.getKind() == Primitive.Kind.MODE) {
-            use(primitive.getName(), labelValue.getValue());
-          }
-          break;
+      if (!isAddressingMode(primitive)) {
+        continue;
+      }
 
-        default:
-          useInitializedModes((Primitive) arg.getValue());
-          break;
+      if (arg.getValue() instanceof UnknownImmediateValue) {
+        final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
+        if (unknownValue.isValueSet()) {
+          use(primitive.getName(), unknownValue.getValue());
+        }
+      } else if (arg.getValue() instanceof Value) {
+        use(primitive.getName(), ((Value) arg.getValue()).getValue());
+      } else if (arg.getValue() instanceof BigInteger) {
+        use(primitive.getName(), (BigInteger) arg.getValue());
+      } else {
+        throw new IllegalArgumentException("Illegal argument type: " + arg);
       }
     }
   }
