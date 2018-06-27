@@ -152,23 +152,24 @@ public final class AllocatorEngine {
   private int allocate(
       final String mode,
       final boolean isWrite,
-      final Allocator allocator,
-      final List<Value> retain,
-      final List<Value> exclude) {
+      final AllocationData allocationData) {
+    InvariantChecks.checkNotNull(mode);
+    InvariantChecks.checkNotNull(allocationData);
+
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
     InvariantChecks.checkNotNull(allocationTable);
 
     final Allocator defaultAllocator = allocationTable.getAllocator();
     try {
-      if (null != allocator) {
-        allocationTable.setAllocator(allocator);
+      if (null != allocationData.getAllocator()) {
+        allocationTable.setAllocator(allocationData.getAllocator());
       }
 
-      final Set<Integer> globalExclude =
-          excluded.containsKey(mode) ? excluded.get(mode) : Collections.<Integer>emptySet();
+      final Set<Integer> globalExclude = excluded.containsKey(mode) ?
+          excluded.get(mode) : Collections.<Integer>emptySet();
 
-      final Set<Integer> localExclude =
-          null != exclude ? AllocatorUtils.toValueSet(exclude) : Collections.<Integer>emptySet();
+      final Set<Integer> localExclude = null != allocationData.getExclude() ?
+          AllocatorUtils.toValueSet(allocationData.getExclude()) : Collections.<Integer>emptySet();
 
       // Global excludes apply only to writes.
       final Set<Integer> unitedExclude = isWrite ?
@@ -226,31 +227,18 @@ public final class AllocatorEngine {
 
   private void allocateUninitializedModes(final Primitive primitive, final boolean isWrite) {
     for (final Argument arg : primitive.getArguments().values()) {
-      switch (arg.getKind()) {
-        case IMM:
-        case IMM_RANDOM:
-        case IMM_LAZY:
-        case LABEL:
-          break;
+      if (arg.getValue() instanceof Primitive) {
+        allocateUninitializedModes((Primitive) arg.getValue(), arg.getMode().isOut());
+        continue;
+      }
 
-        case IMM_UNKNOWN:
-          final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
-          if (primitive.getKind() == Primitive.Kind.MODE && !unknownValue.isValueSet()) {
-            final AllocationData allocationData = unknownValue.getAllocationData();
-            final int value = allocate(
-                primitive.getName(),
-                isWrite,
-                allocationData.getAllocator(),
-                allocationData.getRetain(),
-                allocationData.getExclude()
-                );
-            unknownValue.setValue(BigInteger.valueOf(value));
-          }
-          break;
-
-        default:
-          allocateUninitializedModes((Primitive) arg.getValue(), arg.getMode().isOut());
-          break;
+      if (isAddressingMode(primitive) && arg.getValue() instanceof UnknownImmediateValue) {
+        final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
+        if (!unknownValue.isValueSet()) {
+          final AllocationData allocationData = unknownValue.getAllocationData();
+          final int value = allocate(primitive.getName(), isWrite, allocationData);
+          unknownValue.setValue(BigInteger.valueOf(value));
+        }
       }
     }
   }
@@ -264,8 +252,7 @@ public final class AllocatorEngine {
   }
 
   private void freeInitializedMode(final Primitive primitive, final boolean isFreeAll) {
-    InvariantChecks.checkNotNull(primitive);
-    InvariantChecks.checkTrue(primitive.getKind() == Primitive.Kind.MODE);
+    InvariantChecks.checkTrue(isAddressingMode(primitive));
 
     final String mode = primitive.getName();
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
@@ -290,5 +277,10 @@ public final class AllocatorEngine {
         allocationTable.free(value.intValue());
       }
     }
+  }
+
+  private static boolean isAddressingMode(final Primitive primitive) {
+    InvariantChecks.checkNotNull(primitive);
+    return Primitive.Kind.MODE == primitive.getKind();
   }
 }
