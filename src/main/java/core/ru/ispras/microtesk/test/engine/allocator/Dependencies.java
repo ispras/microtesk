@@ -46,40 +46,40 @@ final class Dependencies {
   public void init(final List<AbstractCall> sequence) {
     InvariantChecks.checkNotNull(sequence);
 
-    final Map<Primitive, Integer> dependencyMap = new IdentityHashMap<>();
+    final Map<Primitive, Integer> referenceMap = new IdentityHashMap<>();
     for (final AbstractCall call : sequence) {
       if (call.isExecutable()) {
         final Primitive primitive = call.getRootOperation();
-        countDependencies(dependencyMap, primitive, false);
+        countReferences(referenceMap, primitive, false);
       } else if (call.isPreparatorCall()) {
         final Primitive primitive = call.getPreparatorReference().getTarget();
-        countDependencies(dependencyMap, primitive, true);
+        countReferences(referenceMap, primitive, true);
       }
     }
 
     reset();
-    for (final Map.Entry<Primitive, Integer> entry : dependencyMap.entrySet()) {
+    for (final Map.Entry<Primitive, Integer> entry : referenceMap.entrySet()) {
       if (entry.getValue() > 0) {
         dependencies.put(entry.getKey(), entry.getValue());
       }
     }
   }
 
-  private static void countDependencies(
-      final Map<Primitive, Integer> dependencies,
+  private static void countReferences(
+      final Map<Primitive, Integer> referenceMap,
       final Primitive primitive,
       final boolean isWrite) {
     if (AllocatorUtils.isAddressingMode(primitive)) {
-      if (dependencies.containsKey(primitive)) {
-        final int count = dependencies.get(primitive);
-        dependencies.put(primitive, count + 1);
+      if (referenceMap.containsKey(primitive)) {
+        final int count = referenceMap.get(primitive);
+        referenceMap.put(primitive, count + 1);
       } else if (isWrite) {
-        dependencies.put(primitive, 0);
+        referenceMap.put(primitive, 0);
       }
     } else {
       for (final Argument arg : primitive.getArguments().values()) {
         if (AllocatorUtils.isPrimitive(arg)) {
-          countDependencies(dependencies, (Primitive) arg.getValue(), arg.getMode().isOut());
+          countReferences(referenceMap, (Primitive) arg.getValue(), arg.getMode().isOut());
         }
       }
     }
@@ -89,7 +89,7 @@ final class Dependencies {
     return dependencies.containsKey(primitive);
   }
 
-  public int countFor(final Primitive primitive) {
+  public int getReferenceCount(final Primitive primitive) {
     final Integer count = dependencies.get(primitive);
     InvariantChecks.checkNotNull(count);
     return count;
