@@ -127,35 +127,35 @@ class BranchGenerationTemplate < MiniMipsBaseTemplate
         bgez s0, :label0 do
           situation('bgez-if-then', :engine => :branch, :stream => 'branch_data_0')
         end
-        addiu reg1=get_register, reg1, 1 # reg1 is a random unreserved register
+        addiu reg1=reg(_ FREE), reg1, 1 # reg1 is a random unreserved register
 
       label :label1
         nop  # A basic block should not modify the registers used in the branches
         bgtz s1, :label1 do
           situation('bgtz-if-then', :engine => :branch, :stream => 'branch_data_1')
         end
-        ori reg2=get_register, reg2, 2 # reg2 is a random unreserved register
+        ori reg2=reg(_ FREE), reg2, 2 # reg2 is a random unreserved register
 
       label :label2
         nop
         blez s2, :label2 do
           situation('blez-if-then', :engine => :branch, :stream => 'branch_data_2')
         end
-        addiu reg3=get_register, reg3, 3 # reg3 is a random unreserved register
+        addiu reg3=reg(_ FREE), reg3, 3 # reg3 is a random unreserved register
 
       label :label3
         nop
         bltz s3, :label5 do
           situation('bltz-if-then', :engine => :branch, :stream => 'branch_data_3')
         end
-        ori reg4=get_register, reg4, 4 # reg4 is a random unreserved register
+        ori reg4=reg(_ FREE), reg4, 4 # reg4 is a random unreserved register
 
       label :label4
         nop
         j :label0 do
           situation('b-goto', :engine => :branch)
         end
-        addiu reg5=get_register, reg5, 5 # reg5 is a random unreserved register
+        addiu reg5=reg(_ FREE), reg5, 5 # reg5 is a random unreserved register
 
       label :label5
         nop

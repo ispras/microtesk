@@ -34,18 +34,18 @@ class AlignedCallsTemplate < MiniMipsBaseTemplate
 
   def run
     align 4
-    add reg(_), get_register, get_register
-    sub reg(_), get_register, get_register
+    add reg(_), reg(_ FREE), reg(_ FREE)
+    sub reg(_), reg(_ FREE), reg(_ FREE)
     nop
 
     align 8
-    add reg(_), get_register, get_register
-    sub reg(_), get_register, get_register
+    add reg(_), reg(_ FREE), reg(_ FREE)
+    sub reg(_), reg(_ FREE), reg(_ FREE)
     nop
 
     align 16
-    add reg(_), get_register, get_register
-    sub reg(_), get_register, get_register
+    add reg(_), reg(_ FREE), reg(_ FREE)
+    sub reg(_), reg(_ FREE), reg(_ FREE)
     nop
   end
 end

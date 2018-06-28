@@ -242,18 +242,6 @@ class X86BaseTemplate < Template
   def trace_data(begin_label, end_label)
   end
 
-  ##################################################################################################
-  # Utility method to specify a random register that is not used in the current test case.
-  ##################################################################################################
-
-  def get_register(attrs = {})
-    if nil == @free_register_allocator
-      @free_register_allocator = mode_allocator('FREE')
-    end
-
-    r16(_ @free_register_allocator, attrs)
-  end
-
   ###################################################################################################
   # Utility method to remove the specified addressing mode from the list of used registers.
   ###################################################################################################
