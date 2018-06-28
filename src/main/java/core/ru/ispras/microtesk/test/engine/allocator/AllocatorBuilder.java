@@ -33,6 +33,10 @@ public final class AllocatorBuilder {
     this.attributes = null;
   }
 
+  public static AllocatorBuilder newInstance(final String strategy) {
+    return new AllocatorBuilder(strategy);
+  }
+
   public void setAttribute(final String name, final String value) {
     if (null == attributes) {
       attributes = new HashMap<>();
