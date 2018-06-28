@@ -15,6 +15,9 @@
 package ru.ispras.microtesk.test.engine.allocator;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.template.Argument;
+import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.test.template.Value;
 import ru.ispras.microtesk.utils.SharedObject;
 
@@ -57,5 +60,37 @@ final class AllocatorUtils {
     }
 
     return result;
+  }
+
+  public static boolean isAddressingMode(final Primitive primitive) {
+    return Primitive.Kind.MODE == primitive.getKind();
+  }
+
+  public static boolean isPrimitive(final Argument argument) {
+    return argument.getValue() instanceof Primitive;
+  }
+
+  public static boolean isFixedValue(final Argument argument) {
+    if (!argument.isImmediate()) {
+      return false;
+    }
+
+    if (argument.getValue() instanceof UnknownImmediateValue) {
+      return ((UnknownImmediateValue) argument.getValue()).isValueSet();
+    }
+
+    return true;
+  }
+
+  public static boolean isUnknownValue(final Argument argument) {
+    if (!argument.isImmediate()) {
+      return false;
+    }
+
+    if (argument.getValue() instanceof UnknownImmediateValue) {
+      return !((UnknownImmediateValue) argument.getValue()).isValueSet();
+    }
+
+    return false;
   }
 }
