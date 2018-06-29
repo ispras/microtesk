@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.engine;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.ConcreteSequence;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
@@ -280,18 +281,21 @@ public final class SequenceProcessor {
     final List<AbstractCall> calls = AbstractCall.copyAll(
         AbstractCall.expandAtomic(abstractSequence.getSequence()));
 
-    allocateModes(calls, engineContext.getOptions().getValueAsBoolean(Option.RESERVE_EXPLICIT));
+    allocateRegisters(calls, engineContext.getOptions());
 
     final List<AbstractCall> expandedCalls = expandPreparators(engineContext, calls);
     return new AbstractSequence(abstractSequence.getSection(), expandedCalls);
   }
 
-  private static void allocateModes(
+  private static void allocateRegisters(
       final List<AbstractCall> abstractSequence,
-      final boolean markExplicitAsUsed) {
+      final Options options) {
     final AllocatorEngine allocatorEngine = AllocatorEngine.get();
     if (null != allocatorEngine) {
-      allocatorEngine.allocate(abstractSequence, markExplicitAsUsed);
+      final boolean markExplicitAsUsed = options.getValueAsBoolean(Option.RESERVE_EXPLICIT);
+      final boolean reserveDependencies = options.getValueAsBoolean(Option.RESERVE_DEPENDENCIES);
+
+      allocatorEngine.allocate(abstractSequence, markExplicitAsUsed, reserveDependencies);
     }
   }
 

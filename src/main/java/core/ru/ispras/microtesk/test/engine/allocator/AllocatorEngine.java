@@ -20,7 +20,6 @@ import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.ModeSettings;
 import ru.ispras.microtesk.settings.RangeSettings;
 import ru.ispras.microtesk.settings.StrategySettings;
-import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -38,6 +37,7 @@ import java.util.Set;
  * {@code AllocatorEngine} allocates addressing modes for a given abstract sequence.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class AllocatorEngine {
   private static AllocatorEngine instance = null;
@@ -52,6 +52,7 @@ public final class AllocatorEngine {
 
   private final Map<String, AllocationTable<Integer, ?>> allocationTables = new HashMap<>();
   private final Map<String, Set<Integer>> excluded = new HashMap<>();
+  private final Dependencies dependencies = new Dependencies();
 
   private AllocatorEngine(final AllocationSettings allocation) {
     InvariantChecks.checkNotNull(allocation);
@@ -78,18 +79,16 @@ public final class AllocatorEngine {
   public void reset() {
     for (final AllocationTable<Integer, ?> allocationTable : allocationTables.values()) {
       allocationTable.reset();
+      dependencies.reset();
     }
   }
 
   public void exclude(final Primitive primitive) {
-    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkTrue(AllocatorUtils.isAddressingMode(primitive));
 
     final String name = primitive.getName();
-    if (!isAddressingMode(primitive)) {
-      throw new GenerationAbortedException(name + " is not an addressing mode.");
-    }
-
     final Set<Integer> excludedValues;
+
     if (excluded.containsKey(name)) {
       excludedValues = excluded.get(name);
     } else {
@@ -97,43 +96,69 @@ public final class AllocatorEngine {
       excluded.put(name, excludedValues);
     }
 
+    InvariantChecks.checkTrue(primitive.getArguments().size() == 1);
     for (final Argument arg : primitive.getArguments().values()) {
       final BigInteger value = arg.getImmediateValue();
       excludedValues.add(value.intValue());
     }
   }
 
-  public void allocate(final List<AbstractCall> sequence, final boolean markExplicitAsUsed) {
+  private void include(final Primitive primitive) {
+    InvariantChecks.checkTrue(AllocatorUtils.isAddressingMode(primitive));
+
+    final String name = primitive.getName();
+    final Set<Integer> excludedValues = excluded.get(name);
+
+    if (null == excludedValues) {
+      return;
+    }
+
+    InvariantChecks.checkTrue(primitive.getArguments().size() == 1);
+    for (final Argument arg : primitive.getArguments().values()) {
+      final BigInteger value = arg.getImmediateValue();
+      excludedValues.remove(value.intValue());
+    }
+  }
+
+  public void allocate(
+      final List<AbstractCall> sequence,
+      final boolean markExplicitAsUsed,
+      final boolean reserveDependencies) {
     InvariantChecks.checkNotNull(sequence);
 
     reset();
 
+    // Phase 1 (optional): mark all explicitly initialized values as 'used'.
     if (markExplicitAsUsed) {
-      // Phase 1: mark all explicitly initialized addressing modes as 'used'.
       for (final AbstractCall call : sequence) {
         if (call.isExecutable()) {
           final Primitive primitive = call.getRootOperation();
-          useInitializedModes(primitive);
+          useFixedValues(primitive);
         } else if (call.isPreparatorCall()) {
           final Primitive primitive = call.getPreparatorReference().getTarget();
-          useInitializedModes(primitive);
+          useFixedValues(primitive);
         }
       }
     }
 
-    // Phase 2: allocate the uninitialized addressing modes.
+    // Phase 2 (optional): initialize dependencies.
+    if (reserveDependencies) {
+      dependencies.init(sequence);
+    }
+
+    // Phase 3: allocate the uninitialized addressing modes.
     for (final AbstractCall call : sequence) {
       if (call.isModeToFree()) {
         final Primitive primitive = call.getModeToFree();
-        freeInitializedMode(primitive, call.isFreeAllModes());
+        freeValues(primitive, call.isFreeAllModes());
       }
 
       if (call.isExecutable()) {
         final Primitive primitive = call.getRootOperation();
-        allocateUninitializedModes(primitive, false);
+        allocateUnknownValues(primitive, false);
       } else if (call.isPreparatorCall()) {
         final Primitive primitive = call.getPreparatorReference().getTarget();
-        allocateUninitializedModes(primitive, true);
+        allocateUnknownValues(primitive, true);
       }
     }
   }
@@ -172,44 +197,61 @@ public final class AllocatorEngine {
     }
   }
 
-  private void useInitializedModes(final Primitive primitive) {
+  private void useFixedValues(final Primitive primitive) {
     for (final Argument arg : primitive.getArguments().values()) {
-      if (isPrimitive(arg)) {
-        useInitializedModes((Primitive) arg.getValue());
+      if (AllocatorUtils.isPrimitive(arg)) {
+        useFixedValues((Primitive) arg.getValue());
         continue;
       }
 
-      if (isFixedImmediateValue(arg) && isAddressingMode(primitive)) {
-        use(primitive.getName(), arg.getImmediateValue());
+      if (AllocatorUtils.isFixedValue(arg) && AllocatorUtils.isAddressingMode(primitive)) {
+        useValue(primitive.getName(), arg.getImmediateValue());
       }
     }
   }
 
-  private void allocateUninitializedModes(final Primitive primitive, final boolean isWrite) {
-    for (final Argument arg : primitive.getArguments().values()) {
-      if (isPrimitive(arg)) {
-        allocateUninitializedModes((Primitive) arg.getValue(), arg.getMode().isOut());
+  private void allocateUnknownValues(final Primitive primitive, final boolean isWrite) {
+    for (final Argument argument : primitive.getArguments().values()) {
+      if (AllocatorUtils.isPrimitive(argument)) {
+        allocateUnknownValues((Primitive) argument.getValue(), argument.getMode().isOut());
         continue;
       }
 
-      if (isUnknownImmediateValue(arg) && isAddressingMode(primitive)) {
-        final UnknownImmediateValue unknownValue = (UnknownImmediateValue) arg.getValue();
+      if (AllocatorUtils.isUnknownValue(argument) && AllocatorUtils.isAddressingMode(primitive)) {
+        final UnknownImmediateValue unknownValue = (UnknownImmediateValue) argument.getValue();
         final int value = allocate(primitive.getName(), isWrite, unknownValue.getAllocationData());
         unknownValue.setValue(BigInteger.valueOf(value));
       }
     }
+
+    if (AllocatorUtils.isAddressingMode(primitive)) {
+      processDependencies(primitive);
+    }
   }
 
-  private void use(final String mode, final BigInteger value) {
-    final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
+  private void processDependencies(final Primitive primitive) {
+    if (!dependencies.contains(primitive)) {
+      return;
+    }
 
+    final int count = dependencies.getReferenceCount(primitive);
+    if (count == 0) {
+      include(primitive);
+    } else {
+      exclude(primitive);
+    }
+    dependencies.release(primitive);
+  }
+
+  private void useValue(final String mode, final BigInteger value) {
+    final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
     if (allocationTable != null && allocationTable.exists(value.intValue())) {
       allocationTable.use(value.intValue());
     }
   }
 
-  private void freeInitializedMode(final Primitive primitive, final boolean isFreeAll) {
-    InvariantChecks.checkTrue(isAddressingMode(primitive));
+  private void freeValues(final Primitive primitive, final boolean isFreeAll) {
+    InvariantChecks.checkTrue(AllocatorUtils.isAddressingMode(primitive));
 
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(primitive.getName());
     InvariantChecks.checkNotNull(allocationTable);
@@ -219,43 +261,11 @@ public final class AllocatorEngine {
       return;
     }
 
-    for (final Argument arg : primitive.getArguments().values()) {
-      if (isFixedImmediateValue(arg)) {
-        allocationTable.free(arg.getImmediateValue().intValue());
+    InvariantChecks.checkTrue(primitive.getArguments().size() == 1);
+    for (final Argument argument : primitive.getArguments().values()) {
+      if (AllocatorUtils.isFixedValue(argument)) {
+        allocationTable.free(argument.getImmediateValue().intValue());
       }
     }
-  }
-
-  private static boolean isAddressingMode(final Primitive primitive) {
-    InvariantChecks.checkNotNull(primitive);
-    return Primitive.Kind.MODE == primitive.getKind();
-  }
-
-  private static boolean isPrimitive(final Argument argument) {
-    return argument.getValue() instanceof Primitive;
-  }
-
-  private static boolean isFixedImmediateValue(final Argument argument) {
-    if (!argument.isImmediate()) {
-      return false;
-    }
-
-    if (argument.getValue() instanceof UnknownImmediateValue) {
-      return ((UnknownImmediateValue) argument.getValue()).isValueSet();
-    }
-
-    return true;
-  }
-
-  private static boolean isUnknownImmediateValue(final Argument argument) {
-    if (!argument.isImmediate()) {
-      return false;
-    }
-
-    if (argument.getValue() instanceof UnknownImmediateValue) {
-      return !((UnknownImmediateValue) argument.getValue()).isValueSet();
-    }
-
-    return false;
   }
 }
