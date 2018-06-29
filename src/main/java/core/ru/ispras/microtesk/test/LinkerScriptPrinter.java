@@ -43,7 +43,7 @@ final class LinkerScriptPrinter {
     InvariantChecks.checkNotNull(options);
 
     final String directory = Printer.getOutDir(options);
-    this.fileName = options.getValueAsString(Option.CODE_PRE) + ".ld";
+    this.fileName = options.getValueAsString(Option.CODE_FILE_PREFIX) + ".ld";
     this.fileFullName = new File(directory, fileName).getPath();
   }
 

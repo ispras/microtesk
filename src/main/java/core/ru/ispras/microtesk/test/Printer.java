@@ -71,14 +71,12 @@ public final class Printer {
 
     final String outDir = getOutDir(options);
     final String fileName = String.format(
-        "%s_%04d", options.getValueAsString(Option.CODE_PRE), codeFileIndex);
+        "%s_%04d", options.getValueAsString(Option.CODE_FILE_PREFIX), codeFileIndex);
 
     final File file = FileUtils.newFile(
-        outDir, fileName, options.getValueAsString(Option.CODE_EXT));
+        outDir, fileName, options.getValueAsString(Option.CODE_FILE_EXTENSION));
 
-    final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY)
-        ? FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
-
+    final File binaryFile = newBinaryFile(outDir, fileName, options);
     return new Printer(options, false, file, binaryFile);
   }
 
@@ -108,10 +106,10 @@ public final class Printer {
 
     final String outDir = getOutDir(options);
     final String fileName = String.format(
-        "%s_%04d", options.getValueAsString(Option.DATA_PRE), dataFileIndex);
+        "%s_%04d", options.getValueAsString(Option.DATA_FILE_PREFIX), dataFileIndex);
 
     final File file = FileUtils.newFile(
-        outDir, fileName, options.getValueAsString(Option.DATA_EXT));
+        outDir, fileName, options.getValueAsString(Option.DATA_FILE_EXTENSION));
 
     return new Printer(options, false, file, null);
   }
@@ -124,21 +122,31 @@ public final class Printer {
 
     final String outDir = getOutDir(options);
     final String fileName =
-        options.getValueAsString(Option.EXCEPT_PRE) + (id.isEmpty() ? "" : "_" + id);
+        options.getValueAsString(Option.EXCEPT_FILE_PREFIX) + (id.isEmpty() ? "" : "_" + id);
 
     final File file = FileUtils.newFile(
-        outDir, fileName, options.getValueAsString(Option.CODE_EXT));
+        outDir, fileName, options.getValueAsString(Option.CODE_FILE_EXTENSION));
 
-    final File binaryFile = options.getValueAsBoolean(Option.GENERATE_BINARY)
-        ? FileUtils.newFile(outDir, fileName, options.getValueAsString(Option.BIN_EXT)) : null;
-
+    final File binaryFile = newBinaryFile(outDir, fileName, options);
     return new Printer(options, false, file, binaryFile);
+  }
+
+  private static File newBinaryFile(
+      final String outDir,
+      final String fileName,
+      final Options options) {
+    if (!options.getValueAsBoolean(Option.GENERATE_BINARY)) {
+      return null;
+    }
+
+    final String fileExtension = options.getValueAsString(Option.BINARY_FILE_EXTENSION);
+    return FileUtils.newFile(outDir, fileName, fileExtension);
   }
 
   public static String getOutDir(final Options options) {
     InvariantChecks.checkNotNull(options);
-    return options.hasValue(Option.OUTDIR)
-        ? options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
+    return options.hasValue(Option.OUTPUT_DIR)
+        ? options.getValueAsString(Option.OUTPUT_DIR) : SysUtils.getHomeDir();
   }
 
   private Printer(
@@ -154,7 +162,7 @@ public final class Printer {
     this.binaryFile = binaryFile;
 
     this.fileWritter = null != file ? new PrintWriter(file) : null;
-    final boolean bigEndian = options.getValueAsBoolean(Option.BIN_USE_BIG_ENDIAN);
+    final boolean bigEndian = options.getValueAsBoolean(Option.BINARY_FILE_USE_BIG_ENDIAN);
     this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile, bigEndian) : null;
 
     this.commentToken = options.getValueAsString(Option.COMMENT_TOKEN);

@@ -162,7 +162,7 @@ public final class TestEngine {
       return false;
     }
 
-    setRandomSeed(options.getValueAsInteger(Option.RANDOM));
+    setRandomSeed(options.getValueAsInteger(Option.RANDOM_SEED));
     setSolver(options.getValueAsString(Option.SOLVER));
     Environment.setDebugMode(options.getValueAsBoolean(Option.SOLVER_DEBUG));
 
@@ -226,8 +226,8 @@ public final class TestEngine {
     }
 
     statistics.popActivity();
-    statistics.setProgramLengthLimit(options.getValueAsInteger(Option.CODE_LIMIT));
-    statistics.setTraceLengthLimit(options.getValueAsInteger(Option.TRACE_LIMIT));
+    statistics.setProgramLengthLimit(options.getValueAsInteger(Option.PROGRAM_LENGTH_LIMIT));
+    statistics.setTraceLengthLimit(options.getValueAsInteger(Option.TRACE_LENGTH_LIMIT));
     statistics.pushActivity(Statistics.Activity.PARSING);
 
     final EngineContext context = new EngineContext(options, model, statistics);

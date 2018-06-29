@@ -66,8 +66,8 @@ public final class TemplateGenerator {
     }
 
     String outPutDirectory;
-    if (options.hasValue(Option.OUTDIR)) {
-      outPutDirectory = options.getValueAsString(Option.OUTDIR);
+    if (options.hasValue(Option.OUTPUT_DIR)) {
+      outPutDirectory = options.getValueAsString(Option.OUTPUT_DIR);
     } else {
       if (!options.hasValue(Option.ARCH_DIRS)) {
         Logger.error("The --%s option is undefined.", Option.ARCH_DIRS.getName());

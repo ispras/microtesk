@@ -70,8 +70,8 @@ public abstract class TemplateTest implements Logger.Listener {
 
   private void setDefaultCodeFileNamePrefix(final String file) {
     final String fileName = FileUtils.getShortFileNameNoExt(file);
-    if (!options.containsKey(Option.CODE_PRE)) {
-      setCommandLineOption(Option.CODE_PRE, fileName);
+    if (!options.containsKey(Option.CODE_FILE_PREFIX)) {
+      setCommandLineOption(Option.CODE_FILE_PREFIX, fileName);
     }
   }
 

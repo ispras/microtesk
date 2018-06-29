@@ -143,7 +143,7 @@ public final class BranchInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(situation);
 
     final boolean isDebug = Logger.isDebug();
-    Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG) &&
+    Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG_PRINT) &&
                     engineContext.getOptions().getValueAsBoolean(Option.VERBOSE));
     try {
 

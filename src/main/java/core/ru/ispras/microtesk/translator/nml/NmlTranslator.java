@@ -116,7 +116,7 @@ public final class NmlTranslator extends Translator<Ir> {
 
     final String fileName = filenames.get(filenames.size() - 1);
     final String modelName = FileUtils.getShortFileNameNoExt(fileName);
-    final String revisionId = null != options ? options.getValueAsString(Option.REVID) : "";
+    final String revisionId = null != options ? options.getValueAsString(Option.REV_ID) : "";
 
     Logger.message("Translating: %s", fileName);
     Logger.message("Model name: %s", modelName);

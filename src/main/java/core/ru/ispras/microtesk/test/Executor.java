@@ -225,7 +225,7 @@ public final class Executor {
 
     this.exceptionCall = EngineUtils.makeSpecialConcreteCall(context, "exception");
     this.invalidCall = EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
-    this.branchExecutionLimit = context.getOptions().getValueAsInteger(Option.BRANCH_LIMIT);
+    this.branchExecutionLimit = context.getOptions().getValueAsInteger(Option.BRANCH_EXEC_LIMIT);
     this.isLoggingEnabled = context.getOptions().getValueAsBoolean(Option.VERBOSE);
     this.originFormat = context.getOptions().getValueAsString(Option.ORIGIN_FORMAT);
     this.alignFormat = context.getOptions().getValueAsString(Option.ALIGN_FORMAT);

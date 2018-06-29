@@ -118,7 +118,7 @@ public final class Template {
     InvariantChecks.checkNotNull(processor);
 
     this.context = context;
-    this.isDebugPrinting = context.getOptions().getValueAsBoolean(Option.DEBUG);
+    this.isDebugPrinting = context.getOptions().getValueAsBoolean(Option.DEBUG_PRINT);
 
     this.metaModel = context.getModel().getMetaData();
     this.dataManager = new DataManager(context);

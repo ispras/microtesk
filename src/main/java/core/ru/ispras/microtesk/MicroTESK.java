@@ -137,7 +137,7 @@ public final class MicroTESK {
   }
 
   private static boolean translate(final Options options, final String[] arguments) {
-    final String revisionId = options.getValueAsString(Option.REVID);
+    final String revisionId = options.getValueAsString(Option.REV_ID);
     final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
 
     Set<String> revisionSet = revisionId.isEmpty() ? Collections.<String>emptySet() :
@@ -175,8 +175,8 @@ public final class MicroTESK {
   }
 
   private static boolean copyExtensions(final Options options) {
-    if (options.hasValue(Option.EXTDIR)) {
-      final String extensionDir = options.getValueAsString(Option.EXTDIR);
+    if (options.hasValue(Option.EXTENSION_DIR)) {
+      final String extensionDir = options.getValueAsString(Option.EXTENSION_DIR);
       final File extensionDirFile = new File(extensionDir);
 
       if (!extensionDirFile.exists() || !extensionDirFile.isDirectory()) {
@@ -184,7 +184,7 @@ public final class MicroTESK {
         return false;
       }
 
-      final String outDir = options.getValueAsString(Option.OUTDIR) + "/src/java";
+      final String outDir = options.getValueAsString(Option.OUTPUT_DIR) + "/src/java";
       final File outDirFile = new File(outDir);
 
       try {

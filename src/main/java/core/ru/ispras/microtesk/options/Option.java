@@ -29,96 +29,90 @@ public enum Option implements Property {
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Common Options
 
-  HELP("help", "Shows help message", false),
-  VERBOSE("verbose", "Enables printing diagnostic messages", false),
-  OUTDIR("output-dir", "Directory to place generated files", "./output"),
-  REVID("rev-id", "Identifier of revision to be used", ""),
+  HELP("Shows help message", false),
+  VERBOSE("Enables printing diagnostic messages", false),
+  OUTPUT_DIR("Directory to place generated files", "./output"),
+  REV_ID("Identifier of revision to be used", ""),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Tasks
 
-  TRANSLATE("translate", "Translates formal specifications", false, null, "task"),
-  GENERATE("generate", "Generates test programs", false, null, "task"),
-  GENERATE_TEMPLATE("generate-template", "Generates test templates", false, null, "task"),
-  DISASSEMBLE("disassemble", "Disassembles binary files", false, null, "task"),
-  SYMBOLIC_EXECUTE("symbolic-execute", "Performs symbolic execution", false, null, "task"),
-  TRANSFORM_TRACE("transform-trace", "Transforms traces into templates", false, null, "task"),
+  TRANSLATE("Translates formal specifications", false, null, "task"),
+  GENERATE("Generates test programs", false, null, "task"),
+  GENERATE_TEMPLATE("Generates test templates", false, null, "task"),
+  DISASSEMBLE("Disassembles binary files", false, null, "task"),
+  SYMBOLIC_EXECUTE("Performs symbolic execution", false, null, "task"),
+  TRANSFORM_TRACE("Transforms traces into templates", false, null, "task"),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Translator Options
 
-  INCLUDE("include", "Directory that stores include files", "", TRANSLATE),
-  EXTDIR("extension-dir", "Directory that stores user-defined Java code", "", TRANSLATE),
+  INCLUDE("Directory that stores include files", "", TRANSLATE),
+  EXTENSION_DIR("Directory that stores user-defined Java code", "", TRANSLATE),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options
 
-  ARCH_DIRS("arch-dirs", "Home directories for tested architectures", "", GENERATE),
+  ARCH_DIRS("Home directories for tested architectures", "", GENERATE),
 
-  RANDOM("random-seed", "Seed for randomizer", 0, GENERATE),
-  SOLVER("solver", "Constraint solver engine to be used", "cvc4"),
-  SOLVER_DEBUG("solver-debug", "Enables debug mode for SMT solvers", false, GENERATE),
+  RANDOM_SEED("Seed for randomizer", 0, GENERATE),
+  SOLVER("Constraint solver engine to be used", "cvc4"),
+  SOLVER_DEBUG("Enables debug mode for SMT solvers", false, GENERATE),
 
-  CODE_LIMIT("program-length-limit", "Maximum program length", 1000, GENERATE),
-  TRACE_LIMIT("trace-length-limit", "Maximum execution trace length", 1000, GENERATE),
-  BRANCH_LIMIT("branch-exec-limit", "Maximum execution count for an instruction", 100, GENERATE),
-  RATE_LIMIT("rate-limit", "Minimum generation rate", 0, GENERATE),
+  PROGRAM_LENGTH_LIMIT("Maximum program length", 1000, GENERATE),
+  TRACE_LENGTH_LIMIT("Maximum execution trace length", 1000, GENERATE),
+  BRANCH_EXEC_LIMIT("Maximum execution count for an instruction", 100, GENERATE),
+  RATE_LIMIT("Minimum generation rate", 0, GENERATE),
 
-  FETCH_DECODE_ENABLED("fetch-decode-enabled",
-      "Enables allocation, fetching and decoding of instructions", false, GENERATE),
-  ASSERTS_ENABLED("asserts-enabled", "Enables assertion checks during simulation", false, GENERATE),
-  TRACER_LOG("tracer-log", "Enables generation of Tracer logs for simulation", false, GENERATE),
-  SELF_CHECKS("self-checks", "Enables inserting self-checks into test programs", false, GENERATE),
-  DEFAULT_TEST_DATA("default-test-data", "Enables generation of default test data",
-      false,
-      GENERATE),
-  NO_SIMULATION("no-simulation", "Disables simulation of generated code", false, GENERATE),
-  DEBUG("debug-print", "Enables printing detailed debug messages", false, GENERATE),
-  COMMENTS_ENABLED("comments-enabled", "Enables generation of comments", false, GENERATE),
-  COMMENTS_DEBUG("comments-debug", "Enables generation of detailed comments, depends on --"
+  FETCH_DECODE_ENABLED("Enables allocation, fetching and decoding of instructions", false, GENERATE),
+  ASSERTS_ENABLED("Enables assertion checks during simulation", false, GENERATE),
+  TRACER_LOG("Enables generation of Tracer logs for simulation", false, GENERATE),
+  SELF_CHECKS("Enables inserting self-checks into test programs", false, GENERATE),
+  DEFAULT_TEST_DATA("Enables generation of default test data", false, GENERATE),
+  NO_SIMULATION("Disables simulation of generated code", false, GENERATE),
+  DEBUG_PRINT("Enables printing detailed debug messages", false, GENERATE),
+  COMMENTS_ENABLED("Enables generation of comments", false, GENERATE),
+  COMMENTS_DEBUG("Enables generation of detailed comments, depends on --"
       + COMMENTS_ENABLED.getName(), false, GENERATE),
-  TIME_STATISTICS("time-statistics", "Enables printing time statistics", false, GENERATE),
-  RESERVE_EXPLICIT("reserve-explicit", "Enables reservation of explicitly specified registers",
-      false, GENERATE),
-  GENERATE_BINARY("generate-binary", "Enables generating binary files of test programs. "
-      + "Limited functionality. Required for debugging.", false, GENERATE),
+  TIME_STATISTICS("Enables printing time statistics", false, GENERATE),
+  GENERATE_BINARY(
+      "Enables generating binary files (limited functionality for debugging)", false, GENERATE),
 
-  BIN_EXT("binary-file-extension", "Binary file extension", "bin", GENERATE),
-  BIN_USE_BIG_ENDIAN("binary-file-use-big-endian", "Use big endian for binary files", false),
-  CODE_EXT("code-file-extension", "Output file extension", "asm", GENERATE),
-  CODE_PRE("code-file-prefix", "Output file prefix", "test", GENERATE),
-  DATA_EXT("data-file-extension", "Data file extension", "dat", GENERATE),
-  DATA_PRE("data-file-prefix", "Data file prefix", "asm", GENERATE),
-  EXCEPT_PRE("exception-file-prefix", "Exception handler file prefix", "test_except", GENERATE),
+  RESERVE_EXPLICIT(
+      "Enables marking all explicitly specified registers as used", false, GENERATE),
+  RESERVE_DEPENDENCIES(
+      "Enables automated reservation of registers that have dependencies", false, GENERATE),
 
-  INDENT_TOKEN("indent-token", "Indentation text", "\t", GENERATE),
-  COMMENT_TOKEN("comment-token", "Single-line comment text", "//", GENERATE),
-  COMMENT_TOKEN_START("comment-token-start", "Text that starts a multiline comment", "/*",
-      GENERATE),
-  COMMENT_TOKEN_END("comment-token-end", "Text that ends a multiline comment", "*/", GENERATE),
-  SEPARATOR_TOKEN("separator-token", "Text used to create separators", "=", GENERATE),
-  ORIGIN_FORMAT("origin-format", "Origin directive format", ".org 0x%x", GENERATE),
-  ALIGN_FORMAT("align-format", "Alignment directive format", ".align %d", GENERATE),
+  BINARY_FILE_EXTENSION("Binary file extension", "bin", GENERATE),
+  BINARY_FILE_USE_BIG_ENDIAN("Use big endian for binary files", false),
+  CODE_FILE_EXTENSION("Output file extension", "asm", GENERATE),
+  CODE_FILE_PREFIX("Output file prefix", "test", GENERATE),
+  DATA_FILE_EXTENSION("Data file extension", "dat", GENERATE),
+  DATA_FILE_PREFIX("Data file prefix", "asm", GENERATE),
+  EXCEPT_FILE_PREFIX("Exception handler file prefix", "test_except", GENERATE),
 
-  TEXT_SECTION_KEYWORD("text-section-keyword", "Text section directive", ".text", GENERATE),
-  DATA_SECTION_KEYWORD("data-section-keyword", "Data section directive", ".data", GENERATE),
+  INDENT_TOKEN("Indentation text", "\t", GENERATE),
+  COMMENT_TOKEN("Single-line comment text", "//", GENERATE),
+  COMMENT_TOKEN_START("Text that starts a multiline comment", "/*", GENERATE),
+  COMMENT_TOKEN_END("Text that ends a multiline comment", "*/", GENERATE),
+  SEPARATOR_TOKEN("Text used to create separators", "=", GENERATE),
+  ORIGIN_FORMAT("Origin directive format", ".org 0x%x", GENERATE),
+  ALIGN_FORMAT("Alignment directive format", ".align %d", GENERATE),
 
-  INSTANCE_NUMBER("instance-number", "Number of processing element instances", 1, GENERATE),
+  TEXT_SECTION_KEYWORD("Text section directive", ".text", GENERATE),
+  DATA_SECTION_KEYWORD("Data section directive", ".data", GENERATE),
 
-  JRUBY_THREAD_POOL_MAX("jruby-thread-pool-max",
-      "JRuby: the maximum number of threads to allow in the pool.", Integer.MAX_VALUE, GENERATE),
+  INSTANCE_NUMBER("Number of processing element instances", 1, GENERATE),
+
+  JRUBY_THREAD_POOL_MAX(
+      "JRuby: maximum number of threads to allow in pool", Integer.MAX_VALUE, GENERATE),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Template Generation Options
 
-  BASE_TEMPLATE_NAME("base-template-name",
-      "Name of test template base class.", "", GENERATE_TEMPLATE),
-
-  BASE_TEMPLATE_PATH("base-template-path",
-      "Path to test template base class file.", "", GENERATE_TEMPLATE),
-
-  IGNORED_INSTRUCTIONS("ignored-instructions",
-      "Instructions to be ignored.", "", GENERATE_TEMPLATE);
+  BASE_TEMPLATE_NAME("Name of test template base class", "", GENERATE_TEMPLATE),
+  BASE_TEMPLATE_PATH("Path to test template base class file", "", GENERATE_TEMPLATE),
+  IGNORED_INSTRUCTIONS("Instructions to be ignored", "", GENERATE_TEMPLATE);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -135,34 +129,26 @@ public enum Option implements Property {
   private final String groupName;
 
   private Option(
-      final String name,
       final String description,
       final Object defaultValue) {
-    this(name, description, defaultValue, null);
+    this(description, defaultValue, null);
   }
 
   private Option(
-      final String name,
       final String description,
       final Object defaultValue,
       final Option dependency) {
-    this(name, description, defaultValue, dependency, null);
+    this(description, defaultValue, dependency, null);
   }
 
   private Option(
-      final String name,
       final String description,
       final Object defaultValue,
       final Option dependency,
       final String groupName) {
-    InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(description);
 
-    if (Static.NAMES.containsKey(name)) {
-      throw new IllegalArgumentException(String.format("--%s is already used!", name));
-    }
-
-    this.name = name;
+    this.name = name().toLowerCase().replaceAll("_", "-");
     this.shortName = makeUniqueShortName(name);
 
     this.description = description;
@@ -170,8 +156,8 @@ public enum Option implements Property {
     this.dependency = dependency;
     this.groupName = groupName;
 
-    Static.SHORT_NAMES.put(shortName, this);
     Static.NAMES.put(name, this);
+    Static.SHORT_NAMES.put(shortName, this);
   }
 
   private static String makeUniqueShortName(final String name) {

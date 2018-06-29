@@ -115,7 +115,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
     InvariantChecks.checkNotNull(abstractSequence);
 
     final boolean isDebug = Logger.isDebug();
-    Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG));
+    Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG_PRINT));
 
     try {
       engineContext.getModel().setUseTempState(true);

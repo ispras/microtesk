@@ -63,7 +63,7 @@ public final class Disassembler {
       return false;
     }
 
-    final boolean bigEndian = options.getValueAsBoolean(Option.BIN_USE_BIG_ENDIAN);
+    final boolean bigEndian = options.getValueAsBoolean(Option.BINARY_FILE_USE_BIG_ENDIAN);
     final BinaryReader reader = newReader(fileName, bigEndian);
     if (null == reader) {
       return false;
@@ -93,7 +93,7 @@ public final class Disassembler {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(fileName);
 
-    final String fileExt = options.getValueAsString(Option.CODE_EXT);
+    final String fileExt = options.getValueAsString(Option.CODE_FILE_EXTENSION);
     final String fileShortName = FileUtils.getShortFileNameNoExt(fileName);
 
     final PrintWriter writer;
@@ -151,8 +151,8 @@ public final class Disassembler {
   }
 
   private static String getOutDir(final Options options) {
-    return options.hasValue(Option.OUTDIR)
-        ? options.getValueAsString(Option.OUTDIR) : SysUtils.getHomeDir();
+    return options.hasValue(Option.OUTPUT_DIR)
+        ? options.getValueAsString(Option.OUTPUT_DIR) : SysUtils.getHomeDir();
   }
 
   private static BinaryReader newReader(final String fileName, final boolean bigEndian) {

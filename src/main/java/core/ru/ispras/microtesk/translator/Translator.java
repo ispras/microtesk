@@ -167,7 +167,7 @@ public abstract class Translator<Ir> {
       if (options.hasValue(Option.INCLUDE)) {
         addPath(options.getValueAsString(Option.INCLUDE));
       }
-      setOutDir(options.getValueAsString(Option.OUTDIR));
+      setOutDir(options.getValueAsString(Option.OUTPUT_DIR));
     }
 
     if (null != context) {

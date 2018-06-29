@@ -23,6 +23,7 @@ import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.tracer.Tracer;
 import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.engine.AbstractSequence;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.SelfCheckEngine;
@@ -93,8 +94,8 @@ final class TemplateProcessor implements Template.Processor {
     final LabelManager labelManager = engineContext.getLabelManager();
     final NumericLabelTracker numLabelTracker = engineContext.getNumericLabelTracker();
 
-    final boolean isFetchDecodeEnabled =
-        engineContext.getOptions().getValueAsBoolean(Option.FETCH_DECODE_ENABLED);
+    final Options options = engineContext.getOptions();
+    final boolean isFetchDecodeEnabled = options.getValueAsBoolean(Option.FETCH_DECODE_ENABLED);
 
     this.engineContext = engineContext;
     this.instanceNumber = model.getPENumber();
@@ -104,13 +105,13 @@ final class TemplateProcessor implements Template.Processor {
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();
-    this.isNoSimulation = engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION);
+    this.isNoSimulation = options.getValueAsBoolean(Option.NO_SIMULATION);
     this.isProgramStarted = false;
     this.hasDispatchingCode = false;
 
-    if (engineContext.getOptions().getValueAsBoolean(Option.TRACER_LOG)) {
-      final String outDir = Printer.getOutDir(engineContext.getOptions());
-      Tracer.initialize(outDir, engineContext.getOptions().getValueAsString(Option.CODE_PRE));
+    if (options.getValueAsBoolean(Option.TRACER_LOG)) {
+      final String outDir = Printer.getOutDir(options);
+      Tracer.initialize(outDir, options.getValueAsString(Option.CODE_FILE_PREFIX));
     }
 
     engineContext.setCodeAllocator(allocator);

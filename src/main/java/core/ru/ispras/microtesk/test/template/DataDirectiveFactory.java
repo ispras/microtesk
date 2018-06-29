@@ -83,7 +83,7 @@ public final class DataDirectiveFactory {
       InvariantChecks.checkGreaterThanZero(addressableUnitBitSize);
 
       this.options = options;
-      this.isDebugPrinting = options.getValueAsBoolean(Option.DEBUG);
+      this.isDebugPrinting = options.getValueAsBoolean(Option.DEBUG_PRINT);
       this.addressableUnitBitSize = addressableUnitBitSize;
 
       this.types = new HashMap<>();

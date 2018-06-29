@@ -69,7 +69,7 @@ public final class MmuTranslator extends Translator<Ir> {
 
     final String fileName = fileNames.get(0);
     final String modelName = FileUtils.getShortFileNameNoExt(fileName);
-    final String revisionId = null != options ? options.getValueAsString(Option.REVID) : null;
+    final String revisionId = null != options ? options.getValueAsString(Option.REV_ID) : null;
 
     Logger.message("Translating: " + fileName);
     Logger.message("Model name: " + modelName);
