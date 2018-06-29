@@ -145,7 +145,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
   },
 
   /** Returns a randomly chosen object. */
-  RANDOM() {
+  BIASED() {
     private static final String ATTR_FREE_BIAS = "free-bias";
     private static final String ATTR_USED_BIAS = "used-bias";
 
@@ -198,7 +198,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
   },
 
   /** Returns a randomly chosen object (independently of other used/free objects). */
-  ANY() {
+  RANDOM() {
     @Override
     public <T> T next(
         final Collection<T> domain,

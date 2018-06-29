@@ -2,12 +2,12 @@
 <settings>
   <allocation>
     <mode name="R16">
-      <strategy name="random" free-bias="50" used-bias="50"/>
+      <strategy name="biased" free-bias="50" used-bias="50"/>
       <range min="0" max="7">
       </range>
     </mode>
     <mode name="R8">
-      <strategy name="random" free-bias="50" used-bias="50"/>
+      <strategy name="biased" free-bias="50" used-bias="50"/>
       <range min="0" max="7">
       </range>
     </mode>

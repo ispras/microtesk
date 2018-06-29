@@ -3,7 +3,7 @@
 
   <allocation>
     <mode name="REG">
-      <strategy name="random" free-bias="50" used-bias="50"/>
+      <strategy name="biased" free-bias="50" used-bias="50"/>
       <range min="0" max="15"/>
     </mode>
   </allocation>
