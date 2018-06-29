@@ -438,9 +438,12 @@ class Template
   end
 
   ANY  = mode_allocator('ANY')
+
   FREE = mode_allocator('FREE')
   USED = mode_allocator('USED')
+
   TRY_FREE = mode_allocator('TRY_FREE')
+  TRY_USED = mode_allocator('TRY_USED')
 
   def self.RANDOM(free_bias, used_bias)
     mode_allocator('RANDOM', :"free-bias" => free_bias, :"used-bias" => used_bias)

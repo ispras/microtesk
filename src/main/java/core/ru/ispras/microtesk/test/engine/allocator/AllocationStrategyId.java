@@ -121,6 +121,29 @@ public enum AllocationStrategyId implements AllocationStrategy {
     }
   },
 
+  /** Returns a used object (if such is available) or a free one (otherwise). */
+  TRY_USED() {
+    @Override
+    public <T> T next(
+        final Collection<T> domain,
+        final Collection<T> exclude,
+        final Collection<T> used,
+        final Map<String, String> attributes) {
+      final T object = USED.next(domain, exclude, used, attributes);
+      return object != null ? object : FREE.next(domain, exclude, used, attributes);
+    }
+
+    @Override
+    public <T> T next(
+        final Supplier<T> supplier,
+        final Collection<T> exclude,
+        final Collection<T> used,
+        final Map<String, String> attributes) {
+      final T object = USED.next(supplier, exclude, used, attributes);
+      return object != null ? object : FREE.next(supplier, exclude, used, attributes);
+    }
+  },
+
   /** Returns a randomly chosen object. */
   RANDOM() {
     private static final String ATTR_FREE_BIAS = "free-bias";
