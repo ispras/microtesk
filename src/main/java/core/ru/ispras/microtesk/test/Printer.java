@@ -199,8 +199,11 @@ public final class Printer {
       printCommentToFile(String.format("Generation started: %s", new Date()));
       printCommentToFile("");
       printCommentToFile(
-          "Institute for System Programming of the Russian Academy of Sciences (ISP RAS)");
+          "Ivannikov Institute for System Programming"
+           + " of the Russian Academy of Sciences (ISP RAS)");
       printCommentToFile("25 Alexander Solzhenitsyn st., Moscow, 109004, Russia");
+      printCommentToFile("");
+      printCommentToFile("http://www.microtesk.org");
       printCommentToFile("http://forge.ispras.ru/projects/microtesk");
       printCommentToFile("");
       printToFile(separator);
@@ -244,6 +247,7 @@ public final class Printer {
 
     if (sequence.getSection() != section) {
       section = sequence.getSection();
+      printSeparatorToFile(section.getAsmText());
       printText(section.getAsmText());
     }
 
@@ -517,6 +521,7 @@ public final class Printer {
 
       if (dataSection.getSection() != section) {
         section = dataSection.getSection();
+        printSeparatorToFile(section.getAsmText());
         printText(section.getAsmText());
       }
 
