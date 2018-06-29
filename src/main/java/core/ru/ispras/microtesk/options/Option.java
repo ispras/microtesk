@@ -78,7 +78,7 @@ public enum Option implements Property {
   COMMENTS_DEBUG("comments-debug", "Enables generation of detailed comments, depends on --"
       + COMMENTS_ENABLED.getName(), false, GENERATE),
   TIME_STATISTICS("time-statistics", "Enables printing time statistics", false, GENERATE),
-  RESERVE_EXPLICIT("reserve-explicit", "Enables reservation of explicitly specified mode arguments",
+  RESERVE_EXPLICIT("reserve-explicit", "Enables reservation of explicitly specified registers",
       false, GENERATE),
   GENERATE_BINARY("generate-binary", "Enables generating binary files of test programs. "
       + "Limited functionality. Required for debugging.", false, GENERATE),
