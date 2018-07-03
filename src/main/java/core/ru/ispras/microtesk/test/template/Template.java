@@ -512,16 +512,24 @@ public final class Template {
     return new AllocatorBuilder(strategy);
   }
 
-  public void freeAllocatedMode(final Primitive mode, final boolean freeAll) {
-    InvariantChecks.checkNotNull(mode);
+  public void addAllocatorAction(
+      final Primitive primitive,
+      final String kind,
+      final boolean flag,
+      final boolean applyToAll) {
+    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkNotNull(kind);
 
-    if (mode.getKind() != Primitive.Kind.MODE) {
+    if (primitive.getKind() != Primitive.Kind.MODE) {
       throw new GenerationAbortedException(
-          mode.getName() + " is not an addressing mode.");
+          primitive.getName() + " is not an addressing mode.");
     }
 
+    final AllocatorAction.Kind actionKind =
+        AllocatorAction.Kind.valueOf(kind.toUpperCase());
+
     final AllocatorAction allocatorAction =
-        new AllocatorAction(mode,  AllocatorAction.Kind.FREE, true, freeAll);
+        new AllocatorAction(primitive, actionKind, flag, applyToAll);
 
     addCall(AbstractCall.newAllocatorAction(allocatorAction));
   }

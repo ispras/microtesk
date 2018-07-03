@@ -459,11 +459,11 @@ class Template
   end
 
   def free_allocated_mode(mode)
-    @template.freeAllocatedMode mode, false
+    @template.addAllocatorAction mode, 'FREE', true, false
   end
 
   def free_all_allocated_modes(mode)
-    @template.freeAllocatedMode mode, true
+    @template.addAllocatorAction mode, 'FREE', true, true
   end
 
   # -------------------------------------------------------------------------- #
