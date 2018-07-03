@@ -135,9 +135,7 @@ class X86BaseTemplate < Template
     ################################################################################################
 
     if i386_assembler == true then
-      text "global _start"
-      newline
-      label :_start
+      global_label :_start
     else
       text "org 100h ; directive make tiny com file."
     end
