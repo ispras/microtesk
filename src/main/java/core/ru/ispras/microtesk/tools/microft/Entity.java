@@ -14,7 +14,10 @@
 
 package ru.ispras.microtesk.tools.microft;
 
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
+import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 
@@ -42,29 +45,144 @@ class Entity {
     this.values = values;
   }
 
-  public static Entity create(final List<PrimitiveAND> list) {
-    final Map<Entity, Map<String, Entity>> layout = new IdentityHashMap<>();
-    final Map<Entity, Map<String, Entity>> shared =
-      Collections.unmodifiableMap(layout);
-    final Map<Entity, Map<String, Expr>> values = Collections.emptyMap();
+  public PrimitiveAND getType() {
+    return type;
+  }
 
-    final Deque<Entity> created = new ArrayDeque<>();
-    for (final PrimitiveAND p : list) {
-      final Map<String, Entity> args = new HashMap<>();
+  public Map<String, Entity> getTypeArguments() {
+    if (layout.containsKey(this)) {
+      return layout.get(this);
+    }
+    return Collections.emptyMap();
+  }
 
-      for (final Map.Entry<String, Primitive> param : p.getArguments().entrySet()) {
-        final Primitive child = param.getValue();
+  public Map<String, Expr> getBindings() {
+    if (values.containsKey(this)) {
+      return values.get(this);
+    }
+    return Collections.emptyMap();
+  }
 
-        if (child.isOrRule() && child.getKind() == Primitive.Kind.OP) {
-          args.put(param.getKey(), created.peekLast());
-        } else if (!child.isOrRule()) {
-          args.put(param.getKey(), new Entity((PrimitiveAND) child, shared, values));
+  public boolean isTerminal() {
+    for (final Primitive p : getType().getArguments().values()) {
+      if (p.getKind() != Primitive.Kind.IMM) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public boolean hasUnbound() {
+    final Map<String, Expr> bindings = getBindings();
+    for (final Map.Entry<String, Primitive> param : getType().getArguments().entrySet()) {
+      if (param.getValue().getKind() == Primitive.Kind.IMM) {
+        final Expr value = bindings.get(param.getKey());
+        if (value == null || !value.isConstant()) {
+          return true;
         }
       }
-      final Entity e = new Entity(p, shared, values);
-      layout.put(e, Collections.unmodifiableMap(args));
-      created.push(e);
     }
-    return created.peekLast();
+    return false;
+  }
+
+  public static Entity create(final List<PrimitiveAND> src) {
+    final Context ctx = new Context(src);
+    return ctx.transformPrimitive(src);
+  }
+
+  public static Entity create(final Instance src, final Entity env) {
+    final Context ctx = new Context(src);
+    return ctx.transformInstance(src, env);
+  }
+
+  private static class Context {
+    public final Map<Entity, Map<String, Entity>> layout =
+      new IdentityHashMap<>();
+    public final Map<Entity, Map<String, Entity>> shared =
+      Collections.unmodifiableMap(layout);
+
+    public final Map<Entity, Map<String, Expr>> values;
+
+    public Context(final List<PrimitiveAND> src) {
+      this.values = Collections.emptyMap();
+    }
+
+    public Context(final Instance src) {
+      this.values = new IdentityHashMap<>();
+    }
+
+    public Entity transformPrimitive(final List<PrimitiveAND> src) {
+      final Deque<Entity> created = new ArrayDeque<>();
+      for (final PrimitiveAND p : src) {
+        final Map<String, Entity> types = new HashMap<>();
+
+        for (final Map.Entry<String, Primitive> param : p.getArguments().entrySet()) {
+          final Primitive child = param.getValue();
+
+          if (child.isOrRule() && child.getKind() == Primitive.Kind.OP) {
+            types.put(param.getKey(), created.peek());
+          } else if (!child.isOrRule() && child.getKind() != Primitive.Kind.IMM) {
+            types.put(param.getKey(), newEntity((PrimitiveAND) child));
+          }
+        }
+        created.push(newEntity(p, types));
+      }
+      return created.peek();
+    }
+
+    public Entity transformInstance(final Instance src, final Entity env) {
+      final Arguments args = new Arguments();
+      final IterablePair<String, InstanceArgument> pairs =
+        IterablePair.create(src.getPrimitive().getArguments().keySet(), src.getArguments());
+      for (final Pair<String, InstanceArgument> pair : pairs) {
+        args.dispatch(pair.first, pair.second, env);
+      }
+      return newEntity(src.getPrimitive(), args);
+    }
+
+    private Entity newEntity(final PrimitiveAND p) {
+      return new Entity(p, this.shared, this.values);
+    }
+
+    private Entity newEntity(final PrimitiveAND p, final Map<String, Entity> args) {
+      final Entity e = newEntity(p);
+      layout.put(e, normalizedMap(args));
+      return e;
+    }
+
+    private Entity newEntity(final PrimitiveAND p, final Arguments args) {
+      final Entity e = newEntity(p);
+      layout.put(e, normalizedMap(args.types));
+      values.put(e, normalizedMap(args.values));
+      return e;
+    }
+
+    private static <K, V> Map<K, V> normalizedMap(final Map<K, V> src) {
+      if (src.isEmpty()) {
+        return Collections.emptyMap();
+      }
+      return Collections.unmodifiableMap(src);
+    }
+  }
+
+  private static class Arguments {
+    public final Map<String, Entity> types = new HashMap<>();
+    public final Map<String, Expr> values = new HashMap<>();
+
+    public void dispatch(final String name, final InstanceArgument arg, final Entity env) {
+      switch (arg.getKind()) {
+      case INSTANCE:
+        types.put(name, Entity.create(arg.getInstance(), env));
+        break;
+
+      case PRIMITIVE:
+        types.put(name, env.getTypeArguments().get(arg.getName()));
+        break;
+
+      case EXPR:
+        values.put(name, arg.getExpr());
+        break;
+      }
+    }
   }
 }
