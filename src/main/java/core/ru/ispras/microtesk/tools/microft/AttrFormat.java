@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.tools.microft;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
@@ -21,6 +22,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
@@ -28,6 +30,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.utils.FormatMarker;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -133,12 +136,47 @@ class AttrFormat extends IrInspector.Attribute {
     //*/
     if (ExprUtils.isVariable(node)) {
       final NodeVariable var = (NodeVariable) node;
+      final Expr binding = e.getBindings().get(var.getName());
+      if (binding != null && binding.isConstant()) {
+        return evaluateValueFormat(fmt, (NodeValue) binding.getNode());
+      }
+
       final Map<String, Primitive> params = e.getType().getArguments();
       if (params.containsKey(var.getName())) {
         return substitution(var.getName(), params.get(var.getName()));
       }
     }
     return node.toString();
+  }
+
+  private static String evaluateValueFormat(final FormatMarker fmt, final NodeValue value) {
+    BigInteger ival = null;
+    BitVector bv = null;
+
+    switch (value.getDataType().getTypeId()) {
+    case LOGIC_INTEGER:
+      ival = value.getInteger();
+      break;
+
+    case BIT_VECTOR:
+      bv = value.getBitVector();
+      ival = bv.bigIntegerValue();
+      break;
+    }
+    switch (fmt.getKind()) {
+    case DEC:
+      return ival.toString();
+
+    case BIN:
+      return bv.toBinString();
+
+    case HEX:
+      return bv.toHexString();
+
+    case STR:
+      return value.toString();
+    }
+    throw new IllegalStateException("Unreachable state");
   }
 
   private static String substitution(final String name, final Primitive p) {
