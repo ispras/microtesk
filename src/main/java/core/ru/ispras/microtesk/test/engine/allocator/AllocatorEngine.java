@@ -149,13 +149,7 @@ public final class AllocatorEngine {
     // Phase 3: allocate the uninitialized addressing modes.
     for (final AbstractCall call : sequence) {
       if (call.isAllocatorAction()) {
-        final AllocatorAction allocatorAction = call.getAllocatorAction();
-
-        InvariantChecks.checkTrue(allocatorAction.getKind() == AllocatorAction.Kind.FREE);
-        InvariantChecks.checkTrue(allocatorAction.isFlag());
-
-        final Primitive primitive = allocatorAction.getPrimitive();
-        freeValues(primitive, allocatorAction.isApplyToAll());
+        processAllocatorAction(call.getAllocatorAction());
       }
 
       if (call.isExecutable()) {
@@ -166,6 +160,16 @@ public final class AllocatorEngine {
         allocateUnknownValues(primitive, true);
       }
     }
+  }
+
+  private void processAllocatorAction(final AllocatorAction allocatorAction) {
+    InvariantChecks.checkNotNull(allocatorAction);
+
+    InvariantChecks.checkTrue(allocatorAction.getKind() == AllocatorAction.Kind.FREE);
+    InvariantChecks.checkTrue(allocatorAction.isFlag());
+
+    final Primitive primitive = allocatorAction.getPrimitive();
+    freeValues(primitive, allocatorAction.isApplyToAll());
   }
 
   private int allocate(
