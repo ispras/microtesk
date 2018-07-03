@@ -68,60 +68,20 @@ class AttrFormat extends IrInspector.Attribute {
     final String origin = fmt.getFormat();
     final StringBuilder builder = new StringBuilder();
 
-    final List<Node> values = evaluateAll(fmt.getArguments(), e);
     final IterablePair<FormatMarker, Node> args =
-      IterablePair.create(fmt.getMarkers(), values);
+      IterablePair.create(fmt.getMarkers(), fmt.getArguments());
 
     int offset = 0;
     for (final Pair<FormatMarker, Node> token : args) {
+      final String value = evaluateNodeFormat(token.first, token.second, e);
       builder.append(origin.substring(offset, token.first.getStart()));
-      builder.append(format(token.first, token.second));
+      builder.append(value);
 
       offset = token.first.getEnd();
     }
     builder.append(origin.substring(offset, origin.length()));
 
     return builder.toString();
-  }
-
-  private static List<Node> evaluateAll(final List<Node> nodes, final Entity e) {
-    final List<Node> evaluated = new ArrayList<>(nodes.size());
-    for (final Node node : nodes) {
-      evaluated.add(evaluateNode(node, e));
-    }
-    return evaluated;
-  }
-
-  private static Node evaluateNode(final Node node, final Entity e) {
-    if (node.getUserData() instanceof StatementAttributeCall) {
-      final StatementAttributeCall call =
-        (StatementAttributeCall) node.getUserData();
-      return NodeValue.newString(evaluateCall(call, e));
-    }
-    /*
-    if (ExprUtils.isOperation(node, StandardOperation.ITE)) {
-      final Iterator<Node> it = valuesOf((NodeOperation) node).iterator();
-
-      final StringBuilder builder = new StringBuilder("${");
-      builder.append(it.next().toString());
-      while (it.hasNext()) {
-        builder.append("|").append(it.next().toString());
-      }
-      builder.append("}");
-
-      return NodeValue.newString(builder.toString());
-    }
-    //*/
-    if (ExprUtils.isVariable(node)) {
-      final NodeVariable var = (NodeVariable) node;
-      final Map<String, Primitive> params = e.getType().getArguments();
-      if (params.containsKey(var.getName())) {
-        final Primitive p = params.get(var.getName());
-        return NodeValue.newString(
-          String.format("${%s:%s}", var.getName(), p.getName()));
-      }
-    }
-    return node;
   }
 
   private static String evaluateCall(final StatementAttributeCall call, final Entity e) {
@@ -148,8 +108,38 @@ class AttrFormat extends IrInspector.Attribute {
       e.getType().getKind() == Primitive.Kind.MODE ;
   }
 
-  private static String format(final FormatMarker fmt, final Node node) {
-    return node.toString(); 
+  private static String evaluateNodeFormat(
+      final FormatMarker fmt,
+      final Node node,
+      final Entity e) {
+    if (node.getUserData() instanceof StatementAttributeCall) {
+      final StatementAttributeCall call =
+        (StatementAttributeCall) node.getUserData();
+      return evaluateCall(call, e);
+    }
+    /*
+    if (ExprUtils.isOperation(node, StandardOperation.ITE)) {
+      final Iterator<Node> it = valuesOf((NodeOperation) node).iterator();
+
+      final StringBuilder builder = new StringBuilder("${");
+      builder.append(it.next().toString());
+      while (it.hasNext()) {
+        builder.append("|").append(it.next().toString());
+      }
+      builder.append("}");
+
+      return NodeValue.newString(builder.toString());
+    }
+    //*/
+    if (ExprUtils.isVariable(node)) {
+      final NodeVariable var = (NodeVariable) node;
+      final Map<String, Primitive> params = e.getType().getArguments();
+      if (params.containsKey(var.getName())) {
+        final Primitive p = params.get(var.getName());
+        return String.format("${%s:%s}", var.getName(), p.getName());
+      }
+    }
+    return node.toString();
   }
 
   private static List<Node> valuesOf(final NodeOperation ite) {
