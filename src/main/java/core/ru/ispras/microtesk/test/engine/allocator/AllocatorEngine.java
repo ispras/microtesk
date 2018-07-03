@@ -28,7 +28,6 @@ import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +50,7 @@ public final class AllocatorEngine {
   }
 
   private final Map<String, AllocationTable<Integer, ?>> allocationTables = new HashMap<>();
-  private final Map<String, Set<Integer>> excluded = new HashMap<>();
+  private final Exclusions excluded = new Exclusions();
   private final Dependencies dependencies = new Dependencies();
 
   private AllocatorEngine(final AllocationSettings allocation) {
@@ -80,43 +79,6 @@ public final class AllocatorEngine {
     for (final AllocationTable<Integer, ?> allocationTable : allocationTables.values()) {
       allocationTable.reset();
       dependencies.reset();
-    }
-  }
-
-  public void exclude(final Primitive primitive) {
-    InvariantChecks.checkTrue(AllocatorUtils.isAddressingMode(primitive));
-
-    final String name = primitive.getName();
-    final Set<Integer> excludedValues;
-
-    if (excluded.containsKey(name)) {
-      excludedValues = excluded.get(name);
-    } else {
-      excludedValues = new LinkedHashSet<>();
-      excluded.put(name, excludedValues);
-    }
-
-    InvariantChecks.checkTrue(primitive.getArguments().size() == 1);
-    for (final Argument arg : primitive.getArguments().values()) {
-      final BigInteger value = arg.getImmediateValue();
-      excludedValues.add(value.intValue());
-    }
-  }
-
-  private void include(final Primitive primitive) {
-    InvariantChecks.checkTrue(AllocatorUtils.isAddressingMode(primitive));
-
-    final String name = primitive.getName();
-    final Set<Integer> excludedValues = excluded.get(name);
-
-    if (null == excludedValues) {
-      return;
-    }
-
-    InvariantChecks.checkTrue(primitive.getArguments().size() == 1);
-    for (final Argument arg : primitive.getArguments().values()) {
-      final BigInteger value = arg.getImmediateValue();
-      excludedValues.remove(value.intValue());
     }
   }
 
@@ -188,9 +150,7 @@ public final class AllocatorEngine {
         allocationTable.setAllocator(allocationData.getAllocator());
       }
 
-      final Set<Integer> globalExclude = excluded.containsKey(mode) ?
-          excluded.get(mode) : Collections.<Integer>emptySet();
-
+      final Set<Integer> globalExclude = excluded.getExcludedIndexes(mode);
       final Set<Integer> localExclude = null != allocationData.getExclude() ?
           AllocatorUtils.toValueSet(allocationData.getExclude()) : Collections.<Integer>emptySet();
 
@@ -245,9 +205,9 @@ public final class AllocatorEngine {
 
     final int count = dependencies.getReferenceCount(primitive);
     if (count == 0) {
-      include(primitive);
+      excluded.include(primitive);
     } else {
-      exclude(primitive);
+      excluded.exclude(primitive);
     }
     dependencies.release(primitive);
   }
