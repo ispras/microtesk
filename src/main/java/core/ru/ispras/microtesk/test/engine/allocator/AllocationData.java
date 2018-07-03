@@ -28,18 +28,21 @@ public final class AllocationData {
   private final Allocator allocator;
   private final List<Value> retain;
   private final List<Value> exclude;
+  private final boolean reserved;
 
   public AllocationData() {
-    this(null, null, null);
+    this(null, null, null, false);
   }
 
   public AllocationData(
       final Allocator allocator,
       final List<Value> retain,
-      final List<Value> exclude) {
+      final List<Value> exclude,
+      final boolean reserved) {
     this.allocator = allocator;
     this.retain = retain;
     this.exclude = exclude;
+    this.reserved = reserved;
   }
 
   public AllocationData(final AllocationData other) {
@@ -48,6 +51,7 @@ public final class AllocationData {
     this.allocator = other.allocator;
     this.retain = AllocatorUtils.copyValues(other.retain);
     this.exclude = AllocatorUtils.copyValues(other.exclude);
+    this.reserved = other.reserved;
   }
 
   public Allocator getAllocator() {
@@ -60,5 +64,9 @@ public final class AllocationData {
 
   public List<Value> getExclude() {
     return exclude;
+  }
+
+  public boolean isReserved() {
+    return reserved;
   }
 }

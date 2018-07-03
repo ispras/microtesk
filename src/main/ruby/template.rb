@@ -410,9 +410,11 @@ class Template
 
     retain = attrs[:retain]
     exclude = attrs[:exclude]
+    reserved = attrs.has_key?(:reserved) ? attrs[:reserved] : false
 
     allocator = @default_allocator if allocator.nil?
-    @template.newUnknownImmediate get_caller_location, allocator, retain, exclude
+    @template.newUnknownImmediate(
+      get_caller_location, allocator, retain, exclude, reserved)
   end
 
   #

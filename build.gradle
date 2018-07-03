@@ -610,7 +610,9 @@ task generateMinimipsTemplates(type: JavaExec) {
     '-gt',
     'minimips',
     '-btn',
-    'MiniMipsBaseTemplate'
+    'MiniMipsBaseTemplate',
+    '-btp',
+    'minimips_base',
   ]
 }
 

@@ -132,16 +132,16 @@ public final class AllocatorEngine {
     InvariantChecks.checkNotNull(allocatorAction);
 
     final Primitive primitive = allocatorAction.getPrimitive();
-    final boolean flag = allocatorAction.isFlag();
+    final boolean value = allocatorAction.getValue();
 
     switch (allocatorAction.getKind()) {
       case FREE:
-        InvariantChecks.checkTrue(flag);
+        InvariantChecks.checkTrue(value);
         freeValues(primitive, allocatorAction.isApplyToAll());
         break;
 
       case RESERVED:
-        excluded.setExcluded(primitive, flag);
+        excluded.setExcluded(primitive, value);
         break;
 
       default:
@@ -191,8 +191,14 @@ public final class AllocatorEngine {
 
       if (AllocatorUtils.isUnknownValue(argument) && AllocatorUtils.isAddressingMode(primitive)) {
         final UnknownImmediateValue unknownValue = (UnknownImmediateValue) argument.getValue();
-        final int value = allocate(primitive.getName(), isWrite, unknownValue.getAllocationData());
-        unknownValue.setValue(BigInteger.valueOf(value));
+        final AllocationData allocationData = unknownValue.getAllocationData();
+
+        final int index = allocate(primitive.getName(), isWrite, allocationData);
+        unknownValue.setValue(BigInteger.valueOf(index));
+
+        if (allocationData.isReserved()) {
+          excluded.setExcluded(primitive.getName(), index, true);
+        }
       }
     }
 

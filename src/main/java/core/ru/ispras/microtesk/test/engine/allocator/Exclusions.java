@@ -44,13 +44,21 @@ final class Exclusions {
     }
   }
 
+  public void setExcluded(final String name, final int index, final boolean value) {
+    InvariantChecks.checkNotNull(name);
+
+    if (value) {
+      exclude(name, index);
+    } else {
+      include(name, index);
+    }
+  }
+
   private void exclude(final Primitive primitive) {
     final String name = primitive.getName();
-    final Set<Integer> excludedValues;
 
-    if (excluded.containsKey(name)) {
-      excludedValues = excluded.get(name);
-    } else {
+    Set<Integer> excludedValues = excluded.get(name);
+    if (null == excludedValues) {
       excludedValues = new LinkedHashSet<>();
       excluded.put(name, excludedValues);
     }
@@ -60,6 +68,16 @@ final class Exclusions {
       final BigInteger value = arg.getImmediateValue();
       excludedValues.add(value.intValue());
     }
+  }
+
+  private void exclude(final String name, final int index) {
+    Set<Integer> excludedValues = excluded.get(name);
+    if (null == excludedValues) {
+      excludedValues = new LinkedHashSet<>();
+      excluded.put(name, excludedValues);
+    }
+
+    excludedValues.add(index);
   }
 
   private void include(final Primitive primitive) {
@@ -72,6 +90,13 @@ final class Exclusions {
         final BigInteger value = arg.getImmediateValue();
         excludedValues.remove(value.intValue());
       }
+    }
+  }
+
+  private void include(final String name, final int index) {
+    final Set<Integer> excludedValues = excluded.get(name);
+    if (null != excludedValues) {
+      excludedValues.remove(index);
     }
   }
 

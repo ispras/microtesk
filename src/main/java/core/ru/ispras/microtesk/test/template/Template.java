@@ -515,7 +515,7 @@ public final class Template {
   public void addAllocatorAction(
       final Primitive primitive,
       final String kind,
-      final boolean flag,
+      final boolean value,
       final boolean applyToAll) {
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(kind);
@@ -529,7 +529,7 @@ public final class Template {
         AllocatorAction.Kind.valueOf(kind.toUpperCase());
 
     final AllocatorAction allocatorAction =
-        new AllocatorAction(primitive, actionKind, flag, applyToAll);
+        new AllocatorAction(primitive, actionKind, value, applyToAll);
 
     addCall(AbstractCall.newAllocatorAction(allocatorAction));
   }
@@ -538,12 +538,14 @@ public final class Template {
       final Where where,
       final Allocator allocator,
       final List<Primitive> retain,
-      final List<Primitive> exclude) {
+      final List<Primitive> exclude,
+      final boolean reserved) {
     return new UnknownImmediateValue(
         new AllocationData(
             allocator,
             getModeValues(where, retain),
-            getModeValues(where, exclude)
+            getModeValues(where, exclude),
+            reserved
         ));
   }
 

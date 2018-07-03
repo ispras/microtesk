@@ -34,13 +34,13 @@ public final class AllocatorAction {
 
   private final Primitive primitive;
   private final Kind kind;
-  private final boolean flag;
+  private final boolean value;
   private final boolean applyToAll;
 
   public AllocatorAction(
       final Primitive primitive,
       final Kind kind,
-      final boolean flag,
+      final boolean value,
       final boolean applyToAll) {
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkTrue(primitive.getKind() == Primitive.Kind.MODE);
@@ -48,7 +48,7 @@ public final class AllocatorAction {
 
     this.primitive = primitive;
     this.kind = kind;
-    this.flag = flag;
+    this.value = value;
     this.applyToAll = applyToAll;
   }
 
@@ -57,7 +57,7 @@ public final class AllocatorAction {
 
     this.primitive = (Primitive)((SharedObject<?>) other.primitive).getCopy();
     this.kind = other.kind;
-    this.flag = other.flag;
+    this.value = other.value;
     this.applyToAll = other.applyToAll;
   }
 
@@ -69,8 +69,8 @@ public final class AllocatorAction {
     return kind;
   }
 
-  public boolean isFlag() {
-    return flag;
+  public boolean getValue() {
+    return value;
   }
 
   public boolean isApplyToAll() {
@@ -84,7 +84,7 @@ public final class AllocatorAction {
 
     sb.append(kind.name());
     sb.append('=');
-    sb.append(flag);
+    sb.append(value);
 
     if (applyToAll) {
       sb.append(", ALL");
