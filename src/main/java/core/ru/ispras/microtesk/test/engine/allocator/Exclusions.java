@@ -33,9 +33,18 @@ import java.util.Set;
 final class Exclusions {
   private final Map<String, Set<Integer>> excluded = new HashMap<>();
 
-  public void exclude(final Primitive primitive) {
+  public void setExcluded(final Primitive primitive, final boolean value) {
+    InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkTrue(AllocatorUtils.isAddressingMode(primitive));
 
+    if (value) {
+      exclude(primitive);
+    } else {
+      include(primitive);
+    }
+  }
+
+  private void exclude(final Primitive primitive) {
     final String name = primitive.getName();
     final Set<Integer> excludedValues;
 
@@ -53,9 +62,7 @@ final class Exclusions {
     }
   }
 
-  public void include(final Primitive primitive) {
-    InvariantChecks.checkTrue(AllocatorUtils.isAddressingMode(primitive));
-
+  private void include(final Primitive primitive) {
     final String name = primitive.getName();
     final Set<Integer> excludedValues = excluded.get(name);
 

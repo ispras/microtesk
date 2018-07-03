@@ -83,7 +83,7 @@ public final class AllocatorEngine {
   }
 
   public void exclude(final Primitive primitive) {
-    excluded.exclude(primitive);
+    excluded.setExcluded(primitive, true);
   }
 
   public void allocate(
@@ -131,11 +131,23 @@ public final class AllocatorEngine {
   private void processAllocatorAction(final AllocatorAction allocatorAction) {
     InvariantChecks.checkNotNull(allocatorAction);
 
-    InvariantChecks.checkTrue(allocatorAction.getKind() == AllocatorAction.Kind.FREE);
-    InvariantChecks.checkTrue(allocatorAction.isFlag());
-
     final Primitive primitive = allocatorAction.getPrimitive();
-    freeValues(primitive, allocatorAction.isApplyToAll());
+    final boolean flag = allocatorAction.isFlag();
+
+    switch (allocatorAction.getKind()) {
+      case FREE:
+        InvariantChecks.checkTrue(flag);
+        freeValues(primitive, allocatorAction.isApplyToAll());
+        break;
+
+      case RESERVED:
+        excluded.setExcluded(primitive, flag);
+        break;
+
+      default:
+        throw new IllegalArgumentException(
+            "Unsupported action kind: " + allocatorAction.getKind());
+    }
   }
 
   private int allocate(
@@ -170,19 +182,6 @@ public final class AllocatorEngine {
     }
   }
 
-  private void useFixedValues(final Primitive primitive) {
-    for (final Argument arg : primitive.getArguments().values()) {
-      if (AllocatorUtils.isPrimitive(arg)) {
-        useFixedValues((Primitive) arg.getValue());
-        continue;
-      }
-
-      if (AllocatorUtils.isFixedValue(arg) && AllocatorUtils.isAddressingMode(primitive)) {
-        useValue(primitive.getName(), arg.getImmediateValue());
-      }
-    }
-  }
-
   private void allocateUnknownValues(final Primitive primitive, final boolean isWrite) {
     for (final Argument argument : primitive.getArguments().values()) {
       if (AllocatorUtils.isPrimitive(argument)) {
@@ -208,18 +207,28 @@ public final class AllocatorEngine {
     }
 
     final int count = dependencies.getReferenceCount(primitive);
-    if (count == 0) {
-      excluded.include(primitive);
-    } else {
-      excluded.exclude(primitive);
-    }
+    final boolean isExclude = count != 0;
+
+    excluded.setExcluded(primitive, isExclude);
     dependencies.release(primitive);
   }
 
-  private void useValue(final String mode, final BigInteger value) {
-    final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
-    if (allocationTable != null && allocationTable.exists(value.intValue())) {
-      allocationTable.use(value.intValue());
+  private void useFixedValues(final Primitive primitive) {
+    for (final Argument argument : primitive.getArguments().values()) {
+      if (AllocatorUtils.isPrimitive(argument)) {
+        useFixedValues((Primitive) argument.getValue());
+        continue;
+      }
+
+      if (AllocatorUtils.isFixedValue(argument) && AllocatorUtils.isAddressingMode(primitive)) {
+        final String name = primitive.getName();
+        final BigInteger value = argument.getImmediateValue();
+
+        final AllocationTable<Integer, ?> allocationTable = allocationTables.get(name);
+        if (allocationTable != null && allocationTable.exists(value.intValue())) {
+          allocationTable.use(value.intValue());
+        }
+      }
     }
   }
 
