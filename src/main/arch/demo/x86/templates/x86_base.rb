@@ -159,14 +159,14 @@ class X86BaseTemplate < Template
     if i386_assembler == true then
       label :success
       mov_r16i16 ax, IMM16(1)
-      text ";system call number (sys_exit)"
+      comment 'system call number (sys_exit)'
       int_ IMM16(0x80)
-      text ";call kernel"
+      comment 'call kernel'
     else
       label :success
       mov_r16i16 ax, IMM16(0)
       int_ IMM16(16)
-      text "ret"
+      pseudo 'ret'
     end
 
     label :error
