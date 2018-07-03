@@ -35,6 +35,7 @@ import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.allocator.AllocationData;
 import ru.ispras.microtesk.test.engine.allocator.Allocator;
+import ru.ispras.microtesk.test.engine.allocator.AllocatorAction;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorBuilder;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
 import ru.ispras.microtesk.utils.StringUtils;
@@ -519,7 +520,10 @@ public final class Template {
           mode.getName() + " is not an addressing mode.");
     }
 
-    addCall(AbstractCall.newFreeAllocatedMode(mode, freeAll));
+    final AllocatorAction allocatorAction =
+        new AllocatorAction(mode,  AllocatorAction.Kind.FREE, true, freeAll);
+
+    addCall(AbstractCall.newAllocatorAction(allocatorAction));
   }
 
   public UnknownImmediateValue newUnknownImmediate(

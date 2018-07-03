@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.engine.allocator.AllocatorAction;
 import ru.ispras.microtesk.utils.SharedObject;
 
 import java.math.BigInteger;
@@ -42,8 +43,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
   private final PreparatorReference preparatorReference;
   private final DataSection data;
   private final List<AbstractCall> atomicSequence;
-  private final Primitive modeToFree;
-  private final boolean freeAllModes;
+  private final AllocatorAction allocatorAction;
 
   public static AbstractCall newData(final DataSection data) {
     InvariantChecks.checkNotNull(data);
@@ -62,8 +62,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         data,
         null,
-        null,
-        false
+        null
         );
   }
 
@@ -85,8 +84,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        null,
-        false
+        null
         );
   }
 
@@ -105,8 +103,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        null,
-        false
+        null
         );
   }
 
@@ -131,8 +128,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        null,
-        false
+        null
         );
   }
 
@@ -153,8 +149,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        null,
-        false
+        null
         );
   }
 
@@ -175,8 +170,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         expandAtomic(sequence),
-        null,
-        false
+        null
         );
   }
 
@@ -195,9 +189,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     return result;
   }
 
-  public static AbstractCall newFreeAllocatedMode(final Primitive mode, final boolean freeAll) {
-    InvariantChecks.checkNotNull(mode);
-    InvariantChecks.checkTrue(mode.getKind() == Primitive.Kind.MODE);
+  public static AbstractCall newAllocatorAction(final AllocatorAction allocatorAction) {
+    InvariantChecks.checkNotNull(allocatorAction);
 
     return new AbstractCall(
         null,
@@ -213,8 +206,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        mode,
-        freeAll
+        allocatorAction
         );
   }
 
@@ -232,8 +224,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
       final PreparatorReference preparatorReference,
       final DataSection data,
       final List<AbstractCall> atomicSequence,
-      final Primitive modeToFree,
-      final boolean freeAllModes) {
+      final AllocatorAction allocatorAction) {
     InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
@@ -260,8 +251,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     this.preparatorReference = preparatorReference;
     this.data = data;
     this.atomicSequence = atomicSequence;
-    this.modeToFree = modeToFree;
-    this.freeAllModes = freeAllModes;
+    this.allocatorAction = allocatorAction;
   }
 
   public AbstractCall(final AbstractCall other) {
@@ -298,10 +288,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     this.atomicSequence = null != other.atomicSequence
         ? copyAll(other.atomicSequence) : null;
 
-    this.modeToFree = null != other.modeToFree
-        ? (Primitive)((SharedObject<?>) other.modeToFree).getCopy() : null;
-
-    this.freeAllModes = other.freeAllModes;
+    this.allocatorAction = null != other.allocatorAction
+        ? new AllocatorAction(other.allocatorAction) : null;
   }
 
   public static List<AbstractCall> copyAll(final List<AbstractCall> calls) {
@@ -334,7 +322,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         && !isPreparatorCall()
         && !hasData()
         && !isAtomicSequence()
-        && !isModeToFree()
+        && !isAllocatorAction()
         && labels.isEmpty()
         && outputs.isEmpty()
         && null == origin
@@ -436,16 +424,12 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     return atomicSequence;
   }
 
-  public boolean isModeToFree() {
-    return null != modeToFree;
+  public boolean isAllocatorAction() {
+    return null != allocatorAction;
   }
 
-  public boolean isFreeAllModes() {
-    return freeAllModes;
-  }
-
-  public Primitive getModeToFree() {
-    return modeToFree;
+  public AllocatorAction getAllocatorAction() {
+    return allocatorAction;
   }
 
   @Override
@@ -453,13 +437,13 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     return String.format(
         "instruction call %s"
             + "(root: %s, "
-            + "preparator: %s, data: %b, atomic: %b, modeToFree: %s)",
+            + "preparator: %s, data: %b, atomic: %b, allocatorAction: %s)",
         null != text ? text : "",
         isExecutable() ? rootOperation.getName() : "null",
         isPreparatorCall() ? preparatorReference : "null",
         hasData(),
         isAtomicSequence(),
-        isModeToFree() ? modeToFree.getName() : "null"
+        allocatorAction
         );
   }
 
