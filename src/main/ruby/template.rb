@@ -411,7 +411,7 @@ class Template
     retain = attrs[:retain]
     exclude = attrs[:exclude]
 
-    allocator = @default_mode_allocator if allocator.nil?
+    allocator = @default_allocator if allocator.nil?
     @template.newUnknownImmediate get_caller_location, allocator, retain, exclude
   end
 
@@ -449,8 +449,13 @@ class Template
     mode_allocator('BIASED', :"free-bias" => free_bias, :"used-bias" => used_bias)
   end
 
+  # TODO: Deprecated
   def set_default_mode_allocator(allocator)
-    @default_mode_allocator = allocator
+    set_default_allocator(allocator)
+  end
+
+  def set_default_allocator(allocator)
+    @default_allocator = allocator
   end
 
   def free_allocated_mode(mode)
