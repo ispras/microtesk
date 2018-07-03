@@ -92,7 +92,7 @@ class AttrFormat extends IrInspector.Attribute {
       host = e.getTypeArguments().get(hostName);
       if (host == null || isUnboundMode(host)) {
         final Primitive p = e.getType().getArguments().get(hostName);
-        return String.format("${%s:%s}", hostName, p.getName());
+        return substitution(hostName, p);
       }
     } else if (call.isInstanceCall()) {
       host = Entity.create(call.getCalleeInstance(), e);
@@ -135,11 +135,14 @@ class AttrFormat extends IrInspector.Attribute {
       final NodeVariable var = (NodeVariable) node;
       final Map<String, Primitive> params = e.getType().getArguments();
       if (params.containsKey(var.getName())) {
-        final Primitive p = params.get(var.getName());
-        return String.format("${%s:%s}", var.getName(), p.getName());
+        return substitution(var.getName(), params.get(var.getName()));
       }
     }
     return node.toString();
+  }
+
+  private static String substitution(final String name, final Primitive p) {
+    return String.format("${%s:%s}", name, p.getName());
   }
 
   private static List<Node> valuesOf(final NodeOperation ite) {
