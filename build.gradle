@@ -100,7 +100,7 @@ release {
 
   versionPatterns = [
     // Increments build number: "0.2.5-alpha-150428" => "0.2.6-alpha-150428"
-    /(^\d+\.\d+\.)(\d+)(-[^-]*)(-[^-]*$)/: 
+    /(^\d+\.\d+\.)(\d+)(-[^-]*)(-[^-]*$)/:
     { Matcher m, Project p -> m.replaceAll("${ m[0][1] }${ (m[0][2] as int) + 1 }${ m[0][3] }" ) }
   ]
 }
@@ -150,6 +150,7 @@ macOs {
 
 configurations {
   jruby
+  qemu
 ///* // EXCLUDED FROM RELEASE (NOT READY)
   jython
 //*/
@@ -179,6 +180,7 @@ dependencies {
   compile ("fortress:fortress:${fortressVersion}") { changing = true }
   compile ("testbase:testbase:${testbaseVersion}") { changing = true }
   compile ("jsoftfloat:jsoftfloat:${jsoftfloatVersion}") { changing = true }
+  qemu("qemu4v:qemu4v:${qemuVersion}:@tar.gz") { changing = true }
 
   // TODO: unused Aspectrace dependencies
   // compile 'org.codehaus.woodstox:wstx-asl:3.2.4'
@@ -265,6 +267,13 @@ task copyConfig(type: Copy) {
 
 test.dependsOn copyConfig
 
+task copyQemu(type: Copy) {
+  from tarTree(configurations.qemu.fileCollection { dep -> dep.name == 'qemu4v' }.singleFile)
+  into "${project.projectDir}/build/tools/qemu"
+}
+
+test.dependsOn copyQemu
+
 task copyStg(type: Copy) {
   from "${project.projectDir}/src/main/resources/core/stg"
   into "${project.projectDir}/build/resources/test/stg"
@@ -297,6 +306,9 @@ test {
   environment 'Z3_PATH', z3path
   environment 'CVC4_PATH', cvc4path
   environment 'MICROTESK_HOME', "${project.projectDir}/build/target"
+  environment 'TEST_PATH', "${project.projectDir}/build/test"
+  environment 'QEMU4V_PATH', "${project.projectDir}/build/tools/qemu/bin"
+  environment 'X86_TCHAIN', "/usr"
   testLogging.showStandardStreams = true
   ignoreFailures = true
   forkEvery = 1
