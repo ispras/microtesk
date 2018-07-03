@@ -35,7 +35,6 @@ import java.util.ListIterator;
 import java.util.Map;
 import javax.json.JsonValue;
 
-// TODO unify evaluate*() return type
 class AttrFormat extends IrInspector.Attribute {
   public AttrFormat(final String name) {
     super(name);
@@ -60,7 +59,7 @@ class AttrFormat extends IrInspector.Attribute {
     if (fmt != null) {
       return evaluateFormat(fmt, e);
     } else if (call != null) {
-      return evaluateCall(call, e).toString();
+      return evaluateCall(call, e);
     }
     return null;
   }
@@ -88,17 +87,16 @@ class AttrFormat extends IrInspector.Attribute {
   private static List<Node> evaluateAll(final List<Node> nodes, final Entity e) {
     final List<Node> evaluated = new ArrayList<>(nodes.size());
     for (final Node node : nodes) {
-      evaluated.add(evaluate(node, e));
+      evaluated.add(evaluateNode(node, e));
     }
     return evaluated;
   }
 
-  private static Node evaluate(final Node node, final Entity e) {
+  private static Node evaluateNode(final Node node, final Entity e) {
     if (node.getUserData() instanceof StatementAttributeCall) {
       final StatementAttributeCall call =
         (StatementAttributeCall) node.getUserData();
-      final Node eval = evaluateCall(call, e);
-      return eval;
+      return NodeValue.newString(evaluateCall(call, e));
     }
     /*
     if (ExprUtils.isOperation(node, StandardOperation.ITE)) {
@@ -126,7 +124,7 @@ class AttrFormat extends IrInspector.Attribute {
     return node;
   }
 
-  private static Node evaluateCall(final StatementAttributeCall call, final Entity e) {
+  private static String evaluateCall(final StatementAttributeCall call, final Entity e) {
     final String hostName = call.getCalleeName();
 
     final Entity host;
@@ -134,16 +132,14 @@ class AttrFormat extends IrInspector.Attribute {
       host = e.getTypeArguments().get(hostName);
       if (host == null || isUnboundMode(host)) {
         final Primitive p = e.getType().getArguments().get(hostName);
-        return NodeValue.newString(
-          String.format("${%s:%s}", hostName, p.getName()));
+        return String.format("${%s:%s}", hostName, p.getName());
       }
     } else if (call.isInstanceCall()) {
       host = Entity.create(call.getCalleeInstance(), e);
     } else {
       throw new IllegalStateException();
     }
-    return NodeValue.newString(
-      evaluateAttribute(call.getAttributeName(), host));
+    return evaluateAttribute(call.getAttributeName(), host);
   }
 
   private static boolean isUnboundMode(final Entity e) {
