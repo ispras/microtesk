@@ -82,6 +82,10 @@ public final class AllocatorEngine {
     }
   }
 
+  public void exclude(final Primitive primitive) {
+    excluded.exclude(primitive);
+  }
+
   public void allocate(
       final List<AbstractCall> sequence,
       final boolean markExplicitAsUsed,
