@@ -36,7 +36,7 @@ class X86BaseTemplate < Template
     end
 
     # Sets the comment token used in test programs
-    set_option_value 'comment-token', ';'
+    set_option_value 'comment-token', '//'
 
     # Sets the indentation token used in test programs
     set_option_value 'indent-token', "\t"
