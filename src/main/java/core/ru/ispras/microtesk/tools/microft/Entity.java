@@ -49,6 +49,10 @@ class Entity {
     return type;
   }
 
+  public Map<String, Primitive> getTypeParameters() {
+    return getType().getArguments();
+  }
+
   public Map<String, Entity> getTypeArguments() {
     if (layout.containsKey(this)) {
       return layout.get(this);
@@ -64,7 +68,7 @@ class Entity {
   }
 
   public boolean isTerminal() {
-    for (final Primitive p : getType().getArguments().values()) {
+    for (final Primitive p : getTypeParameters().values()) {
       if (p.getKind() != Primitive.Kind.IMM) {
         return false;
       }
@@ -74,7 +78,7 @@ class Entity {
 
   public boolean hasUnbound() {
     final Map<String, Expr> bindings = getBindings();
-    for (final Map.Entry<String, Primitive> param : getType().getArguments().entrySet()) {
+    for (final Map.Entry<String, Primitive> param : getTypeParameters().entrySet()) {
       if (param.getValue().getKind() == Primitive.Kind.IMM) {
         final Expr value = bindings.get(param.getKey());
         if (value == null || !value.isConstant()) {
