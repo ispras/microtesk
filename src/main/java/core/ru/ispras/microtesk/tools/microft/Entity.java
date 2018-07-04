@@ -150,18 +150,18 @@ class Entity {
 
     private Entity newEntity(final PrimitiveAND p, final Map<String, Entity> args) {
       final Entity e = newEntity(p);
-      layout.put(e, normalizedMap(args));
+      layout.put(e, immutableMap(args));
       return e;
     }
 
     private Entity newEntity(final PrimitiveAND p, final Arguments args) {
       final Entity e = newEntity(p);
-      layout.put(e, normalizedMap(args.types));
-      values.put(e, normalizedMap(args.values));
+      layout.put(e, immutableMap(args.types));
+      values.put(e, immutableMap(args.values));
       return e;
     }
 
-    private static <K, V> Map<K, V> normalizedMap(final Map<K, V> src) {
+    private static <K, V> Map<K, V> immutableMap(final Map<K, V> src) {
       if (src.isEmpty()) {
         return Collections.emptyMap();
       }
