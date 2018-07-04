@@ -89,6 +89,20 @@ class Entity {
     return false;
   }
 
+  public Pair<Entity, String> getParent() {
+    for (final Map.Entry<Entity, Map<String, Entity>> entry : layout.entrySet()) {
+      final Map<String, Entity> args = entry.getValue();
+      if (args.containsValue(this)) {
+        for (final Map.Entry<String, Entity> arg : args.entrySet()) {
+          if (this.equals(arg.getValue())) {
+            return new Pair<>(entry.getKey(), arg.getKey());
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   public static Entity create(final List<PrimitiveAND> src) {
     final Context ctx = new Context(src);
     return ctx.transformPrimitive(src);
