@@ -93,9 +93,12 @@ class AttrFormat extends IrInspector.Attribute {
     final Entity host;
     if (call.isArgumentCall()) {
       host = e.getTypeArguments().get(hostName);
-      if (host == null || isUnboundMode(host)) {
+      if (host == null) {
         final Primitive p = e.getTypeParameters().get(hostName);
         return substitution(hostName, p);
+      } else if (isUnboundMode(host)) {
+        final Pair<Entity, String> parent = host.getParent();
+        return substitution(parent.second, host.getType());
       }
     } else if (call.isInstanceCall()) {
       host = Entity.create(call.getCalleeInstance(), e);
