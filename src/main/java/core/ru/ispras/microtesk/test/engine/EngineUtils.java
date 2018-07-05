@@ -42,7 +42,6 @@ import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.microtesk.test.template.StreamStore;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
-import ru.ispras.microtesk.test.template.Value;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
 
 import ru.ispras.testbase.TestBaseQuery;
@@ -403,25 +402,6 @@ public final class EngineUtils {
     return false;
   }
 
-  private static BigInteger getImmediateValue(final Argument argument) {
-    InvariantChecks.checkNotNull(argument);
-    final Object value = argument.getValue();
-
-    if (value instanceof BigInteger) {
-      return (BigInteger) value;
-    }
-
-    if (value instanceof Value) {
-      return ((Value) value).getValue();
-    }
-
-    throw new IllegalArgumentException(String.format(
-        "Cannot get an immediate values from argument %s that has kind %s.",
-        argument.getName(),
-        argument.getKind()
-        ));
-  }
-
   public static IsaPrimitive makeConcretePrimitive(
       final EngineContext engineContext,
       final Primitive primitive) throws ConfigurationException {
@@ -446,12 +426,12 @@ public final class EngineUtils {
         case IMM:
         case IMM_RANDOM:
         case IMM_UNKNOWN:
-          builder.setArgument(argName, getImmediateValue(arg));
+          builder.setArgument(argName, arg.getImmediateValue());
           break;
 
         case IMM_LAZY: {
           final LocationAccessor locationAccessor =
-              builder.setArgument(argName, getImmediateValue(arg));
+              builder.setArgument(argName, arg.getImmediateValue());
           if (arg.getValue() == LazyValue.ADDRESS && addressRefs != null) {
             addressRefs.add(locationAccessor);
           }
@@ -460,7 +440,7 @@ public final class EngineUtils {
 
         case LABEL: {
           final LocationAccessor locationAccessor =
-              builder.setArgument(argName, getImmediateValue(arg));
+              builder.setArgument(argName, arg.getImmediateValue());
           final LabelReference labelReference =
               new LabelReference((LabelValue) arg.getValue(), locationAccessor);
 

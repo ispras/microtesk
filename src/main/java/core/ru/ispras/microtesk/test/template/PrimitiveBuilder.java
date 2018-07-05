@@ -31,31 +31,19 @@ public interface PrimitiveBuilder {
 
   void addArgument(String value);
 
-  void addArgument(RandomValue value);
+  void addArgument(Value value);
 
   void addArgument(Primitive value);
 
   void addArgument(PrimitiveBuilder value);
 
-  void addArgument(UnknownImmediateValue value);
-
-  void addArgument(LazyValue value);
-
-  void addArgument(LabelValue value);
-
   void setArgument(String name, BigInteger value);
 
   void setArgument(String name, String value);
 
-  void setArgument(String name, RandomValue value);
+  void setArgument(String name, Value value);
 
   void setArgument(String name, Primitive value);
 
   void setArgument(String name, PrimitiveBuilder value);
-
-  void setArgument(String name, UnknownImmediateValue value);
-
-  void setArgument(String name, LazyValue value);
-
-  void setArgument(String name, LabelValue value);
 }

@@ -80,9 +80,6 @@ final class TestBaseQueryBindingBuilder {
 
       switch (arg.getKind()) {
         case IMM:
-          setBindingValue(argName, (BigInteger) arg.getValue(), arg.getType().getBitSize());
-          break;
-
         case IMM_RANDOM:
         case IMM_LAZY:
         case LABEL:

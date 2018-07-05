@@ -134,9 +134,9 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     registerArgument(new ArgumentStr(value));
   }
 
-  public void addArgument(RandomValue value) {
+  public void addArgument(Value value) {
     InvariantChecks.checkNotNull(value);
-    registerArgument(new ArgumentRandVal(value));
+    registerArgument(new ArgumentVal(value));
   }
 
   public void addArgument(Primitive value) {
@@ -148,24 +148,6 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
   public void addArgument(PrimitiveBuilder value) {
     InvariantChecks.checkNotNull(value);
     registerArgument(new ArgumentPrimB(value));
-  }
-
-  @Override
-  public void addArgument(UnknownImmediateValue value) {
-    InvariantChecks.checkNotNull(value);
-    registerArgument(new ArgumentUnkVal(value));
-  }
-
-  @Override
-  public void addArgument(LazyValue value) {
-    InvariantChecks.checkNotNull(value);
-    registerArgument(new ArgumentLazyVal(value));
-  }
-
-  @Override
-  public void addArgument(LabelValue value) {
-    InvariantChecks.checkNotNull(value);
-    registerArgument(new ArgumentLabel(value));
   }
 
   // /////////////////////////////////////////////////////////////////////////
@@ -182,10 +164,10 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     registerArgument(new ArgumentStr(name, value));
   }
 
-  public void setArgument(String name, RandomValue value) {
+  public void setArgument(String name, Value value) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(value);
-    registerArgument(new ArgumentRandVal(name, value));
+    registerArgument(new ArgumentVal(name, value));
   }
 
   public void setArgument(String name, Primitive value) {
@@ -199,27 +181,6 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(value);
     registerArgument(new ArgumentPrimB(name, value));
-  }
-
-  @Override
-  public void setArgument(String name, UnknownImmediateValue value) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(value);
-    registerArgument(new ArgumentUnkVal(name, value));
-  }
-
-  @Override
-  public void setArgument(String name, LazyValue value) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(value);
-    registerArgument(new ArgumentLazyVal(name, value));
-  }
-
-  @Override
-  public void setArgument(String name, LabelValue value) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(value);
-    registerArgument(new ArgumentLabel(name, value));
   }
 
   private interface Argument {
@@ -296,12 +257,12 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     }
   }
 
-  private static class ArgumentRandVal extends AbstractArgument<RandomValue> {
-    public ArgumentRandVal(String name, RandomValue value) {
+  private static class ArgumentVal extends AbstractArgument<Value> {
+    public ArgumentVal(String name, Value value) {
       super(name, value);
     }
 
-    public ArgumentRandVal(RandomValue value) {
+    public ArgumentVal(Value value) {
       super(value);
     }
 
@@ -340,63 +301,6 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     }
 
     public ArgumentPrimB(PrimitiveBuilder value) {
-      super(value);
-    }
-
-    @Override
-    public void addToBuilder(PrimitiveBuilder builder) {
-      if (hasName()) {
-        builder.setArgument(getName(), getValue());
-      } else {
-        builder.addArgument(getValue());
-      }
-    }
-  }
-
-  private static class ArgumentUnkVal extends AbstractArgument<UnknownImmediateValue> {
-    public ArgumentUnkVal(String name, UnknownImmediateValue value) {
-      super(name, value);
-    }
-
-    public ArgumentUnkVal(UnknownImmediateValue value) {
-      super(value);
-    }
-
-    @Override
-    public void addToBuilder(PrimitiveBuilder builder) {
-      if (hasName()) {
-        builder.setArgument(getName(), getValue());
-      } else {
-        builder.addArgument(getValue());
-      }
-    }
-  }
-
-  private static class ArgumentLazyVal extends AbstractArgument<LazyValue> {
-    public ArgumentLazyVal(String name, LazyValue value) {
-      super(name, value);
-    }
-
-    public ArgumentLazyVal(LazyValue value) {
-      super(value);
-    }
-
-    @Override
-    public void addToBuilder(PrimitiveBuilder builder) {
-      if (hasName()) {
-        builder.setArgument(getName(), getValue());
-      } else {
-        builder.addArgument(getValue());
-      }
-    }
-  }
-
-  private static class ArgumentLabel extends AbstractArgument<LabelValue> {
-    public ArgumentLabel(String name, LabelValue value) {
-      super(name, value);
-    }
-
-    public ArgumentLabel(LabelValue value) {
       super(value);
     }
 

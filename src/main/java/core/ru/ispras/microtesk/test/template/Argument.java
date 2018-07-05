@@ -24,7 +24,7 @@ import java.math.BigInteger;
 
 public final class Argument {
   public static enum Kind {
-    IMM         (BigInteger.class, true),
+    IMM         (FixedValue.class, true),
     IMM_RANDOM  (RandomValue.class, true),
     IMM_UNKNOWN (UnknownImmediateValue.class, true),
     IMM_LAZY    (LazyValue.class, true),
@@ -97,7 +97,7 @@ public final class Argument {
     if (other.value instanceof SharedObject) {
       this.value = ((SharedObject<?>) other.value).getCopy();
     } else {
-      InvariantChecks.checkTrue(other.value instanceof BigInteger);
+      InvariantChecks.checkTrue(other.value instanceof FixedValue);
       this.value = other.value;
     }
   }
@@ -110,10 +110,6 @@ public final class Argument {
     if (!isImmediate()) {
       throw new UnsupportedOperationException(String.format(
           "%s(%s) is not an immediate argument.", name, value.getClass().getSimpleName()));
-    }
-
-    if (value instanceof BigInteger) {
-      return (BigInteger) value;
     }
 
     return ((Value) value).getValue();

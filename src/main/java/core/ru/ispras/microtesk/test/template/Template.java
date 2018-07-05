@@ -571,9 +571,7 @@ public final class Template {
       }
 
       for (final Argument arg : primitive.getArguments().values()) {
-        if (arg.getValue() instanceof BigInteger) {
-          result.add(new FixedValue((BigInteger) arg.getValue()));
-        } else if (arg.getValue() instanceof Value) {
+        if (arg.getValue() instanceof Value) {
           result.add((Value) arg.getValue());
         } else {
           InvariantChecks.checkTrue(false, "Unknown argument type: " + arg);
