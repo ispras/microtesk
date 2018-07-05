@@ -38,14 +38,14 @@ import java.util.ListIterator;
 import java.util.Map;
 import javax.json.JsonValue;
 
-class AttrFormat extends IrInspector.Attribute {
+class AttrFormat extends IrPass<JsonValue> {
   public AttrFormat(final String name) {
     super(name);
   }
 
   @Override
-  public JsonValue get(final List<PrimitiveAND> primitives, final Map<String, JsonValue> env) {
-    final String s = evaluateAttribute(getName(), Entity.create(primitives));
+  public JsonValue run(final List<PrimitiveAND> insn, final PassContext ctx) {
+    final String s = evaluateAttribute(getName(), Entity.create(insn));
     if (s != null) {
       return JsonUtil.createString(s);
     }
