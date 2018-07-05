@@ -92,12 +92,12 @@ public final class IrInspector implements TranslatorHandler<Ir> {
     final Collection<List<PrimitiveAND>> operations =
       listOperations(ir.getRoots());
 
-    final List<IrPass<JsonValue>> attributes = Attribute.insnAttributes();
-    final List<IrPass<?>> orderedAttrs = topologicalOrder(attributes);
+    final List<IrPass<?>> passes = insnPasses();
+
     final JsonStorage.RefList insns = entry.createList("insn");
     int index = 0;
     for (final List<PrimitiveAND> insn : operations) {
-      final Map<String, JsonValue> attrs = inspectInsn(insn, orderedAttrs);
+      final Map<String, JsonValue> attrs = inspectInsn(insn, passes);
       attrs.put("id", JsonUtil.createNumber(index++));
 
       final JsonObjectBuilder builder = Json.createObjectBuilder();
@@ -107,6 +107,13 @@ public final class IrInspector implements TranslatorHandler<Ir> {
       JsonUtil.addAll(builder, attrs);
       insns.getLast().set(builder.build());
     }
+  }
+
+  private static List<IrPass<?>> insnPasses() {
+    final List<IrPass<?>> passes = Attribute.insnPasses();
+    passes.addAll(Attribute.insnAttributes());
+
+    return topologicalOrder(passes);
   }
 
   public static List<IrPass<?>> topologicalOrder(

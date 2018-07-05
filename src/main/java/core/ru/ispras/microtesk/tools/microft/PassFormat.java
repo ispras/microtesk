@@ -31,28 +31,38 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import javax.json.JsonValue;
 
-class AttrFormat extends IrPass<JsonValue> {
-  public AttrFormat(final String name) {
+class PassFormat extends IrPass<PassFormat.Info> {
+  private final Map<String, Primitive> parameters = new java.util.HashMap<>();
+
+  public PassFormat(final String name) {
     super(name);
   }
 
   @Override
-  public JsonValue run(final List<PrimitiveAND> insn, final PassContext ctx) {
-    final String s = evaluateAttribute(getName(), Entity.create(insn));
-    if (s != null) {
-      return JsonUtil.createString(s);
-    }
-    return JsonValue.NULL;
+  public Info run(final List<PrimitiveAND> insn, final PassContext ctx) {
+    parameters.clear();
+    final String line =
+      evaluateAttribute(getName().toLowerCase(), Entity.create(insn));
+    return new Info(line, parameters);
   }
 
-  private static String evaluateAttribute(final String attr, final Entity e) {
+  public static class Info {
+    public final String formatLine;
+    public final Map<String, Primitive> parameters;
+
+    public Info(final String line, final Map<String, Primitive> params) {
+      this.formatLine = line;
+      this.parameters = params;
+    }
+  }
+
+  private String evaluateAttribute(final String attr, final Entity e) {
     final StatementFormat fmt =
       findStatement(e.getType(), attr, StatementFormat.class);
 
@@ -67,7 +77,7 @@ class AttrFormat extends IrPass<JsonValue> {
     return null;
   }
 
-  private static String evaluateFormat(final StatementFormat fmt, final Entity e) {
+  private String evaluateFormat(final StatementFormat fmt, final Entity e) {
     final String origin = fmt.getFormat();
     final StringBuilder builder = new StringBuilder();
 
@@ -87,7 +97,7 @@ class AttrFormat extends IrPass<JsonValue> {
     return builder.toString();
   }
 
-  private static String evaluateCall(final StatementAttributeCall call, final Entity e) {
+  private String evaluateCall(final StatementAttributeCall call, final Entity e) {
     final String hostName = call.getCalleeName();
 
     final Entity host;
@@ -114,7 +124,7 @@ class AttrFormat extends IrPass<JsonValue> {
       e.getType().getKind() == Primitive.Kind.MODE ;
   }
 
-  private static String evaluateNodeFormat(
+  private String evaluateNodeFormat(
       final FormatMarker fmt,
       final Node node,
       final Entity e) {
@@ -182,12 +192,14 @@ class AttrFormat extends IrPass<JsonValue> {
     throw new IllegalStateException("Unreachable state");
   }
 
-  private static String substitution(final String name, final Primitive p) {
-    return String.format("${%s:%s}", name, p.getName());
+  private String substitution(final String name, final Primitive p) {
+    parameters.put(name, p);
+
+    return String.format("${%s}", name);
   }
 
   private static List<Node> valuesOf(final NodeOperation ite) {
-    final List<Node> values = new ArrayList<>();
+    final List<Node> values = new java.util.ArrayList<>();
     collectValues(ite, values);
 
     return values;

@@ -14,10 +14,17 @@ import java.util.Map;
 import javax.json.*;
 
 final class Attribute {
+  public static List<IrPass<?>> insnPasses() {
+    final List<IrPass<?>> passes = new ArrayList<>();
+    passes.add(new PassFormat("Syntax"));
+    passes.add(new PassFormat("Image"));
+    return passes;
+  }
+
   public static List<IrPass<JsonValue>> insnAttributes() {
     final List<IrPass<JsonValue>> attrs = new ArrayList<>();
-    attrs.add(new AttrFormat("syntax"));
-    attrs.add(new AttrFormat("image"));
+    attrs.add(new Format("syntax", "Syntax"));
+    attrs.add(new Format("image", "Image"));
     attrs.add(new Mnemonic());
     attrs.add(new IrPass<JsonValue>("name") {
       @Override
@@ -42,6 +49,23 @@ final class Attribute {
         return JsonUtil.createString(s[0]);
       }
       return JsonValue.NULL;
+    }
+  }
+
+  public static class Format extends IrPass<JsonValue> {
+    public Format(final String attr, final String src) {
+      super(attr, src);
+    }
+
+    @Override
+    public JsonValue run(final List<PrimitiveAND> insn, final PassContext ctx) {
+      final PassFormat.Info info =
+        ctx.getPassIr(getDependencies().get(0), PassFormat.Info.class);
+      if (info.formatLine != null) {
+        return JsonUtil.createString(info.formatLine);
+      } else {
+        return JsonValue.NULL;
+      }
     }
   }
 
