@@ -92,27 +92,7 @@ public final class IrInspector implements TranslatorHandler<Ir> {
     final Collection<List<PrimitiveAND>> operations =
       listOperations(ir.getRoots());
 
-    final List<IrPass<?>> attributes = new ArrayList<>();
-    attributes.add(new AttrFormat("syntax"));
-    attributes.add(new AttrFormat("image"));
-    attributes.add(new Attribute("mnemonic", "syntax") {
-      @Override
-      public JsonValue get(final List<PrimitiveAND> p, final Map<String, JsonValue> env) {
-        final JsonValue syntax = env.get("syntax");
-        if (syntax.getValueType() == JsonValue.ValueType.STRING) {
-          final String s[] = ((JsonString) syntax).getString().split("\\s+");
-          return JsonUtil.createString(s[0]);
-        }
-        return JsonValue.NULL;
-      }
-    });
-    attributes.add(new Attribute("name") {
-      @Override
-      public JsonValue get(final List<PrimitiveAND> p, final Map<String, JsonValue> env) {
-        return JsonUtil.createString(p.get(0).getName());
-      }
-    });
-
+    final List<IrPass<JsonValue>> attributes = Attribute.insnAttributes();
     final List<IrPass<?>> orderedAttrs = topologicalOrder(attributes);
     final JsonStorage.RefList insns = entry.createList("insn");
     int index = 0;
@@ -223,18 +203,5 @@ public final class IrInspector implements TranslatorHandler<Ir> {
 
       seq.pop();
     }
-  }
-
-  abstract static class Attribute extends IrPass<JsonValue> {
-    public Attribute(final String name, final String... deps) {
-      super(name, Arrays.asList(deps));
-    }
-
-    @Override
-    public JsonValue run(final List<PrimitiveAND> insn, final PassContext ctx) {
-      return get(insn, ctx.select(JsonValue.class));
-    }
-
-    public abstract JsonValue get(final List<PrimitiveAND> p, final Map<String, JsonValue> env);
   }
 }
