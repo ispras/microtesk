@@ -18,6 +18,7 @@ final class Attribute {
     final List<IrPass<?>> passes = new ArrayList<>();
     passes.add(new PassFormat("Syntax"));
     passes.add(new PassFormat("Image"));
+
     return passes;
   }
 
@@ -26,6 +27,7 @@ final class Attribute {
     attrs.add(new Format("syntax", "Syntax"));
     attrs.add(new Format("image", "Image"));
     attrs.add(new Mnemonic());
+    attrs.add(new Parameters());
     attrs.add(new IrPass<JsonValue>("name") {
       @Override
       public JsonValue run(final List<PrimitiveAND> insn, final PassContext ctx) {
@@ -66,6 +68,59 @@ final class Attribute {
       } else {
         return JsonValue.NULL;
       }
+    }
+  }
+
+  public static class Parameters extends IrPass<JsonValue> {
+    public Parameters() {
+      super("parameters", "Image", "Syntax");
+    }
+
+    @Override
+    public JsonValue run(final List<PrimitiveAND> insn, final PassContext ctx) {
+      final List<String> deps = getDependencies();
+      final PassFormat.Info p0 = ctx.getPassIr(deps.get(0), PassFormat.Info.class);
+      final PassFormat.Info p1 = ctx.getPassIr(deps.get(1), PassFormat.Info.class);
+
+      final Map<String, Primitive> source = new LinkedHashMap<>();
+      source.putAll(p0.parameters);
+      source.putAll(p1.parameters);
+
+      final JsonArrayBuilder params = Json.createArrayBuilder();
+      for (final Map.Entry<String, Primitive> entry : source.entrySet()) {
+        final JsonObjectBuilder param = Json.createObjectBuilder();
+
+        final JsonArrayBuilder types = Json.createArrayBuilder();
+        for (final Primitive type : variantsOf(entry.getValue())) {
+          types.add(type.getName());
+        }
+
+        param.add("name", entry.getKey());
+        param.add("type", types);
+
+        params.add(param);
+      }
+      return params.build();
+    }
+
+    private static List<Primitive> variantsOf(final Primitive src) {
+      if (!src.isOrRule()) {
+        return Collections.singletonList(src);
+      }
+
+      final List<Primitive> variants = new ArrayList<>();
+      final Deque<Primitive> queue = new ArrayDeque<>();
+
+      queue.add(src);
+      while (!queue.isEmpty()) {
+        final Primitive p = queue.remove();
+        if (p.isOrRule()) {
+          queue.addAll(PrimitiveOR.class.cast(p).getOrs());
+        } else {
+          variants.add(p);
+        }
+      }
+      return variants;
     }
   }
 
