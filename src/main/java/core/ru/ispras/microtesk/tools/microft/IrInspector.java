@@ -39,7 +39,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import javax.json.*;
 
 /**
@@ -93,7 +92,7 @@ public final class IrInspector implements TranslatorHandler<Ir> {
     final Collection<List<PrimitiveAND>> operations =
       listOperations(ir.getRoots());
 
-    final List<Attribute> attributes = new ArrayList<>();
+    final List<IrPass<?>> attributes = new ArrayList<>();
     attributes.add(new AttrFormat("syntax"));
     attributes.add(new AttrFormat("image"));
     attributes.add(new Attribute("mnemonic", "syntax") {
@@ -114,10 +113,11 @@ public final class IrInspector implements TranslatorHandler<Ir> {
       }
     });
 
+    final List<IrPass<?>> orderedAttrs = topologicalOrder(attributes);
     final JsonStorage.RefList insns = entry.createList("insn");
     int index = 0;
     for (final List<PrimitiveAND> insn : operations) {
-      final Map<String, JsonValue> attrs = inspectInsn(insn, attributes);
+      final Map<String, JsonValue> attrs = inspectInsn(insn, orderedAttrs);
       attrs.put("id", JsonUtil.createNumber(index++));
 
       final JsonObjectBuilder builder = Json.createObjectBuilder();
@@ -127,6 +127,27 @@ public final class IrInspector implements TranslatorHandler<Ir> {
       JsonUtil.addAll(builder, attrs);
       insns.getLast().set(builder.build());
     }
+  }
+
+  public static List<IrPass<?>> topologicalOrder(
+      final Collection<? extends IrPass<?>> source) {
+
+    final java.util.Set<String> resolved = new java.util.HashSet<>(source.size());
+    final List<IrPass<?>> ordered = new ArrayList<>(source.size());
+    final List<IrPass<?>> queue = new ArrayList<>(source);
+
+    while (!queue.isEmpty()) {
+      final Iterator<IrPass<?>> it = queue.iterator();
+      while (it.hasNext()) {
+        final IrPass<?> pass = it.next();
+        if (resolved.containsAll(pass.getDependencies())) {
+          resolved.add(pass.getName());
+          ordered.add(pass);
+          it.remove();
+        }
+      }
+    }
+    return ordered;
   }
 
   private static <K, V> Map<K, V> select(final Map<? super K, ? extends V> source, final K... keys) {
@@ -141,21 +162,11 @@ public final class IrInspector implements TranslatorHandler<Ir> {
 
   private static Map<String, JsonValue> inspectInsn(
     final List<PrimitiveAND> insn,
-    final List<Attribute> attrs) {
-    final Map<String, JsonValue> values = new TreeMap<>();
-    final List<Attribute> queue = new ArrayList<>(attrs);
+    final List<IrPass<?>> attrs) {
+    final PassContext ctx = new PassContext();
+    ctx.fill(insn, attrs);
 
-    while (!queue.isEmpty()) {
-      final Iterator<Attribute> it = queue.iterator();
-      while (it.hasNext()) {
-        final Attribute attr = it.next();
-        if (values.keySet().containsAll(attr.getDependencies())) {
-          values.put(attr.getName(), attr.get(insn, values));
-          it.remove();
-        }
-      }
-    }
-    return values;
+    return ctx.select(JsonValue.class);
   }
 
   private static String nameOf(final List<PrimitiveAND> insns) {
@@ -214,26 +225,14 @@ public final class IrInspector implements TranslatorHandler<Ir> {
     }
   }
 
-  abstract static class Attribute {
-    private final String name;
-    private final List<String> deps;
-
-    public Attribute(final String name) {
-      this.name = name;
-      this.deps = Collections.emptyList();
-    }
-
+  abstract static class Attribute extends IrPass<JsonValue> {
     public Attribute(final String name, final String... deps) {
-      this.name = name;
-      this.deps = Arrays.asList(deps);
+      super(name, Arrays.asList(deps));
     }
 
-    public String getName() {
-      return name;
-    }
-
-    public List<String> getDependencies() {
-      return deps;
+    @Override
+    public JsonValue run(final List<PrimitiveAND> insn, final PassContext ctx) {
+      return get(insn, ctx.select(JsonValue.class));
     }
 
     public abstract JsonValue get(final List<PrimitiveAND> p, final Map<String, JsonValue> env);
