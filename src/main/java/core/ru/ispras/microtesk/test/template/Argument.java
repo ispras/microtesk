@@ -57,35 +57,55 @@ public final class Argument {
       final Value value,
       final ArgumentMode mode,
       final Type type) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkNotNull(mode);
+    this(name, getKind(value), value, mode, type);
+  }
 
-    final Argument.Kind kind;
+  private static Kind getKind(final Value value) {
+    InvariantChecks.checkNotNull(value);
+
+    final Kind kind;
     if (value instanceof FixedValue) {
-      kind = Argument.Kind.IMM;
+      kind = Kind.IMM;
     } else if (value instanceof RandomValue) {
-      kind = Argument.Kind.IMM_RANDOM;
+      kind = Kind.IMM_RANDOM;
     } else if (value instanceof UnknownImmediateValue) {
-      kind = Argument.Kind.IMM_UNKNOWN;
+      kind = Kind.IMM_UNKNOWN;
     } else if (value instanceof LazyValue) {
-      kind = Argument.Kind.IMM_LAZY;
+      kind = Kind.IMM_LAZY;
     } else if (value instanceof LabelValue) {
-      kind = Argument.Kind.LABEL;
+      kind = Kind.LABEL;
     } else {
       throw new IllegalArgumentException(
           "Unsupported value class: " + value.getClass().getSimpleName());
     }
-    kind.checkClass(value.getClass());
 
-    this.name = name;
-    this.kind = kind;
-    this.value = value;
-    this.mode = mode;
-    this.type = type;
+    return kind;
   }
 
   protected Argument(
+      final String name,
+      final Primitive primitive,
+      final ArgumentMode mode,
+      final Type type) {
+    this(name, getKind(primitive), primitive, mode, type);
+  }
+
+  private static Kind getKind(final Primitive primitive) {
+    InvariantChecks.checkNotNull(primitive);
+
+    final Kind kind;
+    if (Primitive.Kind.MODE == primitive.getKind()) {
+      kind = Kind.MODE;
+    } else if (Primitive.Kind.OP == primitive.getKind()) {
+      kind = Kind.OP;
+    } else {
+      throw new IllegalArgumentException("Unsupported primitive type: " + primitive.getKind());
+    }
+
+    return kind;
+  }
+
+  private Argument(
       final String name,
       final Kind kind,
       final Object value,

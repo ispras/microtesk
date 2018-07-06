@@ -357,17 +357,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(value);
 
-    if ((value.getKind() != Primitive.Kind.MODE) && (value.getKind() != Primitive.Kind.OP)) {
-      throw new IllegalArgumentException("Unsupported primitive kind: " + value.getKind());
-    }
-
-    final Argument.Kind kind =
-        value.getKind() == Primitive.Kind.MODE ? Argument.Kind.MODE : Argument.Kind.OP;
-
     final MetaArgument metaArg = getMetaArgument(name);
-
-    final Argument arg = new Argument(
-        name, kind, value, metaArg.getMode(), metaArg.getDataType());
+    final Argument arg = new Argument(name, value, metaArg.getMode(), metaArg.getDataType());
 
     checkValidArgument(arg);
     putArgument(arg);
@@ -475,7 +466,6 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
       final MetaArgument metaArgument) {
     return new Argument(
         argumentName,
-        Argument.Kind.MODE,
         argumentPrimitive,
         metaArgument.getMode(),
         metaArgument.getDataType()
