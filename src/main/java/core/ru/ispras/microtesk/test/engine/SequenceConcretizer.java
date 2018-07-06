@@ -528,7 +528,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
           fixedConcretePrimitive, abstractPrimitive.getName() + " not found.");
 
       for (final Argument argument : abstractPrimitive.getArguments().values()) {
-        if (Argument.Kind.OP == argument.getKind() || Argument.Kind.MODE == argument.getKind()) {
+        if (argument.isPrimitive()) {
           final String argumentName = argument.getName();
           final Primitive abstractArgument = (Primitive) argument.getValue();
 

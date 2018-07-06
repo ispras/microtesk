@@ -157,7 +157,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     }
 
     for (final Argument arg : args.values()) {
-      if (arg.getKind() != Argument.Kind.OP && arg.getKind() != Argument.Kind.MODE) {
+      if (!arg.isPrimitive()) {
         continue;
       }
 

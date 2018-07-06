@@ -522,8 +522,7 @@ public final class EngineUtils {
       final Primitive root,
       final Set<AddressingModeWrapper> modes) {
     for (final Argument argument : root.getArguments().values()) {
-      if (Argument.Kind.MODE != argument.getKind()
-          && Argument.Kind.OP != argument.getKind()) {
+      if (!argument.isPrimitive()) {
         continue;
       }
 

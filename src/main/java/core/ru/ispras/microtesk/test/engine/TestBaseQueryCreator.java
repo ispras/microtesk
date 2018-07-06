@@ -188,7 +188,7 @@ public final class TestBaseQueryCreator {
       final String ctxArgName = StringUtils.dotConc(prefix, arg.getName());
       builder.setContextAttribute(ctxArgName, arg.getTypeName());
 
-      if (Argument.Kind.MODE == arg.getKind() || Argument.Kind.OP == arg.getKind()) {
+      if (arg.isPrimitive()) {
         acquireContext(builder, ctxArgName, (Primitive) arg.getValue());
       }
     }

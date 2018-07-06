@@ -145,6 +145,10 @@ public final class Argument {
     return value instanceof Value;
   }
 
+  public boolean isPrimitive() {
+    return value instanceof Primitive;
+  }
+
   public BigInteger getImmediateValue() {
     if (!isImmediate()) {
       throw new UnsupportedOperationException(String.format(
