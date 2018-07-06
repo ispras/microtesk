@@ -426,6 +426,8 @@ public final class EngineUtils {
         case IMM:
         case IMM_RANDOM:
         case IMM_UNKNOWN:
+        case IMM_BINOP:
+        case IMM_UNOP:
           builder.setArgument(argName, arg.getImmediateValue());
           break;
 

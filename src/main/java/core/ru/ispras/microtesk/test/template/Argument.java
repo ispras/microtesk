@@ -26,6 +26,8 @@ public final class Argument {
   public enum Kind {
     IMM         (FixedValue.class),
     IMM_RANDOM  (RandomValue.class),
+    IMM_BINOP   (OperatorValueBinary.class),
+    IMM_UNOP    (OperatorValueUnary.class),
     IMM_UNKNOWN (UnknownImmediateValue.class),
     IMM_LAZY    (LazyValue.class),
     LABEL       (LabelValue.class),
@@ -74,6 +76,10 @@ public final class Argument {
       kind = Kind.IMM_LAZY;
     } else if (value instanceof LabelValue) {
       kind = Kind.LABEL;
+    } else if (value instanceof OperatorValueBinary) {
+      kind = Kind.IMM_BINOP;
+    } else if (value instanceof OperatorValueUnary) {
+      kind = Kind.IMM_UNOP;
     } else {
       throw new IllegalArgumentException(
           "Unsupported value class: " + value.getClass().getSimpleName());
