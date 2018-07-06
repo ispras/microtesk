@@ -147,26 +147,20 @@ public final class BranchEngine implements Engine {
     InvariantChecks.checkNotNull(primitive);
 
     for (final Argument argument : primitive.getArguments().values()) {
-      if (argument.getKind() != Argument.Kind.MODE) {
+      if (!argument.isPrimitive()) {
         continue;
       }
 
-      InvariantChecks.checkTrue(argument.getValue() instanceof Primitive);
-      final Primitive mode = (Primitive) argument.getValue();
+      final Primitive argumentPrimitive = (Primitive) argument.getValue();
+      if (argumentPrimitive.getKind() != Primitive.Kind.MODE) {
+        continue;
+      }
 
-      InvariantChecks.checkTrue(mode.getArguments().size() == 1);
-      for (final Argument index : mode.getArguments().values()) {
-        final Object value = index.getValue();
-
-        if (value instanceof BigInteger) {
-          final BigInteger integerValue = (BigInteger) value;
-          return integerValue.intValue();
-        }
-
-        if (value instanceof Value) {
-          final Value lazyValue = (Value) value;
-          final BigInteger integerValue = lazyValue.getValue();
-          return integerValue.intValue();
+      InvariantChecks.checkTrue(argumentPrimitive.getArguments().size() == 1);
+      for (final Argument index : argumentPrimitive.getArguments().values()) {
+        if (index.isImmediate()) {
+          final BigInteger value = index.getImmediateValue();
+          return value.intValue();
         }
 
         InvariantChecks.checkTrue(false, "Unknown argument type: " + index);

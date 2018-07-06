@@ -410,9 +410,11 @@ class Template
 
     retain = attrs[:retain]
     exclude = attrs[:exclude]
+    reserved = attrs.has_key?(:reserved) ? attrs[:reserved] : false
 
     allocator = @default_allocator if allocator.nil?
-    @template.newUnknownImmediate get_caller_location, allocator, retain, exclude
+    @template.newUnknownImmediate(
+      get_caller_location, allocator, retain, exclude, reserved)
   end
 
   #
@@ -454,16 +456,30 @@ class Template
     set_default_allocator(allocator)
   end
 
+  # TODO: Deprecated
+  def free_allocated_mode(mode)
+    set_free mode, true
+  end
+
+  # TODO: Deprecated
+  def free_all_allocated_modes(mode)
+    set_free_all mode, true
+  end
+
   def set_default_allocator(allocator)
     @default_allocator = allocator
   end
 
-  def free_allocated_mode(mode)
-    @template.freeAllocatedMode mode, false
+  def set_free(mode, flag)
+    @template.addAllocatorAction mode, 'FREE', flag, false
   end
 
-  def free_all_allocated_modes(mode)
-    @template.freeAllocatedMode mode, true
+  def set_free_all(mode, flag)
+    @template.addAllocatorAction mode, 'FREE', flag, true
+  end
+
+  def set_reserved(mode, flag)
+    @template.addAllocatorAction mode, 'RESERVED', flag, false
   end
 
   # -------------------------------------------------------------------------- #

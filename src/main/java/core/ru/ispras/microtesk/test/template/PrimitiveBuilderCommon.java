@@ -157,7 +157,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     }
 
     for (final Argument arg : args.values()) {
-      if (arg.getKind() != Argument.Kind.OP && arg.getKind() != Argument.Kind.MODE) {
+      if (!arg.isPrimitive()) {
         continue;
       }
 
@@ -266,8 +266,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   // For Array-based syntax
 
   public void addArgument(final BigInteger value) {
-    final String name = getNextArgumentName();
-    setArgument(name, value);
+    addArgument(new FixedValue(value));
   }
 
   // For labels
@@ -276,7 +275,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     setArgument(name, value);
   }
 
-  public void addArgument(final RandomValue value) {
+  public void addArgument(final Value value) {
     final String name = getNextArgumentName();
     setArgument(name, value);
   }
@@ -292,53 +291,14 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     setArgument(name, value);
   }
 
-  @Override
-  public void addArgument(final UnknownImmediateValue value) {
-    final String name = getNextArgumentName();
-    setArgument(name, value);
-  }
-
-  @Override
-  public void addArgument(final LazyValue value) {
-    final String name = getNextArgumentName();
-    setArgument(name, value);
-  }
-
-  @Override
-  public void addArgument(final LabelValue value) {
-    final String name = getNextArgumentName();
-    setArgument(name, value);
-  }
-
   // /////////////////////////////////////////////////////////////////////////
   // For Hash-based syntax
 
   @Override
   public void setArgument(final String name, final BigInteger value) {
     InvariantChecks.checkNotNull(name);
-
-    final MetaArgument metaArg = getMetaArgument(name);
-    final Argument arg;
-
-    if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, false);
-
-      final PrimitiveBuilder builder = modeBuilderInfo.first;
-      final int argumentCount = modeBuilderInfo.second;
-
-      builder.addArgument(value);
-      if (argumentCount > 1) {
-        builder.addArgument(LazyValue.ADDRESS);
-      }
-
-      arg = newModeArgument(name, builder.build(), metaArg);
-    } else {
-      arg = new Argument(
-          name, Argument.Kind.IMM, value, metaArg.getMode(), metaArg.getDataType());
-    }
-
-    checkValidArgument(arg);
-    putArgument(arg);
+    InvariantChecks.checkNotNull(value);
+    setArgument(name, new FixedValue(value));
   }
 
   // For labels
@@ -354,15 +314,26 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   }
 
   @Override
-  public void setArgument(final String name, final RandomValue value) {
+  public void setArgument(final String name, final Value value) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(value);
 
     final MetaArgument metaArg = getMetaArgument(name);
     final Argument arg;
 
+    final boolean isLabel = value instanceof LabelValue;
+    final boolean isUnknown =value instanceof UnknownImmediateValue;
+
+    if (isLabel) {
+      callBuilder.addLabelReference((LabelValue) value);
+    }
+
+    if (isUnknown) {
+      ((UnknownImmediateValue) value).setType(metaArg.getDataType());
+    }
+
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, false);
+      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, isLabel);
 
       final PrimitiveBuilder builder = modeBuilderInfo.first;
       final int argumentCount = modeBuilderInfo.second;
@@ -374,8 +345,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       arg = newModeArgument(name, builder.build(), metaArg);
     } else {
-      arg = new Argument(
-          name, Argument.Kind.IMM_RANDOM, value, metaArg.getMode(), metaArg.getDataType());
+      arg = new Argument(name, value, metaArg.getMode(), metaArg.getDataType());
     }
 
     checkValidArgument(arg);
@@ -387,17 +357,8 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(value);
 
-    if ((value.getKind() != Primitive.Kind.MODE) && (value.getKind() != Primitive.Kind.OP)) {
-      throw new IllegalArgumentException("Unsupported primitive kind: " + value.getKind());
-    }
-
-    final Argument.Kind kind =
-        value.getKind() == Primitive.Kind.MODE ? Argument.Kind.MODE : Argument.Kind.OP;
-
     final MetaArgument metaArg = getMetaArgument(name);
-
-    final Argument arg = new Argument(
-        name, kind, value, metaArg.getMode(), metaArg.getDataType());
+    final Argument arg = new Argument(name, value, metaArg.getMode(), metaArg.getDataType());
 
     checkValidArgument(arg);
     putArgument(arg);
@@ -407,97 +368,6 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
   public void setArgument(final String name, final PrimitiveBuilder value) {
     value.setContext(getName());
     setArgument(name, value.build());
-  }
-
-  @Override
-  public void setArgument(final String name, final UnknownImmediateValue value) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(value);
-
-    final MetaArgument metaArg = getMetaArgument(name);
-    value.setType(metaArg.getDataType());
-
-    final Argument arg;
-    if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, false);
-
-      final PrimitiveBuilder builder = modeBuilderInfo.first;
-      final int argumentCount = modeBuilderInfo.second;
-
-      builder.addArgument(value);
-      if (argumentCount > 1) {
-        builder.addArgument(LazyValue.ADDRESS);
-      }
-
-      arg = newModeArgument(name, builder.build(), metaArg);
-    } else {
-      arg = new Argument(
-          name, Argument.Kind.IMM_UNKNOWN, value, metaArg.getMode(), metaArg.getDataType());
-    }
-
-    checkValidArgument(arg);
-    putArgument(arg);
-  }
-
-  @Override
-  public void setArgument(final String name, final LazyValue value) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(value);
-
-    final MetaArgument metaArg = getMetaArgument(name);
-    final Argument arg;
-
-    if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, false);
-
-      final PrimitiveBuilder builder = modeBuilderInfo.first;
-      final int argumentCount = modeBuilderInfo.second;
-
-      builder.addArgument(value);
-      if (argumentCount > 1) {
-        builder.addArgument(LazyValue.ADDRESS);
-      }
-
-      arg = newModeArgument(name, builder.build(), metaArg);
-    } else {
-      arg = new Argument(
-          name, Argument.Kind.IMM_LAZY, value, metaArg.getMode(), metaArg.getDataType());
-    }
-
-    checkValidArgument(arg);
-    putArgument(arg);
-  }
-
-  // For lazy labels (used in data_stream blocks)
-  @Override
-  public void setArgument(final String name, final LabelValue value) {
-    InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(value);
-
-    final MetaArgument metaArg = getMetaArgument(name);
-    final Argument arg;
-
-    if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
-      final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, true);
-
-      final PrimitiveBuilder builder = modeBuilderInfo.first;
-      final int argumentCount = modeBuilderInfo.second;
-
-      builder.addArgument(value);
-      if (argumentCount > 1) {
-        builder.addArgument(LazyValue.ADDRESS);
-      }
-
-      arg = newModeArgument(name, builder.build(), metaArg);
-    } else {
-      arg = new Argument(
-          name, Argument.Kind.LABEL, value, metaArg.getMode(), metaArg.getDataType());
-    }
-
-    checkValidArgument(arg);
-    putArgument(arg);
-
-    callBuilder.addLabelReference(value);
   }
 
   private String getName() {
@@ -596,7 +466,6 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
       final MetaArgument metaArgument) {
     return new Argument(
         argumentName,
-        Argument.Kind.MODE,
         argumentPrimitive,
         metaArgument.getMode(),
         metaArgument.getDataType()

@@ -1,5 +1,5 @@
 #
-# Copyright 2017 ISP RAS (http://www.ispras.ru)
+# Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,11 +17,14 @@
 require ENV['TEMPLATE']
 
 class X86BaseTemplate < Template
+
   def i386_assembler
     true
   end
+
   def initialize
     super
+
     # Initialize settings here
     @setup_memory       = false
     @setup_cache        = false
@@ -36,7 +39,11 @@ class X86BaseTemplate < Template
     end
 
     # Sets the comment token used in test programs
-    set_option_value 'comment-token', ';'
+    if is_rev('GNU') then
+      set_option_value 'comment-token', '#'
+    else
+      set_option_value 'comment-token', ';'
+    end
 
     # Sets the indentation token used in test programs
     set_option_value 'indent-token', "\t"
@@ -55,7 +62,7 @@ class X86BaseTemplate < Template
     #
     # Information on data types to be used in data sections.
     #
-    data_config(:text => 'section .data', :target => 'MEM') {
+    data_config(:target => 'MEM') {
       define_type :id => :byte,  :text => 'db',  :type => type('card', 8)
       define_type :id => :word,  :text => 'dw',  :type => type('card', 16)
 
@@ -135,9 +142,13 @@ class X86BaseTemplate < Template
     ################################################################################################
 
     if i386_assembler == true then
-      text "global _start"
-      newline
-      label :_start
+      if is_rev('GNU') then
+        global_label :_start
+      else
+        text "global _start"
+        newline
+        label :_start
+      end
     else
       text "org 100h ; directive make tiny com file."
     end
@@ -150,23 +161,18 @@ class X86BaseTemplate < Template
   # Epilogue
   ##################################################################################################
 
-
-  ##################################################################################################
-  # Epilogue
-  ##################################################################################################
-
   def post
     if i386_assembler == true then
       label :success
       mov_r16i16 ax, IMM16(1)
-      text ";system call number (sys_exit)"
+      comment 'system call number (sys_exit)'
       int_ IMM16(0x80)
-      text ";call kernel"
+      comment 'call kernel'
     else
       label :success
       mov_r16i16 ax, IMM16(0)
       int_ IMM16(16)
-      text "ret"
+      pseudo 'ret'
     end
 
     label :error

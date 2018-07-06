@@ -61,7 +61,7 @@ final class TestDataProviderFactory {
     InvariantChecks.checkNotNull(testDataProviderBuilder);
 
     for (final Argument argument : primitive.getArguments().values()) {
-      if (Argument.Kind.OP == argument.getKind() || Argument.Kind.MODE == argument.getKind()) {
+      if (argument.isPrimitive()) {
         final Primitive argumentPrimitive = (Primitive) argument.getValue();
         visitPrimitive(engineContext, argumentPrimitive, testDataProviderBuilder);
       }

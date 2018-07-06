@@ -23,29 +23,19 @@ import ru.ispras.microtesk.utils.SharedObject;
 import java.math.BigInteger;
 
 public final class Argument {
-  public static enum Kind {
-    IMM         (BigInteger.class, true),
-    IMM_RANDOM  (RandomValue.class, true),
-    IMM_UNKNOWN (UnknownImmediateValue.class, true),
-    IMM_LAZY    (LazyValue.class, true),
-    LABEL       (LabelValue.class, true),
-    MODE        (Primitive.class, false),
-    OP          (Primitive.class, false);
+  public enum Kind {
+    IMM         (FixedValue.class),
+    IMM_RANDOM  (RandomValue.class),
+    IMM_UNKNOWN (UnknownImmediateValue.class),
+    IMM_LAZY    (LazyValue.class),
+    LABEL       (LabelValue.class),
+    MODE        (Primitive.class),
+    OP          (Primitive.class);
 
     private final Class<?> vc;
-    private final boolean isImmediate;
 
-    private Kind(final Class<?> valueClass, final boolean isImmediate) {
-      if (isImmediate) {
-        if (!(Number.class.isAssignableFrom(valueClass)
-            || Value.class.isAssignableFrom(valueClass))) {
-          throw new IllegalArgumentException(valueClass.getSimpleName()
-              + " must implement Value or Number to be used to store immediate values.");
-        }
-      }
-
+    Kind(final Class<?> valueClass) {
       this.vc = valueClass;
-      this.isImmediate = isImmediate;
     }
 
     protected void checkClass(final Class<?> c) {
@@ -53,10 +43,6 @@ public final class Argument {
         throw new IllegalArgumentException(String.format(
             "%s is illegal value class, %s is expected.", c.getSimpleName(),vc.getSimpleName()));
       }
-    }
-
-    private final boolean isImmediate() {
-      return isImmediate;
     }
   }
 
@@ -67,6 +53,59 @@ public final class Argument {
   private final Type type;
 
   protected Argument(
+      final String name,
+      final Value value,
+      final ArgumentMode mode,
+      final Type type) {
+    this(name, getKind(value), value, mode, type);
+  }
+
+  private static Kind getKind(final Value value) {
+    InvariantChecks.checkNotNull(value);
+
+    final Kind kind;
+    if (value instanceof FixedValue) {
+      kind = Kind.IMM;
+    } else if (value instanceof RandomValue) {
+      kind = Kind.IMM_RANDOM;
+    } else if (value instanceof UnknownImmediateValue) {
+      kind = Kind.IMM_UNKNOWN;
+    } else if (value instanceof LazyValue) {
+      kind = Kind.IMM_LAZY;
+    } else if (value instanceof LabelValue) {
+      kind = Kind.LABEL;
+    } else {
+      throw new IllegalArgumentException(
+          "Unsupported value class: " + value.getClass().getSimpleName());
+    }
+
+    return kind;
+  }
+
+  protected Argument(
+      final String name,
+      final Primitive primitive,
+      final ArgumentMode mode,
+      final Type type) {
+    this(name, getKind(primitive), primitive, mode, type);
+  }
+
+  private static Kind getKind(final Primitive primitive) {
+    InvariantChecks.checkNotNull(primitive);
+
+    final Kind kind;
+    if (Primitive.Kind.MODE == primitive.getKind()) {
+      kind = Kind.MODE;
+    } else if (Primitive.Kind.OP == primitive.getKind()) {
+      kind = Kind.OP;
+    } else {
+      throw new IllegalArgumentException("Unsupported primitive type: " + primitive.getKind());
+    }
+
+    return kind;
+  }
+
+  private Argument(
       final String name,
       final Kind kind,
       final Object value,
@@ -97,23 +136,23 @@ public final class Argument {
     if (other.value instanceof SharedObject) {
       this.value = ((SharedObject<?>) other.value).getCopy();
     } else {
-      InvariantChecks.checkTrue(other.value instanceof BigInteger);
+      InvariantChecks.checkTrue(other.value instanceof FixedValue);
       this.value = other.value;
     }
   }
 
   public boolean isImmediate() {
-    return kind.isImmediate();
+    return value instanceof Value;
+  }
+
+  public boolean isPrimitive() {
+    return value instanceof Primitive;
   }
 
   public BigInteger getImmediateValue() {
     if (!isImmediate()) {
       throw new UnsupportedOperationException(String.format(
           "%s(%s) is not an immediate argument.", name, value.getClass().getSimpleName()));
-    }
-
-    if (value instanceof BigInteger) {
-      return (BigInteger) value;
     }
 
     return ((Value) value).getValue();

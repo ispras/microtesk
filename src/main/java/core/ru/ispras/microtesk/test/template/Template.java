@@ -512,16 +512,24 @@ public final class Template {
     return new AllocatorBuilder(strategy);
   }
 
-  public void freeAllocatedMode(final Primitive mode, final boolean freeAll) {
-    InvariantChecks.checkNotNull(mode);
+  public void addAllocatorAction(
+      final Primitive primitive,
+      final String kind,
+      final boolean value,
+      final boolean applyToAll) {
+    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkNotNull(kind);
 
-    if (mode.getKind() != Primitive.Kind.MODE) {
+    if (primitive.getKind() != Primitive.Kind.MODE) {
       throw new GenerationAbortedException(
-          mode.getName() + " is not an addressing mode.");
+          primitive.getName() + " is not an addressing mode.");
     }
 
+    final AllocatorAction.Kind actionKind =
+        AllocatorAction.Kind.valueOf(kind.toUpperCase());
+
     final AllocatorAction allocatorAction =
-        new AllocatorAction(mode,  AllocatorAction.Kind.FREE, true, freeAll);
+        new AllocatorAction(primitive, actionKind, value, applyToAll);
 
     addCall(AbstractCall.newAllocatorAction(allocatorAction));
   }
@@ -530,12 +538,14 @@ public final class Template {
       final Where where,
       final Allocator allocator,
       final List<Primitive> retain,
-      final List<Primitive> exclude) {
+      final List<Primitive> exclude,
+      final boolean reserved) {
     return new UnknownImmediateValue(
         new AllocationData(
             allocator,
             getModeValues(where, retain),
-            getModeValues(where, exclude)
+            getModeValues(where, exclude),
+            reserved
         ));
   }
 
@@ -561,9 +571,7 @@ public final class Template {
       }
 
       for (final Argument arg : primitive.getArguments().values()) {
-        if (arg.getValue() instanceof BigInteger) {
-          result.add(new FixedValue((BigInteger) arg.getValue()));
-        } else if (arg.getValue() instanceof Value) {
+        if (arg.getValue() instanceof Value) {
           result.add((Value) arg.getValue());
         } else {
           InvariantChecks.checkTrue(false, "Unknown argument type: " + arg);
