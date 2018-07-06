@@ -14,12 +14,30 @@ import java.util.Map;
 import javax.json.*;
 
 final class Attribute {
+  public static List<IrPass<?>> modePasses() {
+    return insnPasses();
+  }
+
   public static List<IrPass<?>> insnPasses() {
     final List<IrPass<?>> passes = new ArrayList<>();
     passes.add(new PassFormat("Syntax"));
     passes.add(new PassFormat("Image"));
 
     return passes;
+  }
+
+  public static List<IrPass<JsonValue>> modeAttributes() {
+    final List<IrPass<JsonValue>> attrs = new ArrayList<>();
+    attrs.add(new Format("syntax", "Syntax"));
+    attrs.add(new Format("image", "Image"));
+    attrs.add(new Parameters());
+    attrs.add(new IrPass<JsonValue>("name") {
+      @Override
+      public JsonValue run(final List<PrimitiveAND> insn, final PassContext ctx) {
+        return JsonUtil.createString(insn.get(0).getName());
+      }
+    });
+    return attrs;
   }
 
   public static List<IrPass<JsonValue>> insnAttributes() {

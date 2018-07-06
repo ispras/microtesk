@@ -85,14 +85,51 @@ public final class IrInspector implements TranslatorHandler<Ir> {
 
     final JsonStorage.RefItem ref = arch.getLast().set(builder);
     inspectInsns(ir, ref);
+    inspectModes(ir, ref);
     store(ir.getModelName());
+  }
+
+  private void inspectModes(final Ir ir, final JsonStorage.RefItem entry) {
+    final List<IrPass<?>> passes =
+      mergePasses(Attribute.modePasses(), Attribute.modeAttributes());
+    final JsonStorage.RefList modes = entry.createList("mode");
+
+    int index = 0;
+    for (final Primitive p : ir.getModes().values()) {
+      if (!p.isOrRule()) {
+        final PrimitiveAND mode = (PrimitiveAND) p;
+        final PassContext ctx = new PassContext();
+        ctx.fill(Collections.singletonList(mode), passes);
+
+        final Map<String, JsonValue> attrs = ctx.select(JsonValue.class);
+        attrs.put("id", JsonUtil.createNumber(index++));
+
+        addIndexedEntry(modes, attrs, "id", "name");
+      }
+    }
+  }
+
+  private static void addIndexedEntry(
+      final JsonStorage.RefList entries,
+      final Map<String, JsonValue> attrs,
+      final String... index) {
+    final JsonObjectBuilder builder = Json.createObjectBuilder();
+
+    // store selected attributes as index
+    JsonUtil.addAll(builder, select(attrs, index));
+    entries.add(builder.build());
+
+    // store all attributes as object
+    JsonUtil.addAll(builder, attrs);
+    entries.getLast().set(builder.build());
   }
 
   private void inspectInsns(final Ir ir, final JsonStorage.RefItem entry) {
     final Collection<List<PrimitiveAND>> operations =
       listOperations(ir.getRoots());
 
-    final List<IrPass<?>> passes = insnPasses();
+    final List<IrPass<?>> passes =
+      mergePasses(Attribute.insnPasses(), Attribute.insnAttributes());
 
     final JsonStorage.RefList insns = entry.createList("insn");
     int index = 0;
@@ -100,19 +137,15 @@ public final class IrInspector implements TranslatorHandler<Ir> {
       final Map<String, JsonValue> attrs = inspectInsn(insn, passes);
       attrs.put("id", JsonUtil.createNumber(index++));
 
-      final JsonObjectBuilder builder = Json.createObjectBuilder();
-      JsonUtil.addAll(builder, select(attrs, "id", "name", "mnemonic"));
-      insns.add(builder.build());
-
-      JsonUtil.addAll(builder, attrs);
-      insns.getLast().set(builder.build());
+      addIndexedEntry(insns, attrs, "id", "name", "mnemonic");
     }
   }
 
-  private static List<IrPass<?>> insnPasses() {
-    final List<IrPass<?>> passes = Attribute.insnPasses();
-    passes.addAll(Attribute.insnAttributes());
-
+  private static List<IrPass<?>> mergePasses(final Collection<? extends IrPass<?>>... passSets) {
+    final List<IrPass<?>> passes = new ArrayList<>();
+    for (final Collection<? extends IrPass<?>> set : passSets) {
+      passes.addAll(set);
+    }
     return topologicalOrder(passes);
   }
 
