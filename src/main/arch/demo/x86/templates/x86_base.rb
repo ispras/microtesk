@@ -25,19 +25,6 @@ class X86BaseTemplate < Template
   def initialize
     super
 
-    # Initialize settings here
-    @setup_memory       = false
-    @setup_cache        = false
-    @kseg0_cache_policy = 0
-
-    if i386_assembler == true then
-      set_option_value 'text-section-keyword', 'section .text'
-      set_option_value 'data-section-keyword', 'section .data'
-    else
-      set_option_value 'text-section-keyword', ''
-      set_option_value 'data-section-keyword', ''
-    end
-
     # Sets the comment token used in test programs
     if is_rev('GNU') then
       set_option_value 'comment-token', '#'
@@ -77,7 +64,7 @@ class X86BaseTemplate < Template
     # pa: base physical address (used for memory allocation).
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
-    section_text(:pa => 0x0, :va => 0x0) {}
+    section_text(:pa => 0x0, :va => 0x0, :prefix => i386_assembler ? 'section' : '') {}
 
     #
     # Defines .data section.
@@ -85,7 +72,7 @@ class X86BaseTemplate < Template
     # pa: base physical address (used for memory allocation).
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
-    section_data(:pa => 0x700, :va => 0x700) {}
+    section_data(:pa => 0x700, :va => 0x700, :prefix => i386_assembler ? 'section' : '') {}
 
     #
     # Simple exception handler. Continues execution from the next instruction.

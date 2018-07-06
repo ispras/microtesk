@@ -1177,15 +1177,17 @@ public final class Template {
 
   public void beginSection(
       final String name,
+      final String prefix,
       final BigInteger pa,
       final BigInteger va,
       final String args) {
     processExternalCode();
     InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(prefix);
 
     Section section = Sections.get().getSection(name, false);
     if (null == section) {
-      section = new Section(name, false, pa, va, args);
+      section = new Section(name, prefix, false, pa, va, args);
       Sections.get().addSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);
@@ -1195,6 +1197,7 @@ public final class Template {
   }
 
   public void beginSectionText(
+      final String prefix,
       final BigInteger pa,
       final BigInteger va,
       final String args) {
@@ -1203,7 +1206,7 @@ public final class Template {
 
     if (null == section) {
       final String name = context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD);
-      section = new Section(name, true, pa, va);
+      section = new Section(name, prefix, true, pa, va);
       Sections.get().setTextSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);
@@ -1213,6 +1216,7 @@ public final class Template {
   }
 
   public void beginSectionData(
+      final String prefix,
       final BigInteger pa,
       final BigInteger va,
       final String args) {
@@ -1221,7 +1225,7 @@ public final class Template {
 
     if (null == section) {
       final String name = context.getOptions().getValueAsString(Option.DATA_SECTION_KEYWORD);
-      section = new Section(name, true, pa, va);
+      section = new Section(name, prefix, true, pa, va);
       Sections.get().setDataSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);

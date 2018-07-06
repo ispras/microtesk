@@ -20,6 +20,7 @@ import java.math.BigInteger;
 
 public final class Section {
   private final String name;
+  private final String prefix;
   private final boolean standard;
 
   private final BigInteger basePa;
@@ -32,24 +33,28 @@ public final class Section {
 
   public Section(
       final String name,
+      final String prefix,
       final boolean standard,
       final BigInteger basePa,
       final BigInteger baseVa) {
-    this(name, standard, basePa, baseVa, "");
+    this(name, prefix, standard, basePa, baseVa, "");
   }
 
   public Section(
       final String name,
+      final String prefix,
       final boolean standard,
       final BigInteger basePa,
       final BigInteger baseVa,
       final String args) {
+    InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(basePa);
     InvariantChecks.checkNotNull(baseVa);
     InvariantChecks.checkNotNull(args);
 
     this.name = name;
+    this.prefix = prefix;
     this.standard = standard;
 
     this.basePa = basePa;
@@ -65,16 +70,29 @@ public final class Section {
     return name;
   }
 
+  public String getPrefix() {
+    return prefix;
+  }
+
   public boolean isStandard() {
     return standard;
   }
 
   public String getAsmText() {
-    final StringBuilder sb = new StringBuilder(name);
+    final StringBuilder sb = new StringBuilder();
+
+    if (!prefix.isEmpty()) {
+      sb.append(prefix);
+      sb.append(' ');
+    }
+
+    sb.append(name);
+
     if (args != null && !args.isEmpty()) {
       sb.append(',');
       sb.append(args);
     }
+
     return sb.toString();
   }
 

@@ -1,5 +1,5 @@
 #
-# Copyright 2013-2017 ISP RAS (http://www.ispras.ru)
+# Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,13 +14,16 @@
 # limitations under the License.
 #
 
+require_relative 'mmu_plugin'
+require_relative 'operators'
 require_relative 'template_builder'
 require_relative 'utils'
-require_relative 'mmu_plugin'
 
 include TemplateBuilder
 
 class Template
+  include Operators
+
   attr_reader :template
 
   @@template_classes = Hash.new
@@ -917,32 +920,37 @@ class Template
 
   def section(attrs, &contents)
     name = get_attribute attrs, :name
+    prefix = attrs.has_key?(:prefix) ? attrs[:prefix] : ''
 
     pa   = attrs[:pa]
     va   = attrs[:va]
     args = attrs[:args]
 
-    @template.beginSection name, pa, va, args
+    @template.beginSection name, prefix, pa, va, args
     self.instance_eval &contents
     @template.endSection
   end
 
   def section_text(attrs = {}, &contents)
+    prefix = attrs.has_key?(:prefix) ? attrs[:prefix] : ''
+
     pa   = attrs[:pa]
     va   = attrs[:va]
     args = attrs[:args]
 
-    @template.beginSectionText pa, va, args
+    @template.beginSectionText prefix, pa, va, args
     self.instance_eval &contents
     @template.endSection
   end
 
   def section_data(attrs = {}, &contents)
+    prefix = attrs.has_key?(:prefix) ? attrs[:prefix] : ''
+
     pa   = attrs[:pa]
     va   = attrs[:va]
     args = attrs[:args]
 
-    @template.beginSectionData pa, va, args
+    @template.beginSectionData prefix, pa, va, args
     self.instance_eval &contents
     @template.endSection
   end
