@@ -158,11 +158,9 @@ public final class BranchEngine implements Engine {
 
       InvariantChecks.checkTrue(argumentPrimitive.getArguments().size() == 1);
       for (final Argument index : argumentPrimitive.getArguments().values()) {
-        final Object value = index.getValue();
-
-        if (value instanceof Value) {
-          final BigInteger integerValue = ((Value) value).getValue();
-          return integerValue.intValue();
+        if (index.isImmediate()) {
+          final BigInteger value = index.getImmediateValue();
+          return value.intValue();
         }
 
         InvariantChecks.checkTrue(false, "Unknown argument type: " + index);
