@@ -110,7 +110,13 @@ final class Attribute {
 
         final JsonArrayBuilder types = Json.createArrayBuilder();
         for (final Primitive type : variantsOf(entry.getValue())) {
-          types.add(type.getName());
+          if (type.getKind() == Primitive.Kind.IMM) {
+            final String[] str =
+              type.getReturnType().getTypeName().split("\\.");
+            types.add(str[1].toLowerCase());
+          } else {
+            types.add(type.getName());
+          }
         }
 
         param.add("name", entry.getKey());
