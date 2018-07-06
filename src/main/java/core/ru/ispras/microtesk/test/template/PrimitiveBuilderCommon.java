@@ -322,6 +322,16 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
     final Argument arg;
 
     final boolean isLabel = value instanceof LabelValue;
+    final boolean isUnknown =value instanceof UnknownImmediateValue;
+
+    if (isLabel) {
+      callBuilder.addLabelReference((LabelValue) value);
+    }
+
+    if (isUnknown) {
+      ((UnknownImmediateValue) value).setType(metaArg.getDataType());
+    }
+
     if (metaArg.getKind() == IsaPrimitiveKind.MODE) {
       final Pair<PrimitiveBuilder, Integer> modeBuilderInfo = newModeBuilder(metaArg, isLabel);
 
@@ -357,10 +367,6 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
     checkValidArgument(arg);
     putArgument(arg);
-
-    if (isLabel) {
-      callBuilder.addLabelReference((LabelValue) value);
-    }
   }
 
   @Override
