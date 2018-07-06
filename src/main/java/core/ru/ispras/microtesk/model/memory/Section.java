@@ -70,18 +70,11 @@ public final class Section {
   }
 
   public String getAsmText() {
-    if (".data".equals(name) || ".text".equals(name)) {
-      return name;
-    }
-
-    final StringBuilder sb = new StringBuilder(".section ");
-    sb.append(name);
-
+    final StringBuilder sb = new StringBuilder(name);
     if (args != null && !args.isEmpty()) {
       sb.append(',');
       sb.append(args);
     }
-
     return sb.toString();
   }
 
