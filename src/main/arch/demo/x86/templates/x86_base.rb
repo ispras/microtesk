@@ -26,7 +26,7 @@ class X86BaseTemplate < Template
     super
 
     # Sets the comment token used in test programs
-    if is_rev('GNU') then
+    if is_rev('X86_GNU') then
       set_option_value 'comment-token', '#'
     else
       set_option_value 'comment-token', ';'
@@ -73,13 +73,6 @@ class X86BaseTemplate < Template
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
     section_data(:pa => 0x700, :va => 0x700, :prefix => i386_assembler ? 'section' : '') {}
-
-    #
-    # Simple exception handler. Continues execution from the next instruction.
-    #
-    exception_handler {
-      # TODO
-    }
 
     ################################################################################################
 
@@ -129,7 +122,7 @@ class X86BaseTemplate < Template
     ################################################################################################
 
     if i386_assembler == true then
-      if is_rev('GNU') then
+      if is_rev('X86_GNU') then
         global_label :_start
       else
         text "global _start"
@@ -218,14 +211,6 @@ class X86BaseTemplate < Template
 
   def ds
     RSEG16(3)
-  end
-
-  ##################################################################################################
-  # Shortcut methods to access memory resources in debug messages.
-  ##################################################################################################
-
-  def gpr_observer(index)
-    location('GPR', index)
   end
 
   ##################################################################################################

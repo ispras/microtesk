@@ -39,7 +39,7 @@ class EuclidTemplate < X86BaseTemplate
       prepare bx, val2
 
       label :cycle
-      trace "\nCurrent values: ax=%d, bx=%d\n", gpr_observer(0), gpr_observer(3)
+      trace "\nCurrent values: ax=%d, bx=%d\n", gpr(0), gpr(3)
       cmp_r16r16 ax, bx
       je :done
 
@@ -56,7 +56,7 @@ class EuclidTemplate < X86BaseTemplate
       label :done
       mov_r16r16 cx, ax
 
-      trace "\nResult stored in cx: %d", gpr_observer(1)
+      trace "\nResult stored in cx: %d", gpr(1)
     }.run
   end
 

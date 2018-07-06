@@ -56,7 +56,7 @@ class BubbleSortTemplate < X86BaseTemplate
       mov_m16i16 ds, RIAM_BX(), IMM16(1)
 
       mov_r16r16 dx, bx
-      trace "bx = %x", gpr_observer(3)
+      trace "bx = %x", gpr(3)
 
       ########################### Outer loop starts ##############################
       label :repeat
@@ -65,8 +65,8 @@ class BubbleSortTemplate < X86BaseTemplate
       ########################### Inner loop starts ##############################
       label :for
       cmp_r16r16 ax, dx
-      trace "ax = %x", gpr_observer(0)
-      trace "dx = %x", gpr_observer(2)
+      trace "ax = %x", gpr(0)
+      trace "dx = %x", gpr(2)
       je :exit_for
 
       mov_r16r16 bx, ax
@@ -92,7 +92,7 @@ class BubbleSortTemplate < X86BaseTemplate
 
       mov_r16i16 bx, IMM16(0x20)
       mov_r16m16 ds, ax, RIAM_BX()
-      trace "ax = %x", gpr_observer(0)
+      trace "ax = %x", gpr(0)
 
       cmp_m16i16 ds, RIAM_BX(), IMM16(0x0)
       mov_m16i16 ds, RIAM_BX(), IMM16(0x0)
@@ -102,19 +102,19 @@ class BubbleSortTemplate < X86BaseTemplate
       #
       mov_r16i16 bx, IMM16(0)
       mov_r16m16 ds, ax, RIAM_BX()
-      trace "ax = %x", gpr_observer(0)
+      trace "ax = %x", gpr(0)
       add_r16i16 bx, IMM16(2)
       mov_r16m16 ds, ax, RIAM_BX()
-      trace "ax = %x", gpr_observer(0)
+      trace "ax = %x", gpr(0)
       add_r16i16 bx, IMM16(2)
       mov_r16m16 ds, ax, RIAM_BX()
-      trace "ax = %x", gpr_observer(0)
+      trace "ax = %x", gpr(0)
       add_r16i16 bx, IMM16(2)
       mov_r16m16 ds, ax, RIAM_BX()
-      trace "ax = %x", gpr_observer(0)
+      trace "ax = %x", gpr(0)
       add_r16i16 bx, IMM16(2)
       mov_r16m16 ds, ax, RIAM_BX()
-      trace "ax = %x", gpr_observer(0)
+      trace "ax = %x", gpr(0)
     }.run
   end
 
