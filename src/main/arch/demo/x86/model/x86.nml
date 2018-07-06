@@ -2595,22 +2595,33 @@ op cmp = cmp_m8r8   | cmp_r8r8   | cmp_r8m8   | cmp_r8i8   | cmp_m8i8
 // ==================================================================================
 // Jump Instructions
 
-op jmp_short(rel: SBYTE)
+label mode REL8_LABEL(target: WORD, current: WORD) = coerce(BYTE, target - current)
+  syntax = ""
+  image = format("%s", coerce(BYTE, target - current))
+
+label mode REL16_LABEL(target: WORD) = target
+  syntax = ""
+  image = format("%s", target)
+
+mode REL8  = REL8_LABEL  | IMM8
+mode REL16 = REL16_LABEL | IMM16
+
+op jmp_short(rel: REL8)
   init = {}
-  syntax = format("jmp short %d", rel)
-  image  = format("11101011%s", rel)
+  syntax = format("jmp short %s", rel.syntax)
+  image  = format("11101011%s", rel.image)
   action = {
-    IP = IP + coerce(WORD, rel);
+    IP = IP + sign_extend(WORD, rel);
     instruction_image_size = 2;
   }
 
-op jmp_long(rel: SWORD)
+op jmp_long(rel: REL16)
   init = {}
-  syntax = format("jmp %d", rel)
-  image  = format("11101001%s", rel<0..7>::rel<8..15>)
+  syntax = format("jmp %s", rel.syntax)
+  image  = format("11101001%s", rel.image)
   action = {
     BRANCH = 1;
-    NEXTPC = coerce(WORD, rel);
+    NEXTPC = rel;
   }
 
 op jmp_r16(rel: R16)
@@ -2638,391 +2649,391 @@ op jmp = jmp_r16 | jmp_m16 | jmp_long | jmp_short
 // ==================================================================================
 // Conditional Jcc
 
-op jo(rel: SBYTE)
+op jo(rel: REL8)
   init = {}
-  syntax = format("jo %d", rel)
-  image  = format("01110000%s", rel)
+  syntax = format("jo %s", rel.syntax)
+  image  = format("01110000%s", rel.image)
   action = {
     if OF == 1 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jno(rel: SBYTE)
+op jno(rel: REL8)
   init = {}
-  syntax = format("jno %d", rel)
-  image  = format("01110001%s", rel)
+  syntax = format("jno %s", rel.syntax)
+  image  = format("01110001%s", rel.image)
   action = {
     if OF == 0 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jc(rel: SBYTE)
+op jc(rel: REL8)
   init = {}
-  syntax = format("jc %d", rel)
-  image  = format("01110010%s", rel)
+  syntax = format("jc %s", rel.syntax)
+  image  = format("01110010%s", rel.image)
   action = {
     if CF == 1 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jnc(rel: SBYTE)
+op jnc(rel: REL8)
   init = {}
-  syntax = format("jnc %d", rel)
-  image  = format("01110011%s", rel)
+  syntax = format("jnc %s", rel.syntax)
+  image  = format("01110011%s", rel.image)
   action = {
     if CF == 0 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jz(rel: SBYTE)
+op jz(rel: REL8)
   init = {}
-  syntax = format("jz %d", rel)
-  image  = format("01110100%s", rel)
+  syntax = format("jz %s", rel.syntax)
+  image  = format("01110100%s", rel.image)
   action = {
     if ZF == 1 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jnz(rel: SBYTE)
+op jnz(rel: REL8)
   init = {}
-  syntax = format("jnz %d", rel)
-  image  = format("01110101%s", rel)
+  syntax = format("jnz %s", rel.syntax)
+  image  = format("01110101%s", rel.image)
   action = {
     if ZF == 0 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op js(rel: SBYTE)
+op js(rel: REL8)
   init = {}
-  syntax = format("js %d", rel)
-  image  = format("01111000%s", rel)
+  syntax = format("js %s", rel.syntax)
+  image  = format("01111000%s", rel.image)
   action = {
     if SF == 1 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jns(rel: SBYTE)
+op jns(rel: REL8)
   init = {}
-  syntax = format("jns %d", rel)
-  image  = format("01111001%s", rel)
+  syntax = format("jns %s", rel.syntax)
+  image  = format("01111001%s", rel.image)
   action = {
     if SF == 0 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jp(rel: SBYTE)
+op jp(rel: REL8)
   init = {}
-  syntax = format("jp %d", rel)
-  image  = format("01111010%s", rel)
+  syntax = format("jp %s", rel.syntax)
+  image  = format("01111010%s", rel.image)
   action = {
     if PF == 1 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jpe(rel: SBYTE)
+op jpe(rel: REL8)
   init = {}
-  syntax = format("jpe %d", rel)
-  image  = format("01111010%s", rel)
+  syntax = format("jpe %s", rel.syntax)
+  image  = format("01111010%s", rel.image)
   action = {
     if PF == 1 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jnp(rel: SBYTE)
+op jnp(rel: REL8)
   init = {}
-  syntax = format("jnp %d", rel)
-  image  = format("01111011%s", rel)
+  syntax = format("jnp %s", rel.syntax)
+  image  = format("01111011%s", rel.image)
   action = {
     if PF == 0 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jpo(rel: SBYTE)
+op jpo(rel: REL8)
   init = {}
-  syntax = format("jpo %d", rel)
-  image  = format("01111011%s", rel)
+  syntax = format("jpo %s", rel.syntax)
+  image  = format("01111011%s", rel.image)
   action = {
     if PF == 0 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op ja(rel: SBYTE)
+op ja(rel: REL8)
   init = {}
-  syntax = format("ja %d", rel)
-  image  = format("01110011%s", rel)
+  syntax = format("ja %s", rel.syntax)
+  image  = format("01110011%s", rel.image)
   action = {
     if CF == 0 && ZF == 0 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jae(rel: SBYTE)
+op jae(rel: REL8)
   init = {}
-  syntax = format("jae %d", rel)
-  image  = format("01110011%s", rel)
+  syntax = format("jae %s", rel.syntax)
+  image  = format("01110011%s", rel.image)
   action = {
     if CF == 0 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jb(rel: SBYTE)
+op jb(rel: REL8)
   init = {}
-  syntax = format("jb %d", rel)
-  image  = format("01110010%s", rel)
+  syntax = format("jb %s", rel.syntax)
+  image  = format("01110010%s", rel.image)
   action = {
     if CF == 1 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jbe(rel: SBYTE)
+op jbe(rel: REL8)
   init = {}
-  syntax = format("jbe %d", rel)
-  image  = format("01110110%s", rel)
+  syntax = format("jbe %s", rel.syntax)
+  image  = format("01110110%s", rel.image)
   action = {
     if CF == 1 && ZF == 1 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op je(rel: SBYTE)
+op je(rel: REL8)
   init = {}
-  syntax = format("je %d", rel)
-  image  = format("01110100%s", rel)
+  syntax = format("je %s", rel.syntax)
+  image  = format("01110100%s", rel.image)
   action = {
     if ZF == 1 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jne(rel: SBYTE)
+op jne(rel: REL8)
   init = {}
-  syntax = format("jne %d", rel)
-  image  = format("01110100%s", rel)
+  syntax = format("jne %s", rel.syntax)
+  image  = format("01110100%s", rel.image)
   action = {
     if ZF == 0 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jna(rel: SBYTE)
+op jna(rel: REL8)
   init = {}
-  syntax = format("jna %d", rel)
-  image  = format("01110110%s", rel)
+  syntax = format("jna %s", rel.syntax)
+  image  = format("01110110%s", rel.image)
   action = {
     if CF == 1 && ZF == 1 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jnae(rel: SBYTE)
+op jnae(rel: REL8)
   init = {}
-  syntax = format("jnae %d", rel)
-  image  = format("01110010%s", rel)
+  syntax = format("jnae %s", rel.syntax)
+  image  = format("01110010%s", rel.image)
   action = {
     if CF == 1 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jnb(rel: SBYTE)
+op jnb(rel: REL8)
   init = {}
-  syntax = format("jnb %d", rel)
-  image  = format("01110011%s", rel)
+  syntax = format("jnb %s", rel.syntax)
+  image  = format("01110011%s", rel.image)
   action = {
     if CF == 0 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jnbe(rel: SBYTE)
+op jnbe(rel: REL8)
   init = {}
-  syntax = format("jnbe %d", rel)
-  image  = format("01110111%s", rel)
+  syntax = format("jnbe %s", rel.syntax)
+  image  = format("01110111%s", rel.image)
   action = {
     if CF == 0 && ZF == 0 then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jg(rel: SBYTE)
+op jg(rel: REL8)
   init = {}
-  syntax = format("jg %d", rel)
-  image  = format("01111111%s", rel)
+  syntax = format("jg %s", rel.syntax)
+  image  = format("01111111%s", rel.image)
   action = {
     if ZF == 0 && SF == OF then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jge(rel: SBYTE)
+op jge(rel: REL8)
   init = {}
-  syntax = format("jge %d", rel)
-  image  = format("01111101%s", rel)
+  syntax = format("jge %s", rel.syntax)
+  image  = format("01111101%s", rel.image)
   action = {
     if SF == OF then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jl(rel: SBYTE)
+op jl(rel: REL8)
   init = {}
-  syntax = format("jl %d", rel)
-  image  = format("01111100%s", rel)
+  syntax = format("jl %s", rel.syntax)
+  image  = format("01111100%s", rel.image)
   action = {
     if SF != OF then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jle(rel: SBYTE)
+op jle(rel: REL8)
   init = {}
-  syntax = format("jle %d", rel)
-  image  = format("01111110%s", rel)
+  syntax = format("jle %s", rel.syntax)
+  image  = format("01111110%s", rel.image)
   action = {
     if ZF == 1 || SF != OF then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jng(rel: SBYTE)
+op jng(rel: REL8)
   init = {}
-  syntax = format("jng %d", rel)
-  image  = format("01111110%s", rel)
+  syntax = format("jng %s", rel.syntax)
+  image  = format("01111110%s", rel.image)
   action = {
     if ZF == 1 || SF != OF then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jnge(rel: SBYTE)
+op jnge(rel: REL8)
   init = {}
-  syntax = format("jnge %d", rel)
-  image  = format("01111100%s", rel)
+  syntax = format("jnge %s", rel.syntax)
+  image  = format("01111100%s", rel.image)
   action = {
     if SF != OF then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jnl(rel: SBYTE)
+op jnl(rel: REL8)
   init = {}
-  syntax = format("jnl %d", rel)
-  image  = format("01111101%s", rel)
+  syntax = format("jnl %s", rel.syntax)
+  image  = format("01111101%s", rel.image)
   action = {
     if SF == OF then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
   }
 
-op jnle(rel: SBYTE)
+op jnle(rel: REL8)
   init = {}
-  syntax = format("jnle %d", rel)
-  image  = format("01111111%s", rel)
+  syntax = format("jnle %s", rel.syntax)
+  image  = format("01111111%s", rel.image)
   action = {
     if ZF == 0 && SF == OF then
       BRANCH = 1;
-      NEXTPC = coerce(WORD, rel);
+      NEXTPC = IP + sign_extend(WORD, rel);
     else
       instruction_image_size = 2;
     endif;
