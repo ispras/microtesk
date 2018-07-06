@@ -345,24 +345,7 @@ final class PrimitiveBuilderCommon implements PrimitiveBuilder {
 
       arg = newModeArgument(name, builder.build(), metaArg);
     } else {
-      final Argument.Kind kind;
-
-      if (value instanceof FixedValue) {
-        kind = Argument.Kind.IMM;
-      } else if (value instanceof RandomValue) {
-        kind = Argument.Kind.IMM_RANDOM;
-      } else if (value instanceof UnknownImmediateValue) {
-        kind = Argument.Kind.IMM_UNKNOWN;
-      } else if (value instanceof LazyValue) {
-        kind = Argument.Kind.IMM_LAZY;
-      } else if (value instanceof LabelValue) {
-        kind = Argument.Kind.LABEL;
-      } else {
-        throw new IllegalArgumentException(
-            "Unsupported value class: " + value.getClass().getSimpleName());
-      }
-
-      arg = new Argument(name, kind, value, metaArg.getMode(), metaArg.getDataType());
+      arg = new Argument(name, value, metaArg.getMode(), metaArg.getDataType());
     }
 
     checkValidArgument(arg);

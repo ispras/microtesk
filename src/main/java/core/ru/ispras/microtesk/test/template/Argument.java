@@ -34,7 +34,7 @@ public final class Argument {
 
     private final Class<?> vc;
 
-    private Kind(final Class<?> valueClass) {
+    Kind(final Class<?> valueClass) {
       this.vc = valueClass;
     }
 
@@ -51,6 +51,39 @@ public final class Argument {
   private final Object value;
   private final ArgumentMode mode;
   private final Type type;
+
+  protected Argument(
+      final String name,
+      final Value value,
+      final ArgumentMode mode,
+      final Type type) {
+    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(value);
+    InvariantChecks.checkNotNull(mode);
+
+    final Argument.Kind kind;
+    if (value instanceof FixedValue) {
+      kind = Argument.Kind.IMM;
+    } else if (value instanceof RandomValue) {
+      kind = Argument.Kind.IMM_RANDOM;
+    } else if (value instanceof UnknownImmediateValue) {
+      kind = Argument.Kind.IMM_UNKNOWN;
+    } else if (value instanceof LazyValue) {
+      kind = Argument.Kind.IMM_LAZY;
+    } else if (value instanceof LabelValue) {
+      kind = Argument.Kind.LABEL;
+    } else {
+      throw new IllegalArgumentException(
+          "Unsupported value class: " + value.getClass().getSimpleName());
+    }
+    kind.checkClass(value.getClass());
+
+    this.name = name;
+    this.kind = kind;
+    this.value = value;
+    this.mode = mode;
+    this.type = type;
+  }
 
   protected Argument(
       final String name,
