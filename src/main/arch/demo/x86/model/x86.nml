@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -554,7 +554,8 @@ op mov_m16r16 (seg_ovrd: RSEG16, dst: MOFFS, src: R16)
 
 op mov_r16r16 (dst: R16, src: R16)
   init = {}
-  syntax = format("mov %s, %s", dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("movl %%%s, %%%s", src.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s, %s", dst.syntax, src.syntax)
   image = format("1000101111%s%s", dst.image, src.image)
   action = {
     dst = src;
@@ -635,7 +636,8 @@ op mov_r8i8 (dst: R8, src: IMM8)
 
 op mov_r16i16 (dst: R16, src: IMM16)
   init = {}
-  syntax = format("mov %s, %s", dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("movl $%s, %%%s", src.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s, %s", dst.syntax, src.syntax)
   image = format("10111%s11001%s%s", dst.image, dst.image, src.image)
   action = {
     dst = src;
@@ -1232,7 +1234,8 @@ op sub_r8m8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op sub_r16r16 (op1: R16, op2: R16)
   init = {}
-  syntax = format("sub %s, %s", op1.syntax, op2.syntax)
+  @rev(X86_GNU) syntax = format("sub %%%s, %%%s", op2.syntax, op1.syntax)
+  @rev(X86) syntax = format("sub %s, %s", op1.syntax, op2.syntax)
   image = format("0010101111%s%s", op1.image, op2.image)
   action = {
     sub_proc_word(op1+0, op2+0).action;
@@ -2523,7 +2526,8 @@ op cmp_r8m8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op cmp_r16r16 (op1: R16, op2: R16)
   init = {}
-  syntax = format("cmp %s, %s", op1.syntax, op2.syntax)
+  @rev(X86_GNU) syntax = format("cmp %%%s, %%%s", op2.syntax, op1.syntax)
+  @rev(X86) syntax = format("cmp %s, %s", op1.syntax, op2.syntax)
   image = format("0011101111%s%s", op1.image, op2.image)
   action = {
     sub_proc_word(op1+0, op2+0).action;
