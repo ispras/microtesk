@@ -23,29 +23,19 @@ import ru.ispras.microtesk.utils.SharedObject;
 import java.math.BigInteger;
 
 public final class Argument {
-  public static enum Kind {
-    IMM         (FixedValue.class, true),
-    IMM_RANDOM  (RandomValue.class, true),
-    IMM_UNKNOWN (UnknownImmediateValue.class, true),
-    IMM_LAZY    (LazyValue.class, true),
-    LABEL       (LabelValue.class, true),
-    MODE        (Primitive.class, false),
-    OP          (Primitive.class, false);
+  public enum Kind {
+    IMM         (FixedValue.class),
+    IMM_RANDOM  (RandomValue.class),
+    IMM_UNKNOWN (UnknownImmediateValue.class),
+    IMM_LAZY    (LazyValue.class),
+    LABEL       (LabelValue.class),
+    MODE        (Primitive.class),
+    OP          (Primitive.class);
 
     private final Class<?> vc;
-    private final boolean isImmediate;
 
-    private Kind(final Class<?> valueClass, final boolean isImmediate) {
-      if (isImmediate) {
-        if (!(Number.class.isAssignableFrom(valueClass)
-            || Value.class.isAssignableFrom(valueClass))) {
-          throw new IllegalArgumentException(valueClass.getSimpleName()
-              + " must implement Value or Number to be used to store immediate values.");
-        }
-      }
-
+    private Kind(final Class<?> valueClass) {
       this.vc = valueClass;
-      this.isImmediate = isImmediate;
     }
 
     protected void checkClass(final Class<?> c) {
@@ -53,10 +43,6 @@ public final class Argument {
         throw new IllegalArgumentException(String.format(
             "%s is illegal value class, %s is expected.", c.getSimpleName(),vc.getSimpleName()));
       }
-    }
-
-    private final boolean isImmediate() {
-      return isImmediate;
     }
   }
 
@@ -103,7 +89,7 @@ public final class Argument {
   }
 
   public boolean isImmediate() {
-    return kind.isImmediate();
+    return value instanceof Value;
   }
 
   public BigInteger getImmediateValue() {

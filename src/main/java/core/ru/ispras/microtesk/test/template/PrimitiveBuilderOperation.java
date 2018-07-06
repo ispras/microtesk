@@ -59,8 +59,8 @@ final class PrimitiveBuilderOperation implements PrimitiveBuilder {
     this.contextName = null;
     this.situation = null;
 
-    this.argumentList = new ArrayList<Argument>();
-    this.argumentMap = new LinkedHashMap<String, Argument>();
+    this.argumentList = new ArrayList<>();
+    this.argumentMap = new LinkedHashMap<>();
   }
 
   public Primitive build() {
