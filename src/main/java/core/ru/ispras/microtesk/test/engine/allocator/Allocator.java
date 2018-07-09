@@ -54,4 +54,18 @@ public final class Allocator {
       final Collection<T> used) {
     return strategy.next(supplier, exclude, used, attributes);
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder builder = new StringBuilder("Allocator(");
+    builder.append(strategy.toString());
+
+    if (attributes != null) {
+      builder.append(", ");
+      builder.append(attributes.toString());
+    }
+
+    builder.append(')');
+    return builder.toString();
+  }
 }
