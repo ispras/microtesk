@@ -566,7 +566,7 @@ op syscall ()
   }
 
 op cop0 (cop_fun: card(21))
-  syntax = format("cop0 %s", cop_fun)
+  syntax = format("cop0 %d", cop_fun)
   image = format("01000000001%s", cop_fun)
   action = {
     //TO BE DEFINED
