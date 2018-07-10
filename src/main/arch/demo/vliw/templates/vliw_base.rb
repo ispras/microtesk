@@ -139,27 +139,11 @@ class VliwBaseTemplate < Template
   # Reusable Utility Methods
 
   #
-  # Creates an argument for text printing methods (e.g. trace or text),
-  # which refers to the specified GPR register.
-  #
-  def gpr(index)
-    location('GPR', index)
-  end
-
-  #
   # Prints the value stored in the specified general-purpose
   # register (GPR) to the simulator log.
   #
   def trace_gpr(index)
     trace "GPR[%d] = %s", index, gpr(index)
-  end
-
-  #
-  # Creates an argument for text printing methods (e.g. trace or text),
-  # which refers to the specified FPR register.
-  #
-  def fpr(index)
-    location('FPR', index)
   end
 
   #
