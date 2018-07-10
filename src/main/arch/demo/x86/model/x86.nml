@@ -182,7 +182,13 @@ mode R16(i: INDEX) = GPR[i]
                       endif)
 
 mode RSEG16(i: INDEX) = RSEG[i]
-  syntax = format("%s", if i == 0 then "ES"
+  @rev(X86_GNU) syntax = format("%s", if i == 0 then "%ES"
+                      elif i == 1 then "%CS"
+                      elif i == 2 then "%SS"
+                      elif i == 3 then "%DS"
+                      else "%ES"
+                      endif)
+  @rev(X86) syntax = format("%s", if i == 0 then "ES"
                       elif i == 1 then "CS"
                       elif i == 2 then "SS"
                       elif i == 3 then "DS"
@@ -263,7 +269,8 @@ mode DOAM(disp: WORD) = coerce(addR, disp)
 // The Register Indirect Addressing Modes
 
 mode RIAM_BX() = coerce(addR, cast(SWORD, BX))
-  syntax = format("[BX]")
+  @rev(X86_GNU) syntax = format("(BX)") // TODO: [] -> ()
+  @rev(X86) syntax = format("[BX]")
   image = format("")
   init = {
     mod = 0b00;
@@ -530,7 +537,8 @@ mode MOFFS = RIAM_BX | BIAM_BX_SI | IAM_BX_D8 | BIDAM_BX_SI_D8 | IAM_BX_D16 | BI
 
 op mov_m8r8 (seg_ovrd: RSEG16, dst: MOFFS, src: R8)
   init = { mod = 0b0; rm = 0b0; dst.init;}
-  syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s, %s:%s", src.syntax, seg_ovrd.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
   image = format("001%s11010001000%s%s%s%s", seg_ovrd.image, mod, src.image, rm, dst.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -541,7 +549,8 @@ op mov_m8r8 (seg_ovrd: RSEG16, dst: MOFFS, src: R8)
 
 op mov_r8m8 (seg_ovrd: RSEG16, dst: R8, src: MOFFS)
   init = { mod = 0b0; rm = 0b0; src.init;}
-  syntax = format("mov %s, %s:%s", dst.syntax, seg_ovrd.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s:%s, %s", seg_ovrd.syntax, src.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s, %s:%s", dst.syntax, seg_ovrd.syntax, src.syntax)
   image = format("001%s11010001010%s%s%s%s", seg_ovrd.image, mod, dst.image, rm, src.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -552,7 +561,8 @@ op mov_r8m8 (seg_ovrd: RSEG16, dst: R8, src: MOFFS)
 
 op mov_r8r8 (dst: R8, src: R8)
   init = {}
-  syntax = format("mov %s, %s", dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s, %s", src.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s, %s", dst.syntax, src.syntax)
   image = format("1000101011%s%s", dst.image, src.image)
   action = {
     dst = src;
@@ -561,11 +571,9 @@ op mov_r8r8 (dst: R8, src: R8)
 
 op mov_m16r16 (seg_ovrd: RSEG16, dst: MOFFS, src: R16)
   init = { mod = 0b0; rm = 0b0; dst.init;}
-#ifdef I386_ASSEMBLER
-  syntax = format("mov word%s, %s", dst.syntax, src.syntax)
-#else
-  syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
-#endif
+  @rev(I386_ASSEMBLER) syntax = format("mov word%s, %s", dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s, %s:%s", src.syntax, seg_ovrd.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
   image = format("001%s11010001001%s%s%s%s", seg_ovrd.image, mod, src.image, rm, dst.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -586,11 +594,9 @@ op mov_r16r16 (dst: R16, src: R16)
 
 op mov_r16m16 (seg_ovrd: RSEG16, dst: R16, src: MOFFS)
   init = { mod = 0b0; rm = 0b0; src.init;}
-#ifdef I386_ASSEMBLER
-  syntax = format("mov %s, word%s", dst.syntax, src.syntax)
-#else
-  syntax = format("mov %s, %s:%s", dst.syntax, seg_ovrd.syntax, src.syntax)
-#endif
+  @rev(I386_ASSEMBLER) syntax = format("mov %s, word%s", dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s:%s, %s", seg_ovrd.syntax, src.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s, %s:%s", dst.syntax, seg_ovrd.syntax, src.syntax)
   image = format("001%s11010001011%s%s%s%s", seg_ovrd.image, mod, dst.image, rm, src.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -601,7 +607,8 @@ op mov_r16m16 (seg_ovrd: RSEG16, dst: R16, src: MOFFS)
 
 op mov_r16rseg (dst: R16, src: RSEG16)
   init = {}
-  syntax = format("mov %s, %s", dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s, %s", src.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s, %s", dst.syntax, src.syntax)
   image = format("1000110011%s0%s", dst.image, src.image)
   action = {
     dst = src;
@@ -610,11 +617,9 @@ op mov_r16rseg (dst: R16, src: RSEG16)
 
 op mov_m16rseg (seg_ovrd: RSEG16, dst: MOFFS, src: RSEG16)
   init = { mod = 0b0; rm = 0b0; dst.init;}
-#ifdef I386_ASSEMBLER
-  syntax = format("mov word%s, %s", dst.syntax, src.syntax)
-#else
-  syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
-#endif
+  @rev(I386_ASSEMBLER) syntax = format("mov word%s, %s", dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s, %s:%s", src.syntax, seg_ovrd.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
   image = format("001%s11010001100%s0%s%s%s", seg_ovrd.image,  mod, src.image, rm, dst.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -625,7 +630,8 @@ op mov_m16rseg (seg_ovrd: RSEG16, dst: MOFFS, src: RSEG16)
 
 op mov_rsegr16 (dst: RSEG16, src: R16)
   init = {}
-  syntax = format("mov %s, %s", dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s, %s", src.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s, %s", dst.syntax, src.syntax)
   image = format("10001110110%s%s", dst.image, src.image)
   action = {
     dst = src;
@@ -634,11 +640,9 @@ op mov_rsegr16 (dst: RSEG16, src: R16)
 
 op mov_rsegm16 (seg_ovrd: RSEG16, dst: RSEG16, src: MOFFS)
   init = { mod = 0b0; rm = 0b0; src.init;}
-#ifdef I386_ASSEMBLER
-  syntax = format("mov %s, word%s", dst.syntax, src.syntax)
-#else
-  syntax = format("mov %s, %s:%s", dst.syntax, seg_ovrd.syntax, src.syntax)
-#endif
+  @rev(I386_ASSEMBLER) syntax = format("mov %s, word%s", dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s:%s, %s", seg_ovrd.syntax, src.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s, %s:%s", dst.syntax, seg_ovrd.syntax, src.syntax)
   image = format("001%s11010001110%s0%s%s%s", seg_ovrd.image, mod, dst.image, rm, src.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -649,7 +653,8 @@ op mov_rsegm16 (seg_ovrd: RSEG16, dst: RSEG16, src: MOFFS)
 
 op mov_r8i8 (dst: R8, src: IMM8)
   init = {}
-  syntax = format("mov %s, %s", dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s, %s", src.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s, %s", dst.syntax, src.syntax)
   image = format("10110%s11001%s%s", dst.image, dst.image, src.image)
   action = {
     dst = src;
@@ -668,7 +673,8 @@ op mov_r16i16 (dst: R16, src: IMM16)
 
 op mov_m8i8 (seg_ovrd: RSEG16, dst: MOFFS, src: IMM8)
   init = { mod = 0b0; rm = 0b0; dst.init;}
-  syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s, %s:%s", src.syntax, seg_ovrd.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
   image = format("001%s11011000110%s001%s%s%s", seg_ovrd.image, mod, rm, dst.image, src.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -679,11 +685,9 @@ op mov_m8i8 (seg_ovrd: RSEG16, dst: MOFFS, src: IMM8)
 
 op mov_m16i16 (seg_ovrd: RSEG16, dst: MOFFS, src: IMM16)
   init = { mod = 0b0; rm = 0b0; dst.init;}
-#ifdef I386_ASSEMBLER
-  syntax = format("mov word%s, %s", dst.syntax, src.syntax)
-#else
-  syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
-#endif
+  @rev(I386_ASSEMBLER) syntax = format("mov word%s, %s", dst.syntax, src.syntax)
+  @rev(X86_GNU) syntax = format("mov %s, %s:%s", src.syntax, seg_ovrd.syntax, dst.syntax)
+  @rev(X86) syntax = format("mov %s:%s, %s", seg_ovrd.syntax, dst.syntax, src.syntax)
   image = format("001%s11011000111%s001%s%s%s", seg_ovrd.image, mod, rm, dst.image, src.image)
   action = {
     base = coerce(addR, seg_ovrd) << 4;
@@ -982,7 +986,8 @@ op add_r8m8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op add_r16r16 (op1: R16, op2: R16)
   init = {}
-  syntax = format("add %s, %s", op1.syntax, op2.syntax)
+  @rev(X86_GNU) syntax = format("add %s, %s", op2.syntax, op1.syntax)
+  @rev(X86) syntax = format("add %s, %s", op1.syntax, op2.syntax)
   image = format("0000001111%s%s", op1.image, op2.image)
   action = {
     add_proc_word(op1+0, op2+0).action;
@@ -1026,7 +1031,8 @@ op add_m8i8 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
 
 op add_r16i16 (op1: R16, op2: IMM16)
   init = {}
-  syntax = format("add %s, %s", op1.syntax, op2.syntax)
+  @rev(X86_GNU) syntax = format("add %s, %s", op2.syntax, op1.syntax)
+  @rev(X86) syntax = format("add %s, %s", op1.syntax, op2.syntax)
   image = format("1000000111000%s%s", op1.image, op2.image)
   action = {
     add_proc_word(op1+0, op2+0).action;
@@ -1301,7 +1307,8 @@ op sub_m8i8 (seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
 
 op sub_r16i16 (op1: R16, op2: IMM16)
   init = {}
-  syntax = format("sub %s, %s", op1.syntax, op2.syntax)
+  @rev(X86_GNU) syntax = format("sub %s, %s", op2.syntax, op1.syntax)
+  @rev(X86) syntax = format("sub %s, %s", op1.syntax, op2.syntax)
   image = format("1000000111000%s%s", op1.image, op2.image)
   action = {
     sub_proc_word(op1+0, op2+0).action;
@@ -2019,7 +2026,8 @@ op and_r8m8(seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op and_r16r16(op1: R16, op2: R16)
   init = {}
-  syntax = format("and %s, %s", op1.syntax, op2.syntax)
+  @rev(X86_GNU) syntax = format("and %s, %s", op2.syntax, op1.syntax)
+  @rev(X86) syntax = format("and %s, %s", op1.syntax, op2.syntax)
   image = format("0010001111%s%s", op1.image, op2.image)
   action = {
     test_proc_word(op1+0, op2+0).action;
@@ -2158,7 +2166,8 @@ op or_r8m8(seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op or_r16r16(op1: R16, op2: R16)
   init = {}
-  syntax = format("or %s, %s", op1.syntax, op2.syntax)
+  @rev(X86_GNU) syntax = format("or %s, %s", op2.syntax, op1.syntax)
+  @rev(X86) syntax = format("or %s, %s", op1.syntax, op2.syntax)
   image = format("0000101111%s%s", op1.image, op2.image)
   action = {
     or_proc_word(op1+0, op2+0).action;
@@ -2297,7 +2306,8 @@ op xor_r8m8(seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op xor_r16r16(op1: R16, op2: R16)
   init = {}
-  syntax = format("xor %s, %s", op1.syntax, op2.syntax)
+  @rev(X86_GNU) syntax = format("xor %s, %s", op2.syntax, op1.syntax)
+  @rev(X86) syntax = format("xor %s, %s", op1.syntax, op2.syntax)
   image = format("0011001111%s%s", op1.image, op2.image)
   action = {
     xor_proc_word(op1+0, op2+0).action;
@@ -2355,7 +2365,8 @@ op xor_m8i8(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
 
 op xor_r16i16(op1: R16, op2: IMM16)
   init = {}
-  syntax = format("xor %s, %s", op1.syntax, op2.syntax)
+  @rev(X86_GNU) syntax = format("xor %s, %s", op2.syntax, op1.syntax)
+  @rev(X86) syntax = format("xor %s, %s", op1.syntax, op2.syntax)
   image = format("1000000111000%s%s", op1.image, op2.image)
   action = {
     xor_proc_word(op1+0, op2+0).action;

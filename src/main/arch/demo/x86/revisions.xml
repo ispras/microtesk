@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <revisions>
  <revision name="X86"/>
- <revision name="I386"/>
+ <revision name="I386_ASSEMBLER"/>
  <revision name="X86_GNU"/>
 </revisions>
