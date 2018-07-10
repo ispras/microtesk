@@ -269,7 +269,7 @@ mode DOAM(disp: WORD) = coerce(addR, disp)
 // The Register Indirect Addressing Modes
 
 mode RIAM_BX() = coerce(addR, cast(SWORD, BX))
-  @rev(X86_GNU) syntax = format("(BX)") // TODO: [] -> ()
+  @rev(X86_GNU) syntax = format("(%%BX)") // TODO: [] -> ()
   @rev(X86) syntax = format("[BX]")
   image = format("")
   init = {
@@ -2085,7 +2085,8 @@ op and_m8i8(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
 
 op and_r16i16(op1: R16, op2: IMM16)
   init = {}
-  syntax = format("and %s, %s", op1.syntax, op2.syntax)
+  @rev(X86_GNU) syntax = format("and %s, %s", op2.syntax, op1.syntax)
+  @rev(X86) syntax = format("and %s, %s", op1.syntax, op2.syntax)
   image = format("1000000111000%s%s", op1.image, op2.image)
   action = {
     test_proc_word(op1+0, op2+0).action;
@@ -2225,7 +2226,8 @@ op or_m8i8(seg_ovrd: RSEG16, op1: MOFFS, op2: IMM8)
 
 op or_r16i16(op1: R16, op2: IMM16)
   init = {}
-  syntax = format("or %s, %s", op1.syntax, op2.syntax)
+  @rev(X86_GNU) syntax = format("or %s, %s", op2.syntax, op1.syntax)
+  @rev(X86) syntax = format("or %s, %s", op1.syntax, op2.syntax)
   image = format("1000000111001%s%s", op1.image, op2.image)
   action = {
     or_proc_word(op1+0, op2+0).action;
