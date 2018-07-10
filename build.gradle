@@ -530,7 +530,7 @@ task translateX86(type: JavaExec) {
     '-t',
     'src/main/arch/demo/x86/model/x86.nml',
     '-ri',
-    'X86',
+    'X86_GNU',
     '-od',
     'build/generated-src/models'
   ]

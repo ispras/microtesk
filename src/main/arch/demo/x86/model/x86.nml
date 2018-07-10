@@ -150,7 +150,17 @@ var tmpw_res[card(17)]
 // An addressing mode for a register access
 
 mode R16(i: INDEX) = GPR[i]
-  syntax = format("%s", if i == 0 then "AX"
+  @rev(X86_GNU) syntax = format("%s", if i == 0 then "%AX"
+                      elif i == 1 then "%CX"
+                      elif i == 2 then "%DX"
+                      elif i == 3 then "%BX"
+                      elif i == 4 then "%SP"
+                      elif i == 5 then "%BP"
+                      elif i == 6 then "%SI"
+                      elif i == 7 then "%DI"
+                      else "%AX"
+                      endif)
+  @rev(X86) syntax = format("%s", if i == 0 then "AX"
                       elif i == 1 then "CX"
                       elif i == 2 then "DX"
                       elif i == 3 then "BX"
@@ -188,7 +198,17 @@ mode RSEG16(i: INDEX) = RSEG[i]
 mode R8(i: INDEX, j: BIT) = if j == 0 then GPR[i]<0..7>
                           else GPR[i]<8..15>
                           endif
-  syntax = format("%s", if i == 0 && j == 0 then "AL"
+  @rev(X86_GNU) syntax = format("%s", if i == 0 && j == 0 then "%AL"
+                      elif i == 0 && j == 1 then "%AH"
+                      elif i == 1 && j == 0 then "%CL"
+                      elif i == 1 && j == 1 then "%CH"
+                      elif i == 2 && j == 0 then "%DL"
+                      elif i == 2 && j == 1 then "%DH"
+                      elif i == 3 && j == 0 then "%BL"
+                      elif i == 3 && j == 1 then "%BH"
+                      else "%AL"
+                      endif)
+  @rev(X86) syntax = format("%s", if i == 0 && j == 0 then "AL"
                       elif i == 0 && j == 1 then "AH"
                       elif i == 1 && j == 0 then "CL"
                       elif i == 1 && j == 1 then "CH"
@@ -211,11 +231,13 @@ mode R8(i: INDEX, j: BIT) = if j == 0 then GPR[i]<0..7>
 
 // Immediate operand
 mode IMM8(i: BYTE) = i
-  syntax = format("%d", i)
+  @rev(X86_GNU) syntax = format("$%d", i)
+  @rev(X86) syntax = format("%d", i)
   image = format("%s", i)
 
 mode IMM16(i: WORD) = i
-  syntax = format("%d", i)
+  @rev(X86_GNU) syntax = format("$%d", i)
+  @rev(X86) syntax = format("%d", i)
   image = format("%s", i<0..7>::i<8..15>)
 
 // Internal flags
@@ -554,7 +576,7 @@ op mov_m16r16 (seg_ovrd: RSEG16, dst: MOFFS, src: R16)
 
 op mov_r16r16 (dst: R16, src: R16)
   init = {}
-  @rev(X86_GNU) syntax = format("movl %%%s, %%%s", src.syntax, dst.syntax)
+  @rev(X86_GNU) syntax = format("mov %s, %s", src.syntax, dst.syntax)
   @rev(X86) syntax = format("mov %s, %s", dst.syntax, src.syntax)
   image = format("1000101111%s%s", dst.image, src.image)
   action = {
@@ -636,7 +658,7 @@ op mov_r8i8 (dst: R8, src: IMM8)
 
 op mov_r16i16 (dst: R16, src: IMM16)
   init = {}
-  @rev(X86_GNU) syntax = format("movl $%s, %%%s", src.syntax, dst.syntax)
+  @rev(X86_GNU) syntax = format("mov %s, %s", src.syntax, dst.syntax)
   @rev(X86) syntax = format("mov %s, %s", dst.syntax, src.syntax)
   image = format("10111%s11001%s%s", dst.image, dst.image, src.image)
   action = {
@@ -1234,7 +1256,7 @@ op sub_r8m8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op sub_r16r16 (op1: R16, op2: R16)
   init = {}
-  @rev(X86_GNU) syntax = format("sub %%%s, %%%s", op2.syntax, op1.syntax)
+  @rev(X86_GNU) syntax = format("sub %s, %s", op2.syntax, op1.syntax)
   @rev(X86) syntax = format("sub %s, %s", op1.syntax, op2.syntax)
   image = format("0010101111%s%s", op1.image, op2.image)
   action = {
@@ -2526,7 +2548,7 @@ op cmp_r8m8 (seg_ovrd: RSEG16, op1: R8, op2: MOFFS)
 
 op cmp_r16r16 (op1: R16, op2: R16)
   init = {}
-  @rev(X86_GNU) syntax = format("cmp %%%s, %%%s", op2.syntax, op1.syntax)
+  @rev(X86_GNU) syntax = format("cmp %s, %s", op2.syntax, op1.syntax)
   @rev(X86) syntax = format("cmp %s, %s", op1.syntax, op2.syntax)
   image = format("0011101111%s%s", op1.image, op2.image)
   action = {
