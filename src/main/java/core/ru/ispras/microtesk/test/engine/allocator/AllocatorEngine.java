@@ -20,6 +20,7 @@ import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.ModeSettings;
 import ru.ispras.microtesk.settings.RangeSettings;
 import ru.ispras.microtesk.settings.StrategySettings;
+import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -177,6 +178,13 @@ public final class AllocatorEngine {
       return unitedExclude.isEmpty()
           ? allocationTable.allocate()
           : allocationTable.allocate(unitedExclude);
+    } catch (final Exception e) {
+      throw new GenerationAbortedException(String.format(
+          "Failed to allocate %s using %s. Reason: %s.",
+          mode,
+          allocationTable.getAllocator(),
+          e.getMessage())
+          );
     } finally {
       allocationTable.setAllocator(defaultAllocator);
     }
