@@ -27,7 +27,7 @@ class PseudoTemplate < MiniMipsBaseTemplate
   def run
     comment "Custom initialization"
     label :start
-    pseudo "initialize"
+    pseudo "# initialize"
     newline
 
     add  t0, zero, zero
@@ -42,8 +42,8 @@ class PseudoTemplate < MiniMipsBaseTemplate
     newline
     comment "Custom finalization"
     label :end
-    pseudo "finalize"
-    pseudo "terminate"
+    pseudo "# finalize"
+    pseudo "# terminate"
   end
 
 end
