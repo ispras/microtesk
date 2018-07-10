@@ -308,7 +308,6 @@ test {
   environment 'MICROTESK_HOME', "${project.projectDir}/build/target"
   environment 'TEST_PATH', "${project.projectDir}/build/test"
   environment 'QEMU4V_PATH', "${project.projectDir}/build/tools/qemu/bin"
-  environment 'X86_TCHAIN', "/usr"
   testLogging.showStandardStreams = true
   ignoreFailures = true
   forkEvery = 1
