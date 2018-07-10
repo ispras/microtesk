@@ -1,5 +1,5 @@
 #
-# Copyright 2014-2016 ISP RAS (http://www.ispras.ru)
+# Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +27,9 @@ class MiniMipsBaseTemplate < Template
 
     # Sets the indentation token used in test programs
     set_option_value 'indent-token', "\t"
+
+    # Sets the single-line comment text used in test programs
+    set_option_value 'comment-token', "#"
 
     # Sets the token used in separator lines printed into test programs
     set_option_value 'separator-token', "="
