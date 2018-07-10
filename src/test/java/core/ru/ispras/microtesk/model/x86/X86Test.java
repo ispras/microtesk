@@ -277,7 +277,7 @@ public abstract class X86Test extends TemplateTest {
     if (QEMU_PATH == null || QEMU_PATH.isEmpty()) {
       Assert.fail(
           String.format(
-              "Can't find emulator: '%s' env var doesn't point to '%s' binary."
+              "Can't find emulator: '%s' env var doesn't point to '%s' binary.",
               QEMU_VAR,
               QEMU_BIN));
       return;
