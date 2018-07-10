@@ -102,12 +102,12 @@ public class MiniMipsTest extends TemplateTest {
   /**
    * MIPS64 toolchain path environment variable name.
    */
-  private static final String X86_TCHAIN_PATH = "MIPS64_TCHAIN";
+  private static final String MIPS_TCHAIN_PATH = "MIPS64_TCHAIN";
 
   /**
    * MIPS64 toolchain path environment variable.
    */
-  private static final String TCHAIN_PATH = System.getenv(X86_TCHAIN_PATH);
+  private static final String TCHAIN_PATH = System.getenv(MIPS_TCHAIN_PATH);
 
   /**
    * MIPS64 Linux GNU toolchain components common prefix.
@@ -224,9 +224,8 @@ public class MiniMipsTest extends TemplateTest {
     /* Check whether toolchain has been installed. */
 
     if (TCHAIN_PATH == null || TCHAIN_PATH.isEmpty()) {
-      Logger.warning(
-          String.format("To compile test programs you should set '%s' environment variable"
-              + " to toolchain dir.", X86_TCHAIN_PATH));
+      Assert.fail(
+          String.format("Can't find toolchain: '%s' env var points to null!", MIPS_TCHAIN_PATH));
       return;
     }
 
@@ -272,10 +271,9 @@ public class MiniMipsTest extends TemplateTest {
     /* If QEMU is installed, run the binary image on it. */
 
     if (QEMU_PATH == null || QEMU_PATH.isEmpty()) {
-      Logger.warning(
+      Assert.fail(
           String.format(
-              "To run MIPS32 binaries you should set '%s' environment variable"
-                  + " to dir with '%s' QEMU binary.",
+              "Can't find emulator: '%s' env var doesn't point to '%s' binary.",
               QEMU_VAR,
               QEMU_BIN));
       return;
@@ -284,7 +282,7 @@ public class MiniMipsTest extends TemplateTest {
     final File qemu = new File(String.format("%s/%s", QEMU_PATH, QEMU_BIN));
     checkExecutable(qemu);
 
-    Logger.message("Start simulation on QEMU ...");
+    Logger.message("Start emulation ...");
     setPhase(TestPhase.EMULATION);
     final String qemuLog = insertExt(image.getAbsolutePath(), "-qemu.log");
 
