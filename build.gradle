@@ -315,6 +315,9 @@ test {
 
 sourceSets {
   test {
+    java {
+      srcDirs = ['src/test/java/core','src/test/java/plugins/mmu']
+    }
     resources {
       srcDir "${project.projectDir}/build/classes/main"
     }
