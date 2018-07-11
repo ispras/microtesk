@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
 
@@ -173,7 +174,7 @@ public final class DataSectionBuilder {
     private final DataDirectiveFactory.TypeInfo type;
     private final List<Value> values;
 
-    private DataValueBuilder(DataDirectiveFactory.TypeInfo type) {
+    private DataValueBuilder(final DataDirectiveFactory.TypeInfo type) {
       InvariantChecks.checkNotNull(type);
 
       this.type = type;
@@ -188,6 +189,14 @@ public final class DataSectionBuilder {
     public void add(final Value value) {
       InvariantChecks.checkNotNull(value);
       values.add(value);
+    }
+
+    public void add(final double value) {
+      if (type.type.getBitSize() == 32) {
+        add(BigInteger.valueOf(Float.floatToIntBits((float) value)));
+      } else {
+        add(BigInteger.valueOf(Double.doubleToLongBits(value)));
+      }
     }
 
     public void build() {
