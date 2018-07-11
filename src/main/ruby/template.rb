@@ -1282,7 +1282,7 @@ class DataManager
     text = get_attribute attrs, :text
     type = get_attribute attrs, :type
 
-    @configurer.defineType id, text, type.name, type.args
+    @configurer.defineType id, text, type.name, type.args, attrs[:format]
 
     p = lambda do |*arguments|
       dataBuilder = @builder.addDataValues id
