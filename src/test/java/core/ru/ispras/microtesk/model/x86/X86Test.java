@@ -26,6 +26,7 @@ import ru.ispras.microtesk.test.testutils.TemplateTest;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -146,6 +147,7 @@ public abstract class X86Test extends TemplateTest {
         "x86",
         "src/main/arch/demo/x86/templates"
         );
+    failOnPhase(TestPhase.NONE);
   }
 
   /**
@@ -307,13 +309,24 @@ public abstract class X86Test extends TemplateTest {
     runCommand(qemu, QEMU_TIMEOUT_MILLIS, true, qemuArgs);
 
     final File qemuLogFile = new File(qemuLog);
+    final String qemuLogPath = qemuLogFile.getAbsolutePath();
+
     if (!qemuLogFile.exists() || qemuLogFile.isDirectory()) {
-      Assert.fail(
-        String.format("Can't find QEMU trace file: %s", qemuLogFile.getAbsolutePath()));
+      Assert.fail(String.format("Can't find QEMU trace file: %s", qemuLogPath));
+    }
+
+    try {
+      if (new BufferedReader(new FileReader(qemuLogFile)).readLine() == null) {
+        Assert.fail(String.format("QEMU trace file is empty: %s", qemuLogPath));
+      }
+
+
+    } catch (final IOException e) {
+      e.printStackTrace();
+      Assert.fail(e.getMessage());
     }
 
     Logger.message("done.");
-
     /*Logger.message("Check traces ...");
     setPhase(TestPhase.CHECK_TRACES);
 
@@ -494,6 +507,8 @@ public abstract class X86Test extends TemplateTest {
     }
 
     final String[] cmdArray = toArray(cmd, args);
+
+    Logger.message("Command: '%s'", Arrays.toString(cmdArray));
 
     try {
       final ProcessBuilder builder = new ProcessBuilder(cmdArray);
