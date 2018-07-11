@@ -98,7 +98,8 @@ public final class DataDirectiveFactory {
         final String id,
         final String text,
         final String typeName,
-        final int[] typeArgs) {
+        final int[] typeArgs,
+        final String format) {
       InvariantChecks.checkNotNull(id);
       InvariantChecks.checkNotNull(text);
       InvariantChecks.checkNotNull(typeName);
@@ -107,7 +108,7 @@ public final class DataDirectiveFactory {
       final Type type = Type.typeOf(typeName, typeArgs);
       debug("Defining %s as %s ('%s')...", type, id, text);
 
-      types.put(id, new TypeInfo(type, text));
+      types.put(id, new TypeInfo(type, text, format));
       maxTypeBitSize = Math.max(maxTypeBitSize, type.getBitSize());
     }
 
@@ -162,15 +163,17 @@ public final class DataDirectiveFactory {
   }
 
   public static final class TypeInfo {
-    public final Type type;
-    public final String text;
+    final Type type;
+    final String text;
+    final String format;
 
-    private TypeInfo(final Type type, final String text) {
+    private TypeInfo(final Type type, final String text, final String format) {
       InvariantChecks.checkNotNull(type);
       InvariantChecks.checkNotNull(text);
 
       this.type = type;
       this.text = text;
+      this.format = format;
     }
   }
 
@@ -590,8 +593,13 @@ public final class DataDirectiveFactory {
           sb.append(',');
         }
 
-        sb.append(" 0x");
-        sb.append(toBitVector(value).toHexString());
+        if (typeInfo.format != null && !typeInfo.format.isEmpty()) {
+          sb.append(' ');
+          sb.append(String.format(typeInfo.format, value.getValue()));
+        } else {
+          sb.append(" 0x");
+          sb.append(toBitVector(value).toHexString());
+        }
       }
 
       return sb.toString();
