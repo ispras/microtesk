@@ -147,6 +147,7 @@ public abstract class X86Test extends TemplateTest {
         "x86",
         "src/main/arch/demo/x86/templates"
         );
+    failOnPhase(TestPhase.NONE);
   }
 
   /**

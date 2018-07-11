@@ -141,6 +141,7 @@ public class MiniMipsTest extends TemplateTest {
         "minimips",
         "build/target/arch/demo/minimips/templates"
         );
+    failOnPhase(TestPhase.NONE);
   }
 
 
