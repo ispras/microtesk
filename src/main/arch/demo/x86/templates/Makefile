@@ -6,7 +6,8 @@ TESTS = block\
         random\
         random_immediate\
         random_registers\
-        simple_template
+        simple_template\
+        simple_template2
 
 all: $(TESTS)
 
