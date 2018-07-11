@@ -322,8 +322,8 @@ public abstract class X86Test extends TemplateTest {
 
 
     } catch (final IOException e) {
-      Assert.fail(e.getMessage());
       e.printStackTrace();
+      Assert.fail(e.getMessage());
     }
 
     Logger.message("done.");
