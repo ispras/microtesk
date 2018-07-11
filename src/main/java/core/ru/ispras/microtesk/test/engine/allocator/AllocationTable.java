@@ -300,7 +300,8 @@ public final class AllocationTable<T, V> {
         ? allocator.next(objects, exclude, used)
         : allocator.next(supplier, exclude, used);
 
-    InvariantChecks.checkNotNull(object, String.format("Cannot peek an object: used=%s", used));
+    InvariantChecks.checkNotNull(
+        object, String.format("Cannot peek an object: used=%s, excluded=%s", used, exclude));
 
     return object;
   }
