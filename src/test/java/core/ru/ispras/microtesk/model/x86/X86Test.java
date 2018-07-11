@@ -495,6 +495,8 @@ public abstract class X86Test extends TemplateTest {
 
     final String[] cmdArray = toArray(cmd, args);
 
+    Logger.message("Command: '%s'", Arrays.toString(cmdArray));
+
     try {
       final ProcessBuilder builder = new ProcessBuilder(cmdArray);
       final File errorLog = new File(getTestDirPath() + "/error-log.txt");
