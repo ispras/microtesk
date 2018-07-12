@@ -304,7 +304,7 @@ public abstract class X86Test extends TemplateTest {
       //"-trace-log",
       "-D",
       qemuLog,
-      "-bios",
+      //"-bios",
       image.getAbsolutePath()};
     runCommand(qemu, QEMU_TIMEOUT_MILLIS, true, qemuArgs);
 
@@ -403,7 +403,7 @@ public abstract class X86Test extends TemplateTest {
       linkerArgs.add(linkerScriptPath);
     } else {
       linkerArgs.add("-Ttext");
-      linkerArgs.add("0x1000");
+      linkerArgs.add("0x7c00");
     }
 
     linkerArgs.add("-o");
