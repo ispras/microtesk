@@ -18,9 +18,13 @@ require ENV['TEMPLATE']
 
 class X86BaseTemplate < Template
 
+  ################################################################################################
+
   def i386_assembler
     true
   end
+
+  ################################################################################################
 
   def initialize
     super
@@ -45,6 +49,10 @@ class X86BaseTemplate < Template
 
   def pre
     ################################################################################################
+
+    if is_rev('I80386_GNU') then
+      #text '.code16'
+    end
 
     #
     # Information on data types to be used in data sections.
@@ -73,16 +81,6 @@ class X86BaseTemplate < Template
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
     section_data(:pa => 0x700, :va => 0x700, :prefix => is_rev('I80386_GNU') ? '' : 'section') {}
-
-    ################################################################################################
-
-    def i8086
-      if get_option_value('rev-id') == 'I8086' then
-        true
-      else
-        false
-      end
-    end
 
     ################################################################################################
 
@@ -167,6 +165,11 @@ class X86BaseTemplate < Template
 
     label :error
     newline
+
+    if is_rev('I80386_GNU') then
+      text '.org 510'
+      text '.word 0xaa55'
+    end
   end
 
   ##################################################################################################
