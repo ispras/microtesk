@@ -18,12 +18,14 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.data.Type;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.GenerationAbortedException;
+import ru.ispras.microtesk.utils.FormatMarker;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -104,9 +106,10 @@ public final class DataDirectiveFactory {
       InvariantChecks.checkNotNull(text);
       InvariantChecks.checkNotNull(typeName);
       InvariantChecks.checkNotNull(typeArgs);
+      InvariantChecks.checkNotNull(format);
 
       final Type type = Type.typeOf(typeName, typeArgs);
-      debug("Defining %s as %s ('%s')...", type, id, text);
+      debug("Defining %s as %s ('%s%s')...", type, id, text, format.isEmpty() ? "" : " " + format);
 
       types.put(id, new TypeInfo(type, text, format));
       maxTypeBitSize = Math.max(maxTypeBitSize, type.getBitSize());
@@ -166,14 +169,28 @@ public final class DataDirectiveFactory {
     final Type type;
     final String text;
     final String format;
+    final FormatMarker formatMarker;
 
-    private TypeInfo(final Type type, final String text, final String format) {
+    private TypeInfo(
+        final Type type,
+        final String text,
+        final String format) {
       InvariantChecks.checkNotNull(type);
       InvariantChecks.checkNotNull(text);
+      InvariantChecks.checkNotNull(format);
 
       this.type = type;
       this.text = text;
       this.format = format;
+
+      if (format.isEmpty()) {
+        this.formatMarker = null;
+      } else {
+        final List<FormatMarker> formatMarkers = FormatMarker.extractMarkers(format);
+        InvariantChecks.checkTrue(formatMarkers.size() == 1,
+            "For a format string a single format marker is required.");
+        this.formatMarker = formatMarkers.get(0);
+      }
     }
   }
 
@@ -507,11 +524,11 @@ public final class DataDirectiveFactory {
     }
   }
 
-  private static final class Data implements DataDirective {
+  private static final class DataConst implements DataDirective {
     private final String typeText;
     private final List<BitVector> values;
 
-    private Data(
+    private DataConst(
         final String typeText,
         final List<BitVector> values) {
       InvariantChecks.checkNotNull(typeText);
@@ -593,12 +610,15 @@ public final class DataDirectiveFactory {
           sb.append(',');
         }
 
-        if (typeInfo.format != null && !typeInfo.format.isEmpty()) {
-          sb.append(' ');
-          sb.append(String.format(typeInfo.format, value.getValue()));
-        } else {
-          sb.append(" 0x");
+        sb.append(' ');
+        if (typeInfo.format.isEmpty()) {
+          sb.append("0x");
           sb.append(toBitVector(value).toHexString());
+        } else if (typeInfo.formatMarker.isKind(FormatMarker.Kind.STR)) {
+          final Data data = Data.valueOf(typeInfo.type, value.getValue());
+          sb.append(String.format(typeInfo.format, data.toString()));
+        } else {
+          sb.append(String.format(typeInfo.format, value.getValue()));
         }
       }
 
@@ -687,7 +707,7 @@ public final class DataDirectiveFactory {
       valueList.add(data);
     }
 
-    return new Data(typeInfo.text, valueList);
+    return new DataConst(typeInfo.text, valueList);
   }
 
   public DataDirective newData(
@@ -707,7 +727,7 @@ public final class DataDirectiveFactory {
       values.add(generator.nextData());
     }
 
-    return new Data(typeInfo.text, values);
+    return new DataConst(typeInfo.text, values);
   }
 
   public DataDirective newDataValues(final String typeName, final List<Value> values) {
