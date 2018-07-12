@@ -72,7 +72,7 @@ class X86BaseTemplate < Template
     # pa: base physical address (used for memory allocation).
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
-    section_text(:pa => 0x0, :va => 0x0, :prefix => is_rev('I80386_GNU') ? '' : 'section') {}
+    section_text(:pa => 0x7c00, :va => 0x7c00, :prefix => is_rev('I80386_GNU') ? '' : 'section') {}
 
     #
     # Defines .data section.

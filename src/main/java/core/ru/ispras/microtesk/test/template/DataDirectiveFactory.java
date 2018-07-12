@@ -609,16 +609,18 @@ public final class DataDirectiveFactory {
         } else {
           sb.append(',');
         }
-
         sb.append(' ');
+
+        final Data data = Data.valueOf(typeInfo.type, value.getValue());
         if (typeInfo.format.isEmpty()) {
           sb.append("0x");
-          sb.append(toBitVector(value).toHexString());
+          sb.append(data.toHexString());
         } else if (typeInfo.formatMarker.isKind(FormatMarker.Kind.STR)) {
-          final Data data = Data.valueOf(typeInfo.type, value.getValue());
           sb.append(String.format(typeInfo.format, data.toString()));
+        } else if (typeInfo.formatMarker.isKind(FormatMarker.Kind.HEX)) {
+          sb.append(String.format(typeInfo.format, data.bigIntegerValue(false)));
         } else {
-          sb.append(String.format(typeInfo.format, value.getValue()));
+          sb.append(String.format(typeInfo.format, data.bigIntegerValue()));
         }
       }
 
