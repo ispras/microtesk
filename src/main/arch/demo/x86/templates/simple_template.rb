@@ -56,8 +56,10 @@ class SimpleTemplate < X86BaseTemplate
     mov_r16i16 ax, IMM16(200)
     mov_r16i16 bx, IMM16(8)
     mov_rsegr16 ds, ax
-    mov_m16r16 ds, RIAM_BX(), ax
-    mov_r16m16 ds, cx, RIAM_BX()
+    if i8086 == true then
+      mov_m16r16 ds, RIAM_BX(), ax
+      mmov_r16m16 ds, cx, RIAM_BX()
+    end
     trace "ax = %x", gpr(0)
     trace "bx = %x", gpr(3)
     trace "cx = %x", gpr(1)

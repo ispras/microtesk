@@ -76,6 +76,16 @@ class X86BaseTemplate < Template
 
     ################################################################################################
 
+    def i8086
+      if get_option_value('rev-id') == 'I8086' then
+        true
+      else
+        false
+      end
+    end
+
+    ################################################################################################
+
     #
     # The code below specifies an instruction sequence that writes a value
     # to the specified register (target) via the R addressing mode.
