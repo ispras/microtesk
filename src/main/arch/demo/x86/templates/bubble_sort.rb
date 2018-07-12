@@ -43,6 +43,7 @@ class BubbleSortTemplate < X86BaseTemplate
   def run
     sequence {
       mov_r16i16 ax, IMM16(200)
+    if i8086 == true then
       mov_rsegr16 ds, ax
       mov_r16i16 bx, IMM16(0)
       mov_m16i16 ds, RIAM_BX(), IMM16(7)
@@ -115,6 +116,7 @@ class BubbleSortTemplate < X86BaseTemplate
       add_r16i16 bx, IMM16(2)
       mov_r16m16 ds, ax, RIAM_BX()
       trace "ax = %x", gpr(0)
+    end
     }.run
   end
 
