@@ -26,7 +26,7 @@ class X86BaseTemplate < Template
     super
 
     # Sets the comment token used in test programs
-    if is_rev('X86_GNU') then
+    if is_rev('I80386_GNU') then
       set_option_value 'comment-token', '#'
     else
       set_option_value 'comment-token', ';'
@@ -64,7 +64,7 @@ class X86BaseTemplate < Template
     # pa: base physical address (used for memory allocation).
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
-    section_text(:pa => 0x0, :va => 0x0, :prefix => is_rev('X86_GNU') ? '' : 'section') {}
+    section_text(:pa => 0x0, :va => 0x0, :prefix => is_rev('I80386_GNU') ? '' : 'section') {}
 
     #
     # Defines .data section.
@@ -72,7 +72,7 @@ class X86BaseTemplate < Template
     # pa: base physical address (used for memory allocation).
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
-    section_data(:pa => 0x700, :va => 0x700, :prefix => is_rev('X86_GNU') ? '' : 'section') {}
+    section_data(:pa => 0x700, :va => 0x700, :prefix => is_rev('I80386_GNU') ? '' : 'section') {}
 
     ################################################################################################
 
@@ -122,7 +122,7 @@ class X86BaseTemplate < Template
     ################################################################################################
 
     if i386_assembler == true then
-      if is_rev('X86_GNU') then
+      if is_rev('I80386_GNU') then
         global_label :_start
       else
         text "global _start"
