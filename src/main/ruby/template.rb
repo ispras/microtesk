@@ -1287,7 +1287,11 @@ class DataManager
     p = lambda do |*arguments|
       dataBuilder = @builder.addDataValues id
       arguments.each do |value|
-        dataBuilder.add value
+        if value.is_a?(Float) then
+          dataBuilder.addDouble value
+        else
+          dataBuilder.add value
+        end
       end
       dataBuilder.build
     end

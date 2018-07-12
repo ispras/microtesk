@@ -191,7 +191,7 @@ public final class DataSectionBuilder {
       values.add(value);
     }
 
-    public void add(final double value) {
+    public void addDouble(final double value) {
       if (type.type.getBitSize() == 32) {
         add(BigInteger.valueOf(Float.floatToIntBits((float) value)));
       } else {
