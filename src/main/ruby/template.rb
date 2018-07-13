@@ -597,6 +597,22 @@ class Template
     @template.endBuildingCall
   end
 
+  #
+  # Adds text to the header of generated files.
+  #
+  def add_to_header(text)
+    java_import Java::Ru.ispras.microtesk.test.Printer
+    Printer.addToHeader text
+  end
+
+  #
+  # Adds text to the footer of generated files.
+  #
+  def add_to_footer(text)
+    java_import Java::Ru.ispras.microtesk.test.Printer
+    Printer.addToFooter text
+  end
+
   # -------------------------------------------------------------------------- #
   # Creating Preparators and Comparators                                       #
   # -------------------------------------------------------------------------- #

@@ -41,6 +41,13 @@ class X86BaseTemplate < Template
 
     # Sets the token used in separator lines printed into test programs
     set_option_value 'separator-token', '='
+
+    # Adds custom text for the header/footer of test programs
+    if is_rev('I80386_GNU') then
+      add_to_header '.code16'
+      add_to_footer '.org 510'
+      add_to_footer '.word 0xaa55'
+    end
   end
 
   ##################################################################################################
@@ -49,10 +56,6 @@ class X86BaseTemplate < Template
 
   def pre
     ################################################################################################
-
-    if is_rev('I80386_GNU') then
-      #text '.code16'
-    end
 
     #
     # Information on data types to be used in data sections.
@@ -164,12 +167,6 @@ class X86BaseTemplate < Template
     end
 
     label :error
-    newline
-
-    if is_rev('I80386_GNU') then
-      text '.org 510'
-      text '.word 0xaa55'
-    end
   end
 
   ##################################################################################################

@@ -33,6 +33,7 @@ import ru.ispras.microtesk.utils.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -44,6 +45,19 @@ import java.util.List;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Printer {
+  private static final List<String> CUSTOM_HEADER = new ArrayList<>();
+  private static final List<String> CUSTOM_FOOTER = new ArrayList<>();
+
+  public static void addToHeader(final String text) {
+    InvariantChecks.checkNotNull(text);
+    CUSTOM_HEADER.add(text);
+  }
+
+  public static void addToFooter(final String text) {
+    InvariantChecks.checkNotNull(text);
+    CUSTOM_FOOTER.add(text);
+  }
+
   private static final int LINE_WIDTH = 100;
   private static Printer console = null;
 
@@ -179,6 +193,8 @@ public final class Printer {
   }
 
   public void close() {
+    printFileFooter();
+
     if (null != fileWritter) {
       fileWritter.close();
     }
@@ -215,6 +231,16 @@ public final class Printer {
       printCommentToFile("http://forge.ispras.ru/projects/microtesk");
       printCommentToFile("");
       printToFile(separator);
+
+      for (final String text : CUSTOM_HEADER) {
+        printToFile(text);
+      }
+    }
+  }
+
+  private void printFileFooter() {
+    for (final String text : CUSTOM_FOOTER) {
+      printToFile(text);
     }
   }
 
