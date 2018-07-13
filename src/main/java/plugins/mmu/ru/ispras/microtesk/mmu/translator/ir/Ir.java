@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.mmu.translator.ir;
 
-import static ru.ispras.fortress.util.InvariantChecks.checkNotNull;
+import ru.ispras.fortress.util.InvariantChecks;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -33,7 +33,7 @@ public final class Ir {
   private final Map<String, Operation> operations;
 
   public Ir(final String modelName) {
-    checkNotNull(modelName);
+    InvariantChecks.checkNotNull(modelName);
     this.modelName = modelName;
 
     this.constants = new LinkedHashMap<>();
@@ -88,53 +88,53 @@ public final class Ir {
   }
 
   public void addConstant(final Constant constant) {
-    checkNotNull(constant);
+    InvariantChecks.checkNotNull(constant);
     constants.put(constant.getId(), constant);
   }
 
   public void addExtern(final Var variable) {
-    checkNotNull(variable);
+    InvariantChecks.checkNotNull(variable);
     externs.put(variable.getName(), variable);
   }
 
   public void addAddress(final Address address) {
-    checkNotNull(address);
+    InvariantChecks.checkNotNull(address);
     addresses.put(address.getId(), address);
   }
 
   public void addSegment(final Segment segment) {
-    checkNotNull(segment);
+    InvariantChecks.checkNotNull(segment);
     segments.put(segment.getId(), segment);
   }
 
   public void addBuffer(final Buffer buffer) {
-    checkNotNull(buffer);
+    InvariantChecks.checkNotNull(buffer);
     buffers.put(buffer.getId(), buffer);
   }
 
   public void addMemory(final Memory memory) {
-    checkNotNull(memory);
+    InvariantChecks.checkNotNull(memory);
     memories.put(memory.getId(), memory);
   }
 
   public void addType(final Type type, final String name) {
-    checkNotNull(type);
-    checkNotNull(name);
+    InvariantChecks.checkNotNull(type);
+    InvariantChecks.checkNotNull(name);
     types.put(name, type);
   }
 
   public void addType(final Type type) {
-    checkNotNull(type);
+    InvariantChecks.checkNotNull(type);
     addType(type, type.getId());
   }
 
   public void addFunction(final Callable f) {
-    checkNotNull(f);
+    InvariantChecks.checkNotNull(f);
     functions.put(f.getName(), f);
   }
 
   public void addOperation(final Operation operation) {
-    checkNotNull(operation);
+    InvariantChecks.checkNotNull(operation);
     operations.put(operation.getId(), operation);
   }
 
