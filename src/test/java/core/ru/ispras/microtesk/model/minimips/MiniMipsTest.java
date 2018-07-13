@@ -136,9 +136,14 @@ public class MiniMipsTest extends TemplateTest {
    */
   private static final int QEMU_TIMEOUT_MILLIS = 1000;
 
+  /**
+   * The specification model name.
+   */
+  private static String MODEL_NAME = "minimips";
+
   public MiniMipsTest() {
     super(
-        "minimips",
+        MODEL_NAME,
         "build/target/arch/demo/minimips/templates"
         );
     failOnPhase(TestPhase.NONE);
@@ -158,8 +163,9 @@ public class MiniMipsTest extends TemplateTest {
     setProgramPrefix(file);
 
     final String fileDir = ru.ispras.microtesk.utils.FileUtils.getFileDir(file);
-    final Path testDirPath = null != fileDir ? Paths.get(TEST_PATH, fileDir, getProgramPrefix())
-        : Paths.get(TEST_PATH, getProgramPrefix());
+    final Path testDirPath = null != fileDir
+        ? Paths.get(TEST_PATH, fileDir, MODEL_NAME, getProgramPrefix())
+        : Paths.get(TEST_PATH, MODEL_NAME, getProgramPrefix());
     setTestDirPath(testDirPath);
 
     setCommandLineOption(ru.ispras.microtesk.options.Option.TRACER_LOG);

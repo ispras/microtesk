@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,20 +12,19 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.x86;
+package ru.ispras.microtesk.model.x86.nasm;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import ru.ispras.microtesk.test.Statistics;
 
-public final class SimpleTemplateTestCase extends X86Test {
+public final class SimpleTemplate2TestCase extends X86NasmTest {
   @Test
   public void test() {
     // To enable debug printing:
     // setCommandLineOption(Option.VERBOSE);
 
-    final Statistics statistics = run("simple_template.rb");
+    final Statistics statistics = run("simple_template2.rb");
     Assert.assertNotNull(statistics);
 
     /*

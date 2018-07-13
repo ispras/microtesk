@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,26 +12,25 @@
  * the License.
  */
 
-package ru.ispras.microtesk.model.x86;
+package ru.ispras.microtesk.model.x86.nasm;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import ru.ispras.microtesk.test.Statistics;
 
-public final class BubbleSortTestCase extends X86Test {
+public final class RandomRegistersTestCase extends X86NasmTest {
   @Test
   public void test() {
     // To enable debug printing:
     // setCommandLineOption(Option.VERBOSE);
 
-    final Statistics statistics = run("bubble_sort.rb");
+    final Statistics statistics = run("random_registers.rb");
     Assert.assertNotNull(statistics);
 
     /*
-    Assert.assertEquals(1,  statistics.getPrograms());
-    Assert.assertEquals(10,  statistics.getSequences());
-    Assert.assertEquals(41, statistics.getInstructions());
+    Assert.assertEquals(1, statistics.getPrograms());
+    Assert.assertEquals(9, statistics.getSequences());
+    Assert.assertEquals(48, statistics.getInstructions());
     */
   }
 }

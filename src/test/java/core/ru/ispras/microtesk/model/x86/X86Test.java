@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,6 +22,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Logger.EventType;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.testutils.TemplateTest;
+import ru.ispras.microtesk.utils.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -79,6 +80,11 @@ public abstract class X86Test extends TemplateTest {
   private String testDirPath;
 
   /**
+   * The specification model name.
+   */
+  private String modelName;
+
+  /**
    * Path to test results.
    */
   private static final String TEST_PATH = System.getenv("TEST_PATH");
@@ -97,23 +103,6 @@ public abstract class X86Test extends TemplateTest {
    * Linker script file extension.
    */
   private static final String LINKER_SCRIPT_EXT = "ld";
-
-  /* Toolchain parameters. */
-
-  /**
-   * x86 toolchain path environment variable name.
-   */
-  private static final String X86_TCHAIN_PATH = "X86_TCHAIN";
-
-  /**
-   * x86 toolchain path environment variable.
-   */
-  private static final String TCHAIN_PATH = System.getenv(X86_TCHAIN_PATH);
-
-  /**
-   * x86 Linux GNU toolchain components common prefix.
-   */
-  private static final String TCHAIN_PREFIX = "x86_64-linux-gnu-";
 
   /* QEMU parameters. */
 
@@ -137,17 +126,13 @@ public abstract class X86Test extends TemplateTest {
    */
   private static final int QEMU_TIMEOUT_MILLIS = 1000;
 
-  /**
-   * Revision identifier.
-   */
-  //private static final String REV = "X86";
-
-  public X86Test() {
+  public X86Test(final String modelName) {
     super(
-        "x86",
+        modelName,
         "src/main/arch/demo/x86/templates"
         );
     failOnPhase(TestPhase.NONE);
+    setModelName(modelName);
   }
 
   /**
@@ -163,16 +148,24 @@ public abstract class X86Test extends TemplateTest {
     setProgramPrefix(file);
 
     final String fileDir = ru.ispras.microtesk.utils.FileUtils.getFileDir(file);
-    final Path testDirPath = null != fileDir ? Paths.get(TEST_PATH, fileDir, getProgramPrefix())
-      : Paths.get(TEST_PATH, getProgramPrefix());
+    final Path testDirPath = null != fileDir
+        ? Paths.get(TEST_PATH, fileDir, getModelName(), getProgramPrefix())
+        : Paths.get(TEST_PATH, getModelName(), getProgramPrefix());
     setTestDirPath(testDirPath);
 
     setCommandLineOption(ru.ispras.microtesk.options.Option.TRACER_LOG);
     setCommandLineOption(ru.ispras.microtesk.options.Option.OUTPUT_DIR, getTestDirPath());
     setCommandLineOption(ru.ispras.microtesk.options.Option.CODE_FILE_EXTENSION, EXT);
     setCommandLineOption(ru.ispras.microtesk.options.Option.DATA_FILE_EXTENSION, EXT);
-//    setCommandLineOption(ru.ispras.microtesk.options.Option.REV_ID, REV);
     return super.run(file);
+  }
+
+  private void setModelName(final String name) {
+    this.modelName = name;
+  }
+
+  private String getModelName() {
+    return this.modelName;
   }
 
   private void setProgramPrefix(final String file) {
@@ -187,11 +180,15 @@ public abstract class X86Test extends TemplateTest {
     return this.programPrefix;
   }
 
-  private String getTestDirPath() {
+  protected String getTestDirPath() {
     return this.testDirPath;
   }
 
-  private void setPhase(final TestPhase phase) {
+  /**
+   * Sets the current phase of test case execution.
+   * @param phase The test phase.
+   */
+  protected void setPhase(final TestPhase phase) {
     this.currentPhase = phase;
   }
 
@@ -227,17 +224,6 @@ public abstract class X86Test extends TemplateTest {
       return;
     }
 
-    /* Check whether toolchain has been installed. */
-
-    if (TCHAIN_PATH == null || TCHAIN_PATH.isEmpty()) {
-      Assert.fail(
-          String.format("Can't find toolchain: '%s' env var points to null!", X86_TCHAIN_PATH));
-      return;
-    }
-
-    final File asm = getToolchainBinary("as");
-    final File linker = getToolchainBinary("ld");
-
     /* If toolchain is installed, loop on prefix-named test programs,
      * compile every test program, if it fails, throw error message. */
     final File testDir = new File(getTestDirPath());
@@ -267,7 +253,7 @@ public abstract class X86Test extends TemplateTest {
 
     for (final File program : tests) {
       skipRestPhases(false);
-      final File image = compile(program, auxFiles, asm, linker);
+      final File image = compile(program, auxFiles);
       emulate(image);
     }
   }
@@ -366,59 +352,20 @@ public abstract class X86Test extends TemplateTest {
         FileUtils.getShortFileNameNoExt(second.getName()));
   }*/
 
-  private File compile(
-    final File program,
-    final Collection<File> auxFiles,
-    final File asm,
-    final File linker) {
+  /**
+   * Compiles the specified main program and a collection of auxiliary files.
+   * @param program The main program to be compiled.
+   * @param auxFiles The collection of auxiliary program files.
+   * @return The compiled image file.
+   */
+  protected abstract File compile(final File program, final Collection<File> auxFiles);
 
-    Logger.message(String.format("Start compilation of %s ...", program.getName()));
-    setPhase(TestPhase.COMPILATION);
-
-    /* asm -> obj */
-    runCommand(
-      asm,
-      true,
-      program.getAbsolutePath(),
-      "-o",
-      getOutOption(getNameNoExt(program), "o"));
-
-    for (final File file : auxFiles) {
-      runCommand(
-        asm,
-        true,
-        file.getAbsolutePath(),
-        "-o",
-        getOutOption(getNameNoExt(file), "o"));
-    }
-
-    /* obj -> elf */
-    final String[] objPaths = getObjFiles(program, auxFiles);
-    final List<String> linkerArgs = new LinkedList<>();
-    Collections.addAll(linkerArgs, objPaths);
-
-    final String linkerScriptPath = getLinkerScript(new File(getTestDirPath()));
-    if (linkerScriptPath.length() > 0) {
-      linkerArgs.add("-T");
-      linkerArgs.add(linkerScriptPath);
-    } else {
-      linkerArgs.add("-Ttext");
-      linkerArgs.add("0x7c00");
-    }
-
-    linkerArgs.add("--oformat");
-    linkerArgs.add("binary");
-    linkerArgs.add("-o");
-    linkerArgs.add(getOutOption(getNameNoExt(program), "elf"));
-    runCommand(linker, true, linkerArgs.toArray(new String[linkerArgs.size()]));
-
-    final File elfImage = new File(getElf(program));
-
-    Logger.message("done.");
-    return elfImage;
-  }
-
-  private String getLinkerScript(final File testDirPath) {
+  /**
+   * Returns the path to linker script file.
+   * @param testDirPath The path to test directory.
+   * @return The path to linker script file.
+   */
+  protected String getLinkerScript(final File testDirPath) {
 
     String path = "";
 
@@ -437,16 +384,27 @@ public abstract class X86Test extends TemplateTest {
     return path;
   }
 
-  private String[] getObjFiles(final File program, final Collection<File> auxFiles) {
+  /**
+   * Returns the array of paths to files with ".o" extension and from the specified file location.
+   * @param program The main program.
+   * @param auxFiles The collection of auxiliary files.
+   * @return The array of paths to files with ".o" extension and from the specified file location.
+   */
+  protected String[] getObjFiles(final File program, final Collection<File> auxFiles) {
 
     final List<File> files = new LinkedList<>();
     files.add(program);
     files.addAll(auxFiles);
 
-    return getFiles(".o", files.toArray(new File[files.size()]));
+    return getFiles(".o", files.toArray(new File[0]));
   }
 
-  private String getElf(final File program) {
+  /**
+   * Returns the array of paths to files with ".elf" extension and from the specified file location.
+   * @param program The main program.
+   * @return The array of paths to files with ".elf" extension and from the specified file location.
+   */
+  protected String getElf(final File program) {
     final String[] elfFiles = getFiles(".elf", program);
     return elfFiles[0];
   }
@@ -476,7 +434,13 @@ public abstract class X86Test extends TemplateTest {
       ext);
   }
 
-  private void runCommand(final File cmd, final boolean redirectErr, final String ... args) {
+  /**
+   * Runs the specified executable file with the specified parameters.
+   * @param cmd The executable command file.
+   * @param redirectErr Shows whether an stderr stream of command should be redirected.
+   * @param args The array of auxiliary options.
+   */
+  protected void runCommand(final File cmd, final boolean redirectErr, final String... args) {
     runCommand(cmd, 0, redirectErr, Collections.singletonList(0), args);
   }
 
@@ -575,21 +539,50 @@ public abstract class X86Test extends TemplateTest {
     return commands.toArray(new String[commands.size()]);
   }
 
-  private String getOutOption(
-    final String fileNamePrefix,
-    final String ext) {
+  /**
+   * Returns the sub-path of the file with the specified name and extension.
+   * <p>The sub-path includes the test directory name also.</p>
+   * @param fileNamePrefix The file name without an extension.
+   * @param ext The file extension.
+   * @return The sub-path of the file with the specified name and extension.
+   */
+  protected String getFile(final String fileNamePrefix, final String ext) {
 
     return String.format("%s/%s.%s", getTestDirPath(), fileNamePrefix, ext);
   }
 
-  private static String getNameNoExt(final File file) {
-    return ru.ispras.microtesk.utils.FileUtils.getShortFileNameNoExt(file.getName());
+  /**
+   * Returns the name of the specified file without an extension.
+   * @param file The file.
+   * @return The name of the specified file without an extension.
+   */
+  protected static String getNameNoExt(final File file) {
+
+    return FileUtils.getShortFileNameNoExt(file.getName());
   }
 
-  private static File getToolchainBinary(final String suffix) {
+  /**
+   * Returns the path to the tool chain.
+   * @return The path to the tool chain.
+   */
+  protected abstract String getTchainPath();
 
-    final String fullPath = String.format("%s/bin/%s%s", TCHAIN_PATH, TCHAIN_PREFIX, suffix);
-    final File binary = new File(fullPath);
+  /**
+   * Returns the prefix to the tool chain components.
+   * @return The prefix to the tool chain components.
+   */
+  protected abstract String getTchainPrefix();
+
+  /**
+   * Returns the tool chain binary component with the specified first and last parts of the name.
+   * @param prefix The first part of the name.
+   * @param suffix The last part of the name.
+   * @return The tool chain binary component with the specified first and last parts of the name.
+   */
+  protected File getToolchainBinary(final String prefix, final String suffix) {
+
+    final String path = String.format("%s/bin/%s%s", getTchainPath(), prefix, suffix);
+    final File binary = new File(path);
 
     checkExecutable(binary);
     return binary;

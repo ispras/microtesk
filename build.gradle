@@ -314,6 +314,11 @@ test {
 }
 
 sourceSets {
+  src {
+    java {
+      srcDirs = ['src/main/java/core','src/main/java/plugins/mmu']
+    }
+  }
   test {
     java {
       srcDirs = ['src/test/java/core','src/test/java/plugins/mmu']
@@ -535,7 +540,7 @@ task translateMinimips(type: JavaExec) {
 
 translateMinimips.dependsOn copyEtc
 
-task translateX86(type: JavaExec) {
+task translateX86Gnu(type: JavaExec) {
   classpath = files('build/libs/microtesk.jar')
   classpath += sourceSets.main.runtimeClasspath
   environment 'MICROTESK_HOME', "${project.projectDir}/build/target"
@@ -543,6 +548,8 @@ task translateX86(type: JavaExec) {
   args = [
     '-t',
     'src/main/arch/demo/x86/model/x86.nml',
+    '-model-name',
+    'x86gnu',
     '-ri',
     'I80386_GNU',
     '-od',
@@ -550,7 +557,26 @@ task translateX86(type: JavaExec) {
   ]
 }
 
-translateX86.dependsOn copyEtc
+translateX86Gnu.dependsOn copyEtc
+
+task translateX86Nasm(type: JavaExec) {
+  classpath = files('build/libs/microtesk.jar')
+  classpath += sourceSets.main.runtimeClasspath
+  environment 'MICROTESK_HOME', "${project.projectDir}/build/target"
+  main = mainClassName
+  args = [
+    '-t',
+    'src/main/arch/demo/x86/model/x86.nml',
+    '-model-name',
+    'x86nasm',
+    '-ri',
+    'I80386',
+    '-od',
+    'build/generated-src/models'
+  ]
+}
+
+translateX86Nasm.dependsOn copyEtc
 
 task compileModels(type: JavaCompile) {
   source = fileTree(dir: 'build/generated-src/models/src', include: '**/*.java')
@@ -608,7 +634,8 @@ compileModels.dependsOn translateCpu
 compileModels.dependsOn translateVliw
 compileModels.dependsOn translateVmem
 compileModels.dependsOn translateMinimips
-compileModels.dependsOn translateX86
+compileModels.dependsOn translateX86Gnu
+compileModels.dependsOn translateX86Nasm
 
 task copyModelsJar(type: Copy) {
   from jarModels
