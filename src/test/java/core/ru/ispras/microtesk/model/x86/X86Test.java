@@ -101,21 +101,21 @@ public abstract class X86Test extends TemplateTest {
   /* Toolchain parameters. */
 
   /**
-   * MIPS64 toolchain path environment variable name.
+   * x86 toolchain path environment variable name.
    */
   private static final String X86_TCHAIN_PATH = "X86_TCHAIN";
 
   /**
-   * MIPS64 toolchain path environment variable.
+   * x86 toolchain path environment variable.
    */
   private static final String TCHAIN_PATH = System.getenv(X86_TCHAIN_PATH);
 
   /**
-   * MIPS64 Linux GNU toolchain components common prefix.
+   * x86 Linux GNU toolchain components common prefix.
    */
   private static final String TCHAIN_PREFIX = "x86_64-linux-gnu-";
 
-  /* QEMU for MIPS64 parameters. */
+  /* QEMU parameters. */
 
   /**
    * QEMU binary name.
