@@ -204,6 +204,21 @@ public abstract class Translator<Ir> {
     return true;
   }
 
+  protected static String getModelName(final Options options, final String fileName) {
+    final String fileBasedModelName = FileUtils.getShortFileNameNoExt(fileName);
+
+    if (null == options) {
+      return fileBasedModelName;
+    }
+
+    final String modelName = options.getValueAsString(Option.MODEL_NAME);
+    return !modelName.isEmpty() ? modelName : fileBasedModelName;
+  }
+
+  protected static String getRevisionId(final Options options) {
+    return null != options ? options.getValueAsString(Option.REV_ID) : "";
+  }
+
   protected abstract TokenSource newLexer(CharStream stream);
 
   protected abstract boolean start(final Options options, final List<String> fileNames);

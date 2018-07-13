@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,7 +26,6 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
@@ -35,7 +34,6 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.codegen.Generator;
 import ru.ispras.microtesk.translator.nml.codegen.decoder.DecoderGenerator;
 import ru.ispras.microtesk.translator.nml.codegen.metadata.MetaDataGenerator;
-import ru.ispras.microtesk.translator.nml.codegen.whyml.WhymlGenerator;
 import ru.ispras.microtesk.translator.nml.coverage.Analyzer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
@@ -50,7 +48,6 @@ import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveSyntesizer;
 import ru.ispras.microtesk.translator.nml.ir.analysis.ReferenceDetector;
 import ru.ispras.microtesk.translator.nml.ir.analysis.RootDetector;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
-import ru.ispras.microtesk.utils.FileUtils;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
@@ -115,8 +112,8 @@ public final class NmlTranslator extends Translator<Ir> {
     }
 
     final String fileName = filenames.get(filenames.size() - 1);
-    final String modelName = FileUtils.getShortFileNameNoExt(fileName);
-    final String revisionId = null != options ? options.getValueAsString(Option.REV_ID) : "";
+    final String modelName = getModelName(options, fileName);
+    final String revisionId = getRevisionId(options);
 
     Logger.message("Translating: %s", fileName);
     Logger.message("Model name: %s", modelName);

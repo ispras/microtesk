@@ -32,11 +32,9 @@ import ru.ispras.microtesk.mmu.translator.grammar.MmuTreeWalker;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
-import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
-import ru.ispras.microtesk.utils.FileUtils;
 
 import java.io.FileReader;
 import java.util.ArrayDeque;
@@ -68,8 +66,8 @@ public final class MmuTranslator extends Translator<Ir> {
     InvariantChecks.checkNotNull(fileNames);
 
     final String fileName = fileNames.get(0);
-    final String modelName = FileUtils.getShortFileNameNoExt(fileName);
-    final String revisionId = null != options ? options.getValueAsString(Option.REV_ID) : null;
+    final String modelName = getModelName(options, fileName);
+    final String revisionId = getRevisionId(options);
 
     Logger.message("Translating: " + fileName);
     Logger.message("Model name: " + modelName);

@@ -49,6 +49,7 @@ public enum Option implements Property {
 
   INCLUDE("Directory that stores include files", "", TRANSLATE),
   EXTENSION_DIR("Directory that stores user-defined Java code", "", TRANSLATE),
+  MODEL_NAME("Name of the constructed microprocessor model", "", TRANSLATE),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options
