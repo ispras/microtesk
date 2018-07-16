@@ -50,7 +50,6 @@ public abstract class X86Test extends TemplateTest {
     PROGRAM_GENERATION,
     COMPILATION,
     EMULATION,
-    CHECK_TRACES,
     NONE
   }
 
@@ -90,11 +89,6 @@ public abstract class X86Test extends TemplateTest {
   private static final String TEST_PATH = System.getenv("TEST_PATH");
 
   /**
-   * Shell interpreter.
-   */
-  private static final File SHELL = new File(System.getenv("SHELL"));
-
-  /**
    * Test programs extension.
    */
   private static final String EXT = "s";
@@ -126,6 +120,10 @@ public abstract class X86Test extends TemplateTest {
    */
   private static final int QEMU_TIMEOUT_MILLIS = 1000;
 
+  /**
+   * Default constructor for tests are related to x86 moel with the specified name.
+   * @param modelName The x86 architecture model name.
+   */
   public X86Test(final String modelName) {
     super(
         modelName,
@@ -313,44 +311,7 @@ public abstract class X86Test extends TemplateTest {
     }
 
     Logger.message("done.");
-    /*Logger.message("Check traces ...");
-    setPhase(TestPhase.CHECK_TRACES);
-
-    final File toolLog = new File(insertExt(image.getAbsolutePath(), ".log"));
-
-    if (!toolLog.exists() || toolLog.isDirectory()) {
-      Assert.fail(
-          String.format("Can't find MicroTESK Tracer log file: %s", toolLog.getAbsolutePath()));
-    }
-
-    *//* Use Trace Matcher for logs comparison. *//*
-    checkExecutable(TRACER);
-
-    final String [] args = new String [] {
-        "-c",
-        String.format("%s %s %s %s %s > %s",
-            TRACER.getAbsolutePath(),
-            "--window-size " + TRACER_WINDOW_SIZE,
-            "--first-dif-stop",
-            toolLog.getAbsolutePath(),
-            qemuLogFile.getAbsolutePath(),
-            compareResultFileName(toolLog, qemuLogFile))};
-    final Collection<Integer> diffReturnValues = new LinkedList<>();
-    diffReturnValues.add(0);
-    diffReturnValues.add(1); // to mask "files are not equal" situation
-
-    runCommand(SHELL, false, diffReturnValues, args);
-
-    Logger.message("done.");*/
   }
-
-  /*private static String compareResultFileName(final File first, final File second) {
-    return String.format(
-        "%s/%s-vs-%s.txt",
-        FileUtils.getFileDir(first.getAbsolutePath()),
-        FileUtils.getShortFileNameNoExt(first.getName()),
-        FileUtils.getShortFileNameNoExt(second.getName()));
-  }*/
 
   /**
    * Compiles the specified main program and a collection of auxiliary files.
@@ -445,28 +406,19 @@ public abstract class X86Test extends TemplateTest {
   }
 
   private void runCommand(
-    final File cmd,
-    final long timeout,
-    final boolean redirectErr,
-    final String ... args) {
+      final File cmd,
+      final long timeout,
+      final boolean redirectErr,
+      final String ... args) {
     runCommand(cmd, timeout, redirectErr, Collections.singletonList(0), args);
   }
 
   private void runCommand(
-    final File cmd,
-    final boolean redirectErr,
-    final Collection<Integer> returnValues,
-    final String ... args) {
-
-    runCommand(cmd, 0, redirectErr, returnValues, args);
-  }
-
-  private void runCommand(
-    final File cmd,
-    final long timeout,
-    final boolean redirectError,
-    final Collection<Integer> returnCodes,
-    final String ... args) {
+      final File cmd,
+      final long timeout,
+      final boolean redirectError,
+      final Collection<Integer> returnCodes,
+      final String ... args) {
 
     if (skippedPhase()) {
       return;
@@ -510,13 +462,13 @@ public abstract class X86Test extends TemplateTest {
 
         if (!errString.startsWith(qemuTerminateHeader) && !returnCodes.contains(exitCode)) {
           Assert.fail(
-            String.format(
-              "Process has returned %d: %s;%s%sError log is: %s",
-              exitCode,
-              Arrays.toString(cmdArray),
-              System.lineSeparator(),
-              System.lineSeparator(),
-              errString));
+              String.format(
+                  "Process has returned %d: %s;%s%sError log is: %s",
+                  exitCode,
+                  Arrays.toString(cmdArray),
+                  System.lineSeparator(),
+                  System.lineSeparator(),
+                  errString));
         }
       }
       if (errorLog.exists() && !errorLog.delete()) {
@@ -529,14 +481,14 @@ public abstract class X86Test extends TemplateTest {
   }
 
   private String[] toArray(
-    final File command,
-    final String ... args) {
+      final File command,
+      final String ... args) {
 
     final List<String> commands = new LinkedList<>();
     commands.add(command.getAbsolutePath());
     Collections.addAll(commands, args);
 
-    return commands.toArray(new String[commands.size()]);
+    return commands.toArray(new String[0]);
   }
 
   /**
@@ -604,8 +556,8 @@ public abstract class X86Test extends TemplateTest {
     }
     try {
       final BufferedReader reader =
-        new BufferedReader(
-          new InputStreamReader(new FileInputStream(file), Charset.defaultCharset()));
+          new BufferedReader(
+              new InputStreamReader(new FileInputStream(file), Charset.defaultCharset()));
 
       final String firstLine = reader.readLine();
       reader.close();
