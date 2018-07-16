@@ -18,7 +18,7 @@
 # Description:
 #
 # The 'Operations' module provides methods to describe operations with dynamically
-# generated immediate operands (e.g. random values, label addresses, unknown values etc.).
+# generated immediate operands (such as random values, label addresses, unknown values etc.).
 #
 module Operators
 
