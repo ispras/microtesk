@@ -14,6 +14,12 @@
 # limitations under the License.
 #
 
+#
+# Description:
+#
+# The 'Operations' module provides methods to describe operations with dynamically
+# generated immediate operands (e.g. random values, label addresses, unknown values etc.).
+#
 module Operators
 
   def _AND(operand1, operand2)
