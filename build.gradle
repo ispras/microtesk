@@ -151,7 +151,7 @@ macOs {
 configurations {
   jruby
   qemu
-///* // EXCLUDED FROM RELEASE (NOT READY)
+/* // EXCLUDED FROM RELEASE (NOT READY)
   jython
 //*/
 }
@@ -171,7 +171,7 @@ dependencies {
   compile 'commons-lang:commons-lang:2.4'
   compile 'org.jruby:jruby-complete:1.7.25'
   jruby 'org.jruby:jruby-complete:1.7.25'
-///* // EXCLUDED FROM RELEASE (NOT READY)
+/* // EXCLUDED FROM RELEASE (NOT READY)
   compile 'org.python:jython:2.7.0'
   jython 'org.python:jython:2.7.0'
 //*/
@@ -681,6 +681,8 @@ distributions {
       }
 
       from('src/main/arch') {
+        // EXCLUDED FROM RELEASE (NOT READY)
+        exclude("**/*.py")
         into('arch')
       }
 
@@ -695,7 +697,7 @@ distributions {
       from('src/main/ruby') {
         into('lib/ruby')
       }
-///* // EXCLUDED FROM RELEASE (NOT READY)
+/* // EXCLUDED FROM RELEASE (NOT READY)
       from('src/main/python') {
         into('lib/python')
       }
