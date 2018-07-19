@@ -11,7 +11,7 @@
   - Support for formatted printing of values in data sections
   - Support for register reservation
   - Improved register allocation strategies
-  - New permutator 'exhaustive'   aliased as 'full'
+  - New permutator 'exhaustive' aliased as 'full'
   - Support for i386 in x86 specifications
   - Support for the NASM and GNU assembler in x86 specifications and
     test templates
