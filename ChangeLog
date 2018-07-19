@@ -6,6 +6,23 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2018/07/19 MicroTESK 2.4.41 beta
+  - Support for floating-point types in data sections
+  - Support for formatted printing of values in data sections
+  - Support for register reservation
+  - Improved register allocation strategies
+  - New permutator 'exhaustive'   aliased as 'full'
+  - Support for i386 in x86 specifications
+  - Support for the NASM and GNU assembler in x86 specifications and
+    test templates
+  - miniMIPS test programs are compiled with GCC and simulated in QEMU
+  - x86 test programs are compiled with the GNU and NASM assemblers
+    and simulated in QEMU
+  - New option '--model-name' to allow building several ISA models from the same
+    specifications
+  - New option 'base-template-path' for automated template generation
+  - Bug fixes and code improvements
+
 2018/05/04 MicroTESK 2.4.40 beta
 
  - Support for automated generation of test templates
