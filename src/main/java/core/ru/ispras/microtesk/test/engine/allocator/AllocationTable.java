@@ -294,11 +294,32 @@ public final class AllocationTable<T, V> {
    * @throws IllegalStateException if an object cannot be peeked.
    */
   public T peek(final Set<T> exclude) {
-    InvariantChecks.checkNotNull(exclude);
+    return peek(exclude, Collections.<T>emptySet());
+  }
 
-    final T object = objects != null
-        ? allocator.next(objects, exclude, used)
-        : allocator.next(supplier, exclude, used);
+  /**
+   * Peeks a free object.
+   *
+   * @param exclude the objects that should not be peeked.
+   * @param retain the objects that should be used for allocation.
+   * @return the peeked object.
+   *
+   * @throws IllegalArgumentException if {@code exclude} is null.
+   * @throws IllegalArgumentException if {@code retain} is null.
+   * @throws IllegalStateException if an object cannot be peeked.
+   */
+  public T peek(final Set<T> exclude, final Set<T> retain) {
+    InvariantChecks.checkNotNull(exclude);
+    InvariantChecks.checkNotNull(retain);
+
+    final T object;
+    if (retain.isEmpty()) {
+      object = objects != null
+          ? allocator.next(objects, exclude, used)
+          : allocator.next(supplier, exclude, used);
+    } else {
+      object = allocator.next(retain, exclude, used);
+    }
 
     InvariantChecks.checkNotNull(
         object, String.format("Cannot peek an object: used=%s, excluded=%s", used, exclude));
@@ -324,11 +345,30 @@ public final class AllocationTable<T, V> {
    *
    * @param exclude the objects that should not be allocated.
    * @return the allocated object.
+   *
    * @throws IllegalArgumentException if {@code exclude} is null.
    * @throws IllegalStateException if an object cannot be allocated.
    */
   public T allocate(final Set<T> exclude) {
     final T object = peek(exclude);
+
+    use(object);
+    return object;
+  }
+
+  /**
+   * Allocates an object and marks it as being in use.
+   *
+   * @param exclude the objects that should not be allocated.
+   * @param retain the objects that should be used for allocation.
+   * @return the allocated object.
+   *
+   * @throws IllegalArgumentException if {@code exclude} is null.
+   * @throws IllegalArgumentException if {@code retain} is null.
+   * @throws IllegalStateException if an object cannot be allocated.
+   */
+  public T allocate(final Set<T> exclude, final Set<T> retain) {
+    final T object = peek(exclude, retain);
 
     use(object);
     return object;

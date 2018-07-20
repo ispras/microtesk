@@ -174,7 +174,10 @@ public final class AllocatorEngine {
       final Set<Integer> exclude =
           isWrite ? CollectionUtils.uniteSets(globalExclude, localExclude) : localExclude;
 
-      return allocationTable.allocate(exclude);
+      final Set<Integer> retain =
+          AllocatorUtils.toValueSet(allocationData.getRetain());
+
+      return allocationTable.allocate(exclude, retain);
     } catch (final Exception e) {
       throw new GenerationAbortedException(String.format(
           "Failed to allocate %s using %s. Reason: %s.",
