@@ -32,7 +32,12 @@ public final class AllocationData {
   private final boolean reserved;
 
   public AllocationData() {
-    this(null, Collections.emptyList(), Collections.emptyList(), false);
+    this(
+        null,
+        Collections.<Value>emptyList(),
+        Collections.<Value>emptyList(),
+        false
+    );
   }
 
   public AllocationData(
