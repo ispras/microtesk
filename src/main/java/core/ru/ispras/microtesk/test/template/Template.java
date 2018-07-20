@@ -551,7 +551,7 @@ public final class Template {
 
   private static List<Value> getModeValues(final Where where, final List<Primitive> modes) {
     if (null == modes) {
-      return null;
+      return Collections.emptyList();
     }
 
     final List<Value> result = new ArrayList<>();

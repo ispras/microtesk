@@ -168,12 +168,11 @@ public final class AllocatorEngine {
       }
 
       final Set<Integer> globalExclude = excluded.getExcludedIndexes(mode);
-      final Set<Integer> localExclude = null != allocationData.getExclude() ?
-          AllocatorUtils.toValueSet(allocationData.getExclude()) : Collections.<Integer>emptySet();
+      final Set<Integer> localExclude = AllocatorUtils.toValueSet(allocationData.getExclude());
 
       // Global excludes apply only to writes.
-      final Set<Integer> exclude = isWrite ?
-          CollectionUtils.uniteSets(globalExclude, localExclude) : localExclude;
+      final Set<Integer> exclude =
+          isWrite ? CollectionUtils.uniteSets(globalExclude, localExclude) : localExclude;
 
       return allocationTable.allocate(exclude);
     } catch (final Exception e) {

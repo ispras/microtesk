@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.engine.allocator;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Value;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,7 +32,7 @@ public final class AllocationData {
   private final boolean reserved;
 
   public AllocationData() {
-    this(null, null, null, false);
+    this(null, Collections.emptyList(), Collections.emptyList(), false);
   }
 
   public AllocationData(
@@ -39,6 +40,9 @@ public final class AllocationData {
       final List<Value> retain,
       final List<Value> exclude,
       final boolean reserved) {
+    InvariantChecks.checkNotNull(retain);
+    InvariantChecks.checkNotNull(exclude);
+
     this.allocator = allocator;
     this.retain = retain;
     this.exclude = exclude;
