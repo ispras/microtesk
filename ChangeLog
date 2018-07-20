@@ -10,6 +10,8 @@
   - Support for floating-point types in data sections
   - Support for formatted printing of values in data sections
   - Support for register reservation
+  - Support for basic operations (_AND, _OR, _XOR, _ADD, _SUB, _PLUS, _MINUS, _NOT)
+    with dynamic immediate values in test templates
   - Improved register allocation strategies
   - New permutator 'exhaustive' aliased as 'full'
   - Support for i386 in x86 specifications
