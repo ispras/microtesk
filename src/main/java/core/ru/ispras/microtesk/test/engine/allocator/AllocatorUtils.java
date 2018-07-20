@@ -54,6 +54,10 @@ final class AllocatorUtils {
   public static Set<Integer> toValueSet(final List<Value> values) {
     InvariantChecks.checkNotNull(values);
 
+    if (values.isEmpty()) {
+      return Collections.emptySet();
+    }
+
     final Set<Integer> result = new LinkedHashSet<>();
     for (final Value value : values) {
       result.add(value.getValue().intValue());
