@@ -572,6 +572,7 @@ class Template
   #
   def print_format(kind, format, *args)
     java_import Java::Ru.ispras.microtesk.test.template.Value
+    java_import Java::Ru.ispras.microtesk.test.template.Primitive
 
     builder = @template.newOutput kind.to_s, format
 
@@ -581,6 +582,8 @@ class Template
          builder.addArgument arg
       elsif arg.is_a?(Location)
         builder.addArgument arg.name, arg.index
+      elsif arg.is_a?(Primitive)
+        builder.addArgumentPrimitive arg
       else
         raise "Illegal format argument class #{arg.class}"
       end

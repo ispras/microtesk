@@ -16,9 +16,12 @@ package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.ProcessingElement;
+import ru.ispras.microtesk.model.memory.Location;
 import ru.ispras.microtesk.model.memory.LocationAccessor;
+import ru.ispras.microtesk.test.engine.EngineUtils;
 import ru.ispras.microtesk.utils.SharedObject;
 
 import java.util.ArrayList;
@@ -172,6 +175,31 @@ public final class Output {
       return index instanceof SharedObject
           ? new ArgumentLocation(
               name, (Value)((SharedObject<?>) index).getCopy(), isBinaryText) : this;
+    }
+  }
+
+  static final class ArgumentPrimitive implements Argument {
+    private final Primitive primitive;
+
+    ArgumentPrimitive(final Primitive primitive) {
+      this.primitive = primitive;
+    }
+
+    @Override
+    public Object evaluate(final Model model) throws ConfigurationException {
+      final IsaPrimitive addressingMode = EngineUtils.makeConcretePrimitive(model, primitive);
+      final Location location = addressingMode.access(model.getPE(), model.getTempVars());
+      return location.getValue();
+    }
+
+    @Override
+    public String toString() {
+      return primitive.toString();
+    }
+
+    @Override
+    public Argument copy() {
+      return new ArgumentPrimitive((Primitive)((SharedObject<?>) primitive).getCopy());
     }
   }
 

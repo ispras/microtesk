@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.template;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Output.Argument;
 import ru.ispras.microtesk.test.template.Output.ArgumentLocation;
+import ru.ispras.microtesk.test.template.Output.ArgumentPrimitive;
 import ru.ispras.microtesk.test.template.Output.ArgumentValue;
 import ru.ispras.microtesk.utils.FormatMarker;
 
@@ -130,6 +131,10 @@ public final class OutputBuilder {
 
   public OutputBuilder addArgument(final String name, final BigInteger index) {
     return addArgument(name, new FixedValue(index));
+  }
+
+  public void addArgumentPrimitive(final Primitive primitive) {
+    addArgument(new ArgumentPrimitive(primitive));
   }
 
   private void addArgument(final Argument arg) {
