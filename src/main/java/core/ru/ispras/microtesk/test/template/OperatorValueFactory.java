@@ -56,6 +56,13 @@ public final class OperatorValueFactory {
       public BigInteger apply(final BigInteger operand1, final BigInteger operand2) {
         return operand1.subtract(operand2);
       }
+    },
+
+    SLL("<<") {
+      @Override
+      public BigInteger apply(final BigInteger operand1, final BigInteger operand2) {
+        return operand1.shiftLeft(operand2.intValue());
+      }
     };
 
     private final String text;

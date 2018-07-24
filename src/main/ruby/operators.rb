@@ -42,6 +42,10 @@ module Operators
     new_binary_operation('SUB', operand1, operand2)
   end
 
+  def _SLL(operand1, operand2)
+    new_binary_operation('SLL', operand1, operand2)
+  end
+
   def _PLUS(operand)
     new_unary_operation('PLUS', operand)
   end
