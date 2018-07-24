@@ -6,6 +6,11 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2018/07/25 MicroTESK 2.4.42 beta
+  - Improved template facilities: support for addressing modes (registers)
+    in printing functions (such as 'trace')
+  - Improved register allocation: support for the 'retain' attribute
+
 2018/07/19 MicroTESK 2.4.41 beta
   - Support for floating-point types in data sections
   - Support for formatted printing of values in data sections
