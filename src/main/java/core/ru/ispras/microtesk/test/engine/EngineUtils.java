@@ -406,15 +406,22 @@ public final class EngineUtils {
       final EngineContext engineContext,
       final Primitive primitive) throws ConfigurationException {
     InvariantChecks.checkNotNull(engineContext);
+    return makeConcretePrimitive(engineContext.getModel(), primitive);
+  }
+
+  public static IsaPrimitive makeConcretePrimitive(
+      final Model model,
+      final Primitive primitive) throws ConfigurationException {
+    InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(primitive);
 
     final String name = primitive.getName();
     final IsaPrimitiveBuilder builder;
 
     if (Primitive.Kind.MODE == primitive.getKind() ) {
-      builder = engineContext.getModel().newMode(name);
+      builder = model.newMode(name);
     } else if (Primitive.Kind.OP == primitive.getKind()) {
-      builder = engineContext.getModel().newOp(name, primitive.getContextName());
+      builder = model.newOp(name, primitive.getContextName());
     } else {
       throw new IllegalArgumentException(String.format(
           String.format("%s is not an addressing mode or an operation.", primitive.getName())));
@@ -460,7 +467,7 @@ public final class EngineUtils {
         case MODE:
         case OP:
           builder.setArgument(
-              argName, makeConcretePrimitive(engineContext, (Primitive) arg.getValue()));
+              argName, makeConcretePrimitive(model, (Primitive) arg.getValue()));
           break;
 
         default:
