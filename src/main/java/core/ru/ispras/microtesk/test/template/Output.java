@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.ProcessingElement;
 import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.utils.SharedObject;
@@ -86,12 +87,12 @@ public final class Output {
      * Evaluates the format argument using the model state observer and returns the resulting
      * object.
      *
-     * @param processingElement PE state information.
+     * @param model Microprocessor model.
      * @return Object storing the evaluation result (some data object).
      * @throws ConfigurationException if failed to evaluate the information does to an incorrect
      *         access to the model state.
      */
-    Object evaluate(ProcessingElement processingElement) throws ConfigurationException;
+    Object evaluate(Model model) throws ConfigurationException;
 
     /**
      * Creates a copy.
@@ -115,7 +116,7 @@ public final class Output {
     }
 
     @Override
-    public Object evaluate(final ProcessingElement processingElement) {
+    public Object evaluate(final Model model) {
       if (value instanceof Value) {
         return ((Value) value).getValue();
       }
@@ -153,8 +154,8 @@ public final class Output {
     }
 
     @Override
-    public Object evaluate(
-        final ProcessingElement processingElement) throws ConfigurationException {
+    public Object evaluate(final Model model) throws ConfigurationException {
+      final ProcessingElement processingElement = model.getPE();
       final LocationAccessor accessor = processingElement.accessLocation(name, index.getValue());
       return isBinaryText ? accessor.toBinString() : accessor.getValue();
     }
@@ -251,22 +252,22 @@ public final class Output {
    * Evaluates the stored information using the model state observer to read the state of the model
    * (if required) and returns resulting text.
    *
-   * @param processingElement PE state information.
+   * @param model Microprocessor model.
    * @return Text to be printed.
    * @throws ConfigurationException if failed to evaluate the information due to an incorrect
    *         request to the model state observer.
    * @throws IllegalArgumentException if the parameter equals {@code null}.
    */
-  public String evaluate(final ProcessingElement processingElement) throws ConfigurationException {
+  public String evaluate(final Model model) throws ConfigurationException {
     if (args.isEmpty()) {
       return format;
     }
 
-    InvariantChecks.checkNotNull(processingElement);
+    InvariantChecks.checkNotNull(model);
 
     final List<Object> values = new ArrayList<>(args.size());
     for (final Argument argument : args) {
-      final Object value = argument.evaluate(processingElement);
+      final Object value = argument.evaluate(model);
       values.add(value);
     }
 

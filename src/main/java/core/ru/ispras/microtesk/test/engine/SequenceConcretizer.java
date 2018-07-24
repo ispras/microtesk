@@ -146,7 +146,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
     if (Logger.isDebug()) {
       Logger.debugHeader("Abstract Sequence");
       Printer.getConsole(engineContext.getOptions(), engineContext.getStatistics())
-          .printSequence(engineContext.getModel().getPE(), concreteSequence);
+          .printSequence(engineContext.getModel(), concreteSequence);
     }
 
     final ConcreteSequenceCreator creator =

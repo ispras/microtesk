@@ -18,7 +18,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.ConfigurationException;
-import ru.ispras.microtesk.model.ProcessingElement;
+import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
@@ -255,7 +255,7 @@ public final class Printer {
   /**
    * Prints the specified instruction call sequence.
    *
-   * @param observer Information on the processing element state.
+   * @param model Microprocessor model.
    * @param sequence Instruction call sequence.
    *
    * @throws NullPointerException if the parameter is null.
@@ -263,9 +263,9 @@ public final class Printer {
    *         an instruction call in the sequence.
    */
   public void printSequence(
-      final ProcessingElement observer,
+      final Model model,
       final ConcreteSequence sequence) throws ConfigurationException {
-    InvariantChecks.checkNotNull(observer);
+    InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(sequence);
 
     if (!sequence.getTitle().isEmpty()) {
@@ -288,24 +288,25 @@ public final class Printer {
     final List<ConcreteCall> prologue = sequence.getPrologue();
     if (!prologue.isEmpty()) {
       printNote("Preparation");
-      printCalls(observer, prologue);
+      printCalls(model, prologue);
 
       printText("");
       printNote("Stimulus");
     }
 
-    printCalls(observer, sequence.getBody());
+    printCalls(model, sequence.getBody());
   }
 
   /**
    * Prints the specified list of calls (all attributes applicable at generation time).
    *
    * @param calls List of calls.
+   * @param model Microprocessor model,.
    * @throws ConfigurationException if failed to evaluate one of the output objects
    *         associated with an instruction call.
    */
   private void printCalls(
-      final ProcessingElement observer,
+      final Model model,
       final List<ConcreteCall> calls) throws ConfigurationException {
     if (calls.isEmpty()) {
       printNote("Empty");
@@ -323,7 +324,7 @@ public final class Printer {
             options.getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
       }
 
-      printOutputs(observer, call.getOutputs());
+      printOutputs(model, call.getOutputs());
       printLabels(call.getLabels());
 
       final boolean writeToFile = null != fileWritter;
@@ -344,7 +345,7 @@ public final class Printer {
 
 
   private void printOutputs(
-      final ProcessingElement observer,
+      final Model model,
       final List<Output> outputs) throws ConfigurationException {
     InvariantChecks.checkNotNull(outputs);
 
@@ -357,7 +358,7 @@ public final class Printer {
           options.getValueAsBoolean(Option.COMMENTS_ENABLED)
               && options.getValueAsBoolean(Option.COMMENTS_DEBUG);
 
-      String text = output.evaluate(observer);
+      String text = output.evaluate(model);
       switch (output.getKind()) {
         case COMMENT:
           text = commentToken + " " + text;

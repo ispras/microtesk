@@ -495,7 +495,7 @@ public final class Executor {
 
     for (final Output output : call.getOutputs()) {
       if (output.isRuntime()) {
-        Logger.debug(output.evaluate(getStateObserver()));
+        Logger.debug(output.evaluate(context.getModel()));
       }
     }
 
