@@ -4,9 +4,5 @@ import java.util.Collections;
 import java.util.List;
 
 public final class BasicBlock {
-  private final List<Instruction> insns;
-
-  public BasicBlock(final List<Instruction> insns) {
-    this.insns = insns;
-  }
+  public final List<Instruction> insns = new java.util.ArrayList<>();
 }
