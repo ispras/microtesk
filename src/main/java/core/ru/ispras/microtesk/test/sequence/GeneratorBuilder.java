@@ -123,11 +123,11 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   }
 
   /**
-   * Returns the test sequence generator for the template block.
+   * Builds and returns the test sequence generator.
    *
    * @return the test sequence generator.
    */
-  public Generator<T> getGenerator() {
+  public Generator<T> build() {
     return applyObfuscator(newGenerator());
   }
 

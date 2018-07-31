@@ -251,7 +251,7 @@ public final class BlockBuilder {
         isAtomic,
         isExternal,
         attributes,
-        generatorBuilder.getGenerator(),
+        generatorBuilder.build(),
         resultPrologue,
         resultEpilogue
         );
