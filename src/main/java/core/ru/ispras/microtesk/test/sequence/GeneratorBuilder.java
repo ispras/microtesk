@@ -18,10 +18,12 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.sequence.combinator.Combinator;
 import ru.ispras.microtesk.test.sequence.combinator.CombinatorPermutator;
 import ru.ispras.microtesk.test.sequence.compositor.Compositor;
-import ru.ispras.microtesk.test.sequence.internal.CompositeIterator;
 import ru.ispras.microtesk.test.sequence.permutator.Permutator;
 import ru.ispras.microtesk.test.sequence.rearranger.Rearranger;
 
+import ru.ispras.testbase.knowledge.iterator.Iterator;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,7 +34,7 @@ import java.util.List;
  *
  * @param <T> Sequence element type.
  */
-public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
+public final class GeneratorBuilder<T> {
   /** The default combinator. */
   public static final String DEFAULT_COMBINATOR = "diagonal";
   /** The default permutator. */
@@ -59,6 +61,8 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   private final boolean isSequence;
   /** Specifies whether a collection of sequences returned by nested iterators must be generated.*/
   private final boolean isIterate;
+  /** Iterators to be used by the generator. */
+  private final List<Iterator<List<T>>> iterators;
 
   /**
    * Constructs a test sequence generator.
@@ -75,6 +79,7 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
 
     this.isSequence = isSequence;
     this.isIterate = isIterate;
+    this.iterators = new ArrayList<>();
   }
 
   /**
@@ -123,6 +128,15 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   }
 
   /**
+   * Adds an iterator into the list.
+   *
+   * @param iterator the sub-iterator to be added to the list.
+   */
+  public void addIterator(final Iterator<List<T>> iterator) {
+    iterators.add(iterator);
+  }
+
+  /**
    * Builds and returns the test sequence generator.
    *
    * @return the test sequence generator.
@@ -134,13 +148,13 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
   private Generator<T> newGenerator() {
     if (isSequence) {
       // Single sequence generator is returned.
-      return new GeneratorSequence<>(getIterators());
+      return new GeneratorSequence<>(iterators);
     }
 
     final Generator<T> generator;
     if (isIterate) {
       // Generator will iterate over sequences of nested iterators.
-      generator = new GeneratorIterate<>(getIterators());
+      generator = new GeneratorIterate<>(iterators);
     } else {
       generator = newBlockGenerator();
     }
@@ -161,7 +175,7 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
     return new GeneratorCompositor<T>(
         new CombinatorPermutator<>(combinatorEngine, permutatorEngine),
         compositorEngine,
-        getIterators());
+        iterators);
   }
 
   private Generator<T> applyObfuscator(final Generator<T> generator) {
