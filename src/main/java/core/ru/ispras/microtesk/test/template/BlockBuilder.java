@@ -264,18 +264,6 @@ public final class BlockBuilder {
     final String rearrangerName = (String) attributes.get("rearranger");
     final String obfuscatorName = (String) attributes.get("obfuscator");
 
-    if (!isAtomic && !isSequence && !isIterate
-        && combinatorName == null
-        && permutatorName == null
-        && compositorName == null
-        && rearrangerName == null
-        && obfuscatorName == null) {
-      throw new GenerationAbortedException(String.format(
-          "Using blocks with no arguments is currently forbidden "
-              + "due to compatibility issues. At: %s", where)
-      );
-    }
-
     final GeneratorBuilder<AbstractCall> generatorBuilder =
         new GeneratorBuilder<>(isAtomic || isSequence, isIterate);
 
