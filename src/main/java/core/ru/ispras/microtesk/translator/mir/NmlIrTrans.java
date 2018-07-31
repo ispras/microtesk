@@ -121,8 +121,25 @@ public final class NmlIrTrans {
     if (ExprUtils.isVariable(node)) {
       translateAccess(ctx, locationOf(node), new WriteAccess(ctx, rhs));
     } else if (ExprUtils.isOperation(node)) {
-      // TODO handle concat
+      final int size = sizeOf(node);
+      final List<Node> operands = operandsOf(node);
+      final Local rvalue = ctx.assignLocal(rhs);
+
+      int offset = size;
+      for (final Node lhs : operands) {
+        offset -= sizeOf(lhs);
+
+        final Rvalue field = Opcode.Shr.make(rvalue, valueOf(offset, size));
+        translateAccess(ctx, locationOf(lhs), new WriteAccess(ctx, field));
+      }
     }
+  }
+
+  private static List<Node> operandsOf(final Node node) {
+    if (ExprUtils.isOperation(node)) {
+      return ((NodeOperation) node).getOperands();
+    }
+    return Collections.emptyList();
   }
 
   private static Operand translate(final MirContext ctx, final Node node) {
