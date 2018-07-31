@@ -111,26 +111,6 @@ class Template
     blockBuilder.setSequence false
     blockBuilder.setIterate false
 
-    if attributes.has_key? :combinator
-      blockBuilder.setCombinator(attributes[:combinator])
-    end
-
-    if attributes.has_key? :permutator
-      blockBuilder.setPermutator(attributes[:permutator])
-    end
-
-    if attributes.has_key? :compositor
-      blockBuilder.setCompositor(attributes[:compositor])
-    end
-
-    if attributes.has_key? :rearranger
-      blockBuilder.setRearranger(attributes[:rearranger])
-    end
-
-    if attributes.has_key? :obfuscator
-      blockBuilder.setObfuscator(attributes[:obfuscator])
-    end
-
     set_builder_attributes blockBuilder, attributes
     self.instance_eval &contents
 
@@ -144,10 +124,6 @@ class Template
     blockBuilder.setAtomic false
     blockBuilder.setSequence true
     blockBuilder.setIterate false
-
-    if attributes.has_key? :obfuscator
-      blockBuilder.setObfuscator(attributes[:obfuscator])
-    end
 
     set_builder_attributes blockBuilder, attributes
     self.instance_eval &contents
@@ -163,10 +139,6 @@ class Template
     blockBuilder.setSequence false
     blockBuilder.setIterate false
 
-    if attributes.has_key? :obfuscator
-      blockBuilder.setObfuscator(attributes[:obfuscator])
-    end
-
     set_builder_attributes blockBuilder, attributes
     self.instance_eval &contents
 
@@ -180,14 +152,6 @@ class Template
     blockBuilder.setAtomic false
     blockBuilder.setSequence false
     blockBuilder.setIterate true
-
-    if attributes.has_key? :obfuscator
-      blockBuilder.setObfuscator(attributes[:obfuscator])
-    end
-
-    if attributes.has_key? :rearranger
-      blockBuilder.setRearranger(attributes[:rearranger])
-    end
 
     set_builder_attributes blockBuilder, attributes
     self.instance_eval &contents

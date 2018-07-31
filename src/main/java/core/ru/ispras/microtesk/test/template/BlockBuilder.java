@@ -42,12 +42,6 @@ public final class BlockBuilder {
   private boolean isPrologue; // Flag to show that prologue is being constructed
   private boolean isEpilogue; // Flag to show that epilogue is being constructed
 
-  private String combinatorName;
-  private String permutatorName;
-  private String compositorName;
-  private String rearrangerName;
-  private String obfuscatorName;
-
   private boolean isAtomic;
   private boolean isSequence;
   private boolean isIterate;
@@ -70,12 +64,6 @@ public final class BlockBuilder {
     this.nestedBlocks = new ArrayList<>();
     this.prologue = new ArrayList<>();
     this.epilogue = new ArrayList<>();
-
-    this.combinatorName = null;
-    this.permutatorName = null;
-    this.compositorName = null;
-    this.rearrangerName = null;
-    this.obfuscatorName = null;
 
     this.isAtomic = false;
     this.isSequence = false;
@@ -113,31 +101,6 @@ public final class BlockBuilder {
 
   public Where getWhere() {
     return where;
-  }
-
-  public void setCompositor(final String name) {
-    InvariantChecks.checkTrue(null == compositorName);
-    compositorName = name;
-  }
-
-  public void setPermutator(final String name) {
-    InvariantChecks.checkTrue(null == permutatorName);
-    permutatorName = name;
-  }
-
-  public void setCombinator(final String name) {
-    InvariantChecks.checkTrue(null == combinatorName);
-    combinatorName = name;
-  }
-
-  public void setRearranger(final String name) {
-    InvariantChecks.checkTrue(null == rearrangerName);
-    rearrangerName = name;
-  }
-
-  public void setObfuscator(final String name) {
-    InvariantChecks.checkTrue(null == obfuscatorName);
-    obfuscatorName = name;
   }
 
   public void setAtomic(final boolean value) {
@@ -246,18 +209,6 @@ public final class BlockBuilder {
     InvariantChecks.checkFalse(isPrologue);
     InvariantChecks.checkFalse(isEpilogue);
 
-    if (!isAtomic && !isSequence && !isIterate
-        && combinatorName == null
-        && permutatorName == null
-        && compositorName == null
-        && rearrangerName == null
-        && obfuscatorName == null) {
-      throw new GenerationAbortedException(String.format(
-          "Using blocks with no arguments is currently forbidden "
-              + "due to compatibility issues. At: %s", where)
-          );
-    }
-
     final GeneratorBuilder<AbstractCall> generatorBuilder = newGeneratorBuilder();
 
     final List<AbstractCall> resultPrologue = new ArrayList<>();
@@ -307,6 +258,24 @@ public final class BlockBuilder {
   }
 
   private GeneratorBuilder<AbstractCall> newGeneratorBuilder() {
+    final String combinatorName = (String) attributes.get("combinator");
+    final String permutatorName = (String) attributes.get("permutator");
+    final String compositorName = (String) attributes.get("compositor");
+    final String rearrangerName = (String) attributes.get("rearranger");
+    final String obfuscatorName = (String) attributes.get("obfuscator");
+
+    if (!isAtomic && !isSequence && !isIterate
+        && combinatorName == null
+        && permutatorName == null
+        && compositorName == null
+        && rearrangerName == null
+        && obfuscatorName == null) {
+      throw new GenerationAbortedException(String.format(
+          "Using blocks with no arguments is currently forbidden "
+              + "due to compatibility issues. At: %s", where)
+      );
+    }
+
     final GeneratorBuilder<AbstractCall> generatorBuilder =
         new GeneratorBuilder<>(isAtomic || isSequence, isIterate);
 
