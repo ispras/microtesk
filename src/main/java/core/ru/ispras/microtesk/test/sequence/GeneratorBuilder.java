@@ -20,11 +20,11 @@ import ru.ispras.microtesk.test.sequence.combinator.CombinatorPermutator;
 import ru.ispras.microtesk.test.sequence.compositor.Compositor;
 import ru.ispras.microtesk.test.sequence.permutator.Permutator;
 import ru.ispras.microtesk.test.sequence.rearranger.Rearranger;
-
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@link GeneratorBuilder} implements the test sequence generator.
@@ -46,21 +46,12 @@ public final class GeneratorBuilder<T> {
   /** The default obfuscator. */
   public static final String DEFAULT_OBFUSCATOR = "trivial";
 
-  /** The combinator used in the generator. */
-  private String combinator = null;
-  /** The permutator used in the generator. */
-  private String permutator = null;
-  /** The compositor used in the generator. */
-  private String compositor = null;
-  /** The rearranger used in the generator. */
-  private String rearranger = null;
-  /** The modificator used in the generator. */
-  private String obfuscator = null;
-
   /** Specifies whether a single sequence must be generated. */
   private final boolean isSequence;
   /** Specifies whether a collection of sequences returned by nested iterators must be generated.*/
   private final boolean isIterate;
+  /** Attributes describing the properties of engines to be applied by the generator. */
+  private final Map<String, Object> attributes;
   /** Iterators to be used by the generator. */
   private final List<Iterator<List<T>>> iterators;
 
@@ -70,61 +61,23 @@ public final class GeneratorBuilder<T> {
    * @param isSequence Specifies whether a single sequence must be generated.
    * @param isIterate Specifies whether a collection of sequences returned by nested
    *        iterators must be generated.
+   * @param attributes Attributes describing the properties of engines
+   *        to be applied by the generator.
    *
    * @throws IllegalArgumentException if both {@code isSequence} and {@code isIterate}
-   *         are {@code true}.
+   *         are {@code true}; if the {@code attributes} argument is {@code null}.
    */
-  public GeneratorBuilder(final boolean isSequence, final boolean isIterate) {
+  public GeneratorBuilder(
+      final boolean isSequence,
+      final boolean isIterate,
+      final Map<String, Object> attributes) {
     InvariantChecks.checkFalse(isSequence && isIterate);
+    InvariantChecks.checkNotNull(attributes);
 
     this.isSequence = isSequence;
     this.isIterate = isIterate;
     this.iterators = new ArrayList<>();
-  }
-
-  /**
-   * Sets the combinator used in the generator.
-   *
-   * @param combinator the combinator name.
-   */
-  public void setCombinator(final String combinator) {
-    this.combinator = combinator;
-  }
-
-  /**
-   * Sets the permutator used in the generator.
-   *
-   * @param permutator the permutator name.
-   */
-  public void setPermutator(final String permutator) {
-    this.permutator = permutator;
-  }
-
-  /**
-   * Sets the compositor used in the generator.
-   *
-   * @param compositor the compositor name.
-   */
-  public void setCompositor(final String compositor) {
-    this.compositor = compositor;
-  }
-
-  /**
-   * Sets the rearranger used in the generator.
-   *
-   * @param rearranger the rearranger name.
-   */
-  public void setRearranger(final String rearranger) {
-    this.rearranger = rearranger;
-  }
-
-  /**
-   * Sets the obfuscator used in the generator.
-   *
-   * @param obfuscator the obfuscator name.
-   */
-  public void setObfuscator(final String obfuscator) {
-    this.obfuscator = obfuscator;
+    this.attributes = attributes;
   }
 
   /**
@@ -163,12 +116,15 @@ public final class GeneratorBuilder<T> {
   }
 
   private Generator<T> newBlockGenerator() {
+    final String combinator = (String) attributes.get("combinator");
     final Combinator<List<T>> combinatorEngine = GeneratorConfig.<List<T>>get().getCombinator(
         combinator != null ? combinator : DEFAULT_COMBINATOR);
 
+    final String permutator = (String) attributes.get("permutator");
     final Permutator<List<T>> permutatorEngine = GeneratorConfig.<T>get().getPermutator(
         permutator != null ? permutator : DEFAULT_PERMUTATOR);
 
+    final String compositor = (String) attributes.get("compositor");
     final Compositor<T> compositorEngine = GeneratorConfig.<T>get().getCompositor(
         compositor != null ? compositor : DEFAULT_COMPOSITOR);
 
@@ -179,6 +135,7 @@ public final class GeneratorBuilder<T> {
   }
 
   private Generator<T> applyObfuscator(final Generator<T> generator) {
+    final String obfuscator = (String) attributes.get("obfuscator");
     final Permutator<T> obfuscatorEngine = GeneratorConfig.<T>get().getModificator(
         obfuscator != null ? obfuscator : DEFAULT_OBFUSCATOR);
 
@@ -186,6 +143,7 @@ public final class GeneratorBuilder<T> {
   }
 
   private Generator<T> applyRearranger(final Generator<T> generator) {
+    final String rearranger = (String) attributes.get("rearranger");
     final Rearranger<T> rearrangerEngine = GeneratorConfig.<T>get().getRearranger(
         rearranger != null ? rearranger : DEFAULT_REARRANGER);
 

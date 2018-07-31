@@ -258,35 +258,6 @@ public final class BlockBuilder {
   }
 
   private GeneratorBuilder<AbstractCall> newGeneratorBuilder() {
-    final String combinatorName = (String) attributes.get("combinator");
-    final String permutatorName = (String) attributes.get("permutator");
-    final String compositorName = (String) attributes.get("compositor");
-    final String rearrangerName = (String) attributes.get("rearranger");
-    final String obfuscatorName = (String) attributes.get("obfuscator");
-
-    final GeneratorBuilder<AbstractCall> generatorBuilder =
-        new GeneratorBuilder<>(isAtomic || isSequence, isIterate);
-
-    if (null != combinatorName) {
-      generatorBuilder.setCombinator(combinatorName);
-    }
-
-    if (null != permutatorName) {
-      generatorBuilder.setPermutator(permutatorName);
-    }
-
-    if (null != compositorName) {
-      generatorBuilder.setCompositor(compositorName);
-    }
-
-    if (null != rearrangerName) {
-      generatorBuilder.setRearranger(rearrangerName);
-    }
-
-    if (null != obfuscatorName) {
-      generatorBuilder.setObfuscator(obfuscatorName);
-    }
-
-    return generatorBuilder;
+    return new GeneratorBuilder<>(isAtomic || isSequence, isIterate, attributes);
   }
 }
