@@ -137,12 +137,9 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
       new GeneratorSequence<>(getIterators());
     }
 
-    final Rearranger<T> rearrangerEngine = GeneratorConfig.<T>get().getRearranger(
-        rearranger != null ? rearranger : DEFAULT_REARRANGER);
-
     // If the isIterate flag is set, the generator will iterate over sequences of nested iterators.
     if (isIterate) {
-       new GeneratorRearranger<>(new GeneratorIterate<>(getIterators()), rearrangerEngine);
+      applyRearranger(new GeneratorIterate<>(getIterators()));
     }
 
     final Combinator<List<T>> combinatorEngine = GeneratorConfig.<List<T>>get().getCombinator(
@@ -154,13 +151,13 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
     final Compositor<T> compositorEngine = GeneratorConfig.<T>get().getCompositor(
         compositor != null ? compositor : DEFAULT_COMPOSITOR);
 
-    return new GeneratorRearranger<>(
+    final Generator<T> generator =
         new GeneratorCompositor<T>(
             new CombinatorPermutator<>(combinatorEngine, permutatorEngine),
             compositorEngine,
-            getIterators()),
-        rearrangerEngine
-        );
+            getIterators());
+
+    return applyRearranger(generator);
   }
 
   private Generator<T> applyObfuscator(final Generator<T> generator) {
@@ -171,5 +168,15 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
         GeneratorConfig.<T>get().getModificator(obfuscatorName);
 
     return new GeneratorObfuscator<>(generator, obfuscatorEngine);
+  }
+
+  private Generator<T> applyRearranger(final Generator<T> generator) {
+    final String rearrangerName =
+        rearranger != null ? rearranger : DEFAULT_REARRANGER;
+
+    final Rearranger<T> rearrangerEngine =
+        GeneratorConfig.<T>get().getRearranger(rearrangerName);
+
+    return new GeneratorRearranger<>(generator, rearrangerEngine);
   }
 }
