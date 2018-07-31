@@ -128,15 +128,13 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
    * @return the test sequence generator.
    */
   public Generator<T> getGenerator() {
-    final Permutator<T> obfuscatorEngine = GeneratorConfig.<T>get().getModificator(
-        obfuscator != null ? obfuscator : DEFAULT_OBFUSCATOR);
+    return applyObfuscator(newGenerator());
+  }
 
+  private Generator<T> newGenerator() {
     // If the isSequence flag is set, the single sequence generator is returned.
     if (isSequence) {
-      return new GeneratorObfuscator<>(
-          new GeneratorSequence<>(getIterators()),
-          obfuscatorEngine
-          );
+      new GeneratorSequence<>(getIterators());
     }
 
     final Rearranger<T> rearrangerEngine = GeneratorConfig.<T>get().getRearranger(
@@ -144,10 +142,7 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
 
     // If the isIterate flag is set, the generator will iterate over sequences of nested iterators.
     if (isIterate) {
-      return new GeneratorObfuscator<>(
-          new GeneratorRearranger<>(new GeneratorIterate<>(getIterators()), rearrangerEngine),
-          obfuscatorEngine
-          );
+       new GeneratorRearranger<>(new GeneratorIterate<>(getIterators()), rearrangerEngine);
     }
 
     final Combinator<List<T>> combinatorEngine = GeneratorConfig.<List<T>>get().getCombinator(
@@ -159,14 +154,22 @@ public final class GeneratorBuilder<T> extends CompositeIterator<List<T>> {
     final Compositor<T> compositorEngine = GeneratorConfig.<T>get().getCompositor(
         compositor != null ? compositor : DEFAULT_COMPOSITOR);
 
-    return new GeneratorObfuscator<>(
-        new GeneratorRearranger<>(
-            new GeneratorCompositor<T>(
-                new CombinatorPermutator<>(combinatorEngine, permutatorEngine),
-                compositorEngine,
-                getIterators()),
-             rearrangerEngine),
-        obfuscatorEngine
+    return new GeneratorRearranger<>(
+        new GeneratorCompositor<T>(
+            new CombinatorPermutator<>(combinatorEngine, permutatorEngine),
+            compositorEngine,
+            getIterators()),
+        rearrangerEngine
         );
+  }
+
+  private Generator<T> applyObfuscator(final Generator<T> generator) {
+    final String obfuscatorName =
+        obfuscator != null ? obfuscator : DEFAULT_OBFUSCATOR;
+
+    final Permutator<T> obfuscatorEngine =
+        GeneratorConfig.<T>get().getModificator(obfuscatorName);
+
+    return new GeneratorObfuscator<>(generator, obfuscatorEngine);
   }
 }
