@@ -42,9 +42,28 @@ import java.util.Map;
 
 public final class NmlIrTrans {
   private static final class MirContext {
-    private final List<BasicBlock> blocks = new ArrayList<>();
-    private final List<Instruction> bb = new ArrayList<>();
-    private final Locals locals = new Locals();
+    private final BasicBlock bb;
+    private final List<BasicBlock> blocks;
+    private final Locals locals;
+
+    public static MirContext newMir() {
+      return new MirContext(new BasicBlock(), new ArrayList<BasicBlock>(), new Locals());
+    }
+
+    public MirContext fork(final BasicBlock bb) {
+      return new MirContext(bb, this.blocks, this.locals);
+    }
+
+    private MirContext(
+        final BasicBlock bb,
+        final List<BasicBlock> blocks,
+        final Locals locals) {
+      this.bb = bb;
+      this.blocks = blocks;
+      this.locals = locals;
+
+      blocks.add(bb);
+    }
 
     public Local newLocal(final DataType type) {
       locals.type.add(type);
@@ -61,9 +80,7 @@ public final class NmlIrTrans {
     }
 
     public Assignment assign(final Lvalue lhs, final Rvalue rhs) {
-      final Assignment s = new Assignment(lhs, rhs);
-      bb.add(s);
-      return s;
+      return append(new Assignment(lhs, rhs));
     }
 
     public Local assignLocal(final Operand op) {
@@ -79,8 +96,9 @@ public final class NmlIrTrans {
       return lhs;
     }
 
-    public void append(final Instruction insn) {
-      bb.add(insn);
+    public <T extends Instruction> T append(final T insn) {
+      bb.insns.add(insn);
+      return insn;
     }
   }
 
