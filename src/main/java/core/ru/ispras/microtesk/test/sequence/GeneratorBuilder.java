@@ -95,7 +95,12 @@ public final class GeneratorBuilder<T> {
    * @return the test sequence generator.
    */
   public Generator<T> build() {
-    return applyObfuscator(newGenerator());
+    Generator<T> generator = newGenerator();
+
+    generator = applyObfuscator(generator);
+    generator = applyNitems(generator);
+
+    return generator;
   }
 
   private Generator<T> newGenerator() {
@@ -132,6 +137,12 @@ public final class GeneratorBuilder<T> {
         new CombinatorPermutator<>(combinatorEngine, permutatorEngine),
         compositorEngine,
         iterators);
+  }
+
+  private Generator<T> applyNitems(final Generator<T> generator) {
+    final Object nitems = attributes.get("nitems");
+    return nitems instanceof Number ?
+        new GeneratorNitems<>(generator, ((Number) nitems).intValue()) : generator;
   }
 
   private Generator<T> applyObfuscator(final Generator<T> generator) {
