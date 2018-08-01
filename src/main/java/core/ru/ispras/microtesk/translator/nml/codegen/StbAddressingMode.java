@@ -17,6 +17,8 @@ package ru.ispras.microtesk.translator.nml.codegen;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.expression.ExprUtils;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.translator.generation.PackageInfo;
@@ -114,6 +116,8 @@ final class StbAddressingMode extends StbPrimitiveBase {
     final NodeInfo returnExprNodeInfo = returnExpr.getNodeInfo();
     if (returnExprNodeInfo.isLocation() && !returnExprNodeInfo.isCoersionApplied()) {
       t.add("ret", PrinterLocation.toString((Location) returnExprNodeInfo.getSource()));
+    } else if (ExprUtils.isOperation(returnExpr.getNode(), StandardOperation.BVCONCAT)) {
+      t.add("ret", ExprPrinter.toString(returnExpr));
     } else {
       t.add("ret", String.format("new Location(%s)", ExprPrinter.toString(returnExpr)));
     }
