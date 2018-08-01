@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -106,7 +106,8 @@ public abstract class SharedObject<T extends SharedObject<T>> {
    * @param objects List of objects to be copied.
    * @return List that stores shared copies of the specified objects.
    *
-   * @throws IllegalArgumentException if any of the objects has no shared copy.
+   * @throws IllegalArgumentException if the argument is {@code null};
+   *         if any of the objects has no shared copy.
    */
   public static <T extends SharedObject<T>> List<T> sharedCopyAll(final List<T> objects) {
     InvariantChecks.checkNotNull(objects);
@@ -120,6 +121,33 @@ public abstract class SharedObject<T extends SharedObject<T>> {
       result.add(object.sharedCopy());
     }
 
+    return result;
+  }
+
+  /**
+   * Creates a copy of the specified list with copying stored objects. If an object in the list
+   * has a shared copy, the shared copy is used. Otherwise, the object is copied and its shared
+   * copy is published. In the end, all shared copies are cleaned up.
+   *
+   * @param <T> Type of objects to be copied.
+   * @param objects List of objects to be copied.
+   * @return List that stores shared copies of the specified objects.
+   *
+   * @throws IllegalArgumentException if the argument is {@code null}.
+   */
+  public static <T extends SharedObject<T>> List<T> copyAll(final List<T> objects) {
+    InvariantChecks.checkNotNull(objects);
+
+    if (objects.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<T> result = new ArrayList<>(objects.size());
+    for (final T object : objects) {
+      result.add(object.getCopy());
+    }
+
+    freeSharedCopies();
     return result;
   }
 

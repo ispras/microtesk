@@ -70,7 +70,7 @@ public final class DataSection {
     InvariantChecks.checkNotNull(other);
 
     try {
-      this.labelValues = LabelValue.copyAll(other.labelValues);
+      this.labelValues = copyAllLabelValues(other.labelValues);
       this.directives = copyAllDirectives(other.directives);
     } catch (final Exception e) {
       Logger.error("Failed to copy %s", other);
@@ -83,6 +83,21 @@ public final class DataSection {
     this.separateFile = other.separateFile;
 
     this.sequenceIndex = other.sequenceIndex;
+  }
+
+  private static List<LabelValue> copyAllLabelValues(final List<LabelValue> labelValues) {
+    InvariantChecks.checkNotNull(labelValues);
+
+    if (labelValues.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<LabelValue> result = new ArrayList<>(labelValues.size());
+    for (final LabelValue labelValue : labelValues) {
+      result.add(new LabelValue(labelValue));
+    }
+
+    return result;
   }
 
   private static List<DataDirective> copyAllDirectives(final List<DataDirective> directives) {

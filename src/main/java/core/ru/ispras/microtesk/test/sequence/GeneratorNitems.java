@@ -14,10 +14,12 @@
 
 package ru.ispras.microtesk.test.sequence;
 
-import java.util.NoSuchElementException;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.SharedObject;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * {@link GeneratorNitems} generates N sequences with the help of another generator.
@@ -65,7 +67,18 @@ public final class GeneratorNitems<T> implements Generator<T> {
     if (!hasValue()) {
       throw new NoSuchElementException();
     }
-    return generator.value();
+
+    final List<T> value = generator.value();
+    if (value.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // Lists that store shared objects need to be copied in a special way.
+    if (value.get(0) instanceof SharedObject) {
+      return SharedObject.copyAll((List) value);
+    }
+
+    return value;
   }
 
   @Override

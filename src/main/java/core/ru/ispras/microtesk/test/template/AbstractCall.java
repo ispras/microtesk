@@ -292,22 +292,6 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         ? new AllocatorAction(other.allocatorAction) : null;
   }
 
-  public static List<AbstractCall> copyAll(final List<AbstractCall> calls) {
-    InvariantChecks.checkNotNull(calls);
-
-    if (calls.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    final List<AbstractCall> result = new ArrayList<>(calls.size());
-    for (final AbstractCall call : calls) {
-      result.add(call.getCopy());
-    }
-
-    SharedObject.freeSharedCopies();
-    return result;
-  }
-
   public boolean isExecutable() {
     return null != rootOperation;
   }

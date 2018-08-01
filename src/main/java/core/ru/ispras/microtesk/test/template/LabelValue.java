@@ -67,21 +67,6 @@ public final class LabelValue extends SharedObject<LabelValue> implements Value 
     return newCopy();
   }
 
-  public static List<LabelValue> copyAll(final List<LabelValue> labelValues) {
-    InvariantChecks.checkNotNull(labelValues);
-
-    if (labelValues.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    final List<LabelValue> result = new ArrayList<>(labelValues.size());
-    for (final LabelValue labelValue : labelValues) {
-      result.add(new LabelValue(labelValue));
-    }
-
-    return result;
-  }
-
   public String getName() {
     if (null == label) {
       return null;
