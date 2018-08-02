@@ -145,6 +145,11 @@ final class IntegerOperations implements Operations {
   }
 
   @Override
+  public boolean equals(final Data lhs, final Data rhs) {
+    return lhs.getRawData().equals(rhs.getRawData());
+  }
+
+  @Override
   public int compare(final Data lhs, final Data rhs) {
     if (lhs.getRawData().equals(rhs.getRawData())) {
       return 0;

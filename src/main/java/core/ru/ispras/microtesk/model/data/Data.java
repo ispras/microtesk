@@ -315,7 +315,7 @@ public final class Data implements Comparable<Data> {
       return false;
     }
 
-    return rawData.equals(other.rawData);
+    return getOperations().equals(this, other);
   }
 
   public BigInteger bigIntegerValue() {

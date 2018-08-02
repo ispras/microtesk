@@ -45,6 +45,8 @@ interface Operations {
 
   Data rotateRight(final Data value, final Data amount);
 
+  boolean equals(final Data lhs, final Data rhs);
+
   int compare(final Data lhs, final Data rhs);
 
   String toString(final Data arg);

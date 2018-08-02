@@ -110,6 +110,11 @@ final class FloatOperations implements Operations {
   }
 
   @Override
+  public boolean equals(final Data lhs, final Data rhs) {
+    return lhs.floatXValue().equals(rhs.floatXValue());
+  }
+
+  @Override
   public int compare(final Data lhs, final Data rhs) {
     return lhs.floatXValue().compareTo(rhs.floatXValue());
   }
