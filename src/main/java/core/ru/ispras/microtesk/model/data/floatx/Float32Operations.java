@@ -76,6 +76,13 @@ final class Float32Operations implements Operations {
   }
 
   @Override
+  public boolean equals(final FloatX first, final FloatX second) {
+    final float value1 = first.floatValue();
+    final float value2 = second.floatValue();
+    return JSoftFloat.float32_eq(value1, value2);
+  }
+
+  @Override
   public int compare(final FloatX first, final FloatX second) {
     final float value1 = first.floatValue();
     final float value2 = second.floatValue();

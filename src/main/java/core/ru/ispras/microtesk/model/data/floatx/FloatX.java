@@ -114,11 +114,7 @@ public final class FloatX extends Number implements Comparable<FloatX> {
       return false;
     }
 
-    if (!data.equals(other.data)) {
-      return false;
-    }
-
-    return true;
+    return getOperations().equals(this, other);
   }
 
   @Override

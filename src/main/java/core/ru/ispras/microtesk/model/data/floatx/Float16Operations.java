@@ -74,6 +74,12 @@ final class Float16Operations implements Operations {
   }
 
   @Override
+  public boolean equals(final FloatX first, final FloatX second) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public int compare(final FloatX first, final FloatX second) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException();

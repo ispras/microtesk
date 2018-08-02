@@ -74,6 +74,13 @@ final class Float80Operations implements Operations {
   }
 
   @Override
+  public boolean equals(final FloatX first, final FloatX second) {
+    final FloatX80 value1 = newFloatX80(first);
+    final FloatX80 value2 = newFloatX80(second);
+    return JSoftFloat.floatx80_eq(value1, value2);
+  }
+
+  @Override
   public int compare(final FloatX first, final FloatX second) {
     final FloatX80 value1 = newFloatX80(first);
     final FloatX80 value2 = newFloatX80(second);

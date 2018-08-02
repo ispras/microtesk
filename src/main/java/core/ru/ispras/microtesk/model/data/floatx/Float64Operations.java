@@ -76,6 +76,13 @@ final class Float64Operations implements Operations {
   }
 
   @Override
+  public boolean equals(final FloatX first, final FloatX second) {
+    final double value1 = first.doubleValue();
+    final double value2 = second.doubleValue();
+    return JSoftFloat.float64_eq(value1, value2);
+  }
+
+  @Override
   public int compare(final FloatX first, final FloatX second) {
     final double value1 = first.doubleValue();
     final double value2 = second.doubleValue();

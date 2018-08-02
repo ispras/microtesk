@@ -35,6 +35,8 @@ interface Operations {
 
   FloatX sqrt(final FloatX arg);
 
+  boolean equals(final FloatX first, final FloatX second);
+
   int compare(final FloatX first, final FloatX second);
 
   boolean isNan(final FloatX arg);
