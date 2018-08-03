@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.generation;
+package ru.ispras.microtesk.translator.codegen;
 
 /**
  * The {@link PackageInfo} class holds information on package structure and names

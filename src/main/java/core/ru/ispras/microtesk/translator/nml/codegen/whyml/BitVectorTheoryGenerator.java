@@ -19,7 +19,7 @@ import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.codegen.FileGenerator;
 import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.codegen.PackageInfo;
 
 import java.io.File;
 import java.io.IOException;

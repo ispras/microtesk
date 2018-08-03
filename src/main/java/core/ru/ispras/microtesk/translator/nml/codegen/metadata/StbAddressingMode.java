@@ -22,7 +22,7 @@ import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.metadata.MetaArgument;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;

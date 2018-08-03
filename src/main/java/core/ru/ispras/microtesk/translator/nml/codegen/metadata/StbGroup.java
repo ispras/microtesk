@@ -20,7 +20,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.metadata.MetaGroup;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 

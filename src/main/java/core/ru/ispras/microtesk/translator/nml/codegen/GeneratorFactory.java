@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.nml.codegen;
 import ru.ispras.microtesk.codegen.FileGenerator;
 import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;

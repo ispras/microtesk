@@ -26,7 +26,7 @@ import ru.ispras.microtesk.translator.antlrex.TokenSourceStack;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.utils.FileUtils;
 
 import java.io.File;

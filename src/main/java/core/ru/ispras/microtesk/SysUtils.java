@@ -17,7 +17,7 @@ package ru.ispras.microtesk;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.ModelBuilder;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.codegen.PackageInfo;
 
 import java.io.File;
 import java.net.MalformedURLException;

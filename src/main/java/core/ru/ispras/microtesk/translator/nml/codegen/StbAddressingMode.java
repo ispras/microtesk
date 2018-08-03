@@ -21,7 +21,7 @@ import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.data.Data;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;

@@ -25,7 +25,7 @@ import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.codegen.PackageInfo;
 
 import java.io.File;
 import java.io.IOException;

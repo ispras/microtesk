@@ -32,7 +32,7 @@ import ru.ispras.microtesk.test.TestEngine;
 import ru.ispras.microtesk.test.engine.Engine;
 import ru.ispras.microtesk.test.engine.InitializerMaker;
 import ru.ispras.microtesk.translator.Translator;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.testbase.generator.DataGenerator;
 
 import java.util.LinkedHashMap;

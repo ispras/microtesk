@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.codegen;
 
-import static ru.ispras.microtesk.translator.generation.PackageInfo.OP_PACKAGE_FORMAT;
+import static ru.ispras.microtesk.translator.codegen.PackageInfo.OP_PACKAGE_FORMAT;
 
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;

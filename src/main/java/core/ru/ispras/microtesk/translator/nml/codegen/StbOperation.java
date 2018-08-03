@@ -21,7 +21,7 @@ import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.memory.Location;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;

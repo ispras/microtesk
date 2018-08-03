@@ -28,7 +28,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
-import ru.ispras.microtesk.translator.generation.PackageInfo;
+import ru.ispras.microtesk.translator.codegen.PackageInfo;
 
 import java.util.Map;
 
