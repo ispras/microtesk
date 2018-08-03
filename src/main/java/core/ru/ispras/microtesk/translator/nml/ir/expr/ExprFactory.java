@@ -33,7 +33,6 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
 import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
-import ru.ispras.microtesk.translator.nml.errors.UndefinedConstant;
 
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -63,7 +62,8 @@ public final class ExprFactory extends WalkerFactoryBase {
     InvariantChecks.checkNotNull(name);
 
     if (!getIr().getConstants().containsKey(name)) {
-      raiseError(w, new UndefinedConstant(name));
+      raiseError(w, String.format(
+          "The '%s' symbol is not defined or is not a constant.", name));
     }
 
     final LetConstant source = getIr().getConstants().get(name);
