@@ -17,6 +17,7 @@ package ru.ispras.microtesk.utils;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
@@ -35,10 +36,13 @@ public final class FortressUtils {
     switch (data.getType().getTypeId()) {
       case BIT_VECTOR:
         return data.getBitVector().bigIntegerValue(false);
+
       case LOGIC_INTEGER:
         return data.getInteger();
+
       case LOGIC_BOOLEAN:
         return data.getBoolean() ? BigInteger.ONE : BigInteger.ZERO;
+
       default:
         InvariantChecks.checkTrue(false);
         return null;
@@ -52,10 +56,13 @@ public final class FortressUtils {
     switch (value.getDataTypeId()) {
       case BIT_VECTOR:
         return value.getBitVector().bigIntegerValue(false);
+
       case LOGIC_INTEGER:
         return value.getInteger();
+
       case LOGIC_BOOLEAN:
         return value.getBoolean() ? BigInteger.ONE : BigInteger.ZERO;
+
       default:
         InvariantChecks.checkTrue(false);
         return null;
@@ -69,6 +76,7 @@ public final class FortressUtils {
     switch (value.getDataTypeId()) {
       case LOGIC_BOOLEAN:
         return value.getBoolean();
+
       default:
         InvariantChecks.checkTrue(false);
         return null;
@@ -82,10 +90,13 @@ public final class FortressUtils {
     switch (value.getDataTypeId()) {
       case BIT_VECTOR:
         return value.getBitVector();
+
       case LOGIC_INTEGER:
         return BitVector.valueOf(value.getInteger(), Integer.SIZE);
+
       case LOGIC_BOOLEAN:
         return BitVector.valueOf(value.getBoolean());
+
       default:
         InvariantChecks.checkTrue(false);
         return null;
@@ -114,8 +125,7 @@ public final class FortressUtils {
   }
 
   private static void checkConstantValue(final Node expr) {
-    InvariantChecks.checkNotNull(expr);
-    if (expr.getKind() != Node.Kind.VALUE) {
+    if (!ExprUtils.isValue(expr)) {
       throw new IllegalStateException(String.format("%s is not a constant value.", expr));
     }
   }
@@ -125,11 +135,12 @@ public final class FortressUtils {
       case VARIABLE:
         final NodeVariable variable = (NodeVariable) node;
         return variable.getVariable();
-      case OPERATION:
-        final NodeOperation operation = (NodeOperation) node;
-        InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.BVEXTRACT);
 
+      case OPERATION:
+        InvariantChecks.checkTrue(ExprUtils.isOperation(node, StandardOperation.BVEXTRACT));
+        final NodeOperation operation = (NodeOperation) node;
         return getVariable(operation.getOperand(2));
+
       default:
         return null;
     }
@@ -139,14 +150,16 @@ public final class FortressUtils {
     switch (node.getKind()) {
       case VALUE:
         return 0;
+
       case VARIABLE:
         return 0;
-      case OPERATION:
-        final NodeOperation operation = (NodeOperation) node;
-        InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.BVEXTRACT);
 
+      case OPERATION:
+        InvariantChecks.checkTrue(ExprUtils.isOperation(node, StandardOperation.BVEXTRACT));
+        final NodeOperation operation = (NodeOperation) node;
         final NodeValue lowerBitValue = (NodeValue) operation.getOperand(1);
         return lowerBitValue.getInteger().intValue();
+
       default:
         InvariantChecks.checkTrue(false);
         return -1;
@@ -159,15 +172,17 @@ public final class FortressUtils {
         final NodeValue value = (NodeValue) node;
         final int valueBitSize = value.getDataType().getSize();
         return valueBitSize > 0 ? valueBitSize - 1 : Integer.SIZE - 1;
+
       case VARIABLE:
         final NodeVariable variable = (NodeVariable) node;
         return getBitSize(variable.getVariable()) - 1;
-      case OPERATION:
-        final NodeOperation operation = (NodeOperation) node;
-        InvariantChecks.checkTrue(operation.getOperationId() == StandardOperation.BVEXTRACT);
 
+      case OPERATION:
+        InvariantChecks.checkTrue(ExprUtils.isOperation(node, StandardOperation.BVEXTRACT));
+        final NodeOperation operation = (NodeOperation) node;
         final NodeValue upperBitValue = (NodeValue) operation.getOperand(0);
         return upperBitValue.getInteger().intValue();
+
       default:
         InvariantChecks.checkTrue(false);
         return -1;
@@ -185,43 +200,31 @@ public final class FortressUtils {
 
   public static BigInteger evaluateInteger(final Node node, final ValueProvider valueProvider) {
     final Node result = Reducer.reduce(valueProvider, node);
-    InvariantChecks.checkNotNull(result);
-
-    return result.getKind() == Node.Kind.VALUE ? getInteger(result) : null;
+    return ExprUtils.isValue(node) ? getInteger(result) : null;
   }
 
   public static BigInteger evaluateInteger(final Node node) {
     final Node result = Reducer.reduce(node);
-    InvariantChecks.checkNotNull(result);
-
-    return result.getKind() == Node.Kind.VALUE ? getInteger(result) : null;
+    return ExprUtils.isValue(node) ? getInteger(result) : null;
   }
 
   public static BitVector evaluateBitVector(final Node node, final ValueProvider valueProvider) {
     final Node result = Reducer.reduce(valueProvider, node);
-    InvariantChecks.checkNotNull(result);
-
-    return result.getKind() == Node.Kind.VALUE ? getBitVector(result) : null;
+    return ExprUtils.isValue(node) ? getBitVector(result) : null;
   }
 
   public static BitVector evaluateBitVector(final Node node) {
     final Node result = Reducer.reduce(node);
-    InvariantChecks.checkNotNull(result);
-
-    return result.getKind() == Node.Kind.VALUE ? getBitVector(result) : null;
+    return ExprUtils.isValue(node) ? getBitVector(result) : null;
   }
 
   public static Boolean evaluateBoolean(final Node node, final ValueProvider valueProvider) {
     final Node result = Reducer.reduce(valueProvider, node);
-    InvariantChecks.checkNotNull(result);
-
-    return result.getKind() == Node.Kind.VALUE ? getBoolean(result) : null;
+    return ExprUtils.isValue(node) ? getBoolean(result) : null;
   }
 
   public static Boolean evaluateBoolean(final Node node) {
     final Node result = Reducer.reduce(node);
-    InvariantChecks.checkNotNull(result);
-
-    return result.getKind() == Node.Kind.VALUE ? getBoolean(result) : null;
+    return ExprUtils.isValue(node) ? getBoolean(result) : null;
   }
 }
