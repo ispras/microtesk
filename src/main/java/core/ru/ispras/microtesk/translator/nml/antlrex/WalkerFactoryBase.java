@@ -44,8 +44,8 @@ public class WalkerFactoryBase implements WalkerContext {
   }
 
   @Override
-  public Ir getIR() {
-    return context.getIR();
+  public Ir getIr() {
+    return context.getIr();
   }
 
   @Override

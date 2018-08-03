@@ -55,7 +55,7 @@ public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
   }
 
   @Override
-  public final Ir getIR() {
+  public final Ir getIr() {
     return ir;
   }
 

@@ -77,7 +77,7 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
       final Expr min,
       final Expr max) throws SemanticException {
 
-    final MemoryExpr memory = getIR().getMemory().get(memoryId);
+    final MemoryExpr memory = getIr().getMemory().get(memoryId);
     if (null == memory) {
       raiseError(where, memoryId + " is not defined or is not a memory storage.");
     }

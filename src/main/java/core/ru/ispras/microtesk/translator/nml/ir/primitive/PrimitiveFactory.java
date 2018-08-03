@@ -134,11 +134,11 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     final List<Primitive> orModes = new ArrayList<>();
 
     for (final String orName : orNames) {
-      if (!getIR().getModes().containsKey(orName)) {
+      if (!getIr().getModes().containsKey(orName)) {
         raiseError(where, new UndefinedProductionRuleItem(orName, name, true, NmlSymbolKind.MODE));
       }
 
-      final Primitive mode = getIR().getModes().get(orName);
+      final Primitive mode = getIr().getModes().get(orName);
 
       if (!orModes.isEmpty()) {
         new PrimitiveCompatibilityChecker(
@@ -158,11 +158,11 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     final List<Primitive> orOps = new ArrayList<>();
 
     for (final String orName : orNames) {
-      if (!getIR().getOps().containsKey(orName)) {
+      if (!getIr().getOps().containsKey(orName)) {
         raiseError(where, new UndefinedProductionRuleItem(orName, name, true, NmlSymbolKind.OP));
       }
 
-      final Primitive op = getIR().getOps().get(orName);
+      final Primitive op = getIr().getOps().get(orName);
       if (!orOps.isEmpty()) {
         new PrimitiveCompatibilityChecker(
             this, where, name, op, orOps.get(0)).check();
@@ -188,21 +188,21 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
   public Primitive getMode(
       final Where where,
       final String modeName) throws SemanticException {
-    if (!getIR().getModes().containsKey(modeName)) {
+    if (!getIr().getModes().containsKey(modeName)) {
       raiseError(where, new UndefinedPrimitive(modeName, NmlSymbolKind.MODE));
     }
 
-    return getIR().getModes().get(modeName);
+    return getIr().getModes().get(modeName);
   }
 
   public Primitive getOp(
       final Where where,
       final String opName) throws SemanticException {
-    if (!getIR().getOps().containsKey(opName)) {
+    if (!getIr().getOps().containsKey(opName)) {
       raiseError(where, new UndefinedPrimitive(opName, NmlSymbolKind.OP));
     }
 
-    return getIR().getOps().get(opName);
+    return getIr().getOps().get(opName);
   }
 
   public Primitive getArgument(
@@ -230,7 +230,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     }
 
     final Primitive primitive = symbol.getKind() == NmlSymbolKind.MODE
-        ? getIR().getModes().get(name) : getIR().getOps().get(name);
+        ? getIr().getModes().get(name) : getIr().getOps().get(name);
 
     if (null == primitive) {
       raiseError(where, new UndefinedPrimitive(name, (NmlSymbolKind)symbol.getKind()));

@@ -31,7 +31,7 @@ public final class TypeFactory extends WalkerFactoryBase {
   }
 
   public Type newAlias(final Where where, final String name) throws SemanticException {
-    final Type ref = getIR().getTypes().get(name);
+    final Type ref = getIr().getTypes().get(name);
     if (null == ref) {
       raiseError(where, String.format("Undefined type: %s.", name));
     }

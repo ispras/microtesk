@@ -63,7 +63,7 @@ public final class LocationFactory extends WalkerFactoryBase {
 
     // Hack to deal with internal variables described by string constants.
     if (NmlSymbolKind.LET_CONST == kind) {
-      final Expr expr = getIR().getConstants().get(name).getExpr();
+      final Expr expr = getIr().getConstants().get(name).getExpr();
       if (expr.isInternalVariable()) {
         return new Expr(expr);
       }
@@ -414,11 +414,11 @@ public final class LocationFactory extends WalkerFactoryBase {
   private MemoryExpr findMemory(
       final Where where,
       final String name) throws SemanticException {
-    if (!getIR().getMemory().containsKey(name)) {
+    if (!getIr().getMemory().containsKey(name)) {
       raiseError(where, new UndefinedPrimitive(name, NmlSymbolKind.MEMORY));
     }
 
-    return getIR().getMemory().get(name);
+    return getIr().getMemory().get(name);
   }
 
   private Primitive findArgument(

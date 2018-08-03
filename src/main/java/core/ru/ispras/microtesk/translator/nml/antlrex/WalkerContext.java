@@ -26,7 +26,7 @@ public interface WalkerContext {
 
   public SymbolTable getSymbols();
 
-  public Ir getIR();
+  public Ir getIr();
 
   public Map<String, Primitive> getThisArgs();
 }

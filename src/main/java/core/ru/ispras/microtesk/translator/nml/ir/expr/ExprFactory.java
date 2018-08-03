@@ -62,11 +62,11 @@ public final class ExprFactory extends WalkerFactoryBase {
     InvariantChecks.checkNotNull(w);
     InvariantChecks.checkNotNull(name);
 
-    if (!getIR().getConstants().containsKey(name)) {
+    if (!getIr().getConstants().containsKey(name)) {
       raiseError(w, new UndefinedConstant(name));
     }
 
-    final LetConstant source = getIR().getConstants().get(name);
+    final LetConstant source = getIr().getConstants().get(name);
     return new Expr(source.getExpr());
   }
 

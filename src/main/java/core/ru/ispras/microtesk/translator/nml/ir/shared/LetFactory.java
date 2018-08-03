@@ -35,14 +35,14 @@ public final class LetFactory extends WalkerFactoryBase {
 
   public void createString(final String name, final String text) {
     final LetConstant constant = new LetConstant(name, new Expr(NodeValue.newString(text)));
-    getIR().add(name, constant);
+    getIr().add(name, constant);
 
     createLabel(name, text);
   }
 
   public void createConstant(final String name, final Expr value) {
     final LetConstant constant = new LetConstant(name, value);
-    getIR().add(name, constant);
+    getIr().add(name, constant);
   }
 
   private void createLabel(final String name, final String text) {
@@ -67,6 +67,6 @@ public final class LetFactory extends WalkerFactoryBase {
       label = new LetLabel(name, memoryName, memoryIndex);
     }
 
-    getIR().add(name, label);
+    getIr().add(name, label);
   }
 }
