@@ -137,7 +137,7 @@ typeDef
     :  ^(TYPE id=ID te=typeExpr)
 {
 checkNotNull($id, $te.res, $te.text);
-getIR().add($id.text, $te.res);
+getIr().add($id.text, $te.res);
 }
     ;
 
@@ -162,7 +162,7 @@ structDef
     : ^(STRUCT id=ID str=structFields)
 {
 checkNotNull($id, $str.res, $str.text);
-getIR().add($id.text, $str.res);
+getIr().add($id.text, $str.res);
 }
     ;
 
@@ -186,7 +186,7 @@ final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = factory.createMemory(
     where($id), Memory.Kind.MEM, $id.text, $st.type, $st.size, $sh != null, $al.res);
 
-getIR().add($id.text, expr);
+getIr().add($id.text, expr);
 }
     ;
 
@@ -198,7 +198,7 @@ final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = factory.createMemory(
     where($id), Memory.Kind.REG, $id.text, $st.type, $st.size, $sh != null, $al.res);
 
-getIR().add($id.text, expr);
+getIr().add($id.text, expr);
 }
     ;
 
@@ -210,7 +210,7 @@ final MemoryExprFactory factory = getMemoryExprFactory();
 final MemoryExpr expr = factory.createMemory(
     where($id), Memory.Kind.VAR, $id.text, $st.type, $st.size, $sh != null, $al.res);
 
-getIR().add($id.text, expr);
+getIr().add($id.text, expr);
 }
     ;
 
@@ -254,7 +254,7 @@ modeDef
         sp=modeSpecPart[where($id), $id.text, $label !=null]
 {
 checkNotNull($id, $sp.res, $modeDef.text);
-getIR().add($id.text, $sp.res);
+getIr().add($id.text, $sp.res);
 })
     ;  finally
 {
@@ -294,7 +294,7 @@ opDef
         sp=opSpecPart[where($id), $id.text, $mod.text]
 {
 checkNotNull($id, $sp.res, $opDef.text);
-getIR().add($id.text, $sp.res);
+getIr().add($id.text, $sp.res);
 })
     ;  finally
 {
