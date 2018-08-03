@@ -96,6 +96,12 @@ public final class NmlIrTrans {
       return lhs;
     }
 
+    public Local extract(final Operand src, final Operand lo, final Operand hi) {
+      final Local ret = newLocal(null);
+      append(new Extract(ret, src, lo, hi));
+      return ret;
+    }
+
     public <T extends Instruction> T append(final T insn) {
       bb.insns.add(insn);
       return insn;
@@ -364,9 +370,7 @@ public final class NmlIrTrans {
 
     protected Lvalue extract(final Lvalue src, final Access access) {
       if (access.lo != null) {
-        final Rvalue expr = Opcode.Shr.make(src, access.lo);
-        final Rvalue rhs = new Cast(expr, DataType.bitVector(access.size));
-        return ctx.assignLocal(rhs);
+        return ctx.extract(src, access.lo, access.hi);
       }
       return src;
     }
