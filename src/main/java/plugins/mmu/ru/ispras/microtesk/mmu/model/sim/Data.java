@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,23 +12,17 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.model.api;
+package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
- * This is a generic interface of a cache set indexer.
+ * The {@link Data} interface must be supported by classes describing
+ * complex data structures in order to be able to access data they store
+ * in a uniform way.
  *
- * @param <A> the address type.
- *
- * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public interface Indexer<A extends Address> {
-  /**
-   * Returns the cache set index for the given address.
-   *
-   * @param address the data address.
-   * @return the cache set index.
-   */
-  BitVector getIndex(final A address);
+public interface Data {
+  BitVector asBitVector();
 }

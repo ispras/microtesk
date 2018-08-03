@@ -12,56 +12,50 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.model.api;
+package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * The PLRU (Pseudo Least Recently Used) data replacement policy.
+ * The LRU (Least Recently Used) data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class PolicyPlru extends Policy {
-  /** The PLRU bits. */
-  private int bits;
-  /** The last access. */
-  private int last;
+final class PolicyLru extends Policy {
+  /** Maps index to time. */
+  private int[] times;
+  /** Current time. */
+  private int time = 0;
 
   /**
-   * Constructs a PLRU data replacement controller.
+   * Constructs an LRU data replacement controller.
    *
    * @param associativity the buffer associativity.
    */
-  PolicyPlru(final int associativity) {
+  PolicyLru(final int associativity) {
     super(associativity);
 
-    if (associativity > 32) {
-      throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
+    times = new int[associativity];
+    for (int i = 0; i < associativity; i++) {
+      times[i] = time++;
     }
   }
 
   @Override
   public void accessLine(final int index) {
-    setBit(index);
+    times[index] = time++;
   }
 
   @Override
   public int chooseVictim() {
-    for (int i = 0; i < associativity; i++) {
-      final int j = (last + i) % associativity;
+    int victim = 0;
+    int minTime = times[0];
 
-      if ((bits & (1 << j)) == 0) {
-        return j;
+    for (int i = 1; i < times.length; i++) {
+      if (times[i] < minTime) {
+        victim = i;
+        minTime = times[i];
       }
     }
 
-    throw new IllegalStateException("All bits are set to 1");
-  }
-
-  private void setBit(final int i) {
-    final int mask = (1 << (last = i));
-
-    bits |= mask;
-    if (bits == ((1 << associativity) - 1)) {
-      bits = mask;
-    }
+    return victim;
   }
 }

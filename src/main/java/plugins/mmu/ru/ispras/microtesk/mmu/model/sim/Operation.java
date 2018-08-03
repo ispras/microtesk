@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.model.api;
+package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.GenerationAbortedException;

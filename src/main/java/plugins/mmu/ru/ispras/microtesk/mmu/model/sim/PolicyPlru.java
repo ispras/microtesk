@@ -12,32 +12,56 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.model.api;
-
-import ru.ispras.fortress.randomizer.Randomizer;
+package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * The random data replacement policy.
+ * The PLRU (Pseudo Least Recently Used) data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class PolicyRandom extends Policy {
+final class PolicyPlru extends Policy {
+  /** The PLRU bits. */
+  private int bits;
+  /** The last access. */
+  private int last;
+
   /**
-   * Constructs a random data replacement controller.
+   * Constructs a PLRU data replacement controller.
    *
    * @param associativity the buffer associativity.
    */
-  PolicyRandom(final int associativity) {
+  PolicyPlru(final int associativity) {
     super(associativity);
+
+    if (associativity > 32) {
+      throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
+    }
   }
 
   @Override
   public void accessLine(final int index) {
-    // Do nothing.
+    setBit(index);
   }
 
   @Override
   public int chooseVictim() {
-    return Randomizer.get().nextIntRange(0, associativity - 1);
+    for (int i = 0; i < associativity; i++) {
+      final int j = (last + i) % associativity;
+
+      if ((bits & (1 << j)) == 0) {
+        return j;
+      }
+    }
+
+    throw new IllegalStateException("All bits are set to 1");
+  }
+
+  private void setBit(final int i) {
+    final int mask = (1 << (last = i));
+
+    bits |= mask;
+    if (bits == ((1 << associativity) - 1)) {
+      bits = mask;
+    }
   }
 }

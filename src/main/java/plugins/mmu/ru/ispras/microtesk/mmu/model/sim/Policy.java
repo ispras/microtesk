@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.model.api;
+package ru.ispras.microtesk.mmu.model.sim;
 
 /**
  * Base interface to be implemented by all data replacement policies.

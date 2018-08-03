@@ -26,10 +26,10 @@ group JavaCommon;
  */
 header(file) ::= <<
 /*
- * Copyright (c) Institute for System Programming of the Russian Academy of Sciences
+ * Copyright (c) ISP RAS (http://www.ispras.ru)
  * All Rights Reserved
  *
- * Institute for System Programming of the Russian Academy of Sciences (ISP RAS)
+ * Ivannikov Institute for System Programming of the Russian Academy of Sciences (ISP RAS)
  * 25 Alexander Solzhenitsyn st., Moscow, 109004, Russia
  * http://www.ispras.ru
  *

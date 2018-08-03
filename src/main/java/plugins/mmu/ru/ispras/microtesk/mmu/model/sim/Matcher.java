@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.model.api;
+package ru.ispras.microtesk.mmu.model.sim;
 
 /**
  * This is a generic interface of a cache line matcher (hit checker).

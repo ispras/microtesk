@@ -12,50 +12,32 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.model.api;
+package ru.ispras.microtesk.mmu.model.sim;
+
+import ru.ispras.fortress.randomizer.Randomizer;
 
 /**
- * The LRU (Least Recently Used) data replacement policy.
+ * The random data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class PolicyLru extends Policy {
-  /** Maps index to time. */
-  private int[] times;
-  /** Current time. */
-  private int time = 0;
-
+final class PolicyRandom extends Policy {
   /**
-   * Constructs an LRU data replacement controller.
+   * Constructs a random data replacement controller.
    *
    * @param associativity the buffer associativity.
    */
-  PolicyLru(final int associativity) {
+  PolicyRandom(final int associativity) {
     super(associativity);
-
-    times = new int[associativity];
-    for (int i = 0; i < associativity; i++) {
-      times[i] = time++;
-    }
   }
 
   @Override
   public void accessLine(final int index) {
-    times[index] = time++;
+    // Do nothing.
   }
 
   @Override
   public int chooseVictim() {
-    int victim = 0;
-    int minTime = times[0];
-
-    for (int i = 1; i < times.length; i++) {
-      if (times[i] < minTime) {
-        victim = i;
-        minTime = times[i];
-      }
-    }
-
-    return victim;
+    return Randomizer.get().nextIntRange(0, associativity - 1);
   }
 }
