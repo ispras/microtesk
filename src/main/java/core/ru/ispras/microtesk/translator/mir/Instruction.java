@@ -24,6 +24,19 @@ final class Assignment implements Instruction {
   }
 }
 
+class Extract implements Instruction {
+  private final Lvalue lhs;
+  private final Operand rhs;
+  private final Operand lo;
+  private final Operand hi;
+
+  public Extract(final Lvalue lhs, final Operand rhs, final Operand lo, final Operand hi) {
+    this.lhs = lhs;
+    this.rhs = rhs;
+    this.lo = lo;
+    this.hi = hi;
+  }
+}
 
 final class Call implements Instruction {
   public final Operand callee;
