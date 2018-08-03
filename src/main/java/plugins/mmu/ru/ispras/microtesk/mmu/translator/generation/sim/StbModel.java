@@ -29,7 +29,7 @@ final class StbModel implements StringTemplateBuilder {
   public static final String CLASS_NAME = "Model";
 
   private static final Class<?> MODEL_CLASS =
-      ru.ispras.microtesk.mmu.model.api.MmuModel.class;
+      ru.ispras.microtesk.mmu.model.sim.MmuModel.class;
 
   private final String packageName;
   private final Ir ir;

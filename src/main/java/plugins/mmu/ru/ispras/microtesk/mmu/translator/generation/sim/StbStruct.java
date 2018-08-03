@@ -33,10 +33,10 @@ final class StbStruct implements StringTemplateBuilder {
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
   public static final Class<?> ADDRESS_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Address.class;
+      ru.ispras.microtesk.mmu.model.sim.Address.class;
 
   public static final Class<?> DATA_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Data.class;
+      ru.ispras.microtesk.mmu.model.sim.Data.class;
 
   private final String packageName;
   private final boolean isAddress;

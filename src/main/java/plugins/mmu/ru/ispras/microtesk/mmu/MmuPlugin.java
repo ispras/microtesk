@@ -18,7 +18,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
-import ru.ispras.microtesk.mmu.model.api.MmuModel;
+import ru.ispras.microtesk.mmu.model.sim.MmuModel;
 import ru.ispras.microtesk.mmu.test.engine.memory.AddressDataGenerator;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryDataGenerator;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryEngine;

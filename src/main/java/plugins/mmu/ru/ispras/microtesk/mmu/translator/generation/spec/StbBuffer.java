@@ -21,7 +21,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
-import ru.ispras.microtesk.mmu.model.api.PolicyId;
+import ru.ispras.microtesk.mmu.model.sim.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 
 import java.math.BigInteger;

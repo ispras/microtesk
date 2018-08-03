@@ -25,7 +25,7 @@ import java.math.BigInteger;
 
 final class StbOperation extends StbCommon implements StringTemplateBuilder {
   public static final Class<?> OPERATION_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Operation.class;
+      ru.ispras.microtesk.mmu.model.sim.Operation.class;
 
   private final Operation operation;
 

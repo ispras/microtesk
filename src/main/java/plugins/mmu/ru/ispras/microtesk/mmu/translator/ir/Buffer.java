@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.translator.ir;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.model.api.PolicyId;
+import ru.ispras.microtesk.mmu.model.sim.PolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
 
 import java.math.BigInteger;

@@ -51,37 +51,37 @@ abstract class StbCommon {
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
   public static final Class<?> ADDRESS_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Address.class;
+      ru.ispras.microtesk.mmu.model.sim.Address.class;
 
   public static final Class<?> BUFFER_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Buffer.class;
+      ru.ispras.microtesk.mmu.model.sim.Buffer.class;
 
   public static final Class<?> CACHE_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Cache.class;
+      ru.ispras.microtesk.mmu.model.sim.Cache.class;
 
   public static final Class<?> SEGMENT_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Segment.class;
+      ru.ispras.microtesk.mmu.model.sim.Segment.class;
 
   public static final Class<?> MMU_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Mmu.class;
+      ru.ispras.microtesk.mmu.model.sim.Mmu.class;
 
   public static final Class<?> MMU_MAPPING_CLASS =
-      ru.ispras.microtesk.mmu.model.api.MmuMapping.class;
+      ru.ispras.microtesk.mmu.model.sim.MmuMapping.class;
 
   public static final Class<?> REG_MAPPING_CLASS =
-      ru.ispras.microtesk.mmu.model.api.RegisterMapping.class;
+      ru.ispras.microtesk.mmu.model.sim.RegisterMapping.class;
 
   public static final Class<?> MEMORY_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Memory.class;
+      ru.ispras.microtesk.mmu.model.sim.Memory.class;
 
   public static final Class<?> INDEXER_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Indexer.class;
+      ru.ispras.microtesk.mmu.model.sim.Indexer.class;
 
   public static final Class<?> MATCHER_CLASS =
-      ru.ispras.microtesk.mmu.model.api.Matcher.class;
+      ru.ispras.microtesk.mmu.model.sim.Matcher.class;
 
   public static final Class<?> POLICY_ID_CLASS =
-      ru.ispras.microtesk.mmu.model.api.PolicyId.class;
+      ru.ispras.microtesk.mmu.model.sim.PolicyId.class;
 
   public static final Class<?> EXECUTION_CLASS =
       ru.ispras.microtesk.model.Execution.class;
