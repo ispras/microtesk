@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
 import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.Nodes;
@@ -40,7 +41,7 @@ public final class Expr {
   }
 
   public boolean isConstant() {
-    return Node.Kind.VALUE == node.getKind();
+    return ExprUtils.isValue(node);
   }
 
   public boolean isInternalVariable() {
