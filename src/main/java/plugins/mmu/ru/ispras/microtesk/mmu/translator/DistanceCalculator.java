@@ -195,7 +195,7 @@ final class DistanceCalculator {
             continue;
           }
 
-          if (isNedation(operands.get(i), operands.get(j))) {
+          if (isNegation(operands.get(i), operands.get(j))) {
             operands.set(i, null);
             operands.set(j, null);
             break;
@@ -227,7 +227,7 @@ final class DistanceCalculator {
       return Nodes.add(newOperands);
     }
 
-    private boolean isNedation(final Node node1, final Node node2) {
+    private boolean isNegation(final Node node1, final Node node2) {
       if (ExprUtils.isOperation(node1, StandardOperation.MINUS)
           && !ExprUtils.isOperation(node2, StandardOperation.MINUS)) {
         return node2.equals(((NodeOperation) node1).getOperand(0));
