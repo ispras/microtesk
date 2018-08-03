@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The {@code Attribute} class describes an attribute of an nML primitive ('op' or 'mode').
+ * The {@code Attribute} class describes an attribute of an nML primitive (OP or MODE).
  * It stores a collection of statements.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
