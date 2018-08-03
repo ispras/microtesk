@@ -200,31 +200,31 @@ public final class FortressUtils {
 
   public static BigInteger evaluateInteger(final Node node, final ValueProvider valueProvider) {
     final Node result = Reducer.reduce(valueProvider, node);
-    return ExprUtils.isValue(node) ? getInteger(result) : null;
+    return ExprUtils.isValue(result) ? getInteger(result) : null;
   }
 
   public static BigInteger evaluateInteger(final Node node) {
     final Node result = Reducer.reduce(node);
-    return ExprUtils.isValue(node) ? getInteger(result) : null;
+    return ExprUtils.isValue(result) ? getInteger(result) : null;
   }
 
   public static BitVector evaluateBitVector(final Node node, final ValueProvider valueProvider) {
     final Node result = Reducer.reduce(valueProvider, node);
-    return ExprUtils.isValue(node) ? getBitVector(result) : null;
+    return ExprUtils.isValue(result) ? getBitVector(result) : null;
   }
 
   public static BitVector evaluateBitVector(final Node node) {
     final Node result = Reducer.reduce(node);
-    return ExprUtils.isValue(node) ? getBitVector(result) : null;
+    return ExprUtils.isValue(result) ? getBitVector(result) : null;
   }
 
   public static Boolean evaluateBoolean(final Node node, final ValueProvider valueProvider) {
     final Node result = Reducer.reduce(valueProvider, node);
-    return ExprUtils.isValue(node) ? getBoolean(result) : null;
+    return ExprUtils.isValue(result) ? getBoolean(result) : null;
   }
 
   public static Boolean evaluateBoolean(final Node node) {
     final Node result = Reducer.reduce(node);
-    return ExprUtils.isValue(node) ? getBoolean(result) : null;
+    return ExprUtils.isValue(result) ? getBoolean(result) : null;
   }
 }
