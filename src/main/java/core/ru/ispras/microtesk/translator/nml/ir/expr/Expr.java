@@ -17,10 +17,10 @@ package ru.ispras.microtesk.translator.nml.ir.expr;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
-import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.utils.FortressUtils;
 import ru.ispras.microtesk.model.data.TypeId;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
@@ -82,15 +82,7 @@ public final class Expr {
   }
 
   public BigInteger bigIntegerValue() {
-    if (isConstant() && node.isType(DataTypeId.LOGIC_INTEGER)) {
-      return ((NodeValue) node).getInteger();
-    }
-
-    if (isConstant() && node.isType(DataTypeId.BIT_VECTOR)) {
-      return ((NodeValue) node).getBitVector().bigIntegerValue();
-    }
-
-    throw new IllegalStateException("Not a constant integer expression.");
+    return FortressUtils.getInteger(node);
   }
 
   @Override
