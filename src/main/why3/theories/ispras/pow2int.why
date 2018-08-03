@@ -104,8 +104,9 @@ theory Pow2int
   lemma Div_div_pow: forall x i j:int.
     i > 0 /\ j > 0 -> div (div x (pow2 i)) (pow2 j) = div x (pow2 (i+j))
 
-   lemma Mod_pow2_gen: forall x i k :int.
+  lemma Mod_pow2_gen: forall x i k :int.
     0 <= k < i -> mod (div (x + pow2 i) (pow2 k)) 2 = mod (div x (pow2 k)) 2
+
   *)
 
 end
