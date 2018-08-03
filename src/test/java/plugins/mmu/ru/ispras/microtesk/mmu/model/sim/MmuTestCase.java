@@ -22,7 +22,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.model.api;
+package ru.ispras.microtesk.mmu.model.sim;
 
 import org.junit.Assert;
 import org.junit.Test;
