@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.analysis;
+package ru.ispras.microtesk.translator.nml.analysis;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.Translator;
@@ -20,17 +20,10 @@ import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.antlrex.log.LogWriter;
 import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveUtils.PathCounter;
+import ru.ispras.microtesk.translator.nml.analysis.PrimitiveUtils.PathCounter;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveReference;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * The {@link PrimitiveSyntesizer} class provides facilities to analyze information on relations

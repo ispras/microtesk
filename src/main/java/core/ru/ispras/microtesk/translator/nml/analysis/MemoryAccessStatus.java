@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.analysis;
+package ru.ispras.microtesk.translator.nml.analysis;
 
 public final class MemoryAccessStatus {
   public static final MemoryAccessStatus NO =

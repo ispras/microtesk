@@ -16,7 +16,7 @@ package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.translator.nml.ir.analysis.MemoryAccessStatus;
+import ru.ispras.microtesk.translator.nml.analysis.MemoryAccessStatus;
 import ru.ispras.microtesk.utils.StringUtils;
 
 import java.util.Collection;

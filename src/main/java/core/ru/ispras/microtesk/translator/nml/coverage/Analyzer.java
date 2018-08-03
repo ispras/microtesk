@@ -22,7 +22,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.analysis.IrInquirer;
+import ru.ispras.microtesk.translator.nml.analysis.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -30,7 +30,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.utils.StringUtils;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.util.ArrayList;

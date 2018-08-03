@@ -12,10 +12,10 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.analysis;
+package ru.ispras.microtesk.translator.nml.analysis;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.nml.ir.analysis.PrimitiveUtils.PathCounter;
+import ru.ispras.microtesk.translator.nml.analysis.PrimitiveUtils.PathCounter;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
