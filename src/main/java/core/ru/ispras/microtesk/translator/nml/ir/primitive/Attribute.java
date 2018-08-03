@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -23,8 +23,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * The {@code Attribute} class describes an attribute of an nML primitive ('op' or 'mode').
+ * It stores a collection of statements.
+ *
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ */
 public final class Attribute {
-  public static enum Kind {
+  public enum Kind {
     ACTION,
     EXPRESSION
   }
