@@ -64,26 +64,25 @@ catch (final RecognitionException re) { // Default behavior
 
 package ru.ispras.microtesk.translator.nml.grammar;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.LinkedHashMap;
-
 import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 
-import ru.ispras.microtesk.translator.antlrex.symbols.Where;
-import ru.ispras.microtesk.translator.nml.antlrex.NmlTreeWalkerBase;
-import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.model.memory.Memory;
-
+import ru.ispras.microtesk.translator.antlrex.symbols.Where;
+import ru.ispras.microtesk.translator.nml.antlrex.*;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.*;
 import ru.ispras.microtesk.translator.nml.ir.shared.*;
 import ru.ispras.microtesk.translator.nml.ir.primitive.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.List;
 }
 
 /*======================================================================================*/

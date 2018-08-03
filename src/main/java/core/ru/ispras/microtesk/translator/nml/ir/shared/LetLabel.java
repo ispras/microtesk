@@ -22,11 +22,11 @@ public final class LetLabel {
   private final String memoryName;
   private final int index;
 
-  LetLabel(final String name, final String memoryName) {
+  public LetLabel(final String name, final String memoryName) {
     this(name, memoryName, 0);
   }
 
-  LetLabel(final String name, final String memoryName, final int index) {
+  public LetLabel(final String name, final String memoryName, final int index) {
     checkNotNull(name);
     checkNotNull(memoryName);
     checkGreaterOrEqZero(index);

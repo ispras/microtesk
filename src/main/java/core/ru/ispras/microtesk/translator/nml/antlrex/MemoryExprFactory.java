@@ -12,15 +12,16 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.shared;
+package ru.ispras.microtesk.translator.nml.antlrex;
 
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.math.BigInteger;
 

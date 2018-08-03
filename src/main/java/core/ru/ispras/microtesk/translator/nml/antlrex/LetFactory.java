@@ -12,14 +12,14 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.shared;
+package ru.ispras.microtesk.translator.nml.antlrex;
 
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
+import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

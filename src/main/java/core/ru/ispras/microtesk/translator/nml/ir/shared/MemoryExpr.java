@@ -27,7 +27,7 @@ public final class MemoryExpr {
   private final boolean shared;
   private final Alias alias;
 
-  MemoryExpr(
+  public MemoryExpr(
       final Memory.Kind kind,
       final String name,
       final Type type,

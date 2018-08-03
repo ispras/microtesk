@@ -26,9 +26,6 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationFactory;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveFactory;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFactory;
-import ru.ispras.microtesk.translator.nml.ir.shared.LetFactory;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExprFactory;
-import ru.ispras.microtesk.translator.nml.ir.shared.TypeFactory;
 
 import java.util.Map;
 

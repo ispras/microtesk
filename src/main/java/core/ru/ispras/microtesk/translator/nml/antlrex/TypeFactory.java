@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.shared;
+package ru.ispras.microtesk.translator.nml.antlrex;
 
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
@@ -20,10 +20,9 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.microtesk.model.data.floatx.Precision;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class TypeFactory extends WalkerFactoryBase {
   public TypeFactory(final WalkerContext context) {

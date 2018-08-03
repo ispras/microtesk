@@ -30,7 +30,7 @@ public final class LetConstant {
   private final String name;
   private final Expr expr;
 
-  LetConstant(final String name, final Expr expr) {
+  public LetConstant(final String name, final Expr expr) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(expr);
 
