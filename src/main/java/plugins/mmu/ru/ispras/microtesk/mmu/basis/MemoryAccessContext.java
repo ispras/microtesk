@@ -20,9 +20,9 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.mmu.model.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.model.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.model.spec.MmuTransition;
 
 import java.util.HashMap;
 import java.util.Map;

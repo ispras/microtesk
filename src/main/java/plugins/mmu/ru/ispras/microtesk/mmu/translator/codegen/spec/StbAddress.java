@@ -25,7 +25,7 @@ import ru.ispras.microtesk.utils.StringUtils;
 
 final class StbAddress implements StringTemplateBuilder {
   public static final Class<?> ADDRESS_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuAddressInstance.class;
 
   public static final Class<?> DATA_TYPE_CLASS =
       ru.ispras.fortress.data.DataType.class;

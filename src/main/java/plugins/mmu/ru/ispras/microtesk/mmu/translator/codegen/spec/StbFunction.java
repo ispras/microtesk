@@ -32,7 +32,7 @@ final class StbFunction implements StringTemplateBuilder {
       ru.ispras.fortress.expression.NodeVariable.class;
 
   public static final Class<?> SPEC_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuSubsystem.class;
 
   private final String packageName;
   private final Ir ir;

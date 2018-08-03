@@ -31,13 +31,13 @@ import java.util.List;
 
 final class StbBuffer implements StringTemplateBuilder {
   public static final Class<?> BINDING_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuBinding.class;
 
   public static final Class<?> BUFFER_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuBuffer.class;
 
   public static final Class<?> STRUCT_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuStruct.class;
 
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;

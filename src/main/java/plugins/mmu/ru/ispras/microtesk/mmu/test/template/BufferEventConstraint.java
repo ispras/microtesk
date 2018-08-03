@@ -16,7 +16,7 @@ package ru.ispras.microtesk.mmu.test.template;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.model.spec.MmuBuffer;
 
 import java.util.Collections;
 import java.util.EnumSet;

@@ -31,11 +31,11 @@ import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.basis.MemoryOperation;
 import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
 import ru.ispras.microtesk.mmu.test.template.BufferEventConstraint;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuProgram;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.mmu.model.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.model.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.model.spec.MmuGuard;
+import ru.ispras.microtesk.mmu.model.spec.MmuProgram;
+import ru.ispras.microtesk.mmu.model.spec.MmuTransition;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.utils.FortressUtils;
 

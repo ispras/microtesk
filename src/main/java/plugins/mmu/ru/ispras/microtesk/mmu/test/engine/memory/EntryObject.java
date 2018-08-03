@@ -16,7 +16,7 @@ package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuEntry;
+import ru.ispras.microtesk.mmu.model.spec.MmuEntry;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;

@@ -29,7 +29,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer.Kind;
+import ru.ispras.microtesk.mmu.model.spec.MmuBuffer.Kind;
 
 import java.math.BigInteger;
 

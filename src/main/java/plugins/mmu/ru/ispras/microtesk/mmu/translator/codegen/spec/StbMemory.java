@@ -32,7 +32,7 @@ import java.util.Collections;
 
 final class StbMemory implements StringTemplateBuilder {
   public static final Class<?> SPEC_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuSubsystem.class;
 
   public static final Class<?> OPERATION_CLASS =
       ru.ispras.microtesk.mmu.basis.MemoryOperation.class;

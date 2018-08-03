@@ -58,22 +58,22 @@ final class ControlFlowBuilder {
       ru.ispras.microtesk.mmu.basis.BufferAccessEvent.class;
 
   public static final Class<?> ACTION_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuAction.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuAction.class;
 
   public static final Class<?> BINDING_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuBinding.class;
 
   public static final Class<?> BUFFER_ACCESS_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuBufferAccess.class;
 
   public static final Class<?> GUARD_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuGuard.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuGuard.class;
 
   public static final Class<?> SEGMENT_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuSegment.class;
 
   public static final Class<?> TRANSITION_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuTransition.class;
 
   private final Ir ir;
   private final String context;

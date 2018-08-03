@@ -18,10 +18,10 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.MmuPlugin;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuAddressInstance;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.mmu.model.spec.MmuAddressInstance;
+import ru.ispras.microtesk.mmu.model.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.model.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.model.spec.MmuSubsystem;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

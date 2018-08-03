@@ -28,10 +28,10 @@ import java.math.BigInteger;
 
 public final class StbOperation implements StringTemplateBuilder {
   public static final Class<?> BINDING_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuBinding.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuBinding.class;
 
   public static final Class<?> OPERATION_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuOperation.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuOperation.class;
 
   private final String packageName;
   private final Ir ir;

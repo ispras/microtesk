@@ -18,7 +18,7 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.model.sim.PolicyId;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.model.spec.MmuBuffer;
 
 import java.math.BigInteger;
 import java.util.Collections;

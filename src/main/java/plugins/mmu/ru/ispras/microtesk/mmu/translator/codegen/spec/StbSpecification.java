@@ -30,7 +30,7 @@ import java.util.Map;
 
 final class StbSpecification implements StringTemplateBuilder {
   public static final Class<?> SPEC_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuSubsystem.class;
 
   public static final String CLASS_NAME = "Specification";
 

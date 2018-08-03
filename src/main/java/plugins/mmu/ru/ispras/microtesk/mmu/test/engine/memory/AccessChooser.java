@@ -20,7 +20,7 @@ import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.basis.solver.BiasedConstraints;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.template.AccessConstraints;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.mmu.model.spec.MmuSubsystem;
 
 import java.util.ArrayList;
 import java.util.Collection;

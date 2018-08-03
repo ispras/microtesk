@@ -16,7 +16,7 @@ package ru.ispras.microtesk.mmu.basis;
 
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuTransition;
+import ru.ispras.microtesk.mmu.model.spec.MmuTransition;
 
 import java.util.HashMap;
 import java.util.Map;

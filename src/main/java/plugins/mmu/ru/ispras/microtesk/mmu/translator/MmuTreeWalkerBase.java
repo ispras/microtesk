@@ -63,7 +63,7 @@ import ru.ispras.microtesk.mmu.translator.ir.StmtReturn;
 import ru.ispras.microtesk.mmu.translator.ir.StmtTrace;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.model.spec.MmuBuffer;
 import ru.ispras.microtesk.translator.TranslatorContext;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;

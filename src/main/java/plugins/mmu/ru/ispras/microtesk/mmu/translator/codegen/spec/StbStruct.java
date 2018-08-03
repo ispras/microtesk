@@ -27,7 +27,7 @@ import java.util.Map;
 
 final class StbStruct implements StringTemplateBuilder {
   public static final Class<?> STRUCT_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuStruct.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuStruct.class;
 
   public static final Class<?> DATA_TYPE_CLASS =
       ru.ispras.fortress.data.DataType.class;

@@ -30,7 +30,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 final class StbSegment implements StringTemplateBuilder {
   public static final Class<?> SEGMENT_CLASS =
-      ru.ispras.microtesk.mmu.translator.ir.spec.MmuSegment.class;
+      ru.ispras.microtesk.mmu.model.spec.MmuSegment.class;
 
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
@@ -74,7 +74,7 @@ final class StbSegment implements StringTemplateBuilder {
     st.add("imps", ru.ispras.fortress.expression.NodeValue.class.getName());
     st.add("imps", ru.ispras.fortress.expression.NodeVariable.class.getName());
     st.add("imps", SEGMENT_CLASS.getName());
-    st.add("imps", ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem.class.getName());
+    st.add("imps", ru.ispras.microtesk.mmu.model.spec.MmuSubsystem.class.getName());
   }
 
   private void buildArguments(final ST st, final STGroup group) {

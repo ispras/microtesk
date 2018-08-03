@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.mmu.translator.ir.spec;
+package ru.ispras.microtesk.mmu.model.spec;
 
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.NodeVariable;

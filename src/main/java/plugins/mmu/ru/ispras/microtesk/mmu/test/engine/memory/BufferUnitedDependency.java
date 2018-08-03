@@ -16,7 +16,7 @@ package ru.ispras.microtesk.mmu.test.engine.memory;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.model.spec.MmuBufferAccess;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;

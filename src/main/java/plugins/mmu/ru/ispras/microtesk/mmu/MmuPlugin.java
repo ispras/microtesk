@@ -24,7 +24,7 @@ import ru.ispras.microtesk.mmu.test.engine.memory.MemoryDataGenerator;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryEngine;
 import ru.ispras.microtesk.mmu.test.engine.memory.MemoryInitializerMaker;
 import ru.ispras.microtesk.mmu.translator.MmuTranslator;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuSubsystem;
+import ru.ispras.microtesk.mmu.model.spec.MmuSubsystem;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
 import ru.ispras.microtesk.settings.GeneratorSettings;

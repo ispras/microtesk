@@ -17,8 +17,8 @@ package ru.ispras.microtesk.mmu.test.engine.memory;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBuffer;
-import ru.ispras.microtesk.mmu.translator.ir.spec.MmuBufferAccess;
+import ru.ispras.microtesk.mmu.model.spec.MmuBuffer;
+import ru.ispras.microtesk.mmu.model.spec.MmuBufferAccess;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 import java.util.ArrayList;
