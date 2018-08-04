@@ -38,6 +38,16 @@ class Extract implements Instruction {
   }
 }
 
+class Concat implements Instruction {
+  private final Lvalue lhs;
+  private final List<Operand> rhs;
+
+  public Concat(final Lvalue lhs, final List<Operand> rhs) {
+    this.lhs = lhs;
+    this.rhs = rhs;
+  }
+}
+
 final class Call implements Instruction {
   public final Operand callee;
   public final List<Operand> args;

@@ -210,7 +210,7 @@ public final class NmlIrTrans {
       if (!mapped.containsKey(node)) {
         final Operand local;
         if (node.getOperationId().equals(StandardOperation.BVCONCAT)) {
-          local = translateConcat(node);
+          local = translateConcat2(node);
         } else {
           local = translateMapping(node);
         }
@@ -263,6 +263,17 @@ public final class NmlIrTrans {
         op2 = lookUp(it.next());
       }
       return opc.make(op1, op2);
+    }
+
+    private Operand translateConcat2(final NodeOperation node) {
+      final Local lhs = ctx.newLocal(node.getDataType());
+      final List<Operand> rhs = new ArrayList<>();
+      for (final Node operand : node.getOperands()) {
+        rhs.add(lookUp(operand));
+      }
+      ctx.append(new Concat(lhs, rhs));
+
+      return lhs;
     }
 
     private Operand translateConcat(final NodeOperation node) {
