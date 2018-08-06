@@ -279,8 +279,8 @@ public final class LocationFactory extends WalkerFactoryBase {
           ));
     }
 
-    final Expr.Reduced reducedFrom = from.reduce();
-    final Expr.Reduced reducedTo = to.reduce();
+    final ExprReducer.Reduced reducedFrom = ExprReducer.reduce(from);
+    final ExprReducer.Reduced reducedTo = ExprReducer.reduce(to);
 
     if (null == reducedFrom || null == reducedTo) {
       raiseError(where, FAILED_TO_CALCULATE_SIZE);
