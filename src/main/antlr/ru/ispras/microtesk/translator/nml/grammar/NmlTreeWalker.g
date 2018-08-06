@@ -599,11 +599,11 @@ conditionalStatement returns [List<Statement> res]
     ;
 
 ifStmt returns [List<Statement> res]
-@init  {final List<StatementCondition.Block> blocks = new ArrayList<>();}
+@init  {final List<Pair<Expr, List<Statement>>> blocks = new ArrayList<>();}
     :  ^(IF cond=logicExpr stmts=sequence
 {
 checkNotNull($stmts.start, $stmts.res, $stmts.text);
-blocks.add(StatementCondition.Block.newIfBlock($cond.res, $stmts.res));
+blocks.add(new Pair<>($cond.res, $stmts.res));
 }
         (elifb=elseIfStmt
 {
@@ -620,19 +620,19 @@ $res = getStatementFactory().createCondition(blocks);
 }
     ;
 
-elseIfStmt returns [StatementCondition.Block res]
+elseIfStmt returns [Pair<Expr, List<Statement>> res]
     :  ^(ELSEIF cond=logicExpr stmts=sequence)
 {
 checkNotNull($stmts.start, $stmts.res, $stmts.text);
-$res = StatementCondition.Block.newIfBlock($cond.res, $stmts.res);
+$res = new Pair<>($cond.res, $stmts.res);
 }
     ;
 
-elseStmt returns [StatementCondition.Block res]
+elseStmt returns [Pair<Expr, List<Statement>> res]
     :  ^(ELSE stmts=sequence)
 {
 checkNotNull($stmts.start, $stmts.res, $stmts.text);
-$res = StatementCondition.Block.newElseBlock($stmts.res);
+$res = new Pair<>(null, $stmts.res);
 }
     ;
     

@@ -25,6 +25,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.data.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
@@ -40,7 +41,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
-import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition.Block;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -180,14 +180,14 @@ public final class StatementFactory extends WalkerFactoryBase {
     }
   }
 
-  public List<Statement> createCondition(final List<Block> blocks) {
-    final List<Block> updatedBlocks = new ArrayList<>();
-    for (final Block block : blocks) {
-      final Expr condition = block.getCondition();
+  public List<Statement> createCondition(final List<Pair<Expr, List<Statement>>> blocks) {
+    final List<Pair<Expr, List<Statement>>> updatedBlocks = new ArrayList<>();
+    for (final Pair<Expr, List<Statement>> block : blocks) {
+      final Expr condition = block.first;
       if (null != condition && ExprUtils.isValue(condition.getNode())) { // Condition is true.
         if (NodeValue.newBoolean(true).equals(condition.getNode())) {
           // This block becomes an else block, the rest are thrown away.
-          updatedBlocks.add(StatementCondition.Block.newElseBlock(block.getStatements()));
+          updatedBlocks.add(new Pair<Expr, List<Statement>>(null, block.second));
           break;
         } else { // Condition is false.
           // This block is thrown away.
@@ -202,9 +202,9 @@ public final class StatementFactory extends WalkerFactoryBase {
     }
 
     if (updatedBlocks.size() == 1
-        && (updatedBlocks.get(0).getCondition() == null
-        || updatedBlocks.get(0).getCondition().getNode().equals(NodeValue.newBoolean(true)))) {
-      return updatedBlocks.get(0).getStatements();
+        && (updatedBlocks.get(0).first == null
+        || updatedBlocks.get(0).first.getNode().equals(NodeValue.newBoolean(true)))) {
+      return updatedBlocks.get(0).second;
     }
 
     return Collections.<Statement>singletonList(new StatementCondition(updatedBlocks));

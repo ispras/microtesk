@@ -15,47 +15,15 @@
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 
 import java.util.List;
 
 public final class StatementCondition extends Statement {
-  public static final class Block {
-    private final Expr condition;
-    private final List<Statement> statements;
+  private final List<Pair<Expr, List<Statement>>> blocks;
 
-    private Block(final Expr condition, final List<Statement> statements) {
-      InvariantChecks.checkNotNull(statements);
-
-      this.condition = condition;
-      this.statements = statements;
-    }
-
-    public static Block newIfBlock(final Expr condition, final List<Statement> statements) {
-      InvariantChecks.checkNotNull(condition);
-      return new Block(condition, statements);
-    }
-
-    public static Block newElseBlock(final List<Statement> statements) {
-      return new Block(null, statements);
-    }
-
-    public Expr getCondition() {
-      return condition;
-    }
-
-    public boolean isElseBlock() {
-      return null == condition;
-    }
-
-    public List<Statement> getStatements() {
-      return statements;
-    }
-  }
-
-  private final List<Block> blocks;
-
-  public StatementCondition(final List<Block> blocks) {
+  public StatementCondition(final List<Pair<Expr, List<Statement>>> blocks) {
     super(Kind.COND);
 
     InvariantChecks.checkNotEmpty(blocks);
@@ -66,7 +34,7 @@ public final class StatementCondition extends Statement {
     return blocks.size();
   }
 
-  public Block getBlock(final int index) {
+  public Pair<Expr, List<Statement>> getBlock(final int index) {
     InvariantChecks.checkBounds(index, getBlockCount());
     return blocks.get(index);
   }

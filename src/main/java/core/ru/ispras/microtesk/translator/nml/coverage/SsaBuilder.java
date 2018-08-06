@@ -29,6 +29,7 @@ import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.TransformerRule;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.translator.nml.analysis.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
@@ -436,8 +437,8 @@ final class SsaBuilder {
     final List<GuardedBlock> children = new ArrayList<>(s.getBlockCount());
 
     for (int i = 0; i < s.getBlockCount(); ++i) {
-      final StatementCondition.Block codeBlock = s.getBlock(i);
-      final SsaForm ssa = convertNested(codeBlock.getStatements());
+      final Pair<Expr, List<Statement>> codeBlock = s.getBlock(i);
+      final SsaForm ssa = convertNested(codeBlock.second);
       children.add(new GuardedBlock(branchPoint.names.get(i),
                                     branchPoint.guards.get(i),
                                     ssa.getEntryPoint()));
@@ -446,10 +447,12 @@ final class SsaBuilder {
       }
       blocks.addAll(ssa.getBlocks());
     }
-    if (!s.getBlock(s.getBlockCount() - 1).isElseBlock()) {
+
+    if (null != s.getBlock(s.getBlockCount() - 1).first) {
       children.add(new GuardedBlock(
           phiName, Nodes.not(Nodes.or(branchPoint.negateGuards())), phi));
     }
+
     final Block block = stack.pop();
     block.setChildren(children);
     block.setSuccessor(phi);
@@ -476,17 +479,16 @@ final class SsaBuilder {
     public final List<String> names;
     public final List<Node> guards;
 
-    public BranchPoint(int n) {
+    public BranchPoint(final int n) {
       this.names = new ArrayList<>(n);
       this.guards = new ArrayList<>(n);
     }
 
-    public void addBranch(StatementCondition.Block block) {
+    public void addBranch(final Pair<Expr, List<Statement>> block) {
       final NodeVariable guard = createMarks(block);
 
-      if (!block.isElseBlock()) {
-        final Node condition =
-            convertExpression(block.getCondition().getNode());
+      if (null != block.first) {
+        final Node condition = convertExpression(block.first.getNode());
         if (guards.isEmpty()) {
           addToContext(Nodes.eq(guard, condition));
         } else {
@@ -503,12 +505,12 @@ final class SsaBuilder {
       return guards.toArray(new Node[guards.size()]);
     }
 
-    private NodeVariable createMarks(final StatementCondition.Block block) {
+    private NodeVariable createMarks(final Pair<Expr, List<Statement>> block) {
       final String blockId = generateBlockName();
       final NodeVariable guard = createGuard(blockId);
       final List<Node> special = new ArrayList<>();
 
-      for (final Statement s : block.getStatements()) {
+      for (final Statement s : block.second) {
         if (s.getKind() == Statement.Kind.FUNCALL) {
           final StatementFunctionCall funcall = (StatementFunctionCall) s;
           final String callee = funcall.getName();

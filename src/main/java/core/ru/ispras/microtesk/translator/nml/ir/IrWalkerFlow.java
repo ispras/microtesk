@@ -16,7 +16,9 @@ package ru.ispras.microtesk.translator.nml.ir;
 
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.fortress.util.TreeVisitor.Status;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
@@ -216,8 +218,8 @@ public final class IrWalkerFlow {
 
     if (isStatus(Status.OK)) {
       for (int index = 0; index < stmt.getBlockCount(); ++index) {
-        final StatementCondition.Block block = stmt.getBlock(index);
-        final Node condition = block.getCondition() != null ? block.getCondition().getNode() : null;
+        final Pair<Expr, List<Statement>> block = stmt.getBlock(index);
+        final Node condition = block.first != null ? block.first.getNode() : null;
 
         visitor.onConditionBlockBegin(condition);
         if (isStatus(Status.ABORT)) {
@@ -225,7 +227,7 @@ public final class IrWalkerFlow {
         }
 
         if (isStatus(Status.OK)) {
-          visitStatements(primitive, attribute, block.getStatements());
+          visitStatements(primitive, attribute, block.second);
         }
 
         visitor.onConditionBlockEnd(condition);

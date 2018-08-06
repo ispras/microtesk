@@ -19,6 +19,7 @@ import org.stringtemplate.v4.ST;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
@@ -29,6 +30,8 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.utils.FormatMarker;
+
+import java.util.List;
 
 final class StatementBuilder {
   private static final String SINDENT = "  ";
@@ -123,18 +126,18 @@ final class StatementBuilder {
     final int LAST = stmt.getBlockCount() - 1;
 
     for (int index = FIRST; index <= LAST; ++index) {
-      final StatementCondition.Block block = stmt.getBlock(index);
+      final Pair<Expr, List<Statement>> block = stmt.getBlock(index);
 
       if (FIRST == index) {
-        addStatement(String.format("if (%s) {", ExprPrinter.toString(block.getCondition())));
-      } else if (LAST == index && block.isElseBlock()) {
+        addStatement(String.format("if (%s) {", ExprPrinter.toString(block.first)));
+      } else if (LAST == index && null == block.first) {
         addStatement("} else {");
       } else {
-        addStatement(String.format("} else if (%s) {", ExprPrinter.toString(block.getCondition())));
+        addStatement(String.format("} else if (%s) {", ExprPrinter.toString(block.first)));
       }
 
       increaseIndent();
-      for (final Statement blockStmt : block.getStatements()) {
+      for (final Statement blockStmt : block.second) {
         addStatement(blockStmt);
       }
       decreaseIndent();
