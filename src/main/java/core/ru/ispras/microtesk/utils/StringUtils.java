@@ -27,7 +27,7 @@ import java.util.Collection;
 public final class StringUtils {
   private StringUtils() {}
 
-  public static interface Converter<T> {
+  public interface Converter<T> {
     String toString(T o);
   }
 
