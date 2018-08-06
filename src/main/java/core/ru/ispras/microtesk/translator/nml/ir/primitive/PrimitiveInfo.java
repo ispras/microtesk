@@ -18,6 +18,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ArgumentMode;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 public final class PrimitiveInfo {
@@ -32,7 +33,7 @@ public final class PrimitiveInfo {
   private Integer blockSize;
 
   private Map<String, ArgumentMode> argsUsage;
-  private ImageInfo imageInfo;
+  private Map<Class<?>, Object> attributes;
 
   public PrimitiveInfo() {
     this.exception = false;
@@ -43,7 +44,7 @@ public final class PrimitiveInfo {
     this.store = null;
     this.blockSize = null;
     this.argsUsage = new HashMap<>();
-    this.imageInfo = null;
+    this.attributes = new IdentityHashMap<>();
   }
 
   public PrimitiveInfo(final PrimitiveInfo other) {
@@ -57,7 +58,7 @@ public final class PrimitiveInfo {
     this.store = other.store;
     this.blockSize = other.blockSize;
     this.argsUsage = new HashMap<>(other.argsUsage);
-    this.imageInfo = other.imageInfo;
+    this.attributes = new IdentityHashMap<>(other.attributes);
   }
 
   public boolean canThrowException() {
@@ -168,20 +169,20 @@ public final class PrimitiveInfo {
         String.format("Argument %s: usage=%s, prevUsage=%s", name, usage, prevUsage));
   }
 
-  public ImageInfo getImageInfo() {
-    return imageInfo;
+  public void setAttribute(final Object attribute) {
+    InvariantChecks.checkNotNull(attribute);
+    attributes.put(attribute.getClass(), attribute);
   }
 
-  public void setImageInfo(final ImageInfo value) {
-    this.imageInfo = value;
+  public Object getAttribute(final Class<?> attributeClass) {
+    return attributes.get(attributeClass);
   }
 
   @Override
   public String toString() {
     return String.format(
         "PrimitiveInfo [exception=%s, branch=%s, conditionalBranch=%s, "
-            + "memoryReference=%s, load=%s, store=%s, blockSize=%s, argsUsage=%s, "
-            + "imageInfo=%s]",
+            + "memoryReference=%s, load=%s, store=%s, blockSize=%s, argsUsage=%s]",
         exception,
         branch,
         conditionalBranch,
@@ -189,8 +190,7 @@ public final class PrimitiveInfo {
         load,
         store,
         blockSize,
-        argsUsage,
-        imageInfo
+        argsUsage
         );
   }
 

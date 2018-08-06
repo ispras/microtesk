@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.analysis;
+package ru.ispras.microtesk.translator.nml.codegen.decoder;
 
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -32,7 +32,6 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
-import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -59,7 +58,7 @@ import java.util.Map;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class ImageAnalyzer implements TranslatorHandler<Ir> {
+final class ImageAnalyzer implements TranslatorHandler<Ir> {
   @Override
   public void processIr(final Ir ir) {
     final IrWalker walker = new IrWalker(ir);
@@ -104,8 +103,8 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         return;
       }
 
-      final ImageInfo sourceInfo = item.getInfo().getImageInfo();
-      final ImageInfo targetInfo = orRule.getInfo().getImageInfo();
+      final ImageInfo sourceInfo = getImageInfo(item);
+      final ImageInfo targetInfo = getImageInfo(orRule);
 
       final String itemName = item.getName();
       final BitVector itemOpc = sourceInfo.getOpc();
@@ -126,13 +125,13 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       }
 
       if (null == targetInfo) {
-        orRule.getInfo().setImageInfo(sourceInfo);
+        setImageInfo(orRule, sourceInfo);
       } else {
-        orRule.getInfo().setImageInfo(targetInfo.or(sourceInfo));
+        setImageInfo(orRule, targetInfo.or(sourceInfo));
 
         if (targetInfo.getOpcMask() != null
             && targetInfo.getOpcMask().equals(sourceInfo.getOpcMask())) {
-          orRule.getInfo().getImageInfo().setOpcMask(targetInfo.getOpcMask());
+          getImageInfo(orRule).setOpcMask(targetInfo.getOpcMask());
         }
       }
     }
@@ -201,11 +200,11 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       if (stmt.getAttributeName().equals(Attribute.IMAGE_NAME)) {
         final Primitive arg = primitive.getArguments().get(stmt.getCalleeName());
 
-        final ImageInfo imageInfo = new ImageInfo(arg.getInfo().getImageInfo());
+        final ImageInfo imageInfo = new ImageInfo(getImageInfo(arg));
         imageInfo.setFields(Collections.singletonList(new Pair<>(
-            StatementAttributeCall.createCallNode(stmt), arg.getInfo().getImageInfo())));
+            StatementAttributeCall.createCallNode(stmt), getImageInfo(arg))));
 
-        primitive.getInfo().setImageInfo(imageInfo);
+        setImageInfo(primitive, imageInfo);
         return;
       }
 
@@ -240,7 +239,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       }
 
       imageInfo.setFields(fields);
-      primitive.getInfo().setImageInfo(imageInfo);
+      setImageInfo(primitive, imageInfo);
 
       calculateOpc(primitive, imageInfo, localConstants);
     }
@@ -314,7 +313,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
             }
           }
 
-          final ImageInfo calleeInfo = new ImageInfo(callee.getInfo().getImageInfo());
+          final ImageInfo calleeInfo = new ImageInfo(getImageInfo(callee));
           calculateOpc(callee, calleeInfo, fieldMappings);
 
           if (calleeInfo.isImageSizeFixed() && calleeInfo.getOpc() != null) {
@@ -362,7 +361,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
       final Primitive callee = primitive.getArguments().get(call.getCalleeName());
       InvariantChecks.checkNotNull(callee);
 
-      final ImageInfo result = callee.getInfo().getImageInfo();
+      final ImageInfo result = getImageInfo(callee);
       InvariantChecks.checkNotNull(result);
 
       return result;
@@ -415,7 +414,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
         final Primitive callee = getPrimitive(primitive, variable);
         InvariantChecks.checkNotNull(callee);
 
-        final ImageInfo calleeInfo = callee.getInfo().getImageInfo();
+        final ImageInfo calleeInfo = ImageAnalyzer.getImageInfo(callee);
         InvariantChecks.checkNotNull(calleeInfo);
 
         imageInfos.push(calleeInfo);
@@ -503,5 +502,13 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
     }
 
     return null;
+  }
+
+  public static ImageInfo getImageInfo(final Primitive primitive) {
+    return (ImageInfo) primitive.getInfo().getAttribute(ImageInfo.class);
+  }
+
+  private static void setImageInfo(final Primitive primitive, final ImageInfo imageInfo) {
+    primitive.getInfo().setAttribute(imageInfo);
   }
 }

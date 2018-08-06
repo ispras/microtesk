@@ -42,7 +42,6 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.analysis.ArgumentModeDetector;
 import ru.ispras.microtesk.translator.nml.analysis.BranchDetector;
 import ru.ispras.microtesk.translator.nml.analysis.ExceptionDetector;
-import ru.ispras.microtesk.translator.nml.analysis.ImageAnalyzer;
 import ru.ispras.microtesk.translator.nml.analysis.MemoryAccessDetector;
 import ru.ispras.microtesk.translator.nml.analysis.PrimitiveSyntesizer;
 import ru.ispras.microtesk.translator.nml.analysis.ReferenceDetector;
@@ -72,7 +71,6 @@ public final class NmlTranslator extends Translator<Ir> {
     // Adds the list of root operations to IR
     addHandler(new RootDetector());
 
-    addHandler(new ImageAnalyzer());
     addHandler(new ArgumentModeDetector());
     addHandler(new BranchDetector());
     addHandler(new MemoryAccessDetector());

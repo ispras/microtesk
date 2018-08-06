@@ -36,7 +36,6 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
-import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -61,11 +60,11 @@ final class StbDecoder implements StringTemplateBuilder {
   public StbDecoder(final String modelName, final PrimitiveAND item) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(item);
-    InvariantChecks.checkNotNull(item.getInfo().getImageInfo());
+    InvariantChecks.checkNotNull(ImageAnalyzer.getImageInfo(item));
 
     this.name = DecoderGenerator.getDecoderName(item.getName());
     this.modelName = modelName;
-    this.imageInfo = item.getInfo().getImageInfo();
+    this.imageInfo = ImageAnalyzer.getImageInfo(item);
     this.item = item;
     this.imported = new HashSet<>();
     this.undecoded = new LinkedHashSet<>(item.getArguments().keySet());

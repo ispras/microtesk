@@ -48,8 +48,11 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
   @Override
   public void processIr(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
-    this.ir = ir;
 
+    final ImageAnalyzer imageAnalyzer = new ImageAnalyzer();
+    imageAnalyzer.processIr(ir);
+
+    this.ir = ir;
     generatePrimitives();
     generateDecoder();
   }
@@ -78,7 +81,7 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
   private final class Visitor extends IrVisitorDefault {
     @Override
     public void onPrimitiveBegin(final Primitive item) {
-      if (null == item.getInfo().getImageInfo()) {
+      if (null == ImageAnalyzer.getImageInfo(item)) {
         return;
       }
 

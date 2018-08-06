@@ -22,7 +22,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.decoder.DecoderGroup;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
-import ru.ispras.microtesk.translator.nml.ir.primitive.ImageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 
@@ -38,15 +37,15 @@ final class StbDecoderGroup implements StringTemplateBuilder {
   public StbDecoderGroup(final String modelName, final PrimitiveOR group) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(group);
-    InvariantChecks.checkNotNull(group.getInfo().getImageInfo());
+    InvariantChecks.checkNotNull(ImageAnalyzer.getImageInfo(group));
 
     this.modelName = modelName;
     this.name = DecoderGenerator.getDecoderName(group.getName());
-    this.imageInfo = group.getInfo().getImageInfo();
+    this.imageInfo = ImageAnalyzer.getImageInfo(group);
     this.items = new ArrayList<>();
 
     for (final Primitive primitive : group.getOrs()) {
-      if (null != primitive.getInfo().getImageInfo()) {
+      if (null != ImageAnalyzer.getImageInfo(primitive)) {
         this.items.add(DecoderGenerator.getDecoderName(primitive.getName()));
       }
     }
@@ -64,7 +63,7 @@ final class StbDecoderGroup implements StringTemplateBuilder {
     boolean isFirst = true;
 
     for (final Primitive primitive : roots) {
-      final ImageInfo primitiveImageInfo = primitive.getInfo().getImageInfo();
+      final ImageInfo primitiveImageInfo = ImageAnalyzer.getImageInfo(primitive);
       if (null != primitiveImageInfo) {
         items.add(DecoderGenerator.getDecoderName(primitive.getName()));
         info = isFirst ? primitiveImageInfo : info.or(primitiveImageInfo);
