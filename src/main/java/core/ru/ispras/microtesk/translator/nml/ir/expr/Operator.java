@@ -151,6 +151,7 @@ public enum Operator {
                                  rule(TypeId.BOOL,              StandardOperation.NOT)),
 
   // Synthetic operators
+  EXTRACT(null,     3, Kind.COMMON  /* No rules. These operator must be handled separately. */),
   CONCAT(null,      2, Kind.COMMON  /* No rules. These operator must be handled separately. */),
   REPEAT(null,      2, Kind.COMMON  /* No rules. These operator must be handled separately. */),
 
@@ -169,7 +170,7 @@ public enum Operator {
   FLOAT_TO_INT(null,   2, Kind.CAST /* No rules. These operator must be handled separately. */),
   FLOAT_TO_FLOAT(null, 2, Kind.CAST /* No rules. These operator must be handled separately. */);
 
-  private static enum Kind {
+  private enum Kind {
     COMMON,  // Means operands and operation result have the same type.
     BOOLEAN, // Means result type is boolean
     SHIFT,   // Means result type equals the type of the first argument
