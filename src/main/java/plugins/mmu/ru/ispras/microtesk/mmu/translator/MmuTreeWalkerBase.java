@@ -1577,7 +1577,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
 
     final Node distance = DistanceCalculator.get().distance(reducedTo, reducedFrom);
-    if (distance.getKind() != Node.Kind.VALUE) {
+    if (!ExprUtils.isValue(distance)) {
       raiseError(w, "Unable to calculate bit field size.");
     }
 
@@ -1629,7 +1629,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       raiseError(where(id), "Address argument is null.");
     }
 
-    if (addressArg.getKind() != Node.Kind.VARIABLE) {
+    if (!ExprUtils.isVariable(addressArg)) {
       // A structure is a variable, an expression is a bit vector (which is invalid in this case).
       raiseError(where(id), "Address argument is not an address structure.");
     }
