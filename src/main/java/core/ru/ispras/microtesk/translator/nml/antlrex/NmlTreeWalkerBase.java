@@ -75,7 +75,7 @@ public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
   private LetFactory letFactory = null;
   private LocationFactory locationFactory = null;
   private TypeFactory typeFactory = null;
-  private MemoryExprFactory memoryExprFactory = null;
+  private MemoryFactory memoryFactory = null;
   private PrimitiveFactory primitiveFactory = null;
   private StatementFactory statementFactory = null;
 
@@ -107,11 +107,11 @@ public class NmlTreeWalkerBase extends TreeParserBase implements WalkerContext {
     return typeFactory;
   }
 
-  protected final MemoryExprFactory getMemoryExprFactory() {
-    if (null == memoryExprFactory) {
-      memoryExprFactory = new MemoryExprFactory(this);
+  protected final MemoryFactory getMemoryFactory() {
+    if (null == memoryFactory) {
+      memoryFactory = new MemoryFactory(this);
     }
-    return memoryExprFactory;
+    return memoryFactory;
   }
 
   protected final PrimitiveFactory getPrimitiveFactory() {

@@ -35,7 +35,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Struct;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.utils.StringUtils;
@@ -380,7 +380,7 @@ public final class LocationFactory extends WalkerFactoryBase {
       final Where where,
       final String name,
       final Expr index) throws SemanticException {
-    final MemoryExpr memory = findMemory(where, name);
+    final MemoryResource memory = findMemory(where, name);
 
     // Checking bounds for constant values.
     if (index != null && index.isConstant()) {
@@ -412,7 +412,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     return Location.createPrimitiveBased(name, primitive);
   }
 
-  private MemoryExpr findMemory(
+  private MemoryResource findMemory(
       final Where where,
       final String name) throws SemanticException {
     if (!getIr().getMemory().containsKey(name)) {

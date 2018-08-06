@@ -19,26 +19,26 @@ import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
-import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryAlias;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.math.BigInteger;
 
-public final class MemoryExprFactory extends WalkerFactoryBase {
+public final class MemoryFactory extends WalkerFactoryBase {
 
-  public MemoryExprFactory(final WalkerContext context) {
+  public MemoryFactory(final WalkerContext context) {
     super(context);
   }
 
-  public MemoryExpr createMemory(
+  public MemoryResource createMemory(
       final Where where,
       final Memory.Kind kind,
       final String name,
       final Type type,
       final Expr sizeExpr,
       final boolean shared,
-      final Alias alias) throws SemanticException {
+      final MemoryAlias alias) throws SemanticException {
 
     if (shared && kind == Memory.Kind.VAR) {
       Logger.warning(
@@ -48,15 +48,15 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
     final BigInteger size = sizeExpr != null ? sizeExpr.bigIntegerValue() : BigInteger.ONE;
 
     if (null == alias) {
-      return new MemoryExpr(kind, name, type, size, shared, null);
+      return new MemoryResource(kind, name, type, size, shared, null);
     }
 
     final BigInteger bitSize = size.multiply(BigInteger.valueOf(type.getBitSize()));
     final int aliasBitSize;
 
-    if (Alias.Kind.LOCATION == alias.getKind()) {
+    if (MemoryAlias.Kind.LOCATION == alias.getKind()) {
       aliasBitSize = alias.getLocation().getType().getBitSize();
-    } else { // Alias.Kind.MEMORY == alias.getKind()
+    } else { // MemoryAlias.Kind.MEMORY == alias.getKind()
       aliasBitSize = (alias.getMax() - alias.getMin() + 1)
           * alias.getMemory().getType().getBitSize();
     }
@@ -69,16 +69,16 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
           ));
     }
 
-    return new MemoryExpr(kind, name, type, size, shared, alias);
+    return new MemoryResource(kind, name, type, size, shared, alias);
   }
 
-  public Alias createAlias(
+  public MemoryAlias createAlias(
       final Where where,
       final String memoryId,
       final Expr min,
       final Expr max) throws SemanticException {
 
-    final MemoryExpr memory = getIr().getMemory().get(memoryId);
+    final MemoryResource memory = getIr().getMemory().get(memoryId);
     if (null == memory) {
       raiseError(where, memoryId + " is not defined or is not a memory storage.");
     }
@@ -96,6 +96,6 @@ public final class MemoryExprFactory extends WalkerFactoryBase {
           maxIndex, memory.getSize()));
     }
 
-    return Alias.forMemory(memoryId, memory, minIndex, maxIndex);
+    return MemoryAlias.forMemory(memoryId, memory, minIndex, maxIndex);
   }
 }

@@ -46,8 +46,8 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
-import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryAlias;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.utils.StringUtils;
 
 import java.math.BigInteger;
@@ -668,8 +668,8 @@ final class SsaBuilder {
         break;
 
       case MEMORY: // FIXME recursive processing required
-        final MemoryExpr memory = ((LocationSourceMemory) atom.getSource()).getMemory();
-        final Alias alias = memory.getAlias();
+        final MemoryResource memory = ((LocationSourceMemory) atom.getSource()).getMemory();
+        final MemoryAlias alias = memory.getAlias();
         if (alias != null) {
           return createLValue((Location) alias.getLocation());
         }
@@ -688,7 +688,7 @@ final class SsaBuilder {
 
     if (atom.getIndex() != null) {
       // only ESymbolKind.MEMORY can be indexed
-      final MemoryExpr memory = ((LocationSourceMemory) atom.getSource()).getMemory();
+      final MemoryResource memory = ((LocationSourceMemory) atom.getSource()).getMemory();
 
       // get required bitsize of index
       final int size = memory.getSize().subtract(BigInteger.ONE).bitLength();

@@ -29,7 +29,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 
 public final class IrInquirer {
   private static final String PC_LABEL = "PC";
@@ -69,18 +69,18 @@ public final class IrInquirer {
   public static boolean isRegister(final Location location) {
     InvariantChecks.checkNotNull(location);
 
-    final MemoryExpr memory = getMemoryExpr(location);
+    final MemoryResource memory = getMemoryResource(location);
     return memory != null && memory.getKind() == Memory.Kind.REG;
   }
 
   public static boolean isMemory(final Location location) {
     InvariantChecks.checkNotNull(location);
 
-    final MemoryExpr memory = getMemoryExpr(location);
+    final MemoryResource memory = getMemoryResource(location);
     return memory != null && memory.getKind() == Memory.Kind.MEM;
   }
 
-  private static MemoryExpr getMemoryExpr(final Location location) {
+  private static MemoryResource getMemoryResource(final Location location) {
     if (location.getSource().getSymbolKind() != NmlSymbolKind.MEMORY) {
       return null;
     }

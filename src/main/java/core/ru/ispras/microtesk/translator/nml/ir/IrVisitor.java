@@ -29,7 +29,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 /**
@@ -81,7 +81,7 @@ public interface IrVisitor extends TreeVisitor {
    * @param name Memory storage name.
    * @param memory Memory storage description.
    */
-  void onMemory(String name, MemoryExpr memory);
+  void onMemory(String name, MemoryResource memory);
 
   /**
    * Notifies that visiting primitives (objects describing MODEs and OPs) has been started.

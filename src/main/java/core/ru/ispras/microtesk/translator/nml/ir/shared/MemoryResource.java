@@ -19,21 +19,21 @@ import ru.ispras.microtesk.model.memory.Memory;
 
 import java.math.BigInteger;
 
-public final class MemoryExpr {
+public final class MemoryResource {
   private final Memory.Kind kind;
   private final String name;
   private final Type type;
   private final BigInteger size;
   private final boolean shared;
-  private final Alias alias;
+  private final MemoryAlias alias;
 
-  public MemoryExpr(
+  public MemoryResource(
       final Memory.Kind kind,
       final String name,
       final Type type,
       final BigInteger size,
       final boolean shared,
-      final Alias alias) {
+      final MemoryAlias alias) {
     InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(type);
@@ -68,14 +68,14 @@ public final class MemoryExpr {
     return shared;
   }
 
-  public Alias getAlias() {
+  public MemoryAlias getAlias() {
     return alias;
   }
 
   @Override
   public String toString() {
     return String.format(
-        "MemoryExpr [kind=%s, name=%s, type=%s, size=%s, shared=%b]",
+        "MemoryResource [kind=%s, name=%s, type=%s, size=%s, shared=%b]",
         kind,
         name,
         type,

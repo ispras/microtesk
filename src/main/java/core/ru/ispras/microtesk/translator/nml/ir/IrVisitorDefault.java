@@ -29,7 +29,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public class IrVisitorDefault implements IrVisitor {
@@ -76,7 +76,7 @@ public class IrVisitorDefault implements IrVisitor {
   public void onType(String name, Type type) {}
 
   @Override
-  public void onMemory(String name, MemoryExpr memory) {}
+  public void onMemory(String name, MemoryResource memory) {}
 
   @Override
   public void onPrimitivesBegin() {}

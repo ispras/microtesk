@@ -21,9 +21,9 @@ import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryAlias;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.math.BigInteger;
@@ -53,7 +53,7 @@ final class StbProcessingElement implements StringTemplateBuilder {
     final ST tCore = group.getInstanceOf("processing_element");
     tCore.add("class", CLASS_NAME);
 
-    for (final MemoryExpr memory : ir.getMemory().values()) {
+    for (final MemoryResource memory : ir.getMemory().values()) {
       if (memory.getKind() == Memory.Kind.VAR) {
         continue;
       }
@@ -87,7 +87,7 @@ final class StbProcessingElement implements StringTemplateBuilder {
     st.add("members", tCore);
   }
 
-  public static ST buildMemoryLine(final STGroup group, final MemoryExpr memory) {
+  public static ST buildMemoryLine(final STGroup group, final MemoryResource memory) {
     final ST tMemory = group.getInstanceOf("new_memory");
 
     tMemory.add("name", memory.getName());
@@ -110,11 +110,11 @@ final class StbProcessingElement implements StringTemplateBuilder {
       tMemory.add("size", memorySize);
     }
 
-    final Alias alias = memory.getAlias();
+    final MemoryAlias alias = memory.getAlias();
     if (null == alias) {
       tMemory.add("alias", false);
     } else {
-      if (Alias.Kind.LOCATION == alias.getKind()) {
+      if (MemoryAlias.Kind.LOCATION == alias.getKind()) {
         PrinterLocation.addPE = false;
         tMemory.add("alias", PrinterLocation.toString(alias.getLocation()));
       } else {

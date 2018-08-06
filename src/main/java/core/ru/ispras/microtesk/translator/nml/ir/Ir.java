@@ -18,7 +18,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public final class Ir {
   private final Map<String, LetConstant> consts;
   private final Map<String, LetLabel> labels;
   private final Map<String, Type> types;
-  private final Map<String, MemoryExpr> memory;
+  private final Map<String, MemoryResource> memory;
   private final Map<String, Primitive> modes;
   private final Map<String, Primitive> ops;
   private final List<Primitive> roots;
@@ -83,7 +83,7 @@ public final class Ir {
     types.put(name, value);
   }
 
-  public void add(final String name, final MemoryExpr value) {
+  public void add(final String name, final MemoryResource value) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(value);
     memory.put(name, value);
@@ -122,7 +122,7 @@ public final class Ir {
     return Collections.unmodifiableMap(types);
   }
 
-  public Map<String, MemoryExpr> getMemory() {
+  public Map<String, MemoryResource> getMemory() {
     return Collections.unmodifiableMap(memory);
   }
 

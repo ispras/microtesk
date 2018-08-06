@@ -20,7 +20,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.math.BigInteger;
@@ -79,8 +79,8 @@ final class StbState implements StringTemplateBuilder {
   }
 
   private void buildMemoryStorages(final ST st) {
-    for (final Map.Entry<String, MemoryExpr> entry : ir.getMemory().entrySet()) {
-      final MemoryExpr memory = entry.getValue();
+    for (final Map.Entry<String, MemoryResource> entry : ir.getMemory().entrySet()) {
+      final MemoryResource memory = entry.getValue();
 
       final String name = memory.getName().toLowerCase();
       final BigInteger length = memory.getSize();

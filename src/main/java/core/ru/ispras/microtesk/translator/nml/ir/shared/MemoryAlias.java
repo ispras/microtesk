@@ -18,7 +18,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 
-public final class Alias {
+public final class MemoryAlias {
   public enum Kind {
     LOCATION,
     MEMORY
@@ -27,34 +27,34 @@ public final class Alias {
   private final Kind kind;
   private final Location location;
   private final String name;
-  private final MemoryExpr memory;
+  private final MemoryResource memory;
   private final int min;
   private final int max;
 
-  public static Alias forLocation(final Expr locationExpr) {
+  public static MemoryAlias forLocation(final Expr locationExpr) {
     InvariantChecks.checkNotNull(locationExpr);
     InvariantChecks.checkNotNull(locationExpr.getNodeInfo().isLocation());
 
     final Location location = (Location) locationExpr.getNodeInfo().getSource();
-    return new Alias(Kind.LOCATION, location, null, null, 0, 0);
+    return new MemoryAlias(Kind.LOCATION, location, null, null, 0, 0);
   }
 
-  public static Alias forMemory(
+  public static MemoryAlias forMemory(
       final String name,
-      final MemoryExpr memory,
+      final MemoryResource memory,
       final int min,
       final int max) {
     InvariantChecks.checkNotNull(memory);
     InvariantChecks.checkBounds(min, memory.getSize().intValue());
     InvariantChecks.checkBounds(max, memory.getSize().intValue());
-    return new Alias(Kind.MEMORY, null, name, memory, min, max);
+    return new MemoryAlias(Kind.MEMORY, null, name, memory, min, max);
   }
 
-  private Alias(
+  private MemoryAlias(
       final Kind kind,
       final Location location,
       final String name,
-      final MemoryExpr memory,
+      final MemoryResource memory,
       final int min,
       final int max) {
     this.kind = kind;
@@ -79,7 +79,7 @@ public final class Alias {
     return name;
   }
 
-  public MemoryExpr getMemory() {
+  public MemoryResource getMemory() {
     checkKind(Kind.MEMORY);
     return memory;
   }

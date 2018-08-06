@@ -26,7 +26,7 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 
 import java.math.BigInteger;
 
@@ -84,7 +84,7 @@ final class StbModel implements StringTemplateBuilder {
     }
 
     @Override
-    public void onMemory(final String name, final MemoryExpr memory) {
+    public void onMemory(final String name, final MemoryResource memory) {
       if (memory.getKind() != Memory.Kind.REG && memory.getKind() != Memory.Kind.MEM) {
         return;
       }

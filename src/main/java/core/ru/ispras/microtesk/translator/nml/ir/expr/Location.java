@@ -16,7 +16,7 @@ package ru.ispras.microtesk.translator.nml.ir.expr;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class Location {
@@ -96,7 +96,7 @@ public final class Location {
 
   public static Location createMemoryBased(
       final String name,
-      final MemoryExpr memory,
+      final MemoryResource memory,
       final Expr index) {
     return new Location(
         name,

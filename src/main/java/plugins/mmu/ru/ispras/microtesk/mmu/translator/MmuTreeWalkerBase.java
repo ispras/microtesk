@@ -71,7 +71,7 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.coverage.IntegerCast;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 import java.math.BigInteger;
@@ -271,7 +271,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     final Type type;
     final ExternalSource.Kind sourceKind;
     if (isaIr.getMemory().containsKey(sourceName)) {
-      final MemoryExpr memory = isaIr.getMemory().get(sourceName);
+      final MemoryResource memory = isaIr.getMemory().get(sourceName);
       if (memory.getKind() == ru.ispras.microtesk.model.memory.Memory.Kind.VAR) {
         raiseError(where(id), String.format(
             "External variable must not be defined as var: %s", sourceName));
@@ -736,7 +736,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final ru.ispras.microtesk.translator.nml.ir.Ir isaIr =
             context.getIr(ru.ispras.microtesk.translator.nml.ir.Ir.class);
 
-        final ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr register =
+        final MemoryResource register =
             isaIr.getMemory().get(id.getText());
 
         if (null == register) {

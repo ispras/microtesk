@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -181,11 +181,11 @@ memDef
     :  ^(MEM sh=SHARED? id=ID st=sizeType al=alias?)
 {
 checkNotNull($id, $st.type, $st.text);
-final MemoryExprFactory factory = getMemoryExprFactory();
-final MemoryExpr expr = factory.createMemory(
+final MemoryFactory factory = getMemoryFactory();
+final MemoryResource memory = factory.createMemory(
     where($id), Memory.Kind.MEM, $id.text, $st.type, $st.size, $sh != null, $al.res);
 
-getIr().add($id.text, expr);
+getIr().add($id.text, memory);
 }
     ;
 
@@ -193,11 +193,11 @@ regDef
     :  ^(REG sh=SHARED? id=ID st=sizeType al=alias?)
 {
 checkNotNull($id, $st.type, $st.text);
-final MemoryExprFactory factory = getMemoryExprFactory();
-final MemoryExpr expr = factory.createMemory(
+final MemoryFactory factory = getMemoryFactory();
+final MemoryResource memory = factory.createMemory(
     where($id), Memory.Kind.REG, $id.text, $st.type, $st.size, $sh != null, $al.res);
 
-getIr().add($id.text, expr);
+getIr().add($id.text, memory);
 }
     ;
 
@@ -205,11 +205,11 @@ varDef
     :  ^(VAR sh=SHARED? id=ID st=sizeType al=alias?)
 {
 checkNotNull($id, $st.type, $st.text);
-final MemoryExprFactory factory = getMemoryExprFactory();
-final MemoryExpr expr = factory.createMemory(
+final MemoryFactory factory = getMemoryFactory();
+final MemoryResource memory = factory.createMemory(
     where($id), Memory.Kind.VAR, $id.text, $st.type, $st.size, $sh != null, $al.res);
 
-getIr().add($id.text, expr);
+getIr().add($id.text, memory);
 }
     ;
 
@@ -229,12 +229,12 @@ $size = null;
 }
     ;
 
-alias returns [Alias res]
-@init {final MemoryExprFactory factory = getMemoryExprFactory();}
+alias returns [MemoryAlias res]
+@init {final MemoryFactory factory = getMemoryFactory();}
     :  ^(ALIAS le=location)
 {
 checkNotNull($le.start, $le.res, $le.text);
-$res = Alias.forLocation($le.res);
+$res = MemoryAlias.forLocation($le.res);
 }
     |  ^(ALIAS ^(DOUBLE_DOT id=ID min=indexExpr max=indexExpr))
 {

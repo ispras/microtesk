@@ -26,7 +26,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetLabel;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.Collection;
@@ -118,7 +118,7 @@ public final class IrWalker {
         }
       }
 
-      for (final Map.Entry<String, MemoryExpr> e : ir.getMemory().entrySet()) {
+      for (final Map.Entry<String, MemoryResource> e : ir.getMemory().entrySet()) {
         visitor.onMemory(e.getKey(), e.getValue());
         if (isStatus(Status.ABORT)) {
           return;

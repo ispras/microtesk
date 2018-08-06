@@ -17,13 +17,13 @@ package ru.ispras.microtesk.translator.nml.ir.expr;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 public final class LocationSourceMemory implements LocationSource {
-  private final MemoryExpr memory;
+  private final MemoryResource memory;
 
-  protected LocationSourceMemory(final MemoryExpr memory) {
+  protected LocationSourceMemory(final MemoryResource memory) {
     InvariantChecks.checkNotNull(memory);
     this.memory = memory;
   }
@@ -42,7 +42,7 @@ public final class LocationSourceMemory implements LocationSource {
     return memory.getType();
   }
 
-  public MemoryExpr getMemory() {
+  public MemoryResource getMemory() {
     return memory;
   }
 

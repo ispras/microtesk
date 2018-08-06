@@ -21,7 +21,7 @@ import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 
 import java.math.BigInteger;
 
@@ -48,7 +48,7 @@ final class StbTemporaryVariables implements StringTemplateBuilder {
     final ST tCore = group.getInstanceOf("temporary_variables");
     tCore.add("class", CLASS_NAME);
 
-    for (final MemoryExpr memory : ir.getMemory().values()) {
+    for (final MemoryResource memory : ir.getMemory().values()) {
       if (memory.getKind() != Memory.Kind.VAR) {
         continue;
       }

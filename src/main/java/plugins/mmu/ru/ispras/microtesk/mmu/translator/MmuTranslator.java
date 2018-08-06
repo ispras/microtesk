@@ -34,6 +34,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Ir;
 import ru.ispras.microtesk.mmu.translator.ir.Memory;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.Translator;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
 
 import java.io.FileReader;
@@ -161,7 +162,7 @@ public final class MmuTranslator extends Translator<Ir> {
         }
 
         case REGISTER: {
-          final ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr register =
+          final MemoryResource register =
               isaIr.getMemory().get(buffer.getId());
 
           if (buffer.getEntry().getBitSize() != register.getType().getBitSize()) {
