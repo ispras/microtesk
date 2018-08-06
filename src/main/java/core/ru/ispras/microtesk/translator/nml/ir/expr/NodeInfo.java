@@ -23,19 +23,19 @@ import java.util.List;
 
 public final class NodeInfo {
 
-  public static enum Kind {
+  public enum Kind {
     CONST,
     LOCATION,
     OPERATOR;
   }
 
-  public static enum Coercion {
+  public enum Coercion {
     IMPLICIT("valueOf"),
     CAST("cast");
 
     private final String methodName;
 
-    private Coercion(final String methodName) {
+    Coercion(final String methodName) {
       this.methodName = methodName;
     }
 
@@ -45,22 +45,33 @@ public final class NodeInfo {
   }
 
   public static NodeInfo newConst(final Type type) {
-    return new NodeInfo(NodeInfo.Kind.CONST, null, type);
+    return new NodeInfo(NodeInfo.Kind.CONST, null, type, false);
   }
 
   public static NodeInfo newLocation(final Location location) {
     InvariantChecks.checkNotNull(location);
-    return new NodeInfo(NodeInfo.Kind.LOCATION, location, location.getType());
+    return new NodeInfo(NodeInfo.Kind.LOCATION, location, location.getType(), true);
   }
 
-  public static NodeInfo newOperator(final Operator operator, final Type type) {
+  public static NodeInfo newOperator(
+      final Operator operator,
+      final Type type) {
     InvariantChecks.checkNotNull(operator);
-    return new NodeInfo(NodeInfo.Kind.OPERATOR, operator, type);
+    return new NodeInfo(NodeInfo.Kind.OPERATOR, operator, type, false);
+  }
+
+  public static NodeInfo newOperator(
+      final Operator operator,
+      final Type type,
+      final boolean isLocation) {
+    InvariantChecks.checkNotNull(operator);
+    return new NodeInfo(NodeInfo.Kind.OPERATOR, operator, type, isLocation);
   }
 
   private final Kind kind;
   private final Object source;
   private final Type type;
+  private final boolean isLocation;
   private final List<Type> coercedTypes;
   private final List<Coercion> coercions;
 
@@ -68,23 +79,30 @@ public final class NodeInfo {
       final Kind kind,
       final Object source,
       final Type type,
+      final boolean isLocation,
       final List<Type> coercedTypes,
       final List<Coercion> coercions) {
     this.kind = kind;
     this.source = source;
     this.type = type;
+    this.isLocation = isLocation;
     this.coercedTypes = Collections.unmodifiableList(coercedTypes);
     this.coercions = Collections.unmodifiableList(coercions);
   }
 
-  private NodeInfo(final Kind kind, final Object source, final Type type) {
+  private NodeInfo(
+      final Kind kind,
+      final Object source,
+      final Type type,
+      final boolean isLocation) {
     this(
         kind,
         source,
         type,
+        isLocation,
         Collections.<Type>emptyList(),
         Collections.<Coercion>emptyList()
-    );
+        );
   }
 
   public NodeInfo coerceTo(final Type newType, final Coercion coercion) {
@@ -104,7 +122,7 @@ public final class NodeInfo {
     newCoercions.add(coercion);
     newCoercions.addAll(this.coercions);
 
-    return new NodeInfo(kind, source, newType, newCoercedTypes, newCoercions);
+    return new NodeInfo(kind, source, newType, isLocation, newCoercedTypes, newCoercions);
   }
 
   public Kind getKind() {
@@ -132,6 +150,6 @@ public final class NodeInfo {
   }
 
   public boolean isLocation() {
-    return Kind.LOCATION == kind;
+    return isLocation;
   }
 }
