@@ -55,7 +55,7 @@ public final class StatementCondition extends Statement {
 
   private final List<Block> blocks;
 
-  StatementCondition(final List<Block> blocks) {
+  public StatementCondition(final List<Block> blocks) {
     super(Kind.COND);
 
     InvariantChecks.checkNotEmpty(blocks);

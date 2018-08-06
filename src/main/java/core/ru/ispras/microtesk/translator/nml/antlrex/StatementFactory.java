@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.primitive;
+package ru.ispras.microtesk.translator.nml.antlrex;
 
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
@@ -30,14 +30,19 @@ import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
-import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
-import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition.Block;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.utils.FormatMarker;
 
@@ -175,9 +180,9 @@ public final class StatementFactory extends WalkerFactoryBase {
     }
   }
 
-  public List<Statement> createCondition(final List<StatementCondition.Block> blocks) {
-    final List<StatementCondition.Block> updatedBlocks = new ArrayList<>();
-    for (final StatementCondition.Block block : blocks) {
+  public List<Statement> createCondition(final List<Block> blocks) {
+    final List<Block> updatedBlocks = new ArrayList<>();
+    for (final Block block : blocks) {
       final Expr condition = block.getCondition();
       if (null != condition && ExprUtils.isValue(condition.getNode())) { // Condition is true.
         if (NodeValue.newBoolean(true).equals(condition.getNode())) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,26 +12,25 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.errors;
+package ru.ispras.microtesk.translator.nml.antlrex;
 
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
+import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 
-public final class UnsupportedParameterType implements ISemanticError {
+public final class UndefinedPrimitive implements ISemanticError {
   private static final String FORMAT =
-      "The '%s' parameter has unsupported type (%s). This construction supports only %s.";
+      "The '%s' primitive is not defined or does not have the '%s' type.";
 
   private final String name;
-  private final String kind;
-  private final String expectedKinds;
+  private final NmlSymbolKind type;
 
-  public UnsupportedParameterType(String name, String kind, String expectedKinds) {
+  public UndefinedPrimitive(String name, NmlSymbolKind type) {
     this.name = name;
-    this.kind = kind;
-    this.expectedKinds = expectedKinds;
+    this.type = type;
   }
 
   @Override
   public String getMessage() {
-    return String.format(FORMAT, name, kind, expectedKinds);
+    return String.format(FORMAT, name, type.name());
   }
 }

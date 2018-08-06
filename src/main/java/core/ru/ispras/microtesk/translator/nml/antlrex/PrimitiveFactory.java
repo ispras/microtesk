@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.primitive;
+package ru.ispras.microtesk.translator.nml.antlrex;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
@@ -21,13 +21,15 @@ import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
-import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
-import ru.ispras.microtesk.translator.nml.errors.UndefinedProductionRuleItem;
-import ru.ispras.microtesk.translator.nml.errors.UnsupportedParameterType;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
-import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
+import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
+import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.ArrayList;

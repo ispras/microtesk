@@ -21,11 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.antlrex.ErrorReporter;
 import ru.ispras.microtesk.translator.antlrex.TreeParserBase;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.expr.ExprFactory;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationFactory;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveFactory;
-import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFactory;
 
 import java.util.Map;
 

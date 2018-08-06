@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.expr;
+package ru.ispras.microtesk.translator.nml.antlrex;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
@@ -21,6 +21,8 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.data.TypeId;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.EnumSet;

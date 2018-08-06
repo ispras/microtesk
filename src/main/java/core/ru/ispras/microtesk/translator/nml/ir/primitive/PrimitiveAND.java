@@ -31,7 +31,7 @@ public final class PrimitiveAND extends Primitive {
   private final Map<String, Attribute> attrs;
   private final List<Shortcut> shortcuts;
 
-  protected PrimitiveAND(
+  public PrimitiveAND(
       final String name,
       final Kind kind,
       final Modifier modifier,

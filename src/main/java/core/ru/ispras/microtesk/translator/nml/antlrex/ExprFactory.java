@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.expr;
+package ru.ispras.microtesk.translator.nml.antlrex;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
@@ -31,9 +31,11 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.data.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
 
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 

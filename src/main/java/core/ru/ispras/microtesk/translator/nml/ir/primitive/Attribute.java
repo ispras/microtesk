@@ -53,7 +53,7 @@ public final class Attribute {
   private final boolean isStandard;
   private final List<Statement> stmts;
 
-  Attribute(
+  public Attribute(
       final String name,
       final Kind kind,
       final List<Statement> stmts) {
@@ -87,7 +87,7 @@ public final class Attribute {
     return Collections.unmodifiableList(stmts);
   }
 
-  void insertStatement(final Statement stmt) {
+  public void insertStatement(final Statement stmt) {
     InvariantChecks.checkNotNull(stmt);
     stmts.add(0, stmt);
   }

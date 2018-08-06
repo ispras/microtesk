@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.ir.expr;
+package ru.ispras.microtesk.translator.nml.antlrex;
 
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
@@ -28,9 +28,10 @@ import ru.ispras.microtesk.translator.antlrex.errors.UndeclaredSymbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerContext;
-import ru.ispras.microtesk.translator.nml.antlrex.WalkerFactoryBase;
-import ru.ispras.microtesk.translator.nml.errors.UndefinedPrimitive;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
+import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;

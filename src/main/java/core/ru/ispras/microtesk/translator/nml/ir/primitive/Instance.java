@@ -27,7 +27,7 @@ public final class Instance {
   private final PrimitiveAND primitive;
   private final List<InstanceArgument> arguments;
 
-  Instance(final PrimitiveAND primitive, final List<InstanceArgument> arguments) {
+  public Instance(final PrimitiveAND primitive, final List<InstanceArgument> arguments) {
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(arguments);
 

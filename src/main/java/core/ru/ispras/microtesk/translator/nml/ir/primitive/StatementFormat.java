@@ -26,7 +26,7 @@ public final class StatementFormat extends Statement {
   private final List<FormatMarker> markers;
   private final List<Node> arguments;
 
-  StatementFormat(
+  public StatementFormat(
       final String funcName,
       final String format,
       final List<FormatMarker> markers,
@@ -43,7 +43,7 @@ public final class StatementFormat extends Statement {
     this.arguments = arguments;
   }
 
-  StatementFormat(
+  public StatementFormat(
       final String format,
       final List<FormatMarker> markers,
       final List<Node> arguments) {

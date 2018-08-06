@@ -55,7 +55,7 @@ public class Primitive {
   private final Map<String, PrimitiveReference> parents;
   private final PrimitiveInfo info;
 
-  Primitive(
+  public Primitive(
       final String name,
       final Kind kind,
       final Modifier modifier,

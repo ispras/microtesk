@@ -21,7 +21,7 @@ public final class StatementAssignment extends Statement {
   private final Expr left;
   private final Expr right;
 
-  StatementAssignment(final Expr left, final Expr right) {
+  public StatementAssignment(final Expr left, final Expr right) {
     super(Kind.ASSIGN);
 
     InvariantChecks.checkNotNull(left);

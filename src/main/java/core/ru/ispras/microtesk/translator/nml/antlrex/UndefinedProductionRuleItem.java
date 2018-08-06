@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.errors;
+package ru.ispras.microtesk.translator.nml.antlrex;
 
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
