@@ -406,7 +406,7 @@ public final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
       @Override
       public void onValue(final NodeValue value) {
-        final String text = (String)((NodeValue) value).getValue();
+        final String text = (String) value.getValue();
         imageInfos.push(new ImageInfo(text.length(), true));
       }
 
