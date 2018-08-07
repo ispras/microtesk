@@ -48,7 +48,10 @@ public final class NmlIrTrans {
         translate(ctx, (StatementAssignment) s);
         break;
 
-      default:
+      case COND:
+      case CALL:
+      case FUNCALL:
+      case FORMAT:
         break;
       }
     }
