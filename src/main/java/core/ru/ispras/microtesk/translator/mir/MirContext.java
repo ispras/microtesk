@@ -8,37 +8,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-final class MirContext {
+final class MirBlock {
+  private final MirContext ctx;
   private final BasicBlock bb;
-  private final List<BasicBlock> blocks;
-  private final Locals locals;
 
-  public static MirContext newMir() {
-    return new MirContext(new BasicBlock(), new ArrayList<BasicBlock>(), new Locals());
-  }
-
-  public MirContext fork(final BasicBlock bb) {
-    return new MirContext(bb, this.blocks, this.locals);
-  }
-
-  private MirContext(
-      final BasicBlock bb,
-      final List<BasicBlock> blocks,
-      final Locals locals) {
+  public MirBlock(final MirContext ctx, final BasicBlock bb) {
+    this.ctx = ctx;
     this.bb = bb;
-    this.blocks = blocks;
-    this.locals = locals;
-
-    blocks.add(bb);
   }
 
   public Local newLocal(final DataType type) {
-    locals.type.add(type);
-    return new Local(locals.type.size());
+    ctx.locals.add(type);
+    return new Local(ctx.locals.size());
   }
 
   public Local getNamedLocal(final String name) {
-    for (final LocalInfo info : locals.info.values()) {
+    for (final LocalInfo info : ctx.localInfo.values()) {
       if (name.equals(info.name)) {
         return new Local(info.id);
       }
@@ -73,19 +58,22 @@ final class MirContext {
     bb.insns.add(insn);
     return insn;
   }
+}
 
-  private static class Locals {
-    public final List<DataType> type = new ArrayList();
-    public final Map<Integer, LocalInfo> info = new HashMap<>();
-  }
+final class MirContext {
+  public final List<BasicBlock> blocks = new ArrayList<>();
+  public final BasicBlock landingPad = new BasicBlock();
 
-  private static class LocalInfo {
-    public final int id;
-    public final String name;
+  public final List<DataType> locals = new ArrayList();
+  public final Map<Integer, LocalInfo> localInfo = new HashMap<>();
+}
 
-    public LocalInfo(final int id, final String name) {
-      this.id = id;
-      this.name = name;
-    }
+final class LocalInfo {
+  public final int id;
+  public final String name;
+
+  public LocalInfo(final int id, final String name) {
+    this.id = id;
+    this.name = name;
   }
 }

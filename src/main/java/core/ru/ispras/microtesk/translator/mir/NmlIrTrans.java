@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class NmlIrTrans {
-  private static void translate(final MirContext ctx, final List<Statement> code) {
+  private static void translate(final MirBlock ctx, final List<Statement> code) {
     for (final Statement s : code) {
       switch (s.getKind()) {
       case ASSIGN:
@@ -57,7 +57,7 @@ public final class NmlIrTrans {
     }
   }
 
-  private static void translate(final MirContext ctx, final StatementAssignment s) {
+  private static void translate(final MirBlock ctx, final StatementAssignment s) {
     if (s.getLeft().isInternalVariable()) {
       return;
     }
@@ -87,7 +87,7 @@ public final class NmlIrTrans {
     return Collections.emptyList();
   }
 
-  private static Operand translate(final MirContext ctx, final Node node) {
+  private static Operand translate(final MirBlock ctx, final Node node) {
     if (ExprUtils.isOperation(node)) {
       final TransRvalue visitor = new TransRvalue(ctx);
       new ExprTreeWalker(visitor).visit(node);
@@ -114,11 +114,11 @@ public final class NmlIrTrans {
   }
 
   private static final class TransRvalue extends ExprTreeVisitorDefault {
-    private final MirContext ctx;
+    private final MirBlock ctx;
     private final Map<Node, Operand> mapped = new java.util.IdentityHashMap<>();
     private Operand result;
 
-    public TransRvalue(final MirContext ctx) {
+    public TransRvalue(final MirBlock ctx) {
       this.ctx = ctx;
     }
 
@@ -254,7 +254,7 @@ public final class NmlIrTrans {
   }
 
   private static Lvalue translateAccess(
-      final MirContext ctx,
+      final MirBlock ctx,
       final Location l,
       final Accessor client) {
     final LocationSource source = l.getSource();
@@ -283,9 +283,9 @@ public final class NmlIrTrans {
   }
 
   private static abstract class Accessor {
-    protected final MirContext ctx;
+    protected final MirBlock ctx;
 
-    Accessor(final MirContext ctx) {
+    Accessor(final MirBlock ctx) {
       this.ctx = ctx;
     }
 
@@ -314,7 +314,7 @@ public final class NmlIrTrans {
     public final Operand hi;
     public final int size;
 
-    public Access(final MirContext ctx, final Location l) {
+    public Access(final MirBlock ctx, final Location l) {
       if (l.getBitfield() != null) {
         final Location.Bitfield bits = l.getBitfield();
         this.lo = translate(ctx, bits.getFrom().getNode());
@@ -340,7 +340,7 @@ public final class NmlIrTrans {
   }
 
   private static class ReadAccess extends Accessor {
-    ReadAccess(final MirContext ctx) {
+    ReadAccess(final MirBlock ctx) {
       super(ctx);
     }
 
@@ -371,7 +371,7 @@ public final class NmlIrTrans {
   private static class WriteAccess extends Accessor {
     final Rvalue value;
 
-    WriteAccess(final MirContext ctx, final Rvalue value) {
+    WriteAccess(final MirBlock ctx, final Rvalue value) {
       super(ctx);
       this.value = value;
     }
