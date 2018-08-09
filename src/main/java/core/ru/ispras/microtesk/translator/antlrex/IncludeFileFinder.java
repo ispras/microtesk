@@ -54,7 +54,7 @@ public final class IncludeFileFinder {
 
     try {
       return file.exists() ? new ANTLRFileStream(file.getAbsolutePath()) : null;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       e.printStackTrace();
       return null;
     }
