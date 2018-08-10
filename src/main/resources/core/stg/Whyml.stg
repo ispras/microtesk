@@ -65,9 +65,14 @@ module <name>
 end<\n>
 >>
 
-primitive_file(time, name, imps) ::= <<
+function(name, ret_type) ::= <<
+function <name> : <ret_type> = {}
+>>
+
+primitive_file(time, name, imps, funcs) ::= <<
 <header(time)>
 module <name>
   <if(imps)><imports(imps)><endif>
+  <if(funcs)><funcs; separator="\n"><endif>
 end<\n>
 >>

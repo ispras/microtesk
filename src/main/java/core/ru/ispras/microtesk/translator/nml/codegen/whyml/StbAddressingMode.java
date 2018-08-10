@@ -21,16 +21,13 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
-final class StbAddressingMode implements StringTemplateBuilder {
+final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
   private final String modelName;
   private final PrimitiveAND addressingMode;
-
-  private final Set<String> imports = new HashSet<>();
 
   public StbAddressingMode(final String modelName, final PrimitiveAND addressingMode) {
     InvariantChecks.checkNotNull(modelName);
@@ -49,20 +46,24 @@ final class StbAddressingMode implements StringTemplateBuilder {
 
     addImport(st, String.format("%s.state.State", modelName));
     if (null != addressingMode.getReturnExpr()) {
-      buildReturnExpression(st, addressingMode.getReturnExpr());
+      buildReturnExpression(group, st);
     }
 
     return st;
   }
 
-  private void buildReturnExpression(final ST st, final Expr returnExpr) {
-    // TODO
-  }
+  private void buildReturnExpression(final STGroup group, final ST st) {
+    final Expr expr = addressingMode.getReturnExpr();
+    final Type type = expr.getNodeInfo().getType();
 
-  private void addImport(final ST st, final String name) {
-    if (!imports.contains(name)) {
-      st.add("imps", name);
-      imports.add(name);
-    }
+    final ST stFunction = group.getInstanceOf("function");
+
+    final String functionName = addressingMode.getName().toLowerCase();
+    stFunction.add("name", functionName);
+
+    final String typeName = makeTypeName(st, type);
+    stFunction.add("ret_type", typeName);
+
+    st.add("funcs", stFunction);
   }
 }

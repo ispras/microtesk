@@ -25,15 +25,12 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.math.BigInteger;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-final class StbState implements StringTemplateBuilder {
+final class StbState extends StbBase implements StringTemplateBuilder {
   public static final String FILE_NAME = "State";
 
   private final Ir ir;
-  private final Set<String> imports = new HashSet<>();
 
   public StbState(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
@@ -54,13 +51,6 @@ final class StbState implements StringTemplateBuilder {
     buildMemoryStorages(st);
 
     return st;
-  }
-
-  private void addImport(final ST st, final String name) {
-    if (!imports.contains(name)) {
-      st.add("imps", name);
-      imports.add(name);
-    }
   }
 
   private void buildTypes(final ST st) {
@@ -86,15 +76,7 @@ final class StbState implements StringTemplateBuilder {
       final BigInteger length = memory.getSize();
 
       final Type type = memory.getType();
-      final String typeName;
-      if (type.getAlias() != null) {
-        typeName = WhymlUtils.getTypeName(type.getAlias());
-      } else {
-        final int typeSize = type.getBitSize();
-        typeName = WhymlUtils.getTypeName(typeSize);
-        BitVectorTheoryGenerator.getInstance().generate(typeSize);
-        addImport(st, WhymlUtils.getTypeFullName(typeSize));
-      }
+      final String typeName = makeTypeName(st, type);
 
       st.add("var_names", name);
       st.add("var_types", typeName);
