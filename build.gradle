@@ -702,11 +702,11 @@ distributions {
         into('lib/python')
       }
 //*/
-/* // EXCLUDED FROM RELEASE (NOT READY)
+/**/ // EXCLUDED FROM RELEASE (NOT READY)
       from("${project.projectDir}/build/target/lib/why3") {
         into('lib/why3')
       }
-*/
+//*/
       from(sourcesJar) {
         into('src')
       }
