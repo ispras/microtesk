@@ -31,7 +31,7 @@ import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.decoder.DecoderItem;
 import ru.ispras.microtesk.model.decoder.DecoderResult;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
-import ru.ispras.microtesk.translator.nml.codegen.ExprPrinter;
+import ru.ispras.microtesk.translator.nml.codegen.sim.ExprPrinter;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;

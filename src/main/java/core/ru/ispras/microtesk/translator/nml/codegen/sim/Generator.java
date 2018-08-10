@@ -12,12 +12,13 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.codegen;
+package ru.ispras.microtesk.translator.nml.codegen.sim;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.FileGenerator;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
+import ru.ispras.microtesk.translator.nml.codegen.sim.GeneratorFactory;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;

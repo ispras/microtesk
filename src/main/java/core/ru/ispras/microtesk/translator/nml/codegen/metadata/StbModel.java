@@ -21,7 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
-import ru.ispras.microtesk.translator.nml.codegen.ExprPrinter;
+import ru.ispras.microtesk.translator.nml.codegen.sim.ExprPrinter;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;

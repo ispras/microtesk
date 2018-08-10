@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.codegen;
+package ru.ispras.microtesk.translator.nml.codegen.sim;
 
 import static ru.ispras.microtesk.translator.codegen.PackageInfo.MODEL_PACKAGE_FORMAT;
 import static ru.ispras.microtesk.translator.codegen.PackageInfo.MODE_CLASS_FORMAT;

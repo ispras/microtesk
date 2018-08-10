@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.translator.nml.codegen;
+package ru.ispras.microtesk.translator.nml.codegen.sim;
 
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
