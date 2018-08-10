@@ -36,6 +36,7 @@ final class StbAddressingMode implements StringTemplateBuilder {
   public StbAddressingMode(final String modelName, final PrimitiveAND primitive) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(primitive);
+
     this.modelName = modelName;
     this.primitive = primitive;
   }

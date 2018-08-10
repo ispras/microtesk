@@ -20,10 +20,12 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.Date;
+import java.util.Map;
 
 final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
   private final String modelName;
@@ -44,7 +46,10 @@ final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
     st.add("time", new Date().toString());
     st.add("name", WhymlUtils.getModuleName(addressingMode.getName()));
 
+    addImport(st, "mach.int.Int32");
+    addImport(st, "mach.array.Array32");
     addImport(st, String.format("%s.state.State", modelName));
+
     if (null != addressingMode.getReturnExpr()) {
       buildReturnExpression(group, st);
     }
@@ -54,7 +59,7 @@ final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
 
   private void buildReturnExpression(final STGroup group, final ST st) {
     final Expr expr = addressingMode.getReturnExpr();
-    final Type type = expr.getNodeInfo().getType();
+    final Type type = addressingMode.getReturnType();
 
     final ST stFunction = group.getInstanceOf("function");
 
@@ -63,6 +68,21 @@ final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
 
     final String typeName = makeTypeName(st, type);
     stFunction.add("ret_type", typeName);
+
+    stFunction.add("arg_names", "s__");
+    stFunction.add("arg_types", "state");
+
+    for (final Map.Entry<String, Primitive> entry : addressingMode.getArguments().entrySet()) {
+      final String argName = entry.getKey();
+      final Type argType = entry.getValue().getReturnType();
+      final String argTypeName = makeTypeName(st, argType);
+
+      stFunction.add("arg_names", argName);
+      stFunction.add("arg_types", argTypeName);
+    }
+
+    // TODO
+    stFunction.add("expr", "get s__.gpr 0");
 
     st.add("funcs", stFunction);
   }
