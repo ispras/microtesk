@@ -444,14 +444,14 @@ task copyEtc(type: Copy) {
 
 copyEtc.dependsOn jar
 
-/* // EXCLUDED FROM RELEASE (NOT READY)
+/**/ // EXCLUDED FROM RELEASE (NOT READY)
 task copyWhy3(type: Copy) {
   from "${project.projectDir}/src/main/why3"
   into "${project.projectDir}/build/target/lib/why3"
 }
 
 copyEtc.dependsOn copyWhy3
-*/
+//*/
 
 task copyPython(type: Copy) {
   from "${project.projectDir}/src/main/python"
