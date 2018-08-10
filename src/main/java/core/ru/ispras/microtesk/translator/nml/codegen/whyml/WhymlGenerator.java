@@ -22,7 +22,9 @@ import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive.Modifier;
 
 import java.io.IOException;
@@ -55,10 +57,19 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
 
   private void generateAddressingModes() {
     for (final Primitive primitive : ir.getModes().values()) {
-      if (!primitive.isOrRule() &&
-          primitive.getModifier() != Modifier.PSEUDO &&
-          primitive.getModifier() != Modifier.LABEL) {
-        generateFile(primitive.getName(), new StbPrimitive(ir, primitive));
+      if (primitive.isOrRule() ||
+          primitive.getModifier() == Modifier.PSEUDO ||
+          primitive.getModifier() == Modifier.LABEL) {
+        continue;
+      }
+
+      final PrimitiveAND addressingMode = (PrimitiveAND) primitive;
+      if (addressingMode.getReturnExpr() != null ||
+          addressingMode.getAttributes().containsKey(Attribute.ACTION_NAME)) {
+        final String name = addressingMode.getName();
+        final String modelName = ir.getModelName();
+
+        generateFile(name, new StbAddressingMode(modelName, addressingMode));
       }
     }
   }
