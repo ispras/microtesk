@@ -41,4 +41,16 @@ final class WhymlUtils {
     final String typeName = name.toLowerCase();
     return RESERVED_KEYWORDS.contains(typeName) ? typeName + "__t" : typeName;
   }
+
+  public static String getModuleName(final String name) {
+    final StringBuilder sb = new StringBuilder();
+    sb.append(Character.toUpperCase(name.charAt(0)));
+
+    if (name.length() > 1) {
+      final String suffix = name.substring(1, name.length());
+      sb.append(suffix.toLowerCase());
+    }
+
+    return sb.toString();
+  }
 }

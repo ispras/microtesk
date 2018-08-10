@@ -14,19 +14,29 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
-import java.util.Date;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
+import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
 final class StbPrimitive implements StringTemplateBuilder {
+  private final Ir ir;
   private final Primitive primitive;
 
-  public StbPrimitive(final Primitive primitive) {
+  private final Set<String> imports = new HashSet<>();
+
+  public StbPrimitive(final Ir ir, final Primitive primitive) {
+    InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(primitive);
+
+    this.ir = ir;
     this.primitive = primitive;
   }
 
@@ -35,8 +45,17 @@ final class StbPrimitive implements StringTemplateBuilder {
     final ST st = group.getInstanceOf("primitive_file");
 
     st.add("time", new Date().toString());
-    st.add("name", primitive.getName());
+    st.add("name", WhymlUtils.getModuleName(primitive.getName()));
+
+    addImport(st, String.format("%s.state.State", ir.getModelName()));
 
     return st;
+  }
+
+  private void addImport(final ST st, final String name) {
+    if (!imports.contains(name)) {
+      st.add("imps", name);
+      imports.add(name);
+    }
   }
 }
