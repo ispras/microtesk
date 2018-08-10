@@ -19,6 +19,7 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
+import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 
 import java.util.Date;
@@ -27,16 +28,16 @@ import java.util.Set;
 
 final class StbAddressingMode implements StringTemplateBuilder {
   private final String modelName;
-  private final PrimitiveAND primitive;
+  private final PrimitiveAND addressingMode;
 
   private final Set<String> imports = new HashSet<>();
 
-  public StbAddressingMode(final String modelName, final PrimitiveAND primitive) {
+  public StbAddressingMode(final String modelName, final PrimitiveAND addressingMode) {
     InvariantChecks.checkNotNull(modelName);
-    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkNotNull(addressingMode);
 
     this.modelName = modelName;
-    this.primitive = primitive;
+    this.addressingMode = addressingMode;
   }
 
   @Override
@@ -44,11 +45,18 @@ final class StbAddressingMode implements StringTemplateBuilder {
     final ST st = group.getInstanceOf("primitive_file");
 
     st.add("time", new Date().toString());
-    st.add("name", WhymlUtils.getModuleName(primitive.getName()));
+    st.add("name", WhymlUtils.getModuleName(addressingMode.getName()));
 
     addImport(st, String.format("%s.state.State", modelName));
+    if (null != addressingMode.getReturnExpr()) {
+      buildReturnExpression(st, addressingMode.getReturnExpr());
+    }
 
     return st;
+  }
+
+  private void buildReturnExpression(final ST st, final Expr returnExpr) {
+    // TODO
   }
 
   private void addImport(final ST st, final String name) {
