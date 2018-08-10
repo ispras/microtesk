@@ -65,16 +65,16 @@ final class StbState implements StringTemplateBuilder {
 
   private void buildTypes(final ST st) {
     for (final Map.Entry<String, Type> entry : ir.getTypes().entrySet()) {
-      final String name = entry.getKey().toLowerCase();
+      final String name = WhymlUtils.getTypeName(entry.getKey());
       final Type type = entry.getValue();
 
       final int typeSize = type.getBitSize();
-      final String typeName = getTypeFullName(typeSize);
+      final String typeName = WhymlUtils.getTypeFullName(typeSize);
 
       BitVectorTheoryGenerator.getInstance().generate(type.getBitSize());
       addImport(st, typeName);
 
-      st.add("types", String.format("%s = %s", name, getTypeName(typeSize)));
+      st.add("types", String.format("%s = %s", name, WhymlUtils.getTypeName(typeSize)));
     }
   }
 
@@ -88,12 +88,12 @@ final class StbState implements StringTemplateBuilder {
       final Type type = memory.getType();
       final String typeName;
       if (type.getAlias() != null) {
-        typeName = type.getAlias().toLowerCase();
+        typeName = WhymlUtils.getTypeName(type.getAlias());
       } else {
         final int typeSize = type.getBitSize();
-        typeName = getTypeName(typeSize);
+        typeName = WhymlUtils.getTypeName(typeSize);
         BitVectorTheoryGenerator.getInstance().generate(typeSize);
-        addImport(st, getTypeFullName(typeSize));
+        addImport(st, WhymlUtils.getTypeFullName(typeSize));
       }
 
       st.add("var_names", name);
@@ -101,15 +101,5 @@ final class StbState implements StringTemplateBuilder {
       st.add("var_lengths", length);
       st.add("var_arrays", !length.equals(BigInteger.ONE));
     }
-  }
-
-  private static String getTypeName(final int typeSize) {
-    InvariantChecks.checkGreaterThanZero(typeSize);
-    return String.format("bv%d", typeSize);
-  }
-
-  private static String getTypeFullName(final int typeSize) {
-    InvariantChecks.checkGreaterThanZero(typeSize);
-    return String.format("ispras.bv%d.BV%d", typeSize, typeSize);
   }
 }
