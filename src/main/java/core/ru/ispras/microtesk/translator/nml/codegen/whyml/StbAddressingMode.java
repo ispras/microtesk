@@ -58,15 +58,12 @@ final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
   }
 
   private void buildReturnExpression(final STGroup group, final ST st) {
-    final Expr expr = addressingMode.getReturnExpr();
-    final Type type = addressingMode.getReturnType();
-
     final ST stFunction = group.getInstanceOf("function");
 
     final String functionName = addressingMode.getName().toLowerCase();
     stFunction.add("name", functionName);
 
-    final String typeName = makeTypeName(st, type);
+    final String typeName = makeTypeName(st, addressingMode.getReturnType());
     stFunction.add("ret_type", typeName);
 
     stFunction.add("arg_names", "s__");
@@ -81,8 +78,8 @@ final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
       stFunction.add("arg_types", argTypeName);
     }
 
-    // TODO
-    stFunction.add("expr", "get s__.gpr 0");
+    final Expr expr = addressingMode.getReturnExpr();
+    stFunction.add("expr", ExprPrinter.toString(expr));
 
     st.add("funcs", stFunction);
   }

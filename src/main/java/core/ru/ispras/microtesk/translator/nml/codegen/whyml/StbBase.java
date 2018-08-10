@@ -32,16 +32,17 @@ abstract class StbBase {
   }
 
   protected final String makeTypeName(final ST st, final Type type) {
+    final int typeSize = type.getBitSize();
     final String typeName;
 
     if (type.getAlias() != null) {
       typeName = WhymlUtils.getTypeName(type.getAlias());
     } else {
-      final int typeSize = type.getBitSize();
       typeName = WhymlUtils.getTypeName(typeSize);
-      BitVectorTheoryGenerator.getInstance().generate(typeSize);
-      addImport(st, WhymlUtils.getTypeFullName(typeSize));
     }
+
+    BitVectorTheoryGenerator.getInstance().generate(typeSize);
+    addImport(st, WhymlUtils.getTypeFullName(typeSize));
 
     return typeName;
   }
