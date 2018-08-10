@@ -19,24 +19,19 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
-import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
-final class StbPrimitive implements StringTemplateBuilder {
-  private final Ir ir;
+final class StbPrimitive extends StbBase implements StringTemplateBuilder {
+  private final String modelName;
   private final Primitive primitive;
 
-  private final Set<String> imports = new HashSet<>();
-
-  public StbPrimitive(final Ir ir, final Primitive primitive) {
-    InvariantChecks.checkNotNull(ir);
+  public StbPrimitive(final String modelName, final Primitive primitive) {
+    InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(primitive);
 
-    this.ir = ir;
+    this.modelName = modelName;
     this.primitive = primitive;
   }
 
@@ -47,15 +42,10 @@ final class StbPrimitive implements StringTemplateBuilder {
     st.add("time", new Date().toString());
     st.add("name", WhymlUtils.getModuleName(primitive.getName()));
 
-    addImport(st, String.format("%s.state.State", ir.getModelName()));
+    addImport(st, "mach.int.Int32");
+    addImport(st, "mach.array.Array32");
+    addImport(st, String.format("%s.state.State", modelName));
 
     return st;
-  }
-
-  private void addImport(final ST st, final String name) {
-    if (!imports.contains(name)) {
-      st.add("imps", name);
-      imports.add(name);
-    }
   }
 }

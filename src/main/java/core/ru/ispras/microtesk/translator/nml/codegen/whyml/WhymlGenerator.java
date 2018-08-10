@@ -79,7 +79,7 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
       if (!primitive.isOrRule() &&
           primitive.getModifier() != Modifier.PSEUDO &&
           primitive.getModifier() != Modifier.LABEL) {
-        generateFile(primitive.getName(), new StbPrimitive(ir, primitive));
+        generateFile(primitive.getName(), new StbPrimitive(ir.getModelName(), primitive));
       }
     }
   }
