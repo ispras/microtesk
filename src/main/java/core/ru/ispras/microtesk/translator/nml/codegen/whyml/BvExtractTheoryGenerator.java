@@ -22,7 +22,7 @@ final class BvExtractTheoryGenerator extends BvTheoryGeneratorBase {
 
   private static BvExtractTheoryGenerator instance = null;
 
-  public static BvExtractTheoryGenerator getInstance() {
+  public static BvExtractTheoryGenerator get() {
     if (null == instance) {
       instance = new BvExtractTheoryGenerator();
     }

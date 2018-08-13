@@ -22,7 +22,7 @@ final class BvCastTheoryGenerator extends BvTheoryGeneratorBase {
 
   private static BvCastTheoryGenerator instance = null;
 
-  public static BvCastTheoryGenerator getInstance() {
+  public static BvCastTheoryGenerator get() {
     if (null == instance) {
       instance = new BvCastTheoryGenerator();
     }

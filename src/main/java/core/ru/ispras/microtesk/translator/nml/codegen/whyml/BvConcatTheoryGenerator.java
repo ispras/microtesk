@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 
 final class BvConcatTheoryGenerator extends BvTheoryGeneratorBase {
   private static final String THEORY_FORMAT  = "bvconcat_%d_%d";
@@ -22,7 +23,7 @@ final class BvConcatTheoryGenerator extends BvTheoryGeneratorBase {
 
   private static BvConcatTheoryGenerator instance = null;
 
-  public static BvConcatTheoryGenerator getInstance() {
+  public static BvConcatTheoryGenerator get() {
     if (null == instance) {
       instance = new BvConcatTheoryGenerator();
     }
@@ -33,17 +34,17 @@ final class BvConcatTheoryGenerator extends BvTheoryGeneratorBase {
     super(THEORY_REGEXPR);
   }
 
-  public boolean generate(final int firstBitSize, final int secondBitSize) {
-    InvariantChecks.checkGreaterThanZero(firstBitSize);
-    InvariantChecks.checkGreaterThanZero(secondBitSize);
+  public boolean generate(final int firstSize, final int secondSize) {
+    InvariantChecks.checkGreaterThanZero(firstSize);
+    InvariantChecks.checkGreaterThanZero(secondSize);
 
-    final String theoryName = String.format(THEORY_FORMAT, firstBitSize, secondBitSize);
+    final String theoryName = String.format(THEORY_FORMAT, firstSize, secondSize);
     if (theoryExists(theoryName)) {
       return false;
     }
 
-    //final StringTemplateBuilder templateBuilder = new StbBvConcatTheory(firstBitSize, secondBitSize);
-    //generateTheoryFile(theoryName, templateBuilder);
+    final StringTemplateBuilder templateBuilder =  new StbBvConcatTheory(firstSize, secondSize);
+    generateTheoryFile(theoryName, templateBuilder);
 
     return true;
   }
