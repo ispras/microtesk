@@ -35,17 +35,24 @@ final class ExprPrinter {
 
   public static String toString(final Location location) {
     InvariantChecks.checkNotNull(location);
+    final String name = location.getName().toLowerCase();
 
-    final String locationName = location.getName().toLowerCase();
-    final String name = location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY
-        ? "s__." + locationName : locationName;
+    String text = location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY
+        ? "s__." + name : name;
 
     if (location.getIndex() != null) {
       final Expr index = location.getIndex();
-      final String indexText = ExprPrinter.toString(index);
-      return String.format("get %s (to_int %s)", name, indexText);
+      final String indexText = toString(index);
+      text = String.format("(get %s (to_uint %s))", text, indexText);
     }
 
-    return name;
+    if (location.getBitfield() != null) {
+      final Location.Bitfield bitfield = location.getBitfield();
+      final String fromText = toString(bitfield.getFrom());
+      final String toText = toString(bitfield.getTo());
+      text = String.format("(extract %s (to_uint %s) (to_uint %s))", text, fromText, toText);
+    }
+
+    return text;
   }
 }
