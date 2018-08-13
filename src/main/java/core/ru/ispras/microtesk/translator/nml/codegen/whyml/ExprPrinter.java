@@ -64,7 +64,8 @@ final class ExprPrinter extends MapBasedPrinter {
       return toString((Location) nodeInfo.getSource());
     }
 
-    return toString(expr.getNode());
+    //return toString(expr.getNode());
+    return "";
   }
 
   private ExprPrinter() {
