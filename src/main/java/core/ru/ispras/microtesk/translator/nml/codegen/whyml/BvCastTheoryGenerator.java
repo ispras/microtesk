@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 
 final class BvCastTheoryGenerator extends BvTheoryGeneratorBase {
   private static final String THEORY_FORMAT  = "bvcast_%d_%d";
@@ -33,17 +34,20 @@ final class BvCastTheoryGenerator extends BvTheoryGeneratorBase {
     super(THEORY_REGEXPR);
   }
 
-  public boolean generate(final int sourceBitSize, final int targetBitSize) {
-    InvariantChecks.checkGreaterThanZero(sourceBitSize);
-    InvariantChecks.checkGreaterThanZero(targetBitSize);
+  public boolean generate(final int sourceSize, final int targetSize) {
+    InvariantChecks.checkGreaterThanZero(sourceSize);
+    InvariantChecks.checkGreaterThanZero(targetSize);
 
-    final String theoryName = String.format(THEORY_FORMAT, sourceBitSize, targetBitSize);
+    final int smallSize = Math.min(sourceSize, targetSize);
+    final int bigSize = Math.max(sourceSize, targetSize);
+
+    final String theoryName = String.format(THEORY_FORMAT, smallSize, bigSize);
     if (theoryExists(theoryName)) {
       return false;
     }
 
-    //final StringTemplateBuilder templateBuilder = new StbBvCastTheory(firstBitSize, secondBitSize);
-    //generateTheoryFile(theoryName, templateBuilder);
+    final StringTemplateBuilder templateBuilder = new StbBvCastTheory(smallSize, bigSize);
+    generateTheoryFile(theoryName, templateBuilder);
 
     return true;
   }

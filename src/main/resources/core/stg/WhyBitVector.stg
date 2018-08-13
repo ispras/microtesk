@@ -55,7 +55,6 @@ theory BV<bit_size>
     goal two_power_size_val,
     goal half_two_power_size_val,
     goal max_int_val
-
 end<\n>
 >>
 
@@ -72,7 +71,7 @@ theory BVConcat_<first_size>_<second_size>
     type  firstBV = BV<first_size>.bv<first_size>,
     type secondBV = BV<second_size>.bv<second_size>,
     type resultBV = BV<result_size>.bv<result_size>
-end
+end<\n>
 >>
 
 bit_vector_extract_file(year, source_size, field_size, import_sizes) ::= <<
@@ -83,5 +82,18 @@ theory BvExtract_<source_size>_<field_size>
   clone export ispras.bvcasts.BVExtract_Gen with
     type   fromBV = BV<source_size>.bv<source_size>,
     type resultBV = BV<field_size>.bv<field_size>
-end
+end<\n>
+>>
+
+bit_vector_cast_file(year, small_size, big_size, import_sizes) ::= <<
+<header(year)>
+theory BvCast_<small_size>_<big_size>
+  use ispras.bvcasts.BVCast_Gen
+  <import_bit_vectors(import_sizes)>
+  clone export ispras.bvcasts.BVCast_Gen with
+    type smallBV = BV<small_size>.bv<small_size>,
+    type   bigBV = BV<big_size>.bv<big_size>,
+    function to_uint_small = BV<small_size>.to_uint,
+    function to_uint_big   = BV<big_size>.to_uint
+end<\n>
 >>
