@@ -30,10 +30,7 @@ final class ExprPrinter extends MapBasedPrinter {
 
   public static String toString(final Location location) {
     InvariantChecks.checkNotNull(location);
-    final String name = location.getName().toLowerCase();
-
-    String text = location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY
-        ? "s__." + name : name;
+    String text = getLocationName(location);
 
     if (location.getIndex() != null) {
       final Expr index = location.getIndex();
@@ -49,6 +46,16 @@ final class ExprPrinter extends MapBasedPrinter {
     }
 
     return text;
+  }
+
+  private static String getLocationName(final Location location) {
+    final String name = location.getName().toLowerCase();
+    return location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY
+        ? getStateFieldName(name) : name;
+  }
+
+  private static String getStateFieldName(final String name) {
+    return String.format("s__.%s", name);
   }
 
   private static String toStringAsUint(final Expr expr) {
