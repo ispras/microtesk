@@ -23,4 +23,8 @@ final class BVConcatTheoryGenerator extends BVTheoryGeneratorBase {
     }
     return instance;
   }
+
+  private BVConcatTheoryGenerator() {
+    super("");
+  }
 }

@@ -23,4 +23,8 @@ final class BVExtractTheoryGenerator extends BVTheoryGeneratorBase {
     }
     return instance;
   }
+
+  private BVExtractTheoryGenerator() {
+    super("");
+  }
 }

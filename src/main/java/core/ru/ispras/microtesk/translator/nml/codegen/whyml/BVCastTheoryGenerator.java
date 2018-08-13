@@ -24,7 +24,7 @@ final class BVCastTheoryGenerator extends BVTheoryGeneratorBase {
     return instance;
   }
 
-  public BVCastTheoryGenerator() {
-
+  private BVCastTheoryGenerator() {
+    super("");
   }
 }
