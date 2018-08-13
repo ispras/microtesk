@@ -62,15 +62,19 @@ import_bit_vectors(sizes) ::= <<
 <sizes:{size | use import ispras.bv<size>.BV<size>}; separator="\n"><\n>
 >>
 
+bv_type(size) ::= <<
+BV<size>.bv<size>
+>>
+
 bit_vector_concat_file(year, first_size, second_size, result_size, import_sizes) ::= <<
 <header(year)>
 theory BVConcat_<first_size>_<second_size>
   use ispras.bvcasts.BVConcat_Gen
   <import_bit_vectors(import_sizes)>
   clone export ispras.bvcasts.BVConcat_Gen with
-    type  firstBV = BV<first_size>.bv<first_size>,
-    type secondBV = BV<second_size>.bv<second_size>,
-    type resultBV = BV<result_size>.bv<result_size>
+    type  firstBV = <bv_type(first_size)>,
+    type secondBV = <bv_type(second_size)>,
+    type resultBV = <bv_type(result_size)>
 end<\n>
 >>
 
@@ -80,19 +84,21 @@ theory BvExtract_<source_size>_<field_size>
   use ispras.bvcasts.BVExtract_Gen
   <import_bit_vectors(import_sizes)>
   clone export ispras.bvcasts.BVExtract_Gen with
-    type   fromBV = BV<source_size>.bv<source_size>,
-    type resultBV = BV<field_size>.bv<field_size>
+    type   fromBV = <bv_type(source_size)>,
+    type resultBV = <bv_type(field_size)>
 end<\n>
 >>
 
-bit_vector_cast_file(year, small_size, big_size, import_sizes) ::= <<
+bit_vector_cast_file(year, small_size, big_size, import_sizes, max_small) ::= <<
 <header(year)>
 theory BvCast_<small_size>_<big_size>
   use ispras.bvcasts.BVCast_Gen
   <import_bit_vectors(import_sizes)>
+  predicate in_range (b : <bv_type(big_size)>) = BV<big_size>.ule b (<max_small>:<bv_type(big_size)>)<\n>
   clone export ispras.bvcasts.BVCast_Gen with
-    type smallBV = BV<small_size>.bv<small_size>,
-    type   bigBV = BV<big_size>.bv<big_size>,
+    type smallBV = <bv_type(small_size)>,
+    type   bigBV = <bv_type(big_size)>,
+    predicate in_small_range = in_range,
     function to_uint_small = BV<small_size>.to_uint,
     function to_uint_big   = BV<big_size>.to_uint
 end<\n>

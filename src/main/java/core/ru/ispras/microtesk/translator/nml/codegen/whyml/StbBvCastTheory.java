@@ -17,6 +17,7 @@ package ru.ispras.microtesk.translator.nml.codegen.whyml;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 
@@ -56,6 +57,10 @@ final class StbBvCastTheory implements StringTemplateBuilder {
     for (final int size : importSizes) {
       st.add("import_sizes", size);
     }
+
+    final BitVector maxSmall = BitVector.newEmpty(smallBitSize);
+    maxSmall.setAll();
+    st.add("max_small", String.format("0x%s", maxSmall.toHexString()));
 
     return st;
   }
