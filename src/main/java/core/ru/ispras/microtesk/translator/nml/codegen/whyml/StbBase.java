@@ -41,7 +41,7 @@ abstract class StbBase {
       typeName = WhymlUtils.getTypeName(typeSize);
     }
 
-    BVTheoryGenerator.getInstance().generate(typeSize);
+    BvTheoryGenerator.getInstance().generate(typeSize);
     addImport(st, WhymlUtils.getTypeFullName(typeSize));
 
     return typeName;

@@ -23,10 +23,10 @@ import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import java.math.BigInteger;
 import java.util.Calendar;
 
-final class StbBitVectorTheory implements StringTemplateBuilder {
+final class StbBvTheory implements StringTemplateBuilder {
   private final int bitVectorSize;
 
-  public StbBitVectorTheory(final int bitVectorSize) {
+  public StbBvTheory(final int bitVectorSize) {
     InvariantChecks.checkGreaterThanZero(bitVectorSize);
     this.bitVectorSize = bitVectorSize;
   }

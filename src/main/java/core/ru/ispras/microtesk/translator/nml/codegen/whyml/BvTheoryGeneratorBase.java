@@ -28,14 +28,14 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-abstract class BVTheoryGeneratorBase {
+abstract class BvTheoryGeneratorBase {
   private static final String[] TEMPLATE_GROUPS =
       new String[] { PackageInfo.COMMON_TEMPLATE_DIR + "WhyBitVector.stg" };
 
   private final File theoryDir;
   private final Set<String> existingTheories;
 
-  protected BVTheoryGeneratorBase(final String theoryRegExpr) {
+  protected BvTheoryGeneratorBase(final String theoryRegExpr) {
     this.theoryDir = getTheoryDir();
     this.existingTheories = getExistingTheories(theoryRegExpr);
   }

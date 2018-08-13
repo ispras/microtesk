@@ -15,35 +15,35 @@
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 
-final class BVTheoryGenerator extends BVTheoryGeneratorBase {
-  private static final String THEORY_FORMAT  = "bv%d";
-  private static final String THEORY_REGEXPR = "bv[1-9][0-9]*";
+final class BvExtractTheoryGenerator extends BvTheoryGeneratorBase {
+  private static final String THEORY_FORMAT  = "bvextract_%d_%d";
+  private static final String THEORY_REGEXPR = "bvextract_[1-9][0-9]*_[1-9][0-9]*";
 
-  private static BVTheoryGenerator instance = null;
+  private static BvExtractTheoryGenerator instance = null;
 
-  public static BVTheoryGenerator getInstance() {
+  public static BvExtractTheoryGenerator getInstance() {
     if (null == instance) {
-      instance = new BVTheoryGenerator();
+      instance = new BvExtractTheoryGenerator();
     }
     return instance;
   }
 
-  private BVTheoryGenerator() {
+  private BvExtractTheoryGenerator() {
     super(THEORY_REGEXPR);
   }
 
-  public boolean generate(final int bitVectorSize) {
-    InvariantChecks.checkGreaterThanZero(bitVectorSize);
+  public boolean generate(final int sourceBitSize, final int fieldBitSize) {
+    InvariantChecks.checkGreaterThanZero(sourceBitSize);
+    InvariantChecks.checkGreaterThanZero(fieldBitSize);
 
-    final String theoryName = String.format(THEORY_FORMAT, bitVectorSize);
+    final String theoryName = String.format(THEORY_FORMAT, sourceBitSize, fieldBitSize);
     if (theoryExists(theoryName)) {
       return false;
     }
 
-    final StringTemplateBuilder templateBuilder = new StbBitVectorTheory(bitVectorSize);
-    generateTheoryFile(theoryName, templateBuilder);
+    //final StringTemplateBuilder templateBuilder = new StbBvExtractTheory(firstBitSize, secondBitSize);
+    //generateTheoryFile(theoryName, templateBuilder);
 
     return true;
   }
