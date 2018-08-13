@@ -14,23 +14,18 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
+import ru.ispras.fortress.expression.printer.MapBasedPrinter;
 import ru.ispras.fortress.util.InvariantChecks;
+
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 
-final class ExprPrinter {
-  private ExprPrinter() {}
+final class ExprPrinter extends MapBasedPrinter {
 
   public static String toString(final Expr expr) {
-    final NodeInfo nodeInfo = expr.getNodeInfo();
-
-    if (nodeInfo.getSource() instanceof Location) {
-      return toString((Location) nodeInfo.getSource());
-    }
-
-    return "";
+    return new ExprPrinter().print(expr);
   }
 
   public static String toString(final Location location) {
@@ -42,17 +37,39 @@ final class ExprPrinter {
 
     if (location.getIndex() != null) {
       final Expr index = location.getIndex();
-      final String indexText = toString(index);
-      text = String.format("(get %s (to_uint %s))", text, indexText);
+      final String indexText = toStringAsUint(index);
+      text = String.format("(get %s %s)", text, indexText);
     }
 
     if (location.getBitfield() != null) {
       final Location.Bitfield bitfield = location.getBitfield();
-      final String fromText = toString(bitfield.getFrom());
-      final String toText = toString(bitfield.getTo());
-      text = String.format("(extract %s (to_uint %s) (to_uint %s))", text, fromText, toText);
+      final String fromText = toStringAsUint(bitfield.getFrom());
+      final String toText = toStringAsUint(bitfield.getTo());
+      text = String.format("(extract %s %s %s)", text, fromText, toText);
     }
 
     return text;
   }
+
+  private static String toStringAsUint(final Expr expr) {
+    final String text = toString(expr);
+    final boolean isBitVector = expr.getNodeInfo().getType() != null;
+    return isBitVector ? String.format("(to_uint %s)", text) : text;
+  }
+
+  private String print(final Expr expr) {
+    final NodeInfo nodeInfo = expr.getNodeInfo();
+
+    if (nodeInfo.getSource() instanceof Location) {
+      return toString((Location) nodeInfo.getSource());
+    }
+
+    return toString(expr.getNode());
+  }
+
+  private ExprPrinter() {
+    setVisitor(new Visitor());
+  }
+
+  private final class Visitor extends ExprTreeVisitor { }
 }
