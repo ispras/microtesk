@@ -90,14 +90,8 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
     final String[] templateGroups =
         new String[] { PackageInfo.COMMON_TEMPLATE_DIR + "Whyml.stg" };
 
-    final FileGenerator generator =
-        new FileGeneratorStringTemplate(getFileName(className), templateGroups, templateBuilder);
-
-    try {
-      generator.generate();
-    } catch (final IOException e) {
-      throw new RuntimeException(e);
-    }
+    FileGeneratorStringTemplate.generateFile(
+        getFileName(className), templateGroups, templateBuilder);
   }
 
   private String getFileName(final String name) {

@@ -60,6 +60,30 @@ public final class FileGeneratorStringTemplate implements FileGenerator {
   }
 
   /**
+   * Generates a file by the specified template.
+   *
+   * @param fileName Full name of the generated file.
+   * @param templateGroups List of template group files.
+   * @param templateBuilder Builder responsible for initialization of the template.
+   *
+   * @throws IllegalArgumentException if any of the arguments is {@code null}.
+   * @throws RuntimeException if an I/O error occurred during file generation.
+   */
+  public static void generateFile(
+      final String fileName,
+      final String[] templateGroups,
+      final StringTemplateBuilder templateBuilder) {
+    final FileGenerator generator =
+        new FileGeneratorStringTemplate(fileName, templateGroups, templateBuilder);
+
+    try {
+      generator.generate();
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
    * Generates the target file.
    *
    * @throws IOException It is raised if the methods fails to create the target file.

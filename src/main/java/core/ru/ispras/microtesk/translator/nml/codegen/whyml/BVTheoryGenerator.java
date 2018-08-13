@@ -15,37 +15,30 @@
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.SysUtils;
-import ru.ispras.microtesk.codegen.FileGenerator;
 import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
 import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-final class BitVectorTheoryGenerator {
-  private static BitVectorTheoryGenerator instance = null;
+final class BVTheoryGenerator extends BVTheoryGeneratorBase {
   private static final Pattern FILE_NAME_PATTERN = Pattern.compile("bv([1-9][0-9]*).why");
+  private static BVTheoryGenerator instance = null;
 
-  private final File theoryDir;
-  private final Set<Integer> bitVectorSizes;
-
-  public static BitVectorTheoryGenerator getInstance() {
+  public static BVTheoryGenerator getInstance() {
     if (null == instance) {
-      instance = new BitVectorTheoryGenerator();
+      instance = new BVTheoryGenerator();
     }
     return instance;
   }
 
-  private BitVectorTheoryGenerator() {
-    this.theoryDir = getTheoryDir();
+  private final Set<Integer> bitVectorSizes;
+
+  private BVTheoryGenerator() {
     this.bitVectorSizes = readBitVectorSizes(theoryDir);
   }
 
@@ -59,11 +52,6 @@ final class BitVectorTheoryGenerator {
       }
     }
     return result;
-  }
-
-  private static File getTheoryDir() {
-    final Path path = Paths.get(SysUtils.getHomeDir(), "lib", "why3", "theories", "ispras");
-    return path.toFile();
   }
 
   public boolean generate(final int bitVectorSize) {
@@ -84,16 +72,10 @@ final class BitVectorTheoryGenerator {
         new String[] { PackageInfo.COMMON_TEMPLATE_DIR + "WhyBitVector.stg" };
 
     final String fileName = getFileName(bitVectorSize);
-    final StringTemplateBuilder templateBuilder =  new StbBitVectorTheory(bitVectorSize);
+    final StringTemplateBuilder templateBuilder = new StbBitVectorTheory(bitVectorSize);
 
-    final FileGenerator generator =
-        new FileGeneratorStringTemplate(fileName, templateGroups, templateBuilder);
-
-    try {
-      generator.generate();
-    } catch (final IOException e) {
-      throw new RuntimeException(e);
-    }
+    FileGeneratorStringTemplate.generateFile(
+        fileName, templateGroups, templateBuilder);
   }
 
   private String getFileName(int bitVectorSize) {
