@@ -20,6 +20,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.expression.printer.MapBasedPrinter;
+import ru.ispras.fortress.expression.printer.OperationDescription;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
@@ -32,41 +33,45 @@ final class ExprPrinter extends MapBasedPrinter {
     return new ExprPrinter(importer).toString(expr.getNode());
   }
 
+  private static final OperationDescription BVEQ =
+      new OperationDescription("eq ", " ", "");
+
+  private static final OperationDescription BVNEQ =
+      new OperationDescription("neq ", " ", "");
+
   private final Importer importer;
 
   private ExprPrinter(final Importer importer) {
     this.importer = importer;
     setVisitor(new Visitor());
 
-    addMapping(StandardOperation.EQ,     "", ".equals(", ")");
-    addMapping(StandardOperation.NOTEQ, "!", ".equals(", ")");
+    addMapping(StandardOperation.EQ,    "", " = ", "");
+    addMapping(StandardOperation.NOTEQ, "", " <> ", ")");
 
-    //<<=========== SUPPORTED  ===========
     addMapping(StandardOperation.AND, "", " && ", "");
     addMapping(StandardOperation.OR,  "", " || ", "");
     addMapping(StandardOperation.NOT, "not ", " ", "");
 
     addMapping(StandardOperation.ITE, "ite ", " ", "");
-    //===========================================>>
 
-    addMapping(StandardOperation.LESS,      "(", ".compareTo(", ") < 0)");
-    addMapping(StandardOperation.LESSEQ,    "(", ".compareTo(", ") <= 0)");
-    addMapping(StandardOperation.GREATER,   "(", ".compareTo(", ") > 0)");
-    addMapping(StandardOperation.GREATEREQ, "(", ".compareTo(", ") >= 0)");
+    addMapping(StandardOperation.LESS,      "", " < ",  "");
+    addMapping(StandardOperation.LESSEQ,    "", " <= ", "");
+    addMapping(StandardOperation.GREATER,   "", " > ",  "");
+    addMapping(StandardOperation.GREATEREQ, "", " >= ", "");
 
-    //<<=========== SUPPORTED  ===========
     addMapping(StandardOperation.MINUS,  "- ", "",    "");
     addMapping(StandardOperation.PLUS,   "",   "",    "");
     addMapping(StandardOperation.ADD,    "",   " + ", "");
     addMapping(StandardOperation.SUB,    "",   " - ", "");
     addMapping(StandardOperation.MUL,    "",   " * ", "");
+
+    //<<=== TODO: DID NOT FIND IN WHY3 THEORIES ==
+    addMapping(StandardOperation.DIV,    "", " / ", "");
+    addMapping(StandardOperation.MOD,    "", " % ", "");
     //===========================================>>
 
-    addMapping(StandardOperation.DIV,    "", ".divide(", ")");
-    addMapping(StandardOperation.MOD,    "", ".mod(", ")");
-    addMapping(StandardOperation.POWER,  "", ".pow(", ")");
+    addMapping(StandardOperation.POWER,  "power ", " ", " ");
 
-    //<<=========== WORK FINE. TESTED. ===========
     addMapping(StandardOperation.BVNOT,  "bw_not ", " ", "");
     addMapping(StandardOperation.BVNEG,  "neg ",    " ", "");
 
@@ -80,7 +85,6 @@ final class ExprPrinter extends MapBasedPrinter {
 
     addMapping(StandardOperation.BVUDIV, "udiv ", " ", "");
     addMapping(StandardOperation.BVUREM, "urem ", " ", "");
-    //===========================================>>
 
     //<<=== TODO: NOT IMPLEMENTED in bvgen.why ====
     addMapping(StandardOperation.BVSDIV, "sdiv ", " ", "");
@@ -88,7 +92,6 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.BVSMOD, "smod ", " ", "");
     //===========================================>>
 
-    //<<=========== WORK FINE. TESTED. ===========
     addMapping(StandardOperation.BVLSHL, "lsl_bv ", " ", "");
     addMapping(StandardOperation.BVASHL, "lsl_bv ", " ", "");
     addMapping(StandardOperation.BVLSHR, "lsr_bv ", " ", "");
@@ -106,8 +109,7 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.BVSGE, "sge ", " ", "");
     addMapping(StandardOperation.BVSGT, "sgt ", " ", "");
 
-    //===========================================>>
-
+    //<<=== TODO ==================================
     addMapping(StandardOperation.BVREPEAT,
         "", new String[] {".repeat("}, ")", new int[] {1, 0});
 
@@ -117,8 +119,22 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.BVCONCAT,
         "Location.concat(", ", ", ")");
 
-    addMapping(StandardOperation.BVSIGNEXT, "signExtend", "", "");
-    addMapping(StandardOperation.BVZEROEXT, "zeroExtend", "", "");
+    addMapping(StandardOperation.BVSIGNEXT, "signExtend ", " ", "");
+    addMapping(StandardOperation.BVZEROEXT, "zeroExtend ", " ", "");
+
+    //===========================================>>
+  }
+
+  @Override
+  protected OperationDescription getOperationDescription(final NodeOperation expr) {
+    final Enum<?> operator = expr.getOperationId();
+    if (operator == StandardOperation.EQ || operator == StandardOperation.NOTEQ) {
+      if (expr.getOperand(0).isType(DataTypeId.BIT_VECTOR)) {
+        return operator == StandardOperation.EQ ? BVEQ : BVNEQ;
+      }
+    }
+
+    return super.getOperationDescription(expr);
   }
 
   private final class Visitor extends ExprTreeVisitor {
@@ -138,6 +154,8 @@ final class ExprPrinter extends MapBasedPrinter {
       if (expr.getOperationId() == StandardOperation.ITE) {
         importer.addImport("bool.Ite");
         appendText("Ite.");
+      } else if (expr.getOperationId() == StandardOperation.POWER) {
+        importer.addImport("int.Power");
       } else if (expr.isType(DataTypeId.BIT_VECTOR)) {
         appendText(String.format("BV%d.", expr.getDataType().getSize()));
       } else if (expr.isType(DataTypeId.LOGIC_BOOLEAN)
