@@ -14,6 +14,10 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
+import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.expression.printer.MapBasedPrinter;
 import ru.ispras.fortress.util.InvariantChecks;
 
@@ -24,18 +28,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 
 final class ExprPrinter extends MapBasedPrinter {
   public static String toString(final Importer importer, final Expr expr) {
-    return new ExprPrinter(importer).print(expr);
-  }
-
-  private String print(final Expr expr) {
-    final NodeInfo nodeInfo = expr.getNodeInfo();
-
-    if (nodeInfo.getSource() instanceof Location) {
-      return toString((Location) nodeInfo.getSource());
-    }
-
-    //return toString(expr.getNode());
-    return "";
+    return new ExprPrinter(importer).toString(expr.getNode());
   }
 
   private final Importer importer;
@@ -43,9 +36,107 @@ final class ExprPrinter extends MapBasedPrinter {
   private ExprPrinter(final Importer importer) {
     this.importer = importer;
     setVisitor(new Visitor());
+
+    addMapping(StandardOperation.EQ,     "", ".equals(", ")");
+    addMapping(StandardOperation.NOTEQ, "!", ".equals(", ")");
+
+    addMapping(StandardOperation.AND, "", " && ", "");
+    addMapping(StandardOperation.OR,  "(", " || ", ")");
+    addMapping(StandardOperation.NOT, "!(", "", ")");
+
+    addMapping(StandardOperation.ITE, "(", new String[] {" ? ", " : "}, ")");
+
+    addMapping(StandardOperation.LESS,      "(", ".compareTo(", ") < 0)");
+    addMapping(StandardOperation.LESSEQ,    "(", ".compareTo(", ") <= 0)");
+    addMapping(StandardOperation.GREATER,   "(", ".compareTo(", ") > 0)");
+    addMapping(StandardOperation.GREATEREQ, "(", ".compareTo(", ") >= 0)");
+
+    addMapping(StandardOperation.MINUS,  "", "", ".negate()");
+    addMapping(StandardOperation.PLUS,   "", "", "");
+
+    addMapping(StandardOperation.ADD,    "add", " ", "");
+    addMapping(StandardOperation.SUB,    "sub", " ", "");
+    addMapping(StandardOperation.MUL,    "", ".multiply(", ")");
+    addMapping(StandardOperation.DIV,    "", ".divide(", ")");
+    addMapping(StandardOperation.MOD,    "", ".mod(", ")");
+    addMapping(StandardOperation.POWER,  "", ".pow(", ")");
+
+    //<<===== WORKS. TESTED. ===============
+    addMapping(StandardOperation.BVNOT,  "bw_not ", " ", "");
+    addMapping(StandardOperation.BVNEG,  "neg ",    " ", "");
+
+    addMapping(StandardOperation.BVOR,   "bw_or ",  " ", "");
+    addMapping(StandardOperation.BVXOR,  "bw_xor ", " ", "");
+    addMapping(StandardOperation.BVAND,  "bw_and ", " ", "");
+
+    addMapping(StandardOperation.BVADD,  "add ", " ", "");
+    addMapping(StandardOperation.BVSUB,  "sub ", " ", "");
+    addMapping(StandardOperation.BVMUL,  "mul ", " ", "");
+
+    addMapping(StandardOperation.BVUDIV, "udiv ", " ", "");
+    addMapping(StandardOperation.BVUREM, "urem ", " ", "");
+    //======================================>>
+
+    addMapping(StandardOperation.BVSDIV, "", ".divide(", ")");
+    addMapping(StandardOperation.BVSREM, "", ".mod(", ")");
+    addMapping(StandardOperation.BVSMOD, "", ".mod(", ")");
+
+    addMapping(StandardOperation.BVLSHL, "", ".shiftLeft(", ")");
+    addMapping(StandardOperation.BVASHL, "", ".shiftLeft(", ")");
+    addMapping(StandardOperation.BVLSHR, "", ".shiftRight(", ")");
+    addMapping(StandardOperation.BVASHR, "", ".shiftRight(", ")");
+    addMapping(StandardOperation.BVROL,  "", ".rotateLeft(", ")");
+    addMapping(StandardOperation.BVROR,  "", ".rotateRight(", ")");
+
+    addMapping(StandardOperation.BVULE, "(", ".compareTo(", ") <= 0)");
+    addMapping(StandardOperation.BVULT, "(", ".compareTo(", ") < 0)");
+    addMapping(StandardOperation.BVUGE, "(", ".compareTo(", ") >= 0)");
+    addMapping(StandardOperation.BVUGT, "(", ".compareTo(", ") > 0)");
+    addMapping(StandardOperation.BVSLE, "(", ".compareTo(", ") <= 0)");
+    addMapping(StandardOperation.BVSLT, "(", ".compareTo(", ") < 0)");
+    addMapping(StandardOperation.BVSGE, "(", ".compareTo(", ") >= 0)");
+    addMapping(StandardOperation.BVSGT, "(", ".compareTo(", ") > 0)");
+
+    addMapping(StandardOperation.BVREPEAT,
+        "", new String[] {".repeat("}, ")", new int[] {1, 0});
+
+    addMapping(StandardOperation.BVEXTRACT,
+        "", new String[] {".bitField(", ", "}, ")", new int[] {2, 0, 1});
+
+    addMapping(StandardOperation.BVCONCAT,
+        "Location.concat(", ", ", ")");
+
+    addMapping(StandardOperation.BVSIGNEXT, "signExtend", "", "");
+    addMapping(StandardOperation.BVZEROEXT, "zeroExtend", "", "");
   }
 
-  private final class Visitor extends ExprTreeVisitor { }
+  private final class Visitor extends ExprTreeVisitor {
+    @Override
+    public void onVariable(final NodeVariable variable) {
+      InvariantChecks.checkTrue(variable.getUserData() instanceof NodeInfo);
+      final NodeInfo nodeInfo = (NodeInfo) variable.getUserData();
+
+      InvariantChecks.checkTrue(nodeInfo.getSource() instanceof Location);
+      appendText(ExprPrinter.this.toString((Location) nodeInfo.getSource()));
+    }
+
+    @Override
+    public void onOperationBegin(final NodeOperation expr) {
+      appendText("(");
+
+      if (expr.isType(DataTypeId.BIT_VECTOR)) {
+        appendText(String.format("BV%d.", expr.getDataType().getSize()));
+      }
+
+      super.onOperationBegin(expr);
+    }
+
+    @Override
+    public void onOperationEnd(final NodeOperation expr) {
+      super.onOperationEnd(expr);
+      appendText(")");
+    }
+  }
 
   private String toString(final Location location) {
     InvariantChecks.checkNotNull(location);
