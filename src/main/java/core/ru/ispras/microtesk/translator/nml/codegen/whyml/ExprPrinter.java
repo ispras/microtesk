@@ -23,12 +23,28 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 
 final class ExprPrinter extends MapBasedPrinter {
-
   public static String toString(final Expr expr) {
     return new ExprPrinter().print(expr);
   }
 
-  public static String toString(final Location location) {
+  private String print(final Expr expr) {
+    final NodeInfo nodeInfo = expr.getNodeInfo();
+
+    if (nodeInfo.getSource() instanceof Location) {
+      return toString((Location) nodeInfo.getSource());
+    }
+
+    //return toString(expr.getNode());
+    return "";
+  }
+
+  private ExprPrinter() {
+    setVisitor(new Visitor());
+  }
+
+  private final class Visitor extends ExprTreeVisitor { }
+
+  private static String toString(final Location location) {
     InvariantChecks.checkNotNull(location);
     String text = getLocationName(location);
 
@@ -40,9 +56,22 @@ final class ExprPrinter extends MapBasedPrinter {
 
     if (location.getBitfield() != null) {
       final Location.Bitfield bitfield = location.getBitfield();
+
       final String fromText = toStringAsUint(bitfield.getFrom());
       final String toText = toStringAsUint(bitfield.getTo());
-      text = String.format("(extract %s %s %s)", text, fromText, toText);
+
+      final int sourceSize = location.getSource().getType().getBitSize();
+      final int fieldSize = bitfield.getType().getBitSize();
+
+      BvExtractTheoryGenerator.get().generate(sourceSize, fieldSize);
+
+      text = String.format(
+          "(%s.extract %s %s %s)",
+          WhymlUtils.getExtractTheoryName(sourceSize, fieldSize),
+          text,
+          fromText,
+          toText
+      );
     }
 
     return text;
@@ -63,21 +92,4 @@ final class ExprPrinter extends MapBasedPrinter {
     final boolean isBitVector = expr.getNodeInfo().getType() != null;
     return isBitVector ? String.format("(to_uint %s)", text) : text;
   }
-
-  private String print(final Expr expr) {
-    final NodeInfo nodeInfo = expr.getNodeInfo();
-
-    if (nodeInfo.getSource() instanceof Location) {
-      return toString((Location) nodeInfo.getSource());
-    }
-
-    //return toString(expr.getNode());
-    return "";
-  }
-
-  private ExprPrinter() {
-    setVisitor(new Visitor());
-  }
-
-  private final class Visitor extends ExprTreeVisitor { }
 }

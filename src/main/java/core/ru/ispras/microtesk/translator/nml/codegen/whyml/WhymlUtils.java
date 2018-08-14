@@ -34,7 +34,7 @@ final class WhymlUtils {
 
   public static String getTypeFullName(final int typeSize) {
     InvariantChecks.checkGreaterThanZero(typeSize);
-    return String.format("ispras.bv%d.BV%d", typeSize, typeSize);
+    return String.format("ispras.bv%1$d.BV%1$d", typeSize);
   }
 
   public static String getTypeName(final String name) {
@@ -52,5 +52,17 @@ final class WhymlUtils {
     }
 
     return sb.toString();
+  }
+
+  public static String getExtractTheoryName(final int sourceSize, final int fieldSize) {
+    InvariantChecks.checkGreaterThanZero(sourceSize);
+    InvariantChecks.checkGreaterThanZero(fieldSize);
+    return String.format("BvExtract_%d_%d", sourceSize, fieldSize);
+  }
+
+  public static String getExtractTheoryFullName(final int sourceSize, final int fieldSize) {
+    InvariantChecks.checkGreaterThanZero(sourceSize);
+    InvariantChecks.checkGreaterThanZero(fieldSize);
+    return String.format("ispras.bvextract_%1$d_%2$d.BvExtract_%1$d_%2$d", sourceSize, fieldSize);
   }
 }
