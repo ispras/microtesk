@@ -41,23 +41,27 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.EQ,     "", ".equals(", ")");
     addMapping(StandardOperation.NOTEQ, "!", ".equals(", ")");
 
+    //<<=========== SUPPORTED  ===========
     addMapping(StandardOperation.AND, "", " && ", "");
-    addMapping(StandardOperation.OR,  "(", " || ", ")");
-    addMapping(StandardOperation.NOT, "!(", "", ")");
+    addMapping(StandardOperation.OR,  "", " || ", "");
+    addMapping(StandardOperation.NOT, "not ", " ", "");
 
-    addMapping(StandardOperation.ITE, "(", new String[] {" ? ", " : "}, ")");
+    addMapping(StandardOperation.ITE, "ite ", " ", "");
+    //===========================================>>
 
     addMapping(StandardOperation.LESS,      "(", ".compareTo(", ") < 0)");
     addMapping(StandardOperation.LESSEQ,    "(", ".compareTo(", ") <= 0)");
     addMapping(StandardOperation.GREATER,   "(", ".compareTo(", ") > 0)");
     addMapping(StandardOperation.GREATEREQ, "(", ".compareTo(", ") >= 0)");
 
-    addMapping(StandardOperation.MINUS,  "", "", ".negate()");
-    addMapping(StandardOperation.PLUS,   "", "", "");
+    //<<=========== SUPPORTED  ===========
+    addMapping(StandardOperation.MINUS,  "- ", "",    "");
+    addMapping(StandardOperation.PLUS,   "",   "",    "");
+    addMapping(StandardOperation.ADD,    "",   " + ", "");
+    addMapping(StandardOperation.SUB,    "",   " - ", "");
+    addMapping(StandardOperation.MUL,    "",   " * ", "");
+    //===========================================>>
 
-    addMapping(StandardOperation.ADD,    "add", " ", "");
-    addMapping(StandardOperation.SUB,    "sub", " ", "");
-    addMapping(StandardOperation.MUL,    "", ".multiply(", ")");
     addMapping(StandardOperation.DIV,    "", ".divide(", ")");
     addMapping(StandardOperation.MOD,    "", ".mod(", ")");
     addMapping(StandardOperation.POWER,  "", ".pow(", ")");
@@ -78,7 +82,7 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.BVUREM, "urem ", " ", "");
     //===========================================>>
 
-    //<<=== TODO: NOT IMPLEMENTED in bvgen.why ===
+    //<<=== TODO: NOT IMPLEMENTED in bvgen.why ====
     addMapping(StandardOperation.BVSDIV, "sdiv ", " ", "");
     addMapping(StandardOperation.BVSREM, "srem ", " ", "");
     addMapping(StandardOperation.BVSMOD, "smod ", " ", "");
@@ -92,16 +96,17 @@ final class ExprPrinter extends MapBasedPrinter {
 
     addMapping(StandardOperation.BVROL,  "rotate_left_bv ",  " ", "");
     addMapping(StandardOperation.BVROR,  "rotate_right_bv ", " ", "");
-    //===========================================>>
 
-    addMapping(StandardOperation.BVULE, "(", ".compareTo(", ") <= 0)");
-    addMapping(StandardOperation.BVULT, "(", ".compareTo(", ") < 0)");
-    addMapping(StandardOperation.BVUGE, "(", ".compareTo(", ") >= 0)");
-    addMapping(StandardOperation.BVUGT, "(", ".compareTo(", ") > 0)");
-    addMapping(StandardOperation.BVSLE, "(", ".compareTo(", ") <= 0)");
-    addMapping(StandardOperation.BVSLT, "(", ".compareTo(", ") < 0)");
-    addMapping(StandardOperation.BVSGE, "(", ".compareTo(", ") >= 0)");
-    addMapping(StandardOperation.BVSGT, "(", ".compareTo(", ") > 0)");
+    addMapping(StandardOperation.BVULE, "ule ", " ", "");
+    addMapping(StandardOperation.BVULT, "ult ", " ", "");
+    addMapping(StandardOperation.BVUGE, "uge ", " ", "");
+    addMapping(StandardOperation.BVUGT, "ugt ", " ", "");
+    addMapping(StandardOperation.BVSLE, "sle ", " ", "");
+    addMapping(StandardOperation.BVSLT, "slt ", " ", "");
+    addMapping(StandardOperation.BVSGE, "sge ", " ", "");
+    addMapping(StandardOperation.BVSGT, "sgt ", " ", "");
+
+    //===========================================>>
 
     addMapping(StandardOperation.BVREPEAT,
         "", new String[] {".repeat("}, ")", new int[] {1, 0});
@@ -130,8 +135,16 @@ final class ExprPrinter extends MapBasedPrinter {
     public void onOperationBegin(final NodeOperation expr) {
       appendText("(");
 
-      if (expr.isType(DataTypeId.BIT_VECTOR)) {
+      if (expr.getOperationId() == StandardOperation.ITE) {
+        importer.addImport("bool.Ite");
+        appendText("Ite.");
+      } else if (expr.isType(DataTypeId.BIT_VECTOR)) {
         appendText(String.format("BV%d.", expr.getDataType().getSize()));
+      } else if (expr.isType(DataTypeId.LOGIC_BOOLEAN)
+              && expr.getOperandCount() > 0
+              && expr.getOperand(0).isType(DataTypeId.BIT_VECTOR)) {
+        final int size = expr.getOperand(0).getDataType().getSize();
+        appendText(String.format("BV%d.", size));
       }
 
       super.onOperationBegin(expr);
