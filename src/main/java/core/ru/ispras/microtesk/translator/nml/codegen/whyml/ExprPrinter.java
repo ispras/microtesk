@@ -16,6 +16,7 @@ package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.expression.printer.MapBasedPrinter;
@@ -61,7 +62,7 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.MOD,    "", ".mod(", ")");
     addMapping(StandardOperation.POWER,  "", ".pow(", ")");
 
-    //<<===== WORKS. TESTED. ===============
+    //<<=========== WORK FINE. TESTED. ===========
     addMapping(StandardOperation.BVNOT,  "bw_not ", " ", "");
     addMapping(StandardOperation.BVNEG,  "neg ",    " ", "");
 
@@ -75,18 +76,23 @@ final class ExprPrinter extends MapBasedPrinter {
 
     addMapping(StandardOperation.BVUDIV, "udiv ", " ", "");
     addMapping(StandardOperation.BVUREM, "urem ", " ", "");
-    //======================================>>
+    //===========================================>>
 
-    addMapping(StandardOperation.BVSDIV, "", ".divide(", ")");
-    addMapping(StandardOperation.BVSREM, "", ".mod(", ")");
-    addMapping(StandardOperation.BVSMOD, "", ".mod(", ")");
+    //<<=== TODO: NOT IMPLEMENTED in bvgen.why ===
+    addMapping(StandardOperation.BVSDIV, "sdiv ", " ", "");
+    addMapping(StandardOperation.BVSREM, "srem ", " ", "");
+    addMapping(StandardOperation.BVSMOD, "smod ", " ", "");
+    //===========================================>>
 
-    addMapping(StandardOperation.BVLSHL, "", ".shiftLeft(", ")");
-    addMapping(StandardOperation.BVASHL, "", ".shiftLeft(", ")");
-    addMapping(StandardOperation.BVLSHR, "", ".shiftRight(", ")");
-    addMapping(StandardOperation.BVASHR, "", ".shiftRight(", ")");
-    addMapping(StandardOperation.BVROL,  "", ".rotateLeft(", ")");
-    addMapping(StandardOperation.BVROR,  "", ".rotateRight(", ")");
+    //<<=========== WORK FINE. TESTED. ===========
+    addMapping(StandardOperation.BVLSHL, "lsl_bv ", " ", "");
+    addMapping(StandardOperation.BVASHL, "lsl_bv ", " ", "");
+    addMapping(StandardOperation.BVLSHR, "lsr_bv ", " ", "");
+    addMapping(StandardOperation.BVASHR, "asr_bv ", " ", "");
+
+    addMapping(StandardOperation.BVROL,  "rotate_left_bv ",  " ", "");
+    addMapping(StandardOperation.BVROR,  "rotate_right_bv ", " ", "");
+    //===========================================>>
 
     addMapping(StandardOperation.BVULE, "(", ".compareTo(", ") <= 0)");
     addMapping(StandardOperation.BVULT, "(", ".compareTo(", ") < 0)");
@@ -135,6 +141,15 @@ final class ExprPrinter extends MapBasedPrinter {
     public void onOperationEnd(final NodeOperation expr) {
       super.onOperationEnd(expr);
       appendText(")");
+    }
+
+    @Override
+    public void onValue(final NodeValue value) {
+      if (value.isType(DataTypeId.BIT_VECTOR)) {
+        appendText(WhymlUtils.getBitVectorText(value.getBitVector()));
+      } else {
+        super.onValue(value);
+      }
     }
   }
 

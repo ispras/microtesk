@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,5 +62,11 @@ final class WhymlUtils {
 
   public static String getStateFieldName(final String name) {
     return String.format("s__.%s", name);
+  }
+
+  public static String getBitVectorText(final BitVector value) {
+    final String valueText = value.toHexString();
+    final int valueSize = value.getBitSize();
+    return String.format("(0x%s:BV%2$d.bv%2$d)", valueText, valueSize);
   }
 }
