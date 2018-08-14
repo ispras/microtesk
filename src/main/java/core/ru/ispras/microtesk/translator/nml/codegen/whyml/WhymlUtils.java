@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
-import ru.ispras.fortress.util.InvariantChecks;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,12 +26,10 @@ final class WhymlUtils {
   ));
 
   public static String getTypeName(final int typeSize) {
-    InvariantChecks.checkGreaterThanZero(typeSize);
     return String.format("bv%d", typeSize);
   }
 
   public static String getTypeFullName(final int typeSize) {
-    InvariantChecks.checkGreaterThanZero(typeSize);
     return String.format("ispras.bv%1$d.BV%1$d", typeSize);
   }
 
@@ -55,14 +51,14 @@ final class WhymlUtils {
   }
 
   public static String getExtractTheoryName(final int sourceSize, final int fieldSize) {
-    InvariantChecks.checkGreaterThanZero(sourceSize);
-    InvariantChecks.checkGreaterThanZero(fieldSize);
     return String.format("BvExtract_%d_%d", sourceSize, fieldSize);
   }
 
   public static String getExtractTheoryFullName(final int sourceSize, final int fieldSize) {
-    InvariantChecks.checkGreaterThanZero(sourceSize);
-    InvariantChecks.checkGreaterThanZero(fieldSize);
     return String.format("ispras.bvextract_%1$d_%2$d.BvExtract_%1$d_%2$d", sourceSize, fieldSize);
+  }
+
+  public static String getStateFieldName(final String name) {
+    return String.format("s__.%s", name);
   }
 }

@@ -23,8 +23,8 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 
 final class ExprPrinter extends MapBasedPrinter {
-  public static String toString(final Expr expr) {
-    return new ExprPrinter().print(expr);
+  public static String toString(final Importer importer, final Expr expr) {
+    return new ExprPrinter(importer).print(expr);
   }
 
   private String print(final Expr expr) {
@@ -38,13 +38,16 @@ final class ExprPrinter extends MapBasedPrinter {
     return "";
   }
 
-  private ExprPrinter() {
+  private final Importer importer;
+
+  private ExprPrinter(final Importer importer) {
+    this.importer = importer;
     setVisitor(new Visitor());
   }
 
   private final class Visitor extends ExprTreeVisitor { }
 
-  private static String toString(final Location location) {
+  private String toString(final Location location) {
     InvariantChecks.checkNotNull(location);
     String text = getLocationName(location);
 
@@ -64,6 +67,7 @@ final class ExprPrinter extends MapBasedPrinter {
       final int fieldSize = bitfield.getType().getBitSize();
 
       BvExtractTheoryGenerator.get().generate(sourceSize, fieldSize);
+      importer.addImport(WhymlUtils.getExtractTheoryFullName(sourceSize, fieldSize));
 
       text = String.format(
           "(%s.extract %s %s %s)",
@@ -80,15 +84,11 @@ final class ExprPrinter extends MapBasedPrinter {
   private static String getLocationName(final Location location) {
     final String name = location.getName().toLowerCase();
     return location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY
-        ? getStateFieldName(name) : name;
+        ? WhymlUtils.getStateFieldName(name) : name;
   }
 
-  private static String getStateFieldName(final String name) {
-    return String.format("s__.%s", name);
-  }
-
-  private static String toStringAsUint(final Expr expr) {
-    final String text = toString(expr);
+  private String toStringAsUint(final Expr expr) {
+    final String text = toString(importer, expr);
     final boolean isBitVector = expr.getNodeInfo().getType() != null;
     return isBitVector ? String.format("(to_uint %s)", text) : text;
   }

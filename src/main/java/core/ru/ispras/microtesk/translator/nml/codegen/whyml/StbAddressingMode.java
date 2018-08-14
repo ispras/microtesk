@@ -80,7 +80,7 @@ final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
     }
 
     final Expr expr = addressingMode.getReturnExpr();
-    stFunction.add("expr", ExprPrinter.toString(expr));
+    stFunction.add("expr", ExprPrinter.toString(newImporter(st), expr));
 
     st.add("funcs", stFunction);
   }

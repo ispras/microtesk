@@ -16,38 +16,21 @@ package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
 import org.stringtemplate.v4.ST;
 
-import ru.ispras.microtesk.translator.nml.ir.shared.Type;
-
-import java.util.HashSet;
 import java.util.Set;
 
-abstract class StbBase {
-  private final Set<String> imports = new HashSet<>();
+final class Importer {
+  private final ST st;
+  private final Set<String> imports;
 
-  protected final void addImport(final ST st, final String name) {
+  public Importer(final ST st, final Set<String> imports) {
+    this.imports = imports;
+    this.st = st;
+  }
+
+  public void addImport(final String name) {
     if (!imports.contains(name)) {
       st.add("imps", name);
       imports.add(name);
     }
-  }
-
-  protected final String makeTypeName(final ST st, final Type type) {
-    final int typeSize = type.getBitSize();
-    final String typeName;
-
-    if (type.getAlias() != null) {
-      typeName = WhymlUtils.getTypeName(type.getAlias());
-    } else {
-      typeName = WhymlUtils.getTypeName(typeSize);
-    }
-
-    BvTheoryGenerator.get().generate(typeSize);
-    addImport(st, WhymlUtils.getTypeFullName(typeSize));
-
-    return typeName;
-  }
-
-  protected final Importer newImporter(final ST st) {
-    return new Importer(st, imports);
   }
 }
