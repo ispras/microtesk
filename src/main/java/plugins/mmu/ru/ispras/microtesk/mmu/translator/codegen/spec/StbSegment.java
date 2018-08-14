@@ -17,9 +17,10 @@ package ru.ispras.microtesk.mmu.translator.codegen.spec;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
+
 import ru.ispras.microtesk.mmu.translator.codegen.sim.ExprPrinter;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;

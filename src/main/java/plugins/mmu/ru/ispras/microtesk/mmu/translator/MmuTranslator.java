@@ -22,8 +22,8 @@ import org.antlr.runtime.TokenSource;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.translator.codegen.sim.SimGenerator;
 import ru.ispras.microtesk.mmu.translator.codegen.spec.SpecGenerator;
 import ru.ispras.microtesk.mmu.translator.grammar.MmuLexer;

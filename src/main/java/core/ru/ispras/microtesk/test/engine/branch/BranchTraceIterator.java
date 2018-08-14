@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 import java.util.ArrayList;

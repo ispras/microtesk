@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.model.metadata;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 
 import java.util.Collection;
 
@@ -24,7 +24,6 @@ import java.util.Collection;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-
 public final class MetaModelPrinter {
   private final MetaModel metaModel;
 

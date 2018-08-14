@@ -17,8 +17,9 @@ package ru.ispras.microtesk.mmu.translator.codegen.spec;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
+
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.utils.StringUtils;

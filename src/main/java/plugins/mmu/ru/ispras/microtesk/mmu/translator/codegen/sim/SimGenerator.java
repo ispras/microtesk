@@ -14,8 +14,9 @@
 
 package ru.ispras.microtesk.mmu.translator.codegen.sim;
 
+import ru.ispras.castle.codegen.FileGenerator;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.FileGenerator;
+
 import ru.ispras.microtesk.mmu.translator.codegen.spec.MemoryControlFlowExplorer;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;

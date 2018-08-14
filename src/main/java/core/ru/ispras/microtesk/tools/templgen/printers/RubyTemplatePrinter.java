@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.tools.templgen.printers;
 
+import ru.ispras.castle.util.FileUtils;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -14,18 +14,10 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.sim;
 
-import ru.ispras.microtesk.codegen.FileGenerator;
-import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
+import ru.ispras.castle.codegen.FileGenerator;
+import ru.ispras.castle.codegen.FileGeneratorStringTemplate;
+import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
-import ru.ispras.microtesk.translator.nml.codegen.sim.StbAddressingMode;
-import ru.ispras.microtesk.translator.nml.codegen.sim.StbAddressingModeOr;
-import ru.ispras.microtesk.translator.nml.codegen.sim.StbModel;
-import ru.ispras.microtesk.translator.nml.codegen.sim.StbOperation;
-import ru.ispras.microtesk.translator.nml.codegen.sim.StbOperationOr;
-import ru.ispras.microtesk.translator.nml.codegen.sim.StbProcessingElement;
-import ru.ispras.microtesk.translator.nml.codegen.sim.StbTemporaryVariables;
-import ru.ispras.microtesk.translator.nml.codegen.sim.StbTypes;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;

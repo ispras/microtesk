@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
 import ru.ispras.microtesk.mmu.test.template.AccessConstraints;

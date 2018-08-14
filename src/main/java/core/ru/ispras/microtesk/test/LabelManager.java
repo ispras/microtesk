@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.test;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.test.template.BlockId.Distance;
 import ru.ispras.microtesk.test.template.Label;
 

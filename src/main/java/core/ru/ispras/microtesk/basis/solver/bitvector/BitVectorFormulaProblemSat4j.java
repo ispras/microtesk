@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
@@ -24,7 +25,6 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 import java.util.LinkedHashMap;

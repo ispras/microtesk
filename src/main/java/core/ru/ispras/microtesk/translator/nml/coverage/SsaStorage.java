@@ -14,13 +14,13 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.xml.XmlConstraintLoader;
 import ru.ispras.fortress.solver.xml.XmlConstraintSaver;
 import ru.ispras.fortress.solver.xml.XmlNotLoadedException;
 import ru.ispras.fortress.solver.xml.XmlNotSavedException;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;

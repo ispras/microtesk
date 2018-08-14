@@ -16,7 +16,7 @@ package ru.ispras.microtesk.model.vmem;
 
 import org.junit.Assert;
 
-import ru.ispras.microtesk.Logger.EventType;
+import ru.ispras.castle.util.Logger.EventType;
 import ru.ispras.microtesk.test.testutils.TemplateTest;
 
 public abstract class VmemTest extends TemplateTest {

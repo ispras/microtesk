@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.test.engine;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.InstructionCall;

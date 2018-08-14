@@ -235,9 +235,9 @@ REVISION      : '@rev'        { pp(); };
 ID : LETTER (LETTER | DIGIT | '_')* {
 if (null != symbols && symbols.isReserved($text)) {
   final String newText = $text + "__";
-  ru.ispras.microtesk.Logger.warning(
+  ru.ispras.castle.util.Logger.warning(
       "\%s \%d:\%d: Reserved keyword '\%s' was replaced with '\%s'.",
-      ru.ispras.microtesk.utils.FileUtils.getShortFileName(getSourceName()),
+      ru.ispras.castle.util.FileUtils.getShortFileName(getSourceName()),
       getLine(),
       getCharPositionInLine(),
       $text,

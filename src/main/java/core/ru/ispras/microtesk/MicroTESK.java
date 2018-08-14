@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk;
 
+import ru.ispras.castle.util.FileUtils;
+import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.OptionReader;
 import ru.ispras.microtesk.options.Options;
@@ -27,7 +29,6 @@ import ru.ispras.microtesk.tools.templgen.TemplateGenerator;
 import ru.ispras.microtesk.tools.transform.TraceTransformer;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorContext;
-import ru.ispras.microtesk.utils.FileUtils;
 import ru.ispras.testbase.TestBase;
 import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.generator.DataGenerator;
@@ -43,7 +44,12 @@ import java.util.Set;
 public final class MicroTESK {
   private MicroTESK() {}
 
+  private static final String SUPPORT_EMAIL = "microtesk-support@ispras.ru";
   private static final List<Translator<?>> translators = new ArrayList<>();
+
+  static {
+    Logger.setSupportEmail(SUPPORT_EMAIL);
+  }
 
   public static void main(final String[] args) {
     try {

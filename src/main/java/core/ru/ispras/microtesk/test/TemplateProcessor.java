@@ -14,9 +14,10 @@
 
 package ru.ispras.microtesk.test;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.Logger;
+
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;

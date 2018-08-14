@@ -16,13 +16,13 @@ package ru.ispras.microtesk.model.x86;
 
 import org.junit.After;
 import org.junit.Assert;
-
 import org.junit.Before;
-import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.Logger.EventType;
+
+import ru.ispras.castle.util.FileUtils;
+import ru.ispras.castle.util.Logger;
+import ru.ispras.castle.util.Logger.EventType;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.testutils.TemplateTest;
-import ru.ispras.microtesk.utils.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -145,7 +145,7 @@ public abstract class X86Test extends TemplateTest {
   public Statistics run(final String file) {
     setProgramPrefix(file);
 
-    final String fileDir = ru.ispras.microtesk.utils.FileUtils.getFileDir(file);
+    final String fileDir = FileUtils.getFileDir(file);
     final Path testDirPath = null != fileDir
         ? Paths.get(TEST_PATH, fileDir, getModelName(), getProgramPrefix())
         : Paths.get(TEST_PATH, getModelName(), getProgramPrefix());
@@ -167,7 +167,7 @@ public abstract class X86Test extends TemplateTest {
   }
 
   private void setProgramPrefix(final String file) {
-    this.programPrefix = ru.ispras.microtesk.utils.FileUtils.getShortFileNameNoExt(file);
+    this.programPrefix = FileUtils.getShortFileNameNoExt(file);
   }
 
   private void setTestDirPath(final Path testDirPath) {
@@ -509,7 +509,6 @@ public abstract class X86Test extends TemplateTest {
    * @return The name of the specified file without an extension.
    */
   protected static String getNameNoExt(final File file) {
-
     return FileUtils.getShortFileNameNoExt(file.getName());
   }
 

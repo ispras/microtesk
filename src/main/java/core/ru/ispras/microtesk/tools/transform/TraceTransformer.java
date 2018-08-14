@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.tools.transform;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.options.Options;
 
 import java.io.BufferedReader;

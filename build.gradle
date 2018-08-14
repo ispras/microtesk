@@ -178,6 +178,7 @@ dependencies {
   compile 'sat4j:org.sat4j.core:v20130525'
 
   compile ("fortress:fortress:${fortressVersion}") { changing = true }
+  compile ("castle:castle:${castleVersion}") { changing = true }
   compile ("testbase:testbase:${testbaseVersion}") { changing = true }
   compile ("jsoftfloat:jsoftfloat:${jsoftfloatVersion}") { changing = true }
   qemu("qemu4v:qemu4v:${qemuVersion}:@tar.gz") { changing = true }

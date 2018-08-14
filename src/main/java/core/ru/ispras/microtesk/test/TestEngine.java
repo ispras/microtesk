@@ -14,13 +14,14 @@
 
 package ru.ispras.microtesk.test;
 
+import ru.ispras.castle.util.FileUtils;
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.solver.Environment;
 import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.Config;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.Revisions;
 import ru.ispras.microtesk.ScriptRunner;
@@ -38,7 +39,6 @@ import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
-import ru.ispras.microtesk.utils.FileUtils;
 
 import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.generator.DataGenerator;

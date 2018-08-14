@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.tools.symexec;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.solver.engine.smt.Cvc4Solver;
 import ru.ispras.fortress.solver.engine.smt.SmtTextBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.TemporaryVariables;

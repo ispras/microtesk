@@ -14,10 +14,11 @@
 
 package ru.ispras.microtesk.mmu.translator.codegen.sim;
 
+import ru.ispras.castle.codegen.FileGenerator;
+import ru.ispras.castle.codegen.FileGeneratorStringTemplate;
+import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.FileGenerator;
-import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
+
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;

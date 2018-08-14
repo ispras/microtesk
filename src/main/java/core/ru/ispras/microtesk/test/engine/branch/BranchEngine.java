@@ -14,9 +14,10 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
+
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.engine.AbstractSequence;
 import ru.ispras.microtesk.test.engine.Engine;
@@ -31,7 +32,6 @@ import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
-import ru.ispras.microtesk.test.template.Value;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 

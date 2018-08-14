@@ -14,12 +14,13 @@
 
 package ru.ispras.microtesk.test.template;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
+
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.utils.Mask;
 import ru.ispras.microtesk.utils.SharedObject;

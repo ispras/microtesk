@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.metadata;
 
+import ru.ispras.castle.codegen.FileGenerator;
+import ru.ispras.castle.codegen.FileGeneratorStringTemplate;
+import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.FileGenerator;
-import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;

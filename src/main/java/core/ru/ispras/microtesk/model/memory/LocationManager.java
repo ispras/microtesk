@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.model.memory;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 
 import java.math.BigInteger;
 

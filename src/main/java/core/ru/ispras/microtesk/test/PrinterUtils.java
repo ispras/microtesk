@@ -14,8 +14,9 @@
 
 package ru.ispras.microtesk.test;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
+
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.EngineContext;

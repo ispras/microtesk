@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.antlrex;
 
-import ru.ispras.microtesk.Logger;
+import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;

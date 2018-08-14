@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.translator.antlrex.log;
 
+import ru.ispras.castle.util.FileUtils;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.utils.FileUtils;
 
 /**
  * The LogEntry class stores information about a translation issue registered in the log.

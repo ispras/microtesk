@@ -17,8 +17,8 @@ package ru.ispras.microtesk.translator.nml.codegen.whyml;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 
 import java.util.Calendar;
 import java.util.LinkedHashSet;

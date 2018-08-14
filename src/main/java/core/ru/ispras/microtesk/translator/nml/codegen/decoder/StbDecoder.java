@@ -17,6 +17,8 @@ package ru.ispras.microtesk.translator.nml.codegen.decoder;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import ru.ispras.castle.codegen.StringTemplateBuilder;
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprUtils;
@@ -24,8 +26,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
+
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.decoder.DecoderItem;

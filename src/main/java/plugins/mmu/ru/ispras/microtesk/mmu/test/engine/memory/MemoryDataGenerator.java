@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -27,7 +28,7 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.Logger;
+
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
 import ru.ispras.microtesk.basis.solver.bitvector.BitVectorVariableInitializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;

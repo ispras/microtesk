@@ -17,8 +17,9 @@ package ru.ispras.microtesk.translator;
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.TokenSource;
 
+import ru.ispras.castle.util.FileUtils;
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.antlrex.Preprocessor;
@@ -27,7 +28,6 @@ import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreConsole;
 import ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
-import ru.ispras.microtesk.utils.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.mmu;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.Plugin;
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.mmu.model.sim.MmuModel;

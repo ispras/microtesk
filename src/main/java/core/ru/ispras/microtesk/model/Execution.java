@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.model;
 
-import ru.ispras.microtesk.Logger;
+import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 

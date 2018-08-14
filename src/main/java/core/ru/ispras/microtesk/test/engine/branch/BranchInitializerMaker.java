@@ -14,11 +14,12 @@
 
 package ru.ispras.microtesk.test.engine.branch;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
+
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.EngineContext;

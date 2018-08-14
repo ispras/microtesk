@@ -19,7 +19,7 @@ import static ru.ispras.microtesk.translator.codegen.PackageInfo.OP_PACKAGE_FORM
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
+import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;

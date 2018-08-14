@@ -17,7 +17,7 @@ package ru.ispras.microtesk.model.vliw;
 
 import org.junit.Assert;
 
-import ru.ispras.microtesk.Logger.EventType;
+import ru.ispras.castle.util.Logger.EventType;
 import ru.ispras.microtesk.test.testutils.TemplateTest;
 
 public abstract class VliwTest extends TemplateTest {

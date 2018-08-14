@@ -14,13 +14,14 @@
 
 package ru.ispras.microtesk.test.testutils;
 
+import ru.ispras.castle.util.FileUtils;
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.Logger;
+
 import ru.ispras.microtesk.MicroTESK;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.TestEngine;
-import ru.ispras.microtesk.utils.FileUtils;
 import ru.ispras.microtesk.utils.StringUtils;
 
 import java.util.ArrayList;

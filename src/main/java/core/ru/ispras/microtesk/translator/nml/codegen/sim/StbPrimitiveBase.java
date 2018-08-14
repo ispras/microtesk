@@ -16,7 +16,7 @@ package ru.ispras.microtesk.translator.nml.codegen.sim;
 
 import org.stringtemplate.v4.ST;
 
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
+import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 

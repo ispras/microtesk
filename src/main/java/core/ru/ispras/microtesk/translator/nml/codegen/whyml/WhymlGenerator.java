@@ -14,10 +14,10 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
+import ru.ispras.castle.codegen.FileGeneratorStringTemplate;
+import ru.ispras.castle.codegen.StringTemplateBuilder;
+
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.FileGenerator;
-import ru.ispras.microtesk.codegen.FileGeneratorStringTemplate;
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
@@ -26,8 +26,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive.Modifier;
-
-import java.io.IOException;
 
 public final class WhymlGenerator implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;
@@ -44,6 +42,27 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
   public void processIr(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
     this.ir = ir;
+
+    /*
+    BvConcatTheoryGenerator.get().generate(16, 16);
+    BvConcatTheoryGenerator.get().generate(32, 1);
+    BvConcatTheoryGenerator.get().generate(17, 15);
+    BvConcatTheoryGenerator.get().generate(25, 11);
+
+    BvConcatTheoryGenerator.get().generate(16, 16);
+    BvConcatTheoryGenerator.get().generate(32, 1);
+    BvConcatTheoryGenerator.get().generate(17, 15);
+    BvConcatTheoryGenerator.get().generate(25, 11);
+
+    BvExtractTheoryGenerator.get().generate(32, 16);
+    BvExtractTheoryGenerator.get().generate(16, 1);
+    BvExtractTheoryGenerator.get().generate(16, 8);
+
+    BvCastTheoryGenerator.get().generate(16, 32);
+    BvCastTheoryGenerator.get().generate(32, 16);
+    BvCastTheoryGenerator.get().generate(8, 32);
+    BvCastTheoryGenerator.get().generate(3, 32);
+    */
 
     generateState();
     generateAddressingModes();

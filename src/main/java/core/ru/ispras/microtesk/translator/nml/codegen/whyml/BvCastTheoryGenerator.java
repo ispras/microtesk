@@ -14,8 +14,8 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
+import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.codegen.StringTemplateBuilder;
 
 final class BvCastTheoryGenerator extends BvTheoryGeneratorBase {
   private static final String THEORY_FORMAT  = "bvcast_%d_%d";

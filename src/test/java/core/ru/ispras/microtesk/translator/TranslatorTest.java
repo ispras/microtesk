@@ -16,10 +16,10 @@ package ru.ispras.microtesk.translator;
 
 import org.junit.Assert;
 
+import ru.ispras.castle.util.FileUtils;
 import ru.ispras.microtesk.translator.antlrex.log.LogEntry;
 import ru.ispras.microtesk.translator.antlrex.log.LogStore;
 import ru.ispras.microtesk.translator.antlrex.log.LogStoreListener;
-import ru.ispras.microtesk.utils.FileUtils;
 
 import java.util.Collections;
 

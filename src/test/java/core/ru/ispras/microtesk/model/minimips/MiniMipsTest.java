@@ -16,10 +16,10 @@ package ru.ispras.microtesk.model.minimips;
 
 import org.junit.After;
 import org.junit.Assert;
-
 import org.junit.Before;
-import ru.ispras.microtesk.Logger;
-import ru.ispras.microtesk.Logger.EventType;
+
+import ru.ispras.castle.util.Logger;
+import ru.ispras.castle.util.Logger.EventType;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.testutils.TemplateTest;
 
@@ -162,7 +162,7 @@ public class MiniMipsTest extends TemplateTest {
   public Statistics run(final String file) {
     setProgramPrefix(file);
 
-    final String fileDir = ru.ispras.microtesk.utils.FileUtils.getFileDir(file);
+    final String fileDir = ru.ispras.castle.util.FileUtils.getFileDir(file);
     final Path testDirPath = null != fileDir
         ? Paths.get(TEST_PATH, fileDir, MODEL_NAME, getProgramPrefix())
         : Paths.get(TEST_PATH, MODEL_NAME, getProgramPrefix());
@@ -177,7 +177,7 @@ public class MiniMipsTest extends TemplateTest {
   }
 
   private void setProgramPrefix(final String file) {
-    this.programPrefix = ru.ispras.microtesk.utils.FileUtils.getShortFileNameNoExt(file);
+    this.programPrefix = ru.ispras.castle.util.FileUtils.getShortFileNameNoExt(file);
   }
 
   private void setTestDirPath(final Path testDirPath) {
@@ -569,7 +569,7 @@ public class MiniMipsTest extends TemplateTest {
   }
 
   private static String getNameNoExt(final File file) {
-    return ru.ispras.microtesk.utils.FileUtils.getShortFileNameNoExt(file.getName());
+    return ru.ispras.castle.util.FileUtils.getShortFileNameNoExt(file.getName());
   }
 
   private static File getToolchainBinary(final String suffix) {

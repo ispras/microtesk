@@ -15,7 +15,8 @@
 package ru.ispras.microtesk.model.x86.nasm;
 
 import org.junit.Assert;
-import ru.ispras.microtesk.Logger;
+
+import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.model.x86.X86Test;
 import ru.ispras.microtesk.test.Statistics;
 

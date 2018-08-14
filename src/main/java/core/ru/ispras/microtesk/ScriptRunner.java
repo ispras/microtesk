@@ -14,9 +14,9 @@
 
 package ru.ispras.microtesk;
 
+import ru.ispras.castle.util.FileUtils;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.GenerationAbortedException;
-import ru.ispras.microtesk.utils.FileUtils;
 
 /**
  * The {@link ScriptRunner} class runs test template scripts with corresponding scripting engines.
