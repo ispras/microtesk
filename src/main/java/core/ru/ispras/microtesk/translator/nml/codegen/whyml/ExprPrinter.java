@@ -186,8 +186,7 @@ final class ExprPrinter extends MapBasedPrinter {
         onIte();
       } else if (expr.getOperationId() == StandardOperation.POWER) {
         onPower();
-      } else if (expr.getOperationId() == StandardOperation.BVSIGNEXT ||
-                 expr.getOperationId() == StandardOperation.BVZEROEXT) {
+      } else if (isCastOperation(expr)) {
         onCast(expr);
       } else if (expr.getOperationId() == StandardOperation.BVCONCAT) {
         onConcat(expr);
@@ -250,9 +249,7 @@ final class ExprPrinter extends MapBasedPrinter {
 
     @Override
     public void onOperandBegin(final NodeOperation expr, final Node operand, final int index) {
-      if ((expr.getOperationId() == StandardOperation.BVSIGNEXT ||
-          expr.getOperationId() == StandardOperation.BVZEROEXT) &&
-          index == 0) {
+      if (isCastOperation(expr) && index == 0) {
         setStatus(Status.SKIP);
       } else {
         super.onOperandBegin(expr, operand, index);
@@ -261,9 +258,7 @@ final class ExprPrinter extends MapBasedPrinter {
 
     @Override
     public void onOperandEnd(final NodeOperation expr, final Node operand, final int index) {
-      if ((expr.getOperationId() == StandardOperation.BVSIGNEXT ||
-          expr.getOperationId() == StandardOperation.BVZEROEXT) &&
-          index == 0) {
+      if (isCastOperation(expr) && index == 0) {
         setStatus(Status.OK);
       } else {
         super.onOperandEnd(expr, operand, index);
@@ -324,5 +319,10 @@ final class ExprPrinter extends MapBasedPrinter {
     final String text = toString(importer, expr);
     final boolean isBitVector = expr.getNodeInfo().getType() != null;
     return isBitVector ? String.format("(to_uint %s)", text) : text;
+  }
+
+  private static boolean isCastOperation(final NodeOperation expr) {
+    return expr.getOperationId() == StandardOperation.BVSIGNEXT ||
+           expr.getOperationId() == StandardOperation.BVZEROEXT;
   }
 }
