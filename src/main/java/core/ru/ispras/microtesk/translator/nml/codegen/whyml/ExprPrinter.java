@@ -124,10 +124,9 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.BVEXTRACT,
         "", new String[] {".bitField(", ", "}, ")", new int[] {2, 0, 1});
 
-    addMapping(StandardOperation.BVCONCAT,
-        "Location.concat(", ", ", ")");
     //===========================================>>
 
+    addMapping(StandardOperation.BVCONCAT, "concat ", " ", "");
     addMapping(StandardOperation.BVSIGNEXT, "signExtend ", "", "");
     addMapping(StandardOperation.BVZEROEXT, "zeroExtend ", "", "");
 
@@ -184,30 +183,63 @@ final class ExprPrinter extends MapBasedPrinter {
       appendText("(");
 
       if (expr.getOperationId() == StandardOperation.ITE) {
-        importer.addImport("bool.Ite");
-        appendText("Ite.");
+        onIte();
       } else if (expr.getOperationId() == StandardOperation.POWER) {
-        importer.addImport("int.Power");
+        onPower();
       } else if (expr.getOperationId() == StandardOperation.BVSIGNEXT ||
                  expr.getOperationId() == StandardOperation.BVZEROEXT) {
-        final int sourceSize = expr.getOperand(1).getDataType().getSize();
-        final int targetSize = expr.getDataType().getSize();
-
-        importer.addImport(WhymlUtils.getCastTheoryFullName(sourceSize, targetSize));
-        BvCastTheoryGenerator.get().generate(sourceSize, targetSize);
-
-        appendText(WhymlUtils.getCastTheoryName(sourceSize, targetSize));
-        appendText(".");
+        onCast(expr);
+      } else if (expr.getOperationId() == StandardOperation.BVCONCAT) {
+        onConcat(expr);
       } else if (expr.isType(DataTypeId.BIT_VECTOR)) {
-        appendText(String.format("BV%d.", expr.getDataType().getSize()));
-      } else if (expr.isType(DataTypeId.LOGIC_BOOLEAN)
-              && expr.getOperandCount() > 0
-              && expr.getOperand(0).isType(DataTypeId.BIT_VECTOR)) {
-        final int size = expr.getOperand(0).getDataType().getSize();
-        appendText(String.format("BV%d.", size));
+        onBvOperation(expr);
+      } else if (expr.isType(DataTypeId.LOGIC_BOOLEAN)) {
+        onBoolOperation(expr);
       }
 
       super.onOperationBegin(expr);
+    }
+
+    private void onIte() {
+      importer.addImport("bool.Ite");
+      appendText("Ite.");
+    }
+
+    private void onPower() {
+      importer.addImport("int.Power");
+    }
+
+    private void onCast(final NodeOperation expr) {
+      final int sourceSize = expr.getOperand(1).getDataType().getSize();
+      final int targetSize = expr.getDataType().getSize();
+
+      importer.addImport(WhymlUtils.getCastTheoryFullName(sourceSize, targetSize));
+      BvCastTheoryGenerator.get().generate(sourceSize, targetSize);
+
+      appendText(WhymlUtils.getCastTheoryName(sourceSize, targetSize));
+      appendText(".");
+    }
+
+    private void onConcat(final NodeOperation expr) {
+      final int firstSize = expr.getOperand(0).getDataType().getSize();
+      final int secondSize = expr.getOperand(1).getDataType().getSize();
+
+      importer.addImport(WhymlUtils.getConcatTheoryFullName(firstSize, secondSize));
+      BvConcatTheoryGenerator.get().generate(firstSize, secondSize);
+
+      appendText(WhymlUtils.getConcatTheoryName(firstSize, secondSize));
+      appendText(".");
+    }
+
+    private void onBvOperation(final NodeOperation expr) {
+      appendText(String.format("BV%d.", expr.getDataType().getSize()));
+    }
+
+    private void onBoolOperation(final NodeOperation expr) {
+      if (expr.getOperandCount() > 0 && expr.getOperand(0).isType(DataTypeId.BIT_VECTOR)) {
+        final int size = expr.getOperand(0).getDataType().getSize();
+        appendText(String.format("BV%d.", size));
+      }
     }
 
     @Override

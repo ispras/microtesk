@@ -68,7 +68,7 @@ BV<size>.bv<size>
 
 bit_vector_concat_file(year, first_size, second_size, result_size, import_sizes) ::= <<
 <header(year)>
-theory BVConcat_<first_size>_<second_size>
+theory BvConcat_<first_size>_<second_size>
   use ispras.bvcasts.BVConcat_Gen
   <import_bit_vectors(import_sizes)>
   clone export ispras.bvcasts.BVConcat_Gen with

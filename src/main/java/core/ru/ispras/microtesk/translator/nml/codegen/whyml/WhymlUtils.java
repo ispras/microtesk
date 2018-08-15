@@ -68,6 +68,14 @@ final class WhymlUtils {
     return String.format("ispras.bvcast_%1$d_%2$d.BvCast_%1$d_%2$d", sourceSize, targetSize);
   }
 
+  public static String getConcatTheoryName(final int firstSize, final int secondSize) {
+    return String.format("BvConcat_%d_%d", firstSize, secondSize);
+  }
+
+  public static String getConcatTheoryFullName(final int firstSize, final int secondSize) {
+    return String.format("ispras.bvconcat_%1$d_%2$d.BvConcat_%1$d_%2$d", firstSize, secondSize);
+  }
+
   public static String getStateFieldName(final String name) {
     return String.format("s__.%s", name);
   }
