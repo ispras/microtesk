@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.nml.codegen.whyml;
 
 import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -27,6 +28,10 @@ import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
+
+import java.util.EnumMap;
+import java.util.Map;
 
 final class ExprPrinter extends MapBasedPrinter {
   public static String toString(final Importer importer, final Expr expr) {
@@ -40,9 +45,12 @@ final class ExprPrinter extends MapBasedPrinter {
       new OperationDescription("neq ", " ", "");
 
   private final Importer importer;
+  private final Map<Operator, OperationDescription> operatorMap;
 
   private ExprPrinter(final Importer importer) {
     this.importer = importer;
+    this.operatorMap = new EnumMap<>(Operator.class);
+
     setVisitor(new Visitor());
 
     addMapping(StandardOperation.EQ,    "", " = ", "");
@@ -118,16 +126,40 @@ final class ExprPrinter extends MapBasedPrinter {
 
     addMapping(StandardOperation.BVCONCAT,
         "Location.concat(", ", ", ")");
-
-    addMapping(StandardOperation.BVSIGNEXT, "signExtend ", " ", "");
-    addMapping(StandardOperation.BVZEROEXT, "zeroExtend ", " ", "");
-
     //===========================================>>
+
+    addMapping(StandardOperation.BVSIGNEXT, "signExtend ", "", "");
+    addMapping(StandardOperation.BVZEROEXT, "zeroExtend ", "", "");
+
+    //<<== TODO: Unsupported FP operators. Stub code is generated to hide errors. ===
+    addMapping(Operator.SQRT,           "sqrt ",           "", "");
+    addMapping(Operator.ROUND,          "round ",          "", "");
+    addMapping(Operator.IS_NAN,         "isNan ",          "", "");
+    addMapping(Operator.IS_SIGN_NAN,    "isSignalingNan ", "", "");
+    addMapping(Operator.INT_TO_FLOAT,   "intToFloat ",     "", "");
+    addMapping(Operator.FLOAT_TO_INT,   "floatToInt ",     "", "");
+    addMapping(Operator.FLOAT_TO_FLOAT, "floatToFloat ",   "", "");
+
+    // TODO
+    // addMapping(Operator.COERCE, "coerce");
+  }
+
+  protected final void addMapping(
+      final Operator op,
+      final String prefix,
+      final String infix,
+      final String suffix) {
+    operatorMap.put(op, new OperationDescription(prefix, infix, suffix));
   }
 
   @Override
   protected OperationDescription getOperationDescription(final NodeOperation expr) {
     final Enum<?> operator = expr.getOperationId();
+
+    if (operator instanceof Operator) {
+      return operatorMap.get(operator);
+    }
+
     if (operator == StandardOperation.EQ || operator == StandardOperation.NOTEQ) {
       if (expr.getOperand(0).isType(DataTypeId.BIT_VECTOR)) {
         return operator == StandardOperation.EQ ? BVEQ : BVNEQ;
@@ -156,6 +188,16 @@ final class ExprPrinter extends MapBasedPrinter {
         appendText("Ite.");
       } else if (expr.getOperationId() == StandardOperation.POWER) {
         importer.addImport("int.Power");
+      } else if (expr.getOperationId() == StandardOperation.BVSIGNEXT ||
+                 expr.getOperationId() == StandardOperation.BVZEROEXT) {
+        final int sourceSize = expr.getOperand(1).getDataType().getSize();
+        final int targetSize = expr.getDataType().getSize();
+
+        importer.addImport(WhymlUtils.getCastTheoryFullName(sourceSize, targetSize));
+        BvCastTheoryGenerator.get().generate(sourceSize, targetSize);
+
+        appendText(WhymlUtils.getCastTheoryName(sourceSize, targetSize));
+        appendText(".");
       } else if (expr.isType(DataTypeId.BIT_VECTOR)) {
         appendText(String.format("BV%d.", expr.getDataType().getSize()));
       } else if (expr.isType(DataTypeId.LOGIC_BOOLEAN)
@@ -172,6 +214,28 @@ final class ExprPrinter extends MapBasedPrinter {
     public void onOperationEnd(final NodeOperation expr) {
       super.onOperationEnd(expr);
       appendText(")");
+    }
+
+    @Override
+    public void onOperandBegin(final NodeOperation expr, final Node operand, final int index) {
+      if ((expr.getOperationId() == StandardOperation.BVSIGNEXT ||
+          expr.getOperationId() == StandardOperation.BVZEROEXT) &&
+          index == 0) {
+        setStatus(Status.SKIP);
+      } else {
+        super.onOperandBegin(expr, operand, index);
+      }
+    }
+
+    @Override
+    public void onOperandEnd(final NodeOperation expr, final Node operand, final int index) {
+      if ((expr.getOperationId() == StandardOperation.BVSIGNEXT ||
+          expr.getOperationId() == StandardOperation.BVZEROEXT) &&
+          index == 0) {
+        setStatus(Status.OK);
+      } else {
+        super.onOperandEnd(expr, operand, index);
+      }
     }
 
     @Override

@@ -60,6 +60,14 @@ final class WhymlUtils {
     return String.format("ispras.bvextract_%1$d_%2$d.BvExtract_%1$d_%2$d", sourceSize, fieldSize);
   }
 
+  public static String getCastTheoryName(final int sourceSize, final int targetSize) {
+    return String.format("BvCast_%d_%d", sourceSize, targetSize);
+  }
+
+  public static String getCastTheoryFullName(final int sourceSize, final int targetSize) {
+    return String.format("ispras.bvcast_%1$d_%2$d.BvCast_%1$d_%2$d", sourceSize, targetSize);
+  }
+
   public static String getStateFieldName(final String name) {
     return String.format("s__.%s", name);
   }
