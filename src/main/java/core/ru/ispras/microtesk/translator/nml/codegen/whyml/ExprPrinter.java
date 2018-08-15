@@ -124,6 +124,8 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.BVEXTRACT,
         "", new String[] {".bitField(", ", "}, ")", new int[] {2, 0, 1});
 
+    addMapping(Operator.COERCE, "coerce", " ", "");
+
     //===========================================>>
 
     addMapping(StandardOperation.BVCONCAT, "concat ", " ", "");
@@ -138,9 +140,6 @@ final class ExprPrinter extends MapBasedPrinter {
     addMapping(Operator.INT_TO_FLOAT,   "intToFloat ",     "", "");
     addMapping(Operator.FLOAT_TO_INT,   "floatToInt ",     "", "");
     addMapping(Operator.FLOAT_TO_FLOAT, "floatToFloat ",   "", "");
-
-    // TODO
-    // addMapping(Operator.COERCE, "coerce");
   }
 
   protected final void addMapping(
@@ -220,11 +219,15 @@ final class ExprPrinter extends MapBasedPrinter {
     }
 
     private void onConcat(final NodeOperation expr) {
+      final int resultSize = expr.getDataType().getSize();
       final int firstSize = expr.getOperand(0).getDataType().getSize();
       final int secondSize = expr.getOperand(1).getDataType().getSize();
 
       importer.addImport(WhymlUtils.getConcatTheoryFullName(firstSize, secondSize));
       BvConcatTheoryGenerator.get().generate(firstSize, secondSize);
+
+      importer.addImport(WhymlUtils.getTypeFullName(resultSize));
+      BvTheoryGenerator.get().generate(resultSize);
 
       appendText(WhymlUtils.getConcatTheoryName(firstSize, secondSize));
       appendText(".");
@@ -296,6 +299,9 @@ final class ExprPrinter extends MapBasedPrinter {
 
       BvExtractTheoryGenerator.get().generate(sourceSize, fieldSize);
       importer.addImport(WhymlUtils.getExtractTheoryFullName(sourceSize, fieldSize));
+
+      BvTheoryGenerator.get().generate(fieldSize);
+      importer.addImport(WhymlUtils.getTypeFullName(fieldSize));
 
       text = String.format(
           "(%s.extract %s %s %s)",

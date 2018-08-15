@@ -60,10 +60,8 @@ final class StbState extends StbBase implements StringTemplateBuilder {
       final Type type = entry.getValue();
 
       final int typeSize = type.getBitSize();
-      final String typeName = WhymlUtils.getTypeFullName(typeSize);
-
-      BvTheoryGenerator.get().generate(type.getBitSize());
-      addImport(st, typeName);
+      BvTheoryGenerator.get().generate(typeSize);
+      addImport(st, WhymlUtils.getTypeFullName(typeSize));
 
       st.add("types", String.format("%s = %s", name, WhymlUtils.getTypeName(typeSize)));
     }
