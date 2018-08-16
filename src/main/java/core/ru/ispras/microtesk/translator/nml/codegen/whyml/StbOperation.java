@@ -19,20 +19,20 @@ import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 
 import java.util.Date;
 
-final class StbPrimitive extends StbBase implements StringTemplateBuilder {
+final class StbOperation extends StbBase implements StringTemplateBuilder {
   private final String modelName;
-  private final Primitive primitive;
+  private final PrimitiveAND operation;
 
-  public StbPrimitive(final String modelName, final Primitive primitive) {
+  public StbOperation(final String modelName, final PrimitiveAND operation) {
     InvariantChecks.checkNotNull(modelName);
-    InvariantChecks.checkNotNull(primitive);
+    InvariantChecks.checkNotNull(operation);
 
     this.modelName = modelName;
-    this.primitive = primitive;
+    this.operation = operation;
   }
 
   @Override
@@ -40,11 +40,23 @@ final class StbPrimitive extends StbBase implements StringTemplateBuilder {
     final ST st = group.getInstanceOf("primitive_file");
 
     st.add("time", new Date().toString());
-    st.add("name", WhymlUtils.getModuleName(primitive.getName()));
+    st.add("name", WhymlUtils.getModuleName(operation.getName()));
 
     addImport(st, "mach.int.Int32");
     addImport(st, "mach.array.Array32");
     addImport(st, String.format("%s.state.State", modelName));
+
+    final ST stFunction = group.getInstanceOf("function");
+    final String functionName = operation.getName().toLowerCase();
+
+    stFunction.add("name", functionName);
+    stFunction.add("ret_type", "state");
+
+    stFunction.add("arg_names", "s__");
+    stFunction.add("arg_types", "state");
+    stFunction.add("expr", "s__");
+
+    st.add("funcs", stFunction);
 
     return st;
   }
