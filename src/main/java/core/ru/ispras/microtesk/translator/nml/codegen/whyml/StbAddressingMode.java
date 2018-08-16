@@ -52,21 +52,49 @@ final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
     addImport(st, String.format("%s.state.State", modelName));
 
     if (null != addressingMode.getReturnExpr()) {
-      buildReturnExpression(group, st);
+      addGetFunction(group, st);
+      addSetFunction(group, st);
     }
 
     return st;
   }
 
-  private void buildReturnExpression(final STGroup group, final ST st) {
+  private void addGetFunction(final STGroup group, final ST st) {
     final ST stFunction = group.getInstanceOf("function");
 
     final String functionName = addressingMode.getName().toLowerCase();
-    stFunction.add("name", functionName);
+    stFunction.add("name", "get_" + functionName);
 
     final String typeName = makeTypeName(st, addressingMode.getReturnType());
+
+    addFunctionArguments(st, stFunction);
     stFunction.add("ret_type", typeName);
 
+    final Expr expr = addressingMode.getReturnExpr();
+    stFunction.add("expr", ExprPrinter.toString(newImporter(st), expr));
+
+    st.add("funcs", stFunction);
+  }
+
+  private void addSetFunction(final STGroup group, final ST st) {
+    final ST stFunction = group.getInstanceOf("function");
+
+    final String functionName = addressingMode.getName().toLowerCase();
+    stFunction.add("name", "set_" + functionName);
+
+    addFunctionArguments(st, stFunction);
+
+    stFunction.add("arg_names", "v__");
+    stFunction.add("arg_types", makeTypeName(st, addressingMode.getReturnType()));
+
+    stFunction.add("ret_type", "state");
+    // TODO: Need to assign v__ to a corresponding field of s__.
+    stFunction.add("expr", "s__");
+
+    st.add("funcs", stFunction);
+  }
+
+  private void addFunctionArguments(final ST st, final ST stFunction) {
     stFunction.add("arg_names", "s__");
     stFunction.add("arg_types", "state");
 
@@ -78,10 +106,5 @@ final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
       stFunction.add("arg_names", argName);
       stFunction.add("arg_types", argTypeName);
     }
-
-    final Expr expr = addressingMode.getReturnExpr();
-    stFunction.add("expr", ExprPrinter.toString(newImporter(st), expr));
-
-    st.add("funcs", stFunction);
   }
 }

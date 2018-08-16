@@ -67,13 +67,13 @@ end<\n>
 
 function(name, ret_type, arg_names, arg_types, expr) ::= <<
 function <name> <arg_names, arg_types:{n, t| (<n> : <t>) }>: <ret_type> =
-  <expr>
+  <expr><\n>
 >>
 
 primitive_file(time, name, imps, funcs) ::= <<
 <header(time)>
 module <name>
   <if(imps)><imports(imps)><endif>
-  <if(funcs)><funcs; separator="\n"><\n><endif>
+  <if(funcs)><funcs; separator="\n"><endif>
 end<\n>
 >>

@@ -21,6 +21,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
+import ru.ispras.microtesk.translator.nml.analysis.PrimitiveUtils;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -42,27 +43,6 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
   public void processIr(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
     this.ir = ir;
-
-    /*
-    BvConcatTheoryGenerator.get().generate(16, 16);
-    BvConcatTheoryGenerator.get().generate(32, 1);
-    BvConcatTheoryGenerator.get().generate(17, 15);
-    BvConcatTheoryGenerator.get().generate(25, 11);
-
-    BvConcatTheoryGenerator.get().generate(16, 16);
-    BvConcatTheoryGenerator.get().generate(32, 1);
-    BvConcatTheoryGenerator.get().generate(17, 15);
-    BvConcatTheoryGenerator.get().generate(25, 11);
-
-    BvExtractTheoryGenerator.get().generate(32, 16);
-    BvExtractTheoryGenerator.get().generate(16, 1);
-    BvExtractTheoryGenerator.get().generate(16, 8);
-
-    BvCastTheoryGenerator.get().generate(16, 32);
-    BvCastTheoryGenerator.get().generate(32, 16);
-    BvCastTheoryGenerator.get().generate(8, 32);
-    BvCastTheoryGenerator.get().generate(3, 32);
-    */
 
     generateState();
     generateAddressingModes();
@@ -95,11 +75,15 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
 
   private void generateOperations() {
     for (final Primitive primitive : ir.getOps().values()) {
-      if (!primitive.isOrRule() &&
-          primitive.getModifier() != Modifier.PSEUDO &&
-          primitive.getModifier() != Modifier.LABEL) {
-        generateFile(primitive.getName(), new StbPrimitive(ir.getModelName(), primitive));
+      if (primitive.isOrRule() ||
+          primitive.getModifier() == Modifier.PSEUDO ||
+          primitive.getModifier() == Modifier.LABEL ||
+          !PrimitiveUtils.isLeaf(primitive)) {
+        continue;
       }
+
+      final PrimitiveAND operation = (PrimitiveAND) primitive;
+      generateFile(primitive.getName(), new StbOperation(ir.getModelName(), operation));
     }
   }
 
