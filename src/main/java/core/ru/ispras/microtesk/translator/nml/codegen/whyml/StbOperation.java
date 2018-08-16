@@ -21,6 +21,7 @@ import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.Map;
@@ -73,11 +74,42 @@ final class StbOperation extends StbBase implements StringTemplateBuilder {
 
     for (final Map.Entry<String, Primitive> entry : operation.getArguments().entrySet()) {
       final String argName = entry.getKey();
-      final Type argType = entry.getValue().getReturnType();
+      final Type argType = getArgumentType(entry.getValue());
       final String argTypeName = makeTypeName(st, argType);
 
       stFunction.add("arg_names", argName);
       stFunction.add("arg_types", argTypeName);
     }
+  }
+
+  private Type getArgumentType(final Primitive primitive) {
+    if (Primitive.Kind.OP == primitive.getKind()) {
+      throw new IllegalArgumentException("Argument cannot be an operation!");
+    }
+
+    if (Primitive.Kind.IMM == primitive.getKind()) {
+      return primitive.getReturnType();
+    }
+
+    InvariantChecks.checkTrue(Primitive.Kind.MODE == primitive.getKind());
+    if (primitive.isOrRule()) {
+      return getArgumentType((PrimitiveOR) primitive);
+    } else {
+      return getArgumentType((PrimitiveAND) primitive);
+    }
+  }
+
+  private Type getArgumentType(final PrimitiveAND addressingMode) {
+    if (addressingMode.getArguments().size() == 1) {
+      return addressingMode.getArguments().values().iterator().next().getReturnType();
+    } else {
+      // TODO:
+      return addressingMode.getReturnType();
+    }
+  }
+
+  private Type getArgumentType(final PrimitiveOR addressingMode) {
+    // TODO:
+    return addressingMode.getReturnType();
   }
 }
