@@ -18,6 +18,8 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
 import ru.ispras.castle.codegen.StringTemplateBuilder;
+import ru.ispras.fortress.expression.ExprUtils;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
@@ -86,10 +88,16 @@ final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
 
     stFunction.add("arg_names", "v__");
     stFunction.add("arg_types", makeTypeName(st, addressingMode.getReturnType()));
-
     stFunction.add("ret_type", "state");
-    // TODO: Need to assign v__ to a corresponding field of s__.
-    stFunction.add("expr", "s__");
+
+    final Expr expr = addressingMode.getReturnExpr();
+    if (ExprUtils.isVariable(expr.getNode())
+        || ExprUtils.isOperation(expr.getNode(), StandardOperation.BVCONCAT)) {
+      // TODO: Need to assign v__ to a corresponding field of s__.
+      stFunction.add("expr", "s__");
+    } else {
+      stFunction.add("expr", "(* Cannot modify state. *) s__");
+    }
 
     st.add("funcs", stFunction);
   }

@@ -74,7 +74,13 @@ final class StbOperation extends StbBase implements StringTemplateBuilder {
 
     for (final Map.Entry<String, Primitive> entry : operation.getArguments().entrySet()) {
       final String argName = entry.getKey();
-      final Type argType = getArgumentType(entry.getValue());
+      final Primitive argPrimitive = entry.getValue();
+
+      if (null == argPrimitive.getReturnType()) {
+        continue;
+      }
+
+      final Type argType = getArgumentType(argPrimitive);
       final String argTypeName = makeTypeName(st, argType);
 
       stFunction.add("arg_names", argName);
