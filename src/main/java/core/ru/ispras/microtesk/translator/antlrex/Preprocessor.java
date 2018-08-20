@@ -17,8 +17,9 @@ package ru.ispras.microtesk.translator.antlrex;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
 
-import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.castle.antlr.IncludeFileFinder;
 import ru.ispras.castle.util.Logger;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.Translator;
 
 import java.util.ArrayDeque;
@@ -28,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class Preprocessor {
-  private static enum IfDefScope {
+  private enum IfDefScope {
     IF_TRUE,
     IF_FALSE,
     ELSE_TRUE,
