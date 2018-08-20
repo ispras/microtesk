@@ -6,6 +6,12 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2018/08/20 MicroTESK 2.4.43 beta
+  - Templates: the 'nitems' generator was established
+  - Templates: blocks with no attributes are now allowed (block {})
+  - Code generation facilities moved to the Castle library
+  - Bug fixes and code improvements
+
 2018/07/24 MicroTESK 2.4.42 beta
   - Improved template facilities: support for addressing modes (registers)
     in printing functions (such as 'trace')
