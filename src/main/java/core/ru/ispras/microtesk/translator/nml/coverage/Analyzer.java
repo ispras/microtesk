@@ -26,7 +26,7 @@ import ru.ispras.microtesk.translator.nml.analysis.IrInquirer;
 import ru.ispras.microtesk.translator.nml.antlrex.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 import ru.ispras.microtesk.utils.StringUtils;
 
@@ -68,13 +68,13 @@ public final class Analyzer implements TranslatorHandler<Ir> {
   private void processPrimitives(final Collection<Primitive> primitives) {
     for (final Primitive p : primitives) {
       if (!p.isOrRule()) {
-        processParameters((PrimitiveAND) p);
-        processAttributes((PrimitiveAND) p);
+        processParameters((PrimitiveAnd) p);
+        processAttributes((PrimitiveAnd) p);
       }
     }
   }
 
-  private void processAttributes(final PrimitiveAND op) {
+  private void processAttributes(final PrimitiveAnd op) {
     for (final Attribute a : op.getAttributes().values()) {
       if (a.getKind() == Attribute.Kind.ACTION) {
         final SsaBuilder builder =
@@ -84,11 +84,11 @@ public final class Analyzer implements TranslatorHandler<Ir> {
     }
   }
 
-  private void processParameters(final PrimitiveAND op) {
+  private void processParameters(final PrimitiveAnd op) {
     ssa.put(op.getName() + ".parameters", newParametersList(inquirer, op));
   }
 
-  private static SsaForm newParametersList(final IrInquirer inquirer, final PrimitiveAND p) {
+  private static SsaForm newParametersList(final IrInquirer inquirer, final PrimitiveAnd p) {
     final SsaBuilder builder = new SsaBuilder(inquirer, p.getName());
     builder.acquireBlockBuilder();
 
@@ -112,7 +112,7 @@ public final class Analyzer implements TranslatorHandler<Ir> {
   private void processModes(final Collection<Primitive> modes) {
     for (final Primitive p : modes) {
       if (!p.isOrRule() && p.getReturnType() != null) {
-        final PrimitiveAND mode = (PrimitiveAND) p;
+        final PrimitiveAnd mode = (PrimitiveAnd) p;
         ssa.put(mode.getName() + ".expand",
                 SsaBuilder.macroExpansion(inquirer, mode.getName(), mode.getReturnExpr()));
         ssa.put(mode.getName() + ".update",

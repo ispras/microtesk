@@ -20,8 +20,8 @@ import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 
 import java.io.IOException;
 
@@ -82,8 +82,8 @@ public final class Generator implements TranslatorHandler<Ir> {
   private void generateModes() throws IOException {
     for (final Primitive m : ir.getModes().values()) {
       final FileGenerator mode = m.isOrRule()
-          ? factory.createAddressingModeOr((PrimitiveOR) m)
-          : factory.createAddressingMode((PrimitiveAND) m);
+          ? factory.createAddressingModeOr((PrimitiveOr) m)
+          : factory.createAddressingMode((PrimitiveAnd) m);
 
       mode.generate();
     }
@@ -92,8 +92,8 @@ public final class Generator implements TranslatorHandler<Ir> {
   private void generateOps() throws IOException {
     for (final Primitive o : ir.getOps().values()) {
       final FileGenerator op = o.isOrRule()
-          ? factory.createOperationOr((PrimitiveOR) o)
-          : factory.createOperation((PrimitiveAND) o);
+          ? factory.createOperationOr((PrimitiveOr) o)
+          : factory.createOperation((PrimitiveAnd) o);
 
       op.generate();
     }

@@ -17,8 +17,8 @@ package ru.ispras.microtesk.translator.nml.analysis;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.analysis.PrimitiveUtils.PathCounter;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveReference;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 
@@ -39,12 +39,12 @@ final class ShortcutBuilder {
    * (AND-rule operations that have parents). It is needed to check if there are ambiguous paths
    * that start from the specification root (any of the root primitives).
    */
-  private final PrimitiveOR root;
+  private final PrimitiveOr root;
 
   /**
    * Target operation for a series of shortcuts.
    */
-  private final PrimitiveAND target;
+  private final PrimitiveAnd target;
 
   /**
    * Path counter to find ambiguous paths. It caches the results of previous calculations and is
@@ -74,8 +74,8 @@ final class ShortcutBuilder {
    * @throws NullPointerException if any of the parameters equals null.
    */
   public ShortcutBuilder(
-      final PrimitiveOR root,
-      final PrimitiveAND target,
+      final PrimitiveOr root,
+      final PrimitiveAnd target,
       final PathCounter pathCounter) {
     InvariantChecks.checkNotNull(root);
     InvariantChecks.checkNotNull(target);
@@ -118,7 +118,7 @@ final class ShortcutBuilder {
    *
    * @param entry Entry point of the shortcuts to be created.
    */
-  private void build(final PrimitiveAND entry) {
+  private void build(final PrimitiveAnd entry) {
     final ShortcutCreator creator = new ShortcutCreator(entry);
 
     if (entry.isRoot() && isSinglePathToTarget(root)) {
@@ -155,7 +155,7 @@ final class ShortcutBuilder {
    *
    * @param entry Primitive to be checked.
    */
-  private void checkForMultipleParents(final PrimitiveAND entry) {
+  private void checkForMultipleParents(final PrimitiveAnd entry) {
     if (entry.getParentCount() > 1) {
       opsWithMultipleParents.add(entry.getName());
     }
@@ -171,7 +171,7 @@ final class ShortcutBuilder {
    *
    * @param entry Primitive to be removed.
    */
-  private void checkForMultipleParentsFinalize(final PrimitiveAND entry) {
+  private void checkForMultipleParentsFinalize(final PrimitiveAnd entry) {
     if (!opsWithMultipleParents.isEmpty()) {
       opsWithMultipleParents.remove(entry.getName());
     }
@@ -239,7 +239,7 @@ final class ShortcutBuilder {
    * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
    */
   private final class ShortcutCreator {
-    private final PrimitiveAND entry;
+    private final PrimitiveAnd entry;
     private final List<String> contextNames;
 
     /**
@@ -247,7 +247,7 @@ final class ShortcutBuilder {
      *
      * @param entry Entry primitive for the shortcut to be created.
      */
-    private ShortcutCreator(final PrimitiveAND entry) {
+    private ShortcutCreator(final PrimitiveAnd entry) {
       this.entry = entry;
       this.contextNames = new ArrayList<>();
     }

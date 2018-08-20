@@ -24,16 +24,16 @@ import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
 import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 
 import java.util.Map;
 
 final class StbAddressingMode implements StringTemplateBuilder {
   private final String modelName;
-  private final PrimitiveAND primitive;
+  private final PrimitiveAnd primitive;
 
-  public StbAddressingMode(final String modelName, final PrimitiveAND primitive) {
+  public StbAddressingMode(final String modelName, final PrimitiveAnd primitive) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(primitive);
 
@@ -103,7 +103,7 @@ final class StbAddressingMode implements StringTemplateBuilder {
   public static void buildArguments(
       final STGroup group,
       final ST stConstructor,
-      final PrimitiveAND primitive) {
+      final PrimitiveAnd primitive) {
     InvariantChecks.checkNotNull(group);
     InvariantChecks.checkNotNull(stConstructor);
     InvariantChecks.checkNotNull(primitive);

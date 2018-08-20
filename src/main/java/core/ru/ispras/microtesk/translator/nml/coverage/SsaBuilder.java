@@ -40,7 +40,7 @@ import ru.ispras.microtesk.translator.nml.antlrex.TypeCast;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
@@ -572,7 +572,7 @@ final class SsaBuilder {
 
   private Node instanceReference(final Instance instance) {
     final List<Node> operands = new ArrayList<>(instance.getArguments().size() + 1);
-    final PrimitiveAND origin = (PrimitiveAND) instance.getPrimitive();
+    final PrimitiveAnd origin = (PrimitiveAnd) instance.getPrimitive();
     operands.add(newNamed(origin.getName()));
 
     final Iterator<Primitive> parameters =

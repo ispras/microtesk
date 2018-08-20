@@ -33,7 +33,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 
@@ -53,11 +53,11 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
   private static final class Visitor extends IrVisitorDefault {
 
     private static final class Context {
-      private final PrimitiveAND primitive;
+      private final PrimitiveAnd primitive;
       private MemoryAccessStatus status;
       private final List<Location> loadTargets;
 
-      private Context(final PrimitiveAND primitive) {
+      private Context(final PrimitiveAnd primitive) {
         this.primitive = primitive;
         this.status = MemoryAccessStatus.NO;
         this.loadTargets = new ArrayList<>();
@@ -69,7 +69,7 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
     @Override
     public void onPrimitiveBegin(final Primitive item) {
       if (!item.isOrRule()) {
-        final PrimitiveAND primitive = (PrimitiveAND) item;
+        final PrimitiveAnd primitive = (PrimitiveAnd) item;
 
         final boolean isMemoryReference = primitive.getReturnExpr() != null
             ? isMemoryReference(primitive.getReturnExpr()) : false;
@@ -85,7 +85,7 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
         final Context context = contexts.pop();
         InvariantChecks.checkTrue(item == context.primitive);
 
-        final PrimitiveAND primitive = context.primitive;
+        final PrimitiveAnd primitive = context.primitive;
         final MemoryAccessStatus status = context.status;
 
         primitive.getInfo().setLoad(status.isLoad());
@@ -125,7 +125,7 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onAttributeBegin(final PrimitiveAND andRule, final Attribute attr) {
+    public void onAttributeBegin(final PrimitiveAnd andRule, final Attribute attr) {
       final Context context = contexts.peek();
       if (andRule != context.primitive) {
         setStatus(Status.SKIP);
@@ -139,7 +139,7 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
+    public void onAttributeEnd(final PrimitiveAnd andRule, final Attribute attr) {
       if (andRule != contexts.peek().primitive) {
         setStatus(Status.OK);
       }
@@ -201,8 +201,8 @@ public final class MemoryAccessDetector implements TranslatorHandler<Ir> {
       final LocationSourcePrimitive source =
           (LocationSourcePrimitive) locationAtom.getSource();
 
-      if (source.getPrimitive() instanceof PrimitiveAND) {
-        return ((PrimitiveAND) source.getPrimitive()).getInfo().isMemoryReference();
+      if (source.getPrimitive() instanceof PrimitiveAnd) {
+        return ((PrimitiveAnd) source.getPrimitive()).getInfo().isMemoryReference();
       }
     }
 

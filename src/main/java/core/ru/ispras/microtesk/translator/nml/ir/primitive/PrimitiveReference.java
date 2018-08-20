@@ -26,7 +26,7 @@ import java.util.Set;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class PrimitiveReference {
-  public final PrimitiveAND source;
+  public final PrimitiveAnd source;
   public final Primitive target;
   public final Set<String> refNames;
 
@@ -36,7 +36,7 @@ public final class PrimitiveReference {
    * @param source Source primitive.
    * @param target Target primitive.
    */
-  public PrimitiveReference(final PrimitiveAND source, final Primitive target) {
+  public PrimitiveReference(final PrimitiveAnd source, final Primitive target) {
     this(source, target, new LinkedHashSet<String>());
   }
 
@@ -48,7 +48,7 @@ public final class PrimitiveReference {
    * @param refNames Names of references from the source to the target.
    */
   public PrimitiveReference(
-      final PrimitiveAND source,
+      final PrimitiveAnd source,
       final Primitive target,
       final Set<String> refNames) {
     this.source = source;
@@ -79,7 +79,7 @@ public final class PrimitiveReference {
    *
    * @return Primitive the refers to the current primitive.
    */
-  public PrimitiveAND getSource() {
+  public PrimitiveAnd getSource() {
     return source;
   }
 
@@ -119,8 +119,8 @@ public final class PrimitiveReference {
    *
    * @return Source primitive that has all references resolved.
    */
-  public PrimitiveAND resolve() {
-    PrimitiveAND result = source;
+  public PrimitiveAnd resolve() {
+    PrimitiveAnd result = source;
     for (final String refName : refNames) {
       if (result.getArguments().get(refName) != target) {
         if (result == source) {

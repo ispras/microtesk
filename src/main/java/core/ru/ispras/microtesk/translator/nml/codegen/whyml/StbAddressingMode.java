@@ -24,7 +24,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.Date;
@@ -32,9 +32,9 @@ import java.util.Map;
 
 final class StbAddressingMode extends StbBase implements StringTemplateBuilder {
   private final String modelName;
-  private final PrimitiveAND addressingMode;
+  private final PrimitiveAnd addressingMode;
 
-  public StbAddressingMode(final String modelName, final PrimitiveAND addressingMode) {
+  public StbAddressingMode(final String modelName, final PrimitiveAnd addressingMode) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(addressingMode);
 

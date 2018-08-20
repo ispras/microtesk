@@ -29,7 +29,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 
 import java.util.ArrayDeque;
@@ -46,7 +46,7 @@ public final class BranchDetector implements TranslatorHandler<Ir> {
   }
 
   private final class Visitor extends IrVisitorDefault {
-    private final Deque<PrimitiveAND> primitives;
+    private final Deque<PrimitiveAnd> primitives;
     private final Deque<Node> conditions;
 
     public Visitor() {
@@ -57,7 +57,7 @@ public final class BranchDetector implements TranslatorHandler<Ir> {
     @Override
     public void onPrimitiveBegin(final Primitive item) {
       if (!item.isOrRule()) {
-        this.primitives.push((PrimitiveAND) item);
+        this.primitives.push((PrimitiveAnd) item);
       }
     }
 
@@ -86,7 +86,7 @@ public final class BranchDetector implements TranslatorHandler<Ir> {
     public void onAssignment(final StatementAssignment stmt) {
       if (isPCAssignment(stmt)) {
         final boolean isConditional = !conditions.isEmpty();
-        final PrimitiveAND primitive =  primitives.getLast();
+        final PrimitiveAnd primitive =  primitives.getLast();
 
         if (isConditional) {
           primitive.getInfo().setConditionalBranch(true);

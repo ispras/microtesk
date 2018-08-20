@@ -26,7 +26,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut.Argument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
@@ -38,7 +38,7 @@ import java.util.Map;
 
 final class StbOperation extends StbPrimitiveBase {
   private final String modelName;
-  private final PrimitiveAND op;
+  private final PrimitiveAnd op;
 
   private boolean modesImported = false;
   private boolean immsImported = false;
@@ -58,7 +58,7 @@ final class StbOperation extends StbPrimitiveBase {
     }
   }
 
-  public StbOperation(final String modelName, final PrimitiveAND op) {
+  public StbOperation(final String modelName, final PrimitiveAnd op) {
     assert op.getKind() == Primitive.Kind.OP;
 
     this.modelName = modelName;
@@ -279,7 +279,7 @@ final class StbOperation extends StbPrimitiveBase {
       dump(shortcut.getEntry().getName(), shortcut.getEntry());
     }
 
-    private void dump(final String prefix, final PrimitiveAND primitive) {
+    private void dump(final String prefix, final PrimitiveAnd primitive) {
       for (final Map.Entry<String, Primitive> e : primitive.getArguments().entrySet()) {
         final String argName = e.getKey();
         final Primitive argValue = e.getValue();
@@ -291,14 +291,14 @@ final class StbOperation extends StbPrimitiveBase {
         } else {
           System.out.printf("link to %s -> %s%n", variableName, argValue.getName());
 
-          if (argValue instanceof PrimitiveAND) {
-            dump(variableName, (PrimitiveAND) argValue);
+          if (argValue instanceof PrimitiveAnd) {
+            dump(variableName, (PrimitiveAnd) argValue);
           }
         }
       }
     }
 
-    private Shortcut.Argument findShortcutArgument(final String name, final PrimitiveAND source) {
+    private Shortcut.Argument findShortcutArgument(final String name, final PrimitiveAnd source) {
       for (final Shortcut.Argument sa : shortcut.getArguments()) {
         if (name.equals(sa.getName()) && source.getName().equals(sa.getSource().getName())) {
           return sa;
@@ -311,7 +311,7 @@ final class StbOperation extends StbPrimitiveBase {
 
   private ST createOperationTreeST(
       final STGroup group,
-      final PrimitiveAND root,
+      final PrimitiveAnd root,
       final Collection<Argument> args) {
     final ST t = group.getInstanceOf("op_tree_node");
     t.add("name", root.getName());
@@ -322,7 +322,7 @@ final class StbOperation extends StbPrimitiveBase {
       } else if (e.getValue().getKind() == Primitive.Kind.OP) {
         assert !e.getValue().isOrRule() : String.format("%s is an OR rule: %s", e.getKey(), e
             .getValue().getName());
-        t.add("params", createOperationTreeST(group, (PrimitiveAND) e.getValue(), args));
+        t.add("params", createOperationTreeST(group, (PrimitiveAnd) e.getValue(), args));
       } else {
         t.add("params", getUniqueArgumentName(e, args));
       }

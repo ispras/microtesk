@@ -33,7 +33,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
@@ -55,7 +55,7 @@ public class RegisterAnalyzer implements TranslatorHandler<Ir> {
         return;
       }
 
-      final PrimitiveAND primitive = (PrimitiveAND) item;
+      final PrimitiveAnd primitive = (PrimitiveAnd) item;
       final Expr expr = primitive.getReturnExpr();
 
       if (null == expr || !isRegisterAccess(expr)) {
@@ -74,7 +74,7 @@ public class RegisterAnalyzer implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onAttributeBegin(final PrimitiveAND andRule, final Attribute attr) {
+    public void onAttributeBegin(final PrimitiveAnd andRule, final Attribute attr) {
       if (!attr.getName().equals(Attribute.SYNTAX_NAME)) {
         setStatus(Status.SKIP);
         return;
@@ -85,13 +85,13 @@ public class RegisterAnalyzer implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
+    public void onAttributeEnd(final PrimitiveAnd andRule, final Attribute attr) {
       setStatus(Status.OK);
     }
 
     @Override
     public void onStatementBegin(
-        final PrimitiveAND andRule,
+        final PrimitiveAnd andRule,
         final Attribute attr,
         final Statement stmt) {
       InvariantChecks.checkTrue(stmt.getKind() == Statement.Kind.FORMAT
@@ -106,7 +106,7 @@ public class RegisterAnalyzer implements TranslatorHandler<Ir> {
       }
     }
 
-    private void onStatementFormat(PrimitiveAND andRule, StatementFormat stmt) {
+    private void onStatementFormat(PrimitiveAnd andRule, StatementFormat stmt) {
       System.out.println(andRule.getName() + " : " + stmt.getFormat());
       // TODO Auto-generated method stub
     }

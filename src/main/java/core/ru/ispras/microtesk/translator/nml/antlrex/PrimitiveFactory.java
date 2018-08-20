@@ -26,8 +26,8 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -67,7 +67,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     }
 
     insertInitCalls(attrs);
-    return new PrimitiveAND(
+    return new PrimitiveAnd(
         name,
         Primitive.Kind.MODE,
         isLabel ? Primitive.Modifier.LABEL : Primitive.Modifier.NORMAL,
@@ -108,7 +108,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     }
 
     insertInitCalls(attrs);
-    return new PrimitiveAND(
+    return new PrimitiveAnd(
         name,
         Primitive.Kind.OP,
         modifier,
@@ -150,7 +150,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       orModes.add(mode);
     }
 
-    return new PrimitiveOR(name, Primitive.Kind.MODE, orModes);
+    return new PrimitiveOr(name, Primitive.Kind.MODE, orModes);
   }
 
   public Primitive createOpOR(
@@ -173,7 +173,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       orOps.add(op);
     }
 
-    return new PrimitiveOR(name, Primitive.Kind.OP, orOps);
+    return new PrimitiveOr(name, Primitive.Kind.OP, orOps);
   }
 
   public Primitive createImm(final Type type) {
@@ -242,7 +242,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       raiseError(where, String.format("%s is not an AND rule!", name));
     }
 
-    final PrimitiveAND primitiveAND = (PrimitiveAND) primitive;
+    final PrimitiveAnd primitiveAND = (PrimitiveAnd) primitive;
     if (primitiveAND.getArguments().size() != arguments.size()) {
       raiseError(where, String.format(
           "Wrong number of arguments: %s is passed %d arguments while %d is expected.",
@@ -313,7 +313,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       return argType.getName().equals(arg.getName());
     }
 
-    final PrimitiveOR argTypeOr = (PrimitiveOR) argType;
+    final PrimitiveOr argTypeOr = (PrimitiveOr) argType;
     return argTypeOr.getNames().contains(arg.getName());
   }
 

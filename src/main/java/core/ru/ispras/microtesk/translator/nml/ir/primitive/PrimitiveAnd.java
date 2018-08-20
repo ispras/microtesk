@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final class PrimitiveAND extends Primitive {
+public final class PrimitiveAnd extends Primitive {
   private final Expr retExpr;
   private final Map<String, Primitive> args;
   private final Map<String, Attribute> attrs;
   private final List<Shortcut> shortcuts;
 
-  public PrimitiveAND(
+  public PrimitiveAnd(
       final String name,
       final Kind kind,
       final Modifier modifier,
@@ -53,7 +53,7 @@ public final class PrimitiveAND extends Primitive {
     this.shortcuts = new ArrayList<>();
   }
 
-  private PrimitiveAND(final PrimitiveAND other) {
+  private PrimitiveAnd(final PrimitiveAnd other) {
     super(other);
 
     this.retExpr = other.retExpr;
@@ -85,8 +85,8 @@ public final class PrimitiveAND extends Primitive {
     shortcuts.add(shortcut);
   }
 
-  public PrimitiveAND makeCopy() {
-    return new PrimitiveAND(this);
+  public PrimitiveAnd makeCopy() {
+    return new PrimitiveAnd(this);
   }
 
   public Map<String, Primitive> getArguments() {

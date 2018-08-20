@@ -20,8 +20,8 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.Map;
@@ -29,9 +29,9 @@ import java.util.Date;
 
 final class StbOperation extends StbBase implements StringTemplateBuilder {
   private final String modelName;
-  private final PrimitiveAND operation;
+  private final PrimitiveAnd operation;
 
-  public StbOperation(final String modelName, final PrimitiveAND operation) {
+  public StbOperation(final String modelName, final PrimitiveAnd operation) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(operation);
 
@@ -99,13 +99,13 @@ final class StbOperation extends StbBase implements StringTemplateBuilder {
 
     InvariantChecks.checkTrue(Primitive.Kind.MODE == primitive.getKind());
     if (primitive.isOrRule()) {
-      return getArgumentType((PrimitiveOR) primitive);
+      return getArgumentType((PrimitiveOr) primitive);
     } else {
-      return getArgumentType((PrimitiveAND) primitive);
+      return getArgumentType((PrimitiveAnd) primitive);
     }
   }
 
-  private Type getArgumentType(final PrimitiveAND addressingMode) {
+  private Type getArgumentType(final PrimitiveAnd addressingMode) {
     if (addressingMode.getArguments().size() == 1) {
       return addressingMode.getArguments().values().iterator().next().getReturnType();
     } else {
@@ -114,7 +114,7 @@ final class StbOperation extends StbBase implements StringTemplateBuilder {
     }
   }
 
-  private Type getArgumentType(final PrimitiveOR addressingMode) {
+  private Type getArgumentType(final PrimitiveOr addressingMode) {
     // TODO:
     return addressingMode.getReturnType();
   }

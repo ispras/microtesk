@@ -31,7 +31,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
@@ -49,8 +49,8 @@ public final class ArgumentModeDetector implements TranslatorHandler<Ir> {
   }
 
   private final class Visitor extends IrVisitorDefault {
-    private final Deque<PrimitiveAND> primitives;
-    private final Map<PrimitiveAND, PrimitiveAND> visited;
+    private final Deque<PrimitiveAnd> primitives;
+    private final Map<PrimitiveAnd, PrimitiveAnd> visited;
 
     public Visitor() {
       this.primitives = new ArrayDeque<>();
@@ -60,7 +60,7 @@ public final class ArgumentModeDetector implements TranslatorHandler<Ir> {
     @Override
     public void onPrimitiveBegin(final Primitive item) {
       if (!item.isOrRule()) {
-        final PrimitiveAND primitive = (PrimitiveAND) item;
+        final PrimitiveAnd primitive = (PrimitiveAnd) item;
         this.primitives.push(primitive);
         this.visited.put(primitive, primitive);
       }
@@ -108,7 +108,7 @@ public final class ArgumentModeDetector implements TranslatorHandler<Ir> {
     }
 
     private void markVariable(final String variableName, final ArgumentMode mode) {
-      final PrimitiveAND primitive = primitives.peek();
+      final PrimitiveAnd primitive = primitives.peek();
       final PrimitiveInfo info = primitive.getInfo();
 
       if (primitive.getArguments().containsKey(variableName)) {
@@ -177,7 +177,7 @@ public final class ArgumentModeDetector implements TranslatorHandler<Ir> {
       }
     }
 
-    private ArgumentMode getArgumentMode(final PrimitiveAND primitive, final int argumentIndex) {
+    private ArgumentMode getArgumentMode(final PrimitiveAnd primitive, final int argumentIndex) {
       InvariantChecks.checkTrue(visited.containsKey(primitive), primitive.getName());
       InvariantChecks.checkBounds(argumentIndex, primitive.getArguments().size());
 

@@ -27,7 +27,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 
 import java.math.BigInteger;
@@ -35,11 +35,11 @@ import java.util.Map;
 
 final class StbAddressingMode extends StbPrimitiveBase {
   private final String modelName;
-  private final PrimitiveAND mode;
+  private final PrimitiveAnd mode;
 
   public StbAddressingMode(
       final String modelName,
-      final PrimitiveAND mode) {
+      final PrimitiveAnd mode) {
 
     assert mode.getKind() == Primitive.Kind.MODE;
 

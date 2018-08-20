@@ -18,7 +18,7 @@ import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public final class PrinterInstance {
   private PrinterInstance() {}
 
   public static String toString(final Instance instance) {
-    final PrimitiveAND primitive = instance.getPrimitive();
+    final PrimitiveAnd primitive = instance.getPrimitive();
 
     final StringBuilder sb = new StringBuilder();
 

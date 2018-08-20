@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final class PrimitiveOR extends Primitive {
+public final class PrimitiveOr extends Primitive {
   private final List<Primitive> ors;
   private final Set<String> names;
 
-  public PrimitiveOR(final String name, final Kind kind, final List<Primitive> ors) {
+  public PrimitiveOr(final String name, final Kind kind, final List<Primitive> ors) {
     super(
         name,
         kind,
@@ -67,7 +67,7 @@ public final class PrimitiveOR extends Primitive {
     final Set<String> result = new HashSet<String>();
     for (final Primitive primitive : ors) {
       if (primitive.isOrRule()) {
-        result.addAll(((PrimitiveOR) primitive).getNames());
+        result.addAll(((PrimitiveOr) primitive).getNames());
       } else {
         result.add(primitive.getName());
       }
@@ -75,7 +75,7 @@ public final class PrimitiveOR extends Primitive {
     return result;
   }
 
-  public void addParentReference(final PrimitiveAND parent, final String referenceName) {
+  public void addParentReference(final PrimitiveAnd parent, final String referenceName) {
     super.addParentReference(parent, referenceName);
 
     for (final Primitive target : ors) {

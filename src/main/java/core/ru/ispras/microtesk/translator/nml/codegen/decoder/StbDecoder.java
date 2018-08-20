@@ -40,7 +40,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 
 import java.util.ArrayList;
@@ -54,11 +54,11 @@ final class StbDecoder implements StringTemplateBuilder {
   private final String name;
   private final String modelName;
   private final ImageInfo imageInfo;
-  private final PrimitiveAND item;
+  private final PrimitiveAnd item;
   private final Set<String> imported;
   private final Set<String> undecoded;
 
-  public StbDecoder(final String modelName, final PrimitiveAND item) {
+  public StbDecoder(final String modelName, final PrimitiveAnd item) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(item);
     InvariantChecks.checkNotNull(ImageAnalyzer.getImageInfo(item));
@@ -339,7 +339,7 @@ final class StbDecoder implements StringTemplateBuilder {
       final ST st, final ST stConstructor, final STGroup group, final Node field) {
     final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
     final Instance instance = call.getCalleeInstance();
-    final PrimitiveAND primitive = instance.getPrimitive();
+    final PrimitiveAnd primitive = instance.getPrimitive();
     final String name = primitive.getName() + "_instance";
 
     importPrimitive(st, primitive);

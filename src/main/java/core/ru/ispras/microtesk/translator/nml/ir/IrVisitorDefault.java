@@ -18,8 +18,8 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
@@ -91,34 +91,34 @@ public class IrVisitorDefault implements IrVisitor {
   public void onPrimitiveEnd(Primitive item) {}
 
   @Override
-  public void onAlternativeBegin(PrimitiveOR orRule, Primitive item) {}
+  public void onAlternativeBegin(PrimitiveOr orRule, Primitive item) {}
 
   @Override
-  public void onAlternativeEnd(PrimitiveOR orRule, Primitive item) {}
+  public void onAlternativeEnd(PrimitiveOr orRule, Primitive item) {}
 
   @Override
-  public void onArgumentBegin(PrimitiveAND andRule, String argName, Primitive argType) {}
+  public void onArgumentBegin(PrimitiveAnd andRule, String argName, Primitive argType) {}
 
   @Override
-  public void onArgumentEnd(PrimitiveAND andRule, String argName, Primitive argType) {}
+  public void onArgumentEnd(PrimitiveAnd andRule, String argName, Primitive argType) {}
 
   @Override
-  public void onAttributeBegin(PrimitiveAND andRule, Attribute attr) {}
+  public void onAttributeBegin(PrimitiveAnd andRule, Attribute attr) {}
 
   @Override
-  public void onAttributeEnd(PrimitiveAND andRule, Attribute attr) {}
+  public void onAttributeEnd(PrimitiveAnd andRule, Attribute attr) {}
 
   @Override
-  public void onStatementBegin(PrimitiveAND andRule, Attribute attr, Statement stmt) {}
+  public void onStatementBegin(PrimitiveAnd andRule, Attribute attr, Statement stmt) {}
 
   @Override
-  public void onStatementEnd(PrimitiveAND andRule, Attribute attr, Statement stmt) {}
+  public void onStatementEnd(PrimitiveAnd andRule, Attribute attr, Statement stmt) {}
 
   @Override
-  public void onShortcutBegin(PrimitiveAND andRule, Shortcut shortcut) {}
+  public void onShortcutBegin(PrimitiveAnd andRule, Shortcut shortcut) {}
 
   @Override
-  public void onShortcutEnd(PrimitiveAND andRule, Shortcut shortcut) {}
+  public void onShortcutEnd(PrimitiveAnd andRule, Shortcut shortcut) {}
 
   @Override
   public void onAssignment(StatementAssignment stmt) {}

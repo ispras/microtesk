@@ -18,8 +18,8 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.TreeVisitor;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
@@ -113,7 +113,7 @@ public interface IrVisitor extends TreeVisitor {
    * @param orRule OR-rule description.
    * @param item Item being visited.
    */
-  void onAlternativeBegin(PrimitiveOR orRule, Primitive item);
+  void onAlternativeBegin(PrimitiveOr orRule, Primitive item);
 
   /**
    * Notifies that visiting an item of an OR-rule has been finished.
@@ -121,7 +121,7 @@ public interface IrVisitor extends TreeVisitor {
    * @param orRule OR-rule description.
    * @param item Item being visited.
    */
-  void onAlternativeEnd(PrimitiveOR orRule, Primitive item);
+  void onAlternativeEnd(PrimitiveOr orRule, Primitive item);
 
   /**
    * Notifies that visiting an AND-rule argument has been started.
@@ -130,7 +130,7 @@ public interface IrVisitor extends TreeVisitor {
    * @param argName Argument name.
    * @param argType Argument type description.
    */
-  void onArgumentBegin(PrimitiveAND andRule, String argName, Primitive argType);
+  void onArgumentBegin(PrimitiveAnd andRule, String argName, Primitive argType);
 
   /**
    * Notifies that visiting an AND-rule argument has been finished.
@@ -139,7 +139,7 @@ public interface IrVisitor extends TreeVisitor {
    * @param argName Argument name.
    * @param argType Argument type description.
    */
-  void onArgumentEnd(PrimitiveAND andRule, String argName, Primitive argType);
+  void onArgumentEnd(PrimitiveAnd andRule, String argName, Primitive argType);
 
   /**
    * Notifies that visiting an attribute of an AND-rule has been started.
@@ -147,7 +147,7 @@ public interface IrVisitor extends TreeVisitor {
    * @param andRule AND-rule description.
    * @param attr Attribute description.
    */
-  void onAttributeBegin(PrimitiveAND andRule, Attribute attr);
+  void onAttributeBegin(PrimitiveAnd andRule, Attribute attr);
 
   /**
    * Notifies that visiting an attribute of an AND-rule has been finished.
@@ -155,7 +155,7 @@ public interface IrVisitor extends TreeVisitor {
    * @param andRule AND-rule description.
    * @param attr Attribute description.
    */
-  void onAttributeEnd(PrimitiveAND andRule, Attribute attr);
+  void onAttributeEnd(PrimitiveAnd andRule, Attribute attr);
 
   /**
    * Notifies that visiting a statement (in an attribute) has been started.
@@ -164,7 +164,7 @@ public interface IrVisitor extends TreeVisitor {
    * @param attr Attribute that contains the statement.
    * @param stmt Statement description.
    */
-  void onStatementBegin(PrimitiveAND andRule, Attribute attr, Statement stmt);
+  void onStatementBegin(PrimitiveAnd andRule, Attribute attr, Statement stmt);
 
   /**
    * Notifies that visiting a statement (in an attribute) has been finished.
@@ -173,7 +173,7 @@ public interface IrVisitor extends TreeVisitor {
    * @param attr Attribute that contains the statement.
    * @param stmt Statement description.
    */
-  void onStatementEnd(PrimitiveAND andRule, Attribute attr, Statement stmt);
+  void onStatementEnd(PrimitiveAnd andRule, Attribute attr, Statement stmt);
 
   /**
    * Notifies that visiting a shortcut has been started.
@@ -181,7 +181,7 @@ public interface IrVisitor extends TreeVisitor {
    * @param andRule AND-rule the shortcut refers to.
    * @param shortcut Shortcut description.
    */
-  void onShortcutBegin(PrimitiveAND andRule, Shortcut shortcut);
+  void onShortcutBegin(PrimitiveAnd andRule, Shortcut shortcut);
 
   /**
    * Notifies that visiting a shortcut has been finished.
@@ -189,7 +189,7 @@ public interface IrVisitor extends TreeVisitor {
    * @param andRule AND-rule the shortcut refers to.
    * @param shortcut Shortcut description.
    */
-  void onShortcutEnd(PrimitiveAND andRule, Shortcut shortcut);
+  void onShortcutEnd(PrimitiveAnd andRule, Shortcut shortcut);
 
   void onAssignment(StatementAssignment stmt);
 

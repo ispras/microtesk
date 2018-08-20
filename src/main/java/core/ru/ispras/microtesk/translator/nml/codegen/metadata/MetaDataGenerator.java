@@ -26,8 +26,8 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 
 import java.io.IOException;
 
@@ -69,29 +69,29 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
       }
 
       if (item.isOrRule()) {
-        generateGroup((PrimitiveOR) item);
+        generateGroup((PrimitiveOr) item);
         return;
       }
 
       if (item.getKind() == Primitive.Kind.MODE) {
-        generateAddressingMode((PrimitiveAND) item);
+        generateAddressingMode((PrimitiveAnd) item);
       } else if (item.getKind() == Primitive.Kind.OP) {
-        generateOperation((PrimitiveAND) item);
+        generateOperation((PrimitiveAnd) item);
       } else {
         throw new IllegalArgumentException("Unknown kind: " + item.getKind());
       }
     }
   }
 
-  private void generateGroup(final PrimitiveOR item) {
+  private void generateGroup(final PrimitiveOr item) {
     generateFile(item.getName(), new StbGroup(getModelName(), item));
   }
 
-  private void generateAddressingMode(final PrimitiveAND item) {
+  private void generateAddressingMode(final PrimitiveAnd item) {
     generateFile(item.getName(), new StbAddressingMode(getModelName(), item));
   }
 
-  private void generateOperation(final PrimitiveAND item) {
+  private void generateOperation(final PrimitiveAnd item) {
     generateFile(item.getName(), new StbOperation(getModelName(), item));
   }
 

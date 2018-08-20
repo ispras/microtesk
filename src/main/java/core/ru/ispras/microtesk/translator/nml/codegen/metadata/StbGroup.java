@@ -22,13 +22,13 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.metadata.MetaGroup;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 
 final class StbGroup implements StringTemplateBuilder {
   private final String modelName;
-  private final PrimitiveOR primitive;
+  private final PrimitiveOr primitive;
 
-  public StbGroup(final String modelName, final PrimitiveOR primitive) {
+  public StbGroup(final String modelName, final PrimitiveOr primitive) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(primitive);
     this.modelName = modelName;

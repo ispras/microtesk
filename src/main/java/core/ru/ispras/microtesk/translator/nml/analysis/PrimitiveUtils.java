@@ -16,8 +16,8 @@ package ru.ispras.microtesk.translator.nml.analysis;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveReference;
 
 import java.util.Collection;
@@ -48,16 +48,16 @@ public final class PrimitiveUtils {
    */
   public static void saveAllOrsToList(
       final Primitive source,
-      final List<PrimitiveAND> destination) {
+      final List<PrimitiveAnd> destination) {
     InvariantChecks.checkNotNull(source, "source");
     InvariantChecks.checkNotNull(destination, "destination");
 
     if (!source.isOrRule()) {
-      destination.add((PrimitiveAND) source);
+      destination.add((PrimitiveAnd) source);
       return;
     }
 
-    for (final Primitive o : ((PrimitiveOR) source).getOrs()) {
+    for (final Primitive o : ((PrimitiveOr) source).getOrs()) {
       saveAllOrsToList(o, destination);
     }
   }
@@ -71,7 +71,7 @@ public final class PrimitiveUtils {
    *
    * @throws NullPointerException if any of the parameters equals null.
    */
-  public static int getChildCount(final PrimitiveAND root, final Primitive.Kind kind) {
+  public static int getChildCount(final PrimitiveAnd root, final Primitive.Kind kind) {
     InvariantChecks.checkNotNull(root, "root");
     InvariantChecks.checkNotNull(kind, "kind");
 
@@ -101,7 +101,7 @@ public final class PrimitiveUtils {
       return false;
     }
 
-    return 0 == getChildCount((PrimitiveAND) primitive, primitive.getKind());
+    return 0 == getChildCount((PrimitiveAnd) primitive, primitive.getKind());
   }
 
   /**
@@ -121,7 +121,7 @@ public final class PrimitiveUtils {
       return false;
     }
 
-    return 1 < getChildCount((PrimitiveAND) primitive, primitive.getKind());
+    return 1 < getChildCount((PrimitiveAnd) primitive, primitive.getKind());
   }
 
   /**
@@ -243,7 +243,7 @@ public final class PrimitiveUtils {
       }
 
       final Collection<Primitive> childs = source.isOrRule()
-          ? ((PrimitiveOR) source).getOrs() : ((PrimitiveAND) source).getArguments().values();
+          ? ((PrimitiveOr) source).getOrs() : ((PrimitiveAnd) source).getArguments().values();
 
       int count = 0;
 

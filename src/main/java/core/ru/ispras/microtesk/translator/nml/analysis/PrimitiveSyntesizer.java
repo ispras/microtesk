@@ -22,8 +22,8 @@ import ru.ispras.microtesk.translator.antlrex.log.SenderKind;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.analysis.PrimitiveUtils.PathCounter;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 
 /**
  * The {@link PrimitiveSyntesizer} class provides facilities to analyze information on relations
@@ -94,7 +94,7 @@ public final class PrimitiveSyntesizer extends LogWriter implements TranslatorHa
    */
   private void syntesizeShortcuts() {
     // Fake primitive, root of all roots, needed to provide a common context.
-    final PrimitiveOR root = new PrimitiveOR(ROOT_ID, Primitive.Kind.OP, ir.getRoots());
+    final PrimitiveOr root = new PrimitiveOr(ROOT_ID, Primitive.Kind.OP, ir.getRoots());
 
     // Used by ShortcutBuilder, stores all previous results to avoid
     // redundant traversals.
@@ -103,7 +103,7 @@ public final class PrimitiveSyntesizer extends LogWriter implements TranslatorHa
     for (final Primitive op : ir.getOps().values()) {
       // Only leafs and junctions: shortcuts for other nodes are redundant.
       if (PrimitiveUtils.isLeaf(op) || PrimitiveUtils.isJunction(op)) {
-        final PrimitiveAND target = (PrimitiveAND) op;
+        final PrimitiveAnd target = (PrimitiveAnd) op;
         new ShortcutBuilder(root, target, pathCounter).build();
       }
     }

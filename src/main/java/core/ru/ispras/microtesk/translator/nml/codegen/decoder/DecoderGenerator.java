@@ -26,8 +26,8 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -87,9 +87,9 @@ public final class DecoderGenerator implements TranslatorHandler<Ir> {
       }
 
       if (item.isOrRule()) {
-        generateFile(item.getName(), new StbDecoderGroup(getModelName(), (PrimitiveOR) item));
+        generateFile(item.getName(), new StbDecoderGroup(getModelName(), (PrimitiveOr) item));
       } else {
-        generateFile(item.getName(), new StbDecoder(getModelName(), (PrimitiveAND) item));
+        generateFile(item.getName(), new StbDecoder(getModelName(), (PrimitiveAnd) item));
       }
     }
   }

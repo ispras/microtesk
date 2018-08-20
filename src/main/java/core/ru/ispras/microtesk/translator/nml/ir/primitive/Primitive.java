@@ -97,7 +97,7 @@ public class Primitive {
    * @param referenceName The name of the reference (parameter) made from the parent primitive to
    *        the current primitive.
    */
-  public void addParentReference(final PrimitiveAND parent, final String referenceName) {
+  public void addParentReference(final PrimitiveAnd parent, final String referenceName) {
     final PrimitiveReference reference;
     if (parents.containsKey(parent.getName())) {
       reference = parents.get(parent.getName());

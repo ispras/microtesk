@@ -21,7 +21,7 @@ import ru.ispras.fortress.util.TreeVisitor.Status;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
@@ -84,7 +84,7 @@ public final class IrWalkerFlow {
   private void visitPrimitives(final Collection<Primitive> primitives) {
     for (final Primitive item : primitives) {
       if (isStatus(Status.OK) && !item.isOrRule()) {
-        visitPrimitive((PrimitiveAND) item);
+        visitPrimitive((PrimitiveAnd) item);
         if (isStatus(Status.ABORT)) {
           return;
         }
@@ -92,7 +92,7 @@ public final class IrWalkerFlow {
     }
   }
 
-  private void visitPrimitive(final PrimitiveAND primitive) {
+  private void visitPrimitive(final PrimitiveAnd primitive) {
     visitor.onPrimitiveBegin(primitive);
     if (isStatus(Status.ABORT)) {
       return;
@@ -121,7 +121,7 @@ public final class IrWalkerFlow {
     visitor.onPrimitiveEnd(primitive);
   }
 
-  private void visitArguments(final PrimitiveAND primitive) {
+  private void visitArguments(final PrimitiveAnd primitive) {
     for (final Map.Entry<String, Primitive> argument : primitive.getArguments().entrySet()) {
       visitor.onArgumentBegin(primitive, argument.getKey(), argument.getValue());
       if (isStatus(Status.ABORT)) {
@@ -131,7 +131,7 @@ public final class IrWalkerFlow {
     }
   }
 
-  private void visitShortcuts(final PrimitiveAND primitive) {
+  private void visitShortcuts(final PrimitiveAnd primitive) {
     for (final Shortcut shortcut : primitive.getShortcuts()) {
       visitor.onShortcutBegin(primitive, shortcut);
       if (isStatus(Status.ABORT)) {
@@ -147,7 +147,7 @@ public final class IrWalkerFlow {
   }
 
   private void visitAttribute(
-      final PrimitiveAND primitive,
+      final PrimitiveAnd primitive,
       final Attribute attribute) {
     visitor.onAttributeBegin(primitive, attribute);
     if (isStatus(Status.ABORT)) {
@@ -163,7 +163,7 @@ public final class IrWalkerFlow {
   }
 
   private void visitStatements(
-      final PrimitiveAND primitive,
+      final PrimitiveAnd primitive,
       final Attribute attribute,
       final List<Statement> stmts) {
     for (final Statement stmt : stmts) {
@@ -177,7 +177,7 @@ public final class IrWalkerFlow {
   }
 
   private void visitStatement(
-      final PrimitiveAND primitive,
+      final PrimitiveAnd primitive,
       final Attribute attribute,
       final Statement stmt) {
     switch (stmt.getKind()) {
@@ -208,7 +208,7 @@ public final class IrWalkerFlow {
   }
 
   private void visitCondition(
-      final PrimitiveAND primitive,
+      final PrimitiveAnd primitive,
       final Attribute attribute,
       final StatementCondition stmt) {
     visitor.onConditionBegin(stmt);
@@ -241,7 +241,7 @@ public final class IrWalkerFlow {
   }
 
   private void visitAttributeCall(
-      final PrimitiveAND primitive,
+      final PrimitiveAnd primitive,
       final StatementAttributeCall stmt) {
     visitor.onAttributeCallBegin(stmt);
     if (isStatus(Status.ABORT)) {
@@ -250,13 +250,13 @@ public final class IrWalkerFlow {
 
     if (isStatus(Status.OK)) {
       if (stmt.getCalleeInstance() != null) { // Instance attribute
-        final PrimitiveAND callee = stmt.getCalleeInstance().getPrimitive();
+        final PrimitiveAnd callee = stmt.getCalleeInstance().getPrimitive();
         final Attribute attribute = callee.getAttributes().get(stmt.getAttributeName());
         visitAttribute(callee, attribute);
       } else if (stmt.getCalleeName() != null) { // Current primitive's argument attribute
         final Primitive callee = primitive.getArguments().get(stmt.getCalleeName());
         if (!callee.isOrRule()) {
-          final PrimitiveAND calleePrimitive = (PrimitiveAND) callee;
+          final PrimitiveAnd calleePrimitive = (PrimitiveAnd) callee;
           final Attribute attribute = calleePrimitive.getAttributes().get(stmt.getAttributeName());
           visitAttribute(calleePrimitive, attribute);
         }

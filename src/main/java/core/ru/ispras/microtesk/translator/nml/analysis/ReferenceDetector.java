@@ -20,7 +20,7 @@ import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalker;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 
 public final class ReferenceDetector implements TranslatorHandler<Ir> {
   @Override
@@ -42,19 +42,19 @@ public final class ReferenceDetector implements TranslatorHandler<Ir> {
 
     @Override
     public void onArgumentBegin(
-        final PrimitiveAND andRule,
+        final PrimitiveAnd andRule,
         final String argName,
         final Primitive argType) {
       argType.addParentReference(andRule, argName);
     }
 
     @Override
-    public void onAttributeBegin(final PrimitiveAND andRule, final Attribute attr) {
+    public void onAttributeBegin(final PrimitiveAnd andRule, final Attribute attr) {
       setStatus(Status.SKIP);
     }
 
     @Override
-    public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
+    public void onAttributeEnd(final PrimitiveAnd andRule, final Attribute attr) {
       setStatus(Status.OK);
     }
   }

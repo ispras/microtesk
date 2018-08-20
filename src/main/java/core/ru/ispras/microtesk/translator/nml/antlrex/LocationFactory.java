@@ -34,7 +34,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Struct;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -210,7 +210,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     final String nestedArgumentName = fields.get(0);
     final String nestedArgrumentFullName = argumentName + "." + nestedArgumentName;
 
-    if (!(argument instanceof PrimitiveAND)) {
+    if (!(argument instanceof PrimitiveAnd)) {
       raiseError(where, String.format(
           "Cannot access arguments of %s (%s). It must be an AND-rule.",
           argument.getName(),
@@ -219,7 +219,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     final Primitive nestedArgument =
-        ((PrimitiveAND) argument).getArguments().get(nestedArgumentName);
+        ((PrimitiveAnd) argument).getArguments().get(nestedArgumentName);
 
     if (null == nestedArgument) {
       raiseError(where, new UndefinedPrimitive(nestedArgrumentFullName, NmlSymbolKind.ARGUMENT));

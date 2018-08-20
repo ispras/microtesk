@@ -22,16 +22,16 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 
 import java.util.ArrayList;
 import java.util.List;
 
 final class StbAddressingModeOr implements StringTemplateBuilder {
   private final String modelName;
-  private final PrimitiveOR mode;
+  private final PrimitiveOr mode;
 
-  public StbAddressingModeOr(String modelName, PrimitiveOR mode) {
+  public StbAddressingModeOr(String modelName, PrimitiveOr mode) {
     assert mode.getKind() == Primitive.Kind.MODE;
 
     this.modelName = modelName;

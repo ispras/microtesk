@@ -25,7 +25,7 @@ import ru.ispras.microtesk.translator.nml.analysis.PrimitiveUtils;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive.Modifier;
 
 public final class WhymlGenerator implements TranslatorHandler<Ir> {
@@ -62,7 +62,7 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
         continue;
       }
 
-      final PrimitiveAND addressingMode = (PrimitiveAND) primitive;
+      final PrimitiveAnd addressingMode = (PrimitiveAnd) primitive;
       if (addressingMode.getReturnExpr() != null ||
           addressingMode.getAttributes().containsKey(Attribute.ACTION_NAME)) {
         final String name = addressingMode.getName();
@@ -82,7 +82,7 @@ public final class WhymlGenerator implements TranslatorHandler<Ir> {
         continue;
       }
 
-      final PrimitiveAND operation = (PrimitiveAND) primitive;
+      final PrimitiveAnd operation = (PrimitiveAnd) primitive;
       generateFile(primitive.getName(), new StbOperation(ir.getModelName(), operation));
     }
   }

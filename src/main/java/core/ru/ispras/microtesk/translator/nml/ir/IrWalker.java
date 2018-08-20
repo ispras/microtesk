@@ -20,8 +20,8 @@ import ru.ispras.fortress.util.TreeVisitor.Status;
 
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
@@ -175,10 +175,10 @@ public final class IrWalker {
     }
 
     if (isStatus(Status.OK)) {
-      if (primitive instanceof PrimitiveOR) {
-        visitOrRule((PrimitiveOR) primitive, isRecursive);
-      } else if (primitive instanceof PrimitiveAND) {
-        visitAndRule((PrimitiveAND) primitive, isRecursive);
+      if (primitive instanceof PrimitiveOr) {
+        visitOrRule((PrimitiveOr) primitive, isRecursive);
+      } else if (primitive instanceof PrimitiveAnd) {
+        visitAndRule((PrimitiveAnd) primitive, isRecursive);
       }
       if (isStatus(Status.ABORT)) {
         return;
@@ -188,7 +188,7 @@ public final class IrWalker {
     visitor.onPrimitiveEnd(primitive);
   }
 
-  private void visitOrRule(final PrimitiveOR orRule, final boolean isRecursive) {
+  private void visitOrRule(final PrimitiveOr orRule, final boolean isRecursive) {
     for (final Primitive item : orRule.getOrs()) {
       visitor.onAlternativeBegin(orRule, item);
       if (isStatus(Status.ABORT)) {
@@ -206,7 +206,7 @@ public final class IrWalker {
     }
   }
 
-  private void visitAndRule(final PrimitiveAND andRule, final boolean isRecursive) {
+  private void visitAndRule(final PrimitiveAnd andRule, final boolean isRecursive) {
     for (final Map.Entry<String, Primitive> e : andRule.getArguments().entrySet()) {
       visitor.onArgumentBegin(andRule, e.getKey(), e.getValue());
       if (isStatus(Status.ABORT)) {
@@ -238,7 +238,7 @@ public final class IrWalker {
     }
   }
 
-  private void visitAttribute(final PrimitiveAND andRule, final Attribute attribute) {
+  private void visitAttribute(final PrimitiveAnd andRule, final Attribute attribute) {
     visitor.onAttributeBegin(andRule, attribute);
     if (isStatus(Status.ABORT)) {
       return;
@@ -258,7 +258,7 @@ public final class IrWalker {
     visitor.onAttributeEnd(andRule, attribute);
   }
 
-  private void visitShortcut(final PrimitiveAND andRule, final Shortcut shortcut) {
+  private void visitShortcut(final PrimitiveAnd andRule, final Shortcut shortcut) {
     visitor.onShortcutBegin(andRule, shortcut);
     if (isStatus(Status.ABORT)) {
       return;

@@ -24,7 +24,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.decoder.DecoderGroup;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ final class StbDecoderGroup implements StringTemplateBuilder {
   private final ImageInfo imageInfo;
   private final List<String> items;
 
-  public StbDecoderGroup(final String modelName, final PrimitiveOR group) {
+  public StbDecoderGroup(final String modelName, final PrimitiveOr group) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(group);
     InvariantChecks.checkNotNull(ImageAnalyzer.getImageInfo(group));

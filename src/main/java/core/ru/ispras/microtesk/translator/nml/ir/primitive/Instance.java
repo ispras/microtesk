@@ -24,10 +24,10 @@ import java.util.List;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Instance {
-  private final PrimitiveAND primitive;
+  private final PrimitiveAnd primitive;
   private final List<InstanceArgument> arguments;
 
-  public Instance(final PrimitiveAND primitive, final List<InstanceArgument> arguments) {
+  public Instance(final PrimitiveAnd primitive, final List<InstanceArgument> arguments) {
     InvariantChecks.checkNotNull(primitive);
     InvariantChecks.checkNotNull(arguments);
 
@@ -35,7 +35,7 @@ public final class Instance {
     this.arguments = arguments;
   }
 
-  public PrimitiveAND getPrimitive() {
+  public PrimitiveAnd getPrimitive() {
     return primitive;
   }
 

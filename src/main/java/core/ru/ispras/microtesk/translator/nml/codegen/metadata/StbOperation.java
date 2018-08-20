@@ -24,15 +24,15 @@ import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 
 final class StbOperation implements StringTemplateBuilder {
   private final String modelName;
-  private final PrimitiveAND primitive;
+  private final PrimitiveAnd primitive;
 
-  public StbOperation(final String modelName, final PrimitiveAND primitive) {
+  public StbOperation(final String modelName, final PrimitiveAnd primitive) {
     InvariantChecks.checkNotNull(modelName);
     InvariantChecks.checkNotNull(primitive);
     this.modelName = modelName;
@@ -94,7 +94,7 @@ final class StbOperation implements StringTemplateBuilder {
       final STGroup group,
       final ST st,
       final ST stConstructor,
-      final PrimitiveAND primitive) {
+      final PrimitiveAnd primitive) {
     if (!primitive.getShortcuts().isEmpty()) {
       stConstructor.add("stmts", "");
     }

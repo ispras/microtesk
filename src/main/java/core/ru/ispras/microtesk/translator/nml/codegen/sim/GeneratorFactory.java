@@ -19,8 +19,8 @@ import ru.ispras.castle.codegen.FileGeneratorStringTemplate;
 import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 
 final class GeneratorFactory {
   private final String outDir;
@@ -83,7 +83,7 @@ final class GeneratorFactory {
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
-  public FileGenerator createAddressingModeOr(PrimitiveOR mode) {
+  public FileGenerator createAddressingModeOr(PrimitiveOr mode) {
     final String outputFileName =
         String.format(PackageInfo.getModeFileFormat(outDir), modelName, mode.getName());
 
@@ -96,7 +96,7 @@ final class GeneratorFactory {
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
-  public FileGenerator createAddressingMode(PrimitiveAND mode) {
+  public FileGenerator createAddressingMode(PrimitiveAnd mode) {
     final String outputFileName =
         String.format(PackageInfo.getModeFileFormat(outDir), modelName, mode.getName());
 
@@ -109,7 +109,7 @@ final class GeneratorFactory {
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
-  public FileGenerator createOperationOr(PrimitiveOR op) {
+  public FileGenerator createOperationOr(PrimitiveOr op) {
     final String outputFileName =
         String.format(PackageInfo.getOpFileFormat(outDir), modelName, op.getName());
 
@@ -122,7 +122,7 @@ final class GeneratorFactory {
     return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
   }
 
-  public FileGenerator createOperation(PrimitiveAND op) {
+  public FileGenerator createOperation(PrimitiveAnd op) {
     final String outputFileName = String.format(
         PackageInfo.getOpFileFormat(outDir), modelName, op.getName());
 

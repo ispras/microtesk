@@ -46,13 +46,13 @@ public final class Shortcut {
     private final String uniqueName;
     private final Primitive type;
     private final String name;
-    private final PrimitiveAND source;
+    private final PrimitiveAnd source;
 
     public Argument(
         final String uniqueName,
         final Primitive type,
         final String name,
-        final PrimitiveAND source) {
+        final PrimitiveAnd source) {
       this.uniqueName = uniqueName;
       this.type = type;
       this.name = name;
@@ -92,7 +92,7 @@ public final class Shortcut {
      *
      * @return Source operation.
      */
-    public PrimitiveAND getSource() {
+    public PrimitiveAnd getSource() {
       return source;
     }
 
@@ -102,8 +102,8 @@ public final class Shortcut {
     }
   }
 
-  private final PrimitiveAND entry;
-  private final PrimitiveAND target;
+  private final PrimitiveAnd entry;
+  private final PrimitiveAnd target;
   private final List<String> contextNames;
   private final Map<String, Argument> arguments;
   private final PrimitiveInfo info;
@@ -124,8 +124,8 @@ public final class Shortcut {
    *         (all OR-rules must be resolved at this point).
    */
   public Shortcut(
-      final PrimitiveAND entry,
-      final PrimitiveAND target,
+      final PrimitiveAnd entry,
+      final PrimitiveAnd target,
       final List<String> contextNames) {
     InvariantChecks.checkNotNull(entry);
     InvariantChecks.checkNotNull(target);
@@ -165,8 +165,8 @@ public final class Shortcut {
    *         (all OR-rules must be resolved at this point).
    */
   public Shortcut(
-      final PrimitiveAND entry,
-      final PrimitiveAND target,
+      final PrimitiveAnd entry,
+      final PrimitiveAnd target,
       final String contextName) {
     this(entry, target, Collections.singletonList(contextName));
     InvariantChecks.checkNotNull(contextName);
@@ -180,14 +180,14 @@ public final class Shortcut {
    * @param reachedTarget Specifies whether the target operation is reached. It it is, the recursion
    *        stops and all child operations are added as arguments.
    */
-  private void addArguments(final PrimitiveAND root, final boolean reachedTarget) {
+  private void addArguments(final PrimitiveAnd root, final boolean reachedTarget) {
     for (final Map.Entry<String, Primitive> e : root.getArguments().entrySet()) {
       final String argName = e.getKey();
       final Primitive argType = e.getValue();
 
       if ((argType.getKind() == Primitive.Kind.OP) && !reachedTarget) {
         notOrRuleCheck(argType);
-        addArguments((PrimitiveAND) argType, argType == target);
+        addArguments((PrimitiveAnd) argType, argType == target);
       } else {
         final String uniqueArgName = createUniqueArgumentName(argName);
         final Argument arg = new Argument(uniqueArgName, argType, argName, root);
@@ -197,7 +197,7 @@ public final class Shortcut {
   }
 
   private Pair<Boolean, Boolean> getBranchInfo(
-      final PrimitiveAND root,
+      final PrimitiveAnd root,
       final boolean reachedTarget) {
     if (root.getInfo().isBranch()) {
       return new Pair<>(root.getInfo().isBranch(), root.getInfo().isConditionalBranch());
@@ -206,7 +206,7 @@ public final class Shortcut {
     for (final Primitive arg : root.getArguments().values()) {
       if ((arg.getKind() == Primitive.Kind.OP) && !reachedTarget) {
         notOrRuleCheck(arg);
-        final PrimitiveAND primitive = (PrimitiveAND) arg;
+        final PrimitiveAnd primitive = (PrimitiveAnd) arg;
         final Pair<Boolean, Boolean> branchInfo = getBranchInfo(primitive, primitive == target);
 
         if (branchInfo.first) {
@@ -219,13 +219,13 @@ public final class Shortcut {
   }
 
   private MemoryAccessStatus getMemoryAccessStatus(
-      final PrimitiveAND root, final boolean reachedTarget) {
+      final PrimitiveAnd root, final boolean reachedTarget) {
 
     MemoryAccessStatus result = MemoryAccessStatus.NO;
     for (final Primitive arg : root.getArguments().values()) {
       if ((arg.getKind() == Primitive.Kind.OP) && !reachedTarget) {
         notOrRuleCheck(arg);
-        final PrimitiveAND primitive = (PrimitiveAND) arg;
+        final PrimitiveAnd primitive = (PrimitiveAnd) arg;
         result = result.merge(new MemoryAccessStatus(
             primitive.getInfo().isLoad(),
             primitive.getInfo().isStore(),
@@ -272,7 +272,7 @@ public final class Shortcut {
    *
    * @return Entry operation.
    */
-  public PrimitiveAND getEntry() {
+  public PrimitiveAnd getEntry() {
     return entry;
   }
 
@@ -281,7 +281,7 @@ public final class Shortcut {
    *
    * @return Target operation.
    */
-  public PrimitiveAND getTarget() {
+  public PrimitiveAnd getTarget() {
     return target;
   }
 

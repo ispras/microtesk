@@ -36,8 +36,8 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOR;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
@@ -97,7 +97,7 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onAlternativeBegin(final PrimitiveOR orRule, final Primitive item) {
+    public void onAlternativeBegin(final PrimitiveOr orRule, final Primitive item) {
       if (item.getModifier() == Primitive.Modifier.PSEUDO
           || item.getModifier() == Primitive.Modifier.LABEL) {
         setStatus(Status.SKIP);
@@ -138,14 +138,14 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onAlternativeEnd(final PrimitiveOR orRule, final Primitive item) {
+    public void onAlternativeEnd(final PrimitiveOr orRule, final Primitive item) {
       if (getStatus() == Status.SKIP) {
         setStatus(Status.OK);
       }
     }
 
     @Override
-    public void onAttributeBegin(final PrimitiveAND andRule, final Attribute attr) {
+    public void onAttributeBegin(final PrimitiveAnd andRule, final Attribute attr) {
       if (!attr.getName().equals(Attribute.IMAGE_NAME)) {
         setStatus(Status.SKIP);
         return;
@@ -156,7 +156,7 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
+    public void onAttributeEnd(final PrimitiveAnd andRule, final Attribute attr) {
       if (getStatus() == Status.SKIP) {
         setStatus(Status.OK);
       }
@@ -164,7 +164,7 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
 
     @Override
     public void onStatementBegin(
-        final PrimitiveAND andRule, final Attribute attr, final Statement stmt) {
+        final PrimitiveAnd andRule, final Attribute attr, final Statement stmt) {
       InvariantChecks.checkTrue(stmt.getKind() == Statement.Kind.FORMAT
           || stmt.getKind() == Statement.Kind.CALL);
       if (stmt instanceof StatementFormat) {
@@ -177,14 +177,14 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
     }
 
     private void onStatementFormat(
-        final PrimitiveAND primitive, final StatementFormat stmt) {
+        final PrimitiveAnd primitive, final StatementFormat stmt) {
       // null means call to the 'format' function (not 'trace' or anything else).
       InvariantChecks.checkTrue(null == stmt.getFunction());
       analyzeImage(primitive, stmt.getFormat(), stmt.getMarkers(), stmt.getArguments());
     }
 
     private void onStatementAttributeCall(
-        final PrimitiveAND primitive, final StatementAttributeCall stmt) {
+        final PrimitiveAnd primitive, final StatementAttributeCall stmt) {
       if (stmt.getAttributeName().equals(Attribute.INIT_NAME)) {
         final Attribute attribute = primitive.getAttributes().get(Attribute.INIT_NAME);
         for (final Statement initStmt : attribute.getStatements()) {
@@ -214,7 +214,7 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
     }
 
     private void analyzeImage(
-        final PrimitiveAND primitive,
+        final PrimitiveAnd primitive,
         final String format,
         final List<FormatMarker> markers,
         final List<Node> arguments) {
@@ -246,7 +246,7 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
     }
 
     private static void calculateOpc(
-        final PrimitiveAND primitive,
+        final PrimitiveAnd primitive,
         final ImageInfo imageInfo,
         final Map<Node, Node> mappings) {
       InvariantChecks.checkNotNull(primitive);
@@ -290,7 +290,7 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
         } else if (isInstanceImage(field)) {
           final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
           final Instance instance = call.getCalleeInstance();
-          final PrimitiveAND callee = instance.getPrimitive();
+          final PrimitiveAnd callee = instance.getPrimitive();
 
           final String[] argumentNames =
               callee.getArguments().keySet().toArray(new String[callee.getArguments().size()]);
@@ -336,12 +336,12 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onShortcutBegin(final PrimitiveAND andRule, final Shortcut shortcut) {
+    public void onShortcutBegin(final PrimitiveAnd andRule, final Shortcut shortcut) {
       setStatus(Status.SKIP);
     }
 
     @Override
-    public void onShortcutEnd(final PrimitiveAND andRule, final Shortcut shortcut) {
+    public void onShortcutEnd(final PrimitiveAnd andRule, final Shortcut shortcut) {
       setStatus(Status.OK);
     }
 
@@ -355,7 +355,7 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
       throw new UnsupportedOperationException();
     }
 
-    private static ImageInfo getArgumentImageInfo(final PrimitiveAND primitive, final Node field) {
+    private static ImageInfo getArgumentImageInfo(final PrimitiveAnd primitive, final Node field) {
       final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
       InvariantChecks.checkNotNull(call);
 
@@ -389,7 +389,7 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
     );
   }
 
-  private static ImageInfo getImageInfo(final PrimitiveAND primitive, final Node field) {
+  private static ImageInfo getImageInfo(final PrimitiveAnd primitive, final Node field) {
     InvariantChecks.checkTrue(field.isType(DataTypeId.BIT_VECTOR)
         || field.isType(DataTypeId.LOGIC_STRING), primitive.getName());
 
@@ -460,7 +460,7 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
     return imageInfo;
   }
 
-  private static boolean isArgumentImage(final PrimitiveAND primitive, final Node field) {
+  private static boolean isArgumentImage(final PrimitiveAnd primitive, final Node field) {
     if (!ExprUtils.isVariable(field) || !field.isType(DataTypeId.LOGIC_STRING)) {
       return false;
     }
@@ -491,7 +491,7 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
     return call.getCalleeInstance() != null;
   }
 
-  private static Primitive getPrimitive(final PrimitiveAND andRule, final Node field) {
+  private static Primitive getPrimitive(final PrimitiveAnd andRule, final Node field) {
     final StatementAttributeCall call = (StatementAttributeCall) field.getUserData();
 
     if (call.getCalleeInstance() != null) {

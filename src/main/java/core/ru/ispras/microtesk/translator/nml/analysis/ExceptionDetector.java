@@ -21,7 +21,7 @@ import ru.ispras.microtesk.translator.nml.ir.IrVisitorDefault;
 import ru.ispras.microtesk.translator.nml.ir.IrWalkerFlow;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Shortcut;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
@@ -34,7 +34,7 @@ public final class ExceptionDetector implements TranslatorHandler<Ir> {
   }
 
   private static final class Visitor extends IrVisitorDefault {
-    private PrimitiveAND primitive;
+    private PrimitiveAnd primitive;
     private Shortcut shortcut;
     private PrimitiveInfo info;
 
@@ -57,7 +57,7 @@ public final class ExceptionDetector implements TranslatorHandler<Ir> {
         InvariantChecks.checkTrue(this.shortcut == null);
         InvariantChecks.checkTrue(this.info == null);
 
-        this.primitive = (PrimitiveAND) item;
+        this.primitive = (PrimitiveAnd) item;
         this.info = this.primitive.getInfo();
       } else {
         InvariantChecks.checkNotNull(this.shortcut);
@@ -86,7 +86,7 @@ public final class ExceptionDetector implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onShortcutBegin(final PrimitiveAND andRule, final Shortcut shortcut) {
+    public void onShortcutBegin(final PrimitiveAnd andRule, final Shortcut shortcut) {
       InvariantChecks.checkTrue(this.primitive == andRule);
       InvariantChecks.checkTrue(this.shortcut == null);
 
@@ -95,7 +95,7 @@ public final class ExceptionDetector implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onShortcutEnd(final PrimitiveAND andRule, final Shortcut shortcut) {
+    public void onShortcutEnd(final PrimitiveAnd andRule, final Shortcut shortcut) {
       InvariantChecks.checkTrue(this.primitive == andRule);
       InvariantChecks.checkTrue(this.shortcut == shortcut);
 
@@ -104,7 +104,7 @@ public final class ExceptionDetector implements TranslatorHandler<Ir> {
     }
 
     @Override
-    public void onAttributeEnd(final PrimitiveAND andRule, final Attribute attr) {
+    public void onAttributeEnd(final PrimitiveAnd andRule, final Attribute attr) {
       if (isStatus(Status.SKIP)
           && this.primitive == andRule
           && attr.getName().equals(Attribute.ACTION_NAME)) {
