@@ -12,6 +12,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
@@ -41,20 +42,43 @@ import java.util.List;
 import java.util.Map;
 
 public final class NmlIrTrans {
-  private static void translate(final MirBlock ctx, final List<Statement> code) {
+  public static MirContext translate(final List<Statement> source) {
+    final MirContext ctx = new MirContext();
+    translate(ctx.newBlock(), source);
+
+    return ctx;
+  }
+
+  private static List<MirBlock> translate(final MirBlock entry, final List<Statement> code) {
+    MirBlock ctx = entry;
+    List<MirBlock> terminals = Collections.singletonList(ctx);
+
     for (final Statement s : code) {
+      if (terminals.size() > 1) {
+        final MirBlock sink = entry.ctx.newBlock();
+        for (final MirBlock block : terminals) {
+          block.jump(sink);
+        }
+        ctx = sink;
+        terminals = Collections.singletonList(ctx);
+      }
+
       switch (s.getKind()) {
       case ASSIGN:
         translate(ctx, (StatementAssignment) s);
         break;
 
       case COND:
+        terminals = translate(ctx, (StatementCondition) s);
+        break;
+
       case CALL:
       case FUNCALL:
       case FORMAT:
         break;
       }
     }
+    return terminals;
   }
 
   private static void translate(final MirBlock ctx, final StatementAssignment s) {
@@ -431,5 +455,28 @@ public final class NmlIrTrans {
       // final Rvalue not = Opcode.BitXor.make();
       return null;
     }
+  }
+
+  private static List<MirBlock> translate(final MirBlock ctx, final StatementCondition s) {
+    final List<MirBlock> blocks = new ArrayList<>();
+
+    MirBlock current = ctx;
+    for (int i = 0; i < s.getBlockCount(); ++i) {
+      final StatementCondition.Block block = s.getBlock(i);
+      if (!block.isElseBlock()) {
+        final Operand cond = translate(current, block.getCondition().getNode());
+        final Pair<MirBlock, MirBlock> target = current.branch(cond);
+
+        blocks.addAll(translate(target.first, block.getStatements()));
+
+        current = target.second;
+      } else {
+        blocks.addAll(translate(current, block.getStatements()));
+      }
+    }
+    if (!s.getBlock(s.getBlockCount() - 1).isElseBlock()) {
+      blocks.add(current);
+    }
+    return blocks;
   }
 }

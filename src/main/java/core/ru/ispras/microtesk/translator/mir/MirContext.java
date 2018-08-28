@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 final class MirBlock {
-  private final MirContext ctx;
-  private final BasicBlock bb;
+  public final BasicBlock bb;
+  public final MirContext ctx;
 
   public MirBlock(final MirContext ctx, final BasicBlock bb) {
     this.ctx = ctx;
