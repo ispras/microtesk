@@ -2,6 +2,7 @@ package ru.ispras.microtesk.translator.mir;
 
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
+import ru.ispras.fortress.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,18 +55,38 @@ final class MirBlock {
     return ret;
   }
 
+  public Pair<MirBlock, MirBlock> branch(final Operand cond) {
+    final MirBlock taken = ctx.newBlock();
+    final MirBlock other = ctx.newBlock();
+
+    append(new Branch(cond, taken.bb, other.bb));
+
+    return new Pair<MirBlock, MirBlock>(taken, other);
+  }
+
+  public void jump(final MirBlock block) {
+    append(new Terminator(block.bb));
+  }
+
   public <T extends Instruction> T append(final T insn) {
     bb.insns.add(insn);
     return insn;
   }
 }
 
-final class MirContext {
+public final class MirContext {
   public final List<BasicBlock> blocks = new ArrayList<>();
   public final BasicBlock landingPad = new BasicBlock();
 
   public final List<DataType> locals = new ArrayList();
   public final Map<Integer, LocalInfo> localInfo = new HashMap<>();
+
+  public MirBlock newBlock() {
+    final MirBlock block = new MirBlock(this, new BasicBlock());
+    blocks.add(block.bb);
+
+    return block;
+  }
 }
 
 final class LocalInfo {
