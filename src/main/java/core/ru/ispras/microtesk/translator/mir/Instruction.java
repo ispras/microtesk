@@ -4,6 +4,7 @@ import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeValue;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +106,15 @@ class Invoke extends Terminator {
 }
 
 final class Branch extends Terminator {
+  private final Map<Integer, BasicBlock> target;
+  private final BasicBlock other;
+
+  public Branch(final Operand cond, final BasicBlock bbTaken, final BasicBlock bbOther) {
+    super(Arrays.asList(bbTaken, bbOther));
+    this.target = Collections.singletonMap(1, bbTaken);
+    this.other = bbOther;
+  }
+
   public BasicBlock getPathTaken() {
     return successors.get(successors.size() - 1);
   }
