@@ -27,7 +27,6 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

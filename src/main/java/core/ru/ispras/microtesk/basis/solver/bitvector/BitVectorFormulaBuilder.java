@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.basis.solver.bitvector;
 
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link BitVectorFormulaBuilder} represents an abstract formula builder.
@@ -23,16 +22,6 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class BitVectorFormulaBuilder {
-  /**
-   * Adds the constraint to the formula.
-   *
-   * @param constraint the constraint to be added.
-   * @throws IllegalArgumentException if {@code constraint} is null.
-   */
-//  public final void addConstraint(final BitVectorConstraint constraint) {
-//    InvariantChecks.checkNotNull(constraint);
-//    addFormula(constraint.getFormula());
-//  }
 
   /**
    * Adds the sub-formula to the formula.

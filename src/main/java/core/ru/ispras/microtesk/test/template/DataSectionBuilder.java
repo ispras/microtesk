@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
 

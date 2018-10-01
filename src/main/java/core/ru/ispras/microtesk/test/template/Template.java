@@ -312,6 +312,7 @@ public final class Template {
       return;
     }
 
+    InvariantChecks.checkTrue(blockBuilders.size() == 1);
     final BlockBuilder rootBuilder = blockBuilders.pop();
     InvariantChecks.checkTrue(rootBuilder.isExternal());
 
