@@ -522,9 +522,7 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void startProgram() throws IOException, ConfigurationException {
-    final ConcreteSequence prologue = testProgram.getPrologue();
-
-    if (isProgramStarted || prologue == null) {
+    if (isProgramStarted) {
       return;
     }
 
@@ -540,7 +538,7 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
-    allocateSequence(prologue, Label.NO_SEQUENCE_INDEX);
+    allocateSequence(testProgram.getPrologue(), Label.NO_SEQUENCE_INDEX);
   }
 
   private void finishProgram() throws ConfigurationException, IOException {
