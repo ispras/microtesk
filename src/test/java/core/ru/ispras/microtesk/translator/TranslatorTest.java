@@ -75,11 +75,11 @@ public abstract class TranslatorTest<Ir> {
     translator.setLog(new LogChecker(translator.getLog()));
     translator.addHandler(irChecker);
 
-    translator.translate(
-        new Options(),
-        new TranslatorContext(),
-        Collections.<String>emptySet(),
-        fileNames
-    );
+    final Options options = new Options();
+
+    final TranslatorContext context = new TranslatorContext();
+    context.addIr(new ru.ispras.microtesk.translator.nml.ir.Ir("model", "revision"));
+
+    translator.translate(options, context, Collections.<String>emptySet(), fileNames);
   }
 }

@@ -1057,6 +1057,8 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
             }
             nexits += setExit(w, cond.getElseBlock(), output);
             break;
+          default:
+            break;
         }
       }
       return nexits;

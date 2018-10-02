@@ -29,7 +29,7 @@ public final class Buffer extends AbstractStorage {
 
   private static final String TO_STRING_FMT =
       "%sbuffer %s(%s) ="
-          + " {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s, guard=%s, parent=%s}";
+          + " {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s, parent=%s}";
   private final MmuBuffer.Kind kind;
   private final BigInteger ways;
   private final BigInteger sets;

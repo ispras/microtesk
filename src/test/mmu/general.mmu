@@ -89,7 +89,7 @@ segment USEG (va: VA) = (pa : PA)
 
     // The EntryLo is valid.
     if v == 1 then
-      pa.value = pfn<24..(evenOddBit - 12)>::va.value<(evenOddBit - 1)..0>;
+      pa.value = pfn<23..(evenOddBit - 12)>::va.value<(evenOddBit - 1)..0>;
     // The EntryLo is invalid.
     else
       exception("TLBInvalid");
@@ -169,9 +169,29 @@ buffer Memory (pa: PA)
 // MMU Logic (Interaction between TLB, L1 and L2)
 //==================================================================================================
 
+function getWordFromLine(wordIndex: 2, line: 256): 64
+{
+  if   wordIndex == 0 then return line<63..0>;
+  elif wordIndex == 1 then return line<127..64>;
+  elif wordIndex == 2 then return line<191..128>;
+  else                     return line<255..192>; endif;
+}
+
+function putWordIntoLine(wordIndex: 2, line: 256, data: 64): 256
+var intline: 256;
+{
+  intline = line;
+  if   wordIndex == 0 then intline<63..0>    = data;
+  elif wordIndex == 1 then intline<127..64>  = data;
+  elif wordIndex == 2 then intline<191..128> = data;
+  else                     intline<255..192> = data; endif;
+  return intline;
+}
+
 mmu pmem (va: VA) = (data: 64)
   var l1Entry: L1.entry;
   var l2Entry: L2.entry;
+  var wordIndex: 2;
 
   var evenOddBit: 5;
 
@@ -186,7 +206,7 @@ mmu pmem (va: VA) = (data: 64)
 
   read = {
     // The address is unaligned.
-    if va.value<0..2> != 0 then
+    if va.value<2..0> != 0 then
       exception("AddressError");
     endif; // If the address is unaligned.
 
@@ -198,8 +218,11 @@ mmu pmem (va: VA) = (data: 64)
       pa = USEG(va);
     // The address is from the KSEG0 or KSEG1 segment.
     else
-      pa.value = va.value<28..0>;
+      pa.value<28..0> = va.value<28..0>;
+      pa.value<35..29> = 0;
     endif; // If the address is from the USEG segment.
+
+    wordIndex = pa.value<4..3>;
 
     // The address is cacheable.
     if c<1..0> != 2 then
@@ -207,7 +230,6 @@ mmu pmem (va: VA) = (data: 64)
       if L1(pa).hit then
         l1Entry = L1(pa);
         cacheData = l1Entry.DATA;
-        data = cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)>;
       // The address does not hit the L1.
       else
         // The L2 cache is used.
@@ -216,7 +238,6 @@ mmu pmem (va: VA) = (data: 64)
           if L2(pa).hit then
             l2Entry = L2(pa);
             cacheData = l2Entry.DATA;
-            data = cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)>;
 
             // Fill the L1.
             l1Entry.V = 1;
@@ -226,7 +247,6 @@ mmu pmem (va: VA) = (data: 64)
           // The address does not hit the L2.
           else
             cacheData = Memory(pa);
-            data = cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)>;
 
             // Fill L2.
             l2Entry.V = 1;
@@ -243,7 +263,6 @@ mmu pmem (va: VA) = (data: 64)
         // The L2 cache is bypassed.
         else
           cacheData = Memory(pa);
-          data = cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)>;
 
           l1Entry.V = 1;
           l1Entry.TAG = pa.value<35..12>;
@@ -254,13 +273,14 @@ mmu pmem (va: VA) = (data: 64)
     // The address is uncacheable.
     else
       cacheData = Memory(pa);
-      data = cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)>;
     endif; // If the address is cacheable.
+
+    data = getWordFromLine(wordIndex, cacheData);
   }
 
   write = {
     // The address is unaligned.
-    if va.value<0..2> != 0 then
+    if va.value<2..0> != 0 then
       exception("AddressError");
     endif; // If the address is unaligned.
 
@@ -272,8 +292,11 @@ mmu pmem (va: VA) = (data: 64)
       pa = USEG(va);
     // The address is from the KSEG0 or KSEG1 segment.
     else
-      pa.value = va.value<28..0>;
+      pa.value<28..0> = va.value<28..0>;
+      pa.value<35..29> = 0;
     endif; // If the address is from the USEG segment.
+
+    wordIndex = pa.value<4..3>;
 
     // The address is cacheable.
     if c<1..0> != 2 then
@@ -281,7 +304,7 @@ mmu pmem (va: VA) = (data: 64)
       if L1(pa).hit then
         // Update the L1.
         l1Entry = L1(pa);
-        l1Entry.DATA<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)> = data;
+        l1Entry.DATA = putWordIntoLine(wordIndex, l1Entry.DATA, data);
         L1(pa) = l1Entry;
 
         // Only the write-through policy is supported.
@@ -294,7 +317,7 @@ mmu pmem (va: VA) = (data: 64)
           if L2(pa).hit then
             // Update the L2.
             l2Entry = L2(pa);
-            l2Entry.DATA<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)> = data;
+            l2Entry.DATA = putWordIntoLine(wordIndex, l2Entry.DATA, data);
             L2(pa) = l2Entry;
 
             // Fill the L1.
@@ -308,7 +331,7 @@ mmu pmem (va: VA) = (data: 64)
           // The address does not hit the L2.
           else
             cacheData = Memory(pa);
-            cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)> = data;
+            cacheData = putWordIntoLine(wordIndex, cacheData, data);
             Memory(pa) = cacheData;
 
             // Fill the L2.
@@ -326,7 +349,7 @@ mmu pmem (va: VA) = (data: 64)
         // The L2 cache is bypassed.
         else
           cacheData = Memory(pa);
-          cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)> = data;
+          cacheData = putWordIntoLine(wordIndex, cacheData, data);
           Memory(pa) = cacheData;
 
           // Fill the L2
@@ -339,7 +362,7 @@ mmu pmem (va: VA) = (data: 64)
     // The address is uncacheable.
     else
       cacheData = Memory(pa);
-      cacheData<(8 * pa.value<4..0> + 63)..(8 * pa.value<4..0>)> = data;
+      cacheData = putWordIntoLine(wordIndex, cacheData, data);
       Memory(pa) = cacheData;
     endif; // If the address is cacheable.
   }
