@@ -78,23 +78,6 @@ public final class Printer {
 
   private Section section = null;
 
-  public static Printer newCodeFile(
-      final Options options,
-      final int codeFileIndex) throws IOException {
-    InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkGreaterOrEqZero(codeFileIndex);
-
-    final String outDir = getOutDir(options);
-    final String fileName = String.format(
-        "%s_%04d", options.getValueAsString(Option.CODE_FILE_PREFIX), codeFileIndex);
-
-    final File file = FileUtils.newFile(
-        outDir, fileName, options.getValueAsString(Option.CODE_FILE_EXTENSION));
-
-    final File binaryFile = newBinaryFile(outDir, fileName, options);
-    return new Printer(options, false, file, binaryFile);
-  }
-
   public static Printer getConsole(
       final Options options, final Statistics statistics) {
     if (null != console) {
@@ -113,18 +96,51 @@ public final class Printer {
     return console;
   }
 
-  public static Printer newDataFile(
+  public static Printer newCodeFile(
       final Options options,
-      final int dataFileIndex) throws IOException {
+      final int fileIndex) throws IOException {
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkGreaterOrEqZero(dataFileIndex);
+    InvariantChecks.checkGreaterOrEqZero(fileIndex);
 
     final String outDir = getOutDir(options);
     final String fileName = String.format(
-        "%s_%04d", options.getValueAsString(Option.DATA_FILE_PREFIX), dataFileIndex);
+        "%s_%04d", options.getValueAsString(Option.CODE_FILE_PREFIX), fileIndex);
+
+    final File file = FileUtils.newFile(
+        outDir, fileName, options.getValueAsString(Option.CODE_FILE_EXTENSION));
+
+    final File binaryFile = newBinaryFile(outDir, fileName, options);
+    return new Printer(options, false, file, binaryFile);
+  }
+
+  public static Printer newDataFile(
+      final Options options,
+      final int fileIndex) throws IOException {
+    InvariantChecks.checkNotNull(options);
+    InvariantChecks.checkGreaterOrEqZero(fileIndex);
+
+    final String outDir = getOutDir(options);
+    final String fileName = String.format(
+        "%s_%04d", options.getValueAsString(Option.DATA_FILE_PREFIX), fileIndex);
 
     final File file = FileUtils.newFile(
         outDir, fileName, options.getValueAsString(Option.DATA_FILE_EXTENSION));
+
+    return new Printer(options, false, file, null);
+  }
+
+  public static Printer newSectionFile(
+      final String name,
+      final Options options,
+      final int fileIndex) throws IOException {
+    InvariantChecks.checkNotNull(options);
+    InvariantChecks.checkGreaterOrEqZero(fileIndex);
+
+    final String outDir = getOutDir(options);
+    final String fileName = String.format("%s_%04d", name, fileIndex);
+
+    final File file = FileUtils.newFile(
+        outDir, fileName, options.getValueAsString(Option.CODE_FILE_EXTENSION));
 
     return new Printer(options, false, file, null);
   }

@@ -16,14 +16,16 @@ package ru.ispras.microtesk.test;
 
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
-
 import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.template.DataSection;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The {@link PrinterUtils} class provides utility methods for printing test programs and their
@@ -107,21 +109,45 @@ final class PrinterUtils {
     final Statistics statistics = engineContext.getStatistics();
     statistics.pushActivity(Statistics.Activity.PRINTING);
 
-    Printer printer = null;
+    // Printer of the test program.
+    Printer codePrinter = null;
+    // Printers of the separate-file sections.
+    final Map<String, Printer> sectionPrinters = new HashMap<>();
+
     try {
-      printer = Printer.newCodeFile(engineContext.getOptions(), statistics.getPrograms());
-      Logger.debugHeader("Printing test program to %s", printer.getFileName());
+      codePrinter = Printer.newCodeFile(engineContext.getOptions(), statistics.getPrograms());
+      Logger.debugHeader("Printing test program to %s", codePrinter.getFileName());
 
       for (final ConcreteSequence sequence : testProgram.getEntries()) {
-        printer.printSequence(engineContext.getModel(), sequence);
+        final Section section = sequence.getSection();
+
+        if (!section.isSeparateFile()) {
+          codePrinter.printSequence(engineContext.getModel(), sequence);
+        } else {
+          Printer sectionPrinter = sectionPrinters.get(section.getName());
+
+          if (null == sectionPrinter) {
+            sectionPrinter = Printer.newSectionFile(
+                section.getName(), engineContext.getOptions(), statistics.getPrograms());
+
+            sectionPrinters.put(section.getName(), sectionPrinter);
+          }
+
+          sectionPrinter.printSequence(engineContext.getModel(), sequence);
+        }
       }
 
-      printer.printData(testProgram.getAllData());
+      codePrinter.printData(testProgram.getAllData());
       statistics.incPrograms();
     } finally {
-      if (null != printer) {
-        printer.close();
+      if (null != codePrinter) {
+        codePrinter.close();
       }
+
+      for (final Printer sectionPrinter : sectionPrinters.values()) {
+        sectionPrinter.close();
+      }
+
       statistics.popActivity();
     }
   }
