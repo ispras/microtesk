@@ -137,7 +137,8 @@ public final class Printer {
     InvariantChecks.checkGreaterOrEqZero(fileIndex);
 
     final String outDir = getOutDir(options);
-    final String fileName = String.format("%s_%04d", name, fileIndex);
+    final String fileName = String.format(
+        "%s_%s_%04d", options.getValueAsString(Option.CODE_FILE_PREFIX), name, fileIndex);
 
     final File file = FileUtils.newFile(
         outDir, fileName, options.getValueAsString(Option.CODE_FILE_EXTENSION));

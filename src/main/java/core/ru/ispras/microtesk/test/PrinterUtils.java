@@ -121,7 +121,7 @@ final class PrinterUtils {
       for (final ConcreteSequence sequence : testProgram.getEntries()) {
         final Section section = sequence.getSection();
 
-        if (!section.isSeparateFile()) {
+        if (section.isStandard() || !section.isSeparateFile()) {
           codePrinter.printSequence(engineContext.getModel(), sequence);
         } else {
           Printer sectionPrinter = sectionPrinters.get(section.getName());
