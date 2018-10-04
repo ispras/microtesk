@@ -911,7 +911,7 @@ class Template
 
     pa   = attrs[:pa]
     va   = attrs[:va]
-    args = attrs[:args]
+    args = attrs.has_key?(:args) ? attrs[:args] : ''
 
     @template.beginSection name, prefix, pa, va, args
     self.instance_eval &contents
@@ -923,7 +923,7 @@ class Template
 
     pa   = attrs[:pa]
     va   = attrs[:va]
-    args = attrs[:args]
+    args = attrs.has_key?(:args) ? attrs[:args] : ''
 
     @template.beginSectionText prefix, pa, va, args
     self.instance_eval &contents
@@ -935,7 +935,7 @@ class Template
 
     pa   = attrs[:pa]
     va   = attrs[:va]
-    args = attrs[:args]
+    args = attrs.has_key?(:args) ? attrs[:args] : ''
 
     @template.beginSectionData prefix, pa, va, args
     self.instance_eval &contents

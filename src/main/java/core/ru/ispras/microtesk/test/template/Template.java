@@ -1207,7 +1207,7 @@ public final class Template {
 
     if (null == section) {
       final String name = context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD);
-      section = new Section(name, prefix, true, pa, va);
+      section = new Section(name, prefix, true, pa, va, args);
       Sections.get().setTextSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);
@@ -1226,7 +1226,7 @@ public final class Template {
 
     if (null == section) {
       final String name = context.getOptions().getValueAsString(Option.DATA_SECTION_KEYWORD);
-      section = new Section(name, prefix, true, pa, va);
+      section = new Section(name, prefix, true, pa, va, args);
       Sections.get().setDataSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);
