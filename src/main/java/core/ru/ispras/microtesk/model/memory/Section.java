@@ -28,6 +28,8 @@ public final class Section {
   private final boolean translate;
   private final String args;
 
+  private final boolean file;
+
   private BigInteger pa;
   private BigInteger savedPa;
 
@@ -37,7 +39,7 @@ public final class Section {
       final boolean standard,
       final BigInteger basePa,
       final BigInteger baseVa) {
-    this(name, prefix, standard, basePa, baseVa, "");
+    this(name, prefix, standard, basePa, baseVa, "", false);
   }
 
   public Section(
@@ -46,7 +48,8 @@ public final class Section {
       final boolean standard,
       final BigInteger basePa,
       final BigInteger baseVa,
-      final String args) {
+      final String args,
+      final boolean file) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(basePa);
@@ -61,6 +64,8 @@ public final class Section {
     this.baseVa = baseVa;
     this.translate = !basePa.equals(baseVa);
     this.args = args;
+
+    this.file = file;
 
     this.pa = basePa;
     this.savedPa = null;
@@ -106,6 +111,10 @@ public final class Section {
 
   public String getArgs() {
     return args;
+  }
+
+  public boolean isSeparateFile() {
+    return file;
   }
 
   public BigInteger getPa() {

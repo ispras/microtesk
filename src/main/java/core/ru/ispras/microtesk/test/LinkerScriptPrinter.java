@@ -63,6 +63,11 @@ final class LinkerScriptPrinter {
             st.add("time", new Date().toString());
 
             for (final Section section : Sections.get().getSectionsOrderedByVa()) {
+              // Sections written into separate files (boot, exception handler, etc.) are ignored.
+              if (section.isSeparateFile()) {
+                continue;
+              }
+
               st.add("section_ids", section.getName());
               st.add("section_vas", toHexString(section.getBaseVa()));
               st.add("section_flags", false);

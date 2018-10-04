@@ -1181,14 +1181,15 @@ public final class Template {
       final String prefix,
       final BigInteger pa,
       final BigInteger va,
-      final String args) {
+      final String args,
+      final boolean file) {
     processExternalCode();
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(prefix);
 
     Section section = Sections.get().getSection(name, false);
     if (null == section) {
-      section = new Section(name, prefix, false, pa, va, args);
+      section = new Section(name, prefix, false, pa, va, args, file);
       Sections.get().addSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);
@@ -1207,7 +1208,7 @@ public final class Template {
 
     if (null == section) {
       final String name = context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD);
-      section = new Section(name, prefix, true, pa, va, args);
+      section = new Section(name, prefix, true, pa, va, args, false);
       Sections.get().setTextSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);
@@ -1226,7 +1227,7 @@ public final class Template {
 
     if (null == section) {
       final String name = context.getOptions().getValueAsString(Option.DATA_SECTION_KEYWORD);
-      section = new Section(name, prefix, true, pa, va, args);
+      section = new Section(name, prefix, true, pa, va, args, false);
       Sections.get().setDataSection(section);
     } else {
       checkSectionRedefined(section, pa, va, args);

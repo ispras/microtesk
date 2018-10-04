@@ -912,8 +912,9 @@ class Template
     pa   = attrs[:pa]
     va   = attrs[:va]
     args = attrs.has_key?(:args) ? attrs[:args] : ''
+    file = attrs.has_key?(:file) ? attrs[:file] : false
 
-    @template.beginSection name, prefix, pa, va, args
+    @template.beginSection name, prefix, pa, va, args, file
     self.instance_eval &contents
     @template.endSection
   end
