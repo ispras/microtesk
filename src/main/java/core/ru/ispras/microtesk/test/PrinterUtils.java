@@ -84,7 +84,7 @@ final class PrinterUtils {
 
     Printer printer = null;
     try {
-      printer = Printer.newExcHandlerFile(engineContext.getOptions(), id);
+      printer = Printer.newExceptionHandlerFile(engineContext.getOptions(), id);
       Logger.debugHeader("Printing exception handler to %s", printer.getFileName());
       for (final ConcreteSequence sequence : sequences) {
         statistics.incInstructions(sequence.getInstructionCount());

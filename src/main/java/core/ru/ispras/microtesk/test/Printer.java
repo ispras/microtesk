@@ -129,7 +129,7 @@ public final class Printer {
     return new Printer(options, false, file, null);
   }
 
-  public static Printer newExcHandlerFile(
+  public static Printer newExceptionHandlerFile(
       final Options options,
       final String id) throws IOException {
     InvariantChecks.checkNotNull(options);
