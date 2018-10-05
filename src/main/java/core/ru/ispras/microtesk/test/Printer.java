@@ -138,7 +138,7 @@ public final class Printer {
 
     final String outDir = getOutDir(options);
     final String fileName = String.format(
-        "%s_%s_%04d", options.getValueAsString(Option.CODE_FILE_PREFIX), name, fileIndex);
+        "%s_%04d_%s", options.getValueAsString(Option.CODE_FILE_PREFIX), fileIndex, name);
 
     final File file = FileUtils.newFile(
         outDir, fileName, options.getValueAsString(Option.CODE_FILE_EXTENSION));
@@ -300,7 +300,12 @@ public final class Printer {
     if (sequence.getSection() != section) {
       section = sequence.getSection();
       printSeparatorToFile(section.getAsmText());
-      printText(section.getAsmText());
+
+      if (!section.isSeparateFile()) {
+        printText(section.getAsmText());
+      } else {
+        printNote(section.toString());
+      }
     }
 
     final List<ConcreteCall> prologue = sequence.getPrologue();

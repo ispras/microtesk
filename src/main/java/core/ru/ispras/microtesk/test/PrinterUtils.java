@@ -17,13 +17,17 @@ package ru.ispras.microtesk.test;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ConfigurationException;
+import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.template.DataSection;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -109,43 +113,55 @@ final class PrinterUtils {
     final Statistics statistics = engineContext.getStatistics();
     statistics.pushActivity(Statistics.Activity.PRINTING);
 
-    // Printer of the test program.
-    Printer codePrinter = null;
-    // Printers of the separate-file sections.
-    final Map<String, Printer> sectionPrinters = new HashMap<>();
+    // Printers of the test program and the separate-file sections.
+    final Map<String, Printer> printers = new LinkedHashMap<>();
 
     try {
-      codePrinter = Printer.newCodeFile(engineContext.getOptions(), statistics.getPrograms());
-      Logger.debugHeader("Printing test program to %s", codePrinter.getFileName());
+      final Model model = engineContext.getModel();
+      final Options options = engineContext.getOptions();
+      final int count = statistics.getPrograms();
+
+      Printer printer = Printer.newCodeFile(options, count);
+      printers.put("", printer);
+
+      Logger.debugHeader("Printing test program to %s", printer.getFileName());
+
+      // Separate-file sections.
+      final Map<String, Collection<ConcreteSequence>> sections = new LinkedHashMap<>();
 
       for (final ConcreteSequence sequence : testProgram.getEntries()) {
         final Section section = sequence.getSection();
 
-        if (section.isStandard() || !section.isSeparateFile()) {
-          codePrinter.printSequence(engineContext.getModel(), sequence);
-        } else {
-          Printer sectionPrinter = sectionPrinters.get(section.getName());
-
-          if (null == sectionPrinter) {
-            sectionPrinter = Printer.newSectionFile(
-                section.getName(), engineContext.getOptions(), statistics.getPrograms());
-
-            sectionPrinters.put(section.getName(), sectionPrinter);
+        if (section.isSeparateFile()) {
+          Collection<ConcreteSequence> sequences = sections.get(section.getName());
+          if (null == sequences) {
+            sections.put(section.getName(), sequences = new ArrayList<>());
           }
 
-          sectionPrinter.printSequence(engineContext.getModel(), sequence);
+          sequences.add(sequence);
+          continue;
+        }
+
+        printer.printSequence(model, sequence);
+      }
+
+      printer.printData(testProgram.getAllData());
+
+      for (final Map.Entry<String, Collection<ConcreteSequence>> entry : sections.entrySet()) {
+        printer = Printer.newSectionFile(entry.getKey(), options, count);
+        printers.put(entry.getKey(), printer);
+
+        Logger.debugHeader("Printing section %s to %s", entry.getKey(), printer.getFileName());
+
+        for (final ConcreteSequence sequence : entry.getValue()) {
+          printer.printSequence(model, sequence);
         }
       }
 
-      codePrinter.printData(testProgram.getAllData());
       statistics.incPrograms();
     } finally {
-      if (null != codePrinter) {
-        codePrinter.close();
-      }
-
-      for (final Printer sectionPrinter : sectionPrinters.values()) {
-        sectionPrinter.close();
+      for (final Printer printer : printers.values()) {
+        printer.close();
       }
 
       statistics.popActivity();
