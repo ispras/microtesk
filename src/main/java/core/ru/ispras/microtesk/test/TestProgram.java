@@ -33,8 +33,8 @@ import java.util.TreeMap;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 final class TestProgram {
-  private ConcreteSequence prologue;
-  private ConcreteSequence epilogue;
+  private List<ConcreteSequence> prologue;
+  private List<ConcreteSequence> epilogue;
 
   private final AdjacencyList<ConcreteSequence> entries;
   private final List<Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>>> exceptionHandlers;
@@ -43,30 +43,30 @@ final class TestProgram {
   private final List<DataSection> globalDataSections;
 
   public TestProgram() {
-    this.prologue = null;
-    this.epilogue = null;
+    this.prologue = new ArrayList<>();
+    this.epilogue = new ArrayList<>();
     this.entries = new AdjacencyList<>();
     this.exceptionHandlers = new ArrayList<>();
     this.dataSections = new TreeMap<>();
     this.globalDataSections = new ArrayList<>();
   }
 
-  public ConcreteSequence getPrologue() {
+  public List<ConcreteSequence> getPrologue() {
     return prologue;
   }
 
-  public void setPrologue(final ConcreteSequence prologue) {
+  public void addPrologue(final ConcreteSequence prologue) {
     InvariantChecks.checkNotNull(prologue);
-    this.prologue = prologue;
+    this.prologue.add(prologue);
   }
 
-  public ConcreteSequence getEpilogue() {
+  public List<ConcreteSequence> getEpilogue() {
     return epilogue;
   }
 
-  public void setEpilogue(final ConcreteSequence epilogue) {
+  public void addEpilogue(final ConcreteSequence epilogue) {
     InvariantChecks.checkNotNull(epilogue);
-    this.epilogue = epilogue;
+    this.epilogue.add(epilogue);
   }
 
   public List<Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>>> getExceptionHandlers() {

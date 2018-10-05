@@ -67,13 +67,9 @@ public final class Template {
 
   public interface Processor {
     void process(ExceptionHandler handler);
-
     void process(SectionKind section, Block block);
-
     void process(SectionKind section, Block block, int times);
-
     void process(DataSection data);
-
     void finish();
   }
 
@@ -106,7 +102,7 @@ public final class Template {
   private final Deque<BlockBuilder> blockBuilders;
   private AbstractCallBuilder callBuilder;
 
-  private boolean isMainSection;
+  private SectionKind currentSection;
   private List<AbstractCall> globalPrologue;
   private List<AbstractCall> globalEpilogue;
 
@@ -141,7 +137,7 @@ public final class Template {
     this.blockBuilders = new LinkedList<>();
     this.callBuilder = null;
 
-    this.isMainSection = false;
+    this.currentSection = null;
     this.globalPrologue = Collections.emptyList();
     this.globalEpilogue = Collections.emptyList();
 
@@ -174,31 +170,35 @@ public final class Template {
   public void beginPreSection() {
     Logger.debugHeader("Started Processing Initialization Section");
     this.callBuilder = new AbstractCallBuilder(new BlockId());
-    isMainSection = false;
+    currentSection = SectionKind.PRE;
   }
 
   public void endPreSection() {
     final Block rootBlock = endCurrentSection().build();
     processor.process(SectionKind.PRE, rootBlock);
+
     Logger.debugHeader("Ended Processing Initialization Section");
+    currentSection = null;
   }
 
   public void beginPostSection() {
     Logger.debugHeader("Started Processing Finalization Section");
     this.callBuilder = new AbstractCallBuilder(new BlockId());
-    isMainSection = false;
+    currentSection = SectionKind.POST;
   }
 
   public void endPostSection() {
     final Block rootBlock = endCurrentSection().build();
     processor.process(SectionKind.POST, rootBlock);
+
     Logger.debugHeader("Ended Processing Finalization Section");
+    currentSection = null;
   }
 
   public void beginMainSection() {
     Logger.debugHeader("Started Processing Main Section");
     this.callBuilder = new AbstractCallBuilder(new BlockId());
-    isMainSection = true;
+    currentSection = SectionKind.MAIN;
   }
 
   public void endMainSection() {
@@ -209,7 +209,7 @@ public final class Template {
     }
 
     Logger.debugHeader("Ended Processing Main Section");
-    isMainSection = false;
+    currentSection = null;
 
     processor.finish();
 
@@ -318,7 +318,7 @@ public final class Template {
 
     if (!rootBuilder.isEmpty()) {
       final Block rootBlock = rootBuilder.build();
-      processor.process(SectionKind.MAIN, rootBlock);
+      processor.process(currentSection, rootBlock);
     }
   }
 
@@ -346,7 +346,7 @@ public final class Template {
     }
 
     private void checkAllowedToRun() {
-      if (!isMainSection) {
+      if (currentSection != SectionKind.MAIN) {
         throw new GenerationAbortedException(
             "A block is allowed to run only in the main section of a test template.");
       }
@@ -379,7 +379,7 @@ public final class Template {
       checkAllowedToRun();
 
       processExternalCode();
-      processor.process(SectionKind.MAIN, block);
+      processor.process(currentSection, block);
 
       markBlockAsUsed();
       return this;
@@ -389,7 +389,7 @@ public final class Template {
       checkAllowedToRun();
 
       processExternalCode();
-      processor.process(SectionKind.MAIN, block, times);
+      processor.process(currentSection, block, times);
 
       markBlockAsUsed();
       return this;
@@ -1152,7 +1152,7 @@ public final class Template {
 
   public void setOrigin(final BigInteger origin, final Where where) {
     // .org directives in external code split it into parts (only for main section)
-    if (isMainSection && currentBlockBuilder().isExternal()) {
+    if (currentSection == SectionKind.MAIN && currentBlockBuilder().isExternal()) {
       processExternalCode();
     }
 

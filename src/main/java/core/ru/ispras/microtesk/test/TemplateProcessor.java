@@ -209,12 +209,12 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   private void processPrologue(final Block block) throws ConfigurationException {
-    testProgram.setPrologue(
+    testProgram.addPrologue(
         TestEngineUtils.makeExternalTestSequence(engineContext, block, "Prologue"));
   }
 
   private void processEpilogue(final Block block) throws ConfigurationException {
-    testProgram.setEpilogue(
+    testProgram.addEpilogue(
         TestEngineUtils.makeExternalTestSequence(engineContext, block, "Epilogue"));
   }
 
@@ -538,7 +538,11 @@ final class TemplateProcessor implements Template.Processor {
     }
 
     allocator.allocateHandlers(testProgram.getExceptionHandlers());
-    allocateSequence(testProgram.getPrologue(), Label.NO_SEQUENCE_INDEX);
+
+    final List<ConcreteSequence> prologue = testProgram.getPrologue();
+    for (final ConcreteSequence sequence : prologue) {
+      allocateSequence(sequence, Label.NO_SEQUENCE_INDEX);
+    }
   }
 
   private void finishProgram() throws ConfigurationException, IOException {
@@ -552,11 +556,13 @@ final class TemplateProcessor implements Template.Processor {
         testProgram.removeEntry(blockEntry.entry);
       }
 
-      final ConcreteSequence epilogue = testProgram.getEpilogue();
-      allocateSequence(epilogue, Label.NO_SEQUENCE_INDEX);
+      final List<ConcreteSequence> epilogue = testProgram.getEpilogue();
+      for (final ConcreteSequence sequence : epilogue) {
+        allocateSequence(sequence, Label.NO_SEQUENCE_INDEX);
+      }
 
-      if (!isNoSimulation) {
-        runExecution(epilogue);
+      if (!isNoSimulation && !epilogue.isEmpty()) {
+        runExecution(epilogue.iterator().next());
         TestEngineUtils.checkAllAtEndOf(executorStatuses, testProgram.getLastNonEmptyEntry());
       }
     } finally {
