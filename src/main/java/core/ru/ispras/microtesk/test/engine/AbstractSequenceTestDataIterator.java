@@ -31,7 +31,7 @@ final class AbstractSequenceTestDataIterator implements Iterator<AbstractSequenc
   private final Iterator<AbstractSequence> sequenceIterator;
   private Iterator<Map<Situation, TestData>> dataIterator;
 
-  // This is need to process a sequence at least once even if no test data are provided.
+  // This is needed to process a sequence at least once even if no test data are provided.
   private static final Iterator<Map<Situation, TestData>> DEFAULT_DATA_PROVIDER =
       new SingleValueIterator<Map<Situation, TestData>>(
           Collections.<Situation, TestData>emptyMap());

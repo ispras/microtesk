@@ -694,9 +694,8 @@ final class TemplateProcessor implements Template.Processor {
       Logger.debugHeader("Instance %d", index);
       Logger.debug("Execution status: %s%n", status);
 
-      final boolean isUndefinedLabel =
-          status.isLabelReference()
-              && engineContext.getLabelManager().resolve(
+      final boolean isUndefinedLabel = status.isLabelReference()
+          && engineContext.getLabelManager().resolve(
               status.getLabelReference().getReference()) == null;
 
       if (!code.hasAddress(address) || isUndefinedLabel) {
