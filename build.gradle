@@ -315,6 +315,11 @@ test {
 }
 
 sourceSets {
+  main {
+    java {
+      srcDirs = ['src/main/java/core','src/main/java/plugins/mmu', 'build/generated-src/antlr/main']
+    }
+  }
   test {
     java {
       srcDirs = ['src/test/java/core','src/test/java/plugins/mmu']
