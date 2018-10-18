@@ -61,12 +61,14 @@ public final class Disassembler {
 
     final Model model = loadModel(modelName);
     if (null == model) {
+      Logger.error("Failed to load the model.");
       return false;
     }
 
     final boolean bigEndian = options.getValueAsBoolean(Option.BINARY_FILE_USE_BIG_ENDIAN);
     final BinaryReader reader = newReader(fileName, bigEndian);
     if (null == reader) {
+      Logger.error("Failed to create a reader.");
       return false;
     }
 
@@ -74,6 +76,7 @@ public final class Disassembler {
     try {
       output = outputFactory.createOutput(model);
       if (null == output) {
+        Logger.error("Failed to create an output.");
         return false;
       }
 
@@ -101,7 +104,7 @@ public final class Disassembler {
     try {
       writer = FileUtils.newPrintWriter(getOutDir(options), fileShortName, fileExt);
     } catch (final IOException e) {
-      Logger.error("Failed to create output file. Reason: %s.", e.getMessage());
+      Logger.error("Failed to create an output file. Reason: %s.", e.getMessage());
       return false;
     }
 

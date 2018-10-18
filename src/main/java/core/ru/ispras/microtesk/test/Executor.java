@@ -376,7 +376,6 @@ public final class Executor {
         continue;
       }
 
-
       // JUMP
       if (address == fetcher.getAddress()) {
         throw new GenerationAbortedException(String.format(
