@@ -21,10 +21,8 @@ import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
-
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.data.TypeId;
 import ru.ispras.microtesk.translator.antlrex.SemanticException;
@@ -32,8 +30,6 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.NmlSymbolKind;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
-import ru.ispras.microtesk.translator.nml.ir.expr.Location;
-import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -141,6 +137,9 @@ public final class StatementFactory extends WalkerFactoryBase {
       return errorMessage;
     }
 
+    // FIXME: The decode attribute 'assigns' into immediate arguments. Check has been turned off.
+
+    /*
     @Override
     public void onVariable(final NodeVariable variable) {
       final Expr node = new Expr(variable);
@@ -164,6 +163,7 @@ public final class StatementFactory extends WalkerFactoryBase {
       final LocationSourcePrimitive source = (LocationSourcePrimitive) location.getSource();
       return source.getPrimitive().getKind() == Primitive.Kind.IMM;
     }
+    */
 
     @Override
     public void onOperationBegin(final NodeOperation node) {

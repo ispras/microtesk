@@ -33,7 +33,6 @@ public abstract class Decoder {
     this.imageSizeFixed = imageSizeFixed;
 
     this.opc = null != opc ? BitVector.valueOf(opc, 2, opc.length()) : null;
-
     this.opcMask = null != opcMask ? BitVector.valueOf(opcMask, 2, opcMask.length()) : null;
   }
 

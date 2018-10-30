@@ -122,7 +122,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
     if (attrs.containsKey(Attribute.INIT_NAME)) {
       final Statement initCall = StatementAttributeCall.newThisCall(Attribute.INIT_NAME);
       for (final Attribute attribute : attrs.values()) {
-        if (!attribute.getName().equals(Attribute.INIT_NAME)) {
+        final String attrName = attribute.getName();
+        if (!attrName.equals(Attribute.INIT_NAME) && !attrName.equals(Attribute.DECODE_NAME)) {
           attribute.insertStatement(initCall);
         }
       }

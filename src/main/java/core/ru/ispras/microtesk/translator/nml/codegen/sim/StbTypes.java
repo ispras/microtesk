@@ -25,7 +25,7 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.Map;
 
-final class StbTypes implements StringTemplateBuilder {
+public final class StbTypes implements StringTemplateBuilder {
   public static final String CLASS_NAME = "TypeDefs";
   private final Ir ir;
 

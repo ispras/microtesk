@@ -29,7 +29,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import java.util.ArrayList;
 import java.util.List;
 
-final class StbModel implements StringTemplateBuilder {
+public final class StbModel implements StringTemplateBuilder {
   public static final String CLASS_NAME = "Model";
   private final Ir ir;
 

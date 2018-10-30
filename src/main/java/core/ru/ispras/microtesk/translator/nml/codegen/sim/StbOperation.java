@@ -36,7 +36,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
-final class StbOperation extends StbPrimitiveBase {
+public final class StbOperation extends StbPrimitiveBase {
   private final String modelName;
   private final PrimitiveAnd op;
 
@@ -132,7 +132,8 @@ final class StbOperation extends StbPrimitiveBase {
       attrST.add("rettype", getRetTypeName(attr.getKind()));
       attrST.add("usePE",
           Attribute.Kind.ACTION == attr.getKind()
-              && !attr.getName().equals(Attribute.INIT_NAME));
+              && !attr.getName().equals(Attribute.INIT_NAME)
+              && !attr.getName().equals(Attribute.DECODE_NAME));
 
       if (Attribute.Kind.ACTION == attr.getKind()) {
         for (final Statement stmt : attr.getStatements()) {

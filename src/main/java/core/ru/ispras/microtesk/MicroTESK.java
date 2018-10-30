@@ -146,8 +146,8 @@ public final class MicroTESK {
     final String revisionId = options.getValueAsString(Option.REV_ID);
     final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
 
-    Set<String> revisionSet = revisionId.isEmpty() ? Collections.<String>emptySet() :
-                                                     Collections.<String>singleton(revisionId);
+    Set<String> revisionSet = revisionId.isEmpty() ? Collections.<String>emptySet()
+                                                   : Collections.<String>singleton(revisionId);
 
     if (!revisionId.isEmpty() && !archDirs.isEmpty()) {
       for (final String fileName : arguments) {

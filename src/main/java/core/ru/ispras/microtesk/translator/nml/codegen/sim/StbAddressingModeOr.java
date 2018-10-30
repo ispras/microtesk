@@ -27,7 +27,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 import java.util.ArrayList;
 import java.util.List;
 
-final class StbAddressingModeOr implements StringTemplateBuilder {
+public final class StbAddressingModeOr implements StringTemplateBuilder {
   private final String modelName;
   private final PrimitiveOr mode;
 

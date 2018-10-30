@@ -25,7 +25,7 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 
 import java.math.BigInteger;
 
-final class StbTemporaryVariables implements StringTemplateBuilder {
+public final class StbTemporaryVariables implements StringTemplateBuilder {
   public static final String CLASS_NAME = "TempVars";
   private final Ir ir;
 

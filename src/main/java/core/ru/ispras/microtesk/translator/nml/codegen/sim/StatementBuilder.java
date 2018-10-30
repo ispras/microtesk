@@ -33,14 +33,14 @@ import ru.ispras.microtesk.utils.FormatMarker;
 
 import java.util.List;
 
-final class StatementBuilder {
+public final class StatementBuilder {
   private static final String SINDENT = "  ";
 
   private final ST sequenceST;
   private final boolean isReturn;
   private int indent;
 
-  StatementBuilder(final ST sequenceST, final boolean isReturn) {
+  public StatementBuilder(final ST sequenceST, final boolean isReturn) {
     this.sequenceST = sequenceST;
     this.isReturn = isReturn;
     this.indent = 0;

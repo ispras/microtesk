@@ -23,7 +23,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import java.util.EnumMap;
 import java.util.Map;
 
-abstract class StbPrimitiveBase implements StringTemplateBuilder {
+public abstract class StbPrimitiveBase implements StringTemplateBuilder {
   private static final Map<Attribute.Kind, String> RET_TYPE_MAP =
       new EnumMap<>(Attribute.Kind.class);
 

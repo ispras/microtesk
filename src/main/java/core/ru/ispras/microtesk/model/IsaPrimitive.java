@@ -107,13 +107,24 @@ public abstract class IsaPrimitive {
   }
 
   /**
-   * Perform initialization of temporary variables that can be used in other attributes
-   * (action, syntax, image). This attribute is implicitly called inside of the above mentioned
-   * attributes. When needed, it can be called explicitly by other primitives.
+   * Performs initialization of temporary variables that can be used in other attributes
+   * except for {@code decode} ({@code action}, {@code syntax}, and {@code image}).
+   * 
+   * This attribute is implicitly called inside of the above mentioned attributes.
+   * When needed, it can be called explicitly by other primitives.
    *
    * @param temporaryVariables temporary variables.
    */
   public void init(final TemporaryVariables temporaryVariables) {
+    // By default, do nothing.
+  }
+
+  /**
+   * Provides a hint to construct the decoder.
+   *
+   * @param temporaryVariables temporary variables.
+   */
+  public void decode(final TemporaryVariables temporaryVariables) {
     // By default, do nothing.
   }
 

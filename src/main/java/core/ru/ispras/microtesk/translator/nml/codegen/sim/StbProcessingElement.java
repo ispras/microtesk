@@ -28,7 +28,7 @@ import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.math.BigInteger;
 
-final class StbProcessingElement implements StringTemplateBuilder {
+public final class StbProcessingElement implements StringTemplateBuilder {
   public static final String CLASS_NAME = "PE";
   private final Ir ir;
 

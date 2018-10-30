@@ -23,16 +23,16 @@ import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.decoder.DecoderItem;
 import ru.ispras.microtesk.model.decoder.DecoderResult;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 import ru.ispras.microtesk.translator.nml.codegen.sim.ExprPrinter;
+import ru.ispras.microtesk.translator.nml.codegen.sim.StatementBuilder;
+import ru.ispras.microtesk.translator.nml.codegen.sim.StbTemporaryVariables;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
@@ -41,6 +41,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ final class StbDecoder implements StringTemplateBuilder {
     this.imageInfo = ImageAnalyzer.getImageInfo(item);
     this.item = item;
     this.imported = new HashSet<>();
-    this.undecoded = new LinkedHashSet<>(item.getArguments().keySet());
+    this.undecoded = new LinkedHashSet<>();
   }
 
   @Override
@@ -90,6 +91,7 @@ final class StbDecoder implements StringTemplateBuilder {
     st.add("imps", DecoderResult.class.getName());
     st.add("imps", BitVector.class.getName());
     st.add("imps", ru.ispras.microtesk.model.data.Type.class.getName());
+    st.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TempVars", modelName));
     st.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
 
     importPrimitive(st, item);
@@ -154,30 +156,88 @@ final class StbDecoder implements StringTemplateBuilder {
     stConstructor.add("opc_mask", null != opcMask ? "\"" + opcMask.toBinString() + "\"" : "null");
 
     final List<String> argumentNames = new ArrayList<>();
+    final Set<String> variableNames = new LinkedHashSet<>();
+
+    // Temporal variables used in the image.
+    final String tempVars = StbTemporaryVariables.CLASS_NAME;
+    stConstructor.add("stmts", String.format("final %s vars__ = (%s) %s.newFactory().create();",
+        tempVars, tempVars, tempVars));
+    stConstructor.add("stmts", "");
+
+    // Primitive's arguments.
     for (final Map.Entry<String, Primitive> entry : item.getArguments().entrySet()) {
       final String argumentName = entry.getKey();
       argumentNames.add(argumentName);
+      variableNames.add(argumentName);
 
       stConstructor.add("stmts", String.format(
           "%s %s = null;", getPrimitiveName(entry.getValue()), argumentName));
     }
 
+    if (!item.getArguments().isEmpty()) {
+      stConstructor.add("stmts", "");
+    }
+
+    undecoded.addAll(variableNames);
+
     for (final Pair<Node, ImageInfo> fieldx : imageInfo.getFields()) {
       final Node field = fieldx.first;
-      stConstructor.add("stmts", "");
 
       if (ExprUtils.isValue(field)) {
+        // Constant (treated as an OPC).
         buildOpcCheck(stConstructor, group, field);
       } else if (isImmediateArgument(field)) {
+        // Image of an immediate value.
         buildImmediateArgument(stConstructor, group, field);
       } else if (isImmediateArgumentField(field)) {
+        // Image of an immediate value's part.
         buildImmediateArgumentField(stConstructor, group, field);
       } else if (isArgumentImage(field)) {
+        // Image of an mode/operation (argument).
         buildArgumentImage(stConstructor, group, field);
       } else if (isInstanceImage(field)) {
+        // Image of an mode/operation (instance).
         buildInstanceImage(st, stConstructor, group, field);
+      } else if (isTemporalVariable(field)) {
+        // Temporal variable.
+        buildTemporalVariable(stConstructor, group, field);
+      } else if (isTemporalVariableField(field)) {
+        // Temporal variable's field.
+        buildTemporalVariableField(stConstructor, group, field);
       } else {
+        // Unknown.
         reportError("Unrecognized field: %s", field);
+      }
+    }
+
+    // Try to use the decode hints.
+    final Attribute decode = item.getAttributes().get(Attribute.DECODE_NAME);
+
+    if (null != decode) {
+      for (final Map.Entry<String, Primitive> entry : item.getArguments().entrySet()) {
+        final String argumentName = entry.getKey();
+        final Primitive argumentPrimitive = entry.getValue();
+
+        if (!undecoded.contains(argumentName)) {
+          continue;
+        }
+
+        InvariantChecks.checkTrue(argumentPrimitive.getKind() == Primitive.Kind.IMM);
+        stConstructor.add("stmts", "");
+
+        // Construct the argument.
+        stConstructor.add("stmts", String.format("%s = new %s(%s);",
+            argumentName, getPrimitiveName(argumentPrimitive),
+            argumentPrimitive.getReturnType().getJavaText()));
+
+        undecoded.remove(argumentName);
+      }
+
+      // Insert the decode logic.
+      final StatementBuilder statementBuilder = new StatementBuilder(stConstructor, false);
+
+      for (final Statement statement : decode.getStatements()) {
+        statementBuilder.build(statement);
       }
     }
 
@@ -209,14 +269,7 @@ final class StbDecoder implements StringTemplateBuilder {
   }
 
   private boolean isImmediateArgument(final Node field) {
-    if (!ExprUtils.isVariable(field)) {
-      return false;
-    }
-
-    final NodeVariable variable = (NodeVariable) field;
-    final Primitive primitive = item.getArguments().get(variable.getName());
-
-    return null != primitive && primitive.getKind() == Primitive.Kind.IMM;
+    return isVariable(field) && !isBitfield(field) && isImmediate(field);
   }
 
   private void buildImmediateArgument(final ST st, final STGroup group, final Node field) {
@@ -238,26 +291,7 @@ final class StbDecoder implements StringTemplateBuilder {
   }
 
   private boolean isImmediateArgumentField(final Node field) {
-    if (!ExprUtils.isVariable(field)) {
-      return false;
-    }
-
-    if (!(field.getUserData() instanceof NodeInfo)) {
-      return false;
-    }
-
-    final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
-    if (nodeInfo.getKind() != NodeInfo.Kind.LOCATION) {
-      return false;
-    }
-
-    final Location location = (Location) nodeInfo.getSource();
-    if (null == location.getBitfield()) {
-      return false;
-    }
-
-    final Primitive primitive = item.getArguments().get(location.getName());
-    return null != primitive && primitive.getKind() == Primitive.Kind.IMM;
+    return isVariable(field) && isBitfield(field) && isImmediate(field);
   }
 
   private void buildImmediateArgumentField(final ST st, final STGroup group, final Node field) {
@@ -417,6 +451,87 @@ final class StbDecoder implements StringTemplateBuilder {
       default:
         throw new IllegalArgumentException("Unsupported kind: " + argument.getKind());
     }
+  }
+
+  private boolean isTemporalVariable(final Node field) {
+    return isVariable(field) && !isBitfield(field) && !isArgument(field);
+  }
+
+  private void buildTemporalVariable(final ST st, final STGroup group, final Node field) {
+    InvariantChecks.checkTrue(ExprUtils.isVariable(field));
+    InvariantChecks.checkTrue(field.getUserData() instanceof NodeInfo);
+
+    final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
+    InvariantChecks.checkTrue(nodeInfo.getKind() == NodeInfo.Kind.LOCATION);
+
+    final Location location = (Location) nodeInfo.getSource();
+    InvariantChecks.checkNotNull(location);
+
+    final ST stImmediate = group.getInstanceOf("decoder_immediate");
+
+    stImmediate.add("name", String.format("vars__.%s", location.getName()));
+    stImmediate.add("type", location.getType().getJavaText());
+
+    st.add("stmts", stImmediate);
+    undecoded.remove(location.getName());
+  }
+
+  private boolean isTemporalVariableField(final Node field) {
+    return isVariable(field) && isBitfield(field) && !isArgument(field);
+  }
+
+  private void buildTemporalVariableField(final ST st, final STGroup group, final Node field) {
+    final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
+    InvariantChecks.checkNotNull(nodeInfo);
+
+    final Location location = (Location) nodeInfo.getSource();
+    InvariantChecks.checkNotNull(location);
+
+    final ST stImmediate = group.getInstanceOf("decoder_immediate_field");
+
+    stImmediate.add("name", String.format("vars__.%s", location.getName()));
+    stImmediate.add("type", location.getType().getJavaText());
+    stImmediate.add("from", ExprPrinter.toString(location.getBitfield().getFrom()));
+    stImmediate.add("to", ExprPrinter.toString(location.getBitfield().getTo()));
+
+    st.add("stmts", stImmediate);
+    undecoded.remove(location.getName());
+  }
+
+  private boolean isVariable(final Node field) {
+    if (!ExprUtils.isVariable(field)) {
+      return false;
+    }
+
+    if (!(field.getUserData() instanceof NodeInfo)) {
+      return false;
+    }
+
+    final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
+    return nodeInfo.getKind() == NodeInfo.Kind.LOCATION;
+  }
+
+  private boolean isBitfield(final Node field) {
+    final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
+    final Location location = (Location) nodeInfo.getSource();
+
+    return null != location.getBitfield();
+  }
+
+  private boolean isArgument(final Node field) {
+    final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
+    final Location location = (Location) nodeInfo.getSource();
+    final Primitive primitive = item.getArguments().get(location.getName());
+
+    return null != primitive;
+  }
+
+  private boolean isImmediate(final Node field) {
+    final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
+    final Location location = (Location) nodeInfo.getSource();
+    final Primitive primitive = item.getArguments().get(location.getName());
+
+    return null != primitive && primitive.getKind() == Primitive.Kind.IMM;
   }
 
   private void reportError(final String format, final Object... args) {
