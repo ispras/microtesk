@@ -214,6 +214,8 @@ final class StbDecoder implements StringTemplateBuilder {
     final Attribute decode = item.getAttributes().get(Attribute.DECODE_NAME);
 
     if (null != decode) {
+      stConstructor.add("stmts", "");
+
       for (final Map.Entry<String, Primitive> entry : item.getArguments().entrySet()) {
         final String argumentName = entry.getKey();
         final Primitive argumentPrimitive = entry.getValue();
@@ -221,9 +223,6 @@ final class StbDecoder implements StringTemplateBuilder {
         if (!undecoded.contains(argumentName)) {
           continue;
         }
-
-        InvariantChecks.checkTrue(argumentPrimitive.getKind() == Primitive.Kind.IMM);
-        stConstructor.add("stmts", "");
 
         // Construct the argument.
         stConstructor.add("stmts", String.format("%s = new %s(%s);",
