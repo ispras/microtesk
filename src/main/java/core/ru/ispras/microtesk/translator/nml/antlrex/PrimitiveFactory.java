@@ -66,7 +66,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       raiseError(where, "Return value is untyped. Use casts to enforce a certain type.");
     }
 
-    insertInitCalls(attrs);
+    supplementAttributes(attrs);
     return new PrimitiveAnd(
         name,
         Primitive.Kind.MODE,
@@ -107,7 +107,7 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
       }
     }
 
-    insertInitCalls(attrs);
+    supplementAttributes(attrs);
     return new PrimitiveAnd(
         name,
         Primitive.Kind.OP,
@@ -118,7 +118,8 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
         );
   }
 
-  private static void insertInitCalls(final Map<String, Attribute> attrs) {
+  private static void supplementAttributes(final Map<String, Attribute> attrs) {
+    // Insert calls of the INIT attribute to the other attributes except for DECODE.
     if (attrs.containsKey(Attribute.INIT_NAME)) {
       final Statement initCall = StatementAttributeCall.newThisCall(Attribute.INIT_NAME);
       for (final Attribute attribute : attrs.values()) {
@@ -127,6 +128,22 @@ public final class PrimitiveFactory extends WalkerFactoryBase {
           attribute.insertStatement(initCall);
         }
       }
+    }
+
+    // Generate the empty bodies for the absent attributes (INIT, ACTION, and DECODE).
+    final List<Statement> emptyBody = Collections.<Statement>emptyList();
+
+    if (!attrs.containsKey(Attribute.INIT_NAME)) {
+      attrs.put(Attribute.INIT_NAME,
+          new Attribute(Attribute.INIT_NAME, Attribute.Kind.ACTION, emptyBody));
+    }
+    if (!attrs.containsKey(Attribute.ACTION_NAME)) {
+      attrs.put(Attribute.ACTION_NAME,
+          new Attribute(Attribute.ACTION_NAME, Attribute.Kind.ACTION, emptyBody));
+    }
+    if (!attrs.containsKey(Attribute.DECODE_NAME)) {
+      attrs.put(Attribute.DECODE_NAME,
+          new Attribute(Attribute.DECODE_NAME, Attribute.Kind.ACTION, emptyBody));
     }
   }
 
