@@ -51,10 +51,6 @@ public final class Immediate extends IsaPrimitive {
       final ProcessingElement processingElement,
       final TemporaryVariables temporaryVariables) {
     // Processing element and temporary variables are allowed to be null.
-    return access();
-  }
-
-  public Location access() {
     return location;
   }
 

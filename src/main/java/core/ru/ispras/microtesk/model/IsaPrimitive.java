@@ -222,6 +222,10 @@ public abstract class IsaPrimitive {
     return null;
   }
 
+  public final Location access() {
+    return access(null, null);
+  }
+
   protected final Location annotate(final Location location, final TemporaryVariables tempVars) {
     return location.setAddressingMode(new IsaAddressingMode(this, tempVars));
   }
