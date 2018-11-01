@@ -217,6 +217,7 @@ public abstract class IsaPrimitive {
   public Location access(
       final ProcessingElement processingElement,
       final TemporaryVariables temporaryVariables) {
+    // Processing element is allowed to be null (e.g., access to immediate data).
     reportUndefined("access", "null will be returned");
     return null;
   }

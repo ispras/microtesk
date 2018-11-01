@@ -91,7 +91,7 @@ public final Immediate <param_name>;
 mode_attribute(name, rettype, stmts, override, usePE) ::= <<
 <if(override)>@Override
 <endif>public <rettype> <name>(<if(usePE)>final ProcessingElement procElem, <endif>final TemporaryVariables tempVars) {
-  <if(usePE)>final PE pe__ = (PE) procElem;<endif>
+  final PE pe__ = <if(usePE)>(PE) procElem<else>null<endif>;
   final TempVars vars__ = (TempVars) tempVars;
   <stmts; separator="\n">
 }
