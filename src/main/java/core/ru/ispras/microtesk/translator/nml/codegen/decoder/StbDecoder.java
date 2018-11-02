@@ -181,14 +181,19 @@ final class StbDecoder implements StringTemplateBuilder {
     for (final Pair<Node, ImageInfo> fieldx : imageInfo.getFields()) {
       final Node field = fieldx.first;
 
+      // Argument in image is handled as immediate.
+      if (isNodeVariable(field) && isNodeArgument(field)) {
+        importPrimitive(st, Immediate.class.getName());
+      }
+
       if (ExprUtils.isValue(field)) {
         // Constant (treated as an OPC).
         buildOpcCheck(stConstructor, group, field);
       } else if (isArgument(field)) {
-        // Image of an immediate value.
+        // Argument.
         buildArgument(stConstructor, group, field);
       } else if (isArgumentExtract(field)) {
-        // Image of an immediate value's part.
+        // Argument's bits extraction.
         buildArgumentExtract(stConstructor, group, field);
       } else if (isArgumentImage(field)) {
         // Image of an mode/operation (argument).
@@ -280,9 +285,6 @@ final class StbDecoder implements StringTemplateBuilder {
     final Primitive primitive = item.getArguments().get(name);
     InvariantChecks.checkNotNull(primitive);
 
-    // However, it will be handled as being immediate.
-    importPrimitive(st, Immediate.class.getName());
-
     final ST stImmediate = group.getInstanceOf("decoder_immediate");
 
     stImmediate.add("name", name);
@@ -304,13 +306,6 @@ final class StbDecoder implements StringTemplateBuilder {
     InvariantChecks.checkNotNull(location);
 
     final String name = location.getName();
-
-    // The primitive is allowed to be non-immediate.
-    final Primitive primitive = item.getArguments().get(name);
-    InvariantChecks.checkNotNull(primitive);
-
-    // However, it will be handled as being immediate.
-    importPrimitive(st, Immediate.class.getName());
 
     if (undecoded.contains(name)) {
       st.add("stmts", String.format("%s = new %s(%s);",
