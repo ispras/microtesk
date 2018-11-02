@@ -94,14 +94,10 @@ final class StbDecoder implements StringTemplateBuilder {
     st.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TempVars", modelName));
     st.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
 
-    importPrimitive(st, item);
-    for (final Primitive primitive : item.getArguments().values()) {
-      importPrimitive(st, primitive);
-    }
+    importPrimitive(st, getPrimitiveClassName(item));
   }
 
-  private void importPrimitive(final ST st, final Primitive primitive) {
-    final String primitiveClass = getPrimitiveClassName(primitive);
+  private void importPrimitive(final ST st, final String primitiveClass) {
     if (!imported.contains(primitiveClass)) {
       imported.add(primitiveClass);
       st.add("imps", primitiveClass);
@@ -166,12 +162,14 @@ final class StbDecoder implements StringTemplateBuilder {
 
     // Primitive's arguments.
     for (final Map.Entry<String, Primitive> entry : item.getArguments().entrySet()) {
-      final String argumentName = entry.getKey();
-      argumentNames.add(argumentName);
-      variableNames.add(argumentName);
+      final String name = entry.getKey();
+      final Primitive primitive = entry.getValue();
 
-      stConstructor.add("stmts", String.format(
-          "%s %s = null;", getPrimitiveName(entry.getValue()), argumentName));
+      argumentNames.add(name);
+      variableNames.add(name);
+
+      importPrimitive(st, getPrimitiveClassName(primitive));
+      stConstructor.add("stmts", String.format("%s %s = null;", getPrimitiveName(primitive), name));
     }
 
     if (!item.getArguments().isEmpty()) {
@@ -278,9 +276,12 @@ final class StbDecoder implements StringTemplateBuilder {
 
     final String name = field.toString();
 
-    // NOTE: The primitive is allowed to be non-immediate.
+    // The primitive is allowed to be non-immediate.
     final Primitive primitive = item.getArguments().get(name);
     InvariantChecks.checkNotNull(primitive);
+
+    // However, it will be handled as being immediate.
+    importPrimitive(st, Immediate.class.getName());
 
     final ST stImmediate = group.getInstanceOf("decoder_immediate");
 
@@ -304,9 +305,12 @@ final class StbDecoder implements StringTemplateBuilder {
 
     final String name = location.getName();
 
-    // NOTE: The primitive is allowed to be non-immediate.
+    // The primitive is allowed to be non-immediate.
     final Primitive primitive = item.getArguments().get(name);
     InvariantChecks.checkNotNull(primitive);
+
+    // However, it will be handled as being immediate.
+    importPrimitive(st, Immediate.class.getName());
 
     if (undecoded.contains(name)) {
       st.add("stmts", String.format("%s = new %s(%s);",
@@ -377,7 +381,7 @@ final class StbDecoder implements StringTemplateBuilder {
     final PrimitiveAnd primitive = instance.getPrimitive();
     final String name = primitive.getName() + "_instance";
 
-    importPrimitive(st, primitive);
+    importPrimitive(st, getPrimitiveClassName(primitive));
 
     stConstructor.add("stmts", String.format("final %s %s;", primitive.getName(), name));
     final ST stPrimitive = group.getInstanceOf("decoder_primitive");
