@@ -379,7 +379,7 @@ mode BRANCH_OFFSET = BRANCH_LABEL | BRANCH_IMM
 
 op beq (rs: REG, rt: REG, offset: BRANCH_OFFSET)
   syntax = format("beq %s, %s, %s", rs.syntax, rt.syntax, offset.syntax)
-  image = format("000100%s%s%s", rs.image, rt.image, offset.image)
+  image = format("000100%s%s%s", rs.image, rt.image, offset.image /* Argument image */)
   action = {
     if rs == rt then
       BRANCH = 1;
@@ -389,7 +389,7 @@ op beq (rs: REG, rt: REG, offset: BRANCH_OFFSET)
 
 op bgez (rs: REG, offset: BRANCH_OFFSET)
   syntax = format("bgez %s, %s", rs.syntax, offset.syntax)
-  image = format("000001%s00001%s", rs.image, offset.image)
+  image = format("000001%s00001%s", rs.image, offset /* Argument itself */)
   action = {
     if rs >= 0 then
       BRANCH = 1;

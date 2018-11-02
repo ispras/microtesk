@@ -64,3 +64,11 @@ if (null == <name>) {
   return null;
 }
 >>
+
+decoder_primitive_from_immediate(name, type, decoder) ::= <<
+resetPosition();
+<name> = (<type>) readNextPrimitive(<name>.access().load().getRawData(), <decoder>.get());
+if (null == <name>) {
+  return null;
+}
+>>

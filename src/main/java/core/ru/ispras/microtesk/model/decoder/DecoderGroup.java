@@ -41,6 +41,7 @@ public abstract class DecoderGroup extends Decoder {
 
   @Override
   public final DecoderResult decode(final BitVector image) {
+    // TODO: It seems to be very slow.
     return decodeUsingDecoderList(image);
   }
 

@@ -182,29 +182,29 @@ final class StbDecoder implements StringTemplateBuilder {
       final Node field = fieldx.first;
 
       // Argument in image is handled as immediate.
-      if (isNodeVariable(field) && isNodeArgument(field)) {
+      if (isVariable(field) && isArgument(field)) {
         importPrimitive(st, Immediate.class.getName());
       }
 
       if (ExprUtils.isValue(field)) {
         // Constant (treated as an OPC).
         buildOpcCheck(stConstructor, group, field);
-      } else if (isArgument(field)) {
+      } else if (isVariable(field) && !isExtract(field) && isArgument(field)) {
         // Argument.
         buildArgument(stConstructor, group, field);
-      } else if (isArgumentExtract(field)) {
+      } else if (isVariable(field) && isExtract(field) && isArgument(field)) {
         // Argument's bits extraction.
         buildArgumentExtract(stConstructor, group, field);
       } else if (isArgumentImage(field)) {
-        // Image of an mode/operation (argument).
+        // Image of an argument.
         buildArgumentImage(stConstructor, group, field);
       } else if (isInstanceImage(field)) {
-        // Image of an mode/operation (instance).
+        // Image of an instance.
         buildInstanceImage(st, stConstructor, group, field);
-      } else if (isTemporalVariable(field)) {
+      } else if (isVariable(field) && !isExtract(field) && !isArgument(field)) {
         // Temporal variable.
         buildTemporalVariable(stConstructor, group, field);
-      } else if (isTemporalVariableField(field)) {
+      } else if (isVariable(field) && isExtract(field) && !isArgument(field)) {
         // Temporal variable's field.
         buildTemporalVariableExtract(stConstructor, group, field);
       } else {
@@ -213,36 +213,47 @@ final class StbDecoder implements StringTemplateBuilder {
       }
     }
 
+    // Handle non-immediate arguments in the image.
+    final Set<String> nonImmediateArguments = new LinkedHashSet<>();
+    for (final Pair<Node, ImageInfo> fieldx : imageInfo.getFields()) {
+      final Node field = fieldx.first;
+
+      if (isVariable(field) && isArgument(field) && !isImmediate(field)) {
+        final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
+        final Location location = (Location) nodeInfo.getSource();
+        final String name = location.getName();
+
+        if (!nonImmediateArguments.contains(name)) {
+          buildArgumentFromImmediate(stConstructor, group, field);
+          nonImmediateArguments.add(name);
+        }
+      }
+    }
+
     // Try to use the decode hints.
     final Attribute decode = item.getAttributes().get(Attribute.DECODE_NAME);
+    InvariantChecks.checkNotNull(decode);
 
-    if (null != decode) {
-      stConstructor.add("stmts", "");
+    for (final Map.Entry<String, Primitive> entry : item.getArguments().entrySet()) {
+      final String name = entry.getKey();
+      final Primitive primitive = entry.getValue();
 
-      for (final Map.Entry<String, Primitive> entry : item.getArguments().entrySet()) {
-        final String argumentName = entry.getKey();
-        final Primitive argumentPrimitive = entry.getValue();
-
-        if (!undecoded.contains(argumentName)) {
-          continue;
-        }
-
-        // Construct the argument.
-        stConstructor.add("stmts", String.format("%s = new %s(%s);",
-            argumentName,
-            // All undecoded attributes are assumed to be immediate values.
-            Immediate.class.getSimpleName(),
-            argumentPrimitive.getReturnType().getJavaText()));
-
-        undecoded.remove(argumentName);
+      if (!undecoded.contains(name)) {
+        continue;
       }
 
-      // Insert the decode logic.
-      final StatementBuilder statementBuilder = new StatementBuilder(stConstructor, false);
+      // Construct the argument.
+      stConstructor.add("stmts", String.format("%s = new %s(%s);",
+          name, getPrimitiveName(primitive), primitive.getReturnType().getJavaText()));
 
-      for (final Statement statement : decode.getStatements()) {
-        statementBuilder.build(statement);
-      }
+      undecoded.remove(name);
+    }
+
+    // Insert the decode logic.
+    final StatementBuilder statementBuilder = new StatementBuilder(stConstructor, false);
+
+    for (final Statement statement : decode.getStatements()) {
+      statementBuilder.build(statement);
     }
 
     if (!undecoded.isEmpty()) {
@@ -272,10 +283,6 @@ final class StbDecoder implements StringTemplateBuilder {
     st.add("stmts", stOpcCheck);
   }
 
-  private boolean isArgument(final Node field) {
-    return isNodeVariable(field) && !isNodeExtract(field) && isNodeArgument(field);
-  }
-
   private void buildArgument(final ST st, final STGroup group, final Node field) {
     InvariantChecks.checkTrue(ExprUtils.isVariable(field));
 
@@ -292,10 +299,6 @@ final class StbDecoder implements StringTemplateBuilder {
 
     st.add("stmts", stImmediate);
     undecoded.remove(name);
-  }
-
-  private boolean isArgumentExtract(final Node field) {
-    return isNodeVariable(field) && isNodeExtract(field) && isNodeArgument(field);
   }
 
   private void buildArgumentExtract(final ST st, final STGroup group, final Node field) {
@@ -453,10 +456,6 @@ final class StbDecoder implements StringTemplateBuilder {
     }
   }
 
-  private boolean isTemporalVariable(final Node field) {
-    return isNodeVariable(field) && !isNodeExtract(field) && !isNodeArgument(field);
-  }
-
   private void buildTemporalVariable(final ST st, final STGroup group, final Node field) {
     InvariantChecks.checkTrue(ExprUtils.isVariable(field));
     InvariantChecks.checkTrue(field.getUserData() instanceof NodeInfo);
@@ -474,10 +473,6 @@ final class StbDecoder implements StringTemplateBuilder {
 
     st.add("stmts", stImmediate);
     undecoded.remove(location.getName());
-  }
-
-  private boolean isTemporalVariableField(final Node field) {
-    return isNodeVariable(field) && isNodeExtract(field) && !isNodeArgument(field);
   }
 
   private void buildTemporalVariableExtract(final ST st, final STGroup group, final Node field) {
@@ -498,7 +493,24 @@ final class StbDecoder implements StringTemplateBuilder {
     undecoded.remove(location.getName());
   }
 
-  private boolean isNodeVariable(final Node field) {
+  private void buildArgumentFromImmediate(final ST st, final STGroup group, final Node field) {
+    final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
+    InvariantChecks.checkNotNull(nodeInfo);
+
+    final Location location = (Location) nodeInfo.getSource();
+    InvariantChecks.checkNotNull(location);
+
+    final ST stPrimitive = group.getInstanceOf("decoder_primitive_from_immediate");
+    final Primitive primitive = item.getArguments().get(location.getName());
+
+    stPrimitive.add("name", location.getName());
+    stPrimitive.add("type", getPrimitiveName(primitive));
+    stPrimitive.add("decoder", DecoderGenerator.getDecoderName(primitive.getName()));
+
+    st.add("stmts", stPrimitive);
+  }
+
+  private boolean isVariable(final Node field) {
     if (!ExprUtils.isVariable(field)) {
       return false;
     }
@@ -511,19 +523,27 @@ final class StbDecoder implements StringTemplateBuilder {
     return nodeInfo.getKind() == NodeInfo.Kind.LOCATION;
   }
 
-  private boolean isNodeExtract(final Node field) {
+  private boolean isExtract(final Node field) {
     final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
     final Location location = (Location) nodeInfo.getSource();
 
     return null != location.getBitfield();
   }
 
-  private boolean isNodeArgument(final Node field) {
+  private boolean isArgument(final Node field) {
     final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
     final Location location = (Location) nodeInfo.getSource();
     final Primitive primitive = item.getArguments().get(location.getName());
 
     return null != primitive;
+  }
+
+  private boolean isImmediate(final Node field) {
+    final NodeInfo nodeInfo = (NodeInfo) field.getUserData();
+    final Location location = (Location) nodeInfo.getSource();
+    final Primitive primitive = item.getArguments().get(location.getName());
+
+    return null != primitive && primitive.getKind() == Primitive.Kind.IMM;
   }
 
   private void reportError(final String format, final Object... args) {
