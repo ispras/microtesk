@@ -55,7 +55,8 @@ public final class SymbolicExecutor {
     final List<IsaPrimitive> instructions = output.getInstructions();
     InvariantChecks.checkNotNull(instructions);
 
-    final List<Node> ssa = FormulaBuilder.buildFormulas(modelName, instructions);
+    final List<Node> ssa =
+      FormulaBuilder.buildFormulas(outputFactory.getModel(), instructions);
 
     final String smtFileName = fileName + ".smt2";
     writeSmt(smtFileName, ssa);
@@ -111,17 +112,25 @@ public final class SymbolicExecutor {
 
   private static final class DisassemblerOutputFactory implements Disassembler.OutputFactory {
     private DisassemblerOutput output = null;
+    private Model model = null;
 
     @Override
     public Output createOutput(final Model model) {
       InvariantChecks.checkNotNull(model);
       final TemporaryVariables tempVars = model.getTempVars();
-      output = new DisassemblerOutput(tempVars);
+
+      this.output = new DisassemblerOutput(tempVars);
+      this.model = model;
+
       return output;
     }
 
     public DisassemblerOutput getOutput() {
       return output;
+    }
+
+    public Model getModel() {
+      return model;
     }
   }
 }

@@ -21,10 +21,17 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.Formulas;
-
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.IsaPrimitive;
+import ru.ispras.microtesk.model.IsaPrimitiveKind;
+import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.Location;
+import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
+import ru.ispras.microtesk.model.metadata.MetaArgument;
+import ru.ispras.microtesk.model.metadata.MetaData;
+import ru.ispras.microtesk.model.metadata.MetaModel;
+import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.translator.nml.coverage.PathConstraintBuilder;
 import ru.ispras.microtesk.translator.nml.coverage.SsaAssembler;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
@@ -34,15 +41,16 @@ import ru.ispras.testbase.TestBaseContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public final class FormulaBuilder {
   public static List<Node> buildFormulas(
-      final String model,
+      final Model model,
       final List<IsaPrimitive> sequence) {
-    final SsaAssembler assembler = new SsaAssembler(TestBase.get().getStorage(model));
+    final SsaAssembler assembler = new SsaAssembler(TestBase.get().getStorage(model.getName()));
     final List<Node> formulae = new ArrayList<>(sequence.size());
 
     int n = 0;
@@ -50,11 +58,11 @@ public final class FormulaBuilder {
       final String prefix = String.format("op_%d", n++, p.getName());
       final String tag = String.format("%s_%s", prefix, p.getName());
 
-      final Map<String, Object> ctx = new HashMap<>();
-      final Map<String, BitVector> consts = new LinkedHashMap<>();
-      buildContext(ctx, consts, p);
+      final Map<String, Object> context = new HashMap<>();
+      final Map<String, BitVector> literals = new LinkedHashMap<>();
+      buildContext(model, context, literals, p);
 
-      for (final Map.Entry<String, BitVector> e : consts.entrySet()) {
+      for (final Map.Entry<String, BitVector> e : literals.entrySet()) {
         final String name = String.format("%s_%s", prefix, e.getKey());
         final BitVector value = e.getValue();
 
@@ -64,7 +72,7 @@ public final class FormulaBuilder {
         formulae.add(Nodes.eq(variable, NodeValue.newBitVector(value)));
       }
 
-      final Node f = assembler.assemble(ctx, p.getName(), tag);
+      final Node f = assembler.assemble(context, p.getName(), tag);
       formulae.add(f);
     }
 
@@ -73,32 +81,149 @@ public final class FormulaBuilder {
   }
 
   private static void buildContext(
-      final Map<String, Object> ctx,
-      final Map<String, BitVector> consts,
+      final Model model,
+      final Map<String, Object> context,
+      final Map<String, BitVector> literals,
       final IsaPrimitive p) {
-    buildContext(ctx, consts, NamePath.get(p.getName()), p);
-    ctx.put(TestBaseContext.INSTRUCTION, p.getName());
+    buildContext(context, literals, NamePath.get(p.getName()), new IsaInstance(model, p));
+    context.put(TestBaseContext.INSTRUCTION, p.getName());
   }
 
   private static void buildContext(
-      final Map<String, Object> ctx,
-      final Map<String, BitVector> consts,
+      final Map<String, Object> context,
+      final Map<String, BitVector> literals,
       final NamePath prefix,
-      final IsaPrimitive src) {
-    for (final Map.Entry<String, IsaPrimitive> entry : src.getArguments().entrySet()) {
-      final NamePath path = prefix.resolve(entry.getKey());
-      final String key = path.toString();
-      final IsaPrimitive arg = entry.getValue();
+      final IsaInstance input) {
+    for (final Map.Entry<String, IsaPrimitive> entry : input.item.getArguments().entrySet()) {
+      final NamePath path;
+      final NamePath guessedPath = prefix.resolve(entry.getKey());
 
-      ctx.put(key, arg.getName());
-      if (arg instanceof Immediate) {
-        final Location location = ((Immediate) arg).access();
-        consts.put(key, BitVector.valueOf(location.getValue(), location.getBitSize()));
-        // override context for immediates
-        ctx.put(key, Immediate.TYPE_NAME);
+      final IsaInstance arg = input.adopt(entry.getValue());
+      if (!input.acceptsArgument(entry.getKey(), arg)) {
+        final Pair<String, String> inter =
+          input.substituteArgument(entry.getKey(), arg);
+        context.put(guessedPath.toString(), inter.first);
+
+        path = guessedPath.resolve(inter.second);
+      } else {
+        path = guessedPath;
       }
 
-      buildContext(ctx, consts, path, arg);
+      final String key = path.toString();
+      context.put(key, arg.item.getName());
+
+      if (arg.kind.equals(IsaPrimitiveKind.IMM)) {
+        final Location location = ((Immediate) arg.item).access();
+        literals.put(key, BitVector.valueOf(location.getValue(), location.getBitSize()));
+        // override context for immediates
+        context.put(key, Immediate.TYPE_NAME);
+      } else {
+        buildContext(context, literals, path, arg);
+      }
+    }
+  }
+
+  private static final class IsaInstance {
+    public final Model model;
+    public final IsaPrimitive item;
+    public final IsaPrimitiveKind kind;
+    public final MetaData data;
+
+    IsaInstance(final Model model, final IsaPrimitive item) {
+      this.model = model;
+      this.item = item;
+
+      final MetaModel md = model.getMetaData();
+      final MetaOperation op = md.getOperation(item.getName());
+      final MetaAddressingMode mode = md.getAddressingMode(item.getName());
+
+      if (op != null) {
+        this.kind = IsaPrimitiveKind.OP;
+        this.data = op;
+      } else if (mode != null) {
+        this.kind = IsaPrimitiveKind.MODE;
+        this.data = mode;
+      } else {
+        this.kind = IsaPrimitiveKind.IMM;
+        this.data = null;
+      }
+    }
+
+    IsaInstance adopt(final IsaPrimitive item) {
+      return new IsaInstance(this.model, item);
+    }
+
+    boolean acceptsArgument(final String name, final IsaInstance arg) {
+      final MetaArgument param = getParameter(name);
+      return param != null && param.isTypeAccepted(arg.getName());
+    }
+
+    String getName() {
+      if (kind == IsaPrimitiveKind.IMM) {
+        return Immediate.TYPE_NAME;
+      }
+      return item.getName();
+    }
+
+    Pair<String, String> substituteArgument(final String name, final IsaInstance arg) {
+      final MetaArgument param = getParameter(name);
+      if (param != null ) {
+        switch (param.getKind()) {
+        default: break;
+
+        case OP:
+          for (final String typeName : param.getTypeNames()) {
+            final MetaOperation md = model.getMetaData().getOperation(typeName);
+            final MetaArgument expected =
+              findSingleton(md.getArguments(), arg.getName());
+            if (expected != null) {
+              return new Pair<>(typeName, expected.getName());
+            }
+          }
+          break;
+
+        case MODE:
+          for (final String typeName : param.getTypeNames()) {
+            final MetaAddressingMode md = model.getMetaData().getAddressingMode(typeName);
+            final MetaArgument expected =
+              findSingleton(md.getArguments(), arg.getName());
+            if (expected != null) {
+              return new Pair<>(typeName, expected.getName());
+            }
+          }
+          break;
+        }
+      }
+      throw new IllegalStateException("Appropriate argument substitution not found");
+    }
+
+    MetaArgument getParameter(final String name) {
+      final MetaArgument param;
+      switch (this.kind) {
+      default:
+        param = null;
+        break;
+
+      case OP:
+        param = ((MetaOperation) this.data).getArgument(name);
+        break;
+
+      case MODE:
+        param = ((MetaAddressingMode) this.data).getArgument(name);
+        break;
+      }
+      return param;
+    }
+
+    private static MetaArgument findSingleton(final Iterable<MetaArgument> params, final String typeName) {
+      final Iterator<MetaArgument> it = params.iterator();
+      if (it.hasNext()) {
+        final MetaArgument param = it.next();
+        if (param.isTypeAccepted(typeName) && !it.hasNext()) {
+          return param;
+        }
+      }
+      return null;
     }
   }
 }
