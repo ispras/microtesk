@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.model;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.data.Type;
@@ -44,6 +45,16 @@ public final class Immediate extends IsaPrimitive {
 
   public Immediate(final Type type) {
     this(new Data(type));
+  }
+
+  protected String syntax(final TemporaryVariables temporaryVariables) {
+    Logger.warning("The syntax attribute is undefined for the immediate primitive.");
+    return location.load().toString();
+  }
+
+  public String image(final TemporaryVariables temporaryVariables) {
+    Logger.warning("The image attribute is undefined for the immediate primitive.");
+    return location.load().toString();
   }
 
   @Override
