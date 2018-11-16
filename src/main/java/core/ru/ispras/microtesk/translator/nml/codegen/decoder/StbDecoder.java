@@ -466,7 +466,7 @@ final class StbDecoder implements StringTemplateBuilder {
     final Location location = (Location) nodeInfo.getSource();
     InvariantChecks.checkNotNull(location);
 
-    final ST stImmediate = group.getInstanceOf("decoder_immediate");
+    final ST stImmediate = group.getInstanceOf("decoder_temp_variable");
 
     stImmediate.add("name", String.format("vars__.%s", location.getName()));
     stImmediate.add("type", location.getType().getJavaText());
@@ -482,7 +482,7 @@ final class StbDecoder implements StringTemplateBuilder {
     final Location location = (Location) nodeInfo.getSource();
     InvariantChecks.checkNotNull(location);
 
-    final ST stImmediate = group.getInstanceOf("decoder_immediate_field");
+    final ST stImmediate = group.getInstanceOf("decoder_temp_variable_field");
 
     stImmediate.add("name", String.format("vars__.%s", location.getName()));
     stImmediate.add("type", location.getType().getJavaText());

@@ -58,11 +58,13 @@ shared mem M[2 ** 30, WORD] // or 2**32 bytes
 // Addressing Modes
 
 var tmp[INDEX]
+
 mode REG (i: INDEX) = GPR[i]
   init   = { tmp = i; }
+  // This is just to demonstrate the decode attribute
   decode = { i = tmp; }
   syntax = format("$%d", tmp)
-  image  = format("%s%s", tmp<1>, tmp<0>)
+  image  = format("%s", tmp)
 
 mode RCOP0 (i: INDEX) = COP0_R[i]
   syntax = format("$%d", i)

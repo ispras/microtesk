@@ -58,6 +58,14 @@ decoder_immediate_field(name, type, from, to) ::= <<
 <name>.access().bitField(<from>, <to>).store(readNextImmediate(image, <type>).access());
 >>
 
+decoder_temp_variable(name, type) ::= <<
+<name>.access().store(readNextImmediate(image, <type>).access());
+>>
+
+decoder_temp_variable_field(name, type, from, to) ::= <<
+<name>.access().bitField(<from>, <to>).store(readNextImmediate(image, <type>).access());
+>>
+
 decoder_primitive(name, type, decoder) ::= <<
 <name> = (<type>) readNextPrimitive(image, <decoder>.get());
 if (null == <name>) {
