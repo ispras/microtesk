@@ -43,6 +43,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
+import ru.ispras.microtesk.translator.nml.ir.shared.Type;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -243,10 +244,14 @@ final class StbDecoder implements StringTemplateBuilder {
       }
 
       // Construct the argument.
-      stConstructor.add("stmts", String.format("%s = new %s(%s);",
-          name, getPrimitiveName(primitive), primitive.getReturnType().getJavaText()));
+      final Type returnType = primitive.getReturnType();
 
-      undecoded.remove(name);
+      if (returnType != null) {
+        stConstructor.add("stmts", String.format("%s = new %s(%s);",
+            name, getPrimitiveName(primitive), returnType.getJavaText()));
+
+        undecoded.remove(name);
+      }
     }
 
     // Insert the decode logic.
@@ -292,13 +297,17 @@ final class StbDecoder implements StringTemplateBuilder {
     final Primitive primitive = item.getArguments().get(name);
     InvariantChecks.checkNotNull(primitive);
 
-    final ST stImmediate = group.getInstanceOf("decoder_immediate");
+    final Type returnType = primitive.getReturnType();
 
-    stImmediate.add("name", name);
-    stImmediate.add("type", primitive.getReturnType().getJavaText());
+    if (returnType != null) {
+      final ST stImmediate = group.getInstanceOf("decoder_immediate");
 
-    st.add("stmts", stImmediate);
-    undecoded.remove(name);
+      stImmediate.add("name", name);
+      stImmediate.add("type", primitive.getReturnType().getJavaText());
+
+      st.add("stmts", stImmediate);
+      undecoded.remove(name);
+    }
   }
 
   private void buildArgumentExtract(final ST st, final STGroup group, final Node field) {
