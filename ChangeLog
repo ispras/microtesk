@@ -6,6 +6,12 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2018/11/16 MicroTESK 2.4.44 beta
+  - Support for separate-file sections (useful for boot generation)
+  - Support for the 'decode' attribute of nML primitives (experimental)
+  - Decoder generator: enabling bit selection for non-immediate arguments
+  - Bug fixes and code improvements
+
 2018/08/20 MicroTESK 2.4.43 beta
   - Templates: the 'nitems' generator was established
   - Templates: blocks with no attributes are now allowed (block {})
