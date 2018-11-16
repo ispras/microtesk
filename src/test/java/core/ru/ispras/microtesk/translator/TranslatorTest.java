@@ -76,10 +76,6 @@ public abstract class TranslatorTest<Ir> {
     translator.addHandler(irChecker);
 
     final Options options = new Options();
-
-    final TranslatorContext context = new TranslatorContext();
-    context.addIr(new ru.ispras.microtesk.translator.nml.ir.Ir("model", "revision"));
-
-    translator.translate(options, context, Collections.<String>emptySet(), fileNames);
+    translator.translate(options, null, Collections.<String>emptySet(), fileNames);
   }
 }
