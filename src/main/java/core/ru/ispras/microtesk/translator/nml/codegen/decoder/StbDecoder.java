@@ -231,7 +231,7 @@ final class StbDecoder implements StringTemplateBuilder {
       }
     }
 
-    // Try to use the decode hints.
+    // Try to use the decode hints (arguments are assumed to be immediate).
     final Attribute decode = item.getAttributes().get(Attribute.DECODE_NAME);
     InvariantChecks.checkNotNull(decode);
 
@@ -247,8 +247,13 @@ final class StbDecoder implements StringTemplateBuilder {
       final Type returnType = primitive.getReturnType();
 
       if (returnType != null) {
-        stConstructor.add("stmts", String.format("%s = new %s(%s);",
-            name, getPrimitiveName(primitive), returnType.getJavaText()));
+        stConstructor.add("stmts",
+            String.format("%s = new %s(%s);",
+                name,
+                Immediate.class.getSimpleName(),
+                returnType.getJavaText()
+            )
+        );
 
         undecoded.remove(name);
       }
