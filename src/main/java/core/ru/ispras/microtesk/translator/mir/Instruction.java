@@ -191,12 +191,21 @@ class Rvalue {
   }
 }
 
-class Cast extends Rvalue {
-  public final DataType type;
+class Sext extends Rvalue {
+  public final int bits;
 
-  public Cast(final Rvalue rhs, final DataType type) {
-    super(rhs.opc, rhs.op1, rhs.op2);
-    this.type = type;
+  Sext(final int bits, final Rvalue rv) {
+    super(rv.opc, rv.op1, rv.op2);
+    this.bits = bits;
+  }
+}
+
+class Zext extends Rvalue {
+  public final int bits;
+
+  Zext(final int bits, final Rvalue rv) {
+    super(rv.opc, rv.op1, rv.op2);
+    this.bits = bits;
   }
 }
 
