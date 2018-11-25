@@ -137,27 +137,45 @@ final class Exception extends Terminator {
   }
 }
 
-interface Operand {}
+interface Operand {
+  MirTy getType();
+}
 
-class Lvalue implements Operand {}
+abstract class Lvalue implements Operand {
+  @Override
+  abstract public MirTy getType();
+}
 
 class Local extends Lvalue {
   private final int id;
+  private final MirTy type;
 
-  public Local(final int id) {
+  public Local(final int id, final MirTy type) {
     this.id =  id;
+    this.type = type;
+  }
+
+  @Override
+  public MirTy getType() {
+    return type;
   }
 }
 
 class Field extends Lvalue {
   private final Lvalue base;
   private final String name;
-  private final DataType type;
 
-  public Field(final Lvalue base, final String name, final DataType type) {
+  public Field(final Lvalue base, final String name) {
     this.base = base;
     this.name = name;
-    this.type = type;
+  }
+
+  @Override
+  public MirTy getType() {
+    final MirStruct type = (MirStruct) base.getType();
+    final TyRef tref = type.fields.get(name);
+
+    return tref.type;
   }
 }
 
@@ -169,13 +187,27 @@ class Index extends Lvalue {
     this.base = base;
     this.index = index;
   }
+
+  @Override
+  public MirTy getType() {
+    final MirArray type = (MirArray) base.getType();
+    final TyRef tref = type.ref;
+
+    return tref.type;
+  }
 }
 
 class Static extends Lvalue {
   private final String name;
+  private final MirTy type = new IntTy(64); // FIXME
 
   public Static(final String name) {
     this.name = name;
+  }
+
+  @Override
+  public MirTy getType() {
+    return type;
   }
 }
 
@@ -188,6 +220,10 @@ class Rvalue {
     this.opc = opc;
     this.op1 = op1;
     this.op2 = op2;
+  }
+
+  public MirTy getType() {
+    return opc.typeOf(op1, op2);
   }
 }
 
@@ -225,6 +261,11 @@ class Constant implements Operand {
     this.cache = -1;
     this.value = value;
   }
+
+  @Override
+  public MirTy getType() {
+    return new IntTy(bits);
+  }
 }
 
 class Closure implements Operand {
@@ -232,10 +273,16 @@ class Closure implements Operand {
   // signature
   // environment
   // Mir
+
+  @Override
+  public MirTy getType() {
+    return new IntTy(64);
+  }
 }
 
 interface BinOpcode {
   Rvalue make(Operand lhs, Operand rhs);
+  MirTy typeOf(Operand lhs, Operand rhs);
 }
 
 enum BvOpcode implements BinOpcode {
@@ -269,6 +316,11 @@ enum BvOpcode implements BinOpcode {
   public Rvalue make(final Operand op1, final Operand op2) {
     return new Rvalue(this, op1, op2);
   }
+
+  @Override
+  public MirTy typeOf(final Operand lhs, final Operand rhs) {
+    return lhs.getType();
+  }
 }
 
 enum CmpOpcode implements BinOpcode {
@@ -292,5 +344,10 @@ enum CmpOpcode implements BinOpcode {
   @Override
   public Rvalue make(final Operand lhs, final Operand rhs) {
     return new Rvalue(this, lhs, rhs);
+  }
+
+  @Override
+  public MirTy typeOf(final Operand lhs, final Operand rhs) {
+    return new IntTy(1);
   }
 }
