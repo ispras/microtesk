@@ -13,7 +13,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-
+import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSource;
@@ -37,6 +37,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -142,13 +143,18 @@ public final class NmlIrTrans {
     return new Static(((NodeVariable) node).getName());
   }
 
-  static BinOpcode mapOpcode(final Enum<?> e) {
-    return null;
+  static BinOpcode mapOpcode(final NodeOperation node) {
+    final Enum<?> e = node.getOperationId();
+    if (OPCODE_MAPPING.containsKey(e)) {
+      return OPCODE_MAPPING.get(e);
+    }
+    Logger.warning("missing opcode mapping: %s in '%s'", e, node.toString());
+    return BvOpcode.Add;
   }
 
   private static final class TransRvalue extends ExprTreeVisitorDefault {
     private final MirBlock ctx;
-    private final Map<Node, Operand> mapped = new java.util.IdentityHashMap<>();
+    private final Map<Node, Operand> mapped = new IdentityHashMap<>();
     private Operand result;
 
     public TransRvalue(final MirBlock ctx) {
@@ -163,8 +169,16 @@ public final class NmlIrTrans {
     public void onOperationEnd(final NodeOperation node) {
       if (!mapped.containsKey(node)) {
         final Operand local;
-        if (node.getOperationId().equals(StandardOperation.BVCONCAT)) {
-          local = translateConcat2(node);
+        if (node.getOperationId() instanceof StandardOperation) {
+          switch ((StandardOperation) node.getOperationId()) {
+          default:
+            local = translateMapping(node);
+            break;
+
+          case BVCONCAT:
+            local = translateConcat2(node);
+            break;
+          }
         } else {
           local = translateMapping(node);
         }
@@ -175,7 +189,7 @@ public final class NmlIrTrans {
     }
 
     private Operand translateMapping(final NodeOperation node) {
-      final BinOpcode opc = mapOpcode(node.getOperationId());
+      final BinOpcode opc = mapOpcode(node);
       final Iterator<Node> it = node.getOperands().iterator();
       final DataType type = node.getDataType();
 
@@ -198,7 +212,7 @@ public final class NmlIrTrans {
     }
 
     private Rvalue translateMapping2(final NodeOperation node) {
-      final BinOpcode opc = mapOpcode(node.getOperationId());
+      final BinOpcode opc = mapOpcode(node);
       final Iterator<Node> it = node.getOperands().iterator();
       final DataType type = node.getDataType();
 
@@ -489,5 +503,51 @@ public final class NmlIrTrans {
       blocks.add(current);
     }
     return blocks;
+  }
+
+  private static final Map<Enum<?>, BinOpcode> OPCODE_MAPPING =
+      new IdentityHashMap<>();
+  static {
+    OPCODE_MAPPING.put(StandardOperation.AND, BvOpcode.And);
+    OPCODE_MAPPING.put(StandardOperation.OR, BvOpcode.Or);
+    OPCODE_MAPPING.put(StandardOperation.NOT, new BinOpcode() {
+      @Override
+      public Rvalue make(final Operand lhs, final Operand rhs) {
+        return BvOpcode.Xor.make(lhs, new Constant(1, 1));
+      }
+    });
+
+    OPCODE_MAPPING.put(StandardOperation.EQ, CmpOpcode.Eq);
+    OPCODE_MAPPING.put(StandardOperation.NOTEQ, CmpOpcode.Ne);
+    OPCODE_MAPPING.put(StandardOperation.BVULT, CmpOpcode.Ult);
+    OPCODE_MAPPING.put(StandardOperation.BVUGT, CmpOpcode.Ugt);
+    OPCODE_MAPPING.put(StandardOperation.BVULE, CmpOpcode.Ule);
+    OPCODE_MAPPING.put(StandardOperation.BVUGE, CmpOpcode.Uge);
+    OPCODE_MAPPING.put(StandardOperation.BVSLT, CmpOpcode.Slt);
+    OPCODE_MAPPING.put(StandardOperation.BVSGT, CmpOpcode.Sgt);
+    OPCODE_MAPPING.put(StandardOperation.BVSLE, CmpOpcode.Sle);
+    OPCODE_MAPPING.put(StandardOperation.BVSGE, CmpOpcode.Sge);
+
+    OPCODE_MAPPING.put(StandardOperation.BVADD, BvOpcode.Add);
+    OPCODE_MAPPING.put(StandardOperation.BVSUB, BvOpcode.Sub);
+    OPCODE_MAPPING.put(StandardOperation.BVMUL, BvOpcode.Mul);
+    OPCODE_MAPPING.put(StandardOperation.BVXOR, BvOpcode.Xor);
+    OPCODE_MAPPING.put(StandardOperation.BVAND, BvOpcode.And);
+    OPCODE_MAPPING.put(StandardOperation.BVOR, BvOpcode.Or);
+    OPCODE_MAPPING.put(StandardOperation.BVUDIV, BvOpcode.Udiv);
+    OPCODE_MAPPING.put(StandardOperation.BVSDIV, BvOpcode.Sdiv);
+    OPCODE_MAPPING.put(StandardOperation.BVUREM, BvOpcode.Urem);
+    OPCODE_MAPPING.put(StandardOperation.BVSREM, BvOpcode.Srem);
+    OPCODE_MAPPING.put(StandardOperation.BVNOT, new BinOpcode() {
+      @Override
+      public Rvalue make(final Operand lhs, final Operand rhs) {
+        return BvOpcode.Xor.make(lhs, new Constant(64, -1));
+      }
+    });
+
+    OPCODE_MAPPING.put(StandardOperation.BVLSHL, BvOpcode.Shl);
+    OPCODE_MAPPING.put(StandardOperation.BVASHL, BvOpcode.Shl);
+    OPCODE_MAPPING.put(StandardOperation.BVASHR, BvOpcode.Ashr);
+    OPCODE_MAPPING.put(StandardOperation.BVLSHR, BvOpcode.Lshr);
   }
 }
