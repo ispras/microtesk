@@ -86,9 +86,7 @@ public final class NmlIrTrans {
     if (s.getLeft().isInternalVariable()) {
       return;
     }
-    final Operand arg = translate(ctx, s.getRight().getNode());
-    final Operand zero = new Constant(s.getRight().getNode().getDataType().getSize(), 0);
-    final Rvalue rhs = BvOpcode.Add.make(arg, zero);
+    final Rvalue rhs = rvalueOf(translate(ctx, s.getRight().getNode()));
 
     final Node node = s.getLeft().getNode();
     if (ExprUtils.isVariable(node)) {
@@ -178,6 +176,21 @@ public final class NmlIrTrans {
           case BVCONCAT:
             local = translateConcat2(node);
             break;
+
+          case BVSIGNEXT:
+            local = ctx.assignLocal(new Sext(64 /*FIXME*/, rvalueOf(lookUp(node.getOperand(1)))));
+            break;
+
+          case BVZEROEXT:
+            local = ctx.assignLocal(new Zext(64 /*FIXME*/, rvalueOf(lookUp(node.getOperand(1)))));
+            break;
+
+          case BVEXTRACT:
+            final Operand hi = lookUp(node.getOperand(0));
+            final Operand lo = lookUp(node.getOperand(1));
+            final Operand value = lookUp(node.getOperand(2));
+            local = ctx.extract(value, lo, hi);
+            break;
           }
         } else {
           local = translateMapping(node);
@@ -255,8 +268,7 @@ public final class NmlIrTrans {
         final Rvalue shift =
           BvOpcode.Shl.make(expr, valueOf(sizeOf(op), sizeOf(type)));
 
-        final Operand zero = new Constant(op.getDataType().getSize(), 0);
-        final Rvalue arg = BvOpcode.Add.make(lookUp(op), zero);
+        final Rvalue arg = rvalueOf(lookUp(op));
         final Rvalue zext = new Zext(type.getSize(), arg);
 
         final Rvalue bitor =
@@ -503,6 +515,10 @@ public final class NmlIrTrans {
       blocks.add(current);
     }
     return blocks;
+  }
+
+  private static Rvalue rvalueOf(final Operand op) {
+    return BvOpcode.Add.make(op, new Constant(64 /*FIXME*/, 0));
   }
 
   private static final Map<Enum<?>, BinOpcode> OPCODE_MAPPING =
