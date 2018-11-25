@@ -243,7 +243,7 @@ public final class NmlIrTrans {
 
         final Operand zero = new Constant(op.getDataType().getSize(), 0);
         final Rvalue arg = BvOpcode.Add.make(lookUp(op), zero);
-        final Rvalue zext = new Cast(arg, type);
+        final Rvalue zext = new Zext(type.getSize(), arg);
 
         final Rvalue bitor =
           BvOpcode.Or.make(ctx.assignLocal(shift), ctx.assignLocal(zext));
@@ -447,7 +447,7 @@ public final class NmlIrTrans {
 
     private void write(final Lvalue target, final Access access) {
       if (access.lo != null) {
-        final Rvalue zext = new Cast(value, null); // Cast(value, dst.getType())
+        final Rvalue zext = new Zext(64, value); // FIXME
         final Rvalue rhs = BvOpcode.Shl.make(ctx.assignLocal(zext), access.lo);
 
         final Operand mask = createMask(target, access);
