@@ -85,7 +85,10 @@ public final class NmlIrTrans {
     if (s.getLeft().isInternalVariable()) {
       return;
     }
-    final Rvalue rhs = Opcode.Use.make(translate(ctx, s.getRight().getNode()));
+    final Operand arg = translate(ctx, s.getRight().getNode());
+    final Operand zero = new Constant(s.getRight().getNode().getDataType().getSize(), 0);
+    final Rvalue rhs = BvOpcode.Add.make(arg, zero);
+
     final Node node = s.getLeft().getNode();
     if (ExprUtils.isVariable(node)) {
       translateAccess(ctx, locationOf(node), new WriteAccess(ctx, rhs));
@@ -98,7 +101,7 @@ public final class NmlIrTrans {
       for (final Node lhs : operands) {
         offset -= sizeOf(lhs);
 
-        final Rvalue field = Opcode.Shr.make(rvalue, valueOf(offset, size));
+        final Rvalue field = BvOpcode.Lshr.make(rvalue, valueOf(offset, size));
         translateAccess(ctx, locationOf(lhs), new WriteAccess(ctx, field));
       }
     }
@@ -139,7 +142,7 @@ public final class NmlIrTrans {
     return new Static(((NodeVariable) node).getName());
   }
 
-  static Opcode mapOpcode(final Enum<?> e) {
+  static BinOpcode mapOpcode(final Enum<?> e) {
     return null;
   }
 
@@ -172,14 +175,14 @@ public final class NmlIrTrans {
     }
 
     private Operand translateMapping(final NodeOperation node) {
-      final Opcode opc = mapOpcode(node.getOperationId());
+      final BinOpcode opc = mapOpcode(node.getOperationId());
       final Iterator<Node> it = node.getOperands().iterator();
       final DataType type = node.getDataType();
 
       Operand op1 = lookUp(it.next());
       if (!it.hasNext()) {
         final Local lhs = ctx.newLocal(type);
-        final Rvalue rhs = opc.make(op1);
+        final Rvalue rhs = opc.make(op1, null);
         ctx.assign(lhs, rhs);
 
         op1 = lhs;
@@ -195,13 +198,13 @@ public final class NmlIrTrans {
     }
 
     private Rvalue translateMapping2(final NodeOperation node) {
-      final Opcode opc = mapOpcode(node.getOperationId());
+      final BinOpcode opc = mapOpcode(node.getOperationId());
       final Iterator<Node> it = node.getOperands().iterator();
       final DataType type = node.getDataType();
 
       Operand op1 = lookUp(it.next());
       if (!it.hasNext()) {
-        return opc.make(op1);
+        return opc.make(op1, null);
       }
 
       Operand op2 = lookUp(it.next());
@@ -236,12 +239,14 @@ public final class NmlIrTrans {
         final Node op = it.next();
 
         final Rvalue shift =
-          Opcode.Shl.make(expr, valueOf(sizeOf(op), sizeOf(type)));
+          BvOpcode.Shl.make(expr, valueOf(sizeOf(op), sizeOf(type)));
 
-        final Rvalue zext = new Cast(Opcode.Use.make(lookUp(op)), type);
+        final Operand zero = new Constant(op.getDataType().getSize(), 0);
+        final Rvalue arg = BvOpcode.Add.make(lookUp(op), zero);
+        final Rvalue zext = new Cast(arg, type);
 
         final Rvalue bitor =
-          Opcode.BitOr.make(ctx.assignLocal(shift), ctx.assignLocal(zext));
+          BvOpcode.Or.make(ctx.assignLocal(shift), ctx.assignLocal(zext));
 
         expr = ctx.assignLocal(bitor);
       }
@@ -443,12 +448,12 @@ public final class NmlIrTrans {
     private void write(final Lvalue target, final Access access) {
       if (access.lo != null) {
         final Rvalue zext = new Cast(value, null); // Cast(value, dst.getType())
-        final Rvalue rhs = Opcode.Shl.make(ctx.assignLocal(zext), access.lo);
+        final Rvalue rhs = BvOpcode.Shl.make(ctx.assignLocal(zext), access.lo);
 
         final Operand mask = createMask(target, access);
-        final Rvalue clear = Opcode.BitAnd.make(target, mask);
+        final Rvalue clear = BvOpcode.And.make(target, mask);
         final Rvalue store =
-          Opcode.BitOr.make(ctx.assignLocal(clear), ctx.assignLocal(rhs));
+          BvOpcode.Or.make(ctx.assignLocal(clear), ctx.assignLocal(rhs));
 
         ctx.assign(target, store);
       } else {

@@ -14,7 +14,7 @@ public interface Instruction {}
 
 final class Assignment implements Instruction {
   private final Lvalue lhs;
-  private final Opcode opc;
+  private final BinOpcode opc;
   private final Operand op1;
   private final Operand op2;
 
@@ -180,11 +180,11 @@ class Static extends Lvalue {
 }
 
 class Rvalue {
-  public final Opcode opc;
+  public final BinOpcode opc;
   public final Operand op1;
   public final Operand op2;
 
-  Rvalue(final Opcode opc, final Operand op1, final Operand op2) {
+  Rvalue(final BinOpcode opc, final Operand op1, final Operand op2) {
     this.opc = opc;
     this.op1 = op1;
     this.op2 = op2;
@@ -225,7 +225,11 @@ class Closure implements Operand {
   // Mir
 }
 
-enum Opcode {
+interface BinOpcode {
+  Rvalue make(Operand lhs, Operand rhs);
+}
+
+enum BvOpcode implements BinOpcode {
   /// The `+` operator (addition)
   Add,
   /// The `-` operator (subtraction)
@@ -233,41 +237,51 @@ enum Opcode {
   /// The `*` operator (multiplication)
   Mul,
   /// The `/` operator (division)
-  Div,
+  Udiv,
   /// The `%` operator (modulus)
-  Rem,
+  Urem,
+  /// The `/` operator (division)
+  Sdiv,
+  /// The `%` operator (modulus)
+  Srem,
   /// The `^` operator (bitwise xor)
-  BitXor,
+  Xor,
   /// The `&` operator (bitwise and)
-  BitAnd,
+  And,
   /// The `|` operator (bitwise or)
-  BitOr,
+  Or,
   /// The `<<` operator (shift left)
   Shl,
   /// The `>>` operator (shift right)
-  Shr,
-  /// The `==` operator (equality)
-  Eq,
-  /// The `<` operator (less than)
-  Lt,
-  /// The `<=` operator (less than or equal to)
-  Le,
-  /// The `!=` operator (not equal to)
-  Ne,
-  /// The `>=` operator (greater than or equal to)
-  Ge,
-  /// The `>` operator (greater than)
-  Gt,
-  /// The `!` operator for logical inversion
-  Not,
-  /// Pass operand value as is
-  Use;
+  Ashr,
+  Lshr;
 
-  public Rvalue make(final Operand op) {
-    return make(op, null);
-  }
-
+  @Override
   public Rvalue make(final Operand op1, final Operand op2) {
     return new Rvalue(this, op1, op2);
+  }
+}
+
+enum CmpOpcode implements BinOpcode {
+  /// The `==` operator (equality)
+  Eq,
+  /// The `!=` operator (not equal to)
+  Ne,
+  /// The `<` operator (less than)
+  Ult,
+  /// The `<=` operator (less than or equal to)
+  Ule,
+  /// The `>=` operator (greater than or equal to)
+  Uge,
+  /// The `>` operator (greater than)
+  Ugt,
+  Slt,
+  Sle,
+  Sge,
+  Sgt;
+
+  @Override
+  public Rvalue make(final Operand lhs, final Operand rhs) {
+    return new Rvalue(this, lhs, rhs);
   }
 }
