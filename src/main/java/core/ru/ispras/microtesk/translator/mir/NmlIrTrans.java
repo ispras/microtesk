@@ -422,7 +422,7 @@ public final class NmlIrTrans {
     @Override
     public Lvalue accessMemory(final Lvalue mem, final Access access) {
       final Lvalue source = index(mem, access);
-      final Local target = ctx.newLocal(null);
+      final Local target = ctx.newLocal(source.getType());
       ctx.append(new Load(source, target));
 
       return extract(target, access);
@@ -459,7 +459,7 @@ public final class NmlIrTrans {
     @Override
     public Lvalue accessMemory(final Lvalue mem, final Access access) {
       final Lvalue target = index(mem, access);
-      final Local value = ctx.newLocal(null);
+      final Local value = ctx.newLocal(target.getType());
       if (access.lo != null) {
         ctx.append(new Load(target, value));
         write(value, access);
@@ -531,6 +531,11 @@ public final class NmlIrTrans {
       public Rvalue make(final Operand lhs, final Operand rhs) {
         return BvOpcode.Xor.make(lhs, new Constant(1, 1));
       }
+
+      @Override
+      public MirTy typeOf(final Operand lhs, final Operand rhs) {
+        return new IntTy(1);
+      }
     });
 
     OPCODE_MAPPING.put(StandardOperation.EQ, CmpOpcode.Eq);
@@ -558,6 +563,11 @@ public final class NmlIrTrans {
       @Override
       public Rvalue make(final Operand lhs, final Operand rhs) {
         return BvOpcode.Xor.make(lhs, new Constant(64, -1));
+      }
+
+      @Override
+      public MirTy typeOf(final Operand lhs, final Operand rhs) {
+        return BvOpcode.Xor.typeOf(lhs, rhs);
       }
     });
 

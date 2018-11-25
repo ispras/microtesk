@@ -1,5 +1,6 @@
 package ru.ispras.microtesk.translator.mir;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -18,10 +19,28 @@ class TyRef {
     this.name = name;
     this.context = context;
   }
+
+  public TyRef(final MirTy type) {
+    this.type = type;
+    this.name = type.getName();
+    this.context = Types.singleton(this);
+  }
 }
 
 class Types {
-  private final Map<String, MirTy> types = new java.util.HashMap<>();
+  private final Map<String, MirTy> types;
+
+  Types() {
+    this(new java.util.HashMap<String, MirTy>());
+  }
+
+  private Types(final Map<String, MirTy> types) {
+    this.types = types;
+  }
+
+  public static Types singleton(final TyRef ref) {
+    return new Types(Collections.singletonMap(ref.name, ref.type));
+  }
 }
 
 class IntTy implements MirTy {
@@ -66,8 +85,8 @@ enum FpTy implements MirTy {
 }
 
 class MirArray implements MirTy {
-  private final int size;
-  private final TyRef ref;
+  public final int size;
+  public final TyRef ref;
 
   public MirArray(final int size, final TyRef ref) {
     this.size = size;
@@ -86,7 +105,7 @@ class MirArray implements MirTy {
 }
 
 class MirStruct implements MirTy {
-  private final Map<String, TyRef> fields;
+  public final Map<String, TyRef> fields;
 
   public MirStruct(final Map<String, TyRef> fields) {
     this.fields = fields;

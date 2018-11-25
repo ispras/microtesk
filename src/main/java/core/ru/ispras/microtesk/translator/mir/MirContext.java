@@ -19,14 +19,18 @@ final class MirBlock {
   }
 
   public Local newLocal(final DataType type) {
+    return newLocal(new IntTy(64)); // FIXME
+  }
+
+  public Local newLocal(final MirTy type) {
     ctx.locals.add(type);
-    return new Local(ctx.locals.size());
+    return new Local(ctx.locals.size(), type);
   }
 
   public Local getNamedLocal(final String name) {
     for (final LocalInfo info : ctx.localInfo.values()) {
       if (name.equals(info.name)) {
-        return new Local(info.id);
+        return new Local(info.id, ctx.locals.get(info.id));
       }
     }
     return null;
@@ -40,17 +44,17 @@ final class MirBlock {
     if (op instanceof Local) {
       return (Local) op;
     }
-    return assignLocal(BvOpcode.Add.make(op, new Constant(64, 0))); // FIXME
+    return assignLocal(BvOpcode.Add.make(op, new Constant(op.getType().getSize(), 0)));
   }
 
   public Local assignLocal(final Rvalue rhs) {
-    final Local lhs = newLocal(null); // FIXME
+    final Local lhs = newLocal(rhs.getType());
     assign(lhs, rhs);
     return lhs;
   }
 
   public Local extract(final Operand src, final Operand lo, final Operand hi) {
-    final Local ret = newLocal(null);
+    final Local ret = newLocal((MirTy) null); // FIXME
     append(new Extract(ret, src, lo, hi));
     return ret;
   }
@@ -78,7 +82,7 @@ public final class MirContext {
   public final List<BasicBlock> blocks = new ArrayList<>();
   public final BasicBlock landingPad = new BasicBlock();
 
-  public final List<DataType> locals = new ArrayList();
+  public final List<MirTy> locals = new ArrayList();
   public final Map<Integer, LocalInfo> localInfo = new HashMap<>();
 
   public MirBlock newBlock() {
