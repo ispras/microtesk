@@ -126,7 +126,13 @@ public final class NmlIrTrans {
   }
 
   private static Constant newConstant(final Node node) {
-    return new Constant(((NodeValue) node).getData());
+    final NodeValue value = (NodeValue) node;
+    if (node.isType(DataType.INTEGER)) {
+      // FIXME
+      return new Constant(64, value.getInteger());
+    }
+    final BitVector bv = value.getBitVector();
+    return new Constant(bv.getBitSize(), bv.bigIntegerValue());
   }
 
   private static Static newStatic(final Node node) {
@@ -262,7 +268,7 @@ public final class NmlIrTrans {
   }
 
   private static Constant valueOf(final long value, final int size) {
-    return new Constant(Data.newBitVector(BigInteger.valueOf(value), size));
+    return new Constant(size, BigInteger.valueOf(value));
   }
 
   private static int sizeOf(final Node node) {
