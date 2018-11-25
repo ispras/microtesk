@@ -4,6 +4,7 @@ import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.NodeValue;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -200,9 +201,19 @@ class Cast extends Rvalue {
 }
 
 class Constant implements Operand {
-  private final Data value;
+  private final int bits;
+  private final long cache;
+  private final BigInteger value;
 
-  Constant(final Data value) {
+  public Constant(final int bits, final long value) {
+    this.bits = bits;
+    this.cache = value;
+    this.value = BigInteger.valueOf(value);
+  }
+
+  public Constant(final int bits, final BigInteger value) {
+    this.bits = bits;
+    this.cache = -1;
     this.value = value;
   }
 }
