@@ -34,15 +34,18 @@ import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 public final class IrInquirer {
   private static final String PC_LABEL = "PC";
   private static final String DELAY_SLOT_LABEL = "DELAY_SLOT";
+  //private static final String BRANCH_LABEL = "BRANCH";
 
   private final Ir ir;
   private final boolean isDelaySlot;
+  //private final boolean isBranch;
 
   public IrInquirer(final Ir ir) {
     InvariantChecks.checkNotNull(ir);
 
     this.ir = ir;
     this.isDelaySlot = ir.getLabels().containsKey(DELAY_SLOT_LABEL);
+    //this.isBranch = ir.getLabels().containsKey(BRANCH_LABEL);
   }
 
   public boolean isPC(final Expr expr) {
@@ -62,7 +65,7 @@ public final class IrInquirer {
       return false;
     }
 
-    return isDelaySlot ? isLabelledAsDelaySlot(location)
+    return isDelaySlot ? isLabelledAsDelaySlot(location)// || isLabelledAsBranch(location)
                        : (isExplicitPC(location) || isLabelledAsPC(location));
   }
 
@@ -99,10 +102,15 @@ public final class IrInquirer {
     return isLabelled(location, DELAY_SLOT_LABEL);
   }
 
+/*  private boolean isLabelledAsBranch(final Location location) {
+    return isLabelled(location, BRANCH_LABEL);
+  }*/
+
   private boolean isLabelled(final Location location, final String labelId) {
     if (!ir.getLabels().containsKey(labelId)) {
       return false;
     }
+    //System.out.println("ir.getLabels() " + ir.getLabels());
 
     final LetLabel label = ir.getLabels().get(labelId);
     if (!label.getMemoryName().equals(location.getName())) {

@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.translator.nml.ir.primitive;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ArgumentMode;
 
@@ -26,6 +27,8 @@ public final class PrimitiveInfo {
 
   private boolean branch;
   private boolean conditionalBranch;
+  // The condition for the branch operation.
+  private Node conditionForBranch;
 
   private boolean memoryReference;
   private Boolean load;
@@ -39,6 +42,7 @@ public final class PrimitiveInfo {
     this.exception = false;
     this.branch = false;
     this.conditionalBranch = false;
+    this.conditionForBranch = null;
     this.memoryReference = false;
     this.load = null;
     this.store = null;
@@ -53,6 +57,7 @@ public final class PrimitiveInfo {
     this.exception = other.exception;
     this.branch = other.branch;
     this.conditionalBranch = other.conditionalBranch;
+    this.conditionForBranch = other.conditionForBranch;
     this.memoryReference = other.memoryReference;
     this.load = other.load;
     this.store = other.store;
@@ -91,6 +96,24 @@ public final class PrimitiveInfo {
     if (value) {
       branch = true;
     }
+  }
+
+  /**
+   * Sets the branch condition for the branch instruction.
+   *
+   * @param value {@code Node} where the branch condition and the operands are located.
+   */
+  public void setConditionForBranch(final Node value) {
+    this.conditionForBranch = value;
+  }
+
+  /**
+   * Returns the branch condition for the branch instruction.
+   *
+   * @return {@code Node} where the branch condition and the operands are located.
+   */
+  public Node getConditionForBranch() {
+    return this.conditionForBranch;
   }
 
   public boolean isMemoryReference() {
@@ -181,11 +204,12 @@ public final class PrimitiveInfo {
   @Override
   public String toString() {
     return String.format(
-        "PrimitiveInfo [exception=%s, branch=%s, conditionalBranch=%s, "
+        "PrimitiveInfo [exception=%s, branch=%s, conditionalBranch=%s, conditionForBranch=%s, "
             + "memoryReference=%s, load=%s, store=%s, blockSize=%s, argsUsage=%s]",
         exception,
         branch,
         conditionalBranch,
+        conditionForBranch,
         memoryReference,
         load,
         store,

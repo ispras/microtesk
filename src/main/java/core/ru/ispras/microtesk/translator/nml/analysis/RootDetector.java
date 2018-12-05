@@ -46,9 +46,11 @@ public final class RootDetector implements TranslatorHandler<Ir> {
 
     @Override
     public void onPrimitiveBegin(final Primitive item) {
+      //System.out.println("RootDetector: is root? " + item.getName());
       setStatus(Status.SKIP);
       if (item.isRoot() && Primitive.Kind.OP == item.getKind() && !item.isOrRule()) {
         ir.addRoot(item);
+        //System.out.println("RootDetector: add root " + item.getName());
       }
     }
 
