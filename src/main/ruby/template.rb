@@ -378,6 +378,8 @@ class Template
     retain = attrs[:retain]
     exclude = attrs[:exclude]
 
+    track = attrs.has_key?(:track) ? attrs[:track] : -1
+
     readAfterRate = attrs.has_key?(:read) ? attrs[:read] : attrs[:rate]
     writeAfterRate = attrs.has_key?(:write) ? attrs[:write] : attrs[:rate]
 
@@ -385,7 +387,14 @@ class Template
 
     allocator = @default_allocator if allocator.nil?
     @template.newUnknownImmediate(
-      get_caller_location, allocator, retain, exclude, readAfterRate, writeAfterRate, reserved)
+      get_caller_location,
+      allocator,
+      retain,
+      exclude,
+      track,
+      readAfterRate,
+      writeAfterRate,
+      reserved)
   end
 
   #

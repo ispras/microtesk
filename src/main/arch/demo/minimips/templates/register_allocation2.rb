@@ -45,8 +45,8 @@ class RegisterAllocationTemplate < MiniMipsBaseTemplate
     # is not used in this sequence.
     sequence {
       # Randomly selects destination registers from free registers
-      add reg(_ TRY_FREE, :retain  => [t0, t1, t2, t3]), t4, t5
-      sub reg(_ TRY_FREE, :rate    => {:read => 50, :write => 50}), t6, t7
+      add reg(_ TRY_FREE, :retain => [t0, t1, t2, t3]), t4, t5
+      sub reg(_ TRY_FREE, :track => 1, :rate => {:read => 50, :write => 50}), t6, t7
       slt reg(_ TRY_FREE, :exclude => [ zero, at, k0, k1, gp, sp, fp, ra ]), t8, t9
     }.run 3
   end

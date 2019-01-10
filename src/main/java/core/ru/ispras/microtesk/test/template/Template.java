@@ -540,6 +540,7 @@ public final class Template {
       final Allocator allocator,
       final List<Primitive> retain,
       final List<Primitive> exclude,
+      final int track,
       final Map<String, Object> readAfterRate,
       final Map<String, Object> writeAfterRate,
       final boolean reserved) {
@@ -548,6 +549,7 @@ public final class Template {
             allocator,
             getModeValues(where, retain),
             getModeValues(where, exclude),
+            track,
             getDependencyRate(where, readAfterRate),
             getDependencyRate(where, writeAfterRate),
             reserved
