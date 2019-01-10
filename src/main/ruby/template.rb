@@ -173,9 +173,9 @@ class Template
 
   def set_attributes(attributes, &contents)
     mapBuilder = set_builder_attributes @template.newMapBuilder, attributes
-    @template.beginAttibutes mapBuilder
+    @template.beginAttributes mapBuilder
     self.instance_eval &contents
-    @template.endAttibutes
+    @template.endAttributes
   end
 
   def label(name)
@@ -377,11 +377,15 @@ class Template
 
     retain = attrs[:retain]
     exclude = attrs[:exclude]
+
+    readAfterRate = attrs.has_key?(:read) ? attrs[:read] : attrs[:rate]
+    writeAfterRate = attrs.has_key?(:write) ? attrs[:write] : attrs[:rate]
+
     reserved = attrs.has_key?(:reserved) ? attrs[:reserved] : false
 
     allocator = @default_allocator if allocator.nil?
     @template.newUnknownImmediate(
-      get_caller_location, allocator, retain, exclude, reserved)
+      get_caller_location, allocator, retain, exclude, readAfterRate, writeAfterRate, reserved)
   end
 
   #

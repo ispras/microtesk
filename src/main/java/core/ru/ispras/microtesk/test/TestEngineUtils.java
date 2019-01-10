@@ -45,8 +45,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The {@link TestEngineUtils} class provides utility methods to be
- * used by the template processor to construct parts of test programs.
+ * {@link TestEngineUtils} implements utility methods to be used by the template processor
+ * to construct parts of test programs.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -155,6 +155,7 @@ final class TestEngineUtils {
 
   /**
    * Checks whether the specified label is defined in the abstract sequence.
+   * 
    * <p>Note: Labels are considered equal if they have the same name.
    *
    * @param sequence Abstract sequence to be checked.
@@ -179,12 +180,12 @@ final class TestEngineUtils {
   }
 
   /**
-   * Rethows the specified exception. Used to stop propagation of checked exceptions.
+   * Re-throws the specified exception. Used to stop propagation of checked exceptions.
    *
-   * <p>Unchecked exceptions (extend {@link RuntimeException}) are rethrown as they are.
+   * <p>Unchecked exceptions (extend {@link RuntimeException}) are re-thrown as they are.
    * Checked exceptions are wrapped into the {@link GenerationAbortedException} class.
    *
-   * @param e Exception to be rethrown.
+   * @param e Exception to be re-thrown.
    */
   public static void rethrowException(final Exception e) {
     if (e instanceof RuntimeException) {

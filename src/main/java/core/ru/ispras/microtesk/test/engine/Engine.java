@@ -15,7 +15,6 @@
 package ru.ispras.microtesk.test.engine;
 
 import ru.ispras.testbase.knowledge.iterator.Iterator;
-
 import java.util.Map;
 
 /**

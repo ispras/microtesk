@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -37,6 +37,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * {@link SequenceProcessor} is responsible for abstract sequence concretization.
+ *
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ */
 public final class SequenceProcessor {
   private SequenceProcessor() {}
 
@@ -49,6 +55,14 @@ public final class SequenceProcessor {
     return instance;
   }
 
+  /**
+   * Processes the abstract sequence and returns the iterator of the concrete sequences.
+   * 
+   * @param engineContext the engine context
+   * @param attributes the attributes
+   * @param abstractSequence the abstract sequence
+   * @return the iterator of the concrete sequences
+   */
   public Iterator<ConcreteSequence> process(
       final EngineContext engineContext,
       final Map<String, Object> attributes,
@@ -248,7 +262,7 @@ public final class SequenceProcessor {
 
     final boolean isEngineEnabled = !Boolean.FALSE.equals(engineAttribute);
     if (!isEngineEnabled) {
-      // The engines is disabled.
+      // The engine is disabled.
       return null;
     }
 
@@ -282,10 +296,17 @@ public final class SequenceProcessor {
     final List<AbstractCall> calls = AbstractCall.copyAll(
         AbstractCall.expandAtomic(abstractSequence.getSequence()));
 
-    allocateRegisters(calls, engineContext.getOptions());
+    allocateResources(calls, engineContext.getOptions());
 
     final List<AbstractCall> expandedCalls = expandPreparators(engineContext, calls);
     return new AbstractSequence(abstractSequence.getSection(), expandedCalls);
+  }
+
+  private static void allocateResources(
+      final List<AbstractCall> abstractSequence,
+      final Options options) {
+    // TODO: Allocate other kinds of resources.
+    allocateRegisters(abstractSequence, options);
   }
 
   private static void allocateRegisters(

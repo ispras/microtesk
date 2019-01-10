@@ -49,7 +49,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The {@link TemplateProcessor} class is responsible for template processing.
+ * {@link TemplateProcessor} is responsible for template processing.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
