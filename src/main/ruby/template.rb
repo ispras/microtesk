@@ -209,20 +209,27 @@ class Template
     @template.getAddressForLabel label.to_s
   end
 
-  def testdata(name, attrs = {})
-    get_new_situation name, attrs, true
-  end
-
   def situation(name, attrs = {})
-    get_new_situation name, attrs, false
+    java_import Java::Ru.ispras.microtesk.test.template.Situation
+    get_new_situation name, attrs, Situation::Kind::SITUATION
   end
 
-  def get_new_situation(name, attrs, testdata_provider)
+  def testdata(name, attrs = {})
+    java_import Java::Ru.ispras.microtesk.test.template.Situation
+    get_new_situation name, attrs, Situation::Kind::TESTDATA
+  end
+
+  def allocation(name, attrs = {})
+    java_import Java::Ru.ispras.microtesk.test.template.Situation
+    get_new_situation name, attrs, Situation::Kind::ALLOCATION
+  end
+
+  def get_new_situation(name, attrs, kind)
     if !attrs.is_a?(Hash)
       raise "attrs (#{attrs}) must be a Hash."
     end
 
-    builder = @template.newSituation name, testdata_provider
+    builder = @template.newSituation name, kind
     attrs.each_pair do |name, value|
       if value.is_a?(Dist) then
         attr_value = value.java_object
@@ -255,6 +262,26 @@ class Template
       @template.setDefaultSituation names, default_situation
     end
   end
+
+def allocator(name, attrs = {})
+  if !attrs.is_a?(Hash)
+    raise "attrs (#{attrs}) must be a Hash."
+  end
+
+  builder = @template.newAllocator name, testdata_provider
+  attrs.each_pair do |name, value|
+    if value.is_a?(Dist) then
+      attr_value = value.java_object
+    elsif value.is_a?(Symbol) then
+      attr_value = value.to_s
+    else
+      attr_value = value
+    end
+    builder.setAttribute name.to_s, attr_value
+  end
+
+  builder.build
+end
 
   #
   # Creates an object for generating a random integer (to be used as an argument of a mode or op)

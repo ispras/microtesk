@@ -608,8 +608,8 @@ public final class Template {
     return new OutputBuilder(kind, format);
   }
 
-  public Situation.Builder newSituation(final String name, final boolean testDataProvider) {
-    return new Situation.Builder(name, testDataProvider);
+  public Situation.Builder newSituation(final String name, final Situation.Kind kind) {
+    return new Situation.Builder(name, kind);
   }
 
   public void setDefaultSituation(final String name, final Situation situation) {

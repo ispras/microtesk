@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -20,20 +20,35 @@ import ru.ispras.testbase.TestData;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * {@link Situation} represents a situation, a test data provider, or an allocation constraint.
+ * 
+ * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
+ */
 public final class Situation {
+  public static enum Kind {
+    SITUATION,
+    TESTDATA,
+    ALLOCATION
+  }
+
   public static final class Builder {
     private final String name;
+    private final Kind kind;
     private Map<String, Object> attributes;
-    private final boolean testDataProvider;
 
     Builder(final String name) {
-      this(name, false);
+      this(name, Kind.SITUATION);
     }
 
-    Builder(final String name, final boolean testDataProvider) {
+    Builder(final String name, final Kind kind) {
+      InvariantChecks.checkNotNull(name);
+      InvariantChecks.checkNotNull(kind);
+
       this.name = name;
+      this.kind = kind;
       this.attributes = null;
-      this.testDataProvider = testDataProvider;
     }
 
     public Builder setAttribute(final String attrName, final Object value) {
@@ -46,39 +61,34 @@ public final class Situation {
     }
 
     public Situation build() {
-      return new Situation(name, attributes, testDataProvider);
+      return new Situation(name, kind, attributes);
     }
   }
 
   private final String name;
+  private final Kind kind;
   private final Map<String, Object> attributes;
-  private final boolean testDataProvider;
   private TestData testData;
 
-  public Situation(
-      final String name,
-      final Map<String, Object> attributes) {
-    this(name, attributes, false);
+  public Situation(final String name, final Map<String, Object> attributes) {
+    this(name, Kind.SITUATION, attributes);
   }
 
-  public Situation(
-      final String name,
-      final Map<String, Object> attributes,
-      final boolean testDataProvider) {
+  public Situation(final String name, final Kind kind, final Map<String, Object> attributes) {
     InvariantChecks.checkNotNull(name);
 
     this.name = name;
+    this.kind = kind;
     this.attributes = null != attributes ? attributes : new LinkedHashMap<String, Object>();
     this.testData = null;
-    this.testDataProvider = testDataProvider;
   }
 
   public String getName() {
     return name;
   }
 
-  public boolean isTestDataProvider() {
-    return testDataProvider;
+  public Kind getKind() {
+    return kind;
   }
 
   public Object getAttribute(final String attrName) {
@@ -112,6 +122,6 @@ public final class Situation {
     }
 
     return String.format(
-        "%s %s(%s)", testDataProvider ? "testdata" : "situation", name, sb);
+        "%s %s(%s)", kind.name().toLowerCase(), name, sb);
   }
 }

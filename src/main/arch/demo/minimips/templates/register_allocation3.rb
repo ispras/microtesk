@@ -44,8 +44,8 @@ class RegisterAllocationTemplate < MiniMipsBaseTemplate
     block(:combinator => 'random', :compositor => 'random') {
       
       sequence {
-        constraint('resource',
-          :name    => 'reg',
+        allocation(
+          'reg',
           :retain  => [ t0, t1, t2, t3, t4, t5, t6, t7, t8, t9 ]
         )
         add reg(_), reg(_), reg(_)
@@ -53,8 +53,8 @@ class RegisterAllocationTemplate < MiniMipsBaseTemplate
         slt reg(_), reg(_), reg(_)
       }
       sequence {
-        constraint('resource',
-          :name    => 'reg',
+        allocation(
+          'reg',
           :exclude => [ zero, at, k0, k1, gp, sp, fp, ra ]
         )
         add reg(_), reg(_), reg(_)

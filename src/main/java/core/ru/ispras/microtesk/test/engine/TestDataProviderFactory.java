@@ -68,7 +68,7 @@ final class TestDataProviderFactory {
     }
 
     final Situation situation = primitive.getSituation();
-    if (null == situation || !situation.isTestDataProvider()) {
+    if (null == situation || situation.getKind() != Situation.Kind.TESTDATA) {
       return;
     }
 
