@@ -263,26 +263,6 @@ class Template
     end
   end
 
-def allocator(name, attrs = {})
-  if !attrs.is_a?(Hash)
-    raise "attrs (#{attrs}) must be a Hash."
-  end
-
-  builder = @template.newAllocator name, testdata_provider
-  attrs.each_pair do |name, value|
-    if value.is_a?(Dist) then
-      attr_value = value.java_object
-    elsif value.is_a?(Symbol) then
-      attr_value = value.to_s
-    else
-      attr_value = value
-    end
-    builder.setAttribute name.to_s, attr_value
-  end
-
-  builder.build
-end
-
   #
   # Creates an object for generating a random integer (to be used as an argument of a mode or op)
   # selected from the specified range or according to the specified distribution.
