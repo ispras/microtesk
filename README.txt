@@ -30,8 +30,8 @@
 
     Use the menu item "File/Import...".
     Choose "General/Existing Projects into Workspace".
-    Select the "<microtesk>/trunk/microtesk" folder as the root directory.
+    Select the "microtesk" folder as the root directory.
     Select the "microtesk" project located in this directory.
-    Press the "Finish" button: the project will be opened in the Eclipse IDE.
+    Press the "Finish" button.
 
 --------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class BlockBuilder {
+  private final Block.Kind kind;
   private final BlockId blockId;
   private final boolean isExternal;
   private final Section section;
@@ -38,23 +39,25 @@ public final class BlockBuilder {
   private final List<Block> nestedBlocks;
   private final List<AbstractCall> prologue;
   private final List<AbstractCall> epilogue;
+  private final List<Situation> constraints;
 
   private boolean isPrologue; // Flag to show that prologue is being constructed
   private boolean isEpilogue; // Flag to show that epilogue is being constructed
 
-  private boolean isAtomic;
-  private boolean isSequence;
-  private boolean isIterate;
-
-  protected BlockBuilder(final boolean isExternal, final Section section) {
-    this(new BlockId(), isExternal, section);
+  protected BlockBuilder(final Block.Kind kind, final boolean isExternal, final Section section) {
+    this(kind, new BlockId(), isExternal, section);
   }
 
-  protected BlockBuilder(final BlockBuilder parent) {
-    this(parent.getBlockId().nextChildId(), false, parent.section);
+  protected BlockBuilder(final Block.Kind kind, final BlockBuilder parent) {
+    this(kind, parent.getBlockId().nextChildId(), false, parent.section);
   }
 
-  private BlockBuilder(final BlockId blockId, final boolean isExternal, final Section section) {
+  private BlockBuilder(
+      final Block.Kind kind,
+      final BlockId blockId,
+      final boolean isExternal,
+      final Section section) {
+    this.kind = kind;
     this.blockId = blockId;
     this.isExternal = isExternal;
     this.section = section;
@@ -64,10 +67,11 @@ public final class BlockBuilder {
     this.nestedBlocks = new ArrayList<>();
     this.prologue = new ArrayList<>();
     this.epilogue = new ArrayList<>();
+    this.constraints = new ArrayList<>();
+  }
 
-    this.isAtomic = false;
-    this.isSequence = false;
-    this.isIterate = false;
+  public Block.Kind getKind() {
+    return kind;
   }
 
   public BlockId getBlockId() {
@@ -84,6 +88,10 @@ public final class BlockBuilder {
 
   public List<AbstractCall> getEpilogue() {
     return epilogue;
+  }
+
+  public List<Situation> getConstraints() {
+    return constraints;
   }
 
   public boolean isEmpty() {
@@ -103,24 +111,6 @@ public final class BlockBuilder {
     return where;
   }
 
-  public void setAtomic(final boolean value) {
-    InvariantChecks.checkFalse(value && isIterate);
-    InvariantChecks.checkFalse(value && isSequence);
-    isAtomic = value;
-  }
-
-  public void setSequence(final boolean value) {
-    InvariantChecks.checkFalse(value && isAtomic);
-    InvariantChecks.checkFalse(value && isIterate);
-    isSequence = value;
-  }
-
-  public void setIterate(final boolean value) {
-    InvariantChecks.checkFalse(value && isAtomic);
-    InvariantChecks.checkFalse(value && isSequence);
-    isIterate = value;
-  }
-
   public void setAttribute(final String name, final Object value) {
     InvariantChecks.checkFalse(attributes.containsKey(name));
     attributes.put(name, value);
@@ -129,10 +119,10 @@ public final class BlockBuilder {
   public void addBlock(final Block block) {
     InvariantChecks.checkNotNull(block);
 
-    if (isAtomic || isSequence) {
+    if (kind.isTerminal()) {
       throw new GenerationAbortedException(String.format(
           "Nested blocks are not allowed in '%s' structures. At: %s",
-          isAtomic ? "atomic" : "sequence",
+          kind.name().toLowerCase(),
           block.getWhere()
           ));
     }
@@ -171,15 +161,16 @@ public final class BlockBuilder {
           new SingleValueIterator<>(Collections.singletonList(call));
 
       nestedBlocks.add(new Block(
+          Block.Kind.ATOMIC,
           blockId,
           where,
           section,
-          true,
           false,
           Collections.<String, Object>emptyMap(),
           iterator,
           Collections.<AbstractCall>emptyList(),
-          Collections.<AbstractCall>emptyList()
+          Collections.<AbstractCall>emptyList(),
+          Collections.<Situation>emptyList()
           ));
     }
   }
@@ -194,6 +185,10 @@ public final class BlockBuilder {
     InvariantChecks.checkTrue(value ? !isEpilogue && epilogue.isEmpty() : isEpilogue);
     InvariantChecks.checkFalse(isPrologue);
     this.isEpilogue = value;
+  }
+
+  public void addConstraint(final Situation constraint) {
+    this.constraints.add(constraint);
   }
 
   public Block build() {
@@ -213,6 +208,7 @@ public final class BlockBuilder {
 
     final List<AbstractCall> resultPrologue = new ArrayList<>();
     final List<AbstractCall> resultEpilogue = new ArrayList<>();
+    final List<Situation> resultConstraints = new ArrayList<>();
 
     // Note: external code blocks have no prologue and epilogue. They can
     // define prologue and epilogue to be added to all test cases, but they must
@@ -239,25 +235,29 @@ public final class BlockBuilder {
 
     // For an empty sequence block (non-external, explicitly specified),
     // a single empty sequence is inserted.
-    if (isEmpty() && !isExternal && (isAtomic || isSequence)) {
+    if (isEmpty() && !isExternal && (kind.isTerminal())) {
       generatorBuilder.addIterator(
           new SingleValueIterator<>(Collections.<AbstractCall>emptyList()));
     }
 
+    // TODO: Add the upper-level constraints.
+    resultConstraints.addAll(constraints);
+
     return new Block(
+        kind,
         blockId,
         where,
         section,
-        isAtomic,
         isExternal,
         attributes,
         generatorBuilder.build(),
         resultPrologue,
-        resultEpilogue
+        resultEpilogue,
+        resultConstraints
         );
   }
 
   private GeneratorBuilder<AbstractCall> newGeneratorBuilder() {
-    return new GeneratorBuilder<>(isAtomic || isSequence, isIterate, attributes);
+    return new GeneratorBuilder<>(kind.isTerminal(), kind.isIterate(), attributes);
   }
 }

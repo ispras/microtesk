@@ -20,7 +20,6 @@ import ru.ispras.fortress.randomizer.Variate;
 import ru.ispras.fortress.randomizer.VariateBuilder;
 import ru.ispras.fortress.randomizer.VariateSingleValue;
 import ru.ispras.fortress.util.InvariantChecks;
-
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.model.metadata.MetaAddressingMode;
@@ -45,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -236,8 +236,7 @@ public final class Template {
     checkSectionDefined(section,
         context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
 
-    final BlockBuilder rootBlockBuilder = new BlockBuilder(true, section);
-    rootBlockBuilder.setSequence(true);
+    final BlockBuilder rootBlockBuilder = new BlockBuilder(Block.Kind.SEQUENCE, true, section);
 
     InvariantChecks.checkTrue(blockBuilders.isEmpty());
     this.blockBuilders.push(rootBlockBuilder);
@@ -261,7 +260,7 @@ public final class Template {
     return currentBlockBuilder().getBlockId();
   }
 
-  public BlockBuilder beginBlock() {
+  public BlockBuilder beginBlock(final Block.Kind kind) {
     endBuildingCall();
 
     final BlockBuilder parent = currentBlockBuilder();
@@ -273,7 +272,7 @@ public final class Template {
         context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
 
     final BlockBuilder current = parent.isExternal()
-        ? new BlockBuilder(false, section) : new BlockBuilder(parent);
+        ? new BlockBuilder(kind, false, section) : new BlockBuilder(kind, parent);
 
     blockBuilders.push(current);
     debug("Begin block: " + current.getBlockId());
@@ -540,12 +539,18 @@ public final class Template {
       final Allocator allocator,
       final List<Primitive> retain,
       final List<Primitive> exclude,
+      final int track,
+      final Map<String, Object> readAfterRate,
+      final Map<String, Object> writeAfterRate,
       final boolean reserved) {
     return new UnknownImmediateValue(
         new AllocationData(
             allocator,
             getModeValues(where, retain),
             getModeValues(where, exclude),
+            track,
+            getDependencyRate(where, readAfterRate),
+            getDependencyRate(where, writeAfterRate),
             reserved
         ));
   }
@@ -583,6 +588,17 @@ public final class Template {
     return result;
   }
 
+  private static Map<String, Object> getDependencyRate(
+      final Where where,
+      final Map<String, Object> rate) {
+    if (null == rate) {
+      return Collections.<String, Object>emptyMap();
+    }
+
+    final Map<String, Object> result = new LinkedHashMap<>(rate);
+    return result;
+  }
+
   public LabelValue newLazyLabel() {
     return LabelValue.newLazy();
   }
@@ -591,8 +607,8 @@ public final class Template {
     return new OutputBuilder(kind, format);
   }
 
-  public Situation.Builder newSituation(final String name, final boolean testDataProvider) {
-    return new Situation.Builder(name, testDataProvider);
+  public Situation.Builder newSituation(final String name, final Situation.Kind kind) {
+    return new Situation.Builder(name, kind);
   }
 
   public void setDefaultSituation(final String name, final Situation situation) {
@@ -609,6 +625,11 @@ public final class Template {
   public Variate<Situation> getDefaultSituation(final String name) {
     InvariantChecks.checkNotNull(name);
     return defaultSituations.get(name);
+  }
+
+  public void addBlockConstraint(final Situation constraint) {
+    InvariantChecks.checkNotNull(constraint);
+    currentBlockBuilder().addConstraint(constraint);
   }
 
   public PreparatorBuilder beginPreparator(
@@ -1260,7 +1281,7 @@ public final class Template {
     }
   }
 
-  public void beginAttibutes(final MapBuilder builder) {
+  public void beginAttributes(final MapBuilder builder) {
     final Map<String, Object> currentAttributes;
     if (attributes.isEmpty()) {
       currentAttributes = builder.getMap();
@@ -1271,7 +1292,7 @@ public final class Template {
     attributes.push(currentAttributes);
   }
 
-  public void endAttibutes() {
+  public void endAttributes() {
     attributes.pop();
   }
 

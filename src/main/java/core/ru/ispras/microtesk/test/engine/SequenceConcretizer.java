@@ -347,10 +347,6 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
       return processingCount;
     }
 
-    public void setProcessingCount(final int processingCount) {
-      this.processingCount = processingCount;
-    }
-
     public void incProcessingCount() {
       processingCount++;
     }

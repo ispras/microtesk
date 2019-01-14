@@ -47,6 +47,8 @@ TESTS = aligned_calls\
         random_sequence\
         random_situation\
         register_allocation\
+        register_allocation2\
+        register_allocation3\
         selfchecks\
         testdata
 

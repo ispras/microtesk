@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The {@link TestEngine} class is responsible for generation of test programs.
+ * {@link TestEngine} is responsible for test program generation.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */

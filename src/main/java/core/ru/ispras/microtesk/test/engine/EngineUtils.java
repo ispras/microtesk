@@ -201,7 +201,7 @@ public final class EngineUtils {
       return isDefaultTestData ? TestBaseUtils.newRandomTestData(query) : TestData.EMPTY;
     }
 
-    if (situation.isTestDataProvider() && situation.getTestData() != null) {
+    if (situation.getKind() == Situation.Kind.TESTDATA && situation.getTestData() != null) {
       return situation.getTestData();
     }
 
