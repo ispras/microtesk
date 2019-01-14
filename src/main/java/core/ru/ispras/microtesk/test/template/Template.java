@@ -236,8 +236,7 @@ public final class Template {
     checkSectionDefined(section,
         context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
 
-    final BlockBuilder rootBlockBuilder = new BlockBuilder(true, section);
-    rootBlockBuilder.setSequence(true);
+    final BlockBuilder rootBlockBuilder = new BlockBuilder(Block.Kind.SEQUENCE, true, section);
 
     InvariantChecks.checkTrue(blockBuilders.isEmpty());
     this.blockBuilders.push(rootBlockBuilder);
@@ -261,7 +260,7 @@ public final class Template {
     return currentBlockBuilder().getBlockId();
   }
 
-  public BlockBuilder beginBlock() {
+  public BlockBuilder beginBlock(final Block.Kind kind) {
     endBuildingCall();
 
     final BlockBuilder parent = currentBlockBuilder();
@@ -273,7 +272,7 @@ public final class Template {
         context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
 
     final BlockBuilder current = parent.isExternal()
-        ? new BlockBuilder(false, section) : new BlockBuilder(parent);
+        ? new BlockBuilder(kind, false, section) : new BlockBuilder(kind, parent);
 
     blockBuilders.push(current);
     debug("Begin block: " + current.getBlockId());
@@ -626,6 +625,11 @@ public final class Template {
   public Variate<Situation> getDefaultSituation(final String name) {
     InvariantChecks.checkNotNull(name);
     return defaultSituations.get(name);
+  }
+
+  public void addBlockConstraint(final Situation constraint) {
+    InvariantChecks.checkNotNull(constraint);
+    currentBlockBuilder().addConstraint(constraint);
   }
 
   public PreparatorBuilder beginPreparator(

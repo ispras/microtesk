@@ -1,5 +1,5 @@
 #
-# Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
+# Copyright 2013-2019 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -80,84 +80,69 @@ class Template
     end
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Main Template Writing Methods                                                                  #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Main Template Methods
+  #=================================================================================================
 
-  # Pre-condition instructions template
+  # Prologue
   def pre
 
   end
 
-  # Main instructions template
+  # Main part
   def run
-    puts "MTRuby: warning: Trying to execute the original Template#run."
+    puts "MicroTESK [Ruby] Warning: Trying to execute the original Template#run."
   end
 
-  # Post-condition instructions template
+  # Epilogue
   def post
 
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Template Description Facilities                                                                #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Instruction Sequences
+  #=================================================================================================
+
+  #-------------------------------------------------------------------------------------------------
+  # Blocks: block {...}, sequence {...}, atomic {...}, and iterate {...}
+  #-------------------------------------------------------------------------------------------------
 
   def block(attributes = {}, &contents)
-    blockBuilder = @template.beginBlock
-    blockBuilder.setWhere get_caller_location
-
-    blockBuilder.setAtomic false
-    blockBuilder.setSequence false
-    blockBuilder.setIterate false
-
-    set_builder_attributes blockBuilder, attributes
-    self.instance_eval &contents
-
-    @template.endBlock
+    java_import Java::Ru.ispras.microtesk.test.template.Block
+    add_new_block Block::Kind::BLOCK, attributes, &contents
   end
 
   def sequence(attributes = {}, &contents)
-    blockBuilder = @template.beginBlock
-    blockBuilder.setWhere get_caller_location
-
-    blockBuilder.setAtomic false
-    blockBuilder.setSequence true
-    blockBuilder.setIterate false
-
-    set_builder_attributes blockBuilder, attributes
-    self.instance_eval &contents
-
-    @template.endBlock
+    java_import Java::Ru.ispras.microtesk.test.template.Block
+    add_new_block Block::Kind::SEQUENCE, attributes, &contents
   end
 
   def atomic(attributes = {}, &contents)
-    blockBuilder = @template.beginBlock
-    blockBuilder.setWhere get_caller_location
-
-    blockBuilder.setAtomic true
-    blockBuilder.setSequence false
-    blockBuilder.setIterate false
-
-    set_builder_attributes blockBuilder, attributes
-    self.instance_eval &contents
-
-    @template.endBlock
+    java_import Java::Ru.ispras.microtesk.test.template.Block
+    add_new_block Block::Kind::ATOMIC, attributes, &contents
   end
 
   def iterate(attributes = {}, &contents)
-    blockBuilder = @template.beginBlock
-    blockBuilder.setWhere get_caller_location
+    java_import Java::Ru.ispras.microtesk.test.template.Block
+    add_new_block Block::Kind::ITERATE, attributes, &contents
+  end
 
-    blockBuilder.setAtomic false
-    blockBuilder.setSequence false
-    blockBuilder.setIterate true
+  #
+  # Adds the given block to the current template.
+  #
+  def add_new_block(kind, attributes, &contents)
+    blockBuilder = @template.beginBlock kind
+    blockBuilder.setWhere get_caller_location
 
     set_builder_attributes blockBuilder, attributes
     self.instance_eval &contents
 
     @template.endBlock
   end
+
+  #-------------------------------------------------------------------------------------------------
+  # Instruction Attributes: <block> { ... <attribute> {...} ... }
+  #-------------------------------------------------------------------------------------------------
 
   def executed(&contents)
     set_attributes(:executed => true, &contents)
@@ -171,12 +156,28 @@ class Template
     set_attributes(:branches => true, &contents)
   end
 
+  #
+  # Sets the given attributes to the nested operations.
+  #
   def set_attributes(attributes, &contents)
-    mapBuilder = set_builder_attributes @template.newMapBuilder, attributes
+    mapBuilder = set_builder_attributes @template.newMapBuilder attributes
     @template.beginAttributes mapBuilder
     self.instance_eval &contents
     @template.endAttributes
   end
+
+  #-------------------------------------------------------------------------------------------------
+  # Block-Level Constraints: <block> { ... constraint {...} ... }
+  #-------------------------------------------------------------------------------------------------
+
+  # Adds the given constraint to the current block.
+  def constraint(&situations)
+    @template.addBlockConstraint @situation_manager.instance_eval &situations
+  end
+
+  #=================================================================================================
+  # Labels and Addresses
+  #=================================================================================================
 
   def label(name)
     if name.is_a?(Integer)
@@ -208,6 +209,10 @@ class Template
   def get_address_of(label)
     @template.getAddressForLabel label.to_s
   end
+
+  #=================================================================================================
+  # Situations
+  #=================================================================================================
 
   def situation(name, attrs = {})
     java_import Java::Ru.ispras.microtesk.test.template.Situation
@@ -411,9 +416,9 @@ class Template
     @template.newLazyLabel
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Register Allocation Facilities                                                                 #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Register Allocation
+  #=================================================================================================
 
   def self.mode_allocator(name, attrs = {})
     java_import Java::Ru.ispras.microtesk.test.engine.allocator.AllocatorBuilder
@@ -469,9 +474,9 @@ class Template
     @template.addAllocatorAction mode, 'RESERVED', flag, false
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Defining Groups                                                                                #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Defining Groups
+  #=================================================================================================
 
   def define_mode_group(name, distribution)
     if !distribution.is_a?(Dist)
@@ -491,9 +496,9 @@ class Template
     TemplateBuilder.define_operation_group name
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Printing Text Messages                                                                         #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Text and Debug
+  #=================================================================================================
 
   #
   # Creates a location-based format argument for format-like output methods.
@@ -600,9 +605,9 @@ class Template
     Printer.addToFooter text
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Creating Preparators and Comparators                                                           #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Preparators and Comparators
+  #=================================================================================================
 
   def preparator(attrs, &contents)
     create_preparator(false, attrs, &contents)
@@ -713,9 +718,9 @@ class Template
     @template.addPreparatorCall target_mode, value_object, preparator_name, variant_name
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Creating Memory Preparators                                                                    #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Memory Preparators
+  #=================================================================================================
 
   # uses address and data
   def memory_preparator(attrs, &contents)
@@ -725,9 +730,9 @@ class Template
     @template.endMemoryPreparator
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Creating Stream Preparators                                                                    #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Data Streams
+  #=================================================================================================
 
   def stream_preparator(attrs, &contents)
     data  = get_attribute attrs, :data_source
@@ -753,17 +758,13 @@ class Template
     @template.getStartLabel
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Creating Streams                                                                               #
-  # ---------------------------------------------------------------------------------------------- #
-
   def stream(label, data, index, length)
     @template.addStream label.to_s, data, index, length
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Creating Buffer Preparators                                                                    #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Buffer Preparators
+  #=================================================================================================
 
   def buffer_preparator(attrs, &contents)
     buffer_id = get_attribute attrs, :target
@@ -803,9 +804,9 @@ class Template
     end
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Generating Data Files                                                                          #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Data Files
+  #=================================================================================================
 
   def generate_data(address, label, type, length, method, *flags)
     # puts "Generating data file"
@@ -813,9 +814,9 @@ class Template
     @template.generateData address, label, type, length, method, separate_file
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Exception Handling                                                                             #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Exception Handling
+  #=================================================================================================
 
   def exception_handler(attrs = {}, &contents)
     if attrs.has_key?(:id)
@@ -843,9 +844,9 @@ class Template
     @template.endExceptionHandler
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Data Definition Facilities                                                                     #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Data Definition
+  #=================================================================================================
 
   def data_config(attrs, &contents)
     if nil != @data_manager
@@ -890,9 +891,9 @@ class Template
     @data_manager.endData
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Code Allocation Facilities                                                                     #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Code Allocation
+  #=================================================================================================
 
   def org(origin)
     if origin.is_a?(Integer)
@@ -921,9 +922,9 @@ class Template
     2 ** n
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Sections                                                                                       #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Sections
+  #=================================================================================================
 
   def section(attrs, &contents)
     name = get_attribute attrs, :name
@@ -963,9 +964,9 @@ class Template
     @template.endSection
   end
 
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
   # Test-Case-Level Prologue and Epilogue                                                          #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
 
   def prologue(&contents)
     @template.beginPrologue
@@ -979,9 +980,9 @@ class Template
     @template.endEpilogue
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Memory Objects                                                                                 #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Memory Objects
+  #=================================================================================================
 
   def memory_object(attrs)
     size = get_attribute attrs, :size
@@ -1052,9 +1053,9 @@ class Template
     @data_manager.endData
   end
 
-  # ---------------------------------------------------------------------------------------------- #
-  # Generation (Execution and Printing)                                                            #
-  # ---------------------------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Test Generation
+  #=================================================================================================
 
   def generate
     java_import Java::Ru.ispras.microtesk.test.TestEngine
@@ -1100,9 +1101,9 @@ class Template
     engine.isRevision id
   end
 
-  # -------------------------------------------------------------------------- #
-  # Private Methods                                                            #
-  # -------------------------------------------------------------------------- #
+  #=================================================================================================
+  # Private Methods
+  #=================================================================================================
 
   private
 

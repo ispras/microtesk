@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -23,11 +23,44 @@ import java.util.List;
 import java.util.Map;
 
 public final class Block {
+  public static enum Kind {
+    BLOCK(false, false, false),
+    SEQUENCE(false, true, false),
+    ATOMIC(true, false, false),
+    ITERATE(false, false, true);
+
+    private final boolean isAtomic;
+    private final boolean isSequence;
+    private final boolean isIterate;
+
+    private Kind(final boolean isAtomic, final boolean isSequence, final boolean isIterate) {
+      this.isAtomic = isAtomic;
+      this.isSequence = isSequence;
+      this.isIterate = isIterate;
+    }
+
+    public boolean isAtomic() {
+      return isAtomic;
+    }
+
+    public boolean isSequence() {
+      return isSequence;
+    }
+
+    public boolean isIterate() {
+      return isIterate;
+    }
+
+    public boolean isTerminal() {
+      return isAtomic || isSequence;
+    }
+  }
+
+  private final Kind kind;
   private final BlockId blockId;
   private final Where where;
   private final Section section;
 
-  private final boolean isAtomic;
   private final boolean isExternal;
   private final Map<String, Object> attributes;
 
@@ -38,34 +71,39 @@ public final class Block {
   private final List<AbstractCall> epilogue;
   private final Iterator<List<AbstractCall>> wrappedIterator;
 
+  private final List<Situation> constraints;
+
   // Number of times the block was nested into other blocks.
   private int refCount;
 
   protected Block(
+      final Kind kind,
       final BlockId blockId,
       final Where where,
       final Section section,
-      final boolean isAtomic,
       final boolean isExternal,
       final Map<String, Object> attributes,
       final Iterator<List<AbstractCall>> iterator,
       final List<AbstractCall> prologue,
-      final List<AbstractCall> epilogue) {
+      final List<AbstractCall> epilogue,
+      final List<Situation> constraints) {
+    InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(blockId);
     InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(attributes);
     InvariantChecks.checkNotNull(iterator);
     InvariantChecks.checkNotNull(prologue);
     InvariantChecks.checkNotNull(epilogue);
+    InvariantChecks.checkNotNull(constraints);
 
     // External code has no prologue and epilogue, it prologue and epilogue for all root blocks.
     InvariantChecks.checkTrue(isExternal ? epilogue.isEmpty() && prologue.isEmpty() : true);
 
+    this.kind = kind;
     this.blockId = blockId;
     this.where = where;
     this.section = section;
 
-    this.isAtomic = isAtomic;
     this.isExternal = isExternal;
     this.attributes = attributes;
 
@@ -83,6 +121,8 @@ public final class Block {
         ? iterator
         : new GeneratorPrologueEpilogue<>(iterator, prologue, epilogue);
 
+    this.constraints = constraints;
+
     this.refCount = 0;
   }
 
@@ -99,7 +139,7 @@ public final class Block {
   }
 
   public boolean isAtomic() {
-    return isAtomic;
+    return kind.isAtomic();
   }
 
   public boolean isExternal() {
@@ -137,6 +177,10 @@ public final class Block {
 
   public List<AbstractCall> getEpilogue() {
     return epilogue;
+  }
+
+  public List<Situation> getConstraints() {
+    return constraints;
   }
 
   protected int getRefCount() {
