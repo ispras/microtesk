@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -44,6 +44,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
   private final DataSection data;
   private final List<AbstractCall> atomicSequence;
   private final AllocatorAction allocatorAction;
+
+  private final Map<String, Situation> blockConstraints;
 
   public static AbstractCall newData(final DataSection data) {
     InvariantChecks.checkNotNull(data);
@@ -252,6 +254,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     this.data = data;
     this.atomicSequence = atomicSequence;
     this.allocatorAction = allocatorAction;
+    this.blockConstraints = new LinkedHashMap<>();
   }
 
   public AbstractCall(final AbstractCall other) {
@@ -290,6 +293,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
 
     this.allocatorAction = null != other.allocatorAction
         ? new AllocatorAction(other.allocatorAction) : null;
+
+    this.blockConstraints = null != other.blockConstraints
+        ? new LinkedHashMap<>(other.blockConstraints) : null;
   }
 
   public boolean isExecutable() {
@@ -414,6 +420,15 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
 
   public AllocatorAction getAllocatorAction() {
     return allocatorAction;
+  }
+
+  public Map<String, Situation> getBlockConstraints() {
+    return blockConstraints;
+  }
+
+  public void addBlockConstraints(final Map<String, Situation> blockConstraints) {
+    InvariantChecks.checkNotNull(blockConstraints);
+    this.blockConstraints.putAll(blockConstraints);
   }
 
   @Override

@@ -277,6 +277,9 @@ public final class Template {
     blockBuilders.push(current);
     debug("Begin block: " + current.getBlockId());
 
+    // Propagate the parent block's constraints.
+    current.addConstraints(parent.getConstraints());
+
     return current;
   }
 

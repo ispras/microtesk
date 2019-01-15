@@ -14,6 +14,13 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.GenerationAbortedException;
@@ -21,12 +28,6 @@ import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
 import ru.ispras.microtesk.test.sequence.GeneratorUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public final class BlockBuilder {
   private final Block.Kind kind;
@@ -39,7 +40,7 @@ public final class BlockBuilder {
   private final List<Block> nestedBlocks;
   private final List<AbstractCall> prologue;
   private final List<AbstractCall> epilogue;
-  private final List<Situation> constraints;
+  private final Map<String, Situation> constraints;
 
   private boolean isPrologue; // Flag to show that prologue is being constructed
   private boolean isEpilogue; // Flag to show that epilogue is being constructed
@@ -67,7 +68,7 @@ public final class BlockBuilder {
     this.nestedBlocks = new ArrayList<>();
     this.prologue = new ArrayList<>();
     this.epilogue = new ArrayList<>();
-    this.constraints = new ArrayList<>();
+    this.constraints = new LinkedHashMap<>();
   }
 
   public Block.Kind getKind() {
@@ -90,7 +91,7 @@ public final class BlockBuilder {
     return epilogue;
   }
 
-  public List<Situation> getConstraints() {
+  public Map<String, Situation> getConstraints() {
     return constraints;
   }
 
@@ -144,6 +145,9 @@ public final class BlockBuilder {
   public void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
 
+    // Propagate the block constraints to calls.
+    call.addBlockConstraints(constraints);
+
     if (null == where && call.getWhere() != null) {
       where = call.getWhere();
     }
@@ -170,7 +174,7 @@ public final class BlockBuilder {
           iterator,
           Collections.<AbstractCall>emptyList(),
           Collections.<AbstractCall>emptyList(),
-          Collections.<Situation>emptyList()
+          Collections.<String, Situation>emptyMap()
           ));
     }
   }
@@ -188,7 +192,11 @@ public final class BlockBuilder {
   }
 
   public void addConstraint(final Situation constraint) {
-    this.constraints.add(constraint);
+    this.constraints.put(constraint.getName(), constraint);
+  }
+
+  public void addConstraints(final Map<String, Situation> constraints) {
+    this.constraints.putAll(constraints);
   }
 
   public Block build() {
@@ -208,7 +216,7 @@ public final class BlockBuilder {
 
     final List<AbstractCall> resultPrologue = new ArrayList<>();
     final List<AbstractCall> resultEpilogue = new ArrayList<>();
-    final List<Situation> resultConstraints = new ArrayList<>();
+    final Map<String, Situation> resultConstraints = new LinkedHashMap<>();
 
     // Note: external code blocks have no prologue and epilogue. They can
     // define prologue and epilogue to be added to all test cases, but they must
@@ -241,7 +249,7 @@ public final class BlockBuilder {
     }
 
     // TODO: Add the upper-level constraints.
-    resultConstraints.addAll(constraints);
+    resultConstraints.putAll(constraints);
 
     return new Block(
         kind,
