@@ -226,7 +226,8 @@ class Template
 
   def allocation(name, attrs = {})
     java_import Java::Ru.ispras.microtesk.test.template.Situation
-    get_new_situation name, attrs, Situation::Kind::ALLOCATION
+    allocation_data = get_allocation_data nil, attrs
+    get_new_situation name, {:allocation => allocation_data}, Situation::Kind::ALLOCATION
   end
 
   def get_new_situation(name, attrs, kind)
@@ -247,6 +248,34 @@ class Template
     end
 
     builder.build
+  end
+
+  def get_allocation_data(allocator, attrs)
+    if !attrs.is_a?(Hash)
+      raise "attrs (#{attrs}) must be a Hash."
+    end
+
+    retain = attrs[:retain]
+    exclude = attrs[:exclude]
+
+    track = attrs.has_key?(:track) ? attrs[:track] : -1
+
+    readAfterRate = attrs.has_key?(:read) ? attrs[:read] : attrs[:rate]
+    writeAfterRate = attrs.has_key?(:write) ? attrs[:write] : attrs[:rate]
+
+    reserved = attrs.has_key?(:reserved) ? attrs[:reserved] : false
+
+    allocator = @default_allocator if allocator.nil?
+
+    @template.newAllocationData(
+      get_caller_location,
+      allocator,
+      retain,
+      exclude,
+      track,
+      readAfterRate,
+      writeAfterRate,
+      reserved)
   end
 
   def random_situation(dist)
@@ -387,26 +416,8 @@ class Template
       raise "#{attrs} is not a Hash."
     end
 
-    retain = attrs[:retain]
-    exclude = attrs[:exclude]
-
-    track = attrs.has_key?(:track) ? attrs[:track] : -1
-
-    readAfterRate = attrs.has_key?(:read) ? attrs[:read] : attrs[:rate]
-    writeAfterRate = attrs.has_key?(:write) ? attrs[:write] : attrs[:rate]
-
-    reserved = attrs.has_key?(:reserved) ? attrs[:reserved] : false
-
-    allocator = @default_allocator if allocator.nil?
-    @template.newUnknownImmediate(
-      get_caller_location,
-      allocator,
-      retain,
-      exclude,
-      track,
-      readAfterRate,
-      writeAfterRate,
-      reserved)
+    allocation_data = get_allocation_data allocator, attrs
+    @template.newUnknownImmediate(allocation_data)
   end
 
   #

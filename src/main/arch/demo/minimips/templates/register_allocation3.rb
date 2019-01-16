@@ -55,8 +55,8 @@ class RegisterAllocationTemplate < MiniMipsBaseTemplate
         }
 
         add reg(_), reg(_), reg(_)
-        sub reg(_), reg(_), reg(_)
-        slt reg(_), reg(_), reg(_)
+        add reg(_), reg(_), reg(_)
+        add reg(_), reg(_), reg(_)
       }
 
       sequence {
@@ -69,9 +69,9 @@ class RegisterAllocationTemplate < MiniMipsBaseTemplate
           )
         }
 
-        add reg(_), reg(_), reg(_)
         sub reg(_), reg(_), reg(_)
-        slt reg(_), reg(_), reg(_)
+        sub reg(_), reg(_), reg(_)
+        sub reg(_), reg(_), reg(_)
       }
     }.run 3
   end

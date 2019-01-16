@@ -113,4 +113,12 @@ public final class AllocationData {
   public boolean isReserved() {
     return reserved;
   }
+
+  public boolean isSpecified() {
+    return !retain.isEmpty()
+        || !exclude.isEmpty()
+        || track != -1
+        || !readAfterRate.isEmpty()
+        || !writeAfterRate.isEmpty();
+  }
 }

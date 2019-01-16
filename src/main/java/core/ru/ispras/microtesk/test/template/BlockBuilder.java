@@ -192,7 +192,8 @@ public final class BlockBuilder {
   }
 
   public void addConstraint(final Situation constraint) {
-    this.constraints.put(constraint.getName(), constraint);
+    final String name = constraint.getName().toLowerCase();
+    this.constraints.put(name, constraint);
   }
 
   public void addConstraints(final Map<String, Situation> constraints) {

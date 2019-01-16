@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2007-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,12 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.settings.AllocationSettings;
@@ -24,13 +30,8 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
+import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
-
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * {@code AllocatorEngine} allocates addressing modes for a given abstract sequence.
@@ -118,12 +119,15 @@ public final class AllocatorEngine {
         processAllocatorAction(call.getAllocatorAction());
       }
 
+      // Get block-level constraints (they may include allocation constraints).
+      final Map<String, Situation> constraints = call.getBlockConstraints();
+
       if (call.isExecutable()) {
         final Primitive primitive = call.getRootOperation();
-        allocateUnknownValues(primitive, false);
+        allocateUnknownValues(primitive, constraints, false /* Does not matter */);
       } else if (call.isPreparatorCall()) {
         final Primitive primitive = call.getPreparatorReference().getTarget();
-        allocateUnknownValues(primitive, true);
+        allocateUnknownValues(primitive, constraints, true  /* Write a register */);
       }
     }
   }
@@ -146,7 +150,7 @@ public final class AllocatorEngine {
 
       default:
         throw new IllegalArgumentException(
-            "Unsupported action kind: " + allocatorAction.getKind());
+            String.format("Unsupported action kind: %s", allocatorAction.getKind()));
     }
   }
 
@@ -160,7 +164,9 @@ public final class AllocatorEngine {
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
     InvariantChecks.checkNotNull(allocationTable);
 
+    // The default allocator associated with the given mode.
     final Allocator defaultAllocator = allocationTable.getAllocator();
+
     try {
       if (null != allocationData.getAllocator()) {
         allocationTable.setAllocator(allocationData.getAllocator());
@@ -189,22 +195,41 @@ public final class AllocatorEngine {
     }
   }
 
-  private void allocateUnknownValues(final Primitive primitive, final boolean isWrite) {
+  private void allocateUnknownValues(
+      final Primitive primitive,
+      final Map<String, Situation> constraints,
+      final boolean isWrite) {
     for (final Argument argument : primitive.getArguments().values()) {
       if (AllocatorUtils.isPrimitive(argument)) {
-        allocateUnknownValues((Primitive) argument.getValue(), argument.getMode().isOut());
+        final Primitive innerPrimitive = (Primitive) argument.getValue();
+        final boolean isOutput = argument.getMode().isOut();
+
+        allocateUnknownValues(innerPrimitive, constraints, isOutput);
         continue;
       }
 
       if (AllocatorUtils.isUnknownValue(argument) && AllocatorUtils.isAddressingMode(primitive)) {
+        final String modeName = primitive.getName();
         final UnknownImmediateValue unknownValue = (UnknownImmediateValue) argument.getValue();
-        final AllocationData allocationData = unknownValue.getAllocationData();
 
-        final int index = allocate(primitive.getName(), isWrite, allocationData);
+        // Take into account the block-level allocation constraints.
+        final Situation constraint = constraints.get(modeName.toLowerCase());
+
+        final AllocationData allocationData;
+
+        if (unknownValue.getAllocationData().isSpecified()) {
+          allocationData = unknownValue.getAllocationData();
+        } else if (constraint != null && constraint.getKind() == Situation.Kind.ALLOCATION) {
+          allocationData = (AllocationData) constraint.getAttribute("allocation");
+        } else {
+          allocationData = unknownValue.getAllocationData();
+        }
+
+        final int index = allocate(modeName, isWrite, allocationData);
         unknownValue.setValue(BigInteger.valueOf(index));
 
         if (allocationData.isReserved()) {
-          excluded.setExcluded(primitive.getName(), index, true);
+          excluded.setExcluded(modeName, index, true);
         }
       }
     }

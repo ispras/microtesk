@@ -14,6 +14,18 @@
 
 package ru.ispras.microtesk.test.template;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Variate;
@@ -38,18 +50,6 @@ import ru.ispras.microtesk.test.engine.allocator.AllocatorAction;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorBuilder;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
 import ru.ispras.microtesk.utils.StringUtils;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * The {@link Template} class builds the internal representation of a test template
@@ -537,7 +537,7 @@ public final class Template {
     addCall(AbstractCall.newAllocatorAction(allocatorAction));
   }
 
-  public UnknownImmediateValue newUnknownImmediate(
+  public AllocationData newAllocationData(
       final Where where,
       final Allocator allocator,
       final List<Primitive> retain,
@@ -546,16 +546,20 @@ public final class Template {
       final Map<String, Object> readAfterRate,
       final Map<String, Object> writeAfterRate,
       final boolean reserved) {
-    return new UnknownImmediateValue(
-        new AllocationData(
-            allocator,
-            getModeValues(where, retain),
-            getModeValues(where, exclude),
-            track,
-            getDependencyRate(where, readAfterRate),
-            getDependencyRate(where, writeAfterRate),
-            reserved
-        ));
+    return new AllocationData(
+             allocator,
+             getModeValues(where, retain),
+             getModeValues(where, exclude),
+             track,
+             getDependencyRate(where, readAfterRate),
+             getDependencyRate(where, writeAfterRate),
+             reserved
+           );
+  }
+
+  public UnknownImmediateValue newUnknownImmediate(final AllocationData allocationData) {
+    InvariantChecks.checkNotNull(allocationData);
+    return new UnknownImmediateValue(allocationData);
   }
 
   private static List<Value> getModeValues(final Where where, final List<Primitive> modes) {
