@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.model.minimips;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -497,6 +498,7 @@ public class MiniMipsTest extends TemplateTest {
     }
 
     final String[] cmdArray = toArray(cmd, args);
+    final String command = StringUtils.join(cmdArray, ' ');
 
     try {
       final ProcessBuilder builder = new ProcessBuilder(cmdArray);
@@ -506,14 +508,25 @@ public class MiniMipsTest extends TemplateTest {
       }
       final Process process = builder.start();
 
+      int exitCode;
+
       if (timeout > 0) {
+
         Thread.sleep(timeout);
-        Logger.message("Timeout is expired for: %s", Arrays.toString(cmdArray));
+
+        try {
+          exitCode = process.exitValue();
+
+        } catch (IllegalThreadStateException e) {
+
+          Logger.message("Timeout is expired for: \"%s\"", command);
+          process.destroy();
+          exitCode = 0;
+        }
+      } else {
+        exitCode = process.waitFor();
         process.destroy();
       }
-
-      final int exitCode = timeout > 0 ? 0 : process.waitFor();
-      process.destroy();
 
       if (!returnCodes.contains(exitCode) || !isEmpty(errorLog)) {
 
@@ -531,14 +544,16 @@ public class MiniMipsTest extends TemplateTest {
         final String qemuTerminateHeader = "qemu-system-mips: terminating on signal";
 
         if (!errString.startsWith(qemuTerminateHeader) && !returnCodes.contains(exitCode)) {
-          Assert.fail(
-              String.format(
-                  "Process has returned %d: %s;%s%sError log is: %s",
-                  exitCode,
-                  Arrays.toString(cmdArray),
-                  System.lineSeparator(),
-                  System.lineSeparator(),
-                  errString));
+
+          final String returnMsg =
+              String.format("Process has returned '%d': \"%s\"%n", exitCode, command);
+          String logMsg;
+          if (errString.length() > 0) {
+            logMsg = String.format("Error log is:%n %s%n", errString);
+          } else {
+            logMsg = String.format("No error log is found, try to run command in terminal.%n");
+          }
+          Assert.fail(returnMsg + logMsg);
         }
       }
       if (errorLog.exists() && !errorLog.delete()) {
