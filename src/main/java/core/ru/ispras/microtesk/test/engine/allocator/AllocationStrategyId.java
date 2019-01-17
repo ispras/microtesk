@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,16 +14,17 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
-import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.fortress.randomizer.VariateBiased;
-import ru.ispras.microtesk.utils.function.Supplier;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+
+import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.randomizer.VariateBiased;
+import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link AllocationStrategyId} defines some resource allocation strategies.
@@ -32,18 +33,18 @@ import java.util.Map;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public enum AllocationStrategyId implements AllocationStrategy {
-  /** Always returns a free object (throws an exception if all the objects are in use). */
+  /** Returns a free object or {@code null} if all the objects are in use. */
   FREE() {
     @Override
     public <T> T next(
-        final Collection<T> domain,
+        final Collection<T> retain,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
-      final Collection<T> free = new LinkedHashSet<>(domain);
+      final Collection<T> free = new LinkedHashSet<>(retain);
 
       free.removeAll(exclude);
-      free.removeAll(used);
+      free.removeAll(getUsedObjects(used));
 
       return !free.isEmpty() ? Randomizer.get().choose(free) : null;
     }
@@ -52,18 +53,19 @@ public enum AllocationStrategyId implements AllocationStrategy {
     public <T> T next(
         final Supplier<T> supplier,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
-      final int N = 5;
+      final int tries = 7;
+      final Collection<T> usedObjects = getUsedObjects(used);
 
-      for (int i = 0; i < N; i++) {
+      for (int i = 0; i < tries; i++) {
         final T object = supplier.get();
 
         if (object == null) {
           return null;
         }
 
-        if (!exclude.contains(object) && !used.contains(object)) {
+        if (!exclude.contains(object) && !usedObjects.contains(object)) {
           return object;
         }
       }
@@ -72,18 +74,18 @@ public enum AllocationStrategyId implements AllocationStrategy {
     }
   },
 
-  /** Always returns a used object (throws an exception if there are no object are in use). */
+  /** Returns a used object or {@code null} if no object is in use. */
   USED() {
     @Override
     public <T> T next(
-        final Collection<T> domain,
+        final Collection<T> retain,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
-      final Collection<T> array = new LinkedHashSet<>(domain);
+      final Collection<T> array = new LinkedHashSet<>(retain);
 
       array.removeAll(exclude);
-      array.retainAll(used);
+      array.retainAll(getUsedObjects(used));
 
       return !array.isEmpty() ? Randomizer.get().choose(array) : null;
     }
@@ -92,7 +94,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
     public <T> T next(
         final Supplier<T> supplier,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
       return USED.next(Collections.<T>emptyList(), exclude, used, attributes);
     }
@@ -102,19 +104,19 @@ public enum AllocationStrategyId implements AllocationStrategy {
   TRY_FREE() {
     @Override
     public <T> T next(
-        final Collection<T> domain,
+        final Collection<T> retain,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
-      final T object = FREE.next(domain, exclude, used, attributes);
-      return object != null ? object : USED.next(domain, exclude, used, attributes);
+      final T object = FREE.next(retain, exclude, used, attributes);
+      return object != null ? object : USED.next(retain, exclude, used, attributes);
     }
 
     @Override
     public <T> T next(
         final Supplier<T> supplier,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
       final T object = FREE.next(supplier, exclude, used, attributes);
       return object != null ? object : USED.next(supplier, exclude, used, attributes);
@@ -125,19 +127,19 @@ public enum AllocationStrategyId implements AllocationStrategy {
   TRY_USED() {
     @Override
     public <T> T next(
-        final Collection<T> domain,
+        final Collection<T> retain,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
-      final T object = USED.next(domain, exclude, used, attributes);
-      return object != null ? object : FREE.next(domain, exclude, used, attributes);
+      final T object = USED.next(retain, exclude, used, attributes);
+      return object != null ? object : FREE.next(retain, exclude, used, attributes);
     }
 
     @Override
     public <T> T next(
         final Supplier<T> supplier,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
       final T object = USED.next(supplier, exclude, used, attributes);
       return object != null ? object : FREE.next(supplier, exclude, used, attributes);
@@ -151,19 +153,15 @@ public enum AllocationStrategyId implements AllocationStrategy {
 
     private final <T> AllocationStrategy getAllocationStrategy(
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
-
-      if (used.isEmpty() || exclude.containsAll(used)) {
-        return FREE;
-      }
 
       if (attributes != null
           && attributes.containsKey(ATTR_FREE_BIAS)
           && attributes.containsKey(ATTR_USED_BIAS)) {
         final List<AllocationStrategy> values = new ArrayList<>();
         values.add(TRY_FREE);
-        values.add(USED);
+        values.add(TRY_USED);
 
         final List<Integer> biases = new ArrayList<>();
         biases.add(Integer.parseInt(attributes.get(ATTR_FREE_BIAS)));
@@ -178,34 +176,34 @@ public enum AllocationStrategyId implements AllocationStrategy {
 
     @Override
     public <T> T next(
-        final Collection<T> domain,
+        final Collection<T> retain,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
       final AllocationStrategy strategy = getAllocationStrategy(exclude, used, attributes);
-      return strategy.next(domain, exclude, used, attributes);
+      return strategy.next(retain, exclude, used, attributes);
     }
 
     @Override
     public <T> T next(
         final Supplier<T> supplier,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
       final AllocationStrategy strategy = getAllocationStrategy(exclude, used, attributes);
       return strategy.next(supplier, exclude, used, attributes);
     }
   },
 
-  /** Returns a randomly chosen object (independently of other used/free objects). */
+  /** Returns a randomly chosen free or used object. */
   RANDOM() {
     @Override
     public <T> T next(
-        final Collection<T> domain,
+        final Collection<T> retain,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
-      final Collection<T> array = new LinkedHashSet<>(domain);
+      final Collection<T> array = new LinkedHashSet<>(retain);
       array.removeAll(exclude);
       return !array.isEmpty() ? Randomizer.get().choose(array) : null;
     }
@@ -214,7 +212,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
     public <T> T next(
         final Supplier<T> supplier,
         final Collection<T> exclude,
-        final Collection<T> used,
+        final EnumMap<ResourceOperation, Collection<T>> used,
         final Map<String, String> attributes) {
       final int N = 5;
 
@@ -233,4 +231,17 @@ public enum AllocationStrategyId implements AllocationStrategy {
       return null;
     }
   };
+
+  public static <T> Collection<T> getUsedObjects(
+      final EnumMap<ResourceOperation, Collection<T>> used) {
+    final Collection<T> result = new LinkedHashSet<>();
+
+    for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
+      if (entry.getKey() != ResourceOperation.NONE) {
+        result.addAll(entry.getValue());
+      }
+    }
+
+    return result;
+  }
 }

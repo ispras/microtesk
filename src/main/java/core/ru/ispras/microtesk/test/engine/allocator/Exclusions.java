@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The {@link Exclusions} class stores indices of currently excluded registers.
+ * {@link Exclusions} stores indices of currently excluded registers.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */

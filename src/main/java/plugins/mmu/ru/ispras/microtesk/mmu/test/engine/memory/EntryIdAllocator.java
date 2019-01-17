@@ -24,6 +24,7 @@ import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.test.engine.allocator.AllocationStrategyId;
 import ru.ispras.microtesk.test.engine.allocator.AllocationTable;
+import ru.ispras.microtesk.test.engine.allocator.ResourceOperation;
 import ru.ispras.microtesk.utils.function.Supplier;
 
 import java.math.BigInteger;
@@ -111,9 +112,16 @@ public final class EntryIdAllocator {
     // Parameter exclude can be null.
 
     final AllocationTable<BitVector, ?> allocator = allocators.get(buffer);
-    return peek
-        ? (exclude != null ? allocator.peek(exclude) : allocator.peek())
-        : (exclude != null ? allocator.allocate(exclude) : allocator.allocate());
+
+    if (peek) {
+      return (exclude != null)
+          ? allocator.peek(exclude)
+          : allocator.peek();
+    } else {
+      return (exclude != null)
+          ? allocator.allocate(ResourceOperation.WRITE, exclude)
+          : allocator.allocate(ResourceOperation.WRITE);
+    }
   }
 
   public void reset() {

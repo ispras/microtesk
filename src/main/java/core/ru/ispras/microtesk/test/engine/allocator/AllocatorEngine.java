@@ -124,10 +124,10 @@ public final class AllocatorEngine {
 
       if (call.isExecutable()) {
         final Primitive primitive = call.getRootOperation();
-        allocateUnknownValues(primitive, constraints, false /* Does not matter */);
+        allocateUnknownValues(primitive, constraints, ResourceOperation.NONE);
       } else if (call.isPreparatorCall()) {
         final Primitive primitive = call.getPreparatorReference().getTarget();
-        allocateUnknownValues(primitive, constraints, true  /* Write a register */);
+        allocateUnknownValues(primitive, constraints, ResourceOperation.WRITE);
       }
     }
   }
@@ -156,7 +156,7 @@ public final class AllocatorEngine {
 
   private int allocate(
       final String mode,
-      final boolean isWrite,
+      final ResourceOperation operation,
       final AllocationData allocationData) {
     InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkNotNull(allocationData);
@@ -176,13 +176,13 @@ public final class AllocatorEngine {
       final Set<Integer> localExclude = AllocatorUtils.toValueSet(allocationData.getExclude());
 
       // Global excludes apply only to writes.
-      final Set<Integer> exclude =
-          isWrite ? CollectionUtils.uniteSets(globalExclude, localExclude) : localExclude;
+      final Set<Integer> exclude = (operation == ResourceOperation.WRITE)
+          ? CollectionUtils.uniteSets(globalExclude, localExclude) : localExclude;
 
       final Set<Integer> retain =
           AllocatorUtils.toValueSet(allocationData.getRetain());
 
-      return allocationTable.allocate(exclude, retain);
+      return allocationTable.allocate(operation, exclude, retain);
     } catch (final Exception e) {
       throw new GenerationAbortedException(String.format(
           "Failed to allocate %s using %s. Reason: %s.",
@@ -198,13 +198,14 @@ public final class AllocatorEngine {
   private void allocateUnknownValues(
       final Primitive primitive,
       final Map<String, Situation> constraints,
-      final boolean isWrite) {
+      final ResourceOperation operation) {
     for (final Argument argument : primitive.getArguments().values()) {
       if (AllocatorUtils.isPrimitive(argument)) {
         final Primitive innerPrimitive = (Primitive) argument.getValue();
-        final boolean isOutput = argument.getMode().isOut();
+        final ResourceOperation innerOperation = argument.getMode().isOut()
+            ? ResourceOperation.WRITE : ResourceOperation.READ;
 
-        allocateUnknownValues(innerPrimitive, constraints, isOutput);
+        allocateUnknownValues(innerPrimitive, constraints, innerOperation);
         continue;
       }
 
@@ -225,7 +226,7 @@ public final class AllocatorEngine {
           allocationData = unknownValue.getAllocationData();
         }
 
-        final int index = allocate(modeName, isWrite, allocationData);
+        final int index = allocate(modeName, operation, allocationData);
         unknownValue.setValue(BigInteger.valueOf(index));
 
         if (allocationData.isReserved()) {
@@ -245,7 +246,7 @@ public final class AllocatorEngine {
     }
 
     final int count = dependencies.getReferenceCount(primitive);
-    final boolean isExclude = count != 0;
+    final boolean isExclude = (count != 0);
 
     excluded.setExcluded(primitive, isExclude);
     dependencies.release(primitive);
@@ -261,10 +262,12 @@ public final class AllocatorEngine {
       if (AllocatorUtils.isFixedValue(argument) && AllocatorUtils.isAddressingMode(primitive)) {
         final String name = primitive.getName();
         final BigInteger value = argument.getImmediateValue();
+        final ResourceOperation operation = argument.getMode().isOut() ?
+            ResourceOperation.WRITE : ResourceOperation.READ;
 
         final AllocationTable<Integer, ?> allocationTable = allocationTables.get(name);
         if (allocationTable != null && allocationTable.exists(value.intValue())) {
-          allocationTable.use(value.intValue());
+          allocationTable.use(operation, value.intValue());
         }
       }
     }

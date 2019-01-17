@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,11 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
-import ru.ispras.microtesk.utils.function.Supplier;
-
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.Map;
+
+import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link AllocationStrategy} defines an interface of resource allocation strategies.
@@ -25,22 +26,22 @@ import java.util.Map;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface AllocationStrategy {
-
   /**
    * Chooses an object.
    *
    * @param <T> type of objects.
-   * @param domain the set of all available objects.
+   * @param retain the set of all available objects.
    * @param exclude the set of objects to be excluded.
    * @param used the of used objects.
    * @param attributes the allocation parameters.
    * @return the chosen object or {@code null}.
    */
   <T> T next(
-      final Collection<T> domain,
+      final Collection<T> retain,
       final Collection<T> exclude,
-      final Collection<T> used,
+      final EnumMap<ResourceOperation, Collection<T>> used,
       final Map<String, String> attributes);
+  
 
   /**
    * Generates an object.
@@ -55,6 +56,6 @@ public interface AllocationStrategy {
   <T> T next(
       final Supplier<T> supplier,
       final Collection<T> exclude,
-      final Collection<T> used,
+      final EnumMap<ResourceOperation, Collection<T>> used,
       final Map<String, String> attributes);
 }

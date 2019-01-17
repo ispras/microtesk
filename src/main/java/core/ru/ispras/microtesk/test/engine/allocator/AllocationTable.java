@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2007-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,15 +14,16 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.utils.function.Supplier;
-
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link AllocationTable} implements a resource allocation table, which is a finite set of objects
@@ -39,13 +40,14 @@ public final class AllocationTable<T, V> {
 
   /** The set of all available objects. */
   private final Set<T> objects;
-  /** The object generator (alternative to {@code objects}). */
+  /** The object supplier (alternative to {@code objects}). */
   private final Supplier<T> supplier;
 
   /** The set of used objects. */
-  private final Set<T> used = new LinkedHashSet<>();
+  private final EnumMap<ResourceOperation, Collection<T>> used;
+
   /** The set of values for some of the objects in use. */
-  private final Map<T, V> init = new LinkedHashMap<>();
+  private final Map<T, V> init;
 
   /**
    * Constructs a resource allocation table.
@@ -65,6 +67,11 @@ public final class AllocationTable<T, V> {
     this.allocator = new Allocator(strategy, attributes);
     this.objects = new LinkedHashSet<>(objects);
     this.supplier = null;
+    this.used = new EnumMap<>(ResourceOperation.class);
+    for (final ResourceOperation operation : ResourceOperation.values()) {
+      this.used.put(operation, new LinkedHashSet<T>());
+    }
+    this.init = new LinkedHashMap<>();
   }
 
   /**
@@ -95,6 +102,11 @@ public final class AllocationTable<T, V> {
     this.allocator = new Allocator(strategy, attributes);
     this.objects = null;
     this.supplier = supplier;
+    this.used = new EnumMap<>(ResourceOperation.class);
+    for (final ResourceOperation operation : ResourceOperation.values()) {
+      this.used.put(operation, new LinkedHashSet<T>());
+    }
+    this.init = new LinkedHashMap<>();
   }
 
   /**
@@ -120,8 +132,6 @@ public final class AllocationTable<T, V> {
    * Replaces the current allocator with a new one.
    *
    * @param allocator New allocator.
-   *
-   * @throws IllegalArgumentException if the argument is {@code null}.
    */
   public void setAllocator(final Allocator allocator) {
     InvariantChecks.checkNotNull(allocator);
@@ -132,7 +142,10 @@ public final class AllocationTable<T, V> {
    * Resets the resource allocation table.
    */
   public void reset() {
-    used.clear();
+    for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
+      entry.getValue().clear();
+    }
+
     init.clear();
   }
 
@@ -168,7 +181,6 @@ public final class AllocationTable<T, V> {
    *
    * @param object the object to be checked.
    * @return {@code true} if the object exists; {@code false} otherwise.
-   * @throws IllegalArgumentException if {@code object} does not exist (i.e. it is unknown).
    */
   public boolean exists(final T object) {
     InvariantChecks.checkNotNull(object);
@@ -180,27 +192,17 @@ public final class AllocationTable<T, V> {
    *
    * @param object the object to be checked.
    * @return {@code true} if the object is free; {@code false} otherwise.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public boolean isFree(final T object) {
     checkObject(object);
 
-    return !used.contains(object);
-  }
+    for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
+      if (entry.getKey() != ResourceOperation.NONE && entry.getValue().contains(object)) {
+        return false;
+      }
+    }
 
-  /**
-   * Checks whether the object is in use.
-   *
-   * @param object the object to be checked.
-   * @return {@code true} if the object is in use; {@code false} otherwise.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
-   */
-  public boolean isUsed(final T object) {
-    checkObject(object);
-
-    return used.contains(object);
+    return true;
   }
 
   /**
@@ -208,8 +210,6 @@ public final class AllocationTable<T, V> {
    *
    * @param object the object to be checked.
    * @return {@code true} if the object is defined; {@code false} otherwise.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public boolean isDefined(final T object) {
     checkObject(object);
@@ -222,8 +222,6 @@ public final class AllocationTable<T, V> {
    *
    * @param object the object whose value to be returned.
    * @return the object value if is defined; {@code null} otherwise.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public V getValue(final T object) {
     checkObject(object);
@@ -235,8 +233,6 @@ public final class AllocationTable<T, V> {
    * Frees (deallocates) the object.
    *
    * @param object the object to be freed.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public void free(final T object) {
     checkObject(object);
@@ -248,14 +244,15 @@ public final class AllocationTable<T, V> {
   /**
    * Marks the object as being in use.
    *
+   * @param operation the operation on the object.
    * @param object the object to be used.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
    */
-  public void use(final T object) {
+  public void use(final ResourceOperation operation, final T object) {
     checkObject(object);
 
-    used.add(object);
+    if (operation != ResourceOperation.NONE) {
+      used.get(operation).add(object);
+    }
   }
 
   /**
@@ -263,14 +260,12 @@ public final class AllocationTable<T, V> {
    *
    * @param object the object to defined.
    * @param value the object value.
-   * @throws IllegalArgumentException if {@code object} is null or {@code value} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public void define(final T object, final V value) {
     checkObject(object);
     InvariantChecks.checkNotNull(value);
 
-    use(object);
+    use(ResourceOperation.WRITE, object);
 
     init.put(object, value);
   }
@@ -279,7 +274,6 @@ public final class AllocationTable<T, V> {
    * Peeks a free object.
    *
    * @return the peeked object.
-   * @throws IllegalStateException if an object cannot be peeked.
    */
   public T peek() {
     return peek(Collections.<T>emptySet());
@@ -290,8 +284,6 @@ public final class AllocationTable<T, V> {
    *
    * @param exclude the objects that should not be peeked.
    * @return the peeked object.
-   * @throws IllegalArgumentException if {@code exclude} is null.
-   * @throws IllegalStateException if an object cannot be peeked.
    */
   public T peek(final Set<T> exclude) {
     return peek(exclude, Collections.<T>emptySet());
@@ -303,10 +295,6 @@ public final class AllocationTable<T, V> {
    * @param exclude the objects that should not be peeked.
    * @param retain the objects that should be used for allocation.
    * @return the peeked object.
-   *
-   * @throws IllegalArgumentException if {@code exclude} is null.
-   * @throws IllegalArgumentException if {@code retain} is null.
-   * @throws IllegalStateException if an object cannot be peeked.
    */
   public T peek(final Set<T> exclude, final Set<T> retain) {
     InvariantChecks.checkNotNull(exclude);
@@ -330,47 +318,42 @@ public final class AllocationTable<T, V> {
   /**
    * Allocates an object (peeks an object and marks it as being in use).
    *
+   * @param operation the operation.
    * @return the allocated object.
-   * @throws IllegalStateException if an object cannot be allocated.
    */
-  public T allocate() {
+  public T allocate(final ResourceOperation operation) {
     final T object = peek();
 
-    use(object);
+    use(operation, object);
     return object;
   }
 
   /**
    * Allocates an object and marks it as being in use.
    *
+   * @param operation the operation.
    * @param exclude the objects that should not be allocated.
    * @return the allocated object.
-   *
-   * @throws IllegalArgumentException if {@code exclude} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
    */
-  public T allocate(final Set<T> exclude) {
+  public T allocate(final ResourceOperation operation, final Set<T> exclude) {
     final T object = peek(exclude);
 
-    use(object);
+    use(operation, object);
     return object;
   }
 
   /**
    * Allocates an object and marks it as being in use.
    *
+   * @param operation the operation.
    * @param exclude the objects that should not be allocated.
    * @param retain the objects that should be used for allocation.
    * @return the allocated object.
-   *
-   * @throws IllegalArgumentException if {@code exclude} is null.
-   * @throws IllegalArgumentException if {@code retain} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
    */
-  public T allocate(final Set<T> exclude, final Set<T> retain) {
+  public T allocate(final ResourceOperation operation, final Set<T> exclude, final Set<T> retain) {
     final T object = peek(exclude, retain);
 
-    use(object);
+    use(operation, object);
     return object;
   }
 
@@ -379,13 +362,11 @@ public final class AllocationTable<T, V> {
    *
    * @param value the object value.
    * @return the allocated object.
-   * @throws IllegalArgumentException if {@code value} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
    */
   public T allocateAndDefine(final V value) {
     InvariantChecks.checkNotNull(value);
 
-    final T object = allocate();
+    final T object = allocate(ResourceOperation.WRITE);
     define(object, value);
 
     return object;
@@ -397,13 +378,11 @@ public final class AllocationTable<T, V> {
    * @param exclude the objects that should not be allocated.
    * @param value the object value.
    * @return the allocated object.
-   * @throws IllegalArgumentException if {@code exclude} or {@code value} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
    */
   public T allocateAndDefine(final Set<T> exclude, final V value) {
     InvariantChecks.checkNotNull(value);
 
-    final T object = allocate(exclude);
+    final T object = allocate(ResourceOperation.WRITE, exclude);
     define(object, value);
 
     return object;
@@ -414,7 +393,7 @@ public final class AllocationTable<T, V> {
    *
    * @return the set of used objects.
    */
-  public Set<T> getUsedObjects() {
+  public EnumMap<ResourceOperation, Collection<T>> getUsedObjects() {
     return used;
   }
 

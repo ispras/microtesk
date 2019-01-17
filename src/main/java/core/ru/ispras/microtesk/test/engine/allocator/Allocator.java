@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,14 +14,15 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.Map;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.function.Supplier;
 
-import java.util.Collection;
-import java.util.Map;
-
 /**
- * Allocates resources using a specific strategy with specific attributes.
+ * {@link Allocator} allocates resources using a specific strategy with specific attributes.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -42,16 +43,16 @@ public final class Allocator {
   }
 
   public <T> T next(
-      final Collection<T> domain,
+      final Collection<T> retain,
       final Collection<T> exclude,
-      final Collection<T> used) {
-    return strategy.next(domain, exclude, used, attributes);
+      final EnumMap<ResourceOperation, Collection<T>> used) {
+    return strategy.next(retain, exclude, used, attributes);
   }
 
   public <T> T next(
       final Supplier<T> supplier,
       final Collection<T> exclude,
-      final Collection<T> used) {
+      final EnumMap<ResourceOperation, Collection<T>> used) {
     return strategy.next(supplier, exclude, used, attributes);
   }
 
