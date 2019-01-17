@@ -40,6 +40,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Collection<T> retain,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
       final Collection<T> free = new LinkedHashSet<>(retain);
 
@@ -54,6 +55,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Supplier<T> supplier,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
       final int tries = 7;
       final Collection<T> usedObjects = getUsedObjects(used);
@@ -81,6 +83,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Collection<T> retain,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
       final Collection<T> array = new LinkedHashSet<>(retain);
 
@@ -95,8 +98,9 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Supplier<T> supplier,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
-      return USED.next(Collections.<T>emptyList(), exclude, used, attributes);
+      return USED.next(Collections.<T>emptyList(), exclude, used, rate, attributes);
     }
   },
 
@@ -107,9 +111,10 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Collection<T> retain,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
-      final T object = FREE.next(retain, exclude, used, attributes);
-      return object != null ? object : USED.next(retain, exclude, used, attributes);
+      final T object = FREE.next(retain, exclude, used, rate, attributes);
+      return object != null ? object : USED.next(retain, exclude, used, rate, attributes);
     }
 
     @Override
@@ -117,9 +122,10 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Supplier<T> supplier,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
-      final T object = FREE.next(supplier, exclude, used, attributes);
-      return object != null ? object : USED.next(supplier, exclude, used, attributes);
+      final T object = FREE.next(supplier, exclude, used, rate, attributes);
+      return object != null ? object : USED.next(supplier, exclude, used, rate, attributes);
     }
   },
 
@@ -130,9 +136,10 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Collection<T> retain,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
-      final T object = USED.next(retain, exclude, used, attributes);
-      return object != null ? object : FREE.next(retain, exclude, used, attributes);
+      final T object = USED.next(retain, exclude, used, rate, attributes);
+      return object != null ? object : FREE.next(retain, exclude, used, rate, attributes);
     }
 
     @Override
@@ -140,9 +147,10 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Supplier<T> supplier,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
-      final T object = USED.next(supplier, exclude, used, attributes);
-      return object != null ? object : FREE.next(supplier, exclude, used, attributes);
+      final T object = USED.next(supplier, exclude, used, rate, attributes);
+      return object != null ? object : FREE.next(supplier, exclude, used, rate, attributes);
     }
   },
 
@@ -154,6 +162,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
     private final <T> AllocationStrategy getAllocationStrategy(
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
 
       if (attributes != null
@@ -179,9 +188,10 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Collection<T> retain,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
-      final AllocationStrategy strategy = getAllocationStrategy(exclude, used, attributes);
-      return strategy.next(retain, exclude, used, attributes);
+      final AllocationStrategy strategy = getAllocationStrategy(exclude, used, rate, attributes);
+      return strategy.next(retain, exclude, used, rate, attributes);
     }
 
     @Override
@@ -189,9 +199,10 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Supplier<T> supplier,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
-      final AllocationStrategy strategy = getAllocationStrategy(exclude, used, attributes);
-      return strategy.next(supplier, exclude, used, attributes);
+      final AllocationStrategy strategy = getAllocationStrategy(exclude, used, rate, attributes);
+      return strategy.next(supplier, exclude, used, rate, attributes);
     }
   },
 
@@ -202,6 +213,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Collection<T> retain,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
       final Collection<T> array = new LinkedHashSet<>(retain);
       array.removeAll(exclude);
@@ -213,6 +225,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
         final Supplier<T> supplier,
         final Collection<T> exclude,
         final EnumMap<ResourceOperation, Collection<T>> used,
+        final EnumMap<ResourceOperation, Integer> rate,
         final Map<String, String> attributes) {
       final int N = 5;
 
@@ -237,7 +250,7 @@ public enum AllocationStrategyId implements AllocationStrategy {
     final Collection<T> result = new LinkedHashSet<>();
 
     for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
-      if (entry.getKey() != ResourceOperation.NONE) {
+      if (entry.getKey() != ResourceOperation.NOP) {
         result.addAll(entry.getValue());
       }
     }

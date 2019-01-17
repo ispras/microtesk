@@ -14,6 +14,13 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -26,12 +33,6 @@ import ru.ispras.microtesk.test.engine.allocator.AllocationStrategyId;
 import ru.ispras.microtesk.test.engine.allocator.AllocationTable;
 import ru.ispras.microtesk.test.engine.allocator.ResourceOperation;
 import ru.ispras.microtesk.utils.function.Supplier;
-
-import java.math.BigInteger;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * {@link EntryIdAllocator} implements an allocator of entry identifiers (indices) for
@@ -109,18 +110,16 @@ public final class EntryIdAllocator {
       final Set<BitVector> exclude) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkTrue(!buffer.isReplaceable());
-    // Parameter exclude can be null.
+    // TODO: Pass an empty 'exclude' set instead of null.
 
     final AllocationTable<BitVector, ?> allocator = allocators.get(buffer);
 
     if (peek) {
-      return (exclude != null)
-          ? allocator.peek(exclude)
-          : allocator.peek();
+      return allocator.peek(
+          (exclude != null ? exclude : Collections.<BitVector>emptySet()), null);
     } else {
-      return (exclude != null)
-          ? allocator.allocate(ResourceOperation.WRITE, exclude)
-          : allocator.allocate(ResourceOperation.WRITE);
+      return allocator.allocate(ResourceOperation.WRITE,
+          (exclude != null ? exclude : Collections.<BitVector>emptySet()), null);
     }
   }
 

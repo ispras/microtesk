@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,8 +18,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,11 +49,11 @@ import ru.ispras.microtesk.test.engine.allocator.Allocator;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorAction;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorBuilder;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
+import ru.ispras.microtesk.test.engine.allocator.ResourceOperation;
 import ru.ispras.microtesk.utils.StringUtils;
 
 /**
- * The {@link Template} class builds the internal representation of a test template
- * and passes it for further processing.
+ * {@link Template} builds a test template's representation and passes it for further processing.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -543,16 +543,16 @@ public final class Template {
       final List<Primitive> retain,
       final List<Primitive> exclude,
       final int track,
-      final Map<String, Object> readAfterRate,
-      final Map<String, Object> writeAfterRate,
+      final Map<Object, Object> readAfterRate,
+      final Map<Object, Object> writeAfterRate,
       final boolean reserved) {
     return new AllocationData(
              allocator,
              getModeValues(where, retain),
              getModeValues(where, exclude),
              track,
-             getDependencyRate(where, readAfterRate),
-             getDependencyRate(where, writeAfterRate),
+             getDependenciesRate(where, readAfterRate),
+             getDependenciesRate(where, writeAfterRate),
              reserved
            );
   }
@@ -595,14 +595,31 @@ public final class Template {
     return result;
   }
 
-  private static Map<String, Object> getDependencyRate(
-      final Where where,
-      final Map<String, Object> rate) {
+  private static EnumMap<ResourceOperation, Integer> getDependenciesRate(
+      final Where where, final Map<Object, Object> rate) {
     if (null == rate) {
-      return Collections.<String, Object>emptyMap();
+      return null;
     }
 
-    final Map<String, Object> result = new LinkedHashMap<>(rate);
+    final EnumMap<ResourceOperation, Integer> result = new EnumMap<>(ResourceOperation.class);
+    
+    for (final Map.Entry<Object, Object> entry : rate.entrySet()) {
+      final String type = entry.getKey().toString();
+      final String bias = entry.getValue().toString();
+
+      if ("free".equalsIgnoreCase(type)) {
+        result.put(ResourceOperation.NOP, Integer.parseInt(bias));
+      } else if ("read".equalsIgnoreCase(type)) {
+        result.put(ResourceOperation.READ, Integer.parseInt(bias));
+      } else if ("write".equalsIgnoreCase(type)) {
+        result.put(ResourceOperation.WRITE, Integer.parseInt(bias));
+      } else if ("used".equalsIgnoreCase(type)) {
+        result.put(ResourceOperation.ANY, Integer.parseInt(bias));
+      } else {
+        Logger.warning("Unknown key in a dependencies rate: '%s'", type);
+      }
+    }
+
     return result;
   }
 

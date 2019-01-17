@@ -45,15 +45,17 @@ public final class Allocator {
   public <T> T next(
       final Collection<T> retain,
       final Collection<T> exclude,
-      final EnumMap<ResourceOperation, Collection<T>> used) {
-    return strategy.next(retain, exclude, used, attributes);
+      final EnumMap<ResourceOperation, Collection<T>> used,
+      final EnumMap<ResourceOperation, Integer> rate) {
+    return strategy.next(retain, exclude, used, rate, attributes);
   }
 
   public <T> T next(
       final Supplier<T> supplier,
       final Collection<T> exclude,
-      final EnumMap<ResourceOperation, Collection<T>> used) {
-    return strategy.next(supplier, exclude, used, attributes);
+      final EnumMap<ResourceOperation, Collection<T>> used,
+      final EnumMap<ResourceOperation, Integer> rate) {
+    return strategy.next(supplier, exclude, used, rate, attributes);
   }
 
   @Override

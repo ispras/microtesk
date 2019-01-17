@@ -33,6 +33,7 @@ public interface AllocationStrategy {
    * @param retain the set of all available objects.
    * @param exclude the set of objects to be excluded.
    * @param used the of used objects.
+   * @param rate the dependencies biases.
    * @param attributes the allocation parameters.
    * @return the chosen object or {@code null}.
    */
@@ -40,6 +41,7 @@ public interface AllocationStrategy {
       final Collection<T> retain,
       final Collection<T> exclude,
       final EnumMap<ResourceOperation, Collection<T>> used,
+      final EnumMap<ResourceOperation, Integer> rate,
       final Map<String, String> attributes);
   
 
@@ -50,6 +52,7 @@ public interface AllocationStrategy {
    * @param supplier the object generator.
    * @param exclude the set of objects to be excluded.
    * @param used the set of used objects.
+   * @param rate the dependencies biases.
    * @param attributes the allocation parameters parameters.
    * @return the chosen object or {@code null}.
    */
@@ -57,5 +60,6 @@ public interface AllocationStrategy {
       final Supplier<T> supplier,
       final Collection<T> exclude,
       final EnumMap<ResourceOperation, Collection<T>> used,
+      final EnumMap<ResourceOperation, Integer> rate,
       final Map<String, String> attributes);
 }

@@ -197,7 +197,7 @@ public final class AllocationTable<T, V> {
     checkObject(object);
 
     for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
-      if (entry.getKey() != ResourceOperation.NONE && entry.getValue().contains(object)) {
+      if (entry.getKey() != ResourceOperation.NOP && entry.getValue().contains(object)) {
         return false;
       }
     }
@@ -250,7 +250,7 @@ public final class AllocationTable<T, V> {
   public void use(final ResourceOperation operation, final T object) {
     checkObject(object);
 
-    if (operation != ResourceOperation.NONE) {
+    if (operation != ResourceOperation.NOP) {
       used.get(operation).add(object);
     }
   }
@@ -271,42 +271,38 @@ public final class AllocationTable<T, V> {
   }
 
   /**
-   * Peeks a free object.
-   *
-   * @return the peeked object.
-   */
-  public T peek() {
-    return peek(Collections.<T>emptySet());
-  }
-
-  /**
-   * Peeks a free object.
+   * Peeks an object.
    *
    * @param exclude the objects that should not be peeked.
+   * @param rate the dependencies biases.
    * @return the peeked object.
    */
-  public T peek(final Set<T> exclude) {
-    return peek(exclude, Collections.<T>emptySet());
+  public T peek(final Set<T> exclude, final EnumMap<ResourceOperation, Integer> rate) {
+    return peek(exclude, Collections.<T>emptySet(), rate);
   }
 
   /**
-   * Peeks a free object.
+   * Peeks an object.
    *
    * @param exclude the objects that should not be peeked.
    * @param retain the objects that should be used for allocation.
+   * @param rate the dependencies biases.
    * @return the peeked object.
    */
-  public T peek(final Set<T> exclude, final Set<T> retain) {
+  public T peek(
+      final Set<T> exclude,
+      final Set<T> retain,
+      final EnumMap<ResourceOperation, Integer> rate) {
     InvariantChecks.checkNotNull(exclude);
     InvariantChecks.checkNotNull(retain);
 
     final T object;
     if (retain.isEmpty()) {
       object = objects != null
-          ? allocator.next(objects, exclude, used)
-          : allocator.next(supplier, exclude, used);
+          ? allocator.next(objects, exclude, used, rate)
+          : allocator.next(supplier, exclude, used, rate);
     } else {
-      object = allocator.next(retain, exclude, used);
+      object = allocator.next(retain, exclude, used, rate);
     }
 
     InvariantChecks.checkNotNull(
@@ -316,27 +312,18 @@ public final class AllocationTable<T, V> {
   }
 
   /**
-   * Allocates an object (peeks an object and marks it as being in use).
-   *
-   * @param operation the operation.
-   * @return the allocated object.
-   */
-  public T allocate(final ResourceOperation operation) {
-    final T object = peek();
-
-    use(operation, object);
-    return object;
-  }
-
-  /**
    * Allocates an object and marks it as being in use.
    *
    * @param operation the operation.
    * @param exclude the objects that should not be allocated.
+   * @param rate the dependencies biases.
    * @return the allocated object.
    */
-  public T allocate(final ResourceOperation operation, final Set<T> exclude) {
-    final T object = peek(exclude);
+  public T allocate(
+      final ResourceOperation operation,
+      final Set<T> exclude,
+      final EnumMap<ResourceOperation, Integer> rate) {
+    final T object = peek(exclude, rate);
 
     use(operation, object);
     return object;
@@ -348,10 +335,15 @@ public final class AllocationTable<T, V> {
    * @param operation the operation.
    * @param exclude the objects that should not be allocated.
    * @param retain the objects that should be used for allocation.
+   * @param rate the dependencies biases.
    * @return the allocated object.
    */
-  public T allocate(final ResourceOperation operation, final Set<T> exclude, final Set<T> retain) {
-    final T object = peek(exclude, retain);
+  public T allocate(
+      final ResourceOperation operation,
+      final Set<T> exclude,
+      final Set<T> retain,
+      final EnumMap<ResourceOperation, Integer> rate) {
+    final T object = peek(exclude, retain, rate);
 
     use(operation, object);
     return object;
@@ -361,12 +353,13 @@ public final class AllocationTable<T, V> {
    * Allocates an object and defines it.
    *
    * @param value the object value.
+   * @param rate the dependencies biases.
    * @return the allocated object.
    */
-  public T allocateAndDefine(final V value) {
+  public T allocateAndDefine(final V value, final EnumMap<ResourceOperation, Integer> rate) {
     InvariantChecks.checkNotNull(value);
 
-    final T object = allocate(ResourceOperation.WRITE);
+    final T object = allocate(ResourceOperation.WRITE, Collections.<T>emptySet(), rate);
     define(object, value);
 
     return object;
@@ -377,12 +370,16 @@ public final class AllocationTable<T, V> {
    *
    * @param exclude the objects that should not be allocated.
    * @param value the object value.
+   * @param rate the dependencies biases.
    * @return the allocated object.
    */
-  public T allocateAndDefine(final Set<T> exclude, final V value) {
+  public T allocateAndDefine(
+      final Set<T> exclude,
+      final V value,
+      final EnumMap<ResourceOperation, Integer> rate) {
     InvariantChecks.checkNotNull(value);
 
-    final T object = allocate(ResourceOperation.WRITE, exclude);
+    final T object = allocate(ResourceOperation.WRITE, exclude, rate);
     define(object, value);
 
     return object;

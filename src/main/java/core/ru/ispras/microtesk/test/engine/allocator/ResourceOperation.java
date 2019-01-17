@@ -19,10 +19,8 @@ package ru.ispras.microtesk.test.engine.allocator;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public enum ResourceOperation {
-  /** Read operation. */
   READ,
-  /** Write operation. */
   WRITE,
-  /** No access. */
-  NONE
+  NOP,
+  ANY
 }

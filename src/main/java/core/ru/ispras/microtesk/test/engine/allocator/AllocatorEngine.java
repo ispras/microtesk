@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.engine.allocator;
 
 import java.math.BigInteger;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +125,7 @@ public final class AllocatorEngine {
 
       if (call.isExecutable()) {
         final Primitive primitive = call.getRootOperation();
-        allocateUnknownValues(primitive, constraints, ResourceOperation.NONE);
+        allocateUnknownValues(primitive, constraints, ResourceOperation.NOP);
       } else if (call.isPreparatorCall()) {
         final Primitive primitive = call.getPreparatorReference().getTarget();
         allocateUnknownValues(primitive, constraints, ResourceOperation.WRITE);
@@ -182,8 +183,12 @@ public final class AllocatorEngine {
       final Set<Integer> retain =
           AllocatorUtils.toValueSet(allocationData.getRetain());
 
-      return allocationTable.allocate(operation, exclude, retain);
+      final EnumMap<ResourceOperation, Integer> rate = (operation == ResourceOperation.WRITE)
+          ? allocationData.getWriteAfterRate() : allocationData.getReadAfterRate();
+
+      return allocationTable.allocate(operation, exclude, retain, rate);
     } catch (final Exception e) {
+      e.printStackTrace(); // TODO:
       throw new GenerationAbortedException(String.format(
           "Failed to allocate %s using %s. Reason: %s.",
           mode,
