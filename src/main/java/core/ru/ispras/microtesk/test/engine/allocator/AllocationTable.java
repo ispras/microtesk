@@ -35,16 +35,16 @@ import ru.ispras.microtesk.utils.function.Supplier;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AllocationTable<T, V> {
-  /** The object that performs allocation. */
-  private Allocator allocator;
+  /** The default allocation data. */
+  private AllocationData<T> allocationData;
 
   /** The set of all available objects. */
-  private final Set<T> objects;
+  private final Collection<T> objects;
   /** The object supplier (alternative to {@code objects}). */
   private final Supplier<T> supplier;
 
   /** The set of used objects. */
-  private final EnumMap<ResourceOperation, Collection<T>> used;
+  private final Map<ResourceOperation, Collection<T>> used;
 
   /** The set of values for some of the objects in use. */
   private final Map<T, V> init;
@@ -52,20 +52,15 @@ public final class AllocationTable<T, V> {
   /**
    * Constructs a resource allocation table.
    *
-   * @param strategy the allocation strategy.
-   * @param attributes the strategy parameters or {@code null}.
-   * @param objects the collection of available objects.
+   * @param allocationData the allocation data.
+   * @param objects the available objects.
    */
-  public AllocationTable(
-      final AllocationStrategy strategy,
-      final Map<String, String> attributes,
-      final Collection<T> objects) {
-    InvariantChecks.checkNotNull(strategy);
-    // Parameter attributes can be null.
+  public AllocationTable(final AllocationData<T> allocationData, final Collection<T> objects) {
+    InvariantChecks.checkNotNull(allocationData);
     InvariantChecks.checkNotEmpty(objects);
 
-    this.allocator = new Allocator(strategy, attributes);
-    this.objects = new LinkedHashSet<>(objects);
+    this.allocationData = allocationData;
+    this.objects = Collections.unmodifiableCollection(objects);
     this.supplier = null;
     this.used = new EnumMap<>(ResourceOperation.class);
     for (final ResourceOperation operation : ResourceOperation.values()) {
@@ -77,29 +72,13 @@ public final class AllocationTable<T, V> {
   /**
    * Constructs a resource allocation table.
    *
-   * @param strategy the allocation strategy.
-   * @param objects the collection of available objects.
-   */
-  public AllocationTable(final AllocationStrategy strategy, final Collection<T> objects) {
-    this(strategy, null, objects);
-  }
-
-  /**
-   * Constructs a resource allocation table.
-   *
-   * @param strategy the allocation strategy.
-   * @param attributes the strategy parameters or {@code null}.
+   * @param allocationData the allocation data.
    * @param supplier the object generator.
    */
-  public AllocationTable(
-      final AllocationStrategy strategy,
-      final Map<String, String> attributes,
-      final Supplier<T> supplier) {
-    InvariantChecks.checkNotNull(strategy);
-    // Parameter attributes can be null.
+  public AllocationTable(final AllocationData<T> allocationData, final Supplier<T> supplier) {
     InvariantChecks.checkNotNull(supplier);
 
-    this.allocator = new Allocator(strategy, attributes);
+    this.allocationData = allocationData;
     this.objects = null;
     this.supplier = supplier;
     this.used = new EnumMap<>(ResourceOperation.class);
@@ -110,32 +89,22 @@ public final class AllocationTable<T, V> {
   }
 
   /**
-   * Constructs a resource allocation table.
+   * Returns the default allocation data.
    *
-   * @param strategy the allocation strategy.
-   * @param supplier the object generator.
+   * @return the default allocation data.
    */
-  public AllocationTable(final AllocationStrategy strategy, final Supplier<T> supplier) {
-    this(strategy, null, supplier);
+  public AllocationData<T> getAllocationData() {
+    return allocationData;
   }
 
   /**
-   * Returns the currently used allocator.
+   * Replaces the default allocation data.
    *
-   * @return Current allocator.
+   * @param allocationData new allocation data.
    */
-  public Allocator getAllocator() {
-    return allocator;
-  }
-
-  /**
-   * Replaces the current allocator with a new one.
-   *
-   * @param allocator New allocator.
-   */
-  public void setAllocator(final Allocator allocator) {
-    InvariantChecks.checkNotNull(allocator);
-    this.allocator = allocator;
+  public void setAllocationData(final AllocationData<T> allocationData) {
+    InvariantChecks.checkNotNull(allocationData);
+    this.allocationData = allocationData;
   }
 
   /**
@@ -237,7 +206,10 @@ public final class AllocationTable<T, V> {
   public void free(final T object) {
     checkObject(object);
 
-    used.remove(object);
+    for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
+      entry.getValue().remove(object);
+    }
+
     init.remove(object);
   }
 
@@ -252,6 +224,7 @@ public final class AllocationTable<T, V> {
 
     if (operation != ResourceOperation.NOP) {
       used.get(operation).add(object);
+      used.get(ResourceOperation.ANY).add(object);
     }
   }
 
@@ -274,17 +247,6 @@ public final class AllocationTable<T, V> {
    * Peeks an object.
    *
    * @param exclude the objects that should not be peeked.
-   * @param rate the dependencies biases.
-   * @return the peeked object.
-   */
-  public T peek(final Set<T> exclude, final EnumMap<ResourceOperation, Integer> rate) {
-    return peek(exclude, Collections.<T>emptySet(), rate);
-  }
-
-  /**
-   * Peeks an object.
-   *
-   * @param exclude the objects that should not be peeked.
    * @param retain the objects that should be used for allocation.
    * @param rate the dependencies biases.
    * @return the peeked object.
@@ -292,9 +254,11 @@ public final class AllocationTable<T, V> {
   public T peek(
       final Set<T> exclude,
       final Set<T> retain,
-      final EnumMap<ResourceOperation, Integer> rate) {
+      final Map<ResourceOperation, Integer> rate) {
     InvariantChecks.checkNotNull(exclude);
     InvariantChecks.checkNotNull(retain);
+
+    final Allocator allocator = allocationData.getAllocator();
 
     final T object;
     if (retain.isEmpty()) {
@@ -316,33 +280,15 @@ public final class AllocationTable<T, V> {
    *
    * @param operation the operation.
    * @param exclude the objects that should not be allocated.
-   * @param rate the dependencies biases.
-   * @return the allocated object.
-   */
-  public T allocate(
-      final ResourceOperation operation,
-      final Set<T> exclude,
-      final EnumMap<ResourceOperation, Integer> rate) {
-    final T object = peek(exclude, rate);
-
-    use(operation, object);
-    return object;
-  }
-
-  /**
-   * Allocates an object and marks it as being in use.
-   *
-   * @param operation the operation.
-   * @param exclude the objects that should not be allocated.
    * @param retain the objects that should be used for allocation.
    * @param rate the dependencies biases.
-   * @return the allocated object.
+   * @return an allocated object.
    */
   public T allocate(
       final ResourceOperation operation,
       final Set<T> exclude,
       final Set<T> retain,
-      final EnumMap<ResourceOperation, Integer> rate) {
+      final Map<ResourceOperation, Integer> rate) {
     final T object = peek(exclude, retain, rate);
 
     use(operation, object);
@@ -354,12 +300,12 @@ public final class AllocationTable<T, V> {
    *
    * @param value the object value.
    * @param rate the dependencies biases.
-   * @return the allocated object.
+   * @return an allocated object.
    */
-  public T allocateAndDefine(final V value, final EnumMap<ResourceOperation, Integer> rate) {
+  public T allocateAndDefine(final V value, final Map<ResourceOperation, Integer> rate) {
     InvariantChecks.checkNotNull(value);
 
-    final T object = allocate(ResourceOperation.WRITE, Collections.<T>emptySet(), rate);
+    final T object = allocate(ResourceOperation.WRITE, Collections.<T>emptySet(), Collections.<T>emptySet(), rate);
     define(object, value);
 
     return object;
@@ -371,15 +317,15 @@ public final class AllocationTable<T, V> {
    * @param exclude the objects that should not be allocated.
    * @param value the object value.
    * @param rate the dependencies biases.
-   * @return the allocated object.
+   * @return an allocated object.
    */
   public T allocateAndDefine(
       final Set<T> exclude,
       final V value,
-      final EnumMap<ResourceOperation, Integer> rate) {
+      final Map<ResourceOperation, Integer> rate) {
     InvariantChecks.checkNotNull(value);
 
-    final T object = allocate(ResourceOperation.WRITE, exclude, rate);
+    final T object = allocate(ResourceOperation.WRITE, exclude, Collections.<T>emptySet(), rate);
     define(object, value);
 
     return object;
@@ -390,7 +336,7 @@ public final class AllocationTable<T, V> {
    *
    * @return the set of used objects.
    */
-  public EnumMap<ResourceOperation, Collection<T>> getUsedObjects() {
+  public Map<ResourceOperation, Collection<T>> getUsedObjects() {
     return used;
   }
 
@@ -399,7 +345,7 @@ public final class AllocationTable<T, V> {
    *
    * @return the set of all objects.
    */
-  public Set<T> getAllObjects() {
+  public Collection<T> getAllObjects() {
     return objects;
   }
 

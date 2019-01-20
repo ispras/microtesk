@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.test.engine.allocator;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
+import ru.ispras.microtesk.test.template.Value;
 
 /**
  * {@code AllocatorEngine} allocates addressing modes for a given abstract sequence.
@@ -60,17 +62,68 @@ public final class AllocatorEngine {
 
     if (allocation != null) {
       for (final ModeSettings mode : allocation.getModes()) {
-        final StrategySettings strategy = mode.getStrategy();
-
-        final AllocationStrategy allocationStrategy =
-            strategy != null ? strategy.getStrategy() : AllocationStrategyId.RANDOM;
-        final Map<String, String> allocationAttributes =
-            strategy != null ? strategy.getAttributes() : null;
-
         final RangeSettings range = mode.getRange();
+
         if (range != null) {
+          final StrategySettings strategy = mode.getStrategy();
+
+          final Map<String, String> attributes =
+              strategy != null ? strategy.getAttributes() : Collections.<String, String>emptyMap();
+
+          final String track = attributes.get("track");
+          final String anBias = attributes.get("free-bias");
+          final String aaBias = attributes.get("used-bias");
+          final String rnBias = attributes.get("read-free-bias");
+          final String raBias = attributes.get("read-used-bias");
+          final String rrBias = attributes.get("read-read-bias");
+          final String rwBias = attributes.get("read-write-bias");
+          final String wnBias = attributes.get("write-free-bias");
+          final String waBias = attributes.get("write-used-bias");
+          final String wrBias = attributes.get("write-read-bias");
+          final String wwBias = attributes.get("write-write-bias");
+
+          final String rn = rnBias != null ? rnBias : anBias;
+          final String ra = raBias != null ? raBias : aaBias;
+          final String rr = rrBias != null ? rrBias : ra;
+          final String rw = rwBias != null ? rwBias : ra;
+          final String wn = wnBias != null ? wnBias : anBias;
+          final String wa = waBias != null ? waBias : aaBias;
+          final String wr = wrBias != null ? wrBias : wa;
+          final String ww = wwBias != null ? wwBias : wa;
+
+          final Map<ResourceOperation, Integer> readAfterRate = new EnumMap<>(ResourceOperation.class);
+          final Map<ResourceOperation, Integer> writeAfterRate = new EnumMap<>(ResourceOperation.class);
+
+          if (rn != null) {
+            readAfterRate.put(ResourceOperation.NOP, Integer.parseInt(rn));
+          }
+          if (rr != null) {
+            readAfterRate.put(ResourceOperation.READ, Integer.parseInt(rr));
+          }
+          if (rw != null) {
+            readAfterRate.put(ResourceOperation.WRITE, Integer.parseInt(rw));
+          }
+          if (wn != null) {
+            writeAfterRate.put(ResourceOperation.NOP, Integer.parseInt(wn));
+          }
+          if (wr != null) {
+            writeAfterRate.put(ResourceOperation.READ, Integer.parseInt(wr));
+          }
+          if (ww != null) {
+            writeAfterRate.put(ResourceOperation.WRITE, Integer.parseInt(ww));
+          }
+
+          final AllocationData<Integer> allocationData = new AllocationData<Integer>(
+              strategy != null ? strategy.getAllocator() : Allocator.RANDOM,
+              range.getValues(),
+              Collections.<Integer>emptySet(),
+              track != null ? Integer.parseInt(track) : -1,
+              readAfterRate,
+              writeAfterRate,
+              false);
+
           final AllocationTable<Integer, ?> allocationTable =
-              new AllocationTable<>(allocationStrategy, allocationAttributes, range.getValues());
+              new AllocationTable<>(allocationData, range.getValues());
           allocationTables.put(mode.getName(), allocationTable);
         }
       }
@@ -158,48 +211,65 @@ public final class AllocatorEngine {
   private int allocate(
       final String mode,
       final ResourceOperation operation,
-      final AllocationData allocationData) {
+      final AllocationData<Value> allocationData) {
     InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkNotNull(allocationData);
 
     final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
     InvariantChecks.checkNotNull(allocationTable);
 
-    // The default allocator associated with the given mode.
-    final Allocator defaultAllocator = allocationTable.getAllocator();
+    // The default allocation data associated with the given mode.
+    final AllocationData<Integer> defaultAllocationData = allocationTable.getAllocationData();
 
     try {
-      if (null != allocationData.getAllocator()) {
-        allocationTable.setAllocator(allocationData.getAllocator());
+      if (null != allocationData) {
+        // Evaluate lazy values: Value to Integer.
+        final Allocator allocator = allocationData.getAllocator();
+        final Set<Integer> retain = AllocatorUtils.toIntegerSet(allocationData.getRetain());
+        final Set<Integer> exclude = AllocatorUtils.toIntegerSet(allocationData.getExclude());
+        final int track = allocationData.getTrack();
+        final Map<ResourceOperation, Integer> readAfterRate = allocationData.getReadAfterRate();
+        final Map<ResourceOperation, Integer> writeAfterRate = allocationData.getWriteAfterRate();
+        final boolean reserved = false;
+
+        final AllocationData<Integer> evaluatedData = new AllocationData<>(
+            allocator,
+            retain,
+            exclude,
+            track,
+            readAfterRate,
+            writeAfterRate,
+            reserved);
+
+        allocationTable.setAllocationData(evaluatedData);
       }
 
       final Set<Integer> globalExclude = excluded.getExcludedIndexes(mode);
-      final Set<Integer> localExclude = AllocatorUtils.toValueSet(allocationData.getExclude());
+      final Set<Integer> localExclude = AllocatorUtils.toIntegerSet(allocationData.getExclude());
 
       // Global excludes apply only to writes.
       final Set<Integer> exclude = (operation == ResourceOperation.WRITE)
           ? CollectionUtils.uniteSets(globalExclude, localExclude) : localExclude;
 
-      final Set<Integer> retain =
-          AllocatorUtils.toValueSet(allocationData.getRetain());
+      final Set<Integer> retain = AllocatorUtils.toIntegerSet(allocationData.getRetain());
 
-      final EnumMap<ResourceOperation, Integer> rate = (operation == ResourceOperation.WRITE)
+      final Map<ResourceOperation, Integer> rate = (operation == ResourceOperation.WRITE)
           ? allocationData.getWriteAfterRate() : allocationData.getReadAfterRate();
 
       return allocationTable.allocate(operation, exclude, retain, rate);
     } catch (final Exception e) {
-      e.printStackTrace(); // TODO:
       throw new GenerationAbortedException(String.format(
           "Failed to allocate %s using %s. Reason: %s.",
           mode,
-          allocationTable.getAllocator(),
+          allocationTable.getAllocationData(),
           e.getMessage())
           );
     } finally {
-      allocationTable.setAllocator(defaultAllocator);
+      allocationTable.setAllocationData(defaultAllocationData);
     }
   }
 
+  @SuppressWarnings("unchecked")
   private void allocateUnknownValues(
       final Primitive primitive,
       final Map<String, Situation> constraints,
@@ -221,12 +291,12 @@ public final class AllocatorEngine {
         // Take into account the block-level allocation constraints.
         final Situation constraint = constraints.get(modeName.toLowerCase());
 
-        final AllocationData allocationData;
+        final AllocationData<Value> allocationData;
 
         if (unknownValue.getAllocationData().isSpecified()) {
           allocationData = unknownValue.getAllocationData();
         } else if (constraint != null && constraint.getKind() == Situation.Kind.ALLOCATION) {
-          allocationData = (AllocationData) constraint.getAttribute("allocation");
+          allocationData = (AllocationData<Value>) constraint.getAttribute("allocation");
         } else {
           allocationData = unknownValue.getAllocationData();
         }

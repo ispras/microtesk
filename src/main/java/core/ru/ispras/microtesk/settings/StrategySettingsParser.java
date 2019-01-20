@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,7 @@
 
 package ru.ispras.microtesk.settings;
 
-import ru.ispras.microtesk.test.engine.allocator.AllocationStrategy;
-import ru.ispras.microtesk.test.engine.allocator.AllocationStrategyId;
+import ru.ispras.microtesk.test.engine.allocator.Allocator;
 
 import java.util.Map;
 
@@ -33,8 +32,8 @@ public final class StrategySettingsParser extends AbstractSettingsParser<Strateg
 
   @Override
   protected StrategySettings createSettings(final Map<String, String> attributes) {
-    final AllocationStrategy strategy =
-        AbstractSettingsParser.getEnum(AllocationStrategyId.class, attributes.get(ATTR_NAME));
+    final Allocator strategy =
+        AbstractSettingsParser.getEnum(Allocator.class, attributes.get(ATTR_NAME));
 
     return new StrategySettings(strategy, attributes);
   }

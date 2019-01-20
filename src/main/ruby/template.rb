@@ -431,43 +431,20 @@ class Template
   # Register Allocation
   #=================================================================================================
 
-  def self.mode_allocator(name, attrs = {})
-    java_import Java::Ru.ispras.microtesk.test.engine.allocator.AllocatorBuilder
-    builder = AllocatorBuilder.newInstance name
-
-    attrs.each_pair do |key, value|
-      builder.setAttribute key.to_s, value.to_s
-    end
-
-    builder.build
+  def self.mode_allocator(name)
+    allocator = @template.newAllocator name
   end
 
-  RANDOM = mode_allocator('RANDOM')
-
-  FREE = mode_allocator('FREE')
-  USED = mode_allocator('USED')
-
-  TRY_FREE = mode_allocator('TRY_FREE')
-  TRY_USED = mode_allocator('TRY_USED')
-
-  def self.BIASED(free_bias, used_bias)
-    mode_allocator('BIASED', :"free-bias" => free_bias, :"used-bias" => used_bias)
-  end
-
-  # TODO: Deprecated
-  def set_default_mode_allocator(allocator)
-    set_default_allocator(allocator)
-  end
-
-  # TODO: Deprecated
-  def free_allocated_mode(mode)
-    set_free mode, true
-  end
-
-  # TODO: Deprecated
-  def free_all_allocated_modes(mode)
-    set_free_all mode, true
-  end
+  RANDOM    = mode_allocator('RANDOM')
+  FREE      = mode_allocator('FREE')
+  USED      = mode_allocator('USED')
+  READ      = mode_allocator('READ')
+  WRITE     = mode_allocator('WRITE')
+  TRY_FREE  = mode_allocator('TRY_FREE')
+  TRY_USED  = mode_allocator('TRY_USED')
+  TRY_READ  = mode_allocator('TRY_READ')
+  TRY_WRITE = mode_allocator('TRY_WRITE')
+  BIASED    = mode_allocator('BIASED')
 
   def set_default_allocator(allocator)
     @default_allocator = allocator

@@ -14,23 +14,26 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Argument;
+import ru.ispras.microtesk.test.template.FixedValue;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.test.template.Value;
 import ru.ispras.microtesk.utils.SharedObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 final class AllocatorUtils {
   private AllocatorUtils() {}
 
-  public static List<Value> copyValues(final List<Value> values) {
+  public static Collection<Value> copyValues(final Collection<Value> values) {
     if (null == values) {
       return null;
     }
@@ -51,7 +54,22 @@ final class AllocatorUtils {
     return result;
   }
 
-  public static Set<Integer> toValueSet(final List<Value> values) {
+  public static Set<Value> toValueSet(final Collection<Integer> values) {
+    InvariantChecks.checkNotNull(values);
+
+    if (values.isEmpty()) {
+      return Collections.emptySet();
+    }
+
+    final Set<Value> result = new LinkedHashSet<>();
+    for (final Integer value : values) {
+      result.add(new FixedValue(BigInteger.valueOf(value)));
+    }
+
+    return result;
+  }
+
+  public static Set<Integer> toIntegerSet(final Collection<Value> values) {
     InvariantChecks.checkNotNull(values);
 
     if (values.isEmpty()) {

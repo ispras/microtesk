@@ -590,7 +590,8 @@ public final class MemoryDataGenerator implements DataGenerator {
   private BitVector allocateEntryId(final MmuBuffer buffer, final boolean peek) {
     final EntryIdAllocator entryIdAllocator = new EntryIdAllocator(GeneratorSettings.get());
 
-    final BitVector entryId = entryIdAllocator.allocate(buffer, peek, null);
+    final BitVector entryId = entryIdAllocator.allocate(
+        buffer, peek, Collections.<BitVector>emptySet());
     Logger.debug("Allocate entry: buffer=%s, entryId=%s", buffer, entryId.toHexString());
 
     return entryId;

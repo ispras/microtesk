@@ -47,7 +47,6 @@ import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.allocator.AllocationData;
 import ru.ispras.microtesk.test.engine.allocator.Allocator;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorAction;
-import ru.ispras.microtesk.test.engine.allocator.AllocatorBuilder;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
 import ru.ispras.microtesk.test.engine.allocator.ResourceOperation;
 import ru.ispras.microtesk.utils.StringUtils;
@@ -511,8 +510,19 @@ public final class Template {
     return new VariateBuilder<>();
   }
 
-  public AllocatorBuilder newAllocatorBuilder(final String strategy) {
-    return new AllocatorBuilder(strategy);
+  public static Allocator newAllocator(final String strategy) {
+    if (null == strategy) {
+      throw new GenerationAbortedException(
+          "Allocation strategy is not specified.");
+    }
+
+    final Allocator allocator = Allocator.valueOf(strategy.toUpperCase());
+    if (null == allocator) {
+      throw new GenerationAbortedException(
+          "Unsupported allocation strategy: " + strategy);
+    }
+
+    return allocator;
   }
 
   public void addAllocatorAction(
@@ -537,7 +547,7 @@ public final class Template {
     addCall(AbstractCall.newAllocatorAction(allocatorAction));
   }
 
-  public AllocationData newAllocationData(
+  public AllocationData<Value> newAllocationData(
       final Where where,
       final Allocator allocator,
       final List<Primitive> retain,
@@ -546,7 +556,7 @@ public final class Template {
       final Map<Object, Object> readAfterRate,
       final Map<Object, Object> writeAfterRate,
       final boolean reserved) {
-    return new AllocationData(
+    return new AllocationData<Value>(
              allocator,
              getModeValues(where, retain),
              getModeValues(where, exclude),
@@ -557,7 +567,7 @@ public final class Template {
            );
   }
 
-  public UnknownImmediateValue newUnknownImmediate(final AllocationData allocationData) {
+  public UnknownImmediateValue newUnknownImmediate(final AllocationData<Value> allocationData) {
     InvariantChecks.checkNotNull(allocationData);
     return new UnknownImmediateValue(allocationData);
   }
@@ -602,7 +612,7 @@ public final class Template {
     }
 
     final EnumMap<ResourceOperation, Integer> result = new EnumMap<>(ResourceOperation.class);
-    
+
     for (final Map.Entry<Object, Object> entry : rate.entrySet()) {
       final String type = entry.getKey().toString();
       final String bias = entry.getValue().toString();
@@ -616,7 +626,7 @@ public final class Template {
       } else if ("used".equalsIgnoreCase(type)) {
         result.put(ResourceOperation.ANY, Integer.parseInt(bias));
       } else {
-        Logger.warning("Unknown key in a dependencies rate: '%s'", type);
+        Logger.warning("Unknown key in a dependencies specification: '%s'", type);
       }
     }
 

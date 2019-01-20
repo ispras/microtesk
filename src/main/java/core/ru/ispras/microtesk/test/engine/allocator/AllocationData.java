@@ -14,12 +14,11 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
-import java.util.List;
+import java.util.Map;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.test.template.Value;
 
 /**
  * {@link AllocationData} holds data used for register allocation.
@@ -27,56 +26,79 @@ import ru.ispras.microtesk.test.template.Value;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class AllocationData {
+public final class AllocationData<T> {
   private final Allocator allocator;
 
-  private final List<Value> retain;
-  private final List<Value> exclude;
+  private final Collection<T> retain;
+  private final Collection<T> exclude;
 
   private final int track;
-  private final EnumMap<ResourceOperation, Integer> readAfterRate;
-  private final EnumMap<ResourceOperation, Integer> writeAfterRate;
+  private final Map<ResourceOperation, Integer> readAfterRate;
+  private final Map<ResourceOperation, Integer> writeAfterRate;
 
   private final boolean reserved;
 
-  public AllocationData() {
+  public AllocationData(
+      final Allocator allocator,
+      final Collection<T> retain,
+      final Collection<T> exclude,
+      final int track,
+      final Map<ResourceOperation, Integer> readAfterRate,
+      final Map<ResourceOperation, Integer> writeAfterRate,
+      final boolean reserved) {
+    InvariantChecks.checkNotNull(retain);
+    InvariantChecks.checkNotNull(exclude);
+    InvariantChecks.checkNotNull(readAfterRate);
+    InvariantChecks.checkNotNull(writeAfterRate);
+
+    this.allocator = allocator;
+    this.retain = Collections.<T>unmodifiableCollection(retain);
+    this.exclude = Collections.<T>unmodifiableCollection(exclude);
+    this.track = track;
+    this.readAfterRate = Collections.<ResourceOperation, Integer>unmodifiableMap(readAfterRate);
+    this.writeAfterRate = Collections.<ResourceOperation, Integer>unmodifiableMap(readAfterRate);
+    this.reserved = reserved;
+  }
+
+  public AllocationData(
+      final Allocator allocator,
+      final Collection<T> retain,
+      final Collection<T> exclude) {
     this(
-        null,
-        Collections.<Value>emptyList(),
-        Collections.<Value>emptyList(),
-        -1,
-        null,
-        null,
+        allocator,
+        retain,
+        exclude,
+        -1, 
+        Collections.<ResourceOperation, Integer>emptyMap(),
+        Collections.<ResourceOperation, Integer>emptyMap(),
         false
     );
   }
 
   public AllocationData(
       final Allocator allocator,
-      final List<Value> retain,
-      final List<Value> exclude,
-      final int track,
-      final EnumMap<ResourceOperation, Integer> readAfterRate,
-      final EnumMap<ResourceOperation, Integer> writeAfterRate,
-      final boolean reserved) {
-    InvariantChecks.checkNotNull(retain);
-    InvariantChecks.checkNotNull(exclude);
-
-    this.allocator = allocator;
-    this.retain = retain;
-    this.exclude = exclude;
-    this.track = track;
-    this.readAfterRate = readAfterRate;
-    this.writeAfterRate = writeAfterRate;
-    this.reserved = reserved;
+      final Collection<T> retain) {
+    this(
+        allocator,
+        retain,
+        Collections.<T>emptySet()
+    );
   }
 
-  public AllocationData(final AllocationData other) {
+  public AllocationData(final Allocator allocator) {
+    this(allocator, Collections.<T>emptySet());
+  }
+
+  public AllocationData() {
+    this(null, Collections.<T>emptySet());
+  }
+
+  public AllocationData(final AllocationData<T> other) {
     InvariantChecks.checkNotNull(other);
 
     this.allocator = other.allocator;
-    this.retain = AllocatorUtils.copyValues(other.retain);
-    this.exclude = AllocatorUtils.copyValues(other.exclude);
+    this.retain = other.retain;
+    this.exclude = other.exclude;
     this.track = other.track;
     this.readAfterRate = other.readAfterRate;
     this.writeAfterRate = other.writeAfterRate;
@@ -87,11 +109,11 @@ public final class AllocationData {
     return allocator;
   }
 
-  public List<Value> getRetain() {
+  public Collection<T> getRetain() {
     return retain;
   }
 
-  public List<Value> getExclude() {
+  public Collection<T> getExclude() {
     return exclude;
   }
 
@@ -99,11 +121,11 @@ public final class AllocationData {
     return track;
   }
 
-  public EnumMap<ResourceOperation, Integer> getReadAfterRate() {
+  public Map<ResourceOperation, Integer> getReadAfterRate() {
     return readAfterRate;
   }
 
-  public EnumMap<ResourceOperation, Integer> getWriteAfterRate() {
+  public Map<ResourceOperation, Integer> getWriteAfterRate() {
     return writeAfterRate;
   }
 
@@ -112,10 +134,11 @@ public final class AllocationData {
   }
 
   public boolean isSpecified() {
-    return !retain.isEmpty()
+    return allocator != null
+        || !retain.isEmpty()
         || !exclude.isEmpty()
         || track != -1
-        || readAfterRate != null
-        || writeAfterRate != null;
+        || !readAfterRate.isEmpty()
+        || !writeAfterRate.isEmpty();
   }
 }

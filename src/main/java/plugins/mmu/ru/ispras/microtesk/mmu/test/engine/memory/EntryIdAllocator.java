@@ -29,8 +29,9 @@ import ru.ispras.microtesk.mmu.model.spec.MmuBuffer;
 import ru.ispras.microtesk.mmu.model.spec.MmuSubsystem;
 import ru.ispras.microtesk.settings.GeneratorSettings;
 import ru.ispras.microtesk.settings.RegionSettings;
-import ru.ispras.microtesk.test.engine.allocator.AllocationStrategyId;
+import ru.ispras.microtesk.test.engine.allocator.AllocationData;
 import ru.ispras.microtesk.test.engine.allocator.AllocationTable;
+import ru.ispras.microtesk.test.engine.allocator.Allocator;
 import ru.ispras.microtesk.test.engine.allocator.ResourceOperation;
 import ru.ispras.microtesk.utils.function.Supplier;
 
@@ -70,7 +71,6 @@ public final class EntryIdAllocator {
       }
 
       final BigInteger size = max.subtract(min).add(BigInteger.ONE);
-
       final AllocationTable<BitVector, ?> allocator;
 
       if (size.compareTo(BigInteger.valueOf(MAX_EXPLICIT_DOMAIN)) < 0) {
@@ -86,10 +86,12 @@ public final class EntryIdAllocator {
         }
 
         // Construct the allocation table.
-        allocator = new AllocationTable<>(AllocationStrategyId.TRY_FREE, entryIds);
+        allocator = new AllocationTable<>(
+            new AllocationData<BitVector>(Allocator.TRY_FREE, entryIds),
+            entryIds);
       } else {
         allocator = new AllocationTable<>(
-            AllocationStrategyId.TRY_FREE,
+            new AllocationData<BitVector>(Allocator.TRY_FREE),
             new Supplier<BitVector>() {
               @Override
               public BitVector get() {
@@ -110,16 +112,20 @@ public final class EntryIdAllocator {
       final Set<BitVector> exclude) {
     InvariantChecks.checkNotNull(buffer);
     InvariantChecks.checkTrue(!buffer.isReplaceable());
-    // TODO: Pass an empty 'exclude' set instead of null.
+    InvariantChecks.checkNotNull(exclude);
 
     final AllocationTable<BitVector, ?> allocator = allocators.get(buffer);
 
     if (peek) {
       return allocator.peek(
-          (exclude != null ? exclude : Collections.<BitVector>emptySet()), null);
+          exclude,
+          Collections.<BitVector>emptySet(),
+          Collections.<ResourceOperation, Integer>emptyMap());
     } else {
       return allocator.allocate(ResourceOperation.WRITE,
-          (exclude != null ? exclude : Collections.<BitVector>emptySet()), null);
+          exclude,
+          Collections.<BitVector>emptySet(),
+          Collections.<ResourceOperation, Integer>emptyMap());
     }
   }
 
