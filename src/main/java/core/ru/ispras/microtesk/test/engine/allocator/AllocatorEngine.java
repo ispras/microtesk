@@ -66,9 +66,9 @@ public final class AllocatorEngine {
 
         if (range != null) {
           final StrategySettings strategy = mode.getStrategy();
-
-          final Map<String, String> attributes =
-              strategy != null ? strategy.getAttributes() : Collections.<String, String>emptyMap();
+          final Map<String, String> attributes = strategy != null
+              ? strategy.getAttributes()
+              : Collections.<String, String>emptyMap();
 
           final String track = attributes.get("track");
           final String anBias = attributes.get("free-bias");
@@ -84,34 +84,24 @@ public final class AllocatorEngine {
 
           final String rn = rnBias != null ? rnBias : anBias;
           final String ra = raBias != null ? raBias : aaBias;
-          final String rr = rrBias != null ? rrBias : ra;
-          final String rw = rwBias != null ? rwBias : ra;
+          final String rr = rrBias;
+          final String rw = rwBias;
           final String wn = wnBias != null ? wnBias : anBias;
           final String wa = waBias != null ? waBias : aaBias;
-          final String wr = wrBias != null ? wrBias : wa;
-          final String ww = wwBias != null ? wwBias : wa;
+          final String wr = wrBias;
+          final String ww = wwBias;
 
           final Map<ResourceOperation, Integer> readAfterRate = new EnumMap<>(ResourceOperation.class);
           final Map<ResourceOperation, Integer> writeAfterRate = new EnumMap<>(ResourceOperation.class);
 
-          if (rn != null) {
-            readAfterRate.put(ResourceOperation.NOP, Integer.parseInt(rn));
-          }
-          if (rr != null) {
-            readAfterRate.put(ResourceOperation.READ, Integer.parseInt(rr));
-          }
-          if (rw != null) {
-            readAfterRate.put(ResourceOperation.WRITE, Integer.parseInt(rw));
-          }
-          if (wn != null) {
-            writeAfterRate.put(ResourceOperation.NOP, Integer.parseInt(wn));
-          }
-          if (wr != null) {
-            writeAfterRate.put(ResourceOperation.READ, Integer.parseInt(wr));
-          }
-          if (ww != null) {
-            writeAfterRate.put(ResourceOperation.WRITE, Integer.parseInt(ww));
-          }
+          readAfterRate.put(ResourceOperation.NOP,    rn != null ? Integer.parseInt(rn) : 0);
+          readAfterRate.put(ResourceOperation.ANY,    ra != null ? Integer.parseInt(ra) : 0);
+          readAfterRate.put(ResourceOperation.READ,   rr != null ? Integer.parseInt(rr) : 0);
+          readAfterRate.put(ResourceOperation.WRITE,  rw != null ? Integer.parseInt(rw) : 0);
+          writeAfterRate.put(ResourceOperation.NOP,   wn != null ? Integer.parseInt(wn) : 0);
+          writeAfterRate.put(ResourceOperation.ANY,   wa != null ? Integer.parseInt(wa) : 0);
+          writeAfterRate.put(ResourceOperation.READ,  wr != null ? Integer.parseInt(wr) : 0);
+          writeAfterRate.put(ResourceOperation.WRITE, ww != null ? Integer.parseInt(ww) : 0);
 
           final AllocationData<Integer> allocationData = new AllocationData<Integer>(
               strategy != null ? strategy.getAllocator() : Allocator.RANDOM,
@@ -224,22 +214,16 @@ public final class AllocatorEngine {
     try {
       if (null != allocationData) {
         // Evaluate lazy values: Value to Integer.
-        final Allocator allocator = allocationData.getAllocator();
-        final Set<Integer> retain = AllocatorUtils.toIntegerSet(allocationData.getRetain());
-        final Set<Integer> exclude = AllocatorUtils.toIntegerSet(allocationData.getExclude());
-        final int track = allocationData.getTrack();
-        final Map<ResourceOperation, Integer> readAfterRate = allocationData.getReadAfterRate();
-        final Map<ResourceOperation, Integer> writeAfterRate = allocationData.getWriteAfterRate();
-        final boolean reserved = false;
-
         final AllocationData<Integer> evaluatedData = new AllocationData<>(
-            allocator,
-            retain,
-            exclude,
-            track,
-            readAfterRate,
-            writeAfterRate,
-            reserved);
+            allocationData.getAllocator() != null
+              ? allocationData.getAllocator()
+              : defaultAllocationData.getAllocator(),
+            AllocatorUtils.toIntegerSet(allocationData.getRetain()),
+            AllocatorUtils.toIntegerSet(allocationData.getExclude()),
+            allocationData.getTrack(),
+            allocationData.getReadAfterRate(),
+            allocationData.getWriteAfterRate(),
+            false);
 
         allocationTable.setAllocationData(evaluatedData);
       }
@@ -258,6 +242,7 @@ public final class AllocatorEngine {
 
       return allocationTable.allocate(operation, exclude, retain, rate);
     } catch (final Exception e) {
+      e.printStackTrace(); // TODO:
       throw new GenerationAbortedException(String.format(
           "Failed to allocate %s using %s. Reason: %s.",
           mode,

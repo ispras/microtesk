@@ -259,6 +259,7 @@ public final class AllocationTable<T, V> {
     InvariantChecks.checkNotNull(retain);
 
     final Allocator allocator = allocationData.getAllocator();
+    InvariantChecks.checkNotNull(allocator);
 
     final T object;
     if (retain.isEmpty()) {

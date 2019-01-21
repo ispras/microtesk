@@ -14,18 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.randomizer.Variate;
@@ -50,6 +38,18 @@ import ru.ispras.microtesk.test.engine.allocator.AllocatorAction;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
 import ru.ispras.microtesk.test.engine.allocator.ResourceOperation;
 import ru.ispras.microtesk.utils.StringUtils;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * {@link Template} builds a test template's representation and passes it for further processing.
@@ -510,21 +510,6 @@ public final class Template {
     return new VariateBuilder<>();
   }
 
-  public static Allocator newAllocator(final String strategy) {
-    if (null == strategy) {
-      throw new GenerationAbortedException(
-          "Allocation strategy is not specified.");
-    }
-
-    final Allocator allocator = Allocator.valueOf(strategy.toUpperCase());
-    if (null == allocator) {
-      throw new GenerationAbortedException(
-          "Unsupported allocation strategy: " + strategy);
-    }
-
-    return allocator;
-  }
-
   public void addAllocatorAction(
       final Primitive primitive,
       final String kind,
@@ -605,10 +590,10 @@ public final class Template {
     return result;
   }
 
-  private static EnumMap<ResourceOperation, Integer> getDependenciesRate(
+  private static Map<ResourceOperation, Integer> getDependenciesRate(
       final Where where, final Map<Object, Object> rate) {
     if (null == rate) {
-      return null;
+      return Collections.emptyMap();
     }
 
     final EnumMap<ResourceOperation, Integer> result = new EnumMap<>(ResourceOperation.class);
@@ -616,6 +601,11 @@ public final class Template {
     for (final Map.Entry<Object, Object> entry : rate.entrySet()) {
       final String type = entry.getKey().toString();
       final String bias = entry.getValue().toString();
+
+      result.put(ResourceOperation.NOP,   0);
+      result.put(ResourceOperation.ANY,   0);
+      result.put(ResourceOperation.READ,  0);
+      result.put(ResourceOperation.WRITE, 0);
 
       if ("free".equalsIgnoreCase(type)) {
         result.put(ResourceOperation.NOP, Integer.parseInt(bias));

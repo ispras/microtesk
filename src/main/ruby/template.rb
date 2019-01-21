@@ -160,7 +160,7 @@ class Template
   # Sets the given attributes to the nested operations.
   #
   def set_attributes(attributes, &contents)
-    mapBuilder = set_builder_attributes @template.newMapBuilder attributes
+    mapBuilder = set_builder_attributes @template.newMapBuilder, attributes
     @template.beginAttributes mapBuilder
     self.instance_eval &contents
     @template.endAttributes
@@ -172,7 +172,7 @@ class Template
 
   # Adds the given constraint to the current block.
   def constraint(&situations)
-    @template.addBlockConstraint @situation_manager.instance_eval &situations
+    @template.addBlockConstraint(@situation_manager.instance_eval(&situations))
   end
 
   #=================================================================================================
@@ -432,7 +432,8 @@ class Template
   #=================================================================================================
 
   def self.mode_allocator(name)
-    allocator = @template.newAllocator name
+    java_import Java::Ru.ispras.microtesk.test.template.AllocatorBuilder
+    allocator = AllocatorBuilder::newAllocator name
   end
 
   RANDOM    = mode_allocator('RANDOM')
