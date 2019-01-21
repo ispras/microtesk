@@ -22,12 +22,11 @@ import ru.ispras.microtesk.test.Statistics;
 public class BufferPreparatorTestCase extends MiniMipsTest {
   @Test
   public void test() {
-    Assert.fail("QEMU4V crashes with GP error at server; uncomment test for details");
-    /*final Statistics statistics = run("buffer_preparator.rb");
+    final Statistics statistics = run("buffer_preparator.rb");
     Assert.assertNotNull(statistics);
 
     Assert.assertEquals(1,  statistics.getPrograms());
     Assert.assertEquals(0,  statistics.getSequences());
-    Assert.assertEquals(10, statistics.getInstructions());*/
+    Assert.assertEquals(10, statistics.getInstructions());
   }
 }
