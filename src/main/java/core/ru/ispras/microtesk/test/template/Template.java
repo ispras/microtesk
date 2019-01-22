@@ -591,21 +591,22 @@ public final class Template {
   }
 
   private static Map<ResourceOperation, Integer> getDependenciesRate(
-      final Where where, final Map<Object, Object> rate) {
+      final Where where,
+      final Map<Object, Object> rate) {
+
     if (null == rate) {
       return Collections.emptyMap();
     }
 
     final EnumMap<ResourceOperation, Integer> result = new EnumMap<>(ResourceOperation.class);
+    result.put(ResourceOperation.NOP,   0);
+    result.put(ResourceOperation.ANY,   0);
+    result.put(ResourceOperation.READ,  0);
+    result.put(ResourceOperation.WRITE, 0);
 
     for (final Map.Entry<Object, Object> entry : rate.entrySet()) {
       final String type = entry.getKey().toString();
       final String bias = entry.getValue().toString();
-
-      result.put(ResourceOperation.NOP,   0);
-      result.put(ResourceOperation.ANY,   0);
-      result.put(ResourceOperation.READ,  0);
-      result.put(ResourceOperation.WRITE, 0);
 
       if ("free".equalsIgnoreCase(type)) {
         result.put(ResourceOperation.NOP, Integer.parseInt(bias));
@@ -616,7 +617,8 @@ public final class Template {
       } else if ("used".equalsIgnoreCase(type)) {
         result.put(ResourceOperation.ANY, Integer.parseInt(bias));
       } else {
-        Logger.warning("Unknown key in a dependencies specification: '%s'", type);
+        throw new GenerationAbortedException(String.format(
+            "%s: unknown key in a dependencies rate specification: '%s'", where, type));
       }
     }
 

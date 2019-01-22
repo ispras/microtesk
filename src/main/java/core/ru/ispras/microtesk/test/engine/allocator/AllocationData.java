@@ -56,7 +56,7 @@ public final class AllocationData<T> {
     this.exclude = Collections.<T>unmodifiableCollection(exclude);
     this.track = track;
     this.readAfterRate = Collections.<ResourceOperation, Integer>unmodifiableMap(readAfterRate);
-    this.writeAfterRate = Collections.<ResourceOperation, Integer>unmodifiableMap(readAfterRate);
+    this.writeAfterRate = Collections.<ResourceOperation, Integer>unmodifiableMap(writeAfterRate);
     this.reserved = reserved;
   }
 

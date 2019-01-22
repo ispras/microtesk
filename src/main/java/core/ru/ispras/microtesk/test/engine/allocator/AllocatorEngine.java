@@ -28,6 +28,7 @@ import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.test.template.Value;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -261,11 +262,26 @@ public final class AllocatorEngine {
       final Primitive primitive,
       final Map<String, Situation> constraints,
       final ResourceOperation operation) {
+
+    // Reorder the arguments so as to handle the inputs before the outputs.
+    final List<Argument> allArguments = new ArrayList<>(primitive.getArguments().size());
+    final List<Argument> outArguments = new ArrayList<>(primitive.getArguments().size());
+
     for (final Argument argument : primitive.getArguments().values()) {
+      if (AllocatorUtils.isPrimitive(argument) && argument.getMode().isOut()) {
+        outArguments.add(argument);
+      } else {
+        allArguments.add(argument);
+      }
+    }
+    allArguments.addAll(outArguments);
+
+    for (final Argument argument : allArguments) {
       if (AllocatorUtils.isPrimitive(argument)) {
         final Primitive innerPrimitive = (Primitive) argument.getValue();
         final ResourceOperation innerOperation = argument.getMode().isOut()
-            ? ResourceOperation.WRITE : ResourceOperation.READ;
+            ? ResourceOperation.WRITE
+            : ResourceOperation.READ;
 
         allocateUnknownValues(innerPrimitive, constraints, innerOperation);
         continue;
@@ -279,13 +295,12 @@ public final class AllocatorEngine {
         final Situation constraint = constraints.get(modeName.toLowerCase());
 
         final AllocationData<Value> allocationData;
-
         if (unknownValue.getAllocationData().isSpecified()) {
           allocationData = unknownValue.getAllocationData();
         } else if (constraint != null && constraint.getKind() == Situation.Kind.ALLOCATION) {
           allocationData = (AllocationData<Value>) constraint.getAttribute("allocation");
         } else {
-          allocationData = unknownValue.getAllocationData();
+          allocationData = null;
         }
 
         final int index = allocate(modeName, operation, allocationData);

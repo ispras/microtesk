@@ -41,39 +41,38 @@ class RegisterAllocationTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    block(:combinator => 'random', :compositor => 'random') {
-      
-      sequence {
-        constraint {
-          allocation(
-            'reg',
-            :retain  => [ t0, t1, t2, t3, t4, t5, t6, t7, t8, t9 ],
-            :track   => 3,
-            :read    => { :read => 20, :write => 30, :free => 50 },
-            :write   => { :read => 50, :write => 0,  :free => 50 }
-          )
-        }
-
-        add reg(_), reg(_), reg(_)
-        add reg(_), reg(_), reg(_)
-        add reg(_), reg(_), reg(_)
+    sequence {
+      constraint {
+        allocation(
+          'reg',
+          :retain  => [ t0, t1, t2, t3, t4, t5, t6, t7, t8, t9 ],
+          :track   => 10,
+          :read    => { :read => 0,  :write => 40, :free => 60 },
+          :write   => { :read => 40, :write => 0,  :free => 60 }
+        )
       }
 
-      sequence {
-        constraint {
-          allocation(
-            'reg',
-            :exclude => [ zero, at, k0, k1, gp, sp, fp, ra ],
-            :track   => 3,
-            :used    => { :used => 50, :free => 50 }
-          )
-        }
-
-        sub reg(_), reg(_), reg(_)
-        sub reg(_), reg(_), reg(_)
-        sub reg(_), reg(_), reg(_)
-      }
-    }.run 3
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+      add reg(_), reg(_), reg(_)
+    }.run
   end
 
 end
