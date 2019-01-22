@@ -29,11 +29,10 @@ import java.util.Set;
  * (registers, pages, etc.) in couple with allocation / deallocation methods.
  *
  * @param <T> type of objects.
- * @param <V> type of object values.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class AllocationTable<T, V> {
+public final class AllocationTable<T> {
   /** The default allocation data. */
   private AllocationData<T> allocationData;
 
@@ -108,15 +107,6 @@ public final class AllocationTable<T, V> {
     for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
       entry.getValue().clear();
     }
-  }
-
-  /**
-   * Returns the number of available objects (both free and used).
-   *
-   * @return the number of objects.
-   */
-  public int size() {
-    return objects.size();
   }
 
   /**

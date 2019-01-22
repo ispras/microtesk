@@ -53,7 +53,7 @@ public final class AllocatorEngine {
     return instance;
   }
 
-  private final Map<String, AllocationTable<Integer, ?>> allocationTables = new HashMap<>();
+  private final Map<String, AllocationTable<Integer>> allocationTables = new HashMap<>();
   private final Exclusions excluded = new Exclusions();
   private final Dependencies dependencies = new Dependencies();
 
@@ -112,7 +112,7 @@ public final class AllocatorEngine {
               writeAfterRate,
               false);
 
-          final AllocationTable<Integer, ?> allocationTable =
+          final AllocationTable<Integer> allocationTable =
               new AllocationTable<>(allocationData, range.getValues());
           allocationTables.put(mode.getName(), allocationTable);
         }
@@ -121,7 +121,7 @@ public final class AllocatorEngine {
   }
 
   public void reset() {
-    for (final AllocationTable<Integer, ?> allocationTable : allocationTables.values()) {
+    for (final AllocationTable<Integer> allocationTable : allocationTables.values()) {
       allocationTable.reset();
       dependencies.reset();
     }
@@ -205,7 +205,7 @@ public final class AllocatorEngine {
     InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkNotNull(allocationData);
 
-    final AllocationTable<Integer, ?> allocationTable = allocationTables.get(mode);
+    final AllocationTable<Integer> allocationTable = allocationTables.get(mode);
     InvariantChecks.checkNotNull(allocationTable);
 
     // The default allocation data associated with the given mode.
@@ -325,7 +325,7 @@ public final class AllocatorEngine {
         final ResourceOperation operation = argument.getMode().isOut() ?
             ResourceOperation.WRITE : ResourceOperation.READ;
 
-        final AllocationTable<Integer, ?> allocationTable = allocationTables.get(name);
+        final AllocationTable<Integer> allocationTable = allocationTables.get(name);
         if (allocationTable != null && allocationTable.exists(value.intValue())) {
           allocationTable.use(operation, value.intValue());
         }
@@ -336,7 +336,7 @@ public final class AllocatorEngine {
   private void freeValues(final Primitive primitive, final boolean isFreeAll) {
     InvariantChecks.checkTrue(AllocatorUtils.isAddressingMode(primitive));
 
-    final AllocationTable<Integer, ?> allocationTable = allocationTables.get(primitive.getName());
+    final AllocationTable<Integer> allocationTable = allocationTables.get(primitive.getName());
     InvariantChecks.checkNotNull(allocationTable);
 
     if (isFreeAll) {

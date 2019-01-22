@@ -44,7 +44,7 @@ import ru.ispras.microtesk.utils.function.Supplier;
 public final class EntryIdAllocator {
   private static final int MAX_EXPLICIT_DOMAIN = 1024;
 
-  private final Map<MmuBuffer, AllocationTable<BitVector, ?>> allocators = new LinkedHashMap<>();
+  private final Map<MmuBuffer, AllocationTable<BitVector>> allocators = new LinkedHashMap<>();
 
   public EntryIdAllocator(final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(settings);
@@ -71,7 +71,7 @@ public final class EntryIdAllocator {
       }
 
       final BigInteger size = max.subtract(min).add(BigInteger.ONE);
-      final AllocationTable<BitVector, ?> allocator;
+      final AllocationTable<BitVector> allocator;
 
       if (size.compareTo(BigInteger.valueOf(MAX_EXPLICIT_DOMAIN)) < 0) {
         // Construct the set of possible entry identifiers.
@@ -114,7 +114,7 @@ public final class EntryIdAllocator {
     InvariantChecks.checkTrue(!buffer.isReplaceable());
     InvariantChecks.checkNotNull(exclude);
 
-    final AllocationTable<BitVector, ?> allocator = allocators.get(buffer);
+    final AllocationTable<BitVector> allocator = allocators.get(buffer);
 
     if (peek) {
       return allocator.peek(
@@ -122,7 +122,8 @@ public final class EntryIdAllocator {
           Collections.<BitVector>emptySet(),
           Collections.<ResourceOperation, Integer>emptyMap());
     } else {
-      return allocator.allocate(ResourceOperation.WRITE,
+      return allocator.allocate(
+          ResourceOperation.WRITE,
           exclude,
           Collections.<BitVector>emptySet(),
           Collections.<ResourceOperation, Integer>emptyMap());
@@ -130,7 +131,7 @@ public final class EntryIdAllocator {
   }
 
   public void reset() {
-    for (final AllocationTable<BitVector, ?> allocator : allocators.values()) {
+    for (final AllocationTable<BitVector> allocator : allocators.values()) {
       allocator.reset();
     }
   }
