@@ -19,6 +19,7 @@ import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -100,7 +101,7 @@ final class Exclusions {
     }
   }
 
-  public Set<Integer> getExcludedIndexes(final String name) {
+  public Collection<Integer> getExcludedIndexes(final String name) {
     return excluded.containsKey(name) ? excluded.get(name) : Collections.<Integer>emptySet();
   }
 }

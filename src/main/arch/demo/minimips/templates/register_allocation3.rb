@@ -48,7 +48,7 @@ class RegisterAllocationTemplate < MiniMipsBaseTemplate
           allocation(
             'reg',
             :retain  => [ t0, t1, t2, t3, t4, t5, t6, t7, t8, t9 ],
-            :track   => 2,
+            :track   => 3,
             :read    => { :read => 20, :write => 30, :free => 50 },
             :write   => { :read => 50, :write => 0,  :free => 50 }
           )
@@ -64,7 +64,7 @@ class RegisterAllocationTemplate < MiniMipsBaseTemplate
           allocation(
             'reg',
             :exclude => [ zero, at, k0, k1, gp, sp, fp, ra ],
-            :track   => 2,
+            :track   => 3,
             :used    => { :used => 50, :free => 50 }
           )
         }

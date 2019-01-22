@@ -14,14 +14,6 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.FixedValue;
@@ -29,6 +21,13 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.test.template.Value;
 import ru.ispras.microtesk.utils.SharedObject;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 final class AllocatorUtils {
   private AllocatorUtils() {}
@@ -54,14 +53,14 @@ final class AllocatorUtils {
     return result;
   }
 
-  public static Set<Value> toValueSet(final Collection<Integer> values) {
+  public static Collection<Value> toValues(final Collection<Integer> values) {
     InvariantChecks.checkNotNull(values);
 
     if (values.isEmpty()) {
       return Collections.emptySet();
     }
 
-    final Set<Value> result = new LinkedHashSet<>();
+    final Collection<Value> result = new LinkedHashSet<>();
     for (final Integer value : values) {
       result.add(new FixedValue(BigInteger.valueOf(value)));
     }
@@ -69,14 +68,14 @@ final class AllocatorUtils {
     return result;
   }
 
-  public static Set<Integer> toIntegerSet(final Collection<Value> values) {
+  public static Collection<Integer> toIntegers(final Collection<Value> values) {
     InvariantChecks.checkNotNull(values);
 
     if (values.isEmpty()) {
       return Collections.emptySet();
     }
 
-    final Set<Integer> result = new LinkedHashSet<>();
+    final Collection<Integer> result = new LinkedHashSet<>();
     for (final Value value : values) {
       result.add(value.getValue().intValue());
     }

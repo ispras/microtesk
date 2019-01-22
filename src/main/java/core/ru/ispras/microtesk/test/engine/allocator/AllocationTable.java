@@ -15,14 +15,15 @@
 package ru.ispras.microtesk.test.engine.allocator;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.utils.function.Supplier;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * {@link AllocationTable} implements a resource allocation table, which is a finite set of objects
@@ -33,30 +34,32 @@ import java.util.Set;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class AllocationTable<T> {
-  /** The default allocation data. */
+  /** Default allocation data (settings). */
   private AllocationData<T> allocationData;
 
-  /** The set of all available objects. */
+  /** Set of all available objects. */
   private final Collection<T> objects;
-  /** The object supplier (alternative to {@code objects}). */
+  /** Object supplier (alternative to {@code objects}). */
   private final Supplier<T> supplier;
 
-  /** The set of used objects. */
+  /** Set of used objects. */
   private final Map<ResourceOperation, Collection<T>> used;
 
-  /**
-   * Constructs a resource allocation table.
-   *
-   * @param allocationData the allocation data.
-   * @param objects the available objects.
-   */
-  public AllocationTable(final AllocationData<T> allocationData, final Collection<T> objects) {
+  /** Tracker used to relax the set of used objects. */
+  private final Map<T, Integer> where = new HashMap<>();
+  private final Map<Integer, Pair<T, ResourceOperation>> track = new HashMap<>();
+  private int count = 0;
+
+  private AllocationTable(
+      final AllocationData<T> allocationData,
+      final Collection<T> objects,
+      final Supplier<T> supplier) {
     InvariantChecks.checkNotNull(allocationData);
-    InvariantChecks.checkNotEmpty(objects);
+    InvariantChecks.checkTrue((objects == null) != (supplier == null));
 
     this.allocationData = allocationData;
-    this.objects = Collections.unmodifiableCollection(objects);
-    this.supplier = null;
+    this.objects = objects != null ? Collections.unmodifiableCollection(objects) : null;
+    this.supplier = supplier;
     this.used = new EnumMap<>(ResourceOperation.class);
     for (final ResourceOperation operation : ResourceOperation.values()) {
       this.used.put(operation, new LinkedHashSet<T>());
@@ -67,18 +70,20 @@ public final class AllocationTable<T> {
    * Constructs a resource allocation table.
    *
    * @param allocationData the allocation data.
+   * @param objects the available objects.
+   */
+  public AllocationTable(final AllocationData<T> allocationData, final Collection<T> objects) {
+    this(allocationData, objects, null);
+  }
+
+  /**
+   * Constructs a resource allocation table.
+   *
+   * @param allocationData the allocation data.
    * @param supplier the object generator.
    */
   public AllocationTable(final AllocationData<T> allocationData, final Supplier<T> supplier) {
-    InvariantChecks.checkNotNull(supplier);
-
-    this.allocationData = allocationData;
-    this.objects = null;
-    this.supplier = supplier;
-    this.used = new EnumMap<>(ResourceOperation.class);
-    for (final ResourceOperation operation : ResourceOperation.values()) {
-      this.used.put(operation, new LinkedHashSet<T>());
-    }
+    this(allocationData, null, supplier);
   }
 
   /**
@@ -104,9 +109,14 @@ public final class AllocationTable<T> {
    * Resets the resource allocation table.
    */
   public void reset() {
-    for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
-      entry.getValue().clear();
+    for (final ResourceOperation operation : ResourceOperation.values()) {
+      used.get(operation).clear();
     }
+
+    where.clear();
+    track.clear();
+
+    count = 0;
   }
 
   /**
@@ -121,24 +131,6 @@ public final class AllocationTable<T> {
   }
 
   /**
-   * Checks whether the object is free (belongs to the initial set of objects and not in use).
-   *
-   * @param object the object to be checked.
-   * @return {@code true} if the object is free; {@code false} otherwise.
-   */
-  public boolean isFree(final T object) {
-    checkObject(object);
-
-    for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
-      if (entry.getKey() != ResourceOperation.NOP && entry.getValue().contains(object)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  /**
    * Frees (deallocates) the object.
    *
    * @param object the object to be freed.
@@ -146,8 +138,8 @@ public final class AllocationTable<T> {
   public void free(final T object) {
     checkObject(object);
 
-    for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
-      entry.getValue().remove(object);
+    for (final ResourceOperation operation : ResourceOperation.values()) {
+      used.get(operation).remove(object);
     }
   }
 
@@ -159,6 +151,28 @@ public final class AllocationTable<T> {
    */
   public void use(final ResourceOperation operation, final T object) {
     checkObject(object);
+
+    if (allocationData.getTrack() > 0) {
+      final Integer index = where.get(object);
+      final Pair<T, ResourceOperation> entry = track.get(count);
+
+      // Remove the previous usage of the object.
+      if (index != null) {
+        track.remove(index);
+      }
+
+      // Free a previously used object.
+      if (entry != null) {
+        free(entry.first);
+        where.remove(entry.first);
+      }
+
+      // Track the object.
+      where.put(object, count);
+      track.put(count, new Pair<>(object, operation));
+
+      count = (count + 1) % allocationData.getTrack();
+    }
 
     if (operation != ResourceOperation.NOP) {
       used.get(operation).add(object);
@@ -175,8 +189,8 @@ public final class AllocationTable<T> {
    * @return the peeked object.
    */
   public T peek(
-      final Set<T> retain,
-      final Set<T> exclude,
+      final Collection<T> retain,
+      final Collection<T> exclude,
       final Map<ResourceOperation, Integer> rate) {
     InvariantChecks.checkNotNull(retain);
     InvariantChecks.checkNotNull(exclude);
@@ -186,8 +200,8 @@ public final class AllocationTable<T> {
 
     final T object;
     if (retain.isEmpty()) {
-      object = objects != null
-          ? allocator.next(objects, exclude, used, rate)
+      object = (objects != null)
+          ? allocator.next(objects,  exclude, used, rate)
           : allocator.next(supplier, exclude, used, rate);
     } else {
       object = allocator.next(retain, exclude, used, rate);
@@ -210,31 +224,13 @@ public final class AllocationTable<T> {
    */
   public T allocate(
       final ResourceOperation operation,
-      final Set<T> retain,
-      final Set<T> exclude,
+      final Collection<T> retain,
+      final Collection<T> exclude,
       final Map<ResourceOperation, Integer> rate) {
     final T object = peek(retain, exclude, rate);
 
     use(operation, object);
     return object;
-  }
-
-  /**
-   * Returns the set of used objects.
-   *
-   * @return the set of used objects.
-   */
-  public Map<ResourceOperation, Collection<T>> getUsedObjects() {
-    return used;
-  }
-
-  /**
-   * Returns the set of all objects.
-   *
-   * @return the set of all objects.
-   */
-  public Collection<T> getAllObjects() {
-    return objects;
   }
 
   /**

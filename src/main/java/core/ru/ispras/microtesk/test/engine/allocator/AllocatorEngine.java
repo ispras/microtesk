@@ -14,15 +14,6 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import ru.ispras.fortress.util.CollectionUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.settings.AllocationSettings;
 import ru.ispras.microtesk.settings.ModeSettings;
@@ -35,6 +26,15 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.UnknownImmediateValue;
 import ru.ispras.microtesk.test.template.Value;
+
+import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@code AllocatorEngine} allocates addressing modes for a given abstract sequence.
@@ -217,8 +217,8 @@ public final class AllocatorEngine {
             allocationData.getAllocator() != null
               ? allocationData.getAllocator()
               : defaultAllocationData.getAllocator(),
-            AllocatorUtils.toIntegerSet(allocationData.getRetain()),
-            AllocatorUtils.toIntegerSet(allocationData.getExclude()),
+            AllocatorUtils.toIntegers(allocationData.getRetain()),
+            AllocatorUtils.toIntegers(allocationData.getExclude()),
             allocationData.getTrack(),
             allocationData.getReadAfterRate(),
             allocationData.getWriteAfterRate(),
@@ -227,17 +227,21 @@ public final class AllocatorEngine {
         allocationTable.setAllocationData(evaluatedData);
       }
 
-      final Set<Integer> globalExclude = exlusions.getExcludedIndexes(mode);
-      final Set<Integer> localExclude = AllocatorUtils.toIntegerSet(allocationData.getExclude());
+      final Collection<Integer> exclude;
 
       // Global excludes apply only to writes.
-      final Set<Integer> exclude = (operation == ResourceOperation.WRITE)
-          ? CollectionUtils.uniteSets(globalExclude, localExclude) : localExclude;
+      if (operation == ResourceOperation.WRITE) {
+        exclude = new LinkedHashSet<>(exlusions.getExcludedIndexes(mode));
+        exclude.addAll(AllocatorUtils.toIntegers(allocationData.getExclude()));
+      } else {
+        exclude = AllocatorUtils.toIntegers(allocationData.getExclude());
+      }
 
-      final Set<Integer> retain = AllocatorUtils.toIntegerSet(allocationData.getRetain());
+      final Collection<Integer> retain = AllocatorUtils.toIntegers(allocationData.getRetain());
 
       final Map<ResourceOperation, Integer> rate = (operation == ResourceOperation.WRITE)
-          ? allocationData.getWriteAfterRate() : allocationData.getReadAfterRate();
+          ? allocationData.getWriteAfterRate()
+          : allocationData.getReadAfterRate();
 
       return allocationTable.allocate(operation, retain, exclude, rate);
     } catch (final Exception e) {
