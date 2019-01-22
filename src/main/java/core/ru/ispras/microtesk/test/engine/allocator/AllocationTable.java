@@ -14,16 +14,15 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.function.Supplier;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link AllocationTable} implements a resource allocation table, which is a finite set of objects
@@ -46,9 +45,6 @@ public final class AllocationTable<T, V> {
   /** The set of used objects. */
   private final Map<ResourceOperation, Collection<T>> used;
 
-  /** The set of values for some of the objects in use. */
-  private final Map<T, V> init;
-
   /**
    * Constructs a resource allocation table.
    *
@@ -66,7 +62,6 @@ public final class AllocationTable<T, V> {
     for (final ResourceOperation operation : ResourceOperation.values()) {
       this.used.put(operation, new LinkedHashSet<T>());
     }
-    this.init = new LinkedHashMap<>();
   }
 
   /**
@@ -85,7 +80,6 @@ public final class AllocationTable<T, V> {
     for (final ResourceOperation operation : ResourceOperation.values()) {
       this.used.put(operation, new LinkedHashSet<T>());
     }
-    this.init = new LinkedHashMap<>();
   }
 
   /**
@@ -114,8 +108,6 @@ public final class AllocationTable<T, V> {
     for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
       entry.getValue().clear();
     }
-
-    init.clear();
   }
 
   /**
@@ -125,24 +117,6 @@ public final class AllocationTable<T, V> {
    */
   public int size() {
     return objects.size();
-  }
-
-  /**
-   * Returns the number of used objects.
-   *
-   * @return the number of used objects.
-   */
-  public int countUsedObjects() {
-    return used.size();
-  }
-
-  /**
-   * Returns the number of defined (initialized) objects.
-   *
-   * @return the number of defined objects.
-   */
-  public int countDefinedObjects() {
-    return init.size();
   }
 
   /**
@@ -175,30 +149,6 @@ public final class AllocationTable<T, V> {
   }
 
   /**
-   * Checks whether the object is defined (initialized).
-   *
-   * @param object the object to be checked.
-   * @return {@code true} if the object is defined; {@code false} otherwise.
-   */
-  public boolean isDefined(final T object) {
-    checkObject(object);
-
-    return init.containsKey(object);
-  }
-
-  /**
-   * Returns the object value (if is defined) or {@code null} (otherwise).
-   *
-   * @param object the object whose value to be returned.
-   * @return the object value if is defined; {@code null} otherwise.
-   */
-  public V getValue(final T object) {
-    checkObject(object);
-
-    return init.get(object);
-  }
-
-  /**
    * Frees (deallocates) the object.
    *
    * @param object the object to be freed.
@@ -209,8 +159,6 @@ public final class AllocationTable<T, V> {
     for (final Map.Entry<ResourceOperation, Collection<T>> entry : used.entrySet()) {
       entry.getValue().remove(object);
     }
-
-    init.remove(object);
   }
 
   /**
@@ -226,21 +174,6 @@ public final class AllocationTable<T, V> {
       used.get(operation).add(object);
       used.get(ResourceOperation.ANY).add(object);
     }
-  }
-
-  /**
-   * Defines (initializes) the object.
-   *
-   * @param object the object to defined.
-   * @param value the object value.
-   */
-  public void define(final T object, final V value) {
-    checkObject(object);
-    InvariantChecks.checkNotNull(value);
-
-    use(ResourceOperation.WRITE, object);
-
-    init.put(object, value);
   }
 
   /**
@@ -293,42 +226,6 @@ public final class AllocationTable<T, V> {
     final T object = peek(exclude, retain, rate);
 
     use(operation, object);
-    return object;
-  }
-
-  /**
-   * Allocates an object and defines it.
-   *
-   * @param value the object value.
-   * @param rate the dependencies biases.
-   * @return an allocated object.
-   */
-  public T allocateAndDefine(final V value, final Map<ResourceOperation, Integer> rate) {
-    InvariantChecks.checkNotNull(value);
-
-    final T object = allocate(ResourceOperation.WRITE, Collections.<T>emptySet(), Collections.<T>emptySet(), rate);
-    define(object, value);
-
-    return object;
-  }
-
-  /**
-   * Allocates an object and defines it.
-   *
-   * @param exclude the objects that should not be allocated.
-   * @param value the object value.
-   * @param rate the dependencies biases.
-   * @return an allocated object.
-   */
-  public T allocateAndDefine(
-      final Set<T> exclude,
-      final V value,
-      final Map<ResourceOperation, Integer> rate) {
-    InvariantChecks.checkNotNull(value);
-
-    final T object = allocate(ResourceOperation.WRITE, exclude, Collections.<T>emptySet(), rate);
-    define(object, value);
-
     return object;
   }
 
