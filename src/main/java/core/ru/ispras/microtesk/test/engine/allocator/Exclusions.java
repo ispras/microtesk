@@ -19,6 +19,7 @@ import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.Primitive;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -26,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The {@link Exclusions} class stores indices of currently excluded registers.
+ * {@link Exclusions} stores indices of currently excluded registers.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -100,7 +101,7 @@ final class Exclusions {
     }
   }
 
-  public Set<Integer> getExcludedIndexes(final String name) {
+  public Collection<Integer> getExcludedIndexes(final String name) {
     return excluded.containsKey(name) ? excluded.get(name) : Collections.<Integer>emptySet();
   }
 }

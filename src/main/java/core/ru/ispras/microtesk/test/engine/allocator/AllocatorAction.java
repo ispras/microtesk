@@ -19,8 +19,8 @@ import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.utils.SharedObject;
 
 /**
- * The {@link AllocatorAction} class describes an allocator actions.
- * These actions modify allocation flags (free, reserved, visible) for a registers.
+ * {@link AllocatorAction} describes allocator actions.
+ * These actions modify allocation flags (free, reserved, visible) of the registers.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */

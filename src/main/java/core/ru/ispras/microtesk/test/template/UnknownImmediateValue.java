@@ -39,16 +39,16 @@ import java.math.BigInteger;
  */
 public final class UnknownImmediateValue extends SharedObject<UnknownImmediateValue>
                                          implements Value {
-  private final AllocationData allocationData;
+  private final AllocationData<Value> allocationData;
   private Type type;
   private BigInteger value;
   private BigInteger defaultValue;
 
   protected UnknownImmediateValue() {
-    this(new AllocationData());
+    this(new AllocationData<Value>());
   }
 
-  protected UnknownImmediateValue(final AllocationData allocationData) {
+  protected UnknownImmediateValue(final AllocationData<Value> allocationData) {
     this.allocationData = allocationData;
     this.type = null;
     this.value = null;
@@ -58,7 +58,7 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
   protected UnknownImmediateValue(final UnknownImmediateValue other) {
     super(other);
 
-    this.allocationData = new AllocationData(other.allocationData);
+    this.allocationData = new AllocationData<Value>(other.allocationData);
     this.type = other.type;
     this.value = other.value;
     this.defaultValue = other.defaultValue;
@@ -74,7 +74,7 @@ public final class UnknownImmediateValue extends SharedObject<UnknownImmediateVa
     return newCopy();
   }
 
-  public AllocationData getAllocationData() {
+  public AllocationData<Value> getAllocationData() {
     return allocationData;
   }
 

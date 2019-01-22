@@ -24,11 +24,14 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
- * The {@link Dependencies} class tracks dependencies between instructions which are set up
- * via shared arguments. This is needed to handle situations when an instruction writes a value
- * to be read by other instructions. In such situations, argument values must not be modified
- * between the write and subsequent reads. That is corresponding registers must not be selected
- * as output arguments until their values are read by all dependent instructions.
+ * {@link Dependencies} tracks read-after-write (RAW) dependencies between instructions.
+ * 
+ * <p>
+ * Such tracking is needed to handle situations when an instruction writes a value to be read by
+ * subsequent instructions. Those values must not be modified between the write and the reads.
+ * That is the corresponding registers must not be selected as output arguments until their values
+ * are read by all of the dependent instructions.
+ * </p>
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */

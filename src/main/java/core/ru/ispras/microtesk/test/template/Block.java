@@ -71,7 +71,7 @@ public final class Block {
   private final List<AbstractCall> epilogue;
   private final Iterator<List<AbstractCall>> wrappedIterator;
 
-  private final List<Situation> constraints;
+  private final Map<String, Situation> constraints;
 
   // Number of times the block was nested into other blocks.
   private int refCount;
@@ -86,7 +86,7 @@ public final class Block {
       final Iterator<List<AbstractCall>> iterator,
       final List<AbstractCall> prologue,
       final List<AbstractCall> epilogue,
-      final List<Situation> constraints) {
+      final Map<String, Situation> constraints) {
     InvariantChecks.checkNotNull(kind);
     InvariantChecks.checkNotNull(blockId);
     InvariantChecks.checkNotNull(section);
@@ -179,7 +179,7 @@ public final class Block {
     return epilogue;
   }
 
-  public List<Situation> getConstraints() {
+  public Map<String, Situation> getConstraints() {
     return constraints;
   }
 

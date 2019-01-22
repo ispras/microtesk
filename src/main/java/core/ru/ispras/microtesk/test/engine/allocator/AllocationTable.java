@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2007-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,152 +15,108 @@
 package ru.ispras.microtesk.test.engine.allocator;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.utils.function.Supplier;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * {@link AllocationTable} implements a resource allocation table, which is a finite set of objects
  * (registers, pages, etc.) in couple with allocation / deallocation methods.
  *
  * @param <T> type of objects.
- * @param <V> type of object values.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class AllocationTable<T, V> {
-  /** The object that performs allocation. */
-  private Allocator allocator;
+public final class AllocationTable<T> {
+  /** Default allocation data (settings). */
+  private AllocationData<T> allocationData;
 
-  /** The set of all available objects. */
-  private final Set<T> objects;
-  /** The object generator (alternative to {@code objects}). */
+  /** Set of all available objects. */
+  private final Collection<T> objects;
+  /** Object supplier (alternative to {@code objects}). */
   private final Supplier<T> supplier;
 
-  /** The set of used objects. */
-  private final Set<T> used = new LinkedHashSet<>();
-  /** The set of values for some of the objects in use. */
-  private final Map<T, V> init = new LinkedHashMap<>();
+  /** Set of used objects. */
+  private final Map<ResourceOperation, Collection<T>> used;
 
-  /**
-   * Constructs a resource allocation table.
-   *
-   * @param strategy the allocation strategy.
-   * @param attributes the strategy parameters or {@code null}.
-   * @param objects the collection of available objects.
-   */
-  public AllocationTable(
-      final AllocationStrategy strategy,
-      final Map<String, String> attributes,
-      final Collection<T> objects) {
-    InvariantChecks.checkNotNull(strategy);
-    // Parameter attributes can be null.
-    InvariantChecks.checkNotEmpty(objects);
+  /** Tracker used to relax the set of used objects. */
+  private final Map<T, Integer> where = new HashMap<>();
+  private final Map<Integer, Pair<T, ResourceOperation>> track = new HashMap<>();
+  private int count = 0;
 
-    this.allocator = new Allocator(strategy, attributes);
-    this.objects = new LinkedHashSet<>(objects);
-    this.supplier = null;
-  }
-
-  /**
-   * Constructs a resource allocation table.
-   *
-   * @param strategy the allocation strategy.
-   * @param objects the collection of available objects.
-   */
-  public AllocationTable(final AllocationStrategy strategy, final Collection<T> objects) {
-    this(strategy, null, objects);
-  }
-
-  /**
-   * Constructs a resource allocation table.
-   *
-   * @param strategy the allocation strategy.
-   * @param attributes the strategy parameters or {@code null}.
-   * @param supplier the object generator.
-   */
-  public AllocationTable(
-      final AllocationStrategy strategy,
-      final Map<String, String> attributes,
+  private AllocationTable(
+      final AllocationData<T> allocationData,
+      final Collection<T> objects,
       final Supplier<T> supplier) {
-    InvariantChecks.checkNotNull(strategy);
-    // Parameter attributes can be null.
-    InvariantChecks.checkNotNull(supplier);
+    InvariantChecks.checkNotNull(allocationData);
+    InvariantChecks.checkTrue((objects == null) != (supplier == null));
 
-    this.allocator = new Allocator(strategy, attributes);
-    this.objects = null;
+    this.allocationData = allocationData;
+    this.objects = objects != null ? Collections.unmodifiableCollection(objects) : null;
     this.supplier = supplier;
+    this.used = new EnumMap<>(ResourceOperation.class);
+    for (final ResourceOperation operation : ResourceOperation.values()) {
+      this.used.put(operation, new LinkedHashSet<T>());
+    }
   }
 
   /**
    * Constructs a resource allocation table.
    *
-   * @param strategy the allocation strategy.
+   * @param allocationData the allocation data.
+   * @param objects the available objects.
+   */
+  public AllocationTable(final AllocationData<T> allocationData, final Collection<T> objects) {
+    this(allocationData, objects, null);
+  }
+
+  /**
+   * Constructs a resource allocation table.
+   *
+   * @param allocationData the allocation data.
    * @param supplier the object generator.
    */
-  public AllocationTable(final AllocationStrategy strategy, final Supplier<T> supplier) {
-    this(strategy, null, supplier);
+  public AllocationTable(final AllocationData<T> allocationData, final Supplier<T> supplier) {
+    this(allocationData, null, supplier);
   }
 
   /**
-   * Returns the currently used allocator.
+   * Returns the default allocation data.
    *
-   * @return Current allocator.
+   * @return the default allocation data.
    */
-  public Allocator getAllocator() {
-    return allocator;
+  public AllocationData<T> getAllocationData() {
+    return allocationData;
   }
 
   /**
-   * Replaces the current allocator with a new one.
+   * Replaces the default allocation data.
    *
-   * @param allocator New allocator.
-   *
-   * @throws IllegalArgumentException if the argument is {@code null}.
+   * @param allocationData new allocation data.
    */
-  public void setAllocator(final Allocator allocator) {
-    InvariantChecks.checkNotNull(allocator);
-    this.allocator = allocator;
+  public void setAllocationData(final AllocationData<T> allocationData) {
+    InvariantChecks.checkNotNull(allocationData);
+    this.allocationData = allocationData;
   }
 
   /**
    * Resets the resource allocation table.
    */
   public void reset() {
-    used.clear();
-    init.clear();
-  }
+    for (final ResourceOperation operation : ResourceOperation.values()) {
+      used.get(operation).clear();
+    }
 
-  /**
-   * Returns the number of available objects (both free and used).
-   *
-   * @return the number of objects.
-   */
-  public int size() {
-    return objects.size();
-  }
+    where.clear();
+    track.clear();
 
-  /**
-   * Returns the number of used objects.
-   *
-   * @return the number of used objects.
-   */
-  public int countUsedObjects() {
-    return used.size();
-  }
-
-  /**
-   * Returns the number of defined (initialized) objects.
-   *
-   * @return the number of defined objects.
-   */
-  public int countDefinedObjects() {
-    return init.size();
+    count = 0;
   }
 
   /**
@@ -168,7 +124,6 @@ public final class AllocationTable<T, V> {
    *
    * @param object the object to be checked.
    * @return {@code true} if the object exists; {@code false} otherwise.
-   * @throws IllegalArgumentException if {@code object} does not exist (i.e. it is unknown).
    */
   public boolean exists(final T object) {
     InvariantChecks.checkNotNull(object);
@@ -176,149 +131,80 @@ public final class AllocationTable<T, V> {
   }
 
   /**
-   * Checks whether the object is free (belongs to the initial set of objects and not in use).
-   *
-   * @param object the object to be checked.
-   * @return {@code true} if the object is free; {@code false} otherwise.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
-   */
-  public boolean isFree(final T object) {
-    checkObject(object);
-
-    return !used.contains(object);
-  }
-
-  /**
-   * Checks whether the object is in use.
-   *
-   * @param object the object to be checked.
-   * @return {@code true} if the object is in use; {@code false} otherwise.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
-   */
-  public boolean isUsed(final T object) {
-    checkObject(object);
-
-    return used.contains(object);
-  }
-
-  /**
-   * Checks whether the object is defined (initialized).
-   *
-   * @param object the object to be checked.
-   * @return {@code true} if the object is defined; {@code false} otherwise.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
-   */
-  public boolean isDefined(final T object) {
-    checkObject(object);
-
-    return init.containsKey(object);
-  }
-
-  /**
-   * Returns the object value (if is defined) or {@code null} (otherwise).
-   *
-   * @param object the object whose value to be returned.
-   * @return the object value if is defined; {@code null} otherwise.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
-   */
-  public V getValue(final T object) {
-    checkObject(object);
-
-    return init.get(object);
-  }
-
-  /**
    * Frees (deallocates) the object.
    *
    * @param object the object to be freed.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
    */
   public void free(final T object) {
     checkObject(object);
 
-    used.remove(object);
-    init.remove(object);
+    for (final ResourceOperation operation : ResourceOperation.values()) {
+      used.get(operation).remove(object);
+    }
   }
 
   /**
    * Marks the object as being in use.
    *
+   * @param operation the operation on the object.
    * @param object the object to be used.
-   * @throws IllegalArgumentException if {@code object} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
    */
-  public void use(final T object) {
+  public void use(final ResourceOperation operation, final T object) {
     checkObject(object);
 
-    used.add(object);
+    if (allocationData.getTrack() > 0) {
+      final Integer index = where.get(object);
+      final Pair<T, ResourceOperation> entry = track.get(count);
+
+      // Remove the previous usage of the object.
+      if (index != null) {
+        track.remove(index);
+      }
+
+      // Free a previously used object.
+      if (entry != null) {
+        free(entry.first);
+        where.remove(entry.first);
+      }
+
+      // Track the object.
+      where.put(object, count);
+      track.put(count, new Pair<>(object, operation));
+
+      count = (count + 1) % allocationData.getTrack();
+    }
+
+    if (operation != ResourceOperation.NOP) {
+      used.get(operation).add(object);
+      used.get(ResourceOperation.ANY).add(object);
+    }
   }
 
   /**
-   * Defines (initializes) the object.
+   * Peeks an object.
    *
-   * @param object the object to defined.
-   * @param value the object value.
-   * @throws IllegalArgumentException if {@code object} is null or {@code value} is null.
-   * @throws IllegalArgumentException if {@code object} is unknown.
-   */
-  public void define(final T object, final V value) {
-    checkObject(object);
-    InvariantChecks.checkNotNull(value);
-
-    use(object);
-
-    init.put(object, value);
-  }
-
-  /**
-   * Peeks a free object.
-   *
-   * @return the peeked object.
-   * @throws IllegalStateException if an object cannot be peeked.
-   */
-  public T peek() {
-    return peek(Collections.<T>emptySet());
-  }
-
-  /**
-   * Peeks a free object.
-   *
-   * @param exclude the objects that should not be peeked.
-   * @return the peeked object.
-   * @throws IllegalArgumentException if {@code exclude} is null.
-   * @throws IllegalStateException if an object cannot be peeked.
-   */
-  public T peek(final Set<T> exclude) {
-    return peek(exclude, Collections.<T>emptySet());
-  }
-
-  /**
-   * Peeks a free object.
-   *
-   * @param exclude the objects that should not be peeked.
    * @param retain the objects that should be used for allocation.
+   * @param exclude the objects that should not be peeked.
+   * @param rate the dependencies biases.
    * @return the peeked object.
-   *
-   * @throws IllegalArgumentException if {@code exclude} is null.
-   * @throws IllegalArgumentException if {@code retain} is null.
-   * @throws IllegalStateException if an object cannot be peeked.
    */
-  public T peek(final Set<T> exclude, final Set<T> retain) {
-    InvariantChecks.checkNotNull(exclude);
+  public T peek(
+      final Collection<T> retain,
+      final Collection<T> exclude,
+      final Map<ResourceOperation, Integer> rate) {
     InvariantChecks.checkNotNull(retain);
+    InvariantChecks.checkNotNull(exclude);
+
+    final Allocator allocator = allocationData.getAllocator();
+    InvariantChecks.checkNotNull(allocator);
 
     final T object;
     if (retain.isEmpty()) {
-      object = objects != null
-          ? allocator.next(objects, exclude, used)
-          : allocator.next(supplier, exclude, used);
+      object = (objects != null)
+          ? allocator.next(objects,  exclude, used, rate)
+          : allocator.next(supplier, exclude, used, rate);
     } else {
-      object = allocator.next(retain, exclude, used);
+      object = allocator.next(retain, exclude, used, rate);
     }
 
     InvariantChecks.checkNotNull(
@@ -328,103 +214,23 @@ public final class AllocationTable<T, V> {
   }
 
   /**
-   * Allocates an object (peeks an object and marks it as being in use).
-   *
-   * @return the allocated object.
-   * @throws IllegalStateException if an object cannot be allocated.
-   */
-  public T allocate() {
-    final T object = peek();
-
-    use(object);
-    return object;
-  }
-
-  /**
    * Allocates an object and marks it as being in use.
    *
-   * @param exclude the objects that should not be allocated.
-   * @return the allocated object.
-   *
-   * @throws IllegalArgumentException if {@code exclude} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
-   */
-  public T allocate(final Set<T> exclude) {
-    final T object = peek(exclude);
-
-    use(object);
-    return object;
-  }
-
-  /**
-   * Allocates an object and marks it as being in use.
-   *
-   * @param exclude the objects that should not be allocated.
+   * @param operation the operation.
    * @param retain the objects that should be used for allocation.
-   * @return the allocated object.
-   *
-   * @throws IllegalArgumentException if {@code exclude} is null.
-   * @throws IllegalArgumentException if {@code retain} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
-   */
-  public T allocate(final Set<T> exclude, final Set<T> retain) {
-    final T object = peek(exclude, retain);
-
-    use(object);
-    return object;
-  }
-
-  /**
-   * Allocates an object and defines it.
-   *
-   * @param value the object value.
-   * @return the allocated object.
-   * @throws IllegalArgumentException if {@code value} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
-   */
-  public T allocateAndDefine(final V value) {
-    InvariantChecks.checkNotNull(value);
-
-    final T object = allocate();
-    define(object, value);
-
-    return object;
-  }
-
-  /**
-   * Allocates an object and defines it.
-   *
    * @param exclude the objects that should not be allocated.
-   * @param value the object value.
-   * @return the allocated object.
-   * @throws IllegalArgumentException if {@code exclude} or {@code value} is null.
-   * @throws IllegalStateException if an object cannot be allocated.
+   * @param rate the dependencies biases.
+   * @return an allocated object.
    */
-  public T allocateAndDefine(final Set<T> exclude, final V value) {
-    InvariantChecks.checkNotNull(value);
+  public T allocate(
+      final ResourceOperation operation,
+      final Collection<T> retain,
+      final Collection<T> exclude,
+      final Map<ResourceOperation, Integer> rate) {
+    final T object = peek(retain, exclude, rate);
 
-    final T object = allocate(exclude);
-    define(object, value);
-
+    use(operation, object);
     return object;
-  }
-
-  /**
-   * Returns the set of used objects.
-   *
-   * @return the set of used objects.
-   */
-  public Set<T> getUsedObjects() {
-    return used;
-  }
-
-  /**
-   * Returns the set of all objects.
-   *
-   * @return the set of all objects.
-   */
-  public Set<T> getAllObjects() {
-    return objects;
   }
 
   /**

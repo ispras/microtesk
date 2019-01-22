@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.test.template;
 
-import ru.ispras.fortress.util.InvariantChecks;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+
+import ru.ispras.fortress.util.InvariantChecks;
 
 public final class AbstractCallBuilder {
   private final BlockId blockId;

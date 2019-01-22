@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -35,16 +35,16 @@ import ru.ispras.microtesk.test.engine.EngineContext;
 import ru.ispras.microtesk.test.engine.allocator.AllocationData;
 import ru.ispras.microtesk.test.engine.allocator.Allocator;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorAction;
-import ru.ispras.microtesk.test.engine.allocator.AllocatorBuilder;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
+import ru.ispras.microtesk.test.engine.allocator.ResourceOperation;
 import ru.ispras.microtesk.utils.StringUtils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,8 +52,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The {@link Template} class builds the internal representation of a test template
- * and passes it for further processing.
+ * {@link Template} builds a test template's representation and passes it for further processing.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -276,6 +275,9 @@ public final class Template {
 
     blockBuilders.push(current);
     debug("Begin block: " + current.getBlockId());
+
+    // Propagate the parent block's constraints.
+    current.addConstraints(parent.getConstraints());
 
     return current;
   }
@@ -508,10 +510,6 @@ public final class Template {
     return new VariateBuilder<>();
   }
 
-  public AllocatorBuilder newAllocatorBuilder(final String strategy) {
-    return new AllocatorBuilder(strategy);
-  }
-
   public void addAllocatorAction(
       final Primitive primitive,
       final String kind,
@@ -534,25 +532,29 @@ public final class Template {
     addCall(AbstractCall.newAllocatorAction(allocatorAction));
   }
 
-  public UnknownImmediateValue newUnknownImmediate(
+  public AllocationData<Value> newAllocationData(
       final Where where,
       final Allocator allocator,
       final List<Primitive> retain,
       final List<Primitive> exclude,
       final int track,
-      final Map<String, Object> readAfterRate,
-      final Map<String, Object> writeAfterRate,
+      final Map<Object, Object> readAfterRate,
+      final Map<Object, Object> writeAfterRate,
       final boolean reserved) {
-    return new UnknownImmediateValue(
-        new AllocationData(
-            allocator,
-            getModeValues(where, retain),
-            getModeValues(where, exclude),
-            track,
-            getDependencyRate(where, readAfterRate),
-            getDependencyRate(where, writeAfterRate),
-            reserved
-        ));
+    return new AllocationData<Value>(
+             allocator,
+             getModeValues(where, retain),
+             getModeValues(where, exclude),
+             track,
+             getDependenciesRate(where, readAfterRate),
+             getDependenciesRate(where, writeAfterRate),
+             reserved
+           );
+  }
+
+  public UnknownImmediateValue newUnknownImmediate(final AllocationData<Value> allocationData) {
+    InvariantChecks.checkNotNull(allocationData);
+    return new UnknownImmediateValue(allocationData);
   }
 
   private static List<Value> getModeValues(final Where where, final List<Primitive> modes) {
@@ -588,14 +590,38 @@ public final class Template {
     return result;
   }
 
-  private static Map<String, Object> getDependencyRate(
+  private static Map<ResourceOperation, Integer> getDependenciesRate(
       final Where where,
-      final Map<String, Object> rate) {
+      final Map<Object, Object> rate) {
+
     if (null == rate) {
-      return Collections.<String, Object>emptyMap();
+      return Collections.emptyMap();
     }
 
-    final Map<String, Object> result = new LinkedHashMap<>(rate);
+    final EnumMap<ResourceOperation, Integer> result = new EnumMap<>(ResourceOperation.class);
+    result.put(ResourceOperation.NOP,   0);
+    result.put(ResourceOperation.ANY,   0);
+    result.put(ResourceOperation.READ,  0);
+    result.put(ResourceOperation.WRITE, 0);
+
+    for (final Map.Entry<Object, Object> entry : rate.entrySet()) {
+      final String type = entry.getKey().toString();
+      final String bias = entry.getValue().toString();
+
+      if ("free".equalsIgnoreCase(type)) {
+        result.put(ResourceOperation.NOP, Integer.parseInt(bias));
+      } else if ("read".equalsIgnoreCase(type)) {
+        result.put(ResourceOperation.READ, Integer.parseInt(bias));
+      } else if ("write".equalsIgnoreCase(type)) {
+        result.put(ResourceOperation.WRITE, Integer.parseInt(bias));
+      } else if ("used".equalsIgnoreCase(type)) {
+        result.put(ResourceOperation.ANY, Integer.parseInt(bias));
+      } else {
+        throw new GenerationAbortedException(String.format(
+            "%s: unknown key in a dependencies rate specification: '%s'", where, type));
+      }
+    }
+
     return result;
   }
 

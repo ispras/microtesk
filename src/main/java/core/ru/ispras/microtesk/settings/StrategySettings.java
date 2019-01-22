@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
 
 package ru.ispras.microtesk.settings;
 
-import ru.ispras.microtesk.test.engine.allocator.AllocationStrategy;
+import ru.ispras.microtesk.test.engine.allocator.Allocator;
 
 import java.util.Collection;
 import java.util.Map;
@@ -27,18 +27,18 @@ import java.util.Map;
 public final class StrategySettings extends AbstractSettings {
   public static final String TAG = "strategy";
 
-  private final AllocationStrategy strategy;
+  private final Allocator allocator;
   private final Map<String, String> attributes;
 
-  public StrategySettings(final AllocationStrategy strategy, final Map<String, String> attributes) {
+  public StrategySettings(final Allocator allocator, final Map<String, String> attributes) {
     super(TAG);
 
-    this.strategy = strategy;
+    this.allocator = allocator;
     this.attributes = attributes;
   }
 
-  public AllocationStrategy getStrategy() {
-    return strategy;
+  public Allocator getAllocator() {
+    return allocator;
   }
 
   public Map<String, String> getAttributes() {

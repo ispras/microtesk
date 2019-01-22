@@ -160,7 +160,7 @@ class Template
   # Sets the given attributes to the nested operations.
   #
   def set_attributes(attributes, &contents)
-    mapBuilder = set_builder_attributes @template.newMapBuilder attributes
+    mapBuilder = set_builder_attributes @template.newMapBuilder, attributes
     @template.beginAttributes mapBuilder
     self.instance_eval &contents
     @template.endAttributes
@@ -172,7 +172,7 @@ class Template
 
   # Adds the given constraint to the current block.
   def constraint(&situations)
-    @template.addBlockConstraint @situation_manager.instance_eval &situations
+    @template.addBlockConstraint(@situation_manager.instance_eval(&situations))
   end
 
   #=================================================================================================
@@ -226,7 +226,8 @@ class Template
 
   def allocation(name, attrs = {})
     java_import Java::Ru.ispras.microtesk.test.template.Situation
-    get_new_situation name, attrs, Situation::Kind::ALLOCATION
+    allocation_data = get_allocation_data nil, attrs
+    get_new_situation name, {:allocation => allocation_data}, Situation::Kind::ALLOCATION
   end
 
   def get_new_situation(name, attrs, kind)
@@ -247,6 +248,34 @@ class Template
     end
 
     builder.build
+  end
+
+  def get_allocation_data(allocator, attrs)
+    if !attrs.is_a?(Hash)
+      raise "attrs (#{attrs}) must be a Hash."
+    end
+
+    retain = attrs[:retain]
+    exclude = attrs[:exclude]
+
+    track = attrs.has_key?(:track) ? attrs[:track] : -1
+
+    readAfterRate = attrs.has_key?(:read) ? attrs[:read] : attrs[:rate]
+    writeAfterRate = attrs.has_key?(:write) ? attrs[:write] : attrs[:rate]
+
+    reserved = attrs.has_key?(:reserved) ? attrs[:reserved] : false
+
+    allocator = @default_allocator if allocator.nil?
+
+    @template.newAllocationData(
+      get_caller_location,
+      allocator,
+      retain,
+      exclude,
+      track,
+      readAfterRate,
+      writeAfterRate,
+      reserved)
   end
 
   def random_situation(dist)
@@ -387,26 +416,8 @@ class Template
       raise "#{attrs} is not a Hash."
     end
 
-    retain = attrs[:retain]
-    exclude = attrs[:exclude]
-
-    track = attrs.has_key?(:track) ? attrs[:track] : -1
-
-    readAfterRate = attrs.has_key?(:read) ? attrs[:read] : attrs[:rate]
-    writeAfterRate = attrs.has_key?(:write) ? attrs[:write] : attrs[:rate]
-
-    reserved = attrs.has_key?(:reserved) ? attrs[:reserved] : false
-
-    allocator = @default_allocator if allocator.nil?
-    @template.newUnknownImmediate(
-      get_caller_location,
-      allocator,
-      retain,
-      exclude,
-      track,
-      readAfterRate,
-      writeAfterRate,
-      reserved)
+    allocation_data = get_allocation_data allocator, attrs
+    @template.newUnknownImmediate(allocation_data)
   end
 
   #
@@ -420,43 +431,21 @@ class Template
   # Register Allocation
   #=================================================================================================
 
-  def self.mode_allocator(name, attrs = {})
-    java_import Java::Ru.ispras.microtesk.test.engine.allocator.AllocatorBuilder
-    builder = AllocatorBuilder.newInstance name
-
-    attrs.each_pair do |key, value|
-      builder.setAttribute key.to_s, value.to_s
-    end
-
-    builder.build
+  def self.mode_allocator(name)
+    java_import Java::Ru.ispras.microtesk.test.template.AllocatorBuilder
+    allocator = AllocatorBuilder::newAllocator name
   end
 
-  RANDOM = mode_allocator('RANDOM')
-
-  FREE = mode_allocator('FREE')
-  USED = mode_allocator('USED')
-
-  TRY_FREE = mode_allocator('TRY_FREE')
-  TRY_USED = mode_allocator('TRY_USED')
-
-  def self.BIASED(free_bias, used_bias)
-    mode_allocator('BIASED', :"free-bias" => free_bias, :"used-bias" => used_bias)
-  end
-
-  # TODO: Deprecated
-  def set_default_mode_allocator(allocator)
-    set_default_allocator(allocator)
-  end
-
-  # TODO: Deprecated
-  def free_allocated_mode(mode)
-    set_free mode, true
-  end
-
-  # TODO: Deprecated
-  def free_all_allocated_modes(mode)
-    set_free_all mode, true
-  end
+  RANDOM    = mode_allocator('RANDOM')
+  FREE      = mode_allocator('FREE')
+  USED      = mode_allocator('USED')
+  READ      = mode_allocator('READ')
+  WRITE     = mode_allocator('WRITE')
+  TRY_FREE  = mode_allocator('TRY_FREE')
+  TRY_USED  = mode_allocator('TRY_USED')
+  TRY_READ  = mode_allocator('TRY_READ')
+  TRY_WRITE = mode_allocator('TRY_WRITE')
+  BIASED    = mode_allocator('BIASED')
 
   def set_default_allocator(allocator)
     @default_allocator = allocator
