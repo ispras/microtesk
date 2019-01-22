@@ -118,14 +118,14 @@ public final class EntryIdAllocator {
 
     if (peek) {
       return allocator.peek(
-          exclude,
           Collections.<BitVector>emptySet(),
+          exclude,
           Collections.<ResourceOperation, Integer>emptyMap());
     } else {
       return allocator.allocate(
           ResourceOperation.WRITE,
-          exclude,
           Collections.<BitVector>emptySet(),
+          exclude,
           Collections.<ResourceOperation, Integer>emptyMap());
     }
   }

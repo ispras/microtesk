@@ -240,9 +240,8 @@ public final class AllocatorEngine {
       final Map<ResourceOperation, Integer> rate = (operation == ResourceOperation.WRITE)
           ? allocationData.getWriteAfterRate() : allocationData.getReadAfterRate();
 
-      return allocationTable.allocate(operation, exclude, retain, rate);
+      return allocationTable.allocate(operation, retain, exclude, rate);
     } catch (final Exception e) {
-      e.printStackTrace(); // TODO:
       throw new GenerationAbortedException(String.format(
           "Failed to allocate %s using %s. Reason: %s.",
           mode,
