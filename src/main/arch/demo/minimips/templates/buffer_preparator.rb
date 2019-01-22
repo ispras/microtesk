@@ -34,7 +34,7 @@ class BufferPreparatorTemplate < MiniMipsBaseTemplate
 
   def run
     # This is just a placeholder
-    add t0, zero, zero
+    nop
     nop
   end
 
