@@ -29,6 +29,8 @@ import java.util.Deque;
 import java.util.Map;
 
 final class StbStruct implements StringTemplateBuilder {
+  public static final boolean LOW_TO_HIGH = false;
+
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
@@ -105,7 +107,7 @@ final class StbStruct implements StringTemplateBuilder {
     final ST stStruct = group.getInstanceOf("struct_body");
     stStruct.add("type", typeName);
 
-    // {Name, isStruct} - required to generate asBitVector (fields must be listed from low to hi).
+    // {Name, isStruct} - required to generate asBitVector.
     final Deque<Pair<String, Boolean>> fields =
         new ArrayDeque<>(type.getFields().size());
 
@@ -131,7 +133,11 @@ final class StbStruct implements StringTemplateBuilder {
       stStruct.add("fvalues", fieldValue);
       stStruct.add("fis_struct", fieldType.isStruct());
 
-      fields.addFirst(new Pair<>(fieldName, fieldType.isStruct()));
+      if (LOW_TO_HIGH) {
+        fields.addFirst(new Pair<>(fieldName, fieldType.isStruct()));
+      } else {
+        fields.addLast(new Pair<>(fieldName, fieldType.isStruct()));
+      }
     }
 
     for (final Pair<String, Boolean> fieldInfo : fields) {
