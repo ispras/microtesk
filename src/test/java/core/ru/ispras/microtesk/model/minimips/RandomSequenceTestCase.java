@@ -25,8 +25,8 @@ public class RandomSequenceTestCase extends MiniMipsTest {
     final Statistics statistics = run("random_sequence.rb");
     Assert.assertNotNull(statistics);
 
-    Assert.assertEquals(1, statistics.getPrograms());
-    Assert.assertEquals(1, statistics.getSequences());
-    Assert.assertEquals(42, statistics.getInstructions());
+    Assert.assertEquals(1,  statistics.getPrograms());
+    Assert.assertEquals(1,  statistics.getSequences());
+    Assert.assertEquals(37, statistics.getInstructions());
   }
 }

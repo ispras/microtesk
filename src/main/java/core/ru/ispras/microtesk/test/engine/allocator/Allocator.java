@@ -76,6 +76,7 @@ public enum Allocator {
         final Collection<T> exclude,
         final Map<ResourceOperation, Collection<T>> used,
         final Map<ResourceOperation, Integer> rate) {
+      System.out.println("FREE: USED=" + used);
       final Collection<T> free = new LinkedHashSet<>(retain);
 
       free.removeAll(exclude);
@@ -297,8 +298,6 @@ public enum Allocator {
         final Map<ResourceOperation, Collection<T>> used,
         final Map<ResourceOperation, Integer> rate) {
       final Allocator allocator = getAllocator(exclude, used, rate);
-      System.out.println("USED: " + used);
-      System.out.println("ALLOCATOR: " + allocator.name() + ", " + rate);
       return allocator.next(retain, exclude, used, rate);
     }
 

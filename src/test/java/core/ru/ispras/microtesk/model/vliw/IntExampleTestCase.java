@@ -25,9 +25,9 @@ public class IntExampleTestCase extends VliwTest {
     final Statistics statistics = run("int_example.rb");
     Assert.assertNotNull(statistics);
 
-    Assert.assertEquals(1, statistics.getPrograms());
-    Assert.assertEquals(1, statistics.getSequences());
-    Assert.assertEquals(13, statistics.getInstructions());
+    Assert.assertEquals(1,  statistics.getPrograms());
+    Assert.assertEquals(1,  statistics.getSequences());
+    Assert.assertEquals(11, statistics.getInstructions());
   }
 
   protected boolean isExpectedError(final String message) {

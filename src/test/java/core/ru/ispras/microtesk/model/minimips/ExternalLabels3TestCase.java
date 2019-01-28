@@ -29,6 +29,6 @@ public class ExternalLabels3TestCase extends MiniMipsTest {
 
     Assert.assertEquals(1,  statistics.getPrograms());
     Assert.assertEquals(1,  statistics.getSequences());
-    Assert.assertEquals(24, statistics.getInstructions());
+    Assert.assertEquals(22, statistics.getInstructions());
   }
 }

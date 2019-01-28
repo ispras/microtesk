@@ -466,13 +466,13 @@ class MiniMipsBaseTemplate < Template
   # the list of reserved registers.
   #
   def free_register(mode)
-    free_allocated_mode mode
+    set_free mode, true
   end
 
   #
   # Utility method to clear the list of reserved registers.
   #
   def free_all_registers
-    free_all_allocated_modes reg(_)
+    set_free_all reg(_), true
   end
 end

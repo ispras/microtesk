@@ -146,10 +146,10 @@ public final class AllocatorEngine {
       dependencies.init(sequence);
     }
 
-    // Phase 2: allocate the uninitialized addressing modes.
-    for (final AbstractCall call : sequence) {
-      // Mark explicitly specified addressing modes as 'used'.
-      if (markExplicitAsUsed) {
+    // Phase 2 (optional): mark explicitly specified addressing modes as 'used'.
+    if (markExplicitAsUsed) {
+      // It is done before allocating unspecified modes not to allocate explicitly specified ones.
+      for (final AbstractCall call : sequence) {
         if (call.isExecutable()) {
           final Primitive primitive = call.getRootOperation();
           useFixedValues(primitive);
@@ -158,7 +158,10 @@ public final class AllocatorEngine {
           useFixedValues(primitive);
         }
       }
+    }
 
+    // Phase 3: allocate the uninitialized addressing modes.
+    for (final AbstractCall call : sequence) {
       if (call.isAllocatorAction()) {
         processAllocatorAction(call.getAllocatorAction());
       }

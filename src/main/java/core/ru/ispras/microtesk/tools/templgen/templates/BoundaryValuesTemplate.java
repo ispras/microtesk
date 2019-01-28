@@ -44,7 +44,7 @@ public final class BoundaryValuesTemplate extends GeneratedTemplate {
   @Override
   public boolean generate() {
     templatePrinter.templateBegin();
-    templatePrinter.addString("set_default_mode_allocator FREE");
+    templatePrinter.addString("set_default_allocator FREE");
     templatePrinter.addString("");
     templatePrinter.addComment("Only arithmetic operations");
 
