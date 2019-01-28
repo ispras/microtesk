@@ -56,6 +56,16 @@ public final class MemorySettings extends AbstractSettings {
     return checkAddress(RegionSettings.Type.DATA, address);
   }
 
+  public boolean checkAddress(final BigInteger address) {
+    for (final RegionSettings region : getRegions()) {
+      if (region.checkAddress(address)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   private boolean checkAddress(final RegionSettings.Type type, final BigInteger address) {
     for (final RegionSettings region : getRegions()) {
       if (region.getType() == type && region.checkAddress(address)) {

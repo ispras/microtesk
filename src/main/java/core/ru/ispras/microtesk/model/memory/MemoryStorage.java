@@ -427,9 +427,9 @@ final class MemoryStorage implements MemoryDevice {
     final BigInteger addressValue =
         address.bigIntegerValue(false).multiply(BigInteger.valueOf(regionBitSize / 8));
 
-    if (!memorySettings.checkDataAddress(addressValue)) {
+    if (!memorySettings.checkAddress(addressValue)) {
       throw new GenerationAbortedException(String.format(
-          "Address 0x%x does not match any data region.", addressValue));
+          "Address 0x%x does not match any data or text region.", addressValue));
     }
   }
 
