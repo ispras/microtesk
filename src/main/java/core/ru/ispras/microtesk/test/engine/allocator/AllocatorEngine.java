@@ -201,7 +201,7 @@ public final class AllocatorEngine {
   private int allocate(
       final String mode,
       final ResourceOperation operation,
-      final AllocationData<Value> allocationData) {
+      final AllocationData<Integer> allocationData) {
     InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkNotNull(allocationData);
 
@@ -212,33 +212,19 @@ public final class AllocatorEngine {
     final AllocationData<Integer> defaultAllocationData = allocationTable.getAllocationData();
 
     try {
-      if (null != allocationData) {
-        // Evaluate lazy values: Value to Integer.
-        final AllocationData<Integer> evaluatedData = new AllocationData<>(
-            allocationData.getAllocator() != null
-              ? allocationData.getAllocator()
-              : defaultAllocationData.getAllocator(),
-            AllocatorUtils.toIntegers(allocationData.getRetain()),
-            AllocatorUtils.toIntegers(allocationData.getExclude()),
-            allocationData.getTrack(),
-            allocationData.getReadAfterRate(),
-            allocationData.getWriteAfterRate(),
-            false);
-
-        allocationTable.setAllocationData(evaluatedData);
-      }
+      allocationTable.setAllocationData(allocationData);
 
       final Collection<Integer> exclude;
 
       // Global excludes apply only to writes.
       if (operation == ResourceOperation.WRITE) {
         exclude = new LinkedHashSet<>(exlusions.getExcludedIndexes(mode));
-        exclude.addAll(AllocatorUtils.toIntegers(allocationData.getExclude()));
+        exclude.addAll(allocationData.getExclude());
       } else {
-        exclude = AllocatorUtils.toIntegers(allocationData.getExclude());
+        exclude = allocationData.getExclude();
       }
 
-      final Collection<Integer> retain = AllocatorUtils.toIntegers(allocationData.getRetain());
+      final Collection<Integer> retain = allocationData.getRetain();
 
       final Map<ResourceOperation, Integer> rate = (operation == ResourceOperation.WRITE)
           ? allocationData.getWriteAfterRate()
@@ -249,7 +235,7 @@ public final class AllocatorEngine {
       throw new GenerationAbortedException(String.format(
           "Failed to allocate %s using %s. Reason: %s.",
           mode,
-          allocationTable.getAllocationData(),
+          allocationData,
           e.getMessage())
           );
     } finally {
@@ -294,13 +280,35 @@ public final class AllocatorEngine {
         // Take into account the block-level allocation constraints.
         final Situation constraint = constraints.get(modeName.toLowerCase());
 
-        final AllocationData<Value> allocationData;
+        final AllocationData<Value> blockAllocationData;
         if (unknownValue.getAllocationData().isSpecified()) {
-          allocationData = unknownValue.getAllocationData();
+          blockAllocationData = unknownValue.getAllocationData();
         } else if (constraint != null && constraint.getKind() == Situation.Kind.ALLOCATION) {
-          allocationData = (AllocationData<Value>) constraint.getAttribute("allocation");
+          blockAllocationData = (AllocationData<Value>) constraint.getAttribute("allocation");
         } else {
-          allocationData = null;
+          blockAllocationData = null;
+        }
+
+        // The default allocation data associated with the given mode.
+        final AllocationTable<Integer> allocationTable = allocationTables.get(modeName);
+        final AllocationData<Integer> defaultAllocationData = allocationTable.getAllocationData();
+
+        final AllocationData<Integer> allocationData;
+
+        if (null != blockAllocationData) {
+          // Evaluate lazy values: Value to Integer.
+          allocationData = new AllocationData<>(
+              blockAllocationData.getAllocator() != null
+                ? blockAllocationData.getAllocator()
+                : defaultAllocationData.getAllocator(),
+              AllocatorUtils.toIntegers(blockAllocationData.getRetain()),
+              AllocatorUtils.toIntegers(blockAllocationData.getExclude()),
+              blockAllocationData.getTrack(),
+              blockAllocationData.getReadAfterRate(),
+              blockAllocationData.getWriteAfterRate(),
+              false);
+        } else {
+          allocationData = defaultAllocationData;
         }
 
         final int index = allocate(modeName, operation, allocationData);
