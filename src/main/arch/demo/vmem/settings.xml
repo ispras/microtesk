@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
 
+  <memory>
+    <region type="data" name="data-region" start="1000" end="1fff" mode="rw-rw-">
+      <access segment="DIRECT"/>
+      <access segment="MAPPED"/>
+    </region>
+    <region type="text" name="text-region" start="2000" end="3fff" mode="--x--x">
+      <access segment="DIRECT"/>
+      <access segment="MAPPED"/>
+    </region>
+
+    <!-- Virtual address space -->
+    <region type="table" name="vmem" start="0000" end="ffff" mode="rwxrwx"/>
+    <region type="table" name="PageTable" start="c100" end="c17f" mode="rw-rw-"/>
+  </memory>
+
   <allocation>
     <mode name="REG">
       <strategy name="biased" free-bias="50" used-bias="50"/>
