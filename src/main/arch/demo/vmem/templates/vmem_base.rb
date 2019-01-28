@@ -39,6 +39,16 @@ class VmemBaseTemplate < Template
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
     section_data(:pa => 0x0100, :va => 0xc100) {}
+  
+    #
+    # Empty exception handler.
+    #
+    exception_handler {
+      entry_point(:org => 0x0, :exception => ['AddressError']) {
+        trace 'Exception: AddressError'
+        nop
+      }
+    }
 
     #
     # The code below specifies an instruction sequence that writes a value

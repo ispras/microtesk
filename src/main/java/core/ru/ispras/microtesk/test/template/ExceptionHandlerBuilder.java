@@ -88,7 +88,7 @@ public final class ExceptionHandlerBuilder {
 
   public void beginEntryPoint(final BigInteger origin, final Collection<String> exceptions) {
     InvariantChecks.checkNotNull(origin);
-    InvariantChecks.checkGreaterThan(origin, BigInteger.ZERO);
+    InvariantChecks.checkGreaterOrEq(origin, BigInteger.ZERO);
     InvariantChecks.checkNotEmpty(exceptions);
 
     if (isDebugPrinting) {

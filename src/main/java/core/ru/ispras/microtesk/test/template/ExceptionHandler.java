@@ -42,7 +42,7 @@ public final class ExceptionHandler {
         final List<AbstractCall> calls) {
       InvariantChecks.checkNotNull(exceptions);
       InvariantChecks.checkNotNull(origin);
-      InvariantChecks.checkGreaterThan(origin, BigInteger.ZERO);
+      InvariantChecks.checkGreaterOrEq(origin, BigInteger.ZERO);
       InvariantChecks.checkNotNull(calls);
 
       this.origin = origin;
