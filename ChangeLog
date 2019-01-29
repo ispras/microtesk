@@ -6,8 +6,9 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
-2019/01/28 MicroTESK 2.4.45 beta
+2019/01/29 MicroTESK 2.4.45 beta
   - Support for block-level register allocation constraints
+  - Changes in the register allocation engine
   - MMU plugin: structures' fields are listed from upper to lower bits
   - Bug fixes and code improvements
 
