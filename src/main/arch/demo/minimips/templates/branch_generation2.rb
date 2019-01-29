@@ -26,6 +26,7 @@ class BranchGeneration2Template < MiniMipsBaseTemplate
   def initialize
     super
     set_option_value 'default-test-data', false
+    set_option_value 'reserve-explicit', true
   end
 
   def pre
@@ -108,9 +109,15 @@ class BranchGeneration2Template < MiniMipsBaseTemplate
        :compositor => 'catenation',
        :engines => {
            :branch => {:branch_exec_limit => 3,
-                       :block_exec_limit => 3,
+                       :block_exec_limit  => 3,
                        :trace_count_limit => 10}
        }) {
+      # Do not use the streams' address registers.
+      set_reserved s4, true
+      set_reserved s5, true
+      set_reserved s6, true
+      set_reserved s7, true
+
       sequence {
         label :labelA
         pseudo '# Start Label'
@@ -163,7 +170,7 @@ class BranchGeneration2Template < MiniMipsBaseTemplate
               end
             }
 
-            # Injected Code placed in delay slot
+            # Delay Slots
             iterate {
               # The code must not modify registers s0-s7
               addiu reg1=reg(_ FREE), reg1, 1
