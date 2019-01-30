@@ -468,6 +468,15 @@ public abstract class X86Test extends TemplateTest {
           return;
         }
 
+        if (isEmpty(errorLog)) {
+
+          final String returnMsg =
+              String.format("Process has returned '%d': \"%s\"%n", exitCode, command);
+          final String logMsg =
+              String.format("No error log is found, try to run command in terminal.%n");
+          Assert.fail(returnMsg + logMsg);
+        }
+
         final byte [] errLogBytes = Files.readAllBytes(Paths.get(errorLog.getPath()));
         final String errString = new String(errLogBytes, Charset.defaultCharset());
 
