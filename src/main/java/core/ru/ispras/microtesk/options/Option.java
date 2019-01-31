@@ -85,7 +85,7 @@ public enum Option implements Property {
       "Enables automated reservation of registers that have dependencies", false, GENERATE),
 
   BINARY_FILE_EXTENSION("Binary file extension", "bin", GENERATE),
-  BINARY_FILE_USE_BIG_ENDIAN("Use big endian for binary files", false),
+  BINARY_FILE_BIG_ENDIAN("Use big endian for binary files", false),
   CODE_FILE_EXTENSION("Output file extension", "asm", GENERATE),
   CODE_FILE_PREFIX("Output file prefix", "test", GENERATE),
   DATA_FILE_EXTENSION("Data file extension", "dat", GENERATE),

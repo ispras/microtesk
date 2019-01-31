@@ -65,7 +65,7 @@ public final class Disassembler {
       return false;
     }
 
-    final boolean bigEndian = options.getValueAsBoolean(Option.BINARY_FILE_USE_BIG_ENDIAN);
+    final boolean bigEndian = options.getValueAsBoolean(Option.BINARY_FILE_BIG_ENDIAN);
     final BinaryReader reader = newReader(fileName, bigEndian);
     if (null == reader) {
       Logger.error("Failed to create a reader.");
