@@ -90,7 +90,7 @@ public final class TemplateGenerator {
         new SimpleTemplate(metaModel, new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME,
             modelName, baseTemplateName, baseTemplatePath, outPutDirectory), ignoredInstructions);
     generatedResult = generatedResult & simpleTemplate.generate();
-
+/*
     final GroupTemplate groupTemplate =
         new GroupTemplate(metaModel, new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME,
             modelName, baseTemplateName, baseTemplatePath, outPutDirectory), ignoredInstructions);
@@ -101,7 +101,7 @@ public final class TemplateGenerator {
             baseTemplateName, baseTemplatePath, outPutDirectory),
         ignoredInstructions);
     generatedResult = generatedResult & boundaryTemplate.generate();
-
+*/
     return generatedResult;
   }
 

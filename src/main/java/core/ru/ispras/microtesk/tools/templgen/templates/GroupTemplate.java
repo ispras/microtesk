@@ -14,6 +14,10 @@
 
 package ru.ispras.microtesk.tools.templgen.templates;
 
+/**
+ * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
+ */
+
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
@@ -72,7 +76,7 @@ public final class GroupTemplate extends GeneratedTemplate {
     final Iterable<MetaOperation> operationsIterator = templateMetaModel.getOperations();
     for (MetaOperation operation : operationsIterator) {
       if (operation.hasRootShortcuts() && !ignoredInstructions.contains(operation.getName())) {
-        TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter);
+        TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter, templateMetaModel);
         if (templateOperation.isBranchOperation()) {
           branchSet.add(templateOperation);
         }
@@ -105,5 +109,11 @@ public final class GroupTemplate extends GeneratedTemplate {
     templatePrinter.templateClose();
 
     return true;
+  }
+
+  @Override
+  protected boolean extract() {
+    // TODO Auto-generated method stub
+    return false;
   }
 }

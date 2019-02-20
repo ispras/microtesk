@@ -18,13 +18,12 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ArgumentMode;
 import ru.ispras.microtesk.model.IsaPrimitiveKind;
 import ru.ispras.microtesk.model.metadata.MetaArgument;
+import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 /**
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
@@ -47,23 +46,25 @@ public class TemplateOperation {
   private String preCommand;
   private String[] postCommand;
 
-  private Set<String> jumpLabelsSet;
+  private final MetaModel metaModel;
+  //private Set<String> jumpLabelsSet;
 
-  TemplateOperation(final MetaOperation operation, final TemplatePrinter templatePrinter) {
-    this.initLabelsSet();
+  TemplateOperation(final MetaOperation operation, final TemplatePrinter templatePrinter, final MetaModel metaModel) {
+    this.metaModel = metaModel;
     this.templatePrinter = templatePrinter;
     name = this.templatePrinter.formattingOperation(operation.getName());
 
     branch = operation.isConditionalBranch() || ((name.startsWith("b") || name.startsWith("j")) && (getArgumentsNumber(operation.getArguments()) > 0));
     jump = operation.isBranch() && !branch;
 
-    if (branch || jump) {
+   //if (branch || jump) {
+      //TemplatesUtils.printMetaOperation(operation);
       //printMetaOperation(operation);
       /*System.out.println(operation.getName());
       System.out.print(branch);
       System.out.print(jump);
       System.out.println();*/
-    }
+   // }
 
     load = (operation.isLoad()) ? Boolean.TRUE : Boolean.FALSE;
     store = (operation.isStore()) ? Boolean.TRUE : Boolean.FALSE;
@@ -79,7 +80,7 @@ public class TemplateOperation {
       //System.out.println(regTitle);
 
       // TODO: only for Jalr riscv: || null != regTitle
-      if (null != regTitle && !jumpLabelsSet.contains(regTitle)) {
+      if (null != regTitle && !metaModel.getAddressingMode(regTitle).isLabel()) {//!jumpLabelsSet.contains(regTitle)) {
         // System.out.println(regTitle);
         // TODO:
         preCommand = prepareReg(regTitle);
@@ -132,59 +133,6 @@ public class TemplateOperation {
     command = setCommand(operation.getArguments(), name);
   }
 
-  private void initLabelsSet() {
-    jumpLabelsSet = new HashSet<String>();
-
-    jumpLabelsSet.add("BRANCH_IMM");
-    jumpLabelsSet.add("BRANCH_LABEL");
-    jumpLabelsSet.add("JUMP_IMM");
-    jumpLabelsSet.add("JUMP_LABEL");
-    jumpLabelsSet.add("BRANCH_LABEL_M2");
-    jumpLabelsSet.add("JUMP_LABEL_M2");
-
-    jumpLabelsSet.add("C_JUMP_LABEL");
-    jumpLabelsSet.add("C_JUMP_IMM");
-    jumpLabelsSet.add("C_BRANCH_LABEL_M2");
-    jumpLabelsSet.add("C_BRANCH_IMM");
-
-    jumpLabelsSet.add("BRANCH_FPU_LABEL");
-    jumpLabelsSet.add("BRANCH_FPU_IMM");
-
-    jumpLabelsSet.add("BRANCH_IMM26");
-    jumpLabelsSet.add("BRANCH_LABEL26");
-    jumpLabelsSet.add("BRANCH_IMM21");
-    jumpLabelsSet.add("BRANCH_LABEL21");
-    jumpLabelsSet.add("JUMP_LABEL16");
-    jumpLabelsSet.add("JUMP_IMM16");
-  }
-
-  private static void printMetaOperation(final MetaOperation operation) {
-    System.out.format("getTypeName: %s \n", operation.toString());
-    System.out.format("Operation: %s \n", operation.getName());
-    System.out.format("getTypeName: %s \n", operation.getTypeName());
-    System.out.format("getDataType: %s \n", operation.getDataType());
-    System.out.format("hasRootShortcuts: %s \n", operation.hasRootShortcuts());
-    System.out.format("isBranch: %s \n", operation.isBranch());
-    System.out.format("isConditionalBranch: %s \n", operation.isConditionalBranch());
-    System.out.format("isLoad: %s \n", operation.isLoad());
-    System.out.format("isRoot: %s \n", operation.isRoot());
-    System.out.format("isStore: %s \n", operation.isStore());
-    System.out.format("getTypeName: %s \n", operation);
-
-    Iterable<MetaArgument> arguments = operation.getArguments();
-
-    for (MetaArgument argument : arguments) {
-      System.out.format("getName: %s \n", argument.getName());
-      System.out.format("getMode: %s \n", argument.getMode());
-      System.out.format("getDataType: %s \n", argument.getDataType());
-      System.out.format("getKind: %s \n", argument.getKind());
-      System.out.format("getTypeNames: %s \n", argument.getTypeNames());
-      System.out.format("toString: %s \n\n", argument.toString());
-    }
-
-    System.out.format("\n");
-  }
-
   private String setCommand(final Iterable<MetaArgument> arguments, final String name) {
     String tempCommand = name + " ";
 
@@ -199,12 +147,28 @@ public class TemplateOperation {
       }
 
       if ((argument.getKind() == IsaPrimitiveKind.MODE)) {
+        System.out.println("MetaArgument" + argument);
+
         boolean printLabel = false;
         // for (String tempType : tempTypes) {
         // if (tempTypes != null) {System.out.println("!!!!!!!!!!!!!!! " + tempTypes.size());}
         Object[] strArray = (Object[]) tempTypes.toArray();
         String tempType = (String) strArray[0];
-        if (jumpLabelsSet.contains(tempType)) {
+
+        boolean jumpLabelsSet = false;
+        //tempTypes.size()
+        for (String s : tempTypes) {
+          System.out.println(metaModel.getAddressingMode(s).isLabel());
+          if (metaModel.getAddressingMode(s).isLabel()) {
+            jumpLabelsSet = true;
+            break;
+          }
+        }
+//        for (MetaArgument argument1 : arguments) {
+          //System.out.println("MetaArgument" + argument1.getKind());
+//        }
+
+        if (jumpLabelsSet) {
           if (!printLabel) {
             if (null != branchLabel) {
               if (jump && getArgumentNumbers(arguments, IsaPrimitiveKind.MODE) > 2) {
@@ -235,6 +199,8 @@ public class TemplateOperation {
       }
 
       if (argument.getKind() == IsaPrimitiveKind.IMM) {
+        System.out.println("MetaArgument Not Mode" + argument);
+
         if (load || store) {
           tempCommand += this.templatePrinter.getDataLabel();
         } else if (!branch) {

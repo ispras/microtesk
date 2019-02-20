@@ -63,4 +63,15 @@ public abstract class GeneratedTemplate implements BaseTemplate {
    * Generates the template and output it in the format of the specified printer.
    */
   public abstract boolean generate();
+
+
+  /**
+   * Extracts the information from model for this template.
+   */
+  protected abstract boolean extract();
+
+  /**
+   * Sorts instructions by groups.
+   */
+  public void sort() {}
 }

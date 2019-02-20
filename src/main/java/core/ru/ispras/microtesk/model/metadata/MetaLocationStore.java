@@ -71,4 +71,9 @@ public final class MetaLocationStore implements MetaData {
   public BigInteger getCount() {
     return count;
   }
+
+  @Override
+  public String toString() {
+    return String.format("%s(%s):%s", getName(), getCount(), getDataType());
+  }
 }

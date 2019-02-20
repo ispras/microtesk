@@ -54,4 +54,10 @@ public class ArchitectureTemplate extends GeneratedTemplate {
     return true;
 
   }
+
+  @Override
+  protected boolean extract() {
+    // TODO Auto-generated method stub
+    return false;
+  }
 }

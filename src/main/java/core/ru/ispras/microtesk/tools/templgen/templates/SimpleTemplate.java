@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -40,10 +40,12 @@ public final class SimpleTemplate extends GeneratedTemplate {
     templatePrinter.templateBegin();
 
     final Iterable<MetaOperation> operationsIterator = templateMetaModel.getOperations();
+    //System.out.println(templateMetaModel.getAddressingMode("BRANCH_LABEL").isLabel());
+    //System.out.println(templateMetaModel.getRegisters());
 
     for (MetaOperation operation : operationsIterator) {
       if (operation.hasRootShortcuts() && !ignoredInstructions.contains(operation.getName())) {
-        TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter);
+        TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter, templateMetaModel);
         templatePrinter.addString("");
         templateOperation.printOperationBlock(templatePrinter);
         // printMetaOperation(templatePrinter, operation);
@@ -54,5 +56,11 @@ public final class SimpleTemplate extends GeneratedTemplate {
     templatePrinter.templateClose();
 
     return true;
+  }
+
+  @Override
+  protected boolean extract() {
+    // TODO:
+    return false;
   }
 }

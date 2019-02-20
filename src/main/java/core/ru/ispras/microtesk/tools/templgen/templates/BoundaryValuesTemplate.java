@@ -51,7 +51,7 @@ public final class BoundaryValuesTemplate extends GeneratedTemplate {
     final Iterable<MetaOperation> operationsIterator = templateMetaModel.getOperations();
     for (MetaOperation operation : operationsIterator) {
       if (operation.hasRootShortcuts() && !ignoredInstructions.contains(operation.getName())) {
-        TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter);
+        TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter, templateMetaModel);
         if (templateOperation.isArithmeticOperation()) {
           printSequence(templateOperation);
         }
@@ -61,5 +61,11 @@ public final class BoundaryValuesTemplate extends GeneratedTemplate {
     templatePrinter.templateEnd();
     templatePrinter.templateClose();
     return true;
+  }
+
+  @Override
+  protected boolean extract() {
+    // TODO Auto-generated method stub
+    return false;
   }
 }
