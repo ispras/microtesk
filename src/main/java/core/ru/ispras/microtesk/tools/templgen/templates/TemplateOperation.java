@@ -147,7 +147,7 @@ public class TemplateOperation {
       }
 
       if ((argument.getKind() == IsaPrimitiveKind.MODE)) {
-        System.out.println("MetaArgument" + argument);
+//        System.out.println("MetaArgument" + argument);
 
         boolean printLabel = false;
         // for (String tempType : tempTypes) {
@@ -158,7 +158,7 @@ public class TemplateOperation {
         boolean jumpLabelsSet = false;
         //tempTypes.size()
         for (String s : tempTypes) {
-          System.out.println(metaModel.getAddressingMode(s).isLabel());
+//          System.out.println(metaModel.getAddressingMode(s).isLabel());
           if (metaModel.getAddressingMode(s).isLabel()) {
             jumpLabelsSet = true;
             break;
@@ -199,7 +199,7 @@ public class TemplateOperation {
       }
 
       if (argument.getKind() == IsaPrimitiveKind.IMM) {
-        System.out.println("MetaArgument Not Mode" + argument);
+//        System.out.println("MetaArgument Not Mode" + argument);
 
         if (load || store) {
           tempCommand += this.templatePrinter.getDataLabel();
