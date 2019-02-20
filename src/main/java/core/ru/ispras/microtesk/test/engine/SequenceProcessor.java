@@ -314,10 +314,10 @@ public final class SequenceProcessor {
       final Options options) {
     final AllocatorEngine allocatorEngine = AllocatorEngine.get();
     if (null != allocatorEngine) {
-      final boolean markExplicitAsUsed = options.getValueAsBoolean(Option.RESERVE_EXPLICIT);
+      final boolean reserveExplicit = options.getValueAsBoolean(Option.RESERVE_EXPLICIT);
       final boolean reserveDependencies = options.getValueAsBoolean(Option.RESERVE_DEPENDENCIES);
 
-      allocatorEngine.allocate(abstractSequence, markExplicitAsUsed, reserveDependencies);
+      allocatorEngine.allocate(abstractSequence, reserveExplicit, reserveDependencies);
     }
   }
 

@@ -109,30 +109,30 @@ class Template
 
   def block(attributes = {}, &contents)
     java_import Java::Ru.ispras.microtesk.test.template.Block
-    add_new_block Block::Kind::BLOCK, attributes, &contents
+    add_new_block Block::Kind::BLOCK, attributes, get_caller_location, &contents
   end
 
   def sequence(attributes = {}, &contents)
     java_import Java::Ru.ispras.microtesk.test.template.Block
-    add_new_block Block::Kind::SEQUENCE, attributes, &contents
+    add_new_block Block::Kind::SEQUENCE, attributes, get_caller_location, &contents
   end
 
   def atomic(attributes = {}, &contents)
     java_import Java::Ru.ispras.microtesk.test.template.Block
-    add_new_block Block::Kind::ATOMIC, attributes, &contents
+    add_new_block Block::Kind::ATOMIC, attributes, get_caller_location, &contents
   end
 
   def iterate(attributes = {}, &contents)
     java_import Java::Ru.ispras.microtesk.test.template.Block
-    add_new_block Block::Kind::ITERATE, attributes, &contents
+    add_new_block Block::Kind::ITERATE, attributes, get_caller_location, &contents
   end
 
   #
   # Adds the given block to the current template.
   #
-  def add_new_block(kind, attributes, &contents)
+  def add_new_block(kind, attributes, where, &contents)
     blockBuilder = @template.beginBlock kind
-    blockBuilder.setWhere get_caller_location
+    blockBuilder.setWhere where
 
     set_builder_attributes blockBuilder, attributes
     self.instance_eval &contents

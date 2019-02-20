@@ -25,8 +25,8 @@ public class BranchGeneration1TestCase extends MiniMipsTest {
     final Statistics statistics = run("branch_generation1.rb");
     Assert.assertNotNull(statistics);
 
-    Assert.assertEquals(1, statistics.getPrograms());
-    Assert.assertEquals(55, statistics.getSequences());
-    Assert.assertEquals(4536, statistics.getInstructions());
+    Assert.assertEquals(1,    statistics.getPrograms());
+    Assert.assertEquals(55,   statistics.getSequences());
+    Assert.assertEquals(4467, statistics.getInstructions());
   }
 }

@@ -193,7 +193,7 @@ public final class Printer {
     this.binaryFile = binaryFile;
 
     this.fileWritter = null != file ? new PrintWriter(file) : null;
-    final boolean bigEndian = options.getValueAsBoolean(Option.BINARY_FILE_USE_BIG_ENDIAN);
+    final boolean bigEndian = options.getValueAsBoolean(Option.BINARY_FILE_BIG_ENDIAN);
     this.binaryWriter = null != binaryFile ? new BinaryWriter(binaryFile, bigEndian) : null;
 
     this.commentToken = options.getValueAsString(Option.COMMENT_TOKEN);

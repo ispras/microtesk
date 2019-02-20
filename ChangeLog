@@ -6,6 +6,12 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2019/01/29 MicroTESK 2.4.45 beta
+  - Support for block-level register allocation constraints
+  - Changes in the register allocation engine
+  - MMU plugin: structures' fields are listed from upper to lower bits
+  - Bug fixes and code improvements
+
 2018/11/16 MicroTESK 2.4.44 beta
   - Support for separate-file sections (useful for boot generation)
   - Support for the 'decode' attribute of nML primitives (experimental)

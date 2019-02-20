@@ -50,7 +50,9 @@ public abstract class Mmu<A extends Address & Data>
   @Override
   public void store(final BitVector address, final BitVector data) {
     InvariantChecks.checkNotNull(data);
-    InvariantChecks.checkTrue(data.getBitSize() == getDataBitSize(), "Data size mismatch");
+    InvariantChecks.checkTrue(data.getBitSize() == getDataBitSize(),
+        String.format("Data size mismatch: storing %d-bit data to %d-bit location",
+            data.getBitSize(), getDataBitSize()));
 
     setData(toAddress(address), data);
   }
@@ -63,7 +65,9 @@ public abstract class Mmu<A extends Address & Data>
 
   private A toAddress(final BitVector value) {
     InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkTrue(value.getBitSize() == getAddressBitSize(), "Address size mismatch");
+    InvariantChecks.checkTrue(value.getBitSize() == getAddressBitSize(),
+        String.format("Address size mismatch: storing %d-bit address to %d-bit location",
+            value.getBitSize(), getAddressBitSize()));
 
     final A address = newAddress();
     address.getValue().assign(value);

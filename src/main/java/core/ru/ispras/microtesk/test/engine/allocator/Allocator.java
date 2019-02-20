@@ -297,8 +297,6 @@ public enum Allocator {
         final Map<ResourceOperation, Collection<T>> used,
         final Map<ResourceOperation, Integer> rate) {
       final Allocator allocator = getAllocator(exclude, used, rate);
-      System.out.println("USED: " + used);
-      System.out.println("ALLOCATOR: " + allocator.name() + ", " + rate);
       return allocator.next(retain, exclude, used, rate);
     }
 

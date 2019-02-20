@@ -55,7 +55,7 @@ public final class AllocatorEngine {
   }
 
   private final Map<String, AllocationTable<Integer>> allocationTables = new HashMap<>();
-  private final Exclusions exlusions = new Exclusions();
+  private final Exclusions exclusions = new Exclusions();
   private final Dependencies dependencies = new Dependencies();
 
   private AllocatorEngine(final AllocationSettings allocation) {
@@ -130,12 +130,12 @@ public final class AllocatorEngine {
   }
 
   public void exclude(final Primitive primitive) {
-    exlusions.setExcluded(primitive, true);
+    exclusions.setExcluded(primitive, true);
   }
 
   public void allocate(
       final List<AbstractCall> sequence,
-      final boolean markExplicitAsUsed,
+      final boolean reserveExplicit,
       final boolean reserveDependencies) {
     InvariantChecks.checkNotNull(sequence);
 
@@ -146,21 +146,33 @@ public final class AllocatorEngine {
       dependencies.init(sequence);
     }
 
-    // Phase 2: allocate the uninitialized addressing modes.
-    for (final AbstractCall call : sequence) {
-      // Mark explicitly specified addressing modes as 'used'.
-      if (markExplicitAsUsed) {
+    // Phase 2 (optional): reserve explicitly specified registers.
+    if (reserveExplicit) {
+      // It is done before allocating unspecified registers not to allocate specified ones.
+      for (final AbstractCall call : sequence) {
         if (call.isExecutable()) {
           final Primitive primitive = call.getRootOperation();
-          useFixedValues(primitive);
+          reserveExplicitValues(primitive);
         } else if (call.isPreparatorCall()) {
           final Primitive primitive = call.getPreparatorReference().getTarget();
-          useFixedValues(primitive);
+          reserveExplicitValues(primitive);
         }
       }
+    }
 
+    // Phase 3: allocate the uninitialized addressing modes.
+    for (final AbstractCall call : sequence) {
       if (call.isAllocatorAction()) {
         processAllocatorAction(call.getAllocatorAction());
+      }
+
+      // Mark explicitly specified addressing modes as being used.
+      if (call.isExecutable()) {
+        final Primitive primitive = call.getRootOperation();
+        useFixedValues(primitive);
+      } else if (call.isPreparatorCall()) {
+        final Primitive primitive = call.getPreparatorReference().getTarget();
+        useFixedValues(primitive);
       }
 
       // Get block-level allocation constraints.
@@ -189,7 +201,7 @@ public final class AllocatorEngine {
         break;
 
       case RESERVED:
-        exlusions.setExcluded(primitive, value);
+        exclusions.setExcluded(primitive, value);
         break;
 
       default:
@@ -201,7 +213,7 @@ public final class AllocatorEngine {
   private int allocate(
       final String mode,
       final ResourceOperation operation,
-      final AllocationData<Value> allocationData) {
+      final AllocationData<Integer> allocationData) {
     InvariantChecks.checkNotNull(mode);
     InvariantChecks.checkNotNull(allocationData);
 
@@ -212,33 +224,16 @@ public final class AllocatorEngine {
     final AllocationData<Integer> defaultAllocationData = allocationTable.getAllocationData();
 
     try {
-      if (null != allocationData) {
-        // Evaluate lazy values: Value to Integer.
-        final AllocationData<Integer> evaluatedData = new AllocationData<>(
-            allocationData.getAllocator() != null
-              ? allocationData.getAllocator()
-              : defaultAllocationData.getAllocator(),
-            AllocatorUtils.toIntegers(allocationData.getRetain()),
-            AllocatorUtils.toIntegers(allocationData.getExclude()),
-            allocationData.getTrack(),
-            allocationData.getReadAfterRate(),
-            allocationData.getWriteAfterRate(),
-            false);
+      allocationTable.setAllocationData(allocationData);
 
-        allocationTable.setAllocationData(evaluatedData);
-      }
-
+      // NOTE: Exclusions are applied to input and output operands.
+      // NOTE: There is a problem in applying exclusions only to outputs.
+      // NOTE: Registers allocated as inputs can be shared and used as outputs.
       final Collection<Integer> exclude;
+      exclude = new LinkedHashSet<>(exclusions.getExcludedIndexes(mode));
+      exclude.addAll(allocationData.getExclude());
 
-      // Global excludes apply only to writes.
-      if (operation == ResourceOperation.WRITE) {
-        exclude = new LinkedHashSet<>(exlusions.getExcludedIndexes(mode));
-        exclude.addAll(AllocatorUtils.toIntegers(allocationData.getExclude()));
-      } else {
-        exclude = AllocatorUtils.toIntegers(allocationData.getExclude());
-      }
-
-      final Collection<Integer> retain = AllocatorUtils.toIntegers(allocationData.getRetain());
+      final Collection<Integer> retain = allocationData.getRetain();
 
       final Map<ResourceOperation, Integer> rate = (operation == ResourceOperation.WRITE)
           ? allocationData.getWriteAfterRate()
@@ -249,7 +244,7 @@ public final class AllocatorEngine {
       throw new GenerationAbortedException(String.format(
           "Failed to allocate %s using %s. Reason: %s.",
           mode,
-          allocationTable.getAllocationData(),
+          allocationData,
           e.getMessage())
           );
     } finally {
@@ -294,20 +289,42 @@ public final class AllocatorEngine {
         // Take into account the block-level allocation constraints.
         final Situation constraint = constraints.get(modeName.toLowerCase());
 
-        final AllocationData<Value> allocationData;
+        final AllocationData<Value> blockAllocationData;
         if (unknownValue.getAllocationData().isSpecified()) {
-          allocationData = unknownValue.getAllocationData();
+          blockAllocationData = unknownValue.getAllocationData();
         } else if (constraint != null && constraint.getKind() == Situation.Kind.ALLOCATION) {
-          allocationData = (AllocationData<Value>) constraint.getAttribute("allocation");
+          blockAllocationData = (AllocationData<Value>) constraint.getAttribute("allocation");
         } else {
-          allocationData = null;
+          blockAllocationData = null;
+        }
+
+        // The default allocation data associated with the given mode.
+        final AllocationTable<Integer> allocationTable = allocationTables.get(modeName);
+        final AllocationData<Integer> defaultAllocationData = allocationTable.getAllocationData();
+
+        final AllocationData<Integer> allocationData;
+
+        if (null != blockAllocationData) {
+          // Evaluate lazy values: Value to Integer.
+          allocationData = new AllocationData<>(
+              blockAllocationData.getAllocator() != null
+                ? blockAllocationData.getAllocator()
+                : defaultAllocationData.getAllocator(),
+              AllocatorUtils.toIntegers(blockAllocationData.getRetain()),
+              AllocatorUtils.toIntegers(blockAllocationData.getExclude()),
+              blockAllocationData.getTrack(),
+              blockAllocationData.getReadAfterRate(),
+              blockAllocationData.getWriteAfterRate(),
+              false);
+        } else {
+          allocationData = defaultAllocationData;
         }
 
         final int index = allocate(modeName, operation, allocationData);
         unknownValue.setValue(BigInteger.valueOf(index));
 
         if (allocationData.isReserved()) {
-          exlusions.setExcluded(modeName, index, true);
+          exclusions.setExcluded(modeName, index, true);
         }
       }
     }
@@ -325,7 +342,7 @@ public final class AllocatorEngine {
     final int count = dependencies.getReferenceCount(primitive);
     final boolean isExclude = (count != 0);
 
-    exlusions.setExcluded(primitive, isExclude);
+    exclusions.setExcluded(primitive, isExclude);
     dependencies.release(primitive);
   }
 
@@ -365,6 +382,21 @@ public final class AllocatorEngine {
     for (final Argument argument : primitive.getArguments().values()) {
       if (AllocatorUtils.isFixedValue(argument)) {
         allocationTable.free(argument.getImmediateValue().intValue());
+      }
+    }
+  }
+
+  private void reserveExplicitValues(final Primitive primitive) {
+    for (final Argument argument : primitive.getArguments().values()) {
+      if (AllocatorUtils.isPrimitive(argument)) {
+        reserveExplicitValues((Primitive) argument.getValue());
+        continue;
+      }
+
+      if (AllocatorUtils.isFixedValue(argument)
+          && AllocatorUtils.isAddressingMode(primitive)
+          && primitive.getArguments().size() == 1) {
+        exclusions.setExcluded(primitive, true);
       }
     }
   }

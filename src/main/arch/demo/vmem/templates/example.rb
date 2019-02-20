@@ -1,5 +1,5 @@
 #
-# Copyright 2018 ISP RAS (http://www.ispras.ru)
+# Copyright 2018-2019 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,14 +23,14 @@ class ExampleTemplate < VmemBaseTemplate
   end
 
   def run
-    pageTableBase = 0xc000
+    pageTableBase = 0xc100
 
     64.times do |i|
       vpn = i
       pfn = translateVpn(vpn)
       res = i & 0x0f
 
-      entryData = (vpn << 0) | (pfn << 6) | (res << 12)
+      entryData = (vpn << 10) | (pfn << 4) | (res << 0)
       entryAddr = pageTableBase + (i << 1)
 
       prepare reg(0), entryData

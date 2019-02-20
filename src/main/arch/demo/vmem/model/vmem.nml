@@ -27,7 +27,6 @@ type INDEX = card(4)
 reg GPR[16, HWORD]
 mem MEM[2 ** 13, HWORD]
 reg PC[HWORD]
-
 //==============================================================================
 // Addressing Modes
 
@@ -77,6 +76,12 @@ op st(rs: REG, addr: REG)
     endif;
 
     MEM[addr >> 1] = rs;
+  }
+
+internal op exception()
+  action = {
+    // Go to the next instruction.
+    PC = PC + 2;
   }
 
 op command = nop | ml | mh | ld | st

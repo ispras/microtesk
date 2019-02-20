@@ -65,7 +65,7 @@ public final class GroupTemplate extends GeneratedTemplate {
   @Override
   public boolean generate() {
     templatePrinter.templateBegin();
-    templatePrinter.addString("set_default_mode_allocator FREE");
+    templatePrinter.addString("set_default_allocator FREE");
     templatePrinter.addString("");
 
     Set<TemplateOperation> branchSet = new HashSet<TemplateOperation>();
