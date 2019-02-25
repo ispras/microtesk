@@ -2,6 +2,7 @@ package ru.ispras.microtesk.translator.mir;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public interface MirTy {
@@ -40,6 +41,23 @@ class Types {
 
   public static Types singleton(final TyRef ref) {
     return new Types(Collections.singletonMap(ref.name, ref.type));
+  }
+
+  static <T> String concat(final Iterable<T> values, final String delim) {
+    final Iterator<T> it = values.iterator();
+    if (it.hasNext()) {
+      final T head = it.next();
+      if (!it.hasNext()) {
+        return head.toString();
+      }
+      final StringBuilder sb = new StringBuilder(head.toString());
+      while (it.hasNext()) {
+        sb.append(delim);
+        sb.append(it.next().toString());
+      }
+      return sb.toString();
+    }
+    return "";
   }
 }
 
@@ -122,17 +140,11 @@ class MirStruct implements MirTy {
 
   @Override
   public String getName() {
-    final Iterator<TyRef> it = fields.values().iterator();
-    final StringBuilder sb = new StringBuilder();
-    sb.append("{");
-    sb.append(it.next().name);
-    while (it.hasNext()) {
-      sb.append(", ");
-      sb.append(it.next().name);
+    final List<String> names = new java.util.ArrayList<>(fields.size());
+    for (final TyRef ref : fields.values()) {
+      names.add(ref.name);
     }
-    sb.append("}");
-
-    return sb.toString();
+    return String.format("{%s}", Types.concat(names, ", "));
   }
 }
 
@@ -153,5 +165,29 @@ class MirPointer implements MirTy {
   @Override
   public String getName() {
     return ref.name + " *";
+  }
+}
+
+class FuncTy implements MirTy {
+  private final MirTy ret;
+  private final List<MirTy> params;
+
+  public FuncTy(final MirTy ret, final List<MirTy> params) {
+    this.ret = ret;
+    this.params = params;
+  }
+
+  @Override
+  public int getSize() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getName() {
+    final List<String> names = new java.util.ArrayList<>(params.size());
+    for (final MirTy type : params) {
+      names.add(type.getName());
+    }
+    return String.format("(%s) -> %s", Types.concat(names, ", "), ret.getName());
   }
 }
