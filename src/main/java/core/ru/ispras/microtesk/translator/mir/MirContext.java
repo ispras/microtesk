@@ -30,7 +30,7 @@ final class MirBlock {
   public Local getNamedLocal(final String name) {
     for (final LocalInfo info : ctx.localInfo.values()) {
       if (name.equals(info.name)) {
-        return new Local(info.id, ctx.locals.get(info.id));
+        return new Local(info.id, ctx.locals.get(info.id - 1));
       }
     }
     return null;
@@ -53,8 +53,8 @@ final class MirBlock {
     return lhs;
   }
 
-  public Local extract(final Operand src, final Operand lo, final Operand hi) {
-    final Local ret = newLocal((MirTy) null); // FIXME
+  public Local extract(final Operand src, int size, final Operand lo, final Operand hi) {
+    final Local ret = newLocal(new IntTy(size));
     append(new Extract(ret, src, lo, hi));
     return ret;
   }

@@ -29,7 +29,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
           if (attr.getKind().equals(Attribute.Kind.ACTION)) {
             mirs.put(
               NamePath.get(item.getName(), attr.getName()),
-              NmlIrTrans.translate(attr.getStatements()));
+              NmlIrTrans.translate(item, attr.getStatements()));
           }
         }
       }

@@ -199,10 +199,11 @@ class Index extends Lvalue {
 
 class Static extends Lvalue {
   private final String name;
-  private final MirTy type = new IntTy(64); // FIXME
+  private final MirTy type;
 
-  public Static(final String name) {
+  public Static(final String name, final MirTy type) {
     this.name = name;
+    this.type = type;
   }
 
   @Override
