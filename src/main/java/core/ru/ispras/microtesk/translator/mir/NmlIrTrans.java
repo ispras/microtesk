@@ -43,8 +43,17 @@ import java.util.List;
 import java.util.Map;
 
 public final class NmlIrTrans {
-  public static MirContext translate(final List<Statement> source) {
+  public static MirContext translate(final PrimitiveAND p, final List<Statement> source) {
     final MirContext ctx = new MirContext();
+    for (final Map.Entry<String, Primitive> entry : p.getArguments().entrySet()) {
+      final Primitive param = entry.getValue();
+      if (param.getKind().equals(Primitive.Kind.IMM)) {
+        ctx.locals.add(new IntTy(param.getReturnType().getBitSize()));
+
+        final LocalInfo info = new LocalInfo(ctx.locals.size(), entry.getKey());
+        ctx.localInfo.put(info.id, info);
+      }
+    }
     translate(ctx.newBlock(), source);
 
     return ctx;
@@ -86,7 +95,8 @@ public final class NmlIrTrans {
     if (s.getLeft().isInternalVariable()) {
       return;
     }
-    final Rvalue rhs = rvalueOf(translate(ctx, s.getRight().getNode()));
+    final Operand operand = translate(ctx, s.getRight().getNode());
+    final Rvalue rhs = rvalueOf(operand);
 
     final Node node = s.getLeft().getNode();
     if (ExprUtils.isVariable(node)) {
@@ -120,7 +130,7 @@ public final class NmlIrTrans {
 
       return visitor.getResult();
     } else if (ExprUtils.isVariable(node)) {
-      return newStatic(node);
+      return translateAccess(ctx, locationOf(node), new ReadAccess(ctx));
     } else if (ExprUtils.isValue(node)) {
       return newConstant(node);
     }
@@ -135,10 +145,6 @@ public final class NmlIrTrans {
     }
     final BitVector bv = value.getBitVector();
     return new Constant(bv.getBitSize(), bv.bigIntegerValue());
-  }
-
-  private static Static newStatic(final Node node) {
-    return new Static(((NodeVariable) node).getName());
   }
 
   static BinOpcode mapOpcode(final NodeOperation node) {
@@ -177,19 +183,25 @@ public final class NmlIrTrans {
             local = translateConcat2(node);
             break;
 
-          case BVSIGNEXT:
-            local = ctx.assignLocal(new Sext(64 /*FIXME*/, rvalueOf(lookUp(node.getOperand(1)))));
+          case BVSIGNEXT: {
+            final Rvalue source = rvalueOf(lookUp(node.getOperand(1)));
+            final int diff = ((NodeValue) node.getOperand(0)).getInteger().intValue();
+            local = ctx.assignLocal(new Sext(source.getType().getSize() + diff, source));
             break;
+          }
 
-          case BVZEROEXT:
-            local = ctx.assignLocal(new Zext(64 /*FIXME*/, rvalueOf(lookUp(node.getOperand(1)))));
+          case BVZEROEXT: {
+            final Rvalue source = rvalueOf(lookUp(node.getOperand(1)));
+            final int diff = ((NodeValue) node.getOperand(0)).getInteger().intValue();
+            local = ctx.assignLocal(new Zext(source.getType().getSize() + diff, source));
             break;
+          }
 
           case BVEXTRACT:
-            final Operand hi = lookUp(node.getOperand(0));
-            final Operand lo = lookUp(node.getOperand(1));
+            final Node hiNode = node.getOperand(0);
+            final Node loNode = node.getOperand(1);
             final Operand value = lookUp(node.getOperand(2));
-            local = ctx.extract(value, lo, hi);
+            local = ctx.extract(value, evaluateBitSize(loNode, hiNode), lookUp(loNode), lookUp(hiNode));
             break;
           }
         } else {
@@ -199,6 +211,22 @@ public final class NmlIrTrans {
 
         result = local;
       }
+    }
+
+    private static int evaluateBitSize(final Node loNode, final Node hiNode) {
+      final Expr lo = new Expr(loNode);
+      final Expr hi = new Expr(hiNode);
+
+      if (lo.isConstant() && hi.isConstant()) {
+        return Math.abs(hi.integerValue() - lo.integerValue()) + 1;
+      }
+      final Expr.Reduced reducedLo = lo.reduce();
+      final Expr.Reduced reducedHi = hi.reduce();
+
+      if (reducedHi.polynomial.equals(reducedLo.polynomial)) {
+        return Math.abs(reducedHi.constant - reducedLo.constant) + 1;
+      }
+      throw new IllegalArgumentException();
     }
 
     private Operand translateMapping(final NodeOperation node) {
@@ -332,11 +360,20 @@ public final class NmlIrTrans {
       }
     } else if (source instanceof LocationSourceMemory) {
       final MemoryExpr mem = sourceToMemory(source);
-      final Lvalue ref = new Static(mem.getName());
+      final Lvalue ref = new Static(mem.getName(), typeOf(mem));
       return client.accessMemory(ref, access);
     } else {
       throw new UnsupportedOperationException();
     }
+  }
+
+  private static MirTy typeOf(final MemoryExpr mem) {
+    final MirTy type = new IntTy(mem.getType().getBitSize());
+    final BigInteger length = mem.getSize();
+    if (length.compareTo(BigInteger.ONE) > 0) {
+      return new MirArray(length.intValue(), new TyRef(type));
+    }
+    return type;
   }
 
   private static MemoryExpr sourceToMemory(final LocationSource source) {
@@ -363,7 +400,7 @@ public final class NmlIrTrans {
 
     protected Lvalue extract(final Lvalue src, final Access access) {
       if (access.lo != null) {
-        return ctx.extract(src, access.lo, access.hi);
+        return ctx.extract(src, access.size, access.lo, access.hi);
       }
       return src;
     }
@@ -473,7 +510,7 @@ public final class NmlIrTrans {
 
     private void write(final Lvalue target, final Access access) {
       if (access.lo != null) {
-        final Rvalue zext = new Zext(64, value); // FIXME
+        final Rvalue zext = new Zext(target.getType().getSize(), value);
         final Rvalue rhs = BvOpcode.Shl.make(ctx.assignLocal(zext), access.lo);
 
         final Operand mask = createMask(target, access);
@@ -488,9 +525,15 @@ public final class NmlIrTrans {
     }
 
     private Operand createMask(final Lvalue source, final Access access) {
-      // final Constant ones = valueOf(-1, 1024);
-      // final Rvalue not = Opcode.BitXor.make();
-      return null;
+      final int nbits = source.getType().getSize();
+      final Constant ones = new Constant(nbits, -1);
+      final BigInteger maskBase =
+        BigInteger.valueOf(2).pow(access.size).subtract(BigInteger.ONE);
+      final Rvalue nmask =
+        BvOpcode.Shl.make(new Constant(nbits, maskBase), access.lo);
+      final Rvalue mask = BvOpcode.Xor.make(ctx.assignLocal(nmask), ones);
+
+      return ctx.assignLocal(mask);
     }
   }
 
@@ -518,7 +561,9 @@ public final class NmlIrTrans {
   }
 
   private static Rvalue rvalueOf(final Operand op) {
-    return BvOpcode.Add.make(op, new Constant(64 /*FIXME*/, 0));
+    final MirTy type = op.getType();
+    final int size = type.getSize();
+    return BvOpcode.Add.make(op, new Constant(op.getType().getSize(), 0));
   }
 
   private static final Map<Enum<?>, BinOpcode> OPCODE_MAPPING =
