@@ -1,7 +1,5 @@
 package ru.ispras.microtesk.translator.mir;
 
-import ru.ispras.fortress.data.Data;
-import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.util.Pair;
 
 import java.util.ArrayList;
@@ -18,8 +16,8 @@ final class MirBlock {
     this.bb = bb;
   }
 
-  public Local newLocal(final DataType type) {
-    return newLocal(new IntTy(64)); // FIXME
+  public Local newLocal(final int size) {
+    return newLocal(new IntTy(size));
   }
 
   public Local newLocal(final MirTy type) {
