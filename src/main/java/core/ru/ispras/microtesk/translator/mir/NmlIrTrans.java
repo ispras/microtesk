@@ -9,9 +9,7 @@ import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.Logger;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
@@ -20,9 +18,6 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationSource;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
-import ru.ispras.microtesk.translator.nml.ir.expr.TypeCast;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
-import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
@@ -232,9 +227,10 @@ public final class NmlIrTrans {
     private Operand translateMapping(final NodeOperation node) {
       final BinOpcode opc = mapOpcode(node);
       final Iterator<Node> it = node.getOperands().iterator();
-      final DataType type = node.getDataType();
 
       Operand op1 = lookUp(it.next());
+      final MirTy type = opc.typeOf(op1, null);
+
       if (!it.hasNext()) {
         final Local lhs = ctx.newLocal(type);
         final Rvalue rhs = opc.make(op1, null);
@@ -255,9 +251,10 @@ public final class NmlIrTrans {
     private Rvalue translateMapping2(final NodeOperation node) {
       final BinOpcode opc = mapOpcode(node);
       final Iterator<Node> it = node.getOperands().iterator();
-      final DataType type = node.getDataType();
 
       Operand op1 = lookUp(it.next());
+      final MirTy type = opc.typeOf(op1, null);
+
       if (!it.hasNext()) {
         return opc.make(op1, null);
       }
@@ -275,7 +272,7 @@ public final class NmlIrTrans {
     }
 
     private Operand translateConcat2(final NodeOperation node) {
-      final Local lhs = ctx.newLocal(node.getDataType());
+      final Local lhs = ctx.newLocal(node.getDataType().getSize());
       final List<Operand> rhs = new ArrayList<>();
       for (final Node operand : node.getOperands()) {
         rhs.add(lookUp(operand));
@@ -449,8 +446,7 @@ public final class NmlIrTrans {
 
     @Override
     public Lvalue accessMode(final Local source, final Access access, final Primitive p) {
-      final DataType type = TypeCast.getFortressDataType(p.getReturnType());
-      final Local value = ctx.newLocal(type);
+      final Local value = ctx.newLocal(p.getReturnType().getBitSize());
       ctx.append(new Call(source, Collections.<Operand>emptyList(), value));
 
       return accessLocal(value, access);
@@ -483,8 +479,7 @@ public final class NmlIrTrans {
 
     @Override
     public Lvalue accessMode(final Local target, final Access access, final Primitive p) {
-      final DataType type = TypeCast.getFortressDataType(p.getReturnType());
-      final Local value = ctx.newLocal(type);
+      final Local value = ctx.newLocal(p.getReturnType().getBitSize());
       accessLocal(value, access);
 
       final Call call =
