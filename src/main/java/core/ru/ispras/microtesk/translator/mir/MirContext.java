@@ -67,7 +67,7 @@ final class MirBlock {
   }
 
   public void jump(final MirBlock block) {
-    append(new Terminator(block.bb));
+    append(new Branch(block.bb));
   }
 
   public <T extends Instruction> T append(final T insn) {
