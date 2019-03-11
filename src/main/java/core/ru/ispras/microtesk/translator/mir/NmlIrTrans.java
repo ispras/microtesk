@@ -55,7 +55,10 @@ public final class NmlIrTrans {
         ctx.localInfo.put(info.id, info);
       }
     }
-    translate(ctx.newBlock(), source);
+    final List<MirBlock> terminals = translate(ctx.newBlock(), source);
+    for (final MirBlock bb : terminals) {
+      bb.append(new Return(null));
+    }
 
     return ctx;
   }
