@@ -47,6 +47,12 @@ public final class NmlIrTrans {
 
         final LocalInfo info = new LocalInfo(ctx.locals.size(), entry.getKey());
         ctx.localInfo.put(info.id, info);
+      } else if (param.getKind().equals(Primitive.Kind.MODE)) {
+        final MirTy retty = new IntTy(param.getReturnType().getBitSize());
+        ctx.locals.add(new FuncTy(retty, Collections.<MirTy>emptyList()));
+
+        final LocalInfo info = new LocalInfo(ctx.locals.size(), entry.getKey());
+        ctx.localInfo.put(info.id, info);
       }
     }
     translate(ctx.newBlock(), source);
