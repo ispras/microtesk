@@ -188,16 +188,22 @@ public final class NmlIrTrans {
             break;
 
           case BVSIGNEXT: {
-            final Rvalue source = rvalueOf(lookUp(node.getOperand(1)));
             final int diff = ((NodeValue) node.getOperand(0)).getInteger().intValue();
-            local = ctx.assignLocal(new Sext(source.getType().getSize() + diff, source));
+            final Operand rhs = lookUp(node.getOperand(1));
+            final Lvalue lhs = ctx.newLocal(rhs.getType().getSize() + diff);
+            ctx.append(new Sext(lhs, rhs));
+
+            local = lhs;
             break;
           }
 
           case BVZEROEXT: {
-            final Rvalue source = rvalueOf(lookUp(node.getOperand(1)));
             final int diff = ((NodeValue) node.getOperand(0)).getInteger().intValue();
-            local = ctx.assignLocal(new Zext(source.getType().getSize() + diff, source));
+            final Operand rhs = lookUp(node.getOperand(1));
+            final Lvalue lhs = ctx.newLocal(rhs.getType().getSize() + diff);
+            ctx.append(new Zext(lhs, rhs));
+
+            local = lhs;
             break;
           }
 
@@ -302,11 +308,11 @@ public final class NmlIrTrans {
         final Rvalue shift =
           BvOpcode.Shl.make(expr, valueOf(sizeOf(op), sizeOf(type)));
 
-        final Rvalue arg = rvalueOf(lookUp(op));
-        final Rvalue zext = new Zext(type.getSize(), arg);
+        final Local zext = ctx.newLocal(type.getSize());
+        ctx.append(new Zext(zext, lookUp(op)));
 
         final Rvalue bitor =
-          BvOpcode.Or.make(ctx.assignLocal(shift), ctx.assignLocal(zext));
+          BvOpcode.Or.make(ctx.assignLocal(shift), zext);
 
         expr = ctx.assignLocal(bitor);
       }
@@ -514,8 +520,10 @@ public final class NmlIrTrans {
 
     private void write(final Lvalue target, final Access access) {
       if (access.lo != null) {
-        final Rvalue zext = new Zext(target.getType().getSize(), value);
-        final Rvalue rhs = BvOpcode.Shl.make(ctx.assignLocal(zext), access.lo);
+        final Local zext = ctx.newLocal(target.getType());
+        ctx.append(new Zext(zext, ctx.assignLocal(value)));
+
+        final Rvalue rhs = BvOpcode.Shl.make(zext, access.lo);
 
         final Operand mask = createMask(target, access);
         final Rvalue clear = BvOpcode.And.make(target, mask);

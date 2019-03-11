@@ -1,22 +1,20 @@
 package ru.ispras.microtesk.translator.mir;
 
-import ru.ispras.fortress.data.Data;
-import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.expression.NodeValue;
-
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public interface Instruction {}
+public interface Instruction {
+  void accept(InsnVisitor visitor);
+}
 
 final class Assignment implements Instruction {
-  private final Lvalue lhs;
-  private final BinOpcode opc;
-  private final Operand op1;
-  private final Operand op2;
+  public final Lvalue lhs;
+  public final BinOpcode opc;
+  public final Operand op1;
+  public final Operand op2;
 
   public Assignment(final Lvalue lhs, final Rvalue rhs) {
     this.lhs = lhs;
@@ -24,13 +22,18 @@ final class Assignment implements Instruction {
     this.op1 = rhs.op1;
     this.op2 = rhs.op2;
   }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
+  }
 }
 
 class Extract implements Instruction {
-  private final Lvalue lhs;
-  private final Operand rhs;
-  private final Operand lo;
-  private final Operand hi;
+  public final Lvalue lhs;
+  public final Operand rhs;
+  public final Operand lo;
+  public final Operand hi;
 
   public Extract(final Lvalue lhs, final Operand rhs, final Operand lo, final Operand hi) {
     this.lhs = lhs;
@@ -38,15 +41,25 @@ class Extract implements Instruction {
     this.lo = lo;
     this.hi = hi;
   }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
+  }
 }
 
 class Concat implements Instruction {
-  private final Lvalue lhs;
-  private final List<Operand> rhs;
+  public final Lvalue lhs;
+  public final List<Operand> rhs;
 
   public Concat(final Lvalue lhs, final List<Operand> rhs) {
     this.lhs = lhs;
     this.rhs = rhs;
+  }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
   }
 }
 
@@ -60,6 +73,11 @@ final class Call implements Instruction {
     this.args = args;
     this.ret = ret;
   }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
+  }
 }
 
 final class Load implements Instruction {
@@ -69,6 +87,11 @@ final class Load implements Instruction {
   public Load(final Lvalue source, final Local target) {
     this.source = source;
     this.target = target;
+  }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
   }
 }
 
@@ -80,22 +103,25 @@ final class Store implements Instruction {
     this.target = target;
     this.source = source;
   }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
+  }
 }
 
-class Terminator implements Instruction {
+abstract class Terminator implements Instruction {
   public final List<BasicBlock> successors;
 
   protected Terminator() {
     this.successors = Collections.emptyList();
   }
 
-  protected Terminator(final BasicBlock bb) {
-    this.successors = Collections.singletonList(bb);
-  }
-
   protected Terminator(final List<BasicBlock> successors) {
     this.successors = successors;
   }
+
+  public abstract void accept(InsnVisitor visitor);
 }
 
 class Invoke extends Terminator {
@@ -104,20 +130,35 @@ class Invoke extends Terminator {
   public Invoke(final Call call) {
     this.call = call;
   }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
+  }
 }
 
 final class Branch extends Terminator {
-  private final Map<Integer, BasicBlock> target;
-  private final BasicBlock other;
+  public final Operand guard;
+  public final Map<Integer, BasicBlock> target;
+  public final BasicBlock other;
 
-  public Branch(final Operand cond, final BasicBlock bbTaken, final BasicBlock bbOther) {
+  public Branch(final BasicBlock next) {
+    super(Collections.singletonList(next));
+    this.guard = new Constant(1, BigInteger.ONE);
+    this.target = Collections.emptyMap();
+    this.other = next;
+  }
+
+  public Branch(final Operand guard, final BasicBlock bbTaken, final BasicBlock bbOther) {
     super(Arrays.asList(bbTaken, bbOther));
+    this.guard = guard;
     this.target = Collections.singletonMap(1, bbTaken);
     this.other = bbOther;
   }
 
-  public BasicBlock getPathTaken() {
-    return successors.get(successors.size() - 1);
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
   }
 }
 
@@ -127,6 +168,11 @@ final class Return extends Terminator {
   public Return(final Lvalue value) {
     this.value = value;
   }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
+  }
 }
 
 final class Exception extends Terminator {
@@ -134,6 +180,11 @@ final class Exception extends Terminator {
 
   public Exception(final String message) {
     this.message = message;
+  }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
   }
 }
 
@@ -159,6 +210,11 @@ class Local extends Lvalue {
   public MirTy getType() {
     return type;
   }
+
+  @Override
+  public String toString() {
+    return String.format("%%%d", id);
+  }
 }
 
 class Field extends Lvalue {
@@ -176,6 +232,11 @@ class Field extends Lvalue {
     final TyRef tref = type.fields.get(name);
 
     return tref.type;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%s.%s", base.toString(), name);
   }
 }
 
@@ -195,6 +256,11 @@ class Index extends Lvalue {
 
     return tref.type;
   }
+
+  @Override
+  public String toString() {
+    return String.format("%s[%s]", base.toString(), index.toString());
+  }
 }
 
 class Static extends Lvalue {
@@ -209,6 +275,11 @@ class Static extends Lvalue {
   @Override
   public MirTy getType() {
     return type;
+  }
+
+  @Override
+  public String toString() {
+    return name;
   }
 }
 
@@ -228,21 +299,33 @@ class Rvalue {
   }
 }
 
-class Sext extends Rvalue {
-  public final int bits;
+class Sext implements Instruction {
+  public final Lvalue lhs;
+  public final Operand rhs;
 
-  Sext(final int bits, final Rvalue rv) {
-    super(rv.opc, rv.op1, rv.op2);
-    this.bits = bits;
+  Sext(final Lvalue lhs, final Operand rhs) {
+    this.lhs = lhs;
+    this.rhs = rhs;
+  }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
   }
 }
 
-class Zext extends Rvalue {
-  public final int bits;
+class Zext implements Instruction {
+  public final Lvalue lhs;
+  public final Operand rhs;
 
-  Zext(final int bits, final Rvalue rv) {
-    super(rv.opc, rv.op1, rv.op2);
-    this.bits = bits;
+  Zext(final Lvalue lhs, final Operand rhs) {
+    this.lhs = lhs;
+    this.rhs = rhs;
+  }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
   }
 }
 
@@ -266,6 +349,11 @@ class Constant implements Operand {
   @Override
   public MirTy getType() {
     return new IntTy(bits);
+  }
+
+  @Override
+  public String toString() {
+    return value.toString();
   }
 }
 
