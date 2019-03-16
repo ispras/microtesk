@@ -195,6 +195,7 @@ interface Operand {
 abstract class Lvalue implements Operand {
   @Override
   abstract public MirTy getType();
+  abstract public MirTy getContainerType();
 }
 
 class Local extends Lvalue {
@@ -209,6 +210,11 @@ class Local extends Lvalue {
   @Override
   public MirTy getType() {
     return type;
+  }
+
+  @Override
+  public MirTy getContainerType() {
+    return getType();
   }
 
   @Override
@@ -235,6 +241,11 @@ class Field extends Lvalue {
   }
 
   @Override
+  public MirTy getContainerType() {
+    return base.getContainerType();
+  }
+
+  @Override
   public String toString() {
     return String.format("%s.%s", base.toString(), name);
   }
@@ -258,6 +269,11 @@ class Index extends Lvalue {
   }
 
   @Override
+  public MirTy getContainerType() {
+    return base.getContainerType();
+  }
+
+  @Override
   public String toString() {
     return String.format("%s[%s]", base.toString(), index.toString());
   }
@@ -275,6 +291,11 @@ class Static extends Lvalue {
   @Override
   public MirTy getType() {
     return type;
+  }
+
+  @Override
+  public MirTy getContainerType() {
+    return getType();
   }
 
   @Override
