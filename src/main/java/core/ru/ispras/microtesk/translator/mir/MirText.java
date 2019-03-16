@@ -151,16 +151,17 @@ public class MirText {
       lines.add(String.format("%s = load %s, %s %s",
         insn.target,
         insn.target.getType().getName(),
-        insn.source.getType().getName(),
+        insn.source.getContainerType().getName(),
         insn.source));
     }
 
     @Override
     public void visit(final Store insn) {
+
       lines.add(String.format("store %s %s, %s %s",
         insn.source.getType().getName(),
         insn.source,
-        insn.target.getType().getName(),
+        insn.target.getContainerType().getName(),
         insn.target));
     }
   }
