@@ -4,10 +4,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public interface MirTy {
   int getSize();
   String getName();
+  MirTy typeOf(String s);
 }
 
 class TyRef {
@@ -29,6 +32,27 @@ class TyRef {
 }
 
 class Types {
+  public static final MirTy BIT = new IntTy(1);
+  public static final MirTy VOID = new MirTy() {
+    @Override
+    public int getSize() {
+      return 0;
+    }
+
+    @Override
+    public String getName() {
+      return "void";
+    }
+
+    @Override
+    public MirTy typeOf(final String s) {
+      if (s.equals(this.getName())) {
+        return this;
+      }
+      return null;
+    }
+  };
+
   private final Map<String, MirTy> types;
 
   Types() {
@@ -41,6 +65,17 @@ class Types {
 
   public static Types singleton(final TyRef ref) {
     return new Types(Collections.singletonMap(ref.name, ref.type));
+  }
+
+  public static MirTy valueOf(final String s) {
+    final List<MirTy> samples =
+        java.util.Arrays.asList(BIT, VOID, FpTy.F32, new MirArray(1, new TyRef(BIT)));
+    for (final MirTy sample : samples) {
+      for (final MirTy ty = sample.typeOf(s); ty != null;) {
+        return ty;
+      }
+    }
+    throw new IllegalArgumentException();
   }
 
   static <T> String concat(final Iterable<T> values, final String delim) {
@@ -77,6 +112,14 @@ class IntTy implements MirTy {
   public String getName() {
     return String.format("i%d", size);
   }
+
+  @Override
+  public IntTy typeOf(final String s) {
+    if (s.startsWith("i")) {
+      return new IntTy(Integer.valueOf(s.substring(1)));
+    }
+    return null;
+  }
 }
 
 enum FpTy implements MirTy {
@@ -93,6 +136,16 @@ enum FpTy implements MirTy {
   @Override
   public String getName() {
     return String.format("f%d", size);
+  }
+
+  @Override
+  public MirTy typeOf(final String s) {
+    for (final FpTy ty : FpTy.values()) {
+      if (ty.getName().equals(s)) {
+        return ty;
+      }
+    }
+    return null;
   }
 
   private FpTy(final int size) {
@@ -118,7 +171,21 @@ class MirArray implements MirTy {
 
   @Override
   public String getName() {
-    return String.format("[%d, %s]", size, ref.name);
+    return String.format("[%dx%s]", size, ref.name);
+  }
+
+  @Override
+  public MirTy typeOf(final String s) {
+    final Pattern p = Pattern.compile("\\[(\\d+)x(\\w+)\\]");
+    final Matcher m = p.matcher(s);
+
+    while (m.find()) {
+      final int size = Integer.valueOf(m.group(1));
+      final MirTy ty = Types.valueOf(m.group(2));
+
+      return new MirArray(size, new TyRef(ty));
+    }
+    return null;
   }
 }
 
@@ -146,6 +213,11 @@ class MirStruct implements MirTy {
     }
     return String.format("{%s}", Types.concat(names, ", "));
   }
+
+  @Override
+  public MirTy typeOf(final String s) {
+    return null;
+  }
 }
 
 class MirPointer implements MirTy {
@@ -165,6 +237,11 @@ class MirPointer implements MirTy {
   @Override
   public String getName() {
     return ref.name + " *";
+  }
+
+  @Override
+  public MirTy typeOf(final String s) {
+    return null;
   }
 }
 
@@ -189,5 +266,10 @@ class FuncTy implements MirTy {
       names.add(type.getName());
     }
     return String.format("(%s) -> %s", Types.concat(names, ", "), ret.getName());
+  }
+
+  @Override
+  public MirTy typeOf(final String s) {
+    return null;
   }
 }
