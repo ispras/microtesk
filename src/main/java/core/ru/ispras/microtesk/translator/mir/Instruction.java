@@ -163,9 +163,9 @@ final class Branch extends Terminator {
 }
 
 final class Return extends Terminator {
-  public final Lvalue value;
+  public final Operand value;
 
-  public Return(final Lvalue value) {
+  public Return(final Operand value) {
     this.value = value;
   }
 
