@@ -52,8 +52,8 @@ public class MirText {
 
     @Override
     public void visit(final Assignment insn) {
-      lines.add(String.format("%s = %s %s %s, %s",
-        insn.lhs, insn.opc.typeOf(insn.op1, insn.op2).getName(), insn.opc, insn.op1, insn.op2));
+      lines.add(String.format("%s = %s %s %s %s, %s",
+        insn.lhs, insn.opc.typeOf(insn.op1, insn.op2).getName(), insn.opc, insn.op1.getType().getName(), insn.op1, insn.op2));
     }
 
     @Override
