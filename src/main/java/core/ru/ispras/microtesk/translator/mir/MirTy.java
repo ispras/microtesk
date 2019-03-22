@@ -171,7 +171,7 @@ class MirArray implements MirTy {
 
   @Override
   public String getName() {
-    return String.format("[%dx%s]", size, ref.name);
+    return String.format("[%d, %s]", size, ref.name);
   }
 
   @Override
