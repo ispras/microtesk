@@ -253,9 +253,9 @@ class Field extends Lvalue {
 
 class Index extends Lvalue {
   private final Lvalue base;
-  private final Local index;
+  private final Operand index;
 
-  public Index(final Lvalue base, final Local index) {
+  public Index(final Lvalue base, final Operand index) {
     this.base = base;
     this.index = index;
   }
