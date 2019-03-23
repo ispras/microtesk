@@ -257,8 +257,8 @@ class MirPointer implements MirTy {
 }
 
 class FuncTy implements MirTy {
-  private final MirTy ret;
-  private final List<MirTy> params;
+  public final MirTy ret;
+  public final List<MirTy> params;
 
   public FuncTy(final MirTy ret, final List<MirTy> params) {
     this.ret = ret;
