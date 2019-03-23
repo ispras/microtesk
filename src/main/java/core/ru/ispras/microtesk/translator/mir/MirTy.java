@@ -31,27 +31,38 @@ class TyRef {
   }
 }
 
+final class VoidTy implements MirTy, Operand {
+  public static final VoidTy VALUE = new VoidTy();
+
+  @Override
+  public MirTy getType() {
+    return this;
+  }
+
+  @Override
+  public int getSize() {
+    return 0;
+  }
+
+  @Override
+  public String getName() {
+    return "void";
+  }
+
+  @Override
+  public MirTy typeOf(final String s) {
+    if (s.equals(this.getName())) {
+      return this;
+    }
+    return null;
+  }
+
+  private VoidTy() {}
+}
+
 class Types {
   public static final MirTy BIT = new IntTy(1);
-  public static final MirTy VOID = new MirTy() {
-    @Override
-    public int getSize() {
-      return 0;
-    }
-
-    @Override
-    public String getName() {
-      return "void";
-    }
-
-    @Override
-    public MirTy typeOf(final String s) {
-      if (s.equals(this.getName())) {
-        return this;
-      }
-      return null;
-    }
-  };
+  public static final MirTy VOID = VoidTy.VALUE;
 
   private final Map<String, MirTy> types;
 
