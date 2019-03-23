@@ -379,14 +379,27 @@ class Constant implements Operand {
 }
 
 class Closure implements Operand {
-  // TODO
-  // signature
-  // environment
-  // Mir
+  public final String callee;
+  public final FuncTy prototype;
+  public final FuncTy type;
+  public final List<Operand> args;
+
+  public Closure(final String callee, final FuncTy prototype, final List<Operand> args) {
+    final List<MirTy> types = new java.util.ArrayList<>();
+    for (int i = 0; i < prototype.params.size(); ++i) {
+      if (args.get(i) == VoidTy.VALUE) {
+        types.add(prototype.params.get(i));
+      }
+    }
+    this.callee = callee;
+    this.prototype = prototype;
+    this.type = new FuncTy(prototype.ret, types);
+    this.args = args;
+  }
 
   @Override
   public MirTy getType() {
-    return new IntTy(64);
+    return type;
   }
 }
 
