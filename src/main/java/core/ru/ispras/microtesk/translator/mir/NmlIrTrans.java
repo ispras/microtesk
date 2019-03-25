@@ -113,9 +113,12 @@ public final class NmlIrTrans {
       return;
     }
     final Operand operand = translate(ctx, s.getRight().getNode());
+    translateAssignment(ctx, s.getLeft().getNode(), operand);
+  }
+
+  private void translateAssignment(final MirBlock ctx, final Node node, final Operand operand) {
     final Rvalue rhs = rvalueOf(operand);
 
-    final Node node = s.getLeft().getNode();
     if (ExprUtils.isVariable(node)) {
       translateAccess(ctx, locationOf(node), new WriteAccess(ctx, rhs));
     } else if (ExprUtils.isOperation(node)) {
