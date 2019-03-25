@@ -22,7 +22,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 
-final class ExprReducer {
+public final class ExprReducer {
   /**
    * Class for holding a reduced expression that is represented by the formula:
    * constant + polynomial, where constant is a constant integer value and
