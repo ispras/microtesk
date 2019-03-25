@@ -27,42 +27,34 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
   @Override
   public void processIr(final Ir ir) {
     final Map<NamePath, MirContext> mirs = loadMir(ir);
-    final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
-    try (final ArchiveWriter archive = new ArchiveWriter(path)) {
-      for (final Primitive p : ir.getOps().values()) {
-        if (!p.isOrRule()) {
-          final PrimitiveAnd item = (PrimitiveAnd) p;
-          for (final Attribute attr : item.getAttributes().values()) {
-            if (attr.getKind().equals(Attribute.Kind.ACTION)) {
-              final MirContext mir =
-                  NmlIrTrans.translate(item, attr.getName(), attr.getStatements());
-              final NamePath name = NamePath.get(item.getName(), attr.getName());
-              mirs.put(name, mir);
-
-              try (final Writer writer = archive.newText(name.resolve("mir").toString())) {
-                final MirText text = new MirText(mir);
-                writer.write(text.toString());
-              }
-            }
+    for (final Primitive p : ir.getOps().values()) {
+      if (!p.isOrRule()) {
+        final PrimitiveAnd item = (PrimitiveAnd) p;
+        for (final Attribute attr : item.getAttributes().values()) {
+          if (attr.getKind().equals(Attribute.Kind.ACTION)) {
+            final MirContext mir =
+                NmlIrTrans.translate(item, attr.getName(), attr.getStatements());
+            final NamePath name = NamePath.get(item.getName(), attr.getName());
+            mirs.put(name, mir);
           }
         }
       }
-      for (final Primitive p : ir.getModes().values()) {
-        if (!p.isOrRule() && p.getReturnType() != null) {
-          final PrimitiveAnd item = (PrimitiveAnd) p;
-          final NmlIrTrans.ModeAccess access = NmlIrTrans.translateMode(item);
-          final NamePath name = NamePath.get(item.getName());
-
-          try (final Writer writer =
-              archive.newText(NamePath.get(name, "read", "mir").toString())) {
-            final MirText text = new MirText(access.read);
-            writer.write(text.toString());
-          }
-          try (final Writer writer =
-              archive.newText(NamePath.get(name, "write", "mir").toString())) {
-            final MirText text = new MirText(access.write);
-            writer.write(text.toString());
-          }
+    }
+    for (final Primitive p : ir.getModes().values()) {
+      if (!p.isOrRule() && p.getReturnType() != null) {
+        final PrimitiveAnd item = (PrimitiveAnd) p;
+        final NmlIrTrans.ModeAccess access = NmlIrTrans.translateMode(item);
+        final NamePath name = NamePath.get(item.getName());
+        mirs.put(name.resolve("read"), access.read);
+        mirs.put(name.resolve("write"), access.write);
+      }
+    }
+    final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
+    try (final ArchiveWriter archive = new ArchiveWriter(path)) {
+      for (final MirContext ctx : mirs.values()) {
+        try (final Writer writer = archive.newText(ctx.name + ".mir")) {
+          final MirText text = new MirText(ctx);
+          writer.write(text.toString());
         }
       }
     } catch (final IOException e) {
