@@ -1,5 +1,6 @@
 package ru.ispras.microtesk.translator.mir;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -53,22 +54,19 @@ public class MirText {
     @Override
     public void visit(final Assignment insn) {
       lines.add(String.format("%s = %s %s %s %s, %s",
-        insn.lhs, insn.opc.typeOf(insn.op1, insn.op2).getName(), insn.opc, insn.op1.getType().getName(), insn.op1, insn.op2));
+        insn.lhs,
+        insn.opc.typeOf(insn.op1, insn.op2).getName(),
+        insn.opc,
+        insn.op1.getType().getName(),
+        insn.op1,
+        insn.op2));
     }
 
     @Override
     public void visit(final Concat insn) {
-      final StringBuilder sb = new StringBuilder();
-      final Iterator<Operand> it = insn.rhs.iterator();
-
-      Operand op = it.next();
-      sb.append(String.format("%s %s", op.getType().getName(), op));
-      while (it.hasNext()) {
-        op = it.next();
-        sb.append(String.format(", %s %s", op.getType().getName(), op));
-      }
+      final String args = concatOperands(insn.rhs);
       lines.add(String.format("%s = Concat %s %s",
-        insn.lhs, insn.lhs.getType().getName(), sb.toString()));
+        insn.lhs, insn.lhs.getType().getName(), args));
     }
 
     @Override
@@ -123,22 +121,13 @@ public class MirText {
 
     @Override
     public void visit(final Call insn) {
-      final StringBuilder sb = new StringBuilder();
-      final Iterator<Operand> it = insn.args.iterator();
-      if (it.hasNext()) {
-        Operand op = it.next();
-        sb.append(String.format("%s %s", op.getType().getName(), op));
-        while (it.hasNext()) {
-          op = it.next();
-          sb.append(", ").append(String.format("%s %s", op.getType().getName(), op));
-        }
-      }
+      final String args = concatOperands(insn.args);
       if (insn.ret == null) {
         lines.add(String.format("call void %s (%s)",
-          insn.callee, sb.toString()));
+          insn.callee, args));
       } else {
         lines.add(String.format("%s = call %s %s (%s)",
-          insn.ret, insn.ret.getType().getName(), insn.callee, sb.toString()));
+          insn.ret, insn.ret.getType().getName(), insn.callee, args));
       }
     }
 
@@ -163,6 +152,26 @@ public class MirText {
         insn.source,
         insn.target.getContainerType().getName(),
         insn.target));
+    }
+
+    @Override
+    public void visit(final ExtractValue insn) {
+      lines.add(String.format("%s = ExtractValue %s of %s %s",
+        insn.target, insn.target.getType().getName(), insn.source, concatOperands(insn.indices)));
+    }
+
+    private static String concatOperands(final Collection<? extends Operand> operands) {
+      final StringBuilder sb = new StringBuilder();
+      final Iterator<? extends Operand> it = operands.iterator();
+      if (it.hasNext()) {
+        Operand op = it.next();
+        sb.append(String.format("%s %s", op.getType().getName(), op));
+        while (it.hasNext()) {
+          op = it.next();
+          sb.append(", ").append(String.format("%s %s", op.getType().getName(), op));
+        }
+      }
+      return sb.toString();
     }
   }
 }

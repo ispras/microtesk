@@ -110,6 +110,23 @@ final class Store implements Instruction {
   }
 }
 
+final class ExtractValue implements Instruction {
+  public final Local target;
+  public final Local source;
+  public final List<Constant> indices;
+
+  public ExtractValue(final Local target, final Local source, final List<Constant> indices) {
+    this.target = target;
+    this.source = source;
+    this.indices = indices;
+  }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
+  }
+}
+
 abstract class Terminator implements Instruction {
   public final List<BasicBlock> successors;
 
