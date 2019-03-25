@@ -46,6 +46,24 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
           }
         }
       }
+      for (final Primitive p : ir.getModes().values()) {
+        if (!p.isOrRule() && p.getReturnType() != null) {
+          final PrimitiveAnd item = (PrimitiveAnd) p;
+          final NmlIrTrans.ModeAccess access = NmlIrTrans.translateMode(item);
+          final NamePath name = NamePath.get(item.getName());
+
+          try (final Writer writer =
+              archive.newText(NamePath.get(name, "read", "mir").toString())) {
+            final MirText text = new MirText(access.read);
+            writer.write(text.toString());
+          }
+          try (final Writer writer =
+              archive.newText(NamePath.get(name, "write", "mir").toString())) {
+            final MirText text = new MirText(access.write);
+            writer.write(text.toString());
+          }
+        }
+      }
     } catch (final IOException e) {
       Logger.error("Failed to store MIR '%s': %s", path.toString(), e.toString());
     }
