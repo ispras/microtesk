@@ -30,10 +30,10 @@ public class MirParser {
   }
 
   public MirContext parse() {
-    final MirContext ctx = new MirContext();
-    final Map<String, MirBlock> blocks = new java.util.HashMap<>();
+    final MirContext ctx = Parser2.nextContext(newScanner(lines.get(0)));
 
-    for (final String line : lines) {
+    final Map<String, MirBlock> blocks = new java.util.HashMap<>();
+    for (final String line : lines.subList(1, lines.size())) {
       if (line.matches("\\w+:")) {
         final String name = line.substring(0, line.indexOf(":"));
         blocks.put(name, ctx.newBlock());
@@ -214,6 +214,13 @@ public class MirParser {
         return insn;
       }
       throw new IllegalArgumentException();
+    }
+
+    public static MirContext nextContext(final Scanner s) {
+      final String name = s.next();
+      final FuncTy type = nextFunc(s);
+
+      return new MirContext(name, type);
     }
 
     public static Token nextToken(final TokenKind kind, final Scanner s) {
