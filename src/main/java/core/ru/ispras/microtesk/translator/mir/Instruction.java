@@ -65,11 +65,13 @@ class Concat implements Instruction {
 
 final class Call implements Instruction {
   public final Operand callee;
+  public final String method;
   public final List<Operand> args;
   public final Local ret;
 
-  public Call(final Operand callee, final List<Operand> args, final Local ret) {
+  public Call(final Operand callee, final String method, final List<Operand> args, final Local ret) {
     this.callee = callee;
+    this.method = method;
     this.args = args;
     this.ret = ret;
   }
