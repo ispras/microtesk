@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-import ru.ispras.microtesk.Logger;
+import ru.ispras.castle.util.Logger;
 
 public class MirParser {
   private final BufferedReader reader;
