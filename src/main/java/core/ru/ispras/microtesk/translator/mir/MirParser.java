@@ -96,7 +96,7 @@ public class MirParser {
         final MirTy ty = new FuncTy(retty, params);
         final Operand callee = valueOf(ty, tokens[2]);
 
-        return new Call(callee, args, null);
+        return new Call(callee, "", args, null);
       }
     });
     parsers.put("store", new Parser() {
@@ -270,6 +270,7 @@ public class MirParser {
         ret = new Local(Integer.valueOf(target), retty);
       }
 
+      final String method = s.next();
       final String calleeName = TokenKind.LOCAL.next(s);
 
       final List<Operand> args = new java.util.ArrayList<>();
@@ -284,7 +285,7 @@ public class MirParser {
       final Operand callee =
           new Local(Integer.valueOf(calleeName), new FuncTy(retty, params));
 
-      return new Call(callee, args, ret);
+      return new Call(callee, method, args, ret);
     }
 
     public static Operand nextOperand(final MirTy type, final Scanner s) {

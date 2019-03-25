@@ -556,7 +556,8 @@ public final class NmlIrTrans {
     @Override
     public Lvalue accessMode(final Local source, final Access access, final Primitive p) {
       final Local value = ctx.newLocal(p.getReturnType().getBitSize());
-      ctx.append(new Call(source, Collections.<Operand>emptyList(), value));
+      final String method = String.format("%s.read", p.getName());;
+      ctx.append(new Call(source, method, Collections.<Operand>emptyList(), value));
 
       return accessLocal(value, access);
     }
@@ -591,8 +592,9 @@ public final class NmlIrTrans {
       final Local value = ctx.newLocal(p.getReturnType().getBitSize());
       accessLocal(value, access);
 
+      final String method = String.format("%s.write", p.getName());
       final Call call =
-        new Call(target, Collections.<Operand>singletonList(value), null);
+        new Call(target, method, Collections.<Operand>singletonList(value), null);
       ctx.append(call);
       return value;
     }

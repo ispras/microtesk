@@ -123,11 +123,11 @@ public class MirText {
     public void visit(final Call insn) {
       final String args = concatOperands(insn.args);
       if (insn.ret == null) {
-        lines.add(String.format("call void %s (%s)",
-          insn.callee, args));
+        lines.add(String.format("call void %s %s (%s)",
+          insn.method, insn.callee, args));
       } else {
-        lines.add(String.format("%s = call %s %s (%s)",
-          insn.ret, insn.ret.getType().getName(), insn.callee, args));
+        lines.add(String.format("%s = call %s %s %s (%s)",
+          insn.ret, insn.ret.getType().getName(), insn.method, insn.callee, args));
       }
     }
 
