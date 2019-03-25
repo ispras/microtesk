@@ -46,13 +46,19 @@ public class MirParser {
         final String name = line.substring(0, line.indexOf(":"));
         block = blocks.get(name);
       } else {
-        final String input =
-            line.replaceAll("[,()<>]", "").replaceAll("([\\[\\]\\{\\}])", " $1 ").trim();
-        final Parser2 parser = new Parser2(new Scanner(input), blocks);
+        final Parser2 parser = new Parser2(newScanner(line), blocks);
         block.append(parser.nextInsn());
       }
     }
     return ctx;
+  }
+
+  private static Scanner newScanner(final String line) {
+    return new Scanner(preprocess(line));
+  }
+
+  private static String preprocess(final String line) {
+    return line.replaceAll("[,()<>]", "").replaceAll("([\\[\\]\\{\\}])", " $1 ").trim();
   }
 
   private static Map<String, Parser> standardParsers(final Map<String, MirBlock> blocks) {
