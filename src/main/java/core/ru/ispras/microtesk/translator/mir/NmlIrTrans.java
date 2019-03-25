@@ -121,7 +121,7 @@ public final class NmlIrTrans {
 
     if (ExprUtils.isVariable(node)) {
       translateAccess(ctx, locationOf(node), new WriteAccess(ctx, rhs));
-    } else if (ExprUtils.isOperation(node)) {
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVCONCAT)) {
       final int size = sizeOf(node);
       final List<Node> operands = operandsOf(node);
       final Local rvalue = ctx.assignLocal(rhs);
