@@ -6,13 +6,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import ru.ispras.microtesk.Logger;
+import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.utils.NamePath;
 
 public class MirTransHandler implements TranslatorHandler<Ir> {
@@ -31,7 +31,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     try (final ArchiveWriter archive = new ArchiveWriter(path)) {
       for (final Primitive p : ir.getOps().values()) {
         if (!p.isOrRule()) {
-          final PrimitiveAND item = (PrimitiveAND) p;
+          final PrimitiveAnd item = (PrimitiveAnd) p;
           for (final Attribute attr : item.getAttributes().values()) {
             if (attr.getKind().equals(Attribute.Kind.ACTION)) {
               final MirContext mir = NmlIrTrans.translate(item, attr.getStatements());

@@ -1,5 +1,6 @@
 package ru.ispras.microtesk.translator.mir;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -11,7 +12,7 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.Logger;
+import ru.ispras.microtesk.translator.nml.antlrex.ExprReducer;
 import ru.ispras.microtesk.translator.nml.ir.expr.Expr;
 import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSource;
@@ -19,14 +20,13 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
-import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAND;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementCondition;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
-import ru.ispras.microtesk.translator.nml.ir.shared.Alias;
-import ru.ispras.microtesk.translator.nml.ir.shared.MemoryExpr;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class NmlIrTrans {
-  public static MirContext translate(final PrimitiveAND p, final List<Statement> source) {
+  public static MirContext translate(final PrimitiveAnd p, final List<Statement> source) {
     final MirContext ctx = new MirContext();
     for (final Map.Entry<String, Primitive> entry : p.getArguments().entrySet()) {
       final Primitive param = entry.getValue();
@@ -230,8 +230,8 @@ public final class NmlIrTrans {
       if (lo.isConstant() && hi.isConstant()) {
         return Math.abs(hi.integerValue() - lo.integerValue()) + 1;
       }
-      final Expr.Reduced reducedLo = lo.reduce();
-      final Expr.Reduced reducedHi = hi.reduce();
+      final ExprReducer.Reduced reducedLo = ExprReducer.reduce(lo);
+      final ExprReducer.Reduced reducedHi = ExprReducer.reduce(hi);
 
       if (reducedHi.polynomial.equals(reducedLo.polynomial)) {
         return Math.abs(reducedHi.constant - reducedLo.constant) + 1;
@@ -371,7 +371,7 @@ public final class NmlIrTrans {
         return client.accessLocal(arg, access);
       }
     } else if (source instanceof LocationSourceMemory) {
-      final MemoryExpr mem = sourceToMemory(source);
+      final MemoryResource mem = sourceToMemory(source);
       final Lvalue ref = new Static(mem.getName(), typeOf(mem));
       return client.accessMemory(ref, access);
     } else {
@@ -379,7 +379,7 @@ public final class NmlIrTrans {
     }
   }
 
-  private static MirTy typeOf(final MemoryExpr mem) {
+  private static MirTy typeOf(final MemoryResource mem) {
     final MirTy type = new IntTy(mem.getType().getBitSize());
     final BigInteger length = mem.getSize();
     if (length.compareTo(BigInteger.ONE) > 0) {
@@ -388,7 +388,7 @@ public final class NmlIrTrans {
     return type;
   }
 
-  private static MemoryExpr sourceToMemory(final LocationSource source) {
+  private static MemoryResource sourceToMemory(final LocationSource source) {
     return ((LocationSourceMemory) source).getMemory();
   }
 
@@ -438,7 +438,7 @@ public final class NmlIrTrans {
 
       BigInteger length = BigInteger.ZERO;
       if (l.getIndex() != null) {
-        final MemoryExpr mem = sourceToMemory(l.getSource());
+        final MemoryResource mem = sourceToMemory(l.getSource());
         length = mem.getSize();
       }
       if (length.compareTo(BigInteger.ONE) > 0) {
@@ -554,22 +554,40 @@ public final class NmlIrTrans {
 
     MirBlock current = ctx;
     for (int i = 0; i < s.getBlockCount(); ++i) {
-      final StatementCondition.Block block = s.getBlock(i);
+      final Block block = new Block(s.getBlock(i));
       if (!block.isElseBlock()) {
-        final Operand cond = translate(current, block.getCondition().getNode());
+        final Operand cond = translate(current, block.guard.getNode());
         final Pair<MirBlock, MirBlock> target = current.branch(cond);
 
-        blocks.addAll(translate(target.first, block.getStatements()));
+        blocks.addAll(translate(target.first, block.body));
 
         current = target.second;
       } else {
-        blocks.addAll(translate(current, block.getStatements()));
+        blocks.addAll(translate(current, block.body));
       }
     }
-    if (!s.getBlock(s.getBlockCount() - 1).isElseBlock()) {
+    if (!Block.isElseBlock(s.getBlock(s.getBlockCount() - 1))) {
       blocks.add(current);
     }
     return blocks;
+  }
+
+  private static final class Block {
+    private final Expr guard;
+    private final List<Statement> body;
+
+    public Block(final Pair<Expr, List<Statement>> input) {
+      this.guard = input.first;
+      this.body = input.second;
+    }
+
+    public boolean isElseBlock() {
+      return guard == null;
+    }
+
+    public static boolean isElseBlock(final Pair<Expr, List<Statement>> input) {
+      return input.first == null;
+    }
   }
 
   private static Rvalue rvalueOf(final Operand op) {
