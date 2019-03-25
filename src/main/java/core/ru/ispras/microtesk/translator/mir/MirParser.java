@@ -230,6 +230,9 @@ public class MirParser {
       for (final MirStruct type = nextStruct(s); type != null; ) {
         return type;
       }
+      for (final FuncTy type = nextFunc(s); type != null; ) {
+        return type;
+      }
       for (final Token token = nextToken(TokenKind.IDENT, s); token != null; ) {
         return Types.valueOf(token.value);
       }
@@ -262,6 +265,24 @@ public class MirParser {
         TokenKind.RBRACE.next(s);
 
         return new MirStruct(fields);
+      }
+      return null;
+    }
+
+    private static FuncTy nextFunc(final Scanner s) {
+      if (s.hasNext("func")) {
+        TokenKind.IDENT.next(s);
+        final MirTy retty = nextType(s);
+
+
+        TokenKind.LBRACE.next(s);
+        final List<MirTy> params = new java.util.ArrayList<>();
+        while (!TokenKind.RBRACE.nextIn(s)) {
+          params.add(nextType(s));
+        }
+        TokenKind.RBRACE.next(s);
+
+        return new FuncTy(retty, params);
       }
       return null;
     }
