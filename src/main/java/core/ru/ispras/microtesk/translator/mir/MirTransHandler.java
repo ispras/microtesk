@@ -34,7 +34,8 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
           final PrimitiveAnd item = (PrimitiveAnd) p;
           for (final Attribute attr : item.getAttributes().values()) {
             if (attr.getKind().equals(Attribute.Kind.ACTION)) {
-              final MirContext mir = NmlIrTrans.translate(item, attr.getStatements());
+              final MirContext mir =
+                  NmlIrTrans.translate(item, attr.getName(), attr.getStatements());
               final NamePath name = NamePath.get(item.getName(), attr.getName());
               mirs.put(name, mir);
 

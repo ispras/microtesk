@@ -45,9 +45,9 @@ public final class NmlIrTrans {
     this.source = source;
   }
 
-  public static MirContext translate(final PrimitiveAnd p, final List<Statement> body) {
+  public static MirContext translate(final PrimitiveAnd p, final String name, final List<Statement> body) {
     final NmlIrTrans worker = new NmlIrTrans(p);
-    return worker.translate(body);
+    return worker.translate(name, body);
   }
 
   public static ModeAccess translateMode(final PrimitiveAnd p) {
@@ -66,7 +66,7 @@ public final class NmlIrTrans {
 
   private static MirContext newReadAccess(final PrimitiveAnd p) {
     final NmlIrTrans worker = new NmlIrTrans(p);
-    final MirContext ctx = newContext(p);
+    final MirContext ctx = newContext("read", p);
 
     final MirBlock bb = ctx.newBlock();
     bb.append(new Return(worker.translate(bb, p.getReturnExpr().getNode())));
@@ -76,18 +76,20 @@ public final class NmlIrTrans {
 
   private static MirContext newWriteAccess(final PrimitiveAnd p) {
     final NmlIrTrans worker = new NmlIrTrans(p);
-    final MirContext ctx = newContext(p);
+    final MirContext ctx = newWriteContext("write", p);
 
     final MirBlock bb = ctx.newBlock();
-    final Local value = bb.newLocal(p.getReturnType().getBitSize());
-    worker.translateAssignment(bb, p.getReturnExpr().getNode(), value);
+    worker.translateAssignment(
+        bb,
+        p.getReturnExpr().getNode(),
+        bb.getNamedLocal(".value"));
     bb.append(new Return(null));
 
     return ctx;
   }
 
-  private MirContext translate(final List<Statement> body) {
-    final MirContext ctx = newContext(this.source);
+  private MirContext translate(final String name, final List<Statement> body) {
+    final MirContext ctx = newContext(name, this.source);
     final List<MirBlock> terminals = translate(ctx.newBlock(), body);
     for (final MirBlock bb : terminals) {
       bb.append(new Return(null));
@@ -96,24 +98,59 @@ public final class NmlIrTrans {
     return ctx;
   }
 
-  private static MirContext newContext(final PrimitiveAnd p) {
-    final MirContext ctx = new MirContext();
-    for (final Map.Entry<String, Primitive> entry : p.getArguments().entrySet()) {
-      final Primitive param = entry.getValue();
-      if (param.getKind().equals(Primitive.Kind.IMM)) {
-        ctx.locals.add(new IntTy(param.getReturnType().getBitSize()));
+  private static MirContext newContext(final String attr, final PrimitiveAnd p) {
+    final String ctxName = String.format("%s.%s", p.getName(), attr);
+    final MirContext ctx = new MirContext(ctxName, (FuncTy) typeOf(p));
 
-        final LocalInfo info = new LocalInfo(ctx.locals.size(), entry.getKey());
-        ctx.localInfo.put(info.id, info);
-      } else if (param.getKind().equals(Primitive.Kind.MODE)) {
-        final MirTy retty = new IntTy(param.getReturnType().getBitSize());
-        ctx.locals.add(new FuncTy(retty, Collections.<MirTy>emptyList()));
-
-        final LocalInfo info = new LocalInfo(ctx.locals.size(), entry.getKey());
-        ctx.localInfo.put(info.id, info);
-      }
+    int index = 0;
+    for (final String name : p.getArguments().keySet()) {
+      ctx.renameParameter(index++, name);
     }
     return ctx;
+  }
+
+  private static MirContext newWriteContext(final String attr, final PrimitiveAnd p) {
+    final String ctxName = String.format("%s.%s", p.getName(), attr);
+    final FuncTy readType = (FuncTy) typeOf(p);
+
+    final List<MirTy> params = new java.util.ArrayList<>(readType.params);
+    params.add(readType.ret);
+    final FuncTy writeType = new FuncTy(VoidTy.VALUE, params);
+
+    final MirContext ctx = new MirContext(ctxName, writeType);
+    int index = 0;
+    for (final String name : p.getArguments().keySet()) {
+      ctx.renameParameter(index++, name);
+    }
+    ctx.renameParameter(index, ".value");
+
+    return ctx;
+  }
+
+  private static MirTy typeOf(final Primitive p) {
+    if (p.getKind().equals(Primitive.Kind.IMM)) {
+      return returnTypeOf(p);
+    } else {
+      final List<MirTy> parameters;
+      if (p.isOrRule()) {
+        parameters = Collections.emptyList();
+      } else {
+        final PrimitiveAnd src = (PrimitiveAnd) p;
+
+        parameters = new java.util.ArrayList<>(src.getArguments().size());
+        for (final Primitive param : src.getArguments().values()) {
+          parameters.add(typeOf(param));
+        }
+      }
+      return new FuncTy(returnTypeOf(p), parameters);
+    }
+  }
+
+  private static MirTy returnTypeOf(final Primitive p) {
+    if (p.getReturnType() != null) {
+      return new IntTy(p.getReturnType().getBitSize());
+    }
+    return VoidTy.VALUE;
   }
 
   private List<MirBlock> translate(final MirBlock entry, final List<Statement> code) {

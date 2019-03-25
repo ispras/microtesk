@@ -27,6 +27,8 @@ public class MirText {
   }
 
   private static void collect(final List<String> lines, final MirContext ctx) {
+    lines.add(String.format("%s %s", ctx.name, ctx.getSignature().getName()));
+
     final Map<BasicBlock, String> labels = new java.util.IdentityHashMap<>();
 
     int i = 0;
