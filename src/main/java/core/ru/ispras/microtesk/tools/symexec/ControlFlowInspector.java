@@ -23,7 +23,8 @@ public class ControlFlowInspector {
       if (range != null && range.start != start) {
         ranges.add(range.split(start));
       } else {
-        for (int i = start; i < insns.size(); ++i) {
+        int i = start;
+        while (i < insns.size()) {
           final IsaPrimitive insn = insns.get(i);
           if (isBranch(insn)) {
             final int target = i + getBranchOffset(insn);
@@ -32,12 +33,17 @@ public class ControlFlowInspector {
               final Range r = new Range(start, i + 1);
               r.nextTaken = target;
               r.nextOther = (isConditional(insn)) ? i + 1 : target;
+              ranges.add(r);
 
               queue.add(target);
               queue.add(i + 1);
               break;
             }
           }
+          ++i;
+        }
+        if (i >= insns.size()) {
+          ranges.add(new Range(start, i));
         }
       }
     }
