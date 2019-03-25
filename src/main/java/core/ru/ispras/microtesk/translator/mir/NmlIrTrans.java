@@ -29,6 +29,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,7 +39,19 @@ import java.util.List;
 import java.util.Map;
 
 public final class NmlIrTrans {
-  public static MirContext translate(final PrimitiveAnd p, final List<Statement> source) {
+  private final PrimitiveAnd source;
+
+  private NmlIrTrans(final PrimitiveAnd source) {
+    this.source = source;
+  }
+
+  public static MirContext translate(final PrimitiveAnd p, final List<Statement> body) {
+    final NmlIrTrans worker = new NmlIrTrans(p);
+    return worker.translate(body);
+  }
+
+  private MirContext translate(final List<Statement> body) {
+    final PrimitiveAnd p = this.source;
     final MirContext ctx = new MirContext();
     for (final Map.Entry<String, Primitive> entry : p.getArguments().entrySet()) {
       final Primitive param = entry.getValue();
@@ -55,7 +68,7 @@ public final class NmlIrTrans {
         ctx.localInfo.put(info.id, info);
       }
     }
-    final List<MirBlock> terminals = translate(ctx.newBlock(), source);
+    final List<MirBlock> terminals = translate(ctx.newBlock(), body);
     for (final MirBlock bb : terminals) {
       bb.append(new Return(null));
     }
@@ -63,7 +76,7 @@ public final class NmlIrTrans {
     return ctx;
   }
 
-  private static List<MirBlock> translate(final MirBlock entry, final List<Statement> code) {
+  private List<MirBlock> translate(final MirBlock entry, final List<Statement> code) {
     MirBlock ctx = entry;
     List<MirBlock> terminals = Collections.singletonList(ctx);
 
@@ -95,8 +108,8 @@ public final class NmlIrTrans {
     return terminals;
   }
 
-  private static void translate(final MirBlock ctx, final StatementAssignment s) {
-    if (s.getLeft().isInternalVariable()) {
+  private void translate(final MirBlock ctx, final StatementAssignment s) {
+    if (s.getLeft().isInternalVariable() || s.getRight().isInternalVariable()) {
       return;
     }
     final Operand operand = translate(ctx, s.getRight().getNode());
@@ -127,7 +140,7 @@ public final class NmlIrTrans {
     return Collections.emptyList();
   }
 
-  private static Operand translate(final MirBlock ctx, final Node node) {
+  private Operand translate(final MirBlock ctx, final Node node) {
     if (ExprUtils.isOperation(node)) {
       final TransRvalue visitor = new TransRvalue(ctx);
       new ExprTreeWalker(visitor).visit(node);
@@ -160,7 +173,7 @@ public final class NmlIrTrans {
     return BvOpcode.Add;
   }
 
-  private static final class TransRvalue extends ExprTreeVisitorDefault {
+  private final class TransRvalue extends ExprTreeVisitorDefault {
     private final MirBlock ctx;
     private final Map<Node, Operand> mapped = new IdentityHashMap<>();
     private Operand result;
@@ -223,7 +236,7 @@ public final class NmlIrTrans {
       }
     }
 
-    private static int evaluateBitSize(final Node loNode, final Node hiNode) {
+    private int evaluateBitSize(final Node loNode, final Node hiNode) {
       final Expr lo = new Expr(loNode);
       final Expr hi = new Expr(hiNode);
 
@@ -354,7 +367,7 @@ public final class NmlIrTrans {
     return type.getSize();
   }
 
-  private static Lvalue translateAccess(
+  private Lvalue translateAccess(
       final MirBlock ctx,
       final Location l,
       final Accessor client) {
@@ -363,12 +376,20 @@ public final class NmlIrTrans {
 
     if (source instanceof LocationSourcePrimitive) {
       final Primitive p = ((LocationSourcePrimitive) source).getPrimitive();
+      final String name = l.getName();
+
+      final Local src;
+      if (name.contains(".")) {
+        src = extractField(ctx, name);
+      } else {
+        src = ctx.getNamedLocal(name);
+      }
       final Local arg = ctx.getNamedLocal(l.getName());
 
       if (p.getKind() == Primitive.Kind.MODE) {
-        return client.accessMode(arg, access, p);
+        return client.accessMode(src, access, p);
       } else {
-        return client.accessLocal(arg, access);
+        return client.accessLocal(src, access);
       }
     } else if (source instanceof LocationSourceMemory) {
       final MemoryResource mem = sourceToMemory(source);
@@ -377,6 +398,36 @@ public final class NmlIrTrans {
     } else {
       throw new UnsupportedOperationException();
     }
+  }
+
+  private Local extractField(final MirBlock block, final String pathname) {
+    final List<String> path = Arrays.asList(pathname.split("\\."));
+
+    final Iterator<String> it = path.iterator();
+    Primitive p = this.source.getArguments().get(it.next());
+    final List<Constant> indices = new java.util.ArrayList<>();
+    while (it.hasNext()) {
+      final String s = it.next();
+      final PrimitiveAnd parent = (PrimitiveAnd) p;
+      indices.add(new Constant(32, argumentIndex(s, parent)));
+
+      p = parent.getArguments().get(s);
+    }
+    final Local target = block.newLocal(p.getReturnType().getBitSize());
+    block.append(new ExtractValue(target, block.getNamedLocal(path.get(0)), indices));
+
+    return target;
+  }
+
+  private static int argumentIndex(final String s, final PrimitiveAnd p) {
+    int index = 0;
+    for (final String name : p.getArguments().keySet()) {
+      if (name.equals(s)) {
+        return index;
+      }
+      ++index;
+    }
+    return -1;
   }
 
   private static MirTy typeOf(final MemoryResource mem) {
@@ -418,7 +469,7 @@ public final class NmlIrTrans {
     }
   }
 
-  private static class Access {
+  private class Access {
     public final Local index;
     public final Operand lo;
     public final Operand hi;
@@ -549,7 +600,7 @@ public final class NmlIrTrans {
     }
   }
 
-  private static List<MirBlock> translate(final MirBlock ctx, final StatementCondition s) {
+  private List<MirBlock> translate(final MirBlock ctx, final StatementCondition s) {
     final List<MirBlock> blocks = new ArrayList<>();
 
     MirBlock current = ctx;
