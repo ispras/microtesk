@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import javax.json.*;
+import javax.json.stream.JsonGenerator;
 
 public final class SymbolicExecutor {
   private SymbolicExecutor() {}
@@ -60,6 +62,7 @@ public final class SymbolicExecutor {
 
     final String smtFileName = fileName + ".smt2";
     writeSmt(smtFileName, ssa);
+    inspectControlFlow(fileName + ".json", instructions);
 
     Logger.message("Created file: %s", smtFileName);
     return true;
@@ -80,6 +83,38 @@ public final class SymbolicExecutor {
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
     }
+  }
+
+  private static void inspectControlFlow(final String fileName, final List<IsaPrimitive> insns) {
+    final ControlFlowInspector inspector = new ControlFlowInspector(insns);
+    final List<ControlFlowInspector.Range> ranges = inspector.inspect();
+
+    final JsonBuilderFactory factory =
+        Json.createBuilderFactory(Collections.<String, Object>emptyMap());
+
+    final JsonArrayBuilder blocks = factory.createArrayBuilder();
+    for (final ControlFlowInspector.Range range : ranges) {
+      blocks.add(factory.createObjectBuilder()
+        .add("range", factory.createArrayBuilder().add(range.start).add(range.end))
+        .add("condition", (range.nextTaken == range.nextOther) ? "true" : "?guard")
+        .add("target_taken", indexOf(range.nextTaken, ranges))
+        .add("target_other", indexOf(range.nextOther, ranges)));
+    }
+    final JsonObjectBuilder jsonDoc = factory.createObjectBuilder()
+      .add("blocks", blocks);
+
+    final JsonWriterFactory writerFactory = Json.createWriterFactory(
+        Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
+    writerFactory.createWriter(System.out).writeObject(jsonDoc.build());
+  }
+
+  private static int indexOf(final int start, final List<ControlFlowInspector.Range> ranges) {
+    for (int i = 0; i < ranges.size(); ++i) {
+      if (ranges.get(i).contains(start)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   private static final class DisassemblerOutput implements Disassembler.Output {
