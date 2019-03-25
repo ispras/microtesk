@@ -51,7 +51,16 @@ public final class NmlIrTrans {
   }
 
   private MirContext translate(final List<Statement> body) {
-    final PrimitiveAnd p = this.source;
+    final MirContext ctx = newContext(this.source);
+    final List<MirBlock> terminals = translate(ctx.newBlock(), body);
+    for (final MirBlock bb : terminals) {
+      bb.append(new Return(null));
+    }
+
+    return ctx;
+  }
+
+  private static MirContext newContext(final PrimitiveAnd p) {
     final MirContext ctx = new MirContext();
     for (final Map.Entry<String, Primitive> entry : p.getArguments().entrySet()) {
       final Primitive param = entry.getValue();
@@ -68,11 +77,6 @@ public final class NmlIrTrans {
         ctx.localInfo.put(info.id, info);
       }
     }
-    final List<MirBlock> terminals = translate(ctx.newBlock(), body);
-    for (final MirBlock bb : terminals) {
-      bb.append(new Return(null));
-    }
-
     return ctx;
   }
 
