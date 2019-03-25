@@ -50,6 +50,42 @@ public final class NmlIrTrans {
     return worker.translate(body);
   }
 
+  public static ModeAccess translateMode(final PrimitiveAnd p) {
+    return new ModeAccess(newReadAccess(p), newWriteAccess(p));
+  }
+
+  public static final class ModeAccess {
+    public final MirContext read;
+    public final MirContext write;
+
+    public ModeAccess(final MirContext read, final MirContext write) {
+      this.read = read;
+      this.write = write;
+    }
+  }
+
+  private static MirContext newReadAccess(final PrimitiveAnd p) {
+    final NmlIrTrans worker = new NmlIrTrans(p);
+    final MirContext ctx = newContext(p);
+
+    final MirBlock bb = ctx.newBlock();
+    bb.append(new Return(worker.translate(bb, p.getReturnExpr().getNode())));
+
+    return ctx;
+  }
+
+  private static MirContext newWriteAccess(final PrimitiveAnd p) {
+    final NmlIrTrans worker = new NmlIrTrans(p);
+    final MirContext ctx = newContext(p);
+
+    final MirBlock bb = ctx.newBlock();
+    final Local value = bb.newLocal(p.getReturnType().getBitSize());
+    worker.translateAssignment(bb, p.getReturnExpr().getNode(), value);
+    bb.append(new Return(null));
+
+    return ctx;
+  }
+
   private MirContext translate(final List<Statement> body) {
     final MirContext ctx = newContext(this.source);
     final List<MirBlock> terminals = translate(ctx.newBlock(), body);
