@@ -276,7 +276,7 @@ class FuncTy implements MirTy {
     for (final MirTy type : params) {
       names.add(type.getName());
     }
-    return String.format("(%s) -> %s", Types.concat(names, ", "), ret.getName());
+    return String.format("func %s [%s]", ret.getName(), Types.concat(names, ", "));
   }
 
   @Override
