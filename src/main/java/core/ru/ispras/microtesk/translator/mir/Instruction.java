@@ -218,7 +218,7 @@ abstract class Lvalue implements Operand {
 }
 
 class Local extends Lvalue {
-  private final int id;
+  public final int id;
   private final MirTy type;
 
   public Local(final int id, final MirTy type) {
@@ -243,8 +243,8 @@ class Local extends Lvalue {
 }
 
 class Field extends Lvalue {
-  private final Lvalue base;
-  private final String name;
+  public final Lvalue base;
+  public final String name;
 
   public Field(final Lvalue base, final String name) {
     this.base = base;
@@ -271,8 +271,8 @@ class Field extends Lvalue {
 }
 
 class Index extends Lvalue {
-  private final Lvalue base;
-  private final Operand index;
+  public final Lvalue base;
+  public final Operand index;
 
   public Index(final Lvalue base, final Operand index) {
     this.base = base;
