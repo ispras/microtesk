@@ -42,7 +42,7 @@ final class MirBlock {
     if (op instanceof Local) {
       return (Local) op;
     }
-    return assignLocal(BvOpcode.Add.make(op, new Constant(op.getType().getSize(), 0)));
+    return assignLocal(UnOpcode.Use.make(op));
   }
 
   public Local assignLocal(final Rvalue rhs) {
