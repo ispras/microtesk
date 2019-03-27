@@ -427,6 +427,28 @@ interface BinOpcode {
   MirTy typeOf(Operand lhs, Operand rhs);
 }
 
+enum UnOpcode implements BinOpcode {
+  Use;
+
+  public Rvalue make(final Operand opnd) {
+    return new Rvalue(this, opnd, null);
+  }
+
+  public Rvalue make(final Operand lhs, final Operand rhs) {
+    if (lhs != null) {
+      return new Rvalue(this, lhs, rhs);
+    }
+    return new Rvalue(this, rhs, lhs);
+  }
+
+  public MirTy typeOf(final Operand lhs, final Operand rhs) {
+    if (lhs != null) {
+      return lhs.getType();
+    }
+    return rhs.getType();
+  }
+}
+
 enum BvOpcode implements BinOpcode {
   /// The `+` operator (addition)
   Add,

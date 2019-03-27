@@ -724,9 +724,7 @@ public final class NmlIrTrans {
   }
 
   private static Rvalue rvalueOf(final Operand op) {
-    final MirTy type = op.getType();
-    final int size = type.getSize();
-    return BvOpcode.Add.make(op, new Constant(op.getType().getSize(), 0));
+    return UnOpcode.Use.make(op);
   }
 
   private static final Map<Enum<?>, BinOpcode> OPCODE_MAPPING =

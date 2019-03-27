@@ -55,13 +55,19 @@ public class MirText {
 
     @Override
     public void visit(final Assignment insn) {
-      lines.add(String.format("%s = %s %s %s %s, %s",
+      lines.add(String.format("%s = %s %s %s %s",
         insn.lhs,
         insn.opc.typeOf(insn.op1, insn.op2).getName(),
         insn.opc,
         insn.op1.getType().getName(),
-        insn.op1,
-        insn.op2));
+        stringOf(insn.opc, insn.op1, insn.op2)));
+    }
+
+    private static String stringOf(final BinOpcode opc, final Operand op1, final Operand op2) {
+      if (opc instanceof UnOpcode) {
+        return op1.toString();
+      }
+      return String.format("%s, %s", op1, op2);
     }
 
     @Override

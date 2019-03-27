@@ -397,8 +397,14 @@ public class MirParser {
         final String insn = TokenKind.IDENT.next(s);
         final MirTy rhsty = nextType(s);
         final Operand op1 = nextOperand(rhsty, s);
-        final Operand op2 = nextOperand(rhsty, s);
 
+        for (final UnOpcode opc : UnOpcode.values()) {
+          if (opc.name().equals(insn)) {
+            return new Assignment(lhs, opc.make(op1, null));
+          }
+        }
+
+        final Operand op2 = nextOperand(rhsty, s);
         for (final BvOpcode opc : BvOpcode.values()) {
           if (opc.name().equals(insn)) {
             return new Assignment(lhs, opc.make(op1, op2));
