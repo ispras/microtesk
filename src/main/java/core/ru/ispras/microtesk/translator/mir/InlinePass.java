@@ -12,7 +12,9 @@ public class InlinePass extends Pass {
   @Override
   public MirContext apply(final MirContext src) {
     final MirContext ctx = Pass.copyOf(src);
-    for (final BasicBlock bb : ctx.blocks) {
+    final int nblocks = ctx.blocks.size();
+    for (int j = 0; j < nblocks; ++j) {
+      final BasicBlock bb = ctx.blocks.get(j);
       for (int i = 0; i < bb.insns.size(); ++i) {
         final Instruction insn = bb.insns.get(i);
         if (insn instanceof Call) {
@@ -58,6 +60,8 @@ public class InlinePass extends Pass {
 
       final BasicBlock bb = new BasicBlock();
       bb.insns.addAll(tail);
+      caller.blocks.add(bb);
+      caller.blocks.addAll(callee.blocks);
 
       tail.clear();
       target.insns.remove(index);
