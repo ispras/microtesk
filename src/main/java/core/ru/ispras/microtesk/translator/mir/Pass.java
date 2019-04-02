@@ -5,10 +5,19 @@ import java.util.Map;
 
 public abstract class Pass {
   protected final Map<String, MirContext> source;
-  protected final Map<String, MirContext> result = new java.util.HashMap<>();
+  public final Map<String, MirContext> result = new java.util.HashMap<>();
 
   public Pass(final Map<String, MirContext> source) {
     this.source = source;
+  }
+
+  public void run() {
+    for (final Map.Entry<String, MirContext> entry : source.entrySet()) {
+      result.put(entry.getKey(), apply(entry.getValue()));
+    }
+    for (final Map.Entry<String, MirContext> entry : result.entrySet()) {
+      result.put(entry.getKey(), apply(entry.getValue()));
+    }
   }
 
   public abstract MirContext apply(MirContext ctx);
