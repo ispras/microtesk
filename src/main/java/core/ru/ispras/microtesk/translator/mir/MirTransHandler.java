@@ -49,12 +49,23 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
         mirs.put(name.resolve("write"), access.write);
       }
     }
+
+    final Map<String, MirContext> source = new java.util.HashMap<>();
+    for (final MirContext ctx : mirs.values()) {
+      source.put(ctx.name, ctx);
+    }
+    final Pass pass = new InlinePass(source);
+    pass.run();
+
     final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
     try (final ArchiveWriter archive = new ArchiveWriter(path)) {
       for (final MirContext ctx : mirs.values()) {
         try (final Writer writer = archive.newText(ctx.name + ".mir")) {
           final MirText text = new MirText(ctx);
           writer.write(text.toString());
+
+          final MirText inlined = new MirText(pass.result.get(ctx.name));
+          writer.write(inlined.toString());
         }
       }
     } catch (final IOException e) {
