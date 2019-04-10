@@ -38,6 +38,8 @@ public class MirText {
     final InsnText visitor = new InsnText(labels, lines);
     for (final BasicBlock bb : ctx.blocks) {
       lines.add(String.format("%s:", labels.get(bb)));
+      visitor.origin = bb.origin;
+
       for (final Instruction insn : bb.insns) {
         insn.accept(visitor);
       }
@@ -45,6 +47,7 @@ public class MirText {
   }
 
   private static final class InsnText extends InsnVisitor {
+    public int origin = 0;
     private final Map<BasicBlock, String> labels;
     private final List<String> lines;
 
@@ -56,48 +59,63 @@ public class MirText {
     @Override
     public void visit(final Assignment insn) {
       lines.add(String.format("%s = %s %s %s %s",
-        insn.lhs,
+        stringOf(insn.lhs),
         insn.opc.typeOf(insn.op1, insn.op2).getName(),
         insn.opc,
         insn.op1.getType().getName(),
         stringOf(insn.opc, insn.op1, insn.op2)));
     }
 
-    private static String stringOf(final BinOpcode opc, final Operand op1, final Operand op2) {
+
+    private String stringOf(final BinOpcode opc, final Operand op1, final Operand op2) {
       if (opc instanceof UnOpcode) {
-        return op1.toString();
+        return stringOf(op1);
       }
-      return String.format("%s, %s", op1, op2);
+      return String.format("%s, %s", stringOf(op1), stringOf(op2));
+    }
+
+    private String stringOf(final Operand opnd) {
+      if (opnd instanceof Local) {
+        final Local local = (Local) opnd;
+        return String.format("%%%d", this.origin + local.id);
+      }
+      return String.format("%s", opnd);
     }
 
     @Override
     public void visit(final Concat insn) {
       final String args = concatOperands(insn.rhs);
       lines.add(String.format("%s = Concat %s %s",
-        insn.lhs, insn.lhs.getType().getName(), args));
+        stringOf(insn.lhs), insn.lhs.getType().getName(), args));
     }
 
     @Override
     public void visit(final Extract insn) {
       lines.add(String.format("%s = Extract %s of %s %s <%s, %s>",
-        insn.lhs,
+        stringOf(insn.lhs),
         insn.lhs.getType().getName(),
         insn.rhs.getType().getName(),
-        insn.rhs,
-        insn.hi,
-        insn.lo));
+        stringOf(insn.rhs),
+        stringOf(insn.hi),
+        stringOf(insn.lo)));
     }
 
     @Override
     public void visit(final Sext insn) {
       lines.add(String.format("%s = Sext %s %s to %s",
-        insn.lhs, insn.rhs.getType().getName(), insn.rhs, insn.lhs.getType().getName()));
+        stringOf(insn.lhs),
+        insn.rhs.getType().getName(),
+        stringOf(insn.rhs),
+        insn.lhs.getType().getName()));
     }
 
     @Override
     public void visit(final Zext insn) {
       lines.add(String.format("%s = Zext %s %s to %s",
-        insn.lhs, insn.rhs.getType().getName(), insn.rhs, insn.lhs.getType().getName()));
+        stringOf(insn.lhs),
+        insn.rhs.getType().getName(),
+        stringOf(insn.rhs),
+        insn.lhs.getType().getName()));
     }
 
     @Override
@@ -106,7 +124,7 @@ public class MirText {
         lines.add(String.format("br label %%%s", getLabel(0, insn)));
       } else {
         lines.add(String.format("br i1 %s, label %%%s, label %%%s",
-          insn.guard, getLabel(0, insn), getLabel(1, insn)));
+          stringOf(insn.guard), getLabel(0, insn), getLabel(1, insn)));
       }
     }
 
@@ -119,7 +137,7 @@ public class MirText {
       if (insn.value == null) {
         lines.add("ret void");
       } else {
-        lines.add(String.format("ret %s %s", insn.value.getType().getName(), insn.value));
+        lines.add(String.format("ret %s %s", insn.value.getType().getName(), stringOf(insn.value)));
       }
     }
 
@@ -135,7 +153,11 @@ public class MirText {
           insn.method, insn.callee, args));
       } else {
         lines.add(String.format("%s = call %s %s %s (%s)",
-          insn.ret, insn.ret.getType().getName(), insn.method, insn.callee, args));
+          stringOf(insn.ret),
+          insn.ret.getType().getName(),
+          insn.method,
+          stringOf(insn.callee),
+          args));
       }
     }
 
@@ -146,10 +168,10 @@ public class MirText {
     @Override
     public void visit(final Load insn) {
       lines.add(String.format("%s = load %s, %s %s",
-        insn.target,
+        stringOf(insn.target),
         insn.target.getType().getName(),
         insn.source.getContainerType().getName(),
-        insn.source));
+        stringOf(insn.source)));
     }
 
     @Override
@@ -157,26 +179,29 @@ public class MirText {
 
       lines.add(String.format("store %s %s, %s %s",
         insn.source.getType().getName(),
-        insn.source,
+        stringOf(insn.source),
         insn.target.getContainerType().getName(),
-        insn.target));
+        stringOf(insn.target)));
     }
 
     @Override
     public void visit(final ExtractValue insn) {
       lines.add(String.format("%s = ExtractValue %s of %s %s",
-        insn.target, insn.target.getType().getName(), insn.source, concatOperands(insn.indices)));
+        stringOf(insn.target),
+        insn.target.getType().getName(),
+        stringOf(insn.source),
+        concatOperands(insn.indices)));
     }
 
-    private static String concatOperands(final Collection<? extends Operand> operands) {
+    private String concatOperands(final Collection<? extends Operand> operands) {
       final StringBuilder sb = new StringBuilder();
       final Iterator<? extends Operand> it = operands.iterator();
       if (it.hasNext()) {
         Operand op = it.next();
-        sb.append(String.format("%s %s", op.getType().getName(), op));
+        sb.append(String.format("%s %s", op.getType().getName(), stringOf(op)));
         while (it.hasNext()) {
           op = it.next();
-          sb.append(", ").append(String.format("%s %s", op.getType().getName(), op));
+          sb.append(", ").append(String.format("%s %s", op.getType().getName(), stringOf(op)));
         }
       }
       return sb.toString();
