@@ -49,9 +49,10 @@ public class InlinePass extends Pass {
 
     public void run() {
       final BasicBlock next = splitCallSite();
+      rebase(caller.locals.size(), callee.blocks);
+
       linkEntry(this.target, callee);
       linkReturn(next, callsite, callee);
-      rebase(caller.locals.size(), callee.blocks);
     }
 
     private BasicBlock splitCallSite() {
@@ -83,7 +84,8 @@ public class InlinePass extends Pass {
           bb.insns.remove(index);
 
           if (call.ret != null) {
-            bb.insns.add(new Assignment(call.ret, UnOpcode.Use.make(ret.value)));
+            final Local lhs = new Local(call.ret.id - bb.origin, call.ret.getType());
+            bb.insns.add(new Assignment(lhs, UnOpcode.Use.make(ret.value)));
           }
           bb.insns.add(new Branch(next));
         }
@@ -91,15 +93,8 @@ public class InlinePass extends Pass {
     }
 
     private static void rebase(final int base, final Collection<BasicBlock> blocks) {
-      final RebaseOp visitor = new RebaseOp(base);
       for (final BasicBlock bb : blocks) {
-        visitor.index = 0;
-        visitor.bb = bb;
-
-        for (final Instruction insn : bb.insns) {
-          insn.accept(visitor);
-          visitor.index++;
-        }
+        bb.origin += base;
       }
     }
   }
