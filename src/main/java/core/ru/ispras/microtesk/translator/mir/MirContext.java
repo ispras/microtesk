@@ -16,6 +16,10 @@ final class MirBlock {
     this.bb = bb;
   }
 
+  public Local getLocal(final int index) {
+    return new Local(index, ctx.locals.get(index));
+  }
+
   public Local newLocal(final int size) {
     return newLocal(new IntTy(size));
   }
@@ -32,6 +36,10 @@ final class MirBlock {
       }
     }
     return null;
+  }
+
+  public Assignment assign(final Lvalue lhs, final Operand rhs) {
+    return assign(lhs, UnOpcode.Use.make(rhs));
   }
 
   public Assignment assign(final Lvalue lhs, final Rvalue rhs) {
@@ -66,8 +74,12 @@ final class MirBlock {
     return new Pair<MirBlock, MirBlock>(taken, other);
   }
 
-  public void jump(final MirBlock block) {
-    append(new Branch(block.bb));
+  public Branch jump(final MirBlock block) {
+    return jump(block.bb);
+  }
+
+  public Branch jump(final BasicBlock bb) {
+    return append(new Branch(bb));
   }
 
   public <T extends Instruction> T append(final T insn) {

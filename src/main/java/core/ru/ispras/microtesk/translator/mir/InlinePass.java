@@ -50,9 +50,10 @@ public class InlinePass extends Pass {
     public void run() {
       final BasicBlock next = splitCallSite();
       rebase(caller.locals.size(), callee.blocks);
+      caller.locals.addAll(Pass.tailList(callee.locals, 1));
 
-      linkEntry(this.target, callee);
-      linkReturn(next, callsite, callee);
+      linkForward(new MirBlock(caller, target), callsite, callee);
+      linkBack(next, callsite, callee);
     }
 
     private BasicBlock splitCallSite() {
@@ -70,12 +71,17 @@ public class InlinePass extends Pass {
       return bb;
     }
 
-    private static void linkEntry(final BasicBlock bb, final MirContext callee) {
-      bb.insns.add(new Branch(callee.blocks.get(0)));
-      // TODO link arguments
+    private static void linkForward(final MirBlock bb, final Call call, final MirContext callee) {
+      final BasicBlock entry = callee.blocks.get(0);
+      final int origin = entry.origin;
+
+      for (int i = 0; i < call.args.size(); ++i) {
+        bb.assign(bb.getLocal(origin + i + 1), call.args.get(i));
+      }
+      bb.jump(entry);
     }
 
-    private static void linkReturn(final BasicBlock next, final Call call, final MirContext callee) {
+    private static void linkBack(final BasicBlock next, final Call call, final MirContext callee) {
       for (final BasicBlock bb : callee.blocks) {
         final int index = bb.insns.size() - 1;
         final Instruction insn = bb.insns.get(index);
