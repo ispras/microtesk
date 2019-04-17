@@ -3,6 +3,7 @@ package ru.ispras.microtesk.translator.mir;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 public class InlinePass extends Pass {
   public InlinePass(final Map<String, MirContext> storage) {
@@ -12,22 +13,27 @@ public class InlinePass extends Pass {
   @Override
   public MirContext apply(final MirContext src) {
     final MirContext ctx = Pass.copyOf(src);
-    final int nblocks = ctx.blocks.size();
-    for (int j = 0; j < nblocks; ++j) {
-      final BasicBlock bb = ctx.blocks.get(j);
-      for (int i = 0; i < bb.insns.size(); ++i) {
-        final Instruction insn = bb.insns.get(i);
-        if (insn instanceof Call) {
-          final Call call = (Call) insn;
-          if (this.result.containsKey(call.method)) {
-            final Inliner inliner =
-              new Inliner(call, bb, ctx, this.result.get(call.method));
-            inliner.run();
-          }
-        }
+    final Queue<BasicBlock> queue = new java.util.ArrayDeque<>(ctx.blocks);
+    while (!queue.isEmpty()) {
+      final BasicBlock bb = queue.remove();
+      final Call call = find(bb.insns, Call.class);
+      if (call != null && this.result.containsKey(call.method)) {
+        final Inliner inliner =
+          new Inliner(call, bb, ctx, this.result.get(call.method));
+        final BasicBlock newbb = inliner.run();
+        queue.add(newbb);
       }
     }
     return ctx;
+  }
+
+  private static <T> T find(final Collection<? super T> source, final Class<T> cls) {
+    for (final Object o : source) {
+      if (cls.isInstance(o)) {
+        return cls.cast(o);
+      }
+    }
+    return null;
   }
 
   private static final class Inliner {
@@ -47,13 +53,15 @@ public class InlinePass extends Pass {
       this.callee = Pass.copyOf(callee);
     }
 
-    public void run() {
+    public BasicBlock run() {
       final BasicBlock next = splitCallSite();
       rebase(caller.locals.size(), callee.blocks);
       caller.locals.addAll(Pass.tailList(callee.locals, 1));
 
       linkForward(new MirBlock(caller, target), callsite, callee);
       linkBack(next, callsite, callee);
+
+      return next;
     }
 
     private BasicBlock splitCallSite() {
