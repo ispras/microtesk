@@ -75,11 +75,23 @@ public class MirText {
     }
 
     private String stringOf(final Operand opnd) {
-      if (opnd instanceof Local) {
-        final Local local = (Local) opnd;
-        return String.format("%%%d", this.origin + local.id);
+      for (final Local lval = cast(opnd, Local.class); lval != null;) {
+        return String.format("%%%d", this.origin + lval.id);
+      }
+      for (final Field lval = cast(opnd, Field.class); lval != null;) {
+        return String.format("%s.%s", stringOf(lval.base), lval.name);
+      }
+      for (final Index lval = cast(opnd, Index.class); lval != null;) {
+        return String.format("%s[%s]", stringOf(lval.base), stringOf(lval.index));
       }
       return String.format("%s", opnd);
+    }
+
+    private static <T> T cast(final Object o, final Class<T> cls) {
+      if (cls.isInstance(o)) {
+        return cls.cast(o);
+      }
+      return null;
     }
 
     @Override
