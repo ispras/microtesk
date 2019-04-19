@@ -37,6 +37,6 @@ public class InsnVisitor {
   public void visit(final Store insn) {
   }
 
-  public void visit(final ExtractValue insn) {
+  public void visit(final Disclose insn) {
   }
 }
