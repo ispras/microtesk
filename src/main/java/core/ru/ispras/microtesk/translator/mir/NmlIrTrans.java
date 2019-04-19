@@ -494,7 +494,7 @@ public final class NmlIrTrans {
       p = parent.getArguments().get(s);
     }
     final Local target = block.newLocal(p.getReturnType().getBitSize());
-    block.append(new ExtractValue(target, block.getNamedLocal(path.get(0)), indices));
+    block.append(new Disclose(target, block.getNamedLocal(path.get(0)), indices));
 
     return target;
   }

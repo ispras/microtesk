@@ -185,8 +185,8 @@ public class MirText {
     }
 
     @Override
-    public void visit(final ExtractValue insn) {
-      lines.add(String.format("%s = ExtractValue %s of %s %s",
+    public void visit(final Disclose insn) {
+      lines.add(String.format("%s = Disclose %s of %s %s",
         stringOf(insn.target),
         insn.target.getType().getName(),
         stringOf(insn.source),

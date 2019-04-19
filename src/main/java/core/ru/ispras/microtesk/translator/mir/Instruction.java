@@ -112,12 +112,12 @@ final class Store implements Instruction {
   }
 }
 
-final class ExtractValue implements Instruction {
+final class Disclose implements Instruction {
   public final Local target;
-  public final Local source;
+  public final Operand source;
   public final List<Constant> indices;
 
-  public ExtractValue(final Local target, final Local source, final List<Constant> indices) {
+  public Disclose(final Local target, final Operand source, final List<Constant> indices) {
     this.target = target;
     this.source = source;
     this.indices = indices;
