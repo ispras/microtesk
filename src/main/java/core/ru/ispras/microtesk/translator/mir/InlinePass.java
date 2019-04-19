@@ -83,8 +83,15 @@ public class InlinePass extends Pass {
       final BasicBlock entry = callee.blocks.get(0);
       final int origin = entry.origin;
 
-      for (int i = 0; i < call.args.size(); ++i) {
-        bb.assign(bb.getLocal(origin + i + 1), call.args.get(i));
+      final int nparams = callee.getSignature().params.size();
+      final int nargs = call.args.size();
+      final int nclosed = nparams - nargs;
+
+      for (int i = 0; i < nclosed; ++i) {
+        bb.disclose(bb.getLocal(origin + i + 1), call.callee, i);
+      }
+      for (int i = 0; i < nargs; ++i) {
+        bb.assign(bb.getLocal(origin + nclosed + i + 1), call.args.get(i));
       }
       bb.jump(entry);
     }

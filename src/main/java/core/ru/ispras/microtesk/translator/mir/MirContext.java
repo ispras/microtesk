@@ -3,6 +3,7 @@ package ru.ispras.microtesk.translator.mir;
 import ru.ispras.fortress.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,10 @@ final class MirBlock {
 
   public Branch jump(final BasicBlock bb) {
     return append(new Branch(bb));
+  }
+
+  public Disclose disclose(final Local lhs, final Operand src, int index) {
+    return append(new Disclose(lhs, src, Collections.singletonList(new Constant(32, index))));
   }
 
   public <T extends Instruction> T append(final T insn) {
