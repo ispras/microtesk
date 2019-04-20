@@ -1,6 +1,7 @@
 package ru.ispras.microtesk.translator.mir;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -66,22 +67,43 @@ public class InlinePass extends Pass {
 
     private BasicBlock splitCallSite() {
       final int index = target.insns.indexOf(callsite);
-      final List<Instruction> tail = Pass.tailList(target.insns, index + 1);
+      final List<Instruction> insnView = Pass.tailList(target.insns, index + 1);
+      final List<BasicBlock.Origin> orgView = getOutrangedOrigins(target, index);
 
       final BasicBlock bb = new BasicBlock();
-      bb.insns.addAll(tail);
+      bb.origins.get(0).value = target.getOrigin(index + 1);
+      for (final BasicBlock.Origin org : orgView) {
+        org.range -= index + 1;
+      }
+
+      move(bb.origins, orgView);
+      move(bb.insns, insnView);
+      target.insns.remove(index);
+
       caller.blocks.add(bb);
       caller.blocks.addAll(callee.blocks);
-
-      tail.clear();
-      target.insns.remove(index);
 
       return bb;
     }
 
+    private static <T> void move(final Collection<T> dst, final Collection<? extends T> src) {
+      dst.addAll(src);
+      src.clear();
+    }
+
+    private static List<BasicBlock.Origin> getOutrangedOrigins(final BasicBlock bb, final int index) {
+      for (int i = 0; i < bb.origins.size(); ++i) {
+        final BasicBlock.Origin org = bb.origins.get(i);
+        if (org.range > index + 1) {
+          return Pass.tailList(bb.origins, i);
+        }
+      }
+      return Collections.emptyList();
+    }
+
     private static void linkForward(final MirBlock bb, final Call call, final MirContext callee) {
       final BasicBlock entry = callee.blocks.get(0);
-      final int origin = entry.origin;
+      final int origin = entry.getOrigin(0);
 
       final int nparams = callee.getSignature().params.size();
       final int nargs = call.args.size();
@@ -105,7 +127,7 @@ public class InlinePass extends Pass {
           bb.insns.remove(index);
 
           if (call.ret != null) {
-            final Local lhs = new Local(call.ret.id - bb.origin, call.ret.getType());
+            final Local lhs = new Local(call.ret.id - bb.getOrigin(index), call.ret.getType());
             bb.insns.add(new Assignment(lhs, UnOpcode.Use.make(ret.value)));
           }
           bb.insns.add(new Branch(next));
@@ -115,7 +137,9 @@ public class InlinePass extends Pass {
 
     private static void rebase(final int base, final Collection<BasicBlock> blocks) {
       for (final BasicBlock bb : blocks) {
-        bb.origin += base;
+        for (final BasicBlock.Origin org : bb.origins) {
+          org.value += base;
+        }
       }
     }
   }
