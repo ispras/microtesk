@@ -29,9 +29,7 @@ public abstract class Pass {
     ctx.locals.addAll(tailList(src.locals, signature.params.size()));
 
     for (final BasicBlock bb : src.blocks) {
-      final BasicBlock bbCopy = new BasicBlock();
-      bbCopy.insns.addAll(bb.insns);
-      ctx.blocks.add(bbCopy);
+      ctx.blocks.add(BasicBlock.copyOf(bb));
     }
     for (final BasicBlock bb : ctx.blocks) {
       final int index = bb.insns.size() - 1;

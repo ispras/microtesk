@@ -38,9 +38,10 @@ public class MirText {
     final InsnText visitor = new InsnText(labels, lines);
     for (final BasicBlock bb : ctx.blocks) {
       lines.add(String.format("%s:", labels.get(bb)));
-      visitor.origin = bb.origin;
 
+      int j = 0;
       for (final Instruction insn : bb.insns) {
+        visitor.origin = bb.getOrigin(j++);
         insn.accept(visitor);
       }
     }
