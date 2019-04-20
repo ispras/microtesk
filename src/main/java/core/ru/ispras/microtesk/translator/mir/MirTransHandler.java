@@ -57,7 +57,8 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
       source.put(ctx.name, ctx);
     }
     final PassDriver driver = new PassDriver(
-      new InlinePass());
+      new InlinePass(),
+      new ConcFlowPass());
     driver.run(source);
 
     final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
