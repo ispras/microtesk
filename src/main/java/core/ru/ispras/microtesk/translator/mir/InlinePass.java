@@ -12,24 +12,29 @@ public class InlinePass extends Pass {
     final Queue<BasicBlock> queue = new java.util.ArrayDeque<>(ctx.blocks);
     while (!queue.isEmpty()) {
       final BasicBlock bb = queue.remove();
-      final Call call = find(bb.insns, Call.class);
-      if (call != null && this.result.containsKey(call.method)) {
-        final Inliner inliner =
-          new Inliner(call, bb, ctx, this.result.get(call.method));
-        final BasicBlock newbb = inliner.run();
-        queue.add(newbb);
+      for (List<Instruction> tail = find(bb.insns, Call.class);
+          !tail.isEmpty();
+          tail = find(Pass.tailList(tail, 1), Call.class)) {
+        final Call call = (Call) tail.get(0);
+        if (this.result.containsKey(call.method)) {
+          final Inliner inliner =
+            new Inliner(call, bb, ctx, this.result.get(call.method));
+          final BasicBlock newbb = inliner.run();
+          queue.add(newbb);
+          break;
+        }
       }
     }
     return ctx;
   }
 
-  private static <T> T find(final Collection<? super T> source, final Class<T> cls) {
-    for (final Object o : source) {
-      if (cls.isInstance(o)) {
-        return cls.cast(o);
+  private static <T> List<T> find(final List<T> source, final Class<? extends T> cls) {
+    for (int i = 0; i < source.size(); ++i) {
+      if (cls.isInstance(source.get(i))) {
+        return Pass.tailList(source, i);
       }
     }
-    return null;
+    return Collections.emptyList();
   }
 
   private static final class Inliner {
