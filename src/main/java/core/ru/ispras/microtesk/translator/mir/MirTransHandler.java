@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import ru.ispras.castle.util.Logger;
@@ -54,8 +56,9 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     for (final MirContext ctx : mirs.values()) {
       source.put(ctx.name, ctx);
     }
-    final Pass pass = new InlinePass(source);
-    pass.run();
+    final PassDriver driver = new PassDriver(
+      new InlinePass());
+    driver.run(source);
 
     final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
     try (final ArchiveWriter archive = new ArchiveWriter(path)) {
@@ -64,12 +67,28 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
           final MirText text = new MirText(ctx);
           writer.write(text.toString());
 
-          final MirText inlined = new MirText(pass.result.get(ctx.name));
-          writer.write(inlined.toString());
+          for (final Pass pass : driver.passList) {
+            final MirText passText = new MirText(pass.result.get(ctx.name));
+            writer.write(passText.toString());
+          }
         }
       }
     } catch (final IOException e) {
       Logger.error("Failed to store MIR '%s': %s", path.toString(), e.toString());
+    }
+  }
+
+  final class PassDriver {
+    public final List<Pass> passList;
+
+    PassDriver(final Pass... passes) {
+      this.passList = Arrays.asList(passes);
+    }
+
+    public void run(Map<String, MirContext> source) {
+      for (final Pass pass : passList) {
+        source = pass.run(source);
+      }
     }
   }
 
