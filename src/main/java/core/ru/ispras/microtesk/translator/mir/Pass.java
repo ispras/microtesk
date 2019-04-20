@@ -1,23 +1,23 @@
 package ru.ispras.microtesk.translator.mir;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public abstract class Pass {
-  protected final Map<String, MirContext> source;
   public final Map<String, MirContext> result = new java.util.HashMap<>();
+  protected Map<String, MirContext> source = Collections.emptyMap();
 
-  public Pass(final Map<String, MirContext> source) {
+  public Map<String, MirContext> run(final Map<String, MirContext> source) {
     this.source = source;
-  }
 
-  public void run() {
     for (final Map.Entry<String, MirContext> entry : source.entrySet()) {
       result.put(entry.getKey(), apply(entry.getValue()));
     }
     for (final Map.Entry<String, MirContext> entry : result.entrySet()) {
       result.put(entry.getKey(), apply(entry.getValue()));
     }
+    return result;
   }
 
   public abstract MirContext apply(MirContext ctx);

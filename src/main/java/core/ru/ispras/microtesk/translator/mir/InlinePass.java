@@ -3,14 +3,9 @@ package ru.ispras.microtesk.translator.mir;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 
 public class InlinePass extends Pass {
-  public InlinePass(final Map<String, MirContext> storage) {
-    super(storage);
-  }
-
   @Override
   public MirContext apply(final MirContext src) {
     final MirContext ctx = Pass.copyOf(src);
