@@ -16,9 +16,9 @@ public class InlinePass extends Pass {
           !tail.isEmpty();
           tail = find(Pass.tailList(tail, 1), Call.class)) {
         final Call call = (Call) tail.get(0);
-        if (this.result.containsKey(call.method)) {
-          final Inliner inliner =
-            new Inliner(call, bb, ctx, this.result.get(call.method));
+        final MirContext callee = resolveCallee(call);
+        if (callee != null) {
+          final Inliner inliner = new Inliner(call, bb, ctx, callee);
           final BasicBlock newbb = inliner.run();
           queue.add(newbb);
           break;
@@ -26,6 +26,20 @@ public class InlinePass extends Pass {
       }
     }
     return ctx;
+  }
+
+  private MirContext resolveCallee(final Call call) {
+    if (result.containsKey(call.method)) {
+      return result.get(call.method);
+    }
+    if (call.callee instanceof Closure) {
+      final Closure closure = (Closure) call.callee;
+      final String callee = call.method.replaceFirst("\\w+", closure.callee);
+      if (result.containsKey(callee)) {
+        return result.get(callee);
+      }
+    }
+    return null;
   }
 
   private static <T> List<T> find(final List<T> source, final Class<? extends T> cls) {
