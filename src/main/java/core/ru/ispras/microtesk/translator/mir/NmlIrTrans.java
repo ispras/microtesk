@@ -19,6 +19,8 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationSource;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
+import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
@@ -177,12 +179,66 @@ public final class NmlIrTrans {
         break;
 
       case CALL:
+        translate(ctx, (StatementAttributeCall) s);
+        break;
+
       case FUNCALL:
       case FORMAT:
         break;
       }
     }
     return terminals;
+  }
+
+  private void translate(final MirBlock block, final StatementAttributeCall s) {
+    if (s.isThisCall()) {
+      final int nargs = block.ctx.getSignature().params.size();
+      final List<Operand> args = new java.util.ArrayList<>();
+      for (int i = 0; i < nargs; ++i) {
+        args.add(block.getLocal(i + 1));
+      }
+      final String method = String.format("%s.%s",
+        block.ctx.name.split("\\.")[0],
+        s.getAttributeName());
+      block.thiscall(method, args, null);
+    } else if (s.isInstanceCall()) {
+      final Instance instance = s.getCalleeInstance();
+      final String method = String.format("%s.%s",
+        instance.getPrimitive().getName(), s.getAttributeName());
+      block.call(
+        newClosure(block, instance),
+        method,
+        Collections.<Operand>emptyList(),
+        null);
+    } else {
+      final String method = String.format("%s.%s",
+        source.getArguments().get(s.getCalleeName()).getName(), s.getAttributeName());
+      block.call(
+        block.getNamedLocal(s.getCalleeName()),
+        method,
+        Collections.<Operand>emptyList(),
+        null);
+    }
+  }
+
+  private Closure newClosure(final MirBlock block, final Instance src) {
+    final List<Operand> upvalues = new java.util.ArrayList<>();
+    for (final InstanceArgument arg : src.getArguments()) {
+      switch (arg.getKind()) {
+      case INSTANCE:
+        upvalues.add(newClosure(block, arg.getInstance()));
+        break;
+
+      case PRIMITIVE:
+        upvalues.add(block.getNamedLocal(arg.getName()));
+        break;
+
+      case EXPR:
+        upvalues.add(translate(block, arg.getExpr().getNode()));
+        break;
+      }
+    }
+    return new Closure(src.getPrimitive().getName(), upvalues);
   }
 
   private void translate(final MirBlock ctx, final StatementAssignment s) {
