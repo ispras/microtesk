@@ -5,8 +5,10 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.translator.Translator;
@@ -52,7 +54,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
       }
     }
 
-    final Map<String, MirContext> source = new java.util.HashMap<>();
+    final Map<String, MirContext> source = new java.util.TreeMap<>();
     for (final MirContext ctx : mirs.values()) {
       source.put(ctx.name, ctx);
     }
@@ -79,17 +81,72 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     }
   }
 
-  final class PassDriver {
+  final static class PassDriver {
     public final List<Pass> passList;
+    private final Map<String, MirContext> storage = new java.util.HashMap<>();
 
     PassDriver(final Pass... passes) {
       this.passList = Arrays.asList(passes);
+      for (final Pass pass : passList) {
+        pass.storage = this.storage;
+      }
     }
 
     public void run(Map<String, MirContext> source) {
-      for (final Pass pass : passList) {
-        source = pass.run(source);
+      final List<String> ordered = dependencyOrder(source);
+      for (final String name : ordered) {
+        MirContext ctx = source.get(name);
+        for (final Pass pass : passList) {
+          pass.source.put(name, ctx);
+          ctx = pass.apply(ctx);
+          pass.result.put(name, ctx);
+        }
+        storage.put(name, ctx);
       }
+    }
+
+    public static List<String> dependencyOrder(final Map<String, MirContext> source) {
+      final Map<String, List<String>> deps = new java.util.HashMap<>();
+      for (final MirContext ctx : source.values()) {
+        deps.put(ctx.name, listDeps(ctx, source));
+      }
+      final List<String> ordered = new java.util.ArrayList<>();
+      while (!deps.isEmpty()) {
+        orderDeps(deps.keySet().iterator().next(), ordered, deps);
+      }
+      return ordered;
+    }
+
+    private static void orderDeps(
+        final String name,
+        final List<String> ordered,
+        final Map<String, List<String>> deps) {
+      if (deps.containsKey(name)) {
+        for (final String dep : deps.get(name)) {
+          orderDeps(dep, ordered, deps);
+        }
+        ordered.add(name);
+        deps.remove(name);
+      }
+    }
+
+    private static List<String> listDeps(final MirContext ctx, final Map<String, MirContext> source) {
+      final Set<String> deps = new java.util.HashSet<>();
+      for (final BasicBlock bb : ctx.blocks) {
+        for (final Instruction insn : bb.insns) {
+          if (insn instanceof Call) {
+            final Call call = (Call) insn;
+            final String dep = InlinePass.resolveCalleeName(call);
+            if (source.containsKey(dep)) {
+              deps.add(dep);
+            }
+          }
+        }
+      }
+      if (deps.isEmpty()) {
+        return Collections.emptyList();
+      }
+      return new java.util.ArrayList<>(deps);
     }
   }
 
