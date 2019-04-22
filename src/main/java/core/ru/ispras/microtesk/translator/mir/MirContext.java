@@ -87,6 +87,14 @@ final class MirBlock {
     return append(new Disclose(lhs, src, Collections.singletonList(new Constant(32, index))));
   }
 
+  public Call thiscall(final String method, final List<Operand> args, final Local ret) {
+    return call(getNamedLocal(".self"), method, args, ret);
+  }
+
+  public Call call(final Operand callee, final String method, final List<Operand> args, final Local ret) {
+    return append(new Call(callee, method, args, ret));
+  }
+
   public <T extends Instruction> T append(final T insn) {
     bb.insns.add(insn);
     return insn;
