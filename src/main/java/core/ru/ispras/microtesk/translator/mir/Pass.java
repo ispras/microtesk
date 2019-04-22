@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Pass {
+  public Map<String, MirContext> storage;
+
   public final Map<String, MirContext> result = new java.util.HashMap<>();
-  protected Map<String, MirContext> source = Collections.emptyMap();
+  public final Map<String, MirContext> source = new java.util.HashMap<>();
 
   public Map<String, MirContext> run(final Map<String, MirContext> source) {
-    this.source = source;
-
     for (final Map.Entry<String, MirContext> entry : source.entrySet()) {
       result.put(entry.getKey(), apply(entry.getValue()));
     }
@@ -21,6 +21,10 @@ public abstract class Pass {
   }
 
   public abstract MirContext apply(MirContext ctx);
+
+  protected MirContext resolveCallee(final String name) {
+    return storage.get(name);
+  }
 
   protected static MirContext copyOf(final MirContext src) {
     final FuncTy signature = src.getSignature();
