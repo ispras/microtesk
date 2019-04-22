@@ -85,6 +85,9 @@ public class MirText {
       for (final Index lval = cast(opnd, Index.class); lval != null;) {
         return String.format("%s[%s]", stringOf(lval.base), stringOf(lval.index));
       }
+      for (final Closure lval = cast(opnd, Closure.class); lval != null; ) {
+        return String.format("{%s} %s", concatOperands(lval.upvalues), lval.callee);
+      }
       return String.format("%s", opnd);
     }
 
@@ -163,7 +166,7 @@ public class MirText {
       final String args = concatOperands(insn.args);
       if (insn.ret == null) {
         lines.add(String.format("call void %s %s (%s)",
-          insn.method, insn.callee, args));
+          insn.method, stringOf(insn.callee), args));
       } else {
         lines.add(String.format("%s = call %s %s %s (%s)",
           stringOf(insn.ret),

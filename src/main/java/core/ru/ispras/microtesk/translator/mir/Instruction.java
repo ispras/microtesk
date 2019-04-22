@@ -399,21 +399,17 @@ class Constant implements Operand {
 
 class Closure implements Operand {
   public final String callee;
-  public final FuncTy prototype;
   public final FuncTy type;
-  public final List<Operand> args;
+  public final List<Operand> upvalues;
 
-  public Closure(final String callee, final FuncTy prototype, final List<Operand> args) {
+  public Closure(final String callee, final List<Operand> upvalues) {
     final List<MirTy> types = new java.util.ArrayList<>();
-    for (int i = 0; i < prototype.params.size(); ++i) {
-      if (args.get(i) == VoidTy.VALUE) {
-        types.add(prototype.params.get(i));
-      }
+    for (final Operand upval : upvalues) {
+      types.add(upval.getType());
     }
     this.callee = callee;
-    this.prototype = prototype;
-    this.type = new FuncTy(prototype.ret, types);
-    this.args = args;
+    this.type = new FuncTy(VoidTy.VALUE, types);
+    this.upvalues = upvalues;
   }
 
   @Override
