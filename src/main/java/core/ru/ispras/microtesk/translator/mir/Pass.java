@@ -1,6 +1,5 @@
 package ru.ispras.microtesk.translator.mir;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +29,7 @@ public abstract class Pass {
     final FuncTy signature = src.getSignature();
 
     final MirContext ctx = new MirContext(src.name, signature);
-    ctx.locals.addAll(tailList(src.locals, signature.params.size()));
+    ctx.locals.addAll(tailList(src.locals, signature.params.size() + 1));
 
     for (final BasicBlock bb : src.blocks) {
       ctx.blocks.add(BasicBlock.copyOf(bb));

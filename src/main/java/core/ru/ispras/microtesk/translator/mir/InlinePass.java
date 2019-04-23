@@ -64,7 +64,7 @@ public class InlinePass extends Pass {
 
     public BasicBlock run() {
       final BasicBlock next = splitCallSite();
-      rebase(caller.locals.size(), callee.blocks);
+      rebase(caller.locals.size() - 1, callee.blocks);
       caller.locals.addAll(Pass.tailList(callee.locals, 1));
 
       linkForward(new MirBlock(caller, target), callsite, callee);
@@ -118,10 +118,12 @@ public class InlinePass extends Pass {
       final int nclosed = nparams - nargs;
 
       for (int i = 0; i < nclosed; ++i) {
-        bb.disclose(bb.getLocal(origin + i + 1), call.callee, i);
+        final int index = origin + i + 1;
+        bb.disclose(bb.getLocal(index), call.callee, i);
       }
       for (int i = 0; i < nargs; ++i) {
-        bb.assign(bb.getLocal(origin + nclosed + i + 1), call.args.get(i));
+        final int index = origin + nclosed + i + 1;
+        bb.assign(bb.getLocal(index), call.args.get(i));
       }
       bb.jump(entry);
     }
