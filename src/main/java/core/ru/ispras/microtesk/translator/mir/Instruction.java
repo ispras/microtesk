@@ -386,6 +386,10 @@ class Constant implements Operand {
     this.value = value;
   }
 
+  public BigInteger getValue() {
+    return value;
+  }
+
   @Override
   public MirTy getType() {
     return new IntTy(bits);
