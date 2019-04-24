@@ -1,5 +1,6 @@
 package ru.ispras.microtesk.translator.mir;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class InsnRewriter extends InsnVisitor {
@@ -9,7 +10,7 @@ public class InsnRewriter extends InsnVisitor {
   private MirBlock block;
   private int nskip;
 
-  public static List<BasicBlock> rewrite(final MirContext ctx) {
+  public static void rewrite(final MirContext ctx) {
     final InsnRewriter worker = new InsnRewriter(EvalContext.eval(ctx));
 
     final int nblocks = ctx.blocks.size();
@@ -23,7 +24,21 @@ public class InsnRewriter extends InsnVisitor {
         insn.accept(worker);
       }
     }
-    return worker.blocks;
+
+    final int nlocals = ctx.locals.size();
+    final Iterator<MirTy> it = localsOf(ctx).iterator();
+    for (int i = ctx.getSignature().params.size() + 1; i < nlocals; ++i) {
+      it.next();
+      if (!worker.isAlive(i)) {
+        it.remove();
+      }
+    }
+    ctx.blocks.clear();
+    ctx.blocks.addAll(worker.blocks);
+  }
+
+  private static List<MirTy> localsOf(final MirContext ctx) {
+    return Pass.tailList(ctx.locals, ctx.getSignature().params.size() + 1);
   }
 
   private InsnRewriter(final Frame frame) {
@@ -32,10 +47,10 @@ public class InsnRewriter extends InsnVisitor {
 
   private Operand rewrite(final Operand source) {
     for (final Local opnd = cast(source, Local.class); opnd != null; ) {
-      final Local local = (Local) rebase(opnd);
-      final Operand value = frame.locals.get(local.id);
-
-      return (value.equals(VoidTy.VALUE)) ? local : value;
+      final int index = indexOf(opnd);
+      return (isAlive(index))
+          ? rebase(opnd)
+          : offsetDirect(frame.locals.get(index));
     }
     for (final Index opnd = cast(source, Index.class); opnd != null; ) {
       return new Index((Lvalue) rewrite(opnd.base), rewrite(opnd.index));
@@ -64,14 +79,26 @@ public class InsnRewriter extends InsnVisitor {
     return ret;
   }
 
-  private Lvalue rebase(final Lvalue source) {
+  private <T extends Operand> T rebase(final T source) {
     if (source instanceof Local) {
-      final Local local = (Local) source;
-      final BasicBlock bb = getBlockOrigin(block.bb);
-
-      return new Local(indexOf(local), local.getType());
+      return (T) new Local(offsetIndex(indexOf(source)), source.getType());
     }
     return source;
+  }
+
+  private Operand offsetDirect(final Operand source) {
+    for (final Local local = cast(source, Local.class); local != null; ) {
+      return new Local(offsetIndex(local.id), local.getType());
+    }
+    return source;
+  }
+
+  private int offsetIndex(final int index) {
+    int offset = 0;
+    for (int i = 0; i < index; ++i) {
+      offset += (isAlive(i)) ? 0 : -1;
+    }
+    return index + offset;
   }
 
   private int indexOf(final Operand opnd) {
