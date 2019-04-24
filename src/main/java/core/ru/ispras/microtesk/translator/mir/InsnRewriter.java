@@ -7,6 +7,7 @@ public class InsnRewriter extends InsnVisitor {
   private final List<BasicBlock> blocks = new java.util.ArrayList<>();
 
   private MirBlock block;
+  private int nskip;
 
   public static List<BasicBlock> rewrite(final MirContext ctx) {
     final InsnRewriter worker = new InsnRewriter(EvalContext.eval(ctx));
@@ -17,6 +18,7 @@ public class InsnRewriter extends InsnVisitor {
     }
     for (int i = 0; i < nblocks; ++i) {
       worker.block = new MirBlock(ctx, worker.blocks.get(i));
+      worker.nskip = 0;
       for (final Instruction insn : ctx.blocks.get(i).insns) {
         insn.accept(worker);
       }
@@ -29,10 +31,29 @@ public class InsnRewriter extends InsnVisitor {
   }
 
   private Operand rewrite(final Operand source) {
-    if (source instanceof Local) {
-      return rebase((Local) source);
+    for (final Local opnd = cast(source, Local.class); opnd != null; ) {
+      final Local local = (Local) rebase(opnd);
+      final Operand value = frame.locals.get(local.id);
+
+      return (value.equals(VoidTy.VALUE)) ? local : value;
+    }
+    for (final Index opnd = cast(source, Index.class); opnd != null; ) {
+      return new Index((Lvalue) rewrite(opnd.base), rewrite(opnd.index));
+    }
+    for (final Field opnd = cast(source, Field.class); opnd != null; ) {
+      return new Field((Lvalue) rewrite(opnd.base), opnd.name);
+    }
+    for (final Closure opnd = cast(source, Closure.class); opnd != null; ) {
+      return new Closure(opnd.callee, rewriteAll(opnd.upvalues));
     }
     return source;
+  }
+
+  private static <T> T cast(final Object o, final Class<T> cls) {
+    if (cls.isInstance(o)) {
+      return cls.cast(o);
+    }
+    return null;
   }
 
   private List<Operand> rewriteAll(final List<Operand> opnds) {
@@ -48,9 +69,16 @@ public class InsnRewriter extends InsnVisitor {
       final Local local = (Local) source;
       final BasicBlock bb = getBlockOrigin(block.bb);
 
-      return new Local(local.id + bb.getOrigin(block.bb.insns.size()), local.getType());
+      return new Local(indexOf(local), local.getType());
     }
     return source;
+  }
+
+  private int indexOf(final Operand opnd) {
+    final Local local = (Local) opnd;
+    final BasicBlock bb = getBlockOrigin(block.bb);
+
+    return local.id + bb.getOrigin(block.bb.insns.size() + nskip);
   }
 
   private BasicBlock getBlockOrigin(final BasicBlock bb) {
@@ -61,11 +89,26 @@ public class InsnRewriter extends InsnVisitor {
     return blocks.get(block.ctx.blocks.indexOf(bb));
   }
 
+  private boolean isAlive(final Operand opnd) {
+    for (final Local local = cast(opnd, Local.class); local != null; ) {
+      return isAlive(indexOf(local));
+    }
+    return true;
+  }
+
+  private boolean isAlive(final int index) {
+    return frame.locals.get(index).equals(VoidTy.VALUE);
+  }
+
   @Override
   public void visit(final Assignment insn) {
-    final Operand op1 = rewrite(insn.op1);
-    final Operand op2 = rewrite(insn.op2);
-    block.assign(rebase(insn.lhs), insn.opc.make(op1, op2));
+    if (isAlive(insn.lhs)) {
+      final Operand op1 = rewrite(insn.op1);
+      final Operand op2 = rewrite(insn.op2);
+      block.assign(rebase(insn.lhs), insn.opc.make(op1, op2));
+    } else {
+      ++nskip;
+    }
   }
 
   @Override
@@ -120,6 +163,10 @@ public class InsnRewriter extends InsnVisitor {
   }
 
   public void visit(final Disclose insn) {
-    block.append(new Disclose((Local) rebase(insn.target), rewrite(insn.source), insn.indices));
+    if (isAlive(insn.target)) {
+      block.append(new Disclose((Local) rebase(insn.target), rewrite(insn.source), insn.indices));
+    } else {
+      ++nskip;
+    }
   }
 }
