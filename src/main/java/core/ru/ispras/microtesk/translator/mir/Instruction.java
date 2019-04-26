@@ -299,11 +299,17 @@ class Index extends Lvalue {
 }
 
 class Static extends Lvalue {
-  private final String name;
+  public final String name;
+  public final int version;
   private final MirTy type;
 
   public Static(final String name, final MirTy type) {
+    this(name, 0, type);
+  }
+
+  public Static(String name, int version, MirTy type) {
     this.name = name;
+    this.version = version;
     this.type = type;
   }
 
@@ -320,6 +326,10 @@ class Static extends Lvalue {
   @Override
   public String toString() {
     return name;
+  }
+
+  public Static newVersion(final int n) {
+    return new Static(name, n, type);
   }
 }
 
