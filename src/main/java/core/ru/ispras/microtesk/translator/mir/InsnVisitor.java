@@ -39,4 +39,6 @@ public class InsnVisitor {
 
   public void visit(final Disclose insn) {
   }
+
+  public void visit(final GlobalNumbering.Phi insn) { }
 }

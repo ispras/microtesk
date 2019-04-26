@@ -88,6 +88,9 @@ public class MirText {
       for (final Closure lval = cast(opnd, Closure.class); lval != null; ) {
         return String.format("{%s} %s", concatOperands(lval.upvalues), lval.callee);
       }
+      for (final Static lval = cast(opnd, Static.class); lval != null; ) {
+        return (lval.version == 0) ? lval.name : String.format("%s!%d", lval.name, lval.version);
+      }
       return String.format("%s", opnd);
     }
 
@@ -207,6 +210,12 @@ public class MirText {
         insn.target.getType().getName(),
         stringOf(insn.source),
         concatOperands(insn.indices)));
+    }
+
+    @Override
+    public void visit(final GlobalNumbering.Phi insn) {
+      lines.add(String.format("%s = phi %s",
+        stringOf(insn.target), concatOperands(insn.values)));
     }
 
     private String concatOperands(final Collection<? extends Operand> operands) {
