@@ -62,8 +62,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
       new ForwardPass(),
       new InlinePass(),
       new ForwardPass(),
-      new ConcFlowPass(),
-      new GlobalNumbering()
+      new ConcFlowPass()
       );
     driver.run(source);
 
