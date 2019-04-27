@@ -1,5 +1,6 @@
 package ru.ispras.microtesk.translator.mir;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 
 public class GlobalNumbering extends Pass {
   private List<Node> blocks;
+  private Map<Node, Node> forkJoin;
 
   private final List<Map<String, Def>> defs = new java.util.ArrayList<>();
   private final Map<String, Integer> versions = new java.util.HashMap<>();
@@ -17,11 +19,21 @@ public class GlobalNumbering extends Pass {
     init(ctx);
     run();
 
+    for (final Node node : blocks) {
+      for (final Instruction insn : node.bb.insns) {
+        if (insn instanceof Phi) {
+          final Phi phi = (Phi) insn;
+          phi.value = compress(getVariants(phi.target, node));
+        }
+      }
+    }
+
     return ctx;
   }
 
   private void init(final MirContext ctx) {
     this.blocks = breadthFirst(ctx);
+    this.forkJoin = mapForkJoin(blocks);
     this.defs.clear();
     this.versions.clear();
 
@@ -70,6 +82,21 @@ public class GlobalNumbering extends Pass {
     if (node.pred.isEmpty()) {
       return new Def(new Static(mem.name, 1, mem.getType()), null, node);
     }
+    final List<Def> variants = getVariants(mem, node);
+    if (variants.size() == 1) {
+      return variants.get(0);
+    }
+    final List<Static> memvars = new java.util.ArrayList<>(variants.size());
+    for (final Def def : variants) {
+      memvars.add(def.mem);
+    }
+    final Phi phi = new Phi(incrementVersion(mem), memvars);
+    node.bb.insns.add(0, phi);
+
+    return define(phi.target, phi, node);
+  }
+
+  private List<Def> getVariants(final Static mem, final Node node) {
     final List<Def> variants = new java.util.ArrayList<>();
     for (final Node pred : node.pred) {
       variants.add(reload(mem, pred));
@@ -84,17 +111,130 @@ public class GlobalNumbering extends Pass {
         }
       }
     }
-    if (variants.size() == 1) {
-      return variants.get(0);
-    }
-    final List<Static> memvars = new java.util.ArrayList<>(variants.size());
-    for (final Def def : variants) {
-      memvars.add(def.mem);
-    }
-    final Phi phi = new Phi(incrementVersion(mem), memvars);
-    node.bb.insns.add(0, phi);
+    return variants;
+  }
 
-    return define(phi.target, phi, node);
+  private Ite compress(final List<Def> defs) {
+    final Map<Def, ControlDep> deps = new java.util.IdentityHashMap<>();
+    for (final Def def : defs) {
+      deps.put(def, listControlDeps(def));
+    }
+    return compressRec(deps.keySet(), deps);
+  }
+
+  private Ite compressRec(final Collection<Def> defs, final Map<Def, ControlDep> depsAll) {
+    final Map<Def, ControlDep> deps = new java.util.IdentityHashMap<>(depsAll);
+    deps.keySet().retainAll(defs);
+
+    final Node fork = searchFork(deps.values());
+    final List<Def> takenList = new java.util.ArrayList<>();
+    final List<Def> otherList = new java.util.ArrayList<>();
+
+    Def counterDef = null;
+    for (final ControlDep dep : deps.values()) {
+      final int index = dep.path.indexOf(fork);
+      if (index == 0) {
+        counterDef = dep.def;
+      } else if (dep.pathTaken.get(index - 1)) {
+        takenList.add(dep.def);
+      } else {
+        otherList.add(dep.def);
+      }
+      dep.limit = index;
+    }
+    if (takenList.isEmpty()) {
+      takenList.add(counterDef);
+    } else if (otherList.isEmpty()) {
+      otherList.add(counterDef);
+    }
+    final Operand taken = compressDef(takenList, depsAll);
+    final Operand other = compressDef(otherList, depsAll);
+    final Branch br = (Branch) lastOf(fork.bb.insns);
+
+    return new Ite(br.guard, taken, other);
+  }
+
+  private Operand compressDef(final Collection<Def> defs, final Map<Def, ControlDep> deps) {
+    if (defs.size() == 1) {
+      return defs.iterator().next().mem;
+    }
+    return compressRec(defs, deps);
+  }
+
+  private Node searchFork(final Collection<ControlDep> deps) {
+    final ControlDep sample = deps.iterator().next();
+    for (int i = 0; i < sample.limit; ++i) {
+      final Node fork = sample.path.get(i);
+      if (allContains(deps, fork)) {
+        return fork;
+      }
+    }
+    return null;
+  }
+
+  private static boolean allContains(final Collection<ControlDep> deps, final Node node) {
+    for (final ControlDep dep : deps) {
+      if (!dep.path.contains(node)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private ControlDep listControlDeps(final Def def) {
+    final ControlDep dep = new ControlDep(def);
+
+    Node node = def.bb;
+    while (!node.pred.isEmpty()) {
+      final Node pred = node.pred.get(0);
+      if (pred.succ.size() > 1) {
+        final Node join = forkJoin.get(pred);
+        final int index = dep.path.indexOf(join);
+        if (index >= 0) {
+          dep.removeTail(index);
+        } else {
+          dep.add(pred, node);
+        }
+      } else if (pred.pred.size() > 1) {
+        dep.add(pred, node);
+      }
+      node = pred;
+    }
+    dep.limit = dep.path.size();
+
+    return dep;
+  }
+
+  final static class ControlDep {
+    final Def def;
+    final List<Node> path = new java.util.ArrayList<>();
+    final List<Boolean> pathTaken = new java.util.ArrayList<>();
+
+    int limit;
+
+    ControlDep(final Def def) {
+      this.def = def;
+      path.add(def.bb);
+    }
+
+    void add(final Node dep, final Node src) {
+      path.add(dep);
+      pathTaken.add(dep.succ.get(0) == src);
+    }
+
+    void removeTail(final int index) {
+      path.subList(index, path.size()).clear();
+      pathTaken.subList(index, pathTaken.size()).clear();
+    }
+  }
+
+  private static boolean isComplete(final Collection<Ite> items) {
+    for (final Ite ite : items) {
+      if (ite.taken == null || ite.other == null) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private Def define(final Static mem, final Instruction insn, final Node node) {
@@ -188,6 +328,48 @@ public class GlobalNumbering extends Pass {
     return list.get(list.size() - 1);
   }
 
+  private static Map<Node, Node> mapForkJoin(final Collection<Node> blocks) {
+    final Map<Node, Node> forkJoin = new java.util.IdentityHashMap<>();
+    for (final Node fork : blocks) {
+      final Node join = searchJoin(fork);
+      if (join != null) {
+        forkJoin.put(fork, join);
+      }
+    }
+    return forkJoin;
+  }
+
+  private static Node searchJoin(final Node fork) {
+    final List<Node> succ = fork.succ;
+    if (succ.size() > 1) {
+      final List<Node> pathTaken =
+        depthFirstPath(succ.get(0), Collections.<Node>emptyList());
+      final List<Node> pathOther = depthFirstPath(succ.get(1), pathTaken);
+
+      final Node join = lastOf(pathOther);
+      if (pathTaken.contains(join)) {
+        return join;
+      }
+    }
+    return null;
+  }
+
+  private static List<Node> depthFirstPath(
+      final Node src, final Collection<Node> observed) {
+    final List<Node> path = new java.util.ArrayList<>();
+
+    Node node = src;
+    for (List<Node> succ = node.succ;
+        !succ.isEmpty() && !observed.contains(node);
+        succ = node.succ) {
+      path.add(node);
+      node = succ.get(0);
+    }
+    path.add(node);
+
+    return path;
+  }
+
   static class Node {
     public final List<Node> pred = new java.util.ArrayList<>();
     public final List<Node> succ = new java.util.ArrayList<>();
@@ -199,11 +381,11 @@ public class GlobalNumbering extends Pass {
   }
 
   static class Ite implements Operand {
-    final Local guard;
+    final Operand guard;
     final Operand taken;
     final Operand other;
 
-    public Ite(Local guard, Operand taken, Operand other) {
+    public Ite(Operand guard, Operand taken, Operand other) {
       this.guard = guard;
       this.taken = taken;
       this.other = other;
@@ -218,6 +400,7 @@ public class GlobalNumbering extends Pass {
   static class Phi implements Instruction {
     final Static target;
     final List<Static> values;
+    Ite value = null;
 
     public Phi(final Static target, final List<Static> values) {
       this.target = target;
