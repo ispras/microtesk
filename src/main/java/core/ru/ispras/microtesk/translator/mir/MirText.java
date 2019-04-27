@@ -218,6 +218,13 @@ public class MirText {
         stringOf(insn.target), concatOperands(insn.values)));
     }
 
+    @Override
+    public void visit(final GlobalNumbering.SsaStore insn) {
+      visit(insn.origin);
+      final String value = lines.remove(lines.size() - 1);
+      lines.add(String.format("%s = %s", stringOf(insn.target), value));
+    }
+
     private String concatOperands(final Collection<? extends Operand> operands) {
       final StringBuilder sb = new StringBuilder();
       final Iterator<? extends Operand> it = operands.iterator();
