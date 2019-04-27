@@ -7,7 +7,8 @@ import java.util.Map;
 
 public class GlobalNumbering extends Pass {
   private List<Node> blocks;
-  private final List<Map<String, Instruction>> defs = new java.util.ArrayList<>();
+
+  private final List<Map<String, Def>> defs = new java.util.ArrayList<>();
   private final Map<String, Integer> versions = new java.util.HashMap<>();
 
   public MirContext apply(final MirContext source) {
@@ -25,7 +26,7 @@ public class GlobalNumbering extends Pass {
     this.versions.clear();
 
     for (int i = 0; i< blocks.size(); ++i) {
-      defs.add(new java.util.HashMap<String, Instruction>());
+      defs.add(new java.util.HashMap<String, Def>());
     }
   }
 
@@ -36,7 +37,7 @@ public class GlobalNumbering extends Pass {
         final Instruction insn = insns.get(i);
         if (insn instanceof Store) {
           final Store store = (Store) insn;
-          final Static current = reload(store.target, node);
+          final Static current = reload(store.target, node).mem;
 
           final Store update =
               new Store(update(store.target, current.version), store.source);
@@ -45,7 +46,7 @@ public class GlobalNumbering extends Pass {
           define(def.target, def, node);
         } else if (insn instanceof Load) {
           final Load load = (Load) insn;
-          final Static def = reload(load.source, node);
+          final Static def = reload(load.source, node).mem;
 
           insns.set(insns.indexOf(load), new Load(update(load.source, def.version), load.target));
         }
@@ -53,36 +54,31 @@ public class GlobalNumbering extends Pass {
     }
   }
 
-  private Static reload(final Lvalue lval, final Node node) {
+  private Def reload(final Lvalue lval, final Node node) {
     return reload(getMemory(lval), node);
   }
 
-  private Static reload(final Static mem, final Node node) {
-    final Instruction insn = getDefs(node).get(mem.name);
-    if (insn == null ) {
+  private Def reload(final Static mem, final Node node) {
+    final Def def = getDefs(node).get(mem.name);
+    if (def == null ) {
       return reloadRecursive(mem, node);
-    } else if (insn instanceof Store) {
-      return getMemory(((Store) insn).target);
-    } else if (insn instanceof SsaStore) {
-      return ((SsaStore) insn).target;
-    } else {
-      return ((Phi) insn).target;
     }
+    return def;
   }
 
-  private Static reloadRecursive(final Static mem, final Node node) {
+  private Def reloadRecursive(final Static mem, final Node node) {
     if (node.pred.isEmpty()) {
-      return new Static(mem.name, 1, mem.getType());
+      return new Def(new Static(mem.name, 1, mem.getType()), null, node);
     }
-    final List<Static> variants = new java.util.ArrayList<>();
+    final List<Def> variants = new java.util.ArrayList<>();
     for (final Node pred : node.pred) {
       variants.add(reload(mem, pred));
     }
     for (int i = 0; i < variants.size(); ++i) {
-      final Static origin = variants.get(i);
-      final Iterator<Static> it = variants.subList(i + 1, variants.size()).iterator();
+      final Static origin = variants.get(i).mem;
+      final Iterator<Def> it = variants.subList(i + 1, variants.size()).iterator();
       while (it.hasNext()) {
-        final Static sample = it.next();
+        final Static sample = it.next().mem;
         if (sample.version == origin.version) {
           it.remove();
         }
@@ -91,15 +87,32 @@ public class GlobalNumbering extends Pass {
     if (variants.size() == 1) {
       return variants.get(0);
     }
-    final Phi phi = new Phi(incrementVersion(mem), variants);
+    final List<Static> memvars = new java.util.ArrayList<>(variants.size());
+    for (final Def def : variants) {
+      memvars.add(def.mem);
+    }
+    final Phi phi = new Phi(incrementVersion(mem), memvars);
     node.bb.insns.add(0, phi);
-    define(phi.target, phi, node);
 
-    return phi.target;
+    return define(phi.target, phi, node);
   }
 
-  private void define(final Static mem, final Instruction insn, final Node node) {
-    getDefs(node).put(mem.name, insn);
+  private Def define(final Static mem, final Instruction insn, final Node node) {
+    final Def def = new Def(mem, insn, node);
+    getDefs(node).put(mem.name, def);
+    return def;
+  }
+
+  final static class Def {
+    Static mem;
+    Instruction insn;
+    Node bb;
+
+    public Def(Static mem, Instruction insn, Node bb) {
+      this.mem = mem;
+      this.insn = insn;
+      this.bb = bb;
+    }
   }
 
   private Static incrementVersion(final Static mem) {
@@ -109,7 +122,7 @@ public class GlobalNumbering extends Pass {
     return new Static(mem.name, ver, mem.getType());
   }
 
-  private Map<String, Instruction> getDefs(final Node node) {
+  private Map<String, Def> getDefs(final Node node) {
     return defs.get(blocks.indexOf(node));
   }
 
