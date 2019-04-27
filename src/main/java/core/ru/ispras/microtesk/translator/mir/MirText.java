@@ -212,6 +212,7 @@ public class MirText {
       lines.add(String.format("%s = Disclose %s of %s %s",
         stringOf(insn.target),
         insn.target.getType().getName(),
+        insn.source.getType().getName(),
         stringOf(insn.source),
         concatOperands(insn.indices)));
     }

@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-import ru.ispras.castle.util.Logger;
-
 public class MirParser {
   private final BufferedReader reader;
   private final List<String> lines = new java.util.ArrayList<>();
@@ -41,7 +39,7 @@ public class MirParser {
     }
     MirBlock block = null;
 
-    for (final String line : lines) {
+    for (final String line : lines.subList(1, lines.size())) {
       if (line.matches("\\w+:")) {
         final String name = line.substring(0, line.indexOf(":"));
         block = blocks.get(name);
@@ -281,13 +279,12 @@ public class MirParser {
         TokenKind.IDENT.next(s);
         final MirTy retty = nextType(s);
 
-
-        TokenKind.LBRACE.next(s);
+        TokenKind.LBRACKET.next(s);
         final List<MirTy> params = new java.util.ArrayList<>();
-        while (!TokenKind.RBRACE.nextIn(s)) {
+        while (!TokenKind.RBRACKET.nextIn(s)) {
           params.add(nextType(s));
         }
-        TokenKind.RBRACE.next(s);
+        TokenKind.RBRACKET.next(s);
 
         return new FuncTy(retty, params);
       }
@@ -305,19 +302,28 @@ public class MirParser {
       }
 
       final String method = s.next();
-      final String calleeName = TokenKind.LOCAL.next(s);
 
+      final Operand callee;
       final List<Operand> args = new java.util.ArrayList<>();
-      final List<MirTy> params = new java.util.ArrayList<>();
-      while (s.hasNext()) {
-        final MirTy type = nextType(s);
-        final Operand arg = nextOperand(type, s);
-        params.add(type);
-        args.add(arg);
-      }
 
-      final Operand callee =
-          new Local(Integer.valueOf(calleeName), new FuncTy(retty, params));
+      if (TokenKind.LOCAL.nextIn(s)) {
+        final String calleeName = TokenKind.LOCAL.next(s);
+        final List<MirTy> params = new java.util.ArrayList<>();
+        while (s.hasNext()) {
+          final MirTy type = nextType(s);
+          final Operand arg = nextOperand(type, s);
+          params.add(type);
+          args.add(arg);
+        }
+        callee = new Local(Integer.valueOf(calleeName), new FuncTy(retty, params));
+      } else {
+        callee = nextClosure(s);
+        while (s.hasNext()) {
+          final MirTy type = nextType(s);
+          final Operand arg = nextOperand(type, s);
+          args.add(arg);
+        }
+      }
 
       return new Call(callee, method, args, ret);
     }
@@ -326,11 +332,32 @@ public class MirParser {
       if (TokenKind.LOCAL.nextIn(s)) {
         return new Local(Integer.valueOf(TokenKind.LOCAL.next(s)), type);
       }
+      if (TokenKind.LBRACE.nextIn(s)) {
+        return nextClosure(s);
+      }
       try {
-        return new Constant(type.getSize(), s.nextInt());
+        return nextConst(type, s);
       } catch (final java.util.InputMismatchException e) { // FIXME
         return new Constant(type.getSize(), 0);
       }
+    }
+
+    public static Constant nextConst(final MirTy type, final Scanner s) {
+      return new Constant(type.getSize(), s.nextInt());
+    }
+
+    public static Closure nextClosure(final Scanner s) {
+      TokenKind.LBRACE.next(s);
+      final List<Operand> upvalues = new java.util.ArrayList<>();
+      while (!TokenKind.RBRACE.nextIn(s)) {
+        final MirTy argty = nextType(s);
+        final Operand arg = nextOperand(argty, s);
+        upvalues.add(arg);
+      }
+      TokenKind.RBRACE.next(s);
+
+      final String callee = s.next();
+      return new Closure(callee, upvalues);
     }
 
     public static String nextLabel(final Scanner s) {
@@ -390,6 +417,9 @@ public class MirParser {
         if (s.hasNext("Concat")) {
           return nextConcat(name, s);
         }
+        if (s.hasNext("Disclose")) {
+          return nextDisclose(name, s);
+        }
 
         final MirTy lhsty = nextType(s);
         final Lvalue lhs = new Local(Integer.valueOf(name), lhsty);
@@ -418,6 +448,25 @@ public class MirParser {
         throw new IllegalArgumentException();
       }
       return null;
+    }
+
+    private static Instruction nextDisclose(final String id, final Scanner s) {
+      TokenKind.IDENT.next(s);
+
+      final MirTy lhsty = nextType(s);
+      TokenKind.IDENT.next(s); // skip 'of'
+      final MirTy rhsty = nextType(s);
+      final Operand src = nextOperand(rhsty, s);
+
+      final List<Constant> indices = new java.util.ArrayList<>();
+      while (s.hasNext()) {
+        final MirTy type = nextType(s);
+        final Constant arg = nextConst(type, s);
+        indices.add(arg);
+      }
+
+      final Local lhs = new Local(Integer.valueOf(id), lhsty);
+      return new Disclose(lhs, src, indices);
     }
 
     private static Instruction nextConcat(final String id, final Scanner s) {
