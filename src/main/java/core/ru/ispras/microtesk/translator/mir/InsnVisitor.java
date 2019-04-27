@@ -41,4 +41,5 @@ public class InsnVisitor {
   }
 
   public void visit(final GlobalNumbering.Phi insn) { }
+  public void visit(final GlobalNumbering.SsaStore insn) { }
 }

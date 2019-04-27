@@ -36,20 +36,25 @@ public class GlobalNumbering extends Pass {
         final Instruction insn = insns.get(i);
         if (insn instanceof Store) {
           final Store store = (Store) insn;
-          final int version = incrementVersion(getMemory(store.target));
+          final Static current = reload(store.target, node);
 
-          final Store def = new Store(update(store.target, version), store.source);
+          final Store update =
+              new Store(update(store.target, current.version), store.source);
+          final SsaStore def = new SsaStore(incrementVersion(current), update);
           insns.set(i, def);
-          define(def, node);
+          define(def.target, def, node);
         } else if (insn instanceof Load) {
           final Load load = (Load) insn;
-          final Static mem = getMemory(load.source);
-          final Static def = reload(mem, node);
+          final Static def = reload(load.source, node);
 
           insns.set(insns.indexOf(load), new Load(update(load.source, def.version), load.target));
         }
       }
     }
+  }
+
+  private Static reload(final Lvalue lval, final Node node) {
+    return reload(getMemory(lval), node);
   }
 
   private Static reload(final Static mem, final Node node) {
@@ -58,6 +63,8 @@ public class GlobalNumbering extends Pass {
       return reloadRecursive(mem, node);
     } else if (insn instanceof Store) {
       return getMemory(((Store) insn).target);
+    } else if (insn instanceof SsaStore) {
+      return ((SsaStore) insn).target;
     } else {
       return ((Phi) insn).target;
     }
@@ -84,29 +91,22 @@ public class GlobalNumbering extends Pass {
     if (variants.size() == 1) {
       return variants.get(0);
     }
-    final Static newval = new Static(mem.name, incrementVersion(mem), mem.getType());
-    final Phi phi = new Phi(newval, variants);
+    final Phi phi = new Phi(incrementVersion(mem), variants);
     node.bb.insns.add(0, phi);
-    define(phi, node);
+    define(phi.target, phi, node);
 
-    return newval;
+    return phi.target;
   }
 
-  private void define(final Instruction insn, final Node node) {
-    final Static mem;
-    if (insn instanceof Store) {
-      mem = getMemory(((Store) insn).target);
-    } else {
-      mem = getMemory(((Phi) insn).target);
-    }
+  private void define(final Static mem, final Instruction insn, final Node node) {
     getDefs(node).put(mem.name, insn);
   }
 
-  private int incrementVersion(final Static mem) {
+  private Static incrementVersion(final Static mem) {
     final int ver = (versions.containsKey(mem.name)) ? versions.get(mem.name) + 1 : 2;
     versions.put(mem.name, ver);
 
-    return ver;
+    return new Static(mem.name, ver, mem.getType());
   }
 
   private Map<String, Instruction> getDefs(final Node node) {
@@ -209,6 +209,21 @@ public class GlobalNumbering extends Pass {
     public Phi(final Static target, final List<Static> values) {
       this.target = target;
       this.values = values;
+    }
+
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
+  }
+
+  static class SsaStore implements Instruction {
+    final Static target;
+    final Store origin;
+
+    public SsaStore(Static target, Store origin) {
+      this.target = target;
+      this.origin = origin;
     }
 
     @Override
