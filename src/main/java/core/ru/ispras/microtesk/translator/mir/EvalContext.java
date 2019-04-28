@@ -25,6 +25,7 @@ public final class EvalContext extends InsnVisitor {
     frame.locals.addAll(Collections.nCopies(mir.locals.size(), VoidTy.VALUE));
     for (final BasicBlock bb : mir.blocks) {
       int i = 0;
+
       for (final Instruction insn : bb.insns) {
         this.origin = bb.getOrigin(i++);
         insn.accept(this);
@@ -36,31 +37,47 @@ public final class EvalContext extends InsnVisitor {
   @Override
   public void visit(final Assignment insn) {
     if (insn.opc.equals(UnOpcode.Use)) {
-      setLocal(indexOf(insn.lhs), getValue(insn.op1));
+      setLocal(indexOf(insn.lhs), getValueRec(insn.op1));
     }
   }
 
   @Override
   public void visit(final Disclose insn) {
     int i = 0;
-    Operand opnd = getValue(insn.source);
+    Operand opnd = getValueRec(insn.source);
     while (i < insn.indices.size() && opnd instanceof Closure) {
       final BigInteger index = insn.indices.get(i++).getValue();
-      opnd = getValue(((Closure) opnd).upvalues.get(index.intValue()));
+      opnd = getValueDirect(((Closure) opnd).upvalues.get(index.intValue()));
     }
     if (i >= insn.indices.size()) {
       setLocal(indexOf(insn.target), opnd);
     }
   }
 
-  private Operand getValue(final Operand opnd) {
-    if (opnd instanceof Local) {
+  private Operand getValueRec(final Operand opnd) {
+    if (opnd instanceof Closure) {
+      final Closure closure = (Closure) opnd;
+      final List<Operand> upvalues = new java.util.ArrayList<>(closure.upvalues.size());
+      for (final Operand upval : closure.upvalues) {
+        upvalues.add(getValueRec(upval));
+      }
+      return new Closure(closure.callee, upvalues);
+    } else if (opnd instanceof Local) {
       final int index = indexOf(opnd);
       final Operand value = getLocal(index);
       if (value.equals(VoidTy.VALUE)) {
         return new Local(index, opnd.getType());
       }
       return value;
+    }
+    return opnd;
+  }
+
+  private Operand getValueDirect(final Operand opnd) {
+    if (opnd instanceof Local) {
+      final Local local = (Local) opnd;
+      final Operand value = getLocal(local.id);
+      return (value.equals(VoidTy.VALUE)) ? local : value;
     }
     return opnd;
   }
