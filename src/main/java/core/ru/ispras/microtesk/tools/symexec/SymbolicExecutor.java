@@ -26,6 +26,8 @@ import ru.ispras.microtesk.model.TemporaryVariables;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.Disassembler.Output;
+import ru.ispras.microtesk.translator.mir.MirContext;
+import ru.ispras.microtesk.translator.mir.MirText;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,6 +67,10 @@ public final class SymbolicExecutor {
     inspectControlFlow(fileName + ".json", instructions);
 
     Logger.message("Created file: %s", smtFileName);
+
+    final MirContext ctx =
+      FormulaBuilder.buildMir(outputFactory.getModel(), instructions);
+    Logger.warning(new MirText(ctx).toString());
     return true;
   }
 
