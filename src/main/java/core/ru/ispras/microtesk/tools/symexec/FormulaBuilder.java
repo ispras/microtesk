@@ -32,6 +32,8 @@ import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.model.metadata.MetaData;
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
+import ru.ispras.microtesk.translator.mir.MirBuilder;
+import ru.ispras.microtesk.translator.mir.MirContext;
 import ru.ispras.microtesk.translator.nml.coverage.PathConstraintBuilder;
 import ru.ispras.microtesk.translator.nml.coverage.SsaAssembler;
 import ru.ispras.microtesk.translator.nml.coverage.TestBase;
@@ -40,6 +42,7 @@ import ru.ispras.microtesk.utils.NamePath;
 import ru.ispras.testbase.TestBaseContext;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -47,6 +50,31 @@ import java.util.List;
 import java.util.Map;
 
 public final class FormulaBuilder {
+  public static MirContext buildMir(final Model m, final List<IsaPrimitive> insns) {
+    final MirBuilder builder = new MirBuilder();
+    for (final IsaPrimitive insn : insns) {
+      final IsaInstance p = new IsaInstance(m, insn);
+      buildOperand(builder, p);
+
+      final String callee = String.format("%s.action", insn.getName());
+      builder.makeCall(callee, 0);
+    }
+    return builder.build("");
+  }
+
+  private static void buildOperand(final MirBuilder builder, final IsaInstance p) {
+    if (p.kind.equals(IsaPrimitiveKind.IMM)) {
+      final Location l = ((Immediate) p.item).access();
+      builder.addValue(l.getBitSize(), l.getValue());
+    } else {
+      final Collection<IsaPrimitive> args = p.item.getArguments().values();
+      for (final IsaPrimitive arg : args) {
+        buildOperand(builder, p.adopt(arg));
+      }
+      builder.makeClosure(p.item.getName(), args.size());
+    }
+  }
+
   public static List<Node> buildFormulas(
       final Model model,
       final List<IsaPrimitive> sequence) {
