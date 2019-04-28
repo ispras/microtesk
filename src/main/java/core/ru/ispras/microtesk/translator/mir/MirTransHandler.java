@@ -68,15 +68,10 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
 
     final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
     try (final ArchiveWriter archive = new ArchiveWriter(path)) {
-      for (final MirContext ctx : mirs.values()) {
+      for (final MirContext ctx : driver.storage.values()) {
         try (final Writer writer = archive.newText(ctx.name + ".mir")) {
           final MirText text = new MirText(ctx);
           writer.write(text.toString());
-
-          for (final Pass pass : driver.passList) {
-            final MirText passText = new MirText(pass.result.get(ctx.name));
-            writer.write(passText.toString());
-          }
         }
       }
     } catch (final IOException e) {
@@ -86,7 +81,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
 
   final static class PassDriver {
     public final List<Pass> passList;
-    private final Map<String, MirContext> storage = new java.util.HashMap<>();
+    final Map<String, MirContext> storage = new java.util.HashMap<>();
 
     PassDriver(final Pass... passes) {
       this.passList = Arrays.asList(passes);
