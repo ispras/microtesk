@@ -223,6 +223,7 @@ public final class NmlIrTrans {
 
   private Closure newClosure(final MirBlock block, final Instance src) {
     final List<Operand> upvalues = new java.util.ArrayList<>();
+    int argIndex = 0;
     for (final InstanceArgument arg : src.getArguments()) {
       switch (arg.getKind()) {
       case INSTANCE:
@@ -230,15 +231,33 @@ public final class NmlIrTrans {
         break;
 
       case PRIMITIVE:
-        upvalues.add(block.getNamedLocal(arg.getName()));
+        final PrimitiveAnd proto = src.getPrimitive();
+        final Primitive param = getParameter(proto, argIndex);
+        if (param.getKind().equals(Primitive.Kind.IMM)) {
+          final Location loc =
+            Location.createPrimitiveBased(arg.getName(), arg.getPrimitive());
+          final Operand value = translateAccess(block, loc, new ReadAccess(block));
+          upvalues.add(value);
+        } else {
+          upvalues.add(block.getNamedLocal(arg.getName()));
+        }
         break;
 
       case EXPR:
         upvalues.add(translate(block, arg.getExpr().getNode()));
         break;
       }
+      ++argIndex;
     }
     return new Closure(src.getPrimitive().getName(), upvalues);
+  }
+
+  private static Primitive getParameter(final PrimitiveAnd p, final int index) {
+    final Iterator<Primitive> it = p.getArguments().values().iterator();
+    for (int i = 0; i < index; ++i) {
+      it.next();
+    }
+    return it.next();
   }
 
   private void translate(final MirBlock ctx, final StatementAssignment s) {
