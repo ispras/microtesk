@@ -4,22 +4,21 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Pass {
-  public Map<String, MirContext> storage;
+  private String comment = "";
 
-  public final Map<String, MirContext> result = new java.util.HashMap<>();
-  public final Map<String, MirContext> source = new java.util.HashMap<>();
-
-  public Map<String, MirContext> run(final Map<String, MirContext> source) {
-    for (final Map.Entry<String, MirContext> entry : source.entrySet()) {
-      result.put(entry.getKey(), apply(entry.getValue()));
-    }
-    for (final Map.Entry<String, MirContext> entry : result.entrySet()) {
-      result.put(entry.getKey(), apply(entry.getValue()));
-    }
-    return result;
-  }
+  Map<String, MirContext> storage;
+  final Map<String, MirContext> result = new java.util.HashMap<>();
 
   public abstract MirContext apply(MirContext ctx);
+
+  public Pass setComment(final String s) {
+    this.comment = s;
+    return this;
+  }
+
+  public String getComment(final String s) {
+    return this.comment;
+  }
 
   protected MirContext resolveCallee(final String name) {
     return storage.get(name);
