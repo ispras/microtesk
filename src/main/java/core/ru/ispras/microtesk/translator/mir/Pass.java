@@ -16,7 +16,7 @@ public abstract class Pass {
     return this;
   }
 
-  public String getComment(final String s) {
+  public String getComment() {
     return this.comment;
   }
 
