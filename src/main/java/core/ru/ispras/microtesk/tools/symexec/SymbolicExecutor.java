@@ -20,19 +20,25 @@ import ru.ispras.fortress.solver.engine.smt.Cvc4Solver;
 import ru.ispras.fortress.solver.engine.smt.SmtTextBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.TemporaryVariables;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.Disassembler.Output;
+import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirContext;
+import ru.ispras.microtesk.translator.mir.MirPassDriver;
 import ru.ispras.microtesk.translator.mir.MirText;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.json.*;
 import javax.json.stream.JsonGenerator;
 
@@ -68,10 +74,22 @@ public final class SymbolicExecutor {
 
     Logger.message("Created file: %s", smtFileName);
 
-    final MirContext ctx =
-      FormulaBuilder.buildMir(outputFactory.getModel(), instructions);
-    Logger.warning(new MirText(ctx).toString());
+    writeMir(outputFactory.getModel(), instructions);
+
     return true;
+  }
+
+  private static void writeMir(final Model model, final List<IsaPrimitive> insnList) {
+    final Path path = Paths.get(SysUtils.getHomeDir(), "gen", model.getName() + ".zip");
+    final MirArchive archive = MirArchive.open(path);
+    final MirPassDriver driver =
+      MirPassDriver.newDefault().setStorage(archive.loadAll());
+    for (final IsaPrimitive insn : insnList) {
+      final MirContext mir =
+        FormulaBuilder.buildMir(model, Collections.singletonList(insn));
+      final MirContext opt = driver.apply(driver.apply(mir));
+      Logger.debug(new MirText(opt).toString());
+    }
   }
 
   private static void writeSmt(
