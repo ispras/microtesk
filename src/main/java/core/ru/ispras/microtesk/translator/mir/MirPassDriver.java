@@ -32,6 +32,16 @@ public class MirPassDriver {
     return this;
   }
 
+  public MirContext apply(final MirContext source) {
+    MirContext ctx = source;
+    for (final Pass pass : getPasses()) {
+      final int nlocals = ctx.locals.size();
+      ctx = pass.apply(ctx);
+      pass.result.put(ctx.name, ctx);
+    }
+    return ctx;
+  }
+
   public Map<String, MirContext> run(final Map<String, MirContext> source) {
     final List<String> ordered = dependencyOrder(source);
     for (final String name : ordered) {
