@@ -44,7 +44,7 @@ public class MirParser {
         final String name = line.substring(0, line.indexOf(":"));
         block = blocks.get(name);
       } else {
-        final Parser2 parser = new Parser2(newScanner(line), blocks);
+        final Parser2 parser = new Parser2(newScanner(line), blocks, ctx);
         block.append(parser.nextInsn());
       }
     }
@@ -107,10 +107,12 @@ public class MirParser {
   private static final class Parser2 {
     private final Scanner scanner;
     private final Map<String, MirBlock> blocks;
+    private final List<MirTy> locals;
 
-    Parser2(final Scanner s, final Map<String, MirBlock> blocks) {
+    Parser2(final Scanner s, final Map<String, MirBlock> blocks, final MirContext ctx) {
       this.scanner = s;
       this.blocks = blocks;
+      this.locals = ctx.locals;
     }
 
     public Instruction nextInsn() {
@@ -210,14 +212,14 @@ public class MirParser {
       return null;
     }
 
-    public static Call nextCall(final String target, final Scanner s) {
+    public Call nextCall(final String target, final Scanner s) {
       TokenKind.IDENT.next(s);
       final MirTy retty = nextType(s);
       final Local ret;
       if (target.isEmpty()) {
         ret = null;
       } else {
-        ret = new Local(Integer.valueOf(target), retty);
+        ret = newLocal(target, retty);
       }
 
       final String method = s.next();
@@ -234,7 +236,7 @@ public class MirParser {
           params.add(type);
           args.add(arg);
         }
-        callee = new Local(Integer.valueOf(calleeName), new FuncTy(retty, params));
+        callee = newLocal(calleeName, new FuncTy(retty, params));
       } else {
         callee = nextClosure(s);
         while (s.hasNext()) {
@@ -247,9 +249,9 @@ public class MirParser {
       return new Call(callee, method, args, ret);
     }
 
-    public static Operand nextOperand(final MirTy type, final Scanner s) {
+    public Operand nextOperand(final MirTy type, final Scanner s) {
       if (TokenKind.LOCAL.nextIn(s)) {
-        return new Local(Integer.valueOf(TokenKind.LOCAL.next(s)), type);
+        return newLocal(TokenKind.LOCAL.next(s), type);
       }
       if (TokenKind.LBRACE.nextIn(s)) {
         return nextClosure(s);
@@ -265,7 +267,7 @@ public class MirParser {
       return new Constant(type.getSize(), s.nextInt());
     }
 
-    public static Closure nextClosure(final Scanner s) {
+    public Closure nextClosure(final Scanner s) {
       TokenKind.LBRACE.next(s);
       final List<Operand> upvalues = new java.util.ArrayList<>();
       while (!TokenKind.RBRACE.nextIn(s)) {
@@ -284,7 +286,7 @@ public class MirParser {
       return TokenKind.LOCAL.next(s);
     }
 
-    public static Lvalue nextMemory(final MirTy type, final Scanner s) {
+    public Lvalue nextMemory(final MirTy type, final Scanner s) {
       final String name = TokenKind.IDENT.next(s);
       Lvalue mem = new Static(name, type);
 
@@ -302,7 +304,7 @@ public class MirParser {
       return mem;
     }
 
-    public static Store nextStore(final Scanner s) {
+    public Store nextStore(final Scanner s) {
       if (s.hasNext("store")) {
         TokenKind.IDENT.next(s);
 
@@ -316,7 +318,7 @@ public class MirParser {
       return null;
     }
 
-    public static Instruction nextAssign(final Scanner s) {
+    public Instruction nextAssign(final Scanner s) {
       if (TokenKind.LOCAL.nextIn(s)) {
         final String name = TokenKind.LOCAL.next(s);
         TokenKind.EQUALS.next(s);
@@ -341,7 +343,7 @@ public class MirParser {
         }
 
         final MirTy lhsty = nextType(s);
-        final Lvalue lhs = new Local(Integer.valueOf(name), lhsty);
+        final Lvalue lhs = newLocal(name, lhsty);
 
         final String insn = TokenKind.IDENT.next(s);
         final MirTy rhsty = nextType(s);
@@ -369,7 +371,7 @@ public class MirParser {
       return null;
     }
 
-    private static Instruction nextDisclose(final String id, final Scanner s) {
+    private Instruction nextDisclose(final String id, final Scanner s) {
       TokenKind.IDENT.next(s);
 
       final MirTy lhsty = nextType(s);
@@ -384,14 +386,14 @@ public class MirParser {
         indices.add(arg);
       }
 
-      final Local lhs = new Local(Integer.valueOf(id), lhsty);
+      final Local lhs = newLocal(id, lhsty);
       return new Disclose(lhs, src, indices);
     }
 
-    private static Instruction nextConcat(final String id, final Scanner s) {
+    private Instruction nextConcat(final String id, final Scanner s) {
       TokenKind.IDENT.next(s);
       final MirTy lhsty = nextType(s);
-      final Lvalue lhs = new Local(Integer.valueOf(id), lhsty);
+      final Lvalue lhs = newLocal(id, lhsty);
 
       final List<Operand> args = new java.util.ArrayList<>();
       while (s.hasNext()) {
@@ -402,10 +404,10 @@ public class MirParser {
       return new Concat(lhs, args);
     }
 
-    private static Instruction nextExtract(final String id, final Scanner s) {
+    private Instruction nextExtract(final String id, final Scanner s) {
       TokenKind.IDENT.next(s);
       final MirTy lhsty = nextType(s);
-      final Lvalue lhs = new Local(Integer.valueOf(id), lhsty);
+      final Lvalue lhs = newLocal(id, lhsty);
 
       TokenKind.IDENT.next(s); // of
       final MirTy rhsty = nextType(s);
@@ -417,14 +419,14 @@ public class MirParser {
       return new Extract(lhs, rhs, lo, hi);
     }
 
-    private static Instruction nextCast(final String id, final Scanner s) {
+    private Instruction nextCast(final String id, final Scanner s) {
       final String cast = TokenKind.IDENT.next(s);
       final MirTy rhsty = nextType(s);
       final Operand rhs = nextOperand(rhsty, s);
       TokenKind.IDENT.next(s);
 
       final MirTy lhsty = nextType(s);
-      final Local lhs = new Local(Integer.valueOf(id), lhsty);
+      final Local lhs = newLocal(id, lhsty);
 
       if (cast.equals("Sext")) {
         return new Sext(lhs, rhs);
@@ -432,17 +434,17 @@ public class MirParser {
       return new Zext(lhs, rhs);
     }
 
-    private static Load nextLoad(final String id, final Scanner s) {
+    private Load nextLoad(final String id, final Scanner s) {
       TokenKind.IDENT.next(s);
 
       final MirTy dstty = nextType(s);
-      final Local dst = new Local(Integer.valueOf(id), dstty);
+      final Local dst = newLocal(id, dstty);
       final MirTy memty = nextType(s);
       final Lvalue mem = nextMemory(memty, s);
       return new Load(mem, dst);
     }
 
-    public static Branch nextBranch(final Map<String, MirBlock> bbs, final Scanner s) {
+    public Branch nextBranch(final Map<String, MirBlock> bbs, final Scanner s) {
       if (s.hasNext("br")) {
         TokenKind.IDENT.next(s);
         if (s.hasNext("label")) {
@@ -460,7 +462,7 @@ public class MirParser {
       return null;
     }
 
-    public static Return nextReturn(final Scanner s) {
+    public Return nextReturn(final Scanner s) {
       if (s.hasNext("ret")) {
         TokenKind.IDENT.next(s);
         if (s.hasNext("void")) {
@@ -472,6 +474,16 @@ public class MirParser {
         return new Return(value);
       }
       return null;
+    }
+
+    private Local newLocal(final String id, final MirTy type) {
+      final int index = Integer.valueOf(id);
+      final int size = locals.size();
+      if (size <= index) {
+        locals.addAll(Collections.nCopies(index - size, VoidTy.VALUE));
+        locals.add(type);
+      }
+      return new Local(index, type);
     }
   }
 }
