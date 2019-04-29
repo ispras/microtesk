@@ -8,13 +8,11 @@ import java.util.Set;
 
 public class MirPassDriver {
   private final List<Pass> passList;
-  private Map<String, MirContext> storage = new java.util.HashMap<>();
+  private Map<String, MirContext> storage;
 
   public MirPassDriver(final Pass... passes) {
     this.passList = Arrays.asList(passes);
-    for (final Pass pass : passList) {
-      pass.storage = this.storage;
-    }
+    setStorage(new java.util.HashMap<String, MirContext>());
   }
 
   public static MirPassDriver newDefault() {
@@ -24,6 +22,14 @@ public class MirPassDriver {
       new ForwardPass().setComment("propagate2"),
       new ConcFlowPass().setComment("inline blocks")
     );
+  }
+
+  public MirPassDriver setStorage(final Map<String, MirContext> storage) {
+    this.storage = storage;
+    for (final Pass pass : passList) {
+      pass.storage = storage;
+    }
+    return this;
   }
 
   public Map<String, MirContext> run(final Map<String, MirContext> source) {
