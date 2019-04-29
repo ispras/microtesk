@@ -58,17 +58,12 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     for (final MirContext ctx : mirs.values()) {
       source.put(ctx.name, ctx);
     }
-    final PassDriver driver = new PassDriver(
-      new ForwardPass(),
-      new InlinePass(),
-      new ForwardPass(),
-      new ConcFlowPass()
-      );
-    driver.run(source);
+    final MirPassDriver driver = MirPassDriver.newDefault();
+    final Map<String, MirContext> opt = driver.run(source);
 
     final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
     try (final ArchiveWriter archive = new ArchiveWriter(path)) {
-      for (final MirContext ctx : driver.storage.values()) {
+      for (final MirContext ctx : opt.values()) {
         try (final Writer writer = archive.newText(ctx.name + ".mir")) {
           final MirText text = new MirText(ctx);
           writer.write(text.toString());
@@ -76,75 +71,6 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
       }
     } catch (final IOException e) {
       Logger.error("Failed to store MIR '%s': %s", path.toString(), e.toString());
-    }
-  }
-
-  final static class PassDriver {
-    public final List<Pass> passList;
-    final Map<String, MirContext> storage = new java.util.HashMap<>();
-
-    PassDriver(final Pass... passes) {
-      this.passList = Arrays.asList(passes);
-      for (final Pass pass : passList) {
-        pass.storage = this.storage;
-      }
-    }
-
-    public void run(Map<String, MirContext> source) {
-      final List<String> ordered = dependencyOrder(source);
-      for (final String name : ordered) {
-        MirContext ctx = source.get(name);
-        for (final Pass pass : passList) {
-          pass.source.put(name, ctx);
-          ctx = pass.apply(ctx);
-          pass.result.put(name, ctx);
-        }
-        storage.put(name, ctx);
-      }
-    }
-
-    public static List<String> dependencyOrder(final Map<String, MirContext> source) {
-      final Map<String, List<String>> deps = new java.util.HashMap<>();
-      for (final MirContext ctx : source.values()) {
-        deps.put(ctx.name, listDeps(ctx, source));
-      }
-      final List<String> ordered = new java.util.ArrayList<>();
-      while (!deps.isEmpty()) {
-        orderDeps(deps.keySet().iterator().next(), ordered, deps);
-      }
-      return ordered;
-    }
-
-    private static void orderDeps(
-        final String name,
-        final List<String> ordered,
-        final Map<String, List<String>> deps) {
-      if (deps.containsKey(name)) {
-        for (final String dep : deps.get(name)) {
-          orderDeps(dep, ordered, deps);
-        }
-        ordered.add(name);
-        deps.remove(name);
-      }
-    }
-
-    private static List<String> listDeps(final MirContext ctx, final Map<String, MirContext> source) {
-      final Set<String> deps = new java.util.HashSet<>();
-      for (final BasicBlock bb : ctx.blocks) {
-        for (final Instruction insn : bb.insns) {
-          if (insn instanceof Call) {
-            final Call call = (Call) insn;
-            final String dep = InlinePass.resolveCalleeName(call);
-            if (source.containsKey(dep)) {
-              deps.add(dep);
-            }
-          }
-        }
-      }
-      if (deps.isEmpty()) {
-        return Collections.emptyList();
-      }
-      return new java.util.ArrayList<>(deps);
     }
   }
 
