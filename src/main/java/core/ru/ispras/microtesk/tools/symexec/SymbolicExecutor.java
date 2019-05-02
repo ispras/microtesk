@@ -27,6 +27,7 @@ import ru.ispras.microtesk.model.TemporaryVariables;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.Disassembler.Output;
+import ru.ispras.microtesk.translator.mir.GlobalNumbering;
 import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirContext;
 import ru.ispras.microtesk.translator.mir.MirPassDriver;
@@ -84,10 +85,12 @@ public final class SymbolicExecutor {
     final MirArchive archive = MirArchive.open(path);
     final MirPassDriver driver =
       MirPassDriver.newDefault().setStorage(archive.loadAll());
+    driver.addAll(driver.getPasses()).add(new GlobalNumbering().setComment("build SSA"));
+
     for (final IsaPrimitive insn : insnList) {
       final MirContext mir =
         FormulaBuilder.buildMir(model, Collections.singletonList(insn));
-      final MirContext opt = driver.apply(driver.apply(mir));
+      final MirContext opt = driver.apply(mir);
       Logger.debug(new MirText(opt).toString());
     }
   }
