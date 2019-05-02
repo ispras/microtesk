@@ -224,7 +224,7 @@ public class GlobalNumbering extends Pass {
 
     void removeTail(final int index) {
       path.subList(index, path.size()).clear();
-      pathTaken.subList(index, pathTaken.size()).clear();
+      pathTaken.subList(index - 1, pathTaken.size()).clear();
     }
   }
 
