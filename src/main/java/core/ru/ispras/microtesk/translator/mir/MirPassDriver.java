@@ -1,6 +1,7 @@
 package ru.ispras.microtesk.translator.mir;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,7 @@ public class MirPassDriver {
   private Map<String, MirContext> storage;
 
   public MirPassDriver(final Pass... passes) {
-    this.passList = Arrays.asList(passes);
+    this.passList = new java.util.ArrayList<>(Arrays.asList(passes));
     setStorage(new java.util.HashMap<String, MirContext>());
   }
 
@@ -53,6 +54,16 @@ public class MirPassDriver {
       storage.put(name, ctx);
     }
     return Collections.unmodifiableMap(this.storage);
+  }
+
+  public MirPassDriver add(final Pass pass) {
+    passList.add(pass);
+    return this;
+  }
+
+  public MirPassDriver addAll(final Collection<Pass> passes) {
+    passList.addAll(passes);
+    return this;
   }
 
   public List<Pass> getPasses() {
