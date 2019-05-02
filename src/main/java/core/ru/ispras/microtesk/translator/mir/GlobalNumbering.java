@@ -191,7 +191,7 @@ public class GlobalNumbering extends Pass {
         final Node join = forkJoin.get(pred);
         final int index = dep.path.indexOf(join);
         if (index >= 0) {
-          dep.removeTail(index);
+          dep.removeTail(index + 1);
         } else {
           dep.add(pred, node);
         }
