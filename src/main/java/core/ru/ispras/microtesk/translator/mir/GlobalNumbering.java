@@ -183,22 +183,13 @@ public class GlobalNumbering extends Pass {
 
   private ControlDep listControlDeps(final Def def) {
     final ControlDep dep = new ControlDep(def);
-
-    Node node = def.bb;
-    while (!node.pred.isEmpty()) {
-      final Node pred = node.pred.get(0);
-      if (pred.succ.size() > 1) {
-        final Node join = forkJoin.get(pred);
-        final int index = dep.path.indexOf(join);
-        if (index >= 0) {
-          dep.removeTail(index + 1);
-        } else {
-          dep.add(pred, node);
-        }
-      } else if (pred.pred.size() > 1) {
-        dep.add(pred, node);
+    final List<Node> path = DepthFirstPath.get(def.bb, new Backward());
+    for (int i = 1; i < path.size(); ++i) {
+      final Node node = path.get(i);
+      final Node succ = path.get(i - 1);
+      if (node.succ.size() > 1 && !path.contains(forkJoin.get(node))) {
+        dep.add(node, succ);
       }
-      node = pred;
     }
     dep.limit = dep.path.size();
 
@@ -343,31 +334,50 @@ public class GlobalNumbering extends Pass {
     final List<Node> succ = fork.succ;
     if (succ.size() > 1) {
       final List<Node> pathTaken =
-        depthFirstPath(succ.get(0), Collections.<Node>emptyList());
-      final List<Node> pathOther = depthFirstPath(succ.get(1), pathTaken);
+        DepthFirstPath.get(succ.get(0), new Forward());
+      final List<Node> pathOther =
+        DepthFirstPath.get(succ.get(1), new Forward());
 
-      final Node join = lastOf(pathOther);
-      if (pathTaken.contains(join)) {
-        return join;
+      for (final Node node : pathTaken) {
+        if (pathOther.contains(node)) {
+          return node;
+        }
       }
     }
     return null;
   }
 
-  private static List<Node> depthFirstPath(
-      final Node src, final Collection<Node> observed) {
-    final List<Node> path = new java.util.ArrayList<>();
-
-    Node node = src;
-    for (List<Node> succ = node.succ;
-        !succ.isEmpty() && !observed.contains(node);
-        succ = node.succ) {
-      path.add(node);
-      node = succ.get(0);
+  static class DepthFirstPath <T> {
+    public interface Sibling <T> {
+      Collection<T> get(T input);
     }
-    path.add(node);
 
-    return path;
+    public static <T> List<T> get(final T source, final Sibling<T> sibling) {
+      final List<T> path = new java.util.ArrayList<T>();
+
+      T item = source;
+      for (Collection<T> succ = sibling.get(item); !succ.isEmpty(); succ = sibling.get(item)) {
+        path.add(item);
+        item = succ.iterator().next();
+      }
+      path.add(item);
+
+      return path;
+    }
+  }
+
+  static class Forward implements DepthFirstPath.Sibling<Node> {
+    @Override
+    public Collection<Node> get(final Node node) {
+      return node.succ;
+    }
+  }
+
+  static class Backward implements DepthFirstPath.Sibling<Node> {
+    @Override
+    public Collection<Node> get(final Node node) {
+      return node.pred;
+    }
   }
 
   static class Node {
