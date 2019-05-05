@@ -63,6 +63,7 @@ public final class SymbolicExecutor {
     final DisassemblerOutput output = outputFactory.getOutput();
     InvariantChecks.checkNotNull(output);
 
+    final Model model = outputFactory.getModel();
     final List<IsaPrimitive> instructions = output.getInstructions();
     InvariantChecks.checkNotNull(instructions);
 
@@ -71,7 +72,7 @@ public final class SymbolicExecutor {
 
     final String smtFileName = fileName + ".smt2";
     writeSmt(smtFileName, ssa);
-    inspectControlFlow(fileName + ".json", instructions);
+    inspectControlFlow(fileName + ".json", model, instructions);
 
     Logger.message("Created file: %s", smtFileName);
 
@@ -112,8 +113,11 @@ public final class SymbolicExecutor {
     }
   }
 
-  private static void inspectControlFlow(final String fileName, final List<IsaPrimitive> insns) {
-    final ControlFlowInspector inspector = new ControlFlowInspector(insns);
+  private static void inspectControlFlow(
+      final String fileName,
+      final Model model,
+      final List<IsaPrimitive> insns) {
+    final ControlFlowInspector inspector = new ControlFlowInspector(model, insns);
     final List<ControlFlowInspector.Range> ranges = inspector.inspect();
 
     final JsonBuilderFactory factory =
