@@ -5,14 +5,29 @@ import java.util.List;
 import java.util.Queue;
 
 import ru.ispras.microtesk.model.IsaPrimitive;
+import ru.ispras.microtesk.model.Model;
 
 public class ControlFlowInspector {
-  private final List<IsaPrimitive> insns;
+  private final Model model;
+  private final List<Integer> addr;
+  private final List<IsaPrimitive> body;
   private final List<Range> ranges = new java.util.ArrayList<>();
   private final Queue<Integer> queue = new java.util.ArrayDeque<>();
 
-  public ControlFlowInspector(final List<IsaPrimitive> insns) {
-    this.insns = insns;
+  public ControlFlowInspector(final Model model, final List<IsaPrimitive> body) {
+    this.model = model;
+    this.addr = new java.util.ArrayList<>(body.size());
+    this.body = body;
+
+    int offset = 0;
+    for (final IsaPrimitive insn : body) {
+      addr.add(offset);
+      offset += sizeOf(insn);
+    }
+  }
+
+  private int sizeOf(final IsaPrimitive insn) {
+    return insn.image(model.getTempVars()).length() / 8;
   }
 
   public List<Range> inspect() {
@@ -24,12 +39,13 @@ public class ControlFlowInspector {
         ranges.add(range.split(start));
       } else {
         int i = start;
-        while (i < insns.size()) {
-          final IsaPrimitive insn = insns.get(i);
+        while (i < body.size()) {
+          final IsaPrimitive insn = body.get(i);
           if (isBranch(insn)) {
-            final int target = i + getBranchOffset(insn);
+            final int target =
+              addr.indexOf(addr.get(i) + getBranchOffset(insn));
             // only local jumps considered for cfg
-            if (target >= 0 && target < insns.size()) {
+            if (target >= 0 && target < body.size()) {
               final Range r = new Range(start, i + 1);
               r.nextTaken = target;
               r.nextOther = (isConditional(insn)) ? i + 1 : target;
@@ -42,7 +58,7 @@ public class ControlFlowInspector {
           }
           ++i;
         }
-        if (i >= insns.size()) {
+        if (i >= body.size()) {
           ranges.add(new Range(start, i));
         }
       }
@@ -64,8 +80,8 @@ public class ControlFlowInspector {
     return false;
   }
 
-  public static int getBranchOffset(final IsaPrimitive insn) {
-    return 1;
+  private int getBranchOffset(final IsaPrimitive insn) {
+    return sizeOf(insn);
   }
 
   public static boolean isConditional(final IsaPrimitive insn) {
