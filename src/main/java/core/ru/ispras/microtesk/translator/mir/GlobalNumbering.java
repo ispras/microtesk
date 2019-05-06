@@ -2,9 +2,11 @@ package ru.ispras.microtesk.translator.mir;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class GlobalNumbering extends Pass {
   private List<Node> blocks;
@@ -82,9 +84,9 @@ public class GlobalNumbering extends Pass {
     if (node.pred.isEmpty()) {
       return new Def(new Static(mem.name, 1, mem.getType()), null, node);
     }
-    final List<Def> variants = getVariants(mem, node);
+    final Collection<Def> variants = getVariants(mem, node);
     if (variants.size() == 1) {
-      return variants.get(0);
+      return variants.iterator().next();
     }
     final List<Static> memvars = new java.util.ArrayList<>(variants.size());
     for (final Def def : variants) {
@@ -96,25 +98,20 @@ public class GlobalNumbering extends Pass {
     return define(phi.target, phi, node);
   }
 
-  private List<Def> getVariants(final Static mem, final Node node) {
-    final List<Def> variants = new java.util.ArrayList<>();
+  private Collection<Def> getVariants(final Static mem, final Node node) {
+    final Set<Def> variants = new java.util.TreeSet<>(new Comparator<Def>() {
+      @Override
+      public int compare(final Def lhs, final Def rhs) {
+        return lhs.mem.version - rhs.mem.version;
+      }
+    });
     for (final Node pred : node.pred) {
       variants.add(reload(mem, pred));
-    }
-    for (int i = 0; i < variants.size(); ++i) {
-      final Static origin = variants.get(i).mem;
-      final Iterator<Def> it = variants.subList(i + 1, variants.size()).iterator();
-      while (it.hasNext()) {
-        final Static sample = it.next().mem;
-        if (sample.version == origin.version) {
-          it.remove();
-        }
-      }
     }
     return variants;
   }
 
-  private Ite compress(final List<Def> defs) {
+  private Ite compress(final Collection<Def> defs) {
     final Map<Def, ControlDep> deps = new java.util.IdentityHashMap<>();
     for (final Def def : defs) {
       deps.put(def, listControlDeps(def));
