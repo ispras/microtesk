@@ -1,6 +1,7 @@
 package ru.ispras.microtesk.translator.mir;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +12,13 @@ public final class EvalContext extends InsnVisitor {
 
   private int origin = 0;
 
-  public static Frame eval(final MirContext mir) {
+  public static EvalContext eval(final MirContext mir) {
     final Map<String, Operand> globals = new java.util.HashMap<>();
     return new EvalContext(globals).evalInternal(mir);
+  }
+
+  EvalContext() {
+    this(new java.util.HashMap<String, Operand>());
   }
 
   private EvalContext(final Map<String, Operand> globals) {
@@ -21,11 +26,22 @@ public final class EvalContext extends InsnVisitor {
     this.frame = new Frame(globals);
   }
 
-  private Frame evalInternal(final MirContext mir) {
-    frame.locals.addAll(Collections.nCopies(mir.locals.size(), VoidTy.VALUE));
-    for (final BasicBlock bb : mir.blocks) {
-      int i = 0;
+  private EvalContext evalInternal(final MirContext mir) {
+    eval(mir.locals.size(), mir.blocks);
+    return this;
+  }
 
+  Frame getFrame() {
+    return frame;
+  }
+
+  Frame eval(final int nlocals, final Collection<BasicBlock> blocks) {
+    final int n = nlocals - frame.locals.size();
+    if (n > 0) {
+      frame.locals.addAll(Collections.nCopies(n, VoidTy.VALUE));
+    }
+    for (final BasicBlock bb : blocks) {
+      int i = 0;
       for (final Instruction insn : bb.insns) {
         this.origin = bb.getOrigin(i++);
         insn.accept(this);
@@ -86,7 +102,7 @@ public final class EvalContext extends InsnVisitor {
     return ((Local) opnd).id + this.origin;
   }
 
-  private Operand getLocal(final int index) {
+  Operand getLocal(final int index) {
     return frame.locals.get(index);
   }
 

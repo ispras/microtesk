@@ -11,7 +11,7 @@ public class InsnRewriter extends InsnVisitor {
   private int nskip;
 
   public static void rewrite(final MirContext ctx) {
-    final InsnRewriter worker = new InsnRewriter(EvalContext.eval(ctx));
+    final InsnRewriter worker = new InsnRewriter(EvalContext.eval(ctx).getFrame());
 
     final int nblocks = ctx.blocks.size();
     for (int i = 0; i < nblocks; ++i) {
