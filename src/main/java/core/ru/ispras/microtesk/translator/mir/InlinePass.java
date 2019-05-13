@@ -3,24 +3,31 @@ package ru.ispras.microtesk.translator.mir;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
 
 public class InlinePass extends Pass {
   @Override
   public MirContext apply(final MirContext src) {
     final MirContext ctx = Pass.copyOf(src);
-    final Queue<BasicBlock> queue = new java.util.ArrayDeque<>(ctx.blocks);
-    while (!queue.isEmpty()) {
-      final BasicBlock bb = queue.remove();
+    final EvalContext evaluator = new EvalContext();
+    final List<BasicBlock> blocks = EvalContext.breadthFirst(ctx);
+
+    int evalIndex = 0;
+    for (int i = 0; i < blocks.size(); ++i) {
+      final BasicBlock bb = blocks.get(i);
       for (List<Instruction> tail = find(bb.insns, Call.class);
           !tail.isEmpty();
           tail = find(Pass.tailList(tail, 1), Call.class)) {
         final Call call = (Call) tail.get(0);
-        final MirContext callee = resolveCallee(resolveCalleeName(call));
+        final int origin = bb.getOrigin(bb.insns.indexOf(call));
+
+        evaluator.eval(ctx.locals.size(), blocks.subList(evalIndex, i + 1));
+        evalIndex = i + 1;
+
+        final MirContext callee = resolveCallee(call, origin, evaluator);
         if (callee != null) {
           final Inliner inliner = new Inliner(call, bb, ctx, callee);
-          final BasicBlock newbb = inliner.run();
-          queue.add(newbb);
+          final Collection<BasicBlock> newbb = inliner.run();
+          blocks.addAll(i + 1, newbb);
           break;
         }
       }
@@ -28,12 +35,30 @@ public class InlinePass extends Pass {
     return ctx;
   }
 
-  public static String resolveCalleeName(final Call call) {
-    if (call.callee instanceof Closure) {
-      final Closure closure = (Closure) call.callee;
-      return call.method.replaceFirst("\\w+", closure.callee);
+  private MirContext resolveCallee(
+      final Call call,
+      final int origin,
+      final EvalContext evaluator) {
+    final String calleeName;
+    if (call.callee instanceof Local) {
+      final Local callee = (Local) call.callee;
+      calleeName = resolveCalleeName(evaluator.getLocal(callee.id + origin), call.method);
+    } else {
+      calleeName = resolveCalleeName(call.callee, call.method);
     }
-    return call.method;
+    return resolveCallee(calleeName);
+  }
+
+  public static String resolveCalleeName(final Call call) {
+    return resolveCalleeName(call.callee, call.method);
+  }
+
+  private static String resolveCalleeName(final Operand callee, final String methodName) {
+    if (callee instanceof Closure) {
+      final Closure closure = (Closure) callee;
+      return methodName.replaceFirst("\\w+", closure.callee);
+    }
+    return methodName;
   }
 
   private static <T> List<T> find(final List<T> source, final Class<? extends T> cls) {
@@ -64,7 +89,7 @@ public class InlinePass extends Pass {
       this.callee = Pass.copyOf(callee);
     }
 
-    public BasicBlock run() {
+    public Collection<BasicBlock> run() {
       final BasicBlock next = splitCallSite();
       rebase(caller.locals.size() - 1, callee.blocks);
       caller.locals.addAll(Pass.tailList(callee.locals, 1));
@@ -72,7 +97,10 @@ public class InlinePass extends Pass {
       final BasicBlock entry = linkForward();
       linkBack(next, callsite, callee);
 
-      return next;
+      final List<BasicBlock> blocks = EvalContext.breadthFirst(callee);
+      blocks.add(0, entry);
+      blocks.add(next);
+      return blocks;
     }
 
     private BasicBlock splitCallSite() {
