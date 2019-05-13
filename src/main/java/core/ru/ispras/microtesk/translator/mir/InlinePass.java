@@ -46,6 +46,7 @@ public class InlinePass extends Pass {
   }
 
   private static final class Inliner {
+    public final int callOrg;
     public final Call callsite;
     public final BasicBlock target;
     public final MirContext caller;
@@ -56,6 +57,7 @@ public class InlinePass extends Pass {
         final BasicBlock target,
         final MirContext caller,
         final MirContext callee) {
+      this.callOrg = target.getOrigin(target.insns.indexOf(callsite));
       this.callsite = callsite;
       this.target = target;
       this.caller = caller;
@@ -67,7 +69,7 @@ public class InlinePass extends Pass {
       rebase(caller.locals.size() - 1, callee.blocks);
       caller.locals.addAll(Pass.tailList(callee.locals, 1));
 
-      linkForward(new MirBlock(caller, target), callsite, callee);
+      final BasicBlock entry = linkForward();
       linkBack(next, callsite, callee);
 
       return next;
@@ -109,9 +111,16 @@ public class InlinePass extends Pass {
       return Collections.emptyList();
     }
 
-    private static void linkForward(final MirBlock bb, final Call call, final MirContext callee) {
+    private BasicBlock linkForward() {
+      final MirBlock source = new MirBlock(this.caller, this.target);
+      final Call call = this.callsite;
+
+      final MirBlock bb = source.ctx.newBlock();
+      bb.bb.origins.get(0).value = this.callOrg;
+      source.jump(bb);
+
       final BasicBlock entry = callee.blocks.get(0);
-      final int origin = entry.getOrigin(0);
+      final int origin = entry.getOrigin(0) - this.callOrg;
 
       final int nparams = callee.getSignature().params.size();
       final int nargs = call.args.size();
@@ -126,6 +135,8 @@ public class InlinePass extends Pass {
         bb.assign(bb.getLocal(index), call.args.get(i));
       }
       bb.jump(entry);
+
+      return bb.bb;
     }
 
     private static void linkBack(final BasicBlock next, final Call call, final MirContext callee) {
