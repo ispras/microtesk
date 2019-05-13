@@ -27,7 +27,7 @@ public final class EvalContext extends InsnVisitor {
   }
 
   private EvalContext evalInternal(final MirContext mir) {
-    eval(mir.locals.size(), mir.blocks);
+    eval(mir.locals.size(), breadthFirst(mir));
     return this;
   }
 
@@ -108,6 +108,28 @@ public final class EvalContext extends InsnVisitor {
 
   private void setLocal(final int index, final Operand value) {
     frame.locals.set(index, value);
+  }
+
+  public static List<BasicBlock> breadthFirst(final MirContext mir) {
+    final List<BasicBlock> blocks = new java.util.ArrayList<>(mir.blocks.size());
+    blocks.add(mir.blocks.get(0));
+
+    for (int i = 0; i < blocks.size(); ++i) {
+      blocks.addAll(targetsOf(blocks.get(i)));
+    }
+    return blocks;
+  }
+
+  private static List<BasicBlock> targetsOf(final BasicBlock bb) {
+    final Instruction insn = lastOf(bb.insns);
+    if (insn instanceof Branch) {
+      return ((Branch) insn).successors;
+    }
+    return Collections.emptyList();
+  }
+
+  private static <T> T lastOf(final List<T> list) {
+    return list.get(list.size() - 1);
   }
 
   private static <T> T cast(final Object o, final Class<T> cls) {
