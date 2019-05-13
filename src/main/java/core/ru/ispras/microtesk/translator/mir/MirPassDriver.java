@@ -18,9 +18,8 @@ public class MirPassDriver {
 
   public static MirPassDriver newDefault() {
     return new MirPassDriver(
-      new ForwardPass().setComment("propagate"),
       new InlinePass().setComment("inline calls"),
-      new ForwardPass().setComment("propagate2"),
+      new ForwardPass().setComment("propagate"),
       new ConcFlowPass().setComment("inline blocks")
     );
   }

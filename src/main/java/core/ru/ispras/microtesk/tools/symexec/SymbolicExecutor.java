@@ -86,7 +86,7 @@ public final class SymbolicExecutor {
     final MirArchive archive = MirArchive.open(path);
     final MirPassDriver driver =
       MirPassDriver.newDefault().setStorage(archive.loadAll());
-    driver.addAll(driver.getPasses()).add(new GlobalNumbering().setComment("build SSA"));
+    driver.add(new GlobalNumbering().setComment("build SSA"));
 
     for (final IsaPrimitive insn : insnList) {
       final MirContext mir =
