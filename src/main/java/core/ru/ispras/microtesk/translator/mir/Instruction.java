@@ -1,5 +1,8 @@
 package ru.ispras.microtesk.translator.mir;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
@@ -437,6 +440,10 @@ interface BinOpcode {
   MirTy typeOf(Operand lhs, Operand rhs);
 }
 
+interface ConstEvaluated {
+  Constant evalConst(Constant lhs, Constant rhs);
+}
+
 enum UnOpcode implements BinOpcode {
   Use;
 
@@ -459,32 +466,98 @@ enum UnOpcode implements BinOpcode {
   }
 }
 
-enum BvOpcode implements BinOpcode {
+enum BvOpcode implements BinOpcode, ConstEvaluated {
   /// The `+` operator (addition)
-  Add,
+  Add {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.add(lhs, rhs);
+    }
+  },
   /// The `-` operator (subtraction)
-  Sub,
+  Sub {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.sub(lhs, rhs);
+    }
+  },
   /// The `*` operator (multiplication)
-  Mul,
+  Mul {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.mul(lhs, rhs);
+    }
+  },
+
   /// The `/` operator (division)
-  Udiv,
+  Udiv {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.udiv(lhs, rhs);
+    }
+  },
   /// The `%` operator (modulus)
-  Urem,
+  Urem {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.urem(lhs, rhs);
+    }
+  },
   /// The `/` operator (division)
-  Sdiv,
+  Sdiv {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.sdiv(lhs, rhs);
+    }
+  },
   /// The `%` operator (modulus)
-  Srem,
+  Srem {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.srem(lhs, rhs);
+    }
+  },
   /// The `^` operator (bitwise xor)
-  Xor,
+  Xor {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.xor(lhs, rhs);
+    }
+  },
   /// The `&` operator (bitwise and)
-  And,
+  And {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.and(lhs, rhs);
+    }
+  },
   /// The `|` operator (bitwise or)
-  Or,
+  Or {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.or(lhs, rhs);
+    }
+  },
   /// The `<<` operator (shift left)
-  Shl,
+  Shl {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.shl(lhs, rhs);
+    }
+  },
   /// The `>>` operator (shift right)
-  Ashr,
-  Lshr;
+  Ashr {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.ashr(lhs, rhs);
+    }
+  },
+  Lshr {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.lshr(lhs, rhs);
+    }
+  };
 
   @Override
   public Rvalue make(final Operand op1, final Operand op2) {
@@ -494,6 +567,21 @@ enum BvOpcode implements BinOpcode {
   @Override
   public MirTy typeOf(final Operand lhs, final Operand rhs) {
     return lhs.getType();
+  }
+
+  @Override
+  public Constant evalConst(final Constant lhs, final Constant rhs) {
+    return toConstant(evalBitVector(toBitVector(lhs), toBitVector(rhs)));
+  }
+
+  abstract BitVector evalBitVector(BitVector lhs, BitVector rhs);
+
+  public static BitVector toBitVector(final Constant value) {
+    return BitVector.valueOf(value.getValue(), value.getType().getSize());
+  }
+
+  public static Constant toConstant(final BitVector value) {
+    return new Constant(value.getBitSize(), value.bigIntegerValue());
   }
 }
 
