@@ -55,6 +55,13 @@ public final class EvalContext extends InsnVisitor {
     if (insn.opc.equals(UnOpcode.Use)) {
       setLocal(indexOf(insn.lhs), getValueRec(insn.op1));
     }
+    final Operand op1 = getValueRec(insn.op1);
+    final Operand op2 = getValueRec(insn.op2);
+    if (insn.opc instanceof ConstEvaluated && op1 instanceof Constant && op2 instanceof Constant) {
+      final ConstEvaluated eval = (ConstEvaluated) insn.opc;
+      final Constant value = eval.evalConst((Constant) op1, (Constant) op2);
+      setLocal(indexOf(insn.lhs), value);
+    }
   }
 
   @Override
