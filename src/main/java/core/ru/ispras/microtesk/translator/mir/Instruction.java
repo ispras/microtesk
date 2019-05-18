@@ -585,23 +585,73 @@ enum BvOpcode implements BinOpcode, ConstEvaluated {
   }
 }
 
-enum CmpOpcode implements BinOpcode {
+enum CmpOpcode implements BinOpcode, ConstEvaluated {
   /// The `==` operator (equality)
-  Eq,
+  Eq {
+    @Override
+    boolean compare(final BitVector lhs, final BitVector rhs) {
+      return lhs.compareTo(rhs) == 0;
+    }
+  },
   /// The `!=` operator (not equal to)
-  Ne,
+  Ne {
+    @Override
+    boolean compare(final BitVector lhs, final BitVector rhs) {
+      return lhs.compareTo(rhs) != 0;
+    }
+  },
   /// The `<` operator (less than)
-  Ult,
+  Ult {
+    @Override
+    boolean compare(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.ult(lhs, rhs);
+    }
+  },
   /// The `<=` operator (less than or equal to)
-  Ule,
+  Ule {
+    @Override
+    boolean compare(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.ule(lhs, rhs);
+    }
+  },
   /// The `>=` operator (greater than or equal to)
-  Uge,
+  Uge {
+    @Override
+    boolean compare(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.uge(lhs, rhs);
+    }
+  },
   /// The `>` operator (greater than)
-  Ugt,
-  Slt,
-  Sle,
-  Sge,
-  Sgt;
+  Ugt {
+    @Override
+    boolean compare(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.ugt(lhs, rhs);
+    }
+  },
+  Slt {
+    @Override
+    boolean compare(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.slt(lhs, rhs);
+    }
+  },
+  Sle {
+    @Override
+    boolean compare(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.sle(lhs, rhs);
+    }
+  },
+  Sge {
+    @Override
+    boolean compare(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.sge(lhs, rhs);
+    }
+  },
+  Sgt {
+    @Override
+    boolean compare(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.sgt(lhs, rhs);
+    }
+  };
 
   @Override
   public Rvalue make(final Operand lhs, final Operand rhs) {
@@ -611,5 +661,20 @@ enum CmpOpcode implements BinOpcode {
   @Override
   public MirTy typeOf(final Operand lhs, final Operand rhs) {
     return new IntTy(1);
+  }
+
+  @Override
+  public Constant evalConst(final Constant lhs, final Constant rhs) {
+    return toConstant(BitVector.valueOf(compare(toBitVector(lhs), toBitVector(rhs))));
+  }
+
+  abstract boolean compare(BitVector lhs, BitVector rhs);
+
+  public static BitVector toBitVector(final Constant value) {
+    return BitVector.valueOf(value.getValue(), value.getType().getSize());
+  }
+
+  public static Constant toConstant(final BitVector value) {
+    return new Constant(value.getBitSize(), value.bigIntegerValue());
   }
 }
