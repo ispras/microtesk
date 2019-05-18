@@ -161,7 +161,14 @@ public class InsnRewriter extends InsnVisitor {
       block.append(new Branch(getBlockImage(insn.other)));
     } else {
       final Operand guard = rewrite(insn.guard);
-      block.append(new Branch(guard, getBlockImage(insn.target.get(1)), getBlockImage(insn.other)));
+      if (guard instanceof Constant) {
+        final int variant = ((Constant) guard).getValue().intValue();
+        final BasicBlock target =
+          (insn.target.containsKey(variant)) ? insn.target.get(variant) : insn.other;
+        block.append(new Branch(getBlockImage(target)));
+      } else {
+        block.append(new Branch(guard, getBlockImage(insn.target.get(1)), getBlockImage(insn.other)));
+      }
     }
   }
 
