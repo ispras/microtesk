@@ -122,7 +122,11 @@ public final class EvalContext extends InsnVisitor {
     blocks.add(mir.blocks.get(0));
 
     for (int i = 0; i < blocks.size(); ++i) {
-      blocks.addAll(targetsOf(blocks.get(i)));
+      for (final BasicBlock bb : targetsOf(blocks.get(i))) {
+        if (!blocks.contains(bb)) {
+          blocks.add(bb);
+        }
+      }
     }
     return blocks;
   }
