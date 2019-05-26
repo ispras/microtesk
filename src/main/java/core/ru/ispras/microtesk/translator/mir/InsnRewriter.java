@@ -14,7 +14,9 @@ public class InsnRewriter extends InsnVisitor {
 
   public static void rewrite(final MirContext ctx) {
     final InsnRewriter worker = new InsnRewriter(EvalContext.eval(ctx).getFrame());
+
     worker.doRewrite(ctx, getAliveSet(ctx, worker.frame));
+    worker.doRewrite(ctx, getReachedSet(ctx));
   }
 
   private static SortedSet<Integer> getAliveSet(final MirContext mir, final Frame frame) {
@@ -28,6 +30,31 @@ public class InsnRewriter extends InsnVisitor {
         set.add(index);
       }
       ++index;
+    }
+    return set;
+  }
+
+  private static SortedSet<Integer> getReachedSet(final MirContext mir) {
+    final SortedSet<Integer> set = new java.util.TreeSet<>();
+    for (int i = 0; i < mir.getSignature().params.size() + 1; ++i) {
+      set.add(i);
+    }
+    final OperandVisitor<Void> visitor = new OperandVisitor<Void>() {
+      @Override
+      public Void visitLocal(final Local opnd) {
+        set.add(opnd.id);
+        return null;
+      }
+
+      @Override
+      public Void visitOperand(final Operand opnd) { return null; }
+    };
+    final OperandWalker<Void> walker = new OperandWalker<>(visitor);
+    final List<BasicBlock> worklist = EvalContext.breadthFirst(mir);
+    for (final BasicBlock bb : worklist) {
+      for (final Instruction insn : bb.insns) {
+        insn.accept(walker);
+      }
     }
     return set;
   }
