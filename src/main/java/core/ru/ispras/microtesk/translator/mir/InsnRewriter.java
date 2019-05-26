@@ -2,39 +2,68 @@ package ru.ispras.microtesk.translator.mir;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 
 public class InsnRewriter extends InsnVisitor {
   private final Frame frame;
   private final List<BasicBlock> blocks = new java.util.ArrayList<>();
 
+  private SortedSet<Integer> retained;
   private MirBlock block;
   private int nskip;
 
   public static void rewrite(final MirContext ctx) {
     final InsnRewriter worker = new InsnRewriter(EvalContext.eval(ctx).getFrame());
+    worker.doRewrite(ctx, getAliveSet(ctx, worker.frame));
+  }
+
+  private static SortedSet<Integer> getAliveSet(final MirContext mir, final Frame frame) {
+    final SortedSet<Integer> set = new java.util.TreeSet<>();
+    for (int i = 0; i < mir.getSignature().params.size() + 1; ++i) {
+      set.add(i);
+    }
+    int index = 0;
+    for (final Operand value : frame.locals) {
+      if (value.equals(VoidTy.VALUE)) {
+        set.add(index);
+      }
+      ++index;
+    }
+    return set;
+  }
+
+  private void doRewrite(final MirContext ctx, final SortedSet<Integer> retained) {
+    final List<BasicBlock> worklist = EvalContext.breadthFirst(ctx);
+    ctx.blocks.clear();
+    ctx.blocks.addAll(worklist);
+
+    this.blocks.clear();
+    this.retained = retained;
 
     final int nblocks = ctx.blocks.size();
     for (int i = 0; i < nblocks; ++i) {
-      worker.blocks.add(new BasicBlock());
+      blocks.add(new BasicBlock());
     }
     for (int i = 0; i < nblocks; ++i) {
-      worker.block = new MirBlock(ctx, worker.blocks.get(i));
-      worker.nskip = 0;
+      this.block = new MirBlock(ctx, this.blocks.get(i));
+      this.nskip = 0;
       for (final Instruction insn : ctx.blocks.get(i).insns) {
-        insn.accept(worker);
-      }
-    }
-
-    final int nlocals = ctx.locals.size();
-    final Iterator<MirTy> it = localsOf(ctx).iterator();
-    for (int i = ctx.getSignature().params.size() + 1; i < nlocals; ++i) {
-      it.next();
-      if (!worker.isAlive(i)) {
-        it.remove();
+        insn.accept(this);
       }
     }
     ctx.blocks.clear();
-    ctx.blocks.addAll(worker.blocks);
+    ctx.blocks.addAll(this.blocks);
+
+    retainIndices(ctx.locals, retained);
+    retainIndices(this.frame.locals, retained);
+  }
+
+  private static <T> void retainIndices(final List<T> list, final SortedSet<Integer> indices) {
+    int i = 0;
+    for (final int index : indices) {
+      list.set(i++, list.get(index));
+    }
+    list.subList(indices.size(), list.size()).clear();
   }
 
   private static List<MirTy> localsOf(final MirContext ctx) {
@@ -94,11 +123,7 @@ public class InsnRewriter extends InsnVisitor {
   }
 
   private int offsetIndex(final int index) {
-    int offset = 0;
-    for (int i = 0; i < index; ++i) {
-      offset += (isAlive(i)) ? 0 : -1;
-    }
-    return index + offset;
+    return retained.headSet(index).size();
   }
 
   private int indexOf(final Operand opnd) {
