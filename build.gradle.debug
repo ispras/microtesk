@@ -34,7 +34,7 @@ buildscript {
 plugins {
   id 'net.saliman.properties' version '1.4.4'
   id 'net.researchgate.release' version '2.3.5'
-  id 'org.sonarqube' version '1.0'
+  id 'org.sonarqube' version '2.6.1'
 }
 
 apply plugin: 'os'

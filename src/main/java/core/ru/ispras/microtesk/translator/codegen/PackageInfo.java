@@ -103,6 +103,10 @@ public final class PackageInfo {
     return outDir + "/" + nameToPath(SHARED_CLASS_FORMAT) + JAVA_EXT;
   }
 
+  public static String getSharedFileFormat(final String outDir, final String ext) {
+    return outDir + "/" + nameToPath(SHARED_CLASS_FORMAT) + ext;
+  }
+
   /**
    * Format string for the name of the package that stores modes (nML).
    * Format parameters: model name.
@@ -126,6 +130,10 @@ public final class PackageInfo {
     return outDir + "/" + nameToPath(MODE_CLASS_FORMAT) + JAVA_EXT;
   }
 
+  public static String getModeFileFormat(final String outDir, final String ext) {
+    return outDir + "/" + nameToPath(MODE_CLASS_FORMAT) + ext;
+  }
+
   /**
    * Format string for the name of the package that stores ops (nML).
    * Format parameters: model name.
@@ -147,6 +155,10 @@ public final class PackageInfo {
    */
   public static String getOpFileFormat(final String outDir) {
     return outDir + "/" + nameToPath(OP_CLASS_FORMAT) + JAVA_EXT;
+  }
+
+  public static String getOpFileFormat(final String outDir, final String ext) {
+    return outDir + "/" + nameToPath(OP_CLASS_FORMAT) + ext;
   }
 
   /**

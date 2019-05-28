@@ -34,6 +34,7 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.codegen.decoder.DecoderGenerator;
 import ru.ispras.microtesk.translator.nml.codegen.metadata.MetaDataGenerator;
 import ru.ispras.microtesk.translator.nml.codegen.sim.Generator;
+import ru.ispras.microtesk.translator.nml.codegen.simc.GeneratorC;
 import ru.ispras.microtesk.translator.nml.codegen.whyml.WhymlGenerator;
 import ru.ispras.microtesk.translator.nml.coverage.Analyzer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
@@ -83,6 +84,7 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new MetaDataGenerator(this));
     addHandler(new DecoderGenerator(this));
     addHandler(new Generator(this));
+    addHandler(new GeneratorC(this));
 
     // Generate WhyML code for the ISA
     //* // EXCLUDED FROM RELEASE (NOT READY)
