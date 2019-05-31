@@ -80,6 +80,47 @@ public final class EvalContext extends InsnVisitor {
   }
 
   @Override
+  public void visit(final Load insn) {
+    final Static mem = cast(insn.source, Static.class);
+    if (mem != null && mem.version > 0) {
+      final Operand value;
+      final Operand stored = frame.get(mem.name, mem.version);
+      if (stored instanceof Constant) {
+        final int size = insn.target.getType().getSize();
+        value = BvOpcode.toConstant(BvOpcode.toBitVector((Constant) stored).resize(size, false));
+      } else if (!stored.equals(VoidTy.VALUE)) {
+        value = stored;
+      } else {
+        value = mem;
+      }
+      setLocal(indexOf(insn.target), value);
+    }
+  }
+
+  @Override
+  public void visit(final GlobalNumbering.SsaStore insn) {
+    final Static mem = cast(insn.target, Static.class);
+    if (mem != null) {
+      set(mem.name, mem.version, getValueRec(insn.origin.source));
+    }
+  }
+
+  private void set(final String name, final int version, final Operand value) {
+    final List<Operand> values;
+    if (globals.containsKey(name)) {
+      values = globals.get(name);
+    } else {
+      values = new java.util.ArrayList<>();
+      globals.put(name, values);
+    }
+    final int ndiff = version - values.size();
+    if (ndiff > 0) {
+      values.addAll(Collections.nCopies(ndiff, VoidTy.VALUE));
+    }
+    values.set(version - 1, value);
+  }
+
+  @Override
   public void visit(final Sext insn) {
     if (insn.rhs instanceof Constant) {
       final int size = insn.lhs.getType().getSize();
@@ -114,6 +155,10 @@ public final class EvalContext extends InsnVisitor {
         return new Local(index, opnd.getType());
       }
       return value;
+    } else if (opnd instanceof Static) {
+      final Static mem = (Static) opnd;
+      final Operand value = frame.get(mem.name, mem.version);
+      return (value.equals(VoidTy.VALUE)) ? mem : value;
     }
     return opnd;
   }
