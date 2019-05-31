@@ -61,6 +61,8 @@ public final class EvalContext extends InsnVisitor {
       final ConstEvaluated eval = (ConstEvaluated) insn.opc;
       final Constant value = eval.evalConst((Constant) op1, (Constant) op2);
       setLocal(indexOf(insn.lhs), value);
+    } else if (insn.opc == CmpOpcode.Eq && op1.equals(op2)) {
+      setLocal(indexOf(insn.lhs), new Constant(1, 1));
     }
   }
 
