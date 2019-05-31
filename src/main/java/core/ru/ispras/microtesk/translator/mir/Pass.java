@@ -24,10 +24,14 @@ public abstract class Pass {
     return storage.get(name);
   }
 
-  protected static MirContext copyOf(final MirContext src) {
+  static MirContext copyOf(final MirContext src) {
+    return copyOf(src, src.name);
+  }
+
+  static MirContext copyOf(final MirContext src, final String name) {
     final FuncTy signature = src.getSignature();
 
-    final MirContext ctx = new MirContext(src.name, signature);
+    final MirContext ctx = new MirContext(name, signature);
     ctx.locals.addAll(tailList(src.locals, signature.params.size() + 1));
 
     for (final BasicBlock bb : src.blocks) {
