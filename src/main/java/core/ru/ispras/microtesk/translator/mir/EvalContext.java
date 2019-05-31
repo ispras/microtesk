@@ -7,21 +7,21 @@ import java.util.List;
 import java.util.Map;
 
 public final class EvalContext extends InsnVisitor {
-  private final Map<String, Operand> globals;
+  private final Map<String, List<Operand>> globals;
   private final Frame frame;
 
   private int origin = 0;
 
   public static EvalContext eval(final MirContext mir) {
-    final Map<String, Operand> globals = new java.util.HashMap<>();
+    final Map<String, List<Operand>> globals = new java.util.HashMap<>();
     return new EvalContext(globals).evalInternal(mir);
   }
 
   EvalContext() {
-    this(new java.util.HashMap<String, Operand>());
+    this(new java.util.HashMap<String, List<Operand>>());
   }
 
-  private EvalContext(final Map<String, Operand> globals) {
+  private EvalContext(final Map<String, List<Operand>> globals) {
     this.globals = globals;
     this.frame = new Frame(globals);
   }
