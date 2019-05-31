@@ -201,11 +201,19 @@ public class InsnRewriter extends InsnVisitor {
   }
 
   public void visit(final Sext insn) {
-    block.append(new Sext(rebase(insn.lhs), rewrite(insn.rhs)));
+    if (isAlive(insn.lhs)) {
+      block.append(new Sext(rebase(insn.lhs), rewrite(insn.rhs)));
+    } else {
+      ++nskip;
+    }
   }
 
   public void visit(final Zext insn) {
-    block.append(new Zext(rebase(insn.lhs), rewrite(insn.rhs)));
+    if (isAlive(insn.lhs)) {
+      block.append(new Zext(rebase(insn.lhs), rewrite(insn.rhs)));
+    } else {
+      ++nskip;
+    }
   }
 
   public void visit(final Branch insn) {
