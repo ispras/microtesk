@@ -79,6 +79,26 @@ public final class EvalContext extends InsnVisitor {
     }
   }
 
+  @Override
+  public void visit(final Sext insn) {
+    if (insn.rhs instanceof Constant) {
+      final int size = insn.lhs.getType().getSize();
+      final Constant value =
+        BvOpcode.toConstant(BvOpcode.toBitVector((Constant) insn.rhs).resize(size, true));
+      setLocal(indexOf(insn.lhs), value);
+    }
+  }
+
+  @Override
+  public void visit(final Zext insn) {
+    if (insn.rhs instanceof Constant) {
+      final int size = insn.lhs.getType().getSize();
+      final Constant value =
+        BvOpcode.toConstant(BvOpcode.toBitVector((Constant) insn.rhs).resize(size, false));
+      setLocal(indexOf(insn.lhs), value);
+    }
+  }
+
   private Operand getValueRec(final Operand opnd) {
     if (opnd instanceof Closure) {
       final Closure closure = (Closure) opnd;
