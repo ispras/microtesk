@@ -8,16 +8,17 @@ public class MirBuilder {
   private final static FuncTy VOID_TO_VOID_TYPE =
       new FuncTy(VoidTy.VALUE, Collections.<MirTy>emptyList());
 
+  private final MirContext mir = new MirContext("", VOID_TO_VOID_TYPE);
+  private MirBlock block = mir.newBlock();
+
   private final List<Instruction> body = new java.util.ArrayList<>();
   private final List<Operand> operands = new java.util.ArrayList<>();
 
   public MirContext build(final String name) {
-    final MirContext mir = new MirContext(name, VOID_TO_VOID_TYPE);
-    final MirBlock block = mir.newBlock();
     block.bb.insns.addAll(body);
     block.bb.insns.add(new Return(null));
 
-    return mir;
+    return Pass.copyOf(this.mir, name);
   }
 
   public void addValue(final int size, final BigInteger value) {
@@ -34,6 +35,11 @@ public class MirBuilder {
     final Operand callee = removeLast(operands);
 
     body.add(new Call(callee, method, args, null));
+  }
+
+  public void refMemory(final int nbits, final String name) {
+    final MirTy type = new IntTy(nbits);
+    body.add(new Load(new Static(name, type), block.newLocal(type)));
   }
 
   private static <T> T removeLast(final List<T> list) {
