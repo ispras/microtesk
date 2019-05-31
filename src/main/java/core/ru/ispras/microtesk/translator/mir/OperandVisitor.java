@@ -118,5 +118,9 @@ class OperandWalker<T> extends InsnVisitor {
   }
 
   public void visit(final GlobalNumbering.Phi insn) { /* TODO */ }
-  public void visit(final GlobalNumbering.SsaStore insn) { /* TODO */ }
+
+  public void visit(final GlobalNumbering.SsaStore insn) {
+    visit(insn.origin);
+    visitor.visitLvalue(insn.target);
+  }
 }
