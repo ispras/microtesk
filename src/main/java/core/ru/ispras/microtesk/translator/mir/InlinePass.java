@@ -167,7 +167,7 @@ public class InlinePass extends Pass {
       return bb.bb;
     }
 
-    private static void linkBack(final BasicBlock next, final Call call, final MirContext callee) {
+    private void linkBack(final BasicBlock next, final Call call, final MirContext callee) {
       for (final BasicBlock bb : callee.blocks) {
         final int index = bb.insns.size() - 1;
         final Instruction insn = bb.insns.get(index);
@@ -176,7 +176,7 @@ public class InlinePass extends Pass {
           bb.insns.remove(index);
 
           if (call.ret != null) {
-            final Local lhs = new Local(call.ret.id - bb.getOrigin(index), call.ret.getType());
+            final Local lhs = new Local(call.ret.id + this.callOrg - bb.getOrigin(index), call.ret.getType());
             bb.insns.add(new Assignment(lhs, UnOpcode.Use.make(ret.value)));
           }
           bb.insns.add(new Branch(next));
