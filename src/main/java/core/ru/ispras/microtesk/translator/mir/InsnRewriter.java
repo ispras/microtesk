@@ -1,8 +1,13 @@
 package ru.ispras.microtesk.translator.mir;
 
+import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
+
+import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Ite;
+import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Phi;
+import static ru.ispras.microtesk.translator.mir.GlobalNumbering.SsaStore;
 
 public class InsnRewriter extends InsnVisitor {
   private final Frame frame;
@@ -108,16 +113,42 @@ public class InsnRewriter extends InsnVisitor {
           ? rebase(opnd)
           : offsetDirect(frame.locals.get(index));
     }
+    for (final Static opnd = cast(source, Static.class); opnd != null; ) {
+      final Operand value = frame.get(opnd.name, opnd.version);
+      return (value.equals(VoidTy.VALUE)) ? opnd : rewrite(value);
+    }
     for (final Index opnd = cast(source, Index.class); opnd != null; ) {
-      return new Index((Lvalue) rewrite(opnd.base), rewrite(opnd.index));
+      return new Index((Lvalue) rewriteLvalue(opnd.base), rewrite(opnd.index));
     }
     for (final Field opnd = cast(source, Field.class); opnd != null; ) {
-      return new Field((Lvalue) rewrite(opnd.base), opnd.name);
+      return new Field((Lvalue) rewriteLvalue(opnd.base), opnd.name);
     }
     for (final Closure opnd = cast(source, Closure.class); opnd != null; ) {
       return new Closure(opnd.callee, rewriteAll(opnd.upvalues));
     }
+    for (final Ite opnd = cast(source, Ite.class); opnd != null; ) {
+      final Operand guard = rewrite(opnd.guard);
+      final Operand taken = rewrite(opnd.taken);
+      final Operand other = rewrite(opnd.other);
+      if (guard instanceof Constant) {
+        final BigInteger value = ((Constant) guard).getValue();
+        if (value.equals(BigInteger.ZERO)) {
+          return other;
+        } else {
+          return taken;
+        }
+      } else {
+        return new Ite(guard, taken, other);
+      }
+    }
     return source;
+  }
+
+  private Lvalue rewriteLvalue(final Lvalue opnd) {
+    if (opnd instanceof Static) {
+      return opnd;
+    }
+    return (Lvalue) rewrite(opnd);
   }
 
   private static <T> T cast(final Object o, final Class<T> cls) {
@@ -249,11 +280,39 @@ public class InsnRewriter extends InsnVisitor {
   }
 
   public void visit(final Load insn) {
-    block.append(new Load((Lvalue) rewrite(insn.source), (Local) rebase(insn.target))); // FIXME
+    if (isAlive(insn.target)) {
+      block.append(new Load(rewriteLvalue(insn.source), (Local) rebase(insn.target)));
+    } else {
+      ++nskip;
+    }
   }
 
   public void visit(final Store insn) {
-    block.append(new Store((Lvalue) rewrite(insn.target), rewrite(insn.source))); // FIXME
+    block.append(new Store(rewriteLvalue(insn.target), rewrite(insn.source))); // FIXME
+  }
+
+  public void visit(final GlobalNumbering.SsaStore insn) {
+    visit(insn.origin);
+
+    final Store origin = (Store) removeLast(block.bb.insns);
+    block.append(new GlobalNumbering.SsaStore(insn.target, origin));
+  }
+
+  public void visit(final Phi insn) {
+    if (insn.value != null) {
+      final Operand value = rewrite(insn.value);
+      if (value instanceof Ite) {
+        final Phi phi = new Phi(insn.target, insn.values);
+        phi.value = (Ite) value;
+        block.append(phi);
+      } else {
+        block.append(new Store(insn.target, value));
+      }
+    }
+  }
+
+  private static <T> T removeLast(final List<T> list) {
+    return list.remove(list.size() - 1);
   }
 
   public void visit(final Disclose insn) {
