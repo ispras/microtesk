@@ -185,13 +185,20 @@ public final class EvalContext extends InsnVisitor {
   }
 
   public static List<BasicBlock> breadthFirst(final MirContext mir) {
-    final List<BasicBlock> blocks = new java.util.ArrayList<>(mir.blocks.size());
-    blocks.add(mir.blocks.get(0));
+    return breadthFirst(mir.blocks.get(0), null);
+  }
+
+  public static List<BasicBlock> breadthFirst(final BasicBlock entry, final BasicBlock endpoint) {
+    final List<BasicBlock> blocks = new java.util.ArrayList<>();
+    blocks.add(entry);
 
     for (int i = 0; i < blocks.size(); ++i) {
-      for (final BasicBlock bb : targetsOf(blocks.get(i))) {
-        if (!blocks.contains(bb)) {
-          blocks.add(bb);
+      final BasicBlock source = blocks.get(i);
+      if (source != endpoint) {
+        for (final BasicBlock bb : targetsOf(source)) {
+          if (!blocks.contains(bb)) {
+            blocks.add(bb);
+          }
         }
       }
     }
