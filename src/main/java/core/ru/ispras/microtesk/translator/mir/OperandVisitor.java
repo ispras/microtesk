@@ -2,6 +2,9 @@ package ru.ispras.microtesk.translator.mir;
 
 import java.util.List;
 
+import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Ite;
+import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Phi;
+
 abstract class OperandVisitor<T> {
   public T visitConst(Constant opnd) { return visitOperand(opnd); }
   public T visitLvalue(Lvalue opnd) { return visitOperand(opnd); }
@@ -10,6 +13,7 @@ abstract class OperandVisitor<T> {
   public T visitIndex(Index opnd, T base, T index) { return visitOperand(opnd); }
   public T visitStatic(Static opnd) { return visitOperand(opnd); }
   public T visitClosure(Closure opnd, List<T> upvalues) { return visitOperand(opnd); }
+  public T visitIte(Ite opnd, T guard, T taken, T other) { return visitOperand(opnd); }
 
   public abstract T visitOperand(Operand opnd);
 }
@@ -42,6 +46,11 @@ class OperandWalker<T> extends InsnVisitor {
     }
     if (opnd instanceof Static) {
       return visitor.visitStatic((Static) opnd);
+    }
+    if (opnd instanceof Ite) {
+      final Ite ite = (Ite) opnd;
+      return visitor.visitIte(
+        ite, dispatch(ite.guard), dispatch(ite.taken), dispatch(ite.other));
     }
     return visitor.visitOperand(opnd);
   }
@@ -117,7 +126,12 @@ class OperandWalker<T> extends InsnVisitor {
     visitor.visitLvalue((Lvalue) insn.target);
   }
 
-  public void visit(final GlobalNumbering.Phi insn) { /* TODO */ }
+  public void visit(final Phi insn) {
+    if (insn.value != null) {
+      dispatch(insn.value);
+    }
+    visitor.visitLvalue(insn.target);
+  }
 
   public void visit(final GlobalNumbering.SsaStore insn) {
     visit(insn.origin);
