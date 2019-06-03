@@ -317,6 +317,20 @@ class Static extends Lvalue {
   }
 
   @Override
+  public boolean equals(final Object o) {
+    if (o instanceof Static) {
+      final Static that = (Static) o;
+      return this.name.equals(that.name) && this.version == that.version;
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return name.hashCode() * 31 + version;
+  }
+
+  @Override
   public MirTy getType() {
     return type;
   }
@@ -328,7 +342,7 @@ class Static extends Lvalue {
 
   @Override
   public String toString() {
-    return name;
+    return (version > 0) ? String.format("%s!%d", name, version) : name;
   }
 
   public Static newVersion(final int n) {
