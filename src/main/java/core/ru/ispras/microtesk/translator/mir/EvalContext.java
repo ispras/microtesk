@@ -214,7 +214,7 @@ public final class EvalContext extends InsnVisitor {
     return blocks;
   }
 
-  private static List<BasicBlock> targetsOf(final BasicBlock bb) {
+  public static List<BasicBlock> targetsOf(final BasicBlock bb) {
     final Instruction insn = lastOf(bb.insns);
     if (insn instanceof Branch) {
       return ((Branch) insn).successors;
