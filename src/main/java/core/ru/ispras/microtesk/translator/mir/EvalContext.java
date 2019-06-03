@@ -13,8 +13,17 @@ public final class EvalContext extends InsnVisitor {
   private int origin = 0;
 
   public static EvalContext eval(final MirContext mir) {
+    return eval(mir, Collections.<String, BigInteger>emptyMap());
+  }
+
+  public static EvalContext eval(final MirContext mir, final Map<String, BigInteger> presets) {
     final Map<String, List<Operand>> globals = new java.util.HashMap<>();
-    return new EvalContext(globals).evalInternal(mir);
+    final EvalContext ctx = new EvalContext(globals);
+    for (final Map.Entry<String, BigInteger> entry : presets.entrySet()) {
+      ctx.set(entry.getKey(), 1, new Constant(128, entry.getValue())); // FIXME
+    }
+
+    return ctx.evalInternal(mir);
   }
 
   EvalContext() {
