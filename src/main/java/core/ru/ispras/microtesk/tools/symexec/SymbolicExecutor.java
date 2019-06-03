@@ -27,7 +27,10 @@ import ru.ispras.microtesk.model.TemporaryVariables;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.Disassembler.Output;
+import ru.ispras.microtesk.translator.mir.ConcFlowPass;
+import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.GlobalNumbering;
+import ru.ispras.microtesk.translator.mir.SccpPass;
 import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirContext;
 import ru.ispras.microtesk.translator.mir.MirPassDriver;
@@ -87,6 +90,10 @@ public final class SymbolicExecutor {
     final MirPassDriver driver =
       MirPassDriver.newDefault().setStorage(archive.loadAll());
     driver.add(new GlobalNumbering().setComment("build SSA"));
+    driver.add(new ForwardPass().setComment("SSA forward"));
+    driver.add(new SccpPass().setComment("Nested SCCP"));
+    driver.add(new ForwardPass().setComment("SCCP forward"));
+    driver.add(new ConcFlowPass().setComment("cherry"));
 
     for (final IsaPrimitive insn : insnList) {
       final MirContext mir =
