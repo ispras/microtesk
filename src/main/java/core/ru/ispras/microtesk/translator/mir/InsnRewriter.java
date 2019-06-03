@@ -3,6 +3,7 @@ package ru.ispras.microtesk.translator.mir;
 import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Ite;
@@ -17,8 +18,9 @@ public class InsnRewriter extends InsnVisitor {
   private MirBlock block;
   private int nskip;
 
-  public static void rewrite(final MirContext ctx) {
-    final InsnRewriter worker = new InsnRewriter(EvalContext.eval(ctx).getFrame());
+  public static void rewrite(final MirContext ctx, final Map<String, BigInteger> presets) {
+    final EvalContext eval = EvalContext.eval(ctx, presets);
+    final InsnRewriter worker = new InsnRewriter(eval.getFrame());
 
     worker.doRewrite(ctx, getAliveSet(ctx, worker.frame));
     worker.doRewrite(ctx, getReachedSet(ctx));
