@@ -12,10 +12,6 @@ public final class EvalContext extends InsnVisitor {
 
   private int origin = 0;
 
-  public static EvalContext eval(final MirContext mir) {
-    return eval(mir, Collections.<String, BigInteger>emptyMap());
-  }
-
   public static EvalContext eval(final MirContext mir, final Map<String, BigInteger> presets) {
     final Map<String, List<Operand>> globals = new java.util.HashMap<>();
     final EvalContext ctx = new EvalContext(globals);
