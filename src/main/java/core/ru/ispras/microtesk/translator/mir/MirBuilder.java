@@ -39,7 +39,10 @@ public class MirBuilder {
 
   public void refMemory(final int nbits, final String name) {
     final MirTy type = new IntTy(nbits);
-    body.add(new Load(new Static(name, type), block.newLocal(type)));
+    final Static mem = new Static(name, type);
+    final Local tmp = block.newLocal(type);
+    body.add(new Load(mem, tmp));
+    body.add(new Store(mem, tmp));
   }
 
   private static <T> T removeLast(final List<T> list) {
