@@ -398,18 +398,18 @@ class Zext implements Instruction {
 
 class Constant implements Operand {
   private final int bits;
-  private final long cache;
   private final BigInteger value;
 
   public Constant(final int bits, final long value) {
-    this.bits = bits;
-    this.cache = value;
-    this.value = BigInteger.valueOf(value);
+    this(bits, BigInteger.valueOf(value));
   }
 
   public Constant(final int bits, final BigInteger value) {
+    final int minbits = value.bitLength() + ((value.signum() == -1) ? 1 : 0);
+    if (minbits > bits) {
+      throw new IllegalArgumentException();
+    }
     this.bits = bits;
-    this.cache = -1;
     this.value = value;
   }
 
@@ -425,6 +425,20 @@ class Constant implements Operand {
   @Override
   public String toString() {
     return value.toString();
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o instanceof Constant) {
+      final Constant that = (Constant) o;
+      return this.value.equals(that.value);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return value.hashCode() * 31 + bits;
   }
 }
 
