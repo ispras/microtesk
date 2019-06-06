@@ -14,6 +14,7 @@ public class SparseCCP extends InsnVisitor {
   private final Map<Integer, ImmBranch> mapping = new java.util.HashMap<>();
   private final Map<Integer, DefPoint> locals = new java.util.HashMap<>();
   private final Map<Static, DefPoint> globals = new java.util.HashMap<>();
+  private final Map<Lvalue, Phi> phiJoins = new java.util.HashMap<>();
 
   static class ImmBranch {
     final CmpOpcode opc;
@@ -24,6 +25,10 @@ public class SparseCCP extends InsnVisitor {
       this.opc = opc;
       this.lvalue = lvalue;
       this.rvalue = rvalue;
+    }
+
+    public boolean isEquality() {
+      return opc.equals(CmpOpcode.Eq);
     }
 
     public boolean substitutes(final Operand opnd) {
@@ -75,7 +80,7 @@ public class SparseCCP extends InsnVisitor {
     if (br != null) {
       final BasicBlock join = searchJoin(insn);
       final BasicBlock entry =
-          (br.opc.equals(CmpOpcode.Eq)) ? insn.target.get(1) : insn.other;
+          (br.isEquality()) ? insn.target.get(1) : insn.other;
       final List<BasicBlock> body = EvalContext.breadthFirst(entry, join);
       body.remove(join);
 
@@ -89,6 +94,47 @@ public class SparseCCP extends InsnVisitor {
         }
       }
     }
+  }
+
+  @Override
+  public void visit(final Phi insn) {
+    phiJoins.put(insn.target, insn);
+    insn.value = inlineIte(insn.value);
+  }
+
+  private Ite inlineIte(final Ite origin) {
+    final ImmBranch br = branchOnImm(origin.guard);
+    if (br != null && phiJoins.containsKey(br.lvalue)) {
+      final Ite guardIte = phiJoins.get(br.lvalue).value;
+      if (guardIte.taken.equals(br.rvalue)) {
+        return rewriteIte(origin, guardIte.guard, !br.isEquality());
+      } else if (guardIte.other.equals(br.rvalue)) {
+        return rewriteIte(origin, guardIte.guard, br.isEquality());
+      }
+    }
+    return origin;
+  }
+
+  private Ite rewriteIte(final Ite ite, final Operand guard, final boolean swap) {
+    final Operand taken = (swap) ? ite.other : ite.taken;
+    final Operand other = (swap) ? ite.taken : ite.other;
+    return new Ite(guard, propagate(taken, guard, true), propagate(other, guard, false));
+  }
+
+  private Operand propagate(final Operand e, final Operand guard, final boolean value) {
+    if (e instanceof Lvalue && phiJoins.containsKey((Lvalue) e)) {
+      return propagate(inlineIte(phiJoins.get((Lvalue) e).value), guard, value);
+    }
+    if (e instanceof Ite) {
+      final Ite ite = (Ite) e;
+      if (ite.guard.equals(guard)) {
+        final Operand child = (value) ? ite.taken : ite.other;
+        return propagate(child, guard, value);
+      } else {
+        return new Ite(ite.guard, propagate(ite.taken, guard, value), propagate(ite.other, guard, value));
+      }
+    }
+    return e;
   }
 
   static class Replacer extends OperandVisitor<Operand> {
