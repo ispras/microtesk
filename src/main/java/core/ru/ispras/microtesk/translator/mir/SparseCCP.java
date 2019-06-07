@@ -19,9 +19,9 @@ public class SparseCCP extends InsnVisitor {
   static class ImmBranch {
     final CmpOpcode opc;
     final Lvalue lvalue;
-    final Constant rvalue;
+    final Operand rvalue;
 
-    ImmBranch(CmpOpcode opc, Lvalue lvalue, Constant rvalue) {
+    ImmBranch(CmpOpcode opc, Lvalue lvalue, Operand rvalue) {
       this.opc = opc;
       this.lvalue = lvalue;
       this.rvalue = rvalue;
@@ -60,24 +60,41 @@ public class SparseCCP extends InsnVisitor {
       final CmpOpcode opc = (CmpOpcode) insn.opc;
 
       final Lvalue lvalue;
-      final Constant rvalue;
-      if (insn.op1 instanceof Constant) {
+      final Operand rvalue;
+      if (orderLessThan(insn.op1, insn.op2)) {
         lvalue = (Lvalue) insn.op2;
-        rvalue = (Constant) insn.op1;
-      } else if (insn.op2 instanceof Constant) {
-        lvalue = (Lvalue) insn.op1;
-        rvalue = (Constant) insn.op2;
+        rvalue = insn.op1;
       } else {
-        return;
+        lvalue = (Lvalue) insn.op1;
+        rvalue = insn.op2;
       }
       mapping.put(condId, new ImmBranch(opc, lvalue, rvalue));
     }
   }
 
+  /* Imm < Local < Static
+   * Static: X!n < X!m <==> n < m
+   * if unordered, substitute lhs for rhs
+   */
+  private boolean orderLessThan(final Operand lhs, final Operand rhs) {
+    if (lhs instanceof Static) {
+      return ((Static) lhs).isSame(rhs) && versionOf(lhs) < versionOf(rhs);
+    }
+    // lhs : (Constant | Local)
+    // rhs : (Constant | Local | Static)
+    return lhs instanceof Constant || rhs instanceof Static;
+    // lhs : Local
+    // rhs : (Constant | Local)
+  }
+
+  private static int versionOf(final Operand opnd) {
+    return ((Static) opnd).version;
+  }
+
   @Override
   public void visit(final Branch insn) {
     final ImmBranch br = branchOnImm(insn.guard);
-    if (br != null) {
+    if (br != null && br.rvalue instanceof Constant) {
       final BasicBlock join = searchJoin(insn);
       final BasicBlock entry =
           (br.isEquality()) ? insn.target.get(1) : insn.other;

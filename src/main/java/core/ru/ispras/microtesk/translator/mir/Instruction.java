@@ -330,6 +330,13 @@ class Static extends Lvalue {
     this.type = type;
   }
 
+  public boolean isSame(final Operand opnd) {
+    if (opnd instanceof Static) {
+      return this.name.equals(((Static) opnd).name);
+    }
+    return false;
+  }
+
   @Override
   public boolean equals(final Object o) {
     if (o instanceof Static) {
