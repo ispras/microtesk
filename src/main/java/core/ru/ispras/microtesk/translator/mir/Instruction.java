@@ -243,6 +243,20 @@ class Local extends Lvalue {
   public String toString() {
     return String.format("%%%d", id);
   }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o instanceof Local) {
+      final Local that = (Local) o;
+      return this.id == that.id;
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return id;
+  }
 }
 
 class Field extends Lvalue {
