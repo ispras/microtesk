@@ -6,11 +6,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public final class EvalContext extends InsnVisitor {
   private static final List<CmpOpcode> EQOPC = Arrays.asList(CmpOpcode.Eq, CmpOpcode.Ne);
 
   private final Map<String, List<Operand>> globals;
+  private final Map<Operand, Set<Operand>> inequal = new java.util.HashMap<>();
   private final Frame frame;
 
   private int origin = 0;
@@ -71,7 +73,55 @@ public final class EvalContext extends InsnVisitor {
       setLocal(indexOf(insn.lhs), value);
     } else if (EQOPC.contains(insn.opc) && op1.equals(op2)) {
       setLocal(indexOf(insn.lhs), newBoolean(insn.opc.equals(CmpOpcode.Eq)));
+    } else if (EQOPC.contains(insn.opc) && getInequal(op1).contains(op2)) {
+      setLocal(indexOf(insn.lhs), newBoolean(insn.opc.equals(CmpOpcode.Ne)));
+    } else if (getModified(insn.opc, op1, op2) != null) {
+      setInequal(rebaseLocal(insn.lhs), getModified(insn.opc, op1, op2));
     }
+  }
+
+  private Lvalue rebaseLocal(final Lvalue lval) {
+    return new Local(indexOf(lval), lval.getType());
+  }
+
+  private Operand getModified(final BinOpcode opc, final Operand op1, final Operand op2) {
+    if (opc.equals(BvOpcode.Add)) {
+      if (isNonZero(op1)) {
+        return op2;
+      } else if (isNonZero(op2)) {
+        return op1;
+      }
+    }
+    return null;
+  }
+
+  private static boolean isNonZero(final Operand opnd) {
+    if (opnd instanceof Constant) {
+      return ((Constant) opnd).getValue().signum() != 0;
+    }
+    return false;
+  }
+
+  private void setInequal(final Operand lhs, final Operand rhs) {
+    getCreateInequal(lhs).add(rhs);
+    getCreateInequal(rhs).add(lhs);
+  }
+
+  private Set<Operand> getInequal(final Operand lval) {
+    final Set<Operand> set = inequal.get(lval);
+    if (set == null) {
+      return Collections.emptySet();
+    }
+    return set;
+  }
+
+  private Set<Operand> getCreateInequal(final Operand lval) {
+    Set<Operand> set = inequal.get(lval);
+    if (set == null) {
+      set = new java.util.HashSet<>();
+      inequal.put(lval, set);
+    }
+    return set;
   }
 
   private static Constant newBoolean(final boolean value) {
