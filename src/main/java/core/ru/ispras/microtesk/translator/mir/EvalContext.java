@@ -1,12 +1,15 @@
 package ru.ispras.microtesk.translator.mir;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public final class EvalContext extends InsnVisitor {
+  private static final List<CmpOpcode> EQOPC = Arrays.asList(CmpOpcode.Eq, CmpOpcode.Ne);
+
   private final Map<String, List<Operand>> globals;
   private final Frame frame;
 
@@ -66,9 +69,13 @@ public final class EvalContext extends InsnVisitor {
       final ConstEvaluated eval = (ConstEvaluated) insn.opc;
       final Constant value = eval.evalConst((Constant) op1, (Constant) op2);
       setLocal(indexOf(insn.lhs), value);
-    } else if (insn.opc == CmpOpcode.Eq && op1.equals(op2)) {
-      setLocal(indexOf(insn.lhs), new Constant(1, 1));
+    } else if (EQOPC.contains(insn.opc) && op1.equals(op2)) {
+      setLocal(indexOf(insn.lhs), newBoolean(insn.opc.equals(CmpOpcode.Eq)));
     }
+  }
+
+  private static Constant newBoolean(final boolean value) {
+    return new Constant(1, value ? 1 : 0);
   }
 
   @Override
