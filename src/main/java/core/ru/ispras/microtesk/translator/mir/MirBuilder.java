@@ -7,6 +7,7 @@ import java.util.List;
 public class MirBuilder {
   private final static FuncTy VOID_TO_VOID_TYPE =
       new FuncTy(VoidTy.VALUE, Collections.<MirTy>emptyList());
+  private final static Local SELF = new Local(0, VOID_TO_VOID_TYPE);
 
   private final MirContext mir = new MirContext("", VOID_TO_VOID_TYPE);
   private MirBlock block = mir.newBlock();
@@ -35,6 +36,11 @@ public class MirBuilder {
     final Operand callee = removeLast(operands);
 
     body.add(new Call(callee, method, args, null));
+  }
+
+  public void makeThisCall(final String method, final int nargs) {
+    final List<Operand> args = removeLastN(operands, nargs);
+    body.add(new Call(SELF, method, args, null));
   }
 
   public void refMemory(final int nbits, final String name) {
