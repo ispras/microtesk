@@ -28,16 +28,22 @@ import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.Disassembler.Output;
 import ru.ispras.microtesk.translator.mir.ConcFlowPass;
+import ru.ispras.microtesk.translator.mir.Constant;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.GlobalNumbering;
-import ru.ispras.microtesk.translator.mir.SccpPass;
 import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirContext;
 import ru.ispras.microtesk.translator.mir.MirPassDriver;
 import ru.ispras.microtesk.translator.mir.MirText;
+import ru.ispras.microtesk.translator.mir.Operand;
+import ru.ispras.microtesk.translator.mir.SccpPass;
+import ru.ispras.microtesk.translator.mir.StoreAnalysis;
 
+import java.math.BigInteger;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -75,31 +81,60 @@ public final class SymbolicExecutor {
 
     final String smtFileName = fileName + ".smt2";
     writeSmt(smtFileName, ssa);
-    inspectControlFlow(fileName + ".json", model, instructions);
+
+    final BodyInfo info = writeMir(outputFactory.getModel(), instructions);
+    inspectControlFlow(fileName + ".json", model, info);
 
     Logger.message("Created file: %s", smtFileName);
 
-    writeMir(outputFactory.getModel(), instructions);
 
     return true;
   }
 
-  private static void writeMir(final Model model, final List<IsaPrimitive> insnList) {
+  private static BodyInfo writeMir(final Model model, final List<IsaPrimitive> insnList) {
     final Path path = Paths.get(SysUtils.getHomeDir(), "gen", model.getName() + ".zip");
     final MirArchive archive = MirArchive.open(path);
     final MirPassDriver driver =
       MirPassDriver.newDefault().setStorage(archive.loadAll());
-    driver.add(new GlobalNumbering().setComment("build SSA"));
-    driver.add(new ForwardPass().setComment("SSA forward"));
-    driver.add(new SccpPass().setComment("Nested SCCP"));
-    driver.add(new ForwardPass().setComment("SCCP forward"));
-    driver.add(new ConcFlowPass().setComment("cherry"));
 
+    final BodyInfo info = new BodyInfo(insnList, archive);
     for (final IsaPrimitive insn : insnList) {
       final MirContext mir =
-        FormulaBuilder.buildMir(model, Collections.singletonList(insn));
+        FormulaBuilder.buildMir(model, archive, Collections.singletonList(insn));
       final MirContext opt = driver.apply(mir);
-      Logger.debug(new MirText(opt).toString());
+      info.bodyMir.add(opt);
+    }
+
+    final String pcName =
+      archive.getManifest().getJsonObject("program_counter").getString("name");
+    final MirPassDriver ssaDriver = new MirPassDriver(
+      new GlobalNumbering().setComment("build SSA"),
+      new ForwardPass(Collections.singletonMap(pcName, BigInteger.ZERO)).setComment("SSA forward"),
+      new SccpPass().setComment("Nested SCCP"),
+      new ForwardPass().setComment("SCCP forward"),
+      new ConcFlowPass().setComment("cherry"));
+    final StoreAnalysis analysis = new StoreAnalysis();
+    for (final MirContext mir : info.bodyMir) {
+      final MirContext opt = ssaDriver.apply(mir);
+      analysis.apply(opt);
+
+      info.offsets.add(analysis.getOutputValues(pcName));
+      info.branchCond.add(analysis.getCondition(pcName));
+    }
+
+    return info;
+  }
+
+  static class BodyInfo {
+    final List<IsaPrimitive> body;
+    final Map<String, MirContext> storage;
+    final List<MirContext> bodyMir = new java.util.ArrayList<>();
+    final List<Operand> branchCond = new java.util.ArrayList<>();
+    final List<Collection<Operand>> offsets = new java.util.ArrayList<>();
+
+    public BodyInfo(final List<IsaPrimitive> body, final MirArchive archive) {
+      this.body = body;
+      this.storage = new java.util.HashMap<>(archive.loadAll());
     }
   }
 
@@ -123,8 +158,8 @@ public final class SymbolicExecutor {
   private static void inspectControlFlow(
       final String fileName,
       final Model model,
-      final List<IsaPrimitive> insns) {
-    final ControlFlowInspector inspector = new ControlFlowInspector(model, insns);
+      final BodyInfo info) {
+    final ControlFlowInspector inspector = new ControlFlowInspector(model, info);
     final List<ControlFlowInspector.Range> ranges = inspector.inspect();
 
     final JsonBuilderFactory factory =
@@ -133,8 +168,7 @@ public final class SymbolicExecutor {
     final JsonArrayBuilder blocks = factory.createArrayBuilder();
     for (final ControlFlowInspector.Range range : ranges) {
       blocks.add(factory.createObjectBuilder()
-        .add("range", factory.createArrayBuilder().add(range.start).add(range.end))
-        .add("condition", (range.nextTaken == range.nextOther) ? "true" : "?guard")
+        .add("range", factory.createArrayBuilder().add(range.start).add(range.end - 1))
         .add("target_taken", indexOf(range.nextTaken, ranges))
         .add("target_other", indexOf(range.nextOther, ranges)));
     }
@@ -143,7 +177,12 @@ public final class SymbolicExecutor {
 
     final JsonWriterFactory writerFactory = Json.createWriterFactory(
         Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
-    writerFactory.createWriter(System.out).writeObject(jsonDoc.build());
+    try (final JsonWriter writer =
+      writerFactory.createWriter(Files.newOutputStream(Paths.get(fileName)))) {
+      writer.writeObject(jsonDoc.build());
+    } catch (final java.io.IOException e) {
+      Logger.error(e.getMessage());
+    }
   }
 
   private static int indexOf(final int start, final List<ControlFlowInspector.Range> ranges) {
