@@ -54,6 +54,7 @@ import javax.json.JsonObject;
 
 public final class FormulaBuilder {
   public static MirContext buildMir(
+      final String name,
       final Model m,
       final MirArchive archive,
       final List<IsaPrimitive> insns) {
@@ -68,7 +69,19 @@ public final class FormulaBuilder {
     final JsonObject pcInfo = archive.getManifest().getJsonObject("program_counter");
     builder.refMemory(pcInfo.getInt("size"), pcInfo.getString("name"));
 
-    return builder.build("");
+    return builder.build(name);
+  }
+
+  public static MirContext buildMir(
+      final String name, final MirArchive archive, final List<MirContext> body) {
+    final MirBuilder builder = new MirBuilder();
+    for (final MirContext mir : body) {
+      builder.makeThisCall(mir.name, 0);
+    }
+    final JsonObject pcInfo = archive.getManifest().getJsonObject("program_counter");
+    builder.refMemory(pcInfo.getInt("size"), pcInfo.getString("name"));
+
+    return builder.build(name);
   }
 
   private static void buildOperand(final MirBuilder builder, final IsaInstance p) {
