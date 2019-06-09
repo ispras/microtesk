@@ -105,6 +105,14 @@ class Types {
     }
     return "";
   }
+
+  public static boolean isArray(final Operand opnd) {
+    return isArray(opnd.getType());
+  }
+
+  public static boolean isArray(final MirTy type) {
+    return type instanceof MirArray;
+  }
 }
 
 class IntTy implements MirTy {
