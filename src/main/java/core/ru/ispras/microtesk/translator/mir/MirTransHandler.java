@@ -13,11 +13,17 @@ import java.util.Set;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
+import ru.ispras.microtesk.translator.nml.analysis.IrInquirer;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
+import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.utils.NamePath;
+
+import javax.json.*;
+import javax.json.stream.JsonGenerator;
 
 public class MirTransHandler implements TranslatorHandler<Ir> {
   private final Translator<Ir> translator;
@@ -63,6 +69,10 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
 
     final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
     try (final ArchiveWriter archive = new ArchiveWriter(path)) {
+      try (final JsonWriter writer =
+          Json.createWriter(archive.newText(MirArchive.MANIFEST))) {
+        writer.write(createManifest(ir));
+      }
       for (final MirContext ctx : opt.values()) {
         try (final Writer writer = archive.newText(ctx.name + ".mir")) {
           final MirText text = new MirText(ctx);
@@ -72,6 +82,20 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     } catch (final IOException e) {
       Logger.error("Failed to store MIR '%s': %s", path.toString(), e.toString());
     }
+  }
+
+  private static JsonObject createManifest(final Ir ir) {
+    final IrInquirer inquirer = new IrInquirer(ir);
+    final JsonObjectBuilder manifest = Json.createObjectBuilder();
+    for (final MemoryResource mem : ir.getMemory().values()) {
+      final Location l = Location.createMemoryBased(mem.getName(), mem, null);
+      if (inquirer.isPC(l)) {
+        manifest.add("program_counter", Json.createObjectBuilder()
+          .add("name", mem.getName())
+          .add("size", mem.getType().getBitSize()));
+      }
+    }
+    return manifest.build();
   }
 
   private Map<NamePath, MirContext> loadMir(final Ir ir) {
