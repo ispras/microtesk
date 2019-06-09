@@ -32,6 +32,7 @@ import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.model.metadata.MetaData;
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
+import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirBuilder;
 import ru.ispras.microtesk.translator.mir.MirContext;
 import ru.ispras.microtesk.translator.nml.coverage.PathConstraintBuilder;
@@ -49,8 +50,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.json.JsonObject;
+
 public final class FormulaBuilder {
-  public static MirContext buildMir(final Model m, final List<IsaPrimitive> insns) {
+  public static MirContext buildMir(
+      final Model m,
+      final MirArchive archive,
+      final List<IsaPrimitive> insns) {
     final MirBuilder builder = new MirBuilder();
     for (final IsaPrimitive insn : insns) {
       final IsaInstance p = new IsaInstance(m, insn);
@@ -59,6 +65,9 @@ public final class FormulaBuilder {
       final String callee = String.format("%s.action", insn.getName());
       builder.makeCall(callee, 0);
     }
+    final JsonObject pcInfo = archive.getManifest().getJsonObject("program_counter");
+    builder.refMemory(pcInfo.getInt("size"), pcInfo.getString("name"));
+
     return builder.build("");
   }
 

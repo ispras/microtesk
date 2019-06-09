@@ -1,23 +1,31 @@
 package ru.ispras.microtesk.tools.symexec;
 
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
+import ru.ispras.microtesk.translator.mir.Constant;
+import ru.ispras.microtesk.translator.mir.Operand;
+
+import static ru.ispras.microtesk.tools.symexec.SymbolicExecutor.BodyInfo;
 
 public class ControlFlowInspector {
   private final Model model;
+  private final BodyInfo info;
   private final List<Integer> addr;
   private final List<IsaPrimitive> body;
   private final List<Range> ranges = new java.util.ArrayList<>();
   private final Queue<Integer> queue = new java.util.ArrayDeque<>();
 
-  public ControlFlowInspector(final Model model, final List<IsaPrimitive> body) {
+  public ControlFlowInspector(final Model model, final BodyInfo info) {
     this.model = model;
-    this.addr = new java.util.ArrayList<>(body.size());
-    this.body = body;
+    this.info = info;
+    this.addr = new java.util.ArrayList<>(info.body.size());
+    this.body = info.body;
 
     int offset = 0;
     for (final IsaPrimitive insn : body) {
@@ -32,14 +40,18 @@ public class ControlFlowInspector {
 
   public List<Range> inspect() {
     queue.add(0);
+    final BitSet observed = new BitSet(body.size());
+
     while (!queue.isEmpty()) {
       final int start = queue.remove();
-      final Range range = rangeOf(start);
-      if (range != null && range.start != start) {
-        ranges.add(range.split(start));
+      if (observed.get(start)) {
+        final Range range = rangeOf(start);
+        if (range != null && range.start != start) {
+          ranges.add(range.split(start));
+        }
       } else {
         int i = start;
-        while (i < body.size()) {
+        while (i < body.size() && !observed.get(i)) {
           final IsaPrimitive insn = body.get(i);
           if (isBranch(insn)) {
             final int target =
@@ -56,9 +68,9 @@ public class ControlFlowInspector {
               break;
             }
           }
-          ++i;
+          observed.set(i++);
         }
-        if (i >= body.size()) {
+        if (i >= body.size() || observed.get(i)) {
           ranges.add(new Range(start, i));
         }
       }
@@ -76,16 +88,31 @@ public class ControlFlowInspector {
     return null;
   }
 
-  public static boolean isBranch(final IsaPrimitive insn) {
-    return false;
+  public boolean isBranch(final IsaPrimitive insn) {
+    final int offsetNext = sizeOf(insn);
+    return getBranchOffset(insn) != offsetNext;
   }
 
   private int getBranchOffset(final IsaPrimitive insn) {
-    return sizeOf(insn);
+    final int index = body.indexOf(insn);
+    final int offsetNext = sizeOf(insn);
+
+    for (final Operand opnd : info.offsets.get(index)) {
+      if (opnd instanceof Constant) {
+        final int offset = ((Constant) opnd).getValue().intValue();
+        if (offset != offsetNext) {
+          return offset;
+        }
+      }
+    }
+    return offsetNext;
   }
 
-  public static boolean isConditional(final IsaPrimitive insn) {
-    return false;
+  public boolean isConditional(final IsaPrimitive insn) {
+    final Constant bitOne = new Constant(1, 1);
+    final int index = body.indexOf(insn);
+
+    return !info.branchCond.get(index).equals(bitOne);
   }
 
   public final static class Range implements Comparable<Range> {
