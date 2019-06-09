@@ -21,7 +21,7 @@ public final class EvalContext extends InsnVisitor {
     final Map<String, List<Operand>> globals = new java.util.HashMap<>();
     final EvalContext ctx = new EvalContext(globals);
     for (final Map.Entry<String, BigInteger> entry : presets.entrySet()) {
-      ctx.set(entry.getKey(), 1, new Constant(128, entry.getValue())); // FIXME
+      ctx.frame.set(entry.getKey(), 1, new Constant(128, entry.getValue())); // FIXME
     }
 
     return ctx.evalInternal(mir);
@@ -163,23 +163,8 @@ public final class EvalContext extends InsnVisitor {
   public void visit(final GlobalNumbering.SsaStore insn) {
     final Static mem = cast(insn.target, Static.class);
     if (mem != null) {
-      set(mem.name, mem.version, getValueRec(insn.origin.source));
+      frame.set(mem.name, mem.version, getValueRec(insn.origin.source));
     }
-  }
-
-  private void set(final String name, final int version, final Operand value) {
-    final List<Operand> values;
-    if (globals.containsKey(name)) {
-      values = globals.get(name);
-    } else {
-      values = new java.util.ArrayList<>();
-      globals.put(name, values);
-    }
-    final int ndiff = version - values.size();
-    if (ndiff > 0) {
-      values.addAll(Collections.nCopies(ndiff, VoidTy.VALUE));
-    }
-    values.set(version - 1, value);
   }
 
   @Override
