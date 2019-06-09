@@ -45,11 +45,7 @@ public class MirPassDriver {
   public Map<String, MirContext> run(final Map<String, MirContext> source) {
     final List<String> ordered = dependencyOrder(source);
     for (final String name : ordered) {
-      MirContext ctx = source.get(name);
-      for (final Pass pass : passList) {
-        ctx = pass.apply(ctx);
-        pass.result.put(name, ctx);
-      }
+      final MirContext ctx = apply(source.get(name));
       storage.put(name, ctx);
     }
     return Collections.unmodifiableMap(this.storage);
