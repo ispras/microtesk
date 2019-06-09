@@ -52,6 +52,8 @@ import java.util.Map;
 import javax.json.*;
 import javax.json.stream.JsonGenerator;
 
+import static ru.ispras.microtesk.tools.symexec.ControlFlowInspector.Range;
+
 public final class SymbolicExecutor {
   private SymbolicExecutor() {}
 
@@ -83,12 +85,42 @@ public final class SymbolicExecutor {
     writeSmt(smtFileName, ssa);
 
     final BodyInfo info = writeMir(outputFactory.getModel(), instructions);
-    inspectControlFlow(fileName + ".json", model, info);
+    inspectControlFlow(model, info);
+    compileBasicBlocks(fileName, info);
+    writeControlFlow(fileName + ".json", info);
 
     Logger.message("Created file: %s", smtFileName);
 
 
     return true;
+  }
+
+  private static void compileBasicBlocks(final String fileName, final BodyInfo info) {
+    final MirPassDriver driver =
+      MirPassDriver.newDefault().setStorage(info.storage)
+      .add(new GlobalNumbering().setComment("build SSA"))
+      .add(new ForwardPass().setComment("SSA forward"))
+      .add(new SccpPass().setComment("Nested SCCP"))
+      .add(new ForwardPass().setComment("SCCP forward"))
+      .add(new ConcFlowPass().setComment("cherry"));
+    final StoreAnalysis analysis = new StoreAnalysis();
+
+    final String pcName =
+      info.archive.getManifest().getJsonObject("program_counter").getString("name");
+
+    int index = 0;
+    for (final Range range : info.bbRange) {
+      final String name = String.format("bb_%d", index++);
+      final MirContext mir =
+        FormulaBuilder.buildMir(name, info.archive, info.bodyMir.subList(range.start, range.end));
+      final MirContext opt = driver.apply(mir);
+      analysis.apply(opt);
+
+      info.bbMir.add(opt);
+      info.bbCond.add(analysis.getCondition(pcName));
+
+      Logger.debug(new MirText(opt).toString());
+    }
   }
 
   private static BodyInfo writeMir(final Model model, final List<IsaPrimitive> insnList) {
@@ -98,11 +130,15 @@ public final class SymbolicExecutor {
       MirPassDriver.newDefault().setStorage(archive.loadAll());
 
     final BodyInfo info = new BodyInfo(insnList, archive);
+
+    int index = 0;
     for (final IsaPrimitive insn : insnList) {
+      final String name = String.format("insn_%d.action", index++);
       final MirContext mir =
-        FormulaBuilder.buildMir(model, archive, Collections.singletonList(insn));
+        FormulaBuilder.buildMir(name, model, archive, Collections.singletonList(insn));
       final MirContext opt = driver.apply(mir);
       info.bodyMir.add(opt);
+      info.storage.put(opt.name, opt);
     }
 
     final String pcName =
@@ -127,13 +163,19 @@ public final class SymbolicExecutor {
 
   static class BodyInfo {
     final List<IsaPrimitive> body;
+    final MirArchive archive;
     final Map<String, MirContext> storage;
     final List<MirContext> bodyMir = new java.util.ArrayList<>();
     final List<Operand> branchCond = new java.util.ArrayList<>();
     final List<Collection<Operand>> offsets = new java.util.ArrayList<>();
 
+    final List<Range> bbRange = new java.util.ArrayList<>();
+    final List<MirContext> bbMir = new java.util.ArrayList<>();
+    final List<Operand> bbCond = new java.util.ArrayList<>();
+
     public BodyInfo(final List<IsaPrimitive> body, final MirArchive archive) {
       this.body = body;
+      this.archive = archive;
       this.storage = new java.util.HashMap<>(archive.loadAll());
     }
   }
@@ -155,22 +197,27 @@ public final class SymbolicExecutor {
     }
   }
 
-  private static void inspectControlFlow(
-      final String fileName,
-      final Model model,
-      final BodyInfo info) {
+  private static void inspectControlFlow(final Model model, final BodyInfo info) {
     final ControlFlowInspector inspector = new ControlFlowInspector(model, info);
-    final List<ControlFlowInspector.Range> ranges = inspector.inspect();
+    final List<Range> ranges = inspector.inspect();
+    info.bbRange.addAll(ranges);
+  }
 
+  private static void writeControlFlow(final String fileName, final BodyInfo info) {
     final JsonBuilderFactory factory =
         Json.createBuilderFactory(Collections.<String, Object>emptyMap());
 
     final JsonArrayBuilder blocks = factory.createArrayBuilder();
-    for (final ControlFlowInspector.Range range : ranges) {
+
+    int bbIndex = 0;
+    final List<Range> ranges = info.bbRange;
+    for (final Range range : ranges) {
       blocks.add(factory.createObjectBuilder()
         .add("range", factory.createArrayBuilder().add(range.start).add(range.end - 1))
+        .add("condition_smt", (range.nextTaken == range.nextOther) ? "true" : info.bbCond.get(bbIndex).toString())
         .add("target_taken", indexOf(range.nextTaken, ranges))
         .add("target_other", indexOf(range.nextOther, ranges)));
+      ++bbIndex;
     }
     final JsonObjectBuilder jsonDoc = factory.createObjectBuilder()
       .add("blocks", blocks);
