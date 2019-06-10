@@ -31,6 +31,7 @@ import ru.ispras.microtesk.translator.mir.ConcFlowPass;
 import ru.ispras.microtesk.translator.mir.Constant;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.GlobalNumbering;
+import ru.ispras.microtesk.translator.mir.Mir2Node;
 import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirContext;
 import ru.ispras.microtesk.translator.mir.MirPassDriver;
@@ -88,6 +89,7 @@ public final class SymbolicExecutor {
     inspectControlFlow(model, info);
     compileBasicBlocks(fileName, info);
     writeControlFlow(fileName + ".json", info);
+    writeSmt(fileName, info);
 
     Logger.message("Created file: %s", smtFileName);
 
@@ -104,6 +106,7 @@ public final class SymbolicExecutor {
       .add(new ForwardPass().setComment("SCCP forward"))
       .add(new ConcFlowPass().setComment("cherry"));
     final StoreAnalysis analysis = new StoreAnalysis();
+    final Mir2Node smtOutput = new Mir2Node();
 
     final String pcName =
       info.archive.getManifest().getJsonObject("program_counter").getString("name");
@@ -177,6 +180,16 @@ public final class SymbolicExecutor {
       this.body = body;
       this.archive = archive;
       this.storage = new java.util.HashMap<>(archive.loadAll());
+    }
+  }
+
+  private static void writeSmt(final String fileName, final BodyInfo info) {
+    final Mir2Node smtOutput = new Mir2Node();
+    for (final MirContext mir : info.bbMir) {
+      smtOutput.apply(mir);
+
+      final String path = String.format("%s.%s.smt2", fileName, mir.name);
+      writeSmt(path, smtOutput.getFormulae());
     }
   }
 
