@@ -802,8 +802,11 @@ public final class NmlIrTrans {
     return UnOpcode.Use.make(op);
   }
 
-  private static final Map<Enum<?>, BinOpcode> OPCODE_MAPPING =
+  static final Map<Enum<?>, BinOpcode> OPCODE_MAPPING =
       new IdentityHashMap<>();
+  static final Map<BinOpcode, Enum<?>> MIR2NODE_MAP =
+    new IdentityHashMap<>();
+
   static {
     OPCODE_MAPPING.put(StandardOperation.AND, BvOpcode.And);
     OPCODE_MAPPING.put(StandardOperation.OR, BvOpcode.Or);
@@ -856,5 +859,12 @@ public final class NmlIrTrans {
     OPCODE_MAPPING.put(StandardOperation.BVASHL, BvOpcode.Shl);
     OPCODE_MAPPING.put(StandardOperation.BVASHR, BvOpcode.Ashr);
     OPCODE_MAPPING.put(StandardOperation.BVLSHR, BvOpcode.Lshr);
+
+    for (final Map.Entry<Enum<?>, BinOpcode> entry : OPCODE_MAPPING.entrySet()) {
+      final BinOpcode opc = entry.getValue();
+      if (opc instanceof BvOpcode || opc instanceof CmpOpcode) {
+        MIR2NODE_MAP.put(opc, entry.getKey());
+      }
+    }
   }
 }
