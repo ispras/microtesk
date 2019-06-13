@@ -694,39 +694,47 @@ public final class NmlIrTrans {
 
     @Override
     public Lvalue accessLocal(final Local target, final Access access) {
-      final Lvalue dst = index(target, access);
-      write(dst, access);
-      return dst;
+      /* NOTE write access to local is FORBIDDEN, skip */
+      return target;
     }
 
     @Override
     public Lvalue accessMode(final Local target, final Access access, final Primitive p) {
-      final Local value = ctx.newLocal(p.getReturnType().getBitSize());
-      accessLocal(value, access);
+      final Local newval = ctx.newLocal(p.getReturnType().getBitSize());
+      if (access.lo != null) {
+        final Local oldval = ctx.newLocal(newval.getType());
+        final String method = String.format("%s.read", p.getName());;
+        ctx.append(new Call(target, method, Collections.<Operand>emptyList(), oldval));
+        write(newval, oldval, access);
+      } else {
+        ctx.assign(newval, value);
+      }
 
       final String method = String.format("%s.write", p.getName());
       final Call call =
-        new Call(target, method, Collections.<Operand>singletonList(value), null);
+        new Call(target, method, Collections.<Operand>singletonList(newval), null);
       ctx.append(call);
-      return value;
+
+      return newval;
     }
 
     @Override
     public Lvalue accessMemory(final Lvalue mem, final Access access) {
       final Lvalue target = index(mem, access);
-      final Local value = ctx.newLocal(target.getType());
+      final Local newval = ctx.newLocal(target.getType());;
       if (access.lo != null) {
-        ctx.append(new Load(target, value));
-        write(value, access);
+        final Local oldval = ctx.newLocal(target.getType());
+        ctx.append(new Load(target, oldval));
+        write(newval, oldval, access);
       } else {
-        ctx.assign(value, this.value);
+        ctx.assign(newval, this.value);
       }
-      ctx.append(new Store(target, value));
+      ctx.append(new Store(target, newval));
 
       return target;
     }
 
-    private void write(final Lvalue target, final Access access) {
+    private void write(final Lvalue target, final Operand oldval, final Access access) {
       if (access.lo != null) {
         final Local zext = ctx.newLocal(target.getType());
         ctx.append(new Zext(zext, ctx.assignLocal(value)));
@@ -734,7 +742,7 @@ public final class NmlIrTrans {
         final Rvalue rhs = BvOpcode.Shl.make(zext, access.lo);
 
         final Operand mask = createMask(target, access);
-        final Rvalue clear = BvOpcode.And.make(target, mask);
+        final Rvalue clear = BvOpcode.And.make(oldval, mask);
         final Rvalue store =
           BvOpcode.Or.make(ctx.assignLocal(clear), ctx.assignLocal(rhs));
 
