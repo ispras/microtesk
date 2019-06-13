@@ -71,9 +71,16 @@ public class Mir2Node extends Pass {
     }
 
     public void visit(final Extract insn) {
-      final int hi = ((Constant) insn.hi).getValue().intValue();
-      final int lo = ((Constant) insn.lo).getValue().intValue();
-      assign(insn.lhs, Nodes.bvextract(Math.max(hi, lo), Math.min(hi, lo), dispatch(insn.rhs)));
+      if (insn.hi instanceof Constant && insn.lo instanceof Constant) {
+        final int hi = ((Constant) insn.hi).getValue().intValue();
+        final int lo = ((Constant) insn.lo).getValue().intValue();
+        assign(insn.lhs, Nodes.bvextract(Math.max(hi, lo), Math.min(hi, lo), dispatch(insn.rhs)));
+      } else {
+        final Node amount =
+          Nodes.bvzeroext(sizeOf(insn.rhs) - sizeOf(insn.lo), dispatch(insn.lo));
+        final Node shr = Nodes.bvlshr(dispatch(insn.rhs), amount);
+        assign(insn.lhs, Nodes.bvextract(sizeOf(insn.lhs) - 1, 0, shr));
+      }
     }
 
     public void visit(final Sext insn) {
