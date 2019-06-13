@@ -1,5 +1,6 @@
 package ru.ispras.microtesk.translator.mir;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -175,22 +176,30 @@ enum FpTy implements MirTy {
 }
 
 class MirArray implements MirTy {
-  public final int size;
+  public final BigInteger size;
   public final TyRef ref;
 
   public MirArray(final int size, final TyRef ref) {
+    this(BigInteger.valueOf(size), ref);
+  }
+
+  public MirArray(final BigInteger size, final TyRef ref) {
     this.size = size;
     this.ref = ref;
   }
 
+  public int indexBitLength() {
+    return size.subtract(BigInteger.ONE).bitLength();
+  }
+
   @Override
   public int getSize() {
-    return ref.type.getSize() * size;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public String getName() {
-    return String.format("[%d, %s]", size, ref.name);
+    return String.format("[%s, %s]", size, ref.name);
   }
 
   @Override

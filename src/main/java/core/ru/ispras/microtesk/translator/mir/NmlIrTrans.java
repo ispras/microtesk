@@ -589,7 +589,7 @@ public final class NmlIrTrans {
     final MirTy type = new IntTy(mem.getType().getBitSize());
     final BigInteger length = mem.getSize();
     if (length.compareTo(BigInteger.ONE) > 0) {
-      return new MirArray(length.intValue(), new TyRef(type));
+      return new MirArray(length, new TyRef(type));
     }
     return type;
   }

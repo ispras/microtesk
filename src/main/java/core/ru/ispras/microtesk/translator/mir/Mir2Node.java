@@ -1,6 +1,5 @@
 package ru.ispras.microtesk.translator.mir;
 
-import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.ExprUtils;
@@ -113,7 +112,8 @@ public class Mir2Node extends Pass {
 
         Node key = select.getOperand(1);
         if (ExprUtils.isValue(key)) {
-          final int indexBits = sizeOfIndex((MirArray) insn.target.getType());
+          final MirArray atype = (MirArray) insn.target.getType();
+          final int indexBits = atype.indexBitLength();
           key = NodeValue.newBitVector(((NodeValue) key).getBitVector().resize(indexBits, false)); 
         }
         assign(
@@ -163,14 +163,10 @@ public class Mir2Node extends Pass {
     }
     if (type instanceof MirArray) {
       final MirArray atype = (MirArray) type;
-      final int indexBits = sizeOfIndex(atype);
+      final int indexBits = atype.indexBitLength();
       return DataType.map(DataType.bitVector(indexBits), typeOf(atype.ref.type));
     }
     return DataType.UNKNOWN;
-  }
-
-  private static int sizeOfIndex(final MirArray atype) {
-    return BigInteger.valueOf(atype.size).subtract(BigInteger.ONE).bitLength();
   }
 
   private static int sizeOf(final Operand opnd) {

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -168,7 +169,7 @@ public class MirParser {
     private static MirArray nextArray(final Scanner s) {
       if (TokenKind.LBRACKET.nextIn(s)) {
         nextToken(TokenKind.LBRACKET, s);
-        final int size = s.nextInt();
+        final BigInteger size = s.nextBigInteger();
         final MirTy type = nextType(s);
         nextToken(TokenKind.RBRACKET, s);
 
@@ -296,7 +297,8 @@ public class MirParser {
           mem = new Field(mem, TokenKind.IDENT.next(s));
         } else if (TokenKind.LBRACKET.nextIn(s)) {
           TokenKind.LBRACKET.next(s);
-          final Operand index = nextOperand(new IntTy(64), s);
+          final MirArray atype = (MirArray) mem.getType();
+          final Operand index = nextOperand(new IntTy(atype.indexBitLength()), s);
           mem = new Index(mem, index);
           TokenKind.RBRACKET.next(s);
         }
