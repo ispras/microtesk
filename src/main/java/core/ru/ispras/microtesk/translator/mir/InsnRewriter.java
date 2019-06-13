@@ -209,7 +209,7 @@ public class InsnRewriter extends InsnVisitor {
   }
 
   private boolean isAlive(final int index) {
-    return frame.locals.get(index).equals(VoidTy.VALUE);
+    return retained.contains(index);
   }
 
   @Override
