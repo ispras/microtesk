@@ -1,257 +1,328 @@
 package ru.ispras.microtesk.translator.mir;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class GlobalNumbering extends Pass {
-  private List<Node> blocks;
-  private Map<Node, Node> forkJoin;
-
-  private final List<Map<String, Def>> defs = new java.util.ArrayList<>();
-  private final Map<String, Integer> versions = new java.util.HashMap<>();
-
   public MirContext apply(final MirContext source) {
     final MirContext ctx = Pass.copyOf(source);
-
-    init(ctx);
-    run();
-
-    for (final Node node : blocks) {
-      for (final Instruction insn : node.bb.insns) {
-        if (insn instanceof Phi) {
-          final Phi phi = (Phi) insn;
-          phi.value = compress(getVariants(phi.target, node));
-        }
-      }
-    }
-
+    constructSSA(ctx);
     return ctx;
   }
 
-  private void init(final MirContext ctx) {
-    this.blocks = breadthFirst(ctx);
-    this.forkJoin = mapForkJoin(blocks);
-    this.defs.clear();
-    this.versions.clear();
-
-    for (int i = 0; i< blocks.size(); ++i) {
-      defs.add(new java.util.HashMap<String, Def>());
-    }
-  }
-
-  private void run() {
-    for (final Node node : blocks) {
-      final List<Instruction> insns = node.bb.insns;
-      for (int i = 0; i < insns.size(); ++i) {
-        final Instruction insn = insns.get(i);
-        if (insn instanceof Store) {
-          final Store store = (Store) insn;
-          final Static current = reload(store.target, node).mem;
-
-          final Store update =
-              new Store(update(store.target, current.version), store.source);
-          final SsaStore def = new SsaStore(incrementVersion(current), update);
-          insns.set(i, def);
-          define(def.target, def, node);
-        } else if (insn instanceof Load) {
-          final Load load = (Load) insn;
-          final Static def = reload(load.source, node).mem;
-
-          insns.set(insns.indexOf(load), new Load(update(load.source, def.version), load.target));
+  private void replacePhi(final BasicBlock bb, final GContext ctx) {
+    for (int i = 0; i < bb.insns.size(); ++i) {
+      final Instruction insn = bb.insns.get(i);
+      if (insn instanceof Phi) {
+        final Phi phi = (Phi) insn;
+        final Operand value = compressNet(phi.values, bb, ctx);
+        if (value instanceof Ite) {
+          phi.value = (Ite) value;
+        } else {
+          phi.value = new Ite(new Constant(1, 1), value, value);
         }
       }
     }
   }
 
-  private Def reload(final Lvalue lval, final Node node) {
-    return reload(getMemory(lval), node);
-  }
+  private Operand compressNet(
+      final List<? extends Operand> values, final BasicBlock sink, final GContext ctx) {
 
-  private Def reload(final Static mem, final Node node) {
-    final Def def = getDefs(node).get(mem.name);
-    if (def == null ) {
-      return reloadRecursive(mem, node);
-    }
-    return def;
-  }
+    final BasicBlock idom = ctx.dom.idom.get(sink);
+    final Map<BasicBlock, GsaInfo> forkInfo = new java.util.HashMap<>();
 
-  private Def reloadRecursive(final Static mem, final Node node) {
-    if (node.pred.isEmpty()) {
-      return new Def(new Static(mem.name, 1, mem.getType()), null, node);
-    }
-    final Collection<Def> variants = getVariants(mem, node);
-    if (variants.size() == 1) {
-      return variants.iterator().next();
-    }
-    final List<Static> memvars = new java.util.ArrayList<>(variants.size());
-    for (final Def def : variants) {
-      memvars.add(def.mem);
-    }
-    final Phi phi = new Phi(incrementVersion(mem), memvars);
-    node.bb.insns.add(0, phi);
+    final List<BasicBlock> worklist = new java.util.ArrayList<>(values.size());
+    final List<Operand> datalist = new java.util.ArrayList<>(values.size());
 
-    return define(phi.target, phi, node);
-  }
+    worklist.addAll(ctx.preds.get(sink));
+    datalist.addAll(values);
 
-  private Collection<Def> getVariants(final Static mem, final Node node) {
-    final Set<Def> variants = new java.util.TreeSet<>(new Comparator<Def>() {
-      @Override
-      public int compare(final Def lhs, final Def rhs) {
-        return lhs.mem.version - rhs.mem.version;
-      }
-    });
-    for (final Node pred : node.pred) {
-      variants.add(reload(mem, pred));
-    }
-    return variants;
-  }
+    int iterno = 0;
+    while (!worklist.isEmpty()) {
+      final BasicBlock bb = removeLast(worklist);
+      final Operand value = removeLast(datalist);
 
-  private Ite compress(final Collection<Def> defs) {
-    final Map<Def, ControlDep> deps = new java.util.IdentityHashMap<>();
-    for (final Def def : defs) {
-      deps.put(def, listControlDeps(def));
-    }
-    return compressRec(deps.keySet(), deps);
-  }
-
-  private Ite compressRec(final Collection<Def> defs, final Map<Def, ControlDep> depsAll) {
-    final Map<Def, ControlDep> deps = new java.util.IdentityHashMap<>(depsAll);
-    deps.keySet().retainAll(defs);
-
-    final Node fork = searchFork(deps.values());
-    final List<Def> takenList = new java.util.ArrayList<>();
-    final List<Def> otherList = new java.util.ArrayList<>();
-
-    Def counterDef = null;
-    for (final ControlDep dep : deps.values()) {
-      final int index = dep.path.indexOf(fork);
-      if (index == 0) {
-        counterDef = dep.def;
-      } else if (dep.pathTaken.get(index - 1)) {
-        takenList.add(dep.def);
+      if (!idom.equals(bb)) {
+        final List<BasicBlock> preds = ctx.preds.get(bb);
+        for (final BasicBlock pred : preds) {
+          if (ctx.mirNodes.successorsOf(pred, ctx.mir).size() > 1) {
+            GsaInfo info = forkInfo.get(pred);
+            if (info == null) {
+              info = new GsaInfo();
+              forkInfo.put(pred, info);
+            }
+            final Branch br = (Branch) lastOf(pred.insns);
+            if (br.other.equals(bb)) {
+              info.valueOther = value;
+            } else {
+              info.valueTaken = value;
+            }
+            if (info.valueTaken != null && info.valueOther != null) {
+              worklist.add(pred);
+              datalist.add(gsaCompress(br.guard, info));
+            }
+          } else {
+            worklist.add(pred);
+            datalist.add(value);
+          }
+        }
       } else {
-        otherList.add(dep.def);
-      }
-      dep.limit = index;
-    }
-    if (takenList.isEmpty()) {
-      takenList.add(counterDef);
-    } else if (otherList.isEmpty()) {
-      otherList.add(counterDef);
-    }
-    final Operand taken = compressDef(takenList, depsAll);
-    final Operand other = compressDef(otherList, depsAll);
-    final Branch br = (Branch) lastOf(fork.bb.insns);
-
-    return new Ite(br.guard, taken, other);
-  }
-
-  private Operand compressDef(final Collection<Def> defs, final Map<Def, ControlDep> deps) {
-    if (defs.size() == 1) {
-      return defs.iterator().next().mem;
-    }
-    return compressRec(defs, deps);
-  }
-
-  private Node searchFork(final Collection<ControlDep> deps) {
-    final ControlDep sample = deps.iterator().next();
-    for (int i = 0; i < sample.limit; ++i) {
-      final Node fork = sample.path.get(i);
-      if (allContains(deps, fork)) {
-        return fork;
+        return value;
       }
     }
-    return null;
+    throw new IllegalStateException();
   }
 
-  private static boolean allContains(final Collection<ControlDep> deps, final Node node) {
-    for (final ControlDep dep : deps) {
-      if (!dep.path.contains(node)) {
-        return false;
+  private static Operand gsaCompress(final Operand guard, final GsaInfo info) {
+    if (info.valueTaken.equals(info.valueOther)) {
+      return info.valueTaken;
+    }
+    return new Ite(guard, info.valueTaken, info.valueOther);
+  }
+
+  private static <T> T removeLast(final List<T> list) {
+    return list.remove(list.size() - 1);
+  }
+
+  private static final class GsaInfo {
+    Operand valueTaken;
+    Operand valueOther;
+  }
+
+  private void constructSSA(final MirContext mir) {
+    varInfo.clear();
+
+    final GContext ctx = new GContext(mir);
+
+    insertPhi(ctx);
+    searchRename(mir.blocks.get(0), ctx);
+    for (final BasicBlock bb : mir.blocks) {
+      replacePhi(bb, ctx);
+    }
+  }
+
+  private static final class GContext {
+    final MirContext mir;
+    final MirNodes mirNodes = new MirNodes();
+    final Map<BasicBlock, List<BasicBlock>> preds;
+    final DominanceTree<BasicBlock, MirContext> dom;
+
+    GContext(final MirContext mir) {
+      this.mir = mir;
+      this.preds = collectPred(mir, mirNodes);
+      this.dom = LengauerTarjanDom.create(mirNodes).compute(mirNodes.entry, mir);
+      dom.calculateFrontiers();
+    }
+  }
+
+  private static Map<BasicBlock, List<BasicBlock>> collectPred(
+      final MirContext mir, final MirNodes mirNodes) {
+    final Map<BasicBlock, List<BasicBlock>> preds = new java.util.HashMap<>();
+
+    preds.put(mirNodes.entry, Collections.<BasicBlock>emptyList());
+    for (final BasicBlock bb : mirNodes.nodesOf(mir)) {
+      for (final BasicBlock succ : mirNodes.successorsOf(bb, mir)) {
+        List<BasicBlock> pred = preds.get(succ);
+        if (pred == null) {
+          pred = new java.util.ArrayList<>();
+          preds.put(succ, pred);
+        }
+        pred.add(bb);
       }
     }
-    return true;
+    return preds;
   }
 
-  private ControlDep listControlDeps(final Def def) {
-    final ControlDep dep = new ControlDep(def);
-    final List<Node> path = DepthFirstPath.get(def.bb, new Backward());
-    for (int i = 1; i < path.size(); ++i) {
-      final Node node = path.get(i);
-      final Node succ = path.get(i - 1);
-      if (node.succ.size() > 1 && !path.contains(forkJoin.get(node))) {
-        dep.add(node, succ);
+  private void searchRename(final BasicBlock bb, final GContext ctx) {
+    for (int i = 0; i < bb.insns.size(); ++i) {
+      final Instruction insn = bb.insns.get(i);
+      if (insn instanceof Load) {
+        final Load origin = (Load) insn;
+        final VarInfo info = getInfo(getMemory(origin.source));
+        bb.insns.set(i, new Load(update(origin.source, info.current()), origin.target));
+      } else if (insn instanceof Store) {
+        final Store origin = (Store) insn;
+        final Static base = getMemory(origin.target);
+        final VarInfo info = getInfo(base);
+
+        final Store store =
+          new Store(update(origin.target, info.current()), origin.source);
+        final SsaStore upd =
+          new SsaStore((Static) update(base, info.assign()), store);
+        bb.insns.set(i, upd);
+      } else if (insn instanceof Phi) {
+        final Phi origin = (Phi) insn;
+        final Static mem = origin.target;
+        final Phi phi = new Phi((Static) update(mem, getInfo(mem).assign()), origin.values);
+        bb.insns.set(i, phi);
       }
     }
-    dep.limit = dep.path.size();
-
-    return dep;
-  }
-
-  final static class ControlDep {
-    final Def def;
-    final List<Node> path = new java.util.ArrayList<>();
-    final List<Boolean> pathTaken = new java.util.ArrayList<>();
-
-    int limit;
-
-    ControlDep(final Def def) {
-      this.def = def;
-      path.add(def.bb);
-    }
-
-    void add(final Node dep, final Node src) {
-      path.add(dep);
-      pathTaken.add(dep.succ.get(0) == src);
-    }
-
-    void removeTail(final int index) {
-      path.subList(index, path.size()).clear();
-      pathTaken.subList(index - 1, pathTaken.size()).clear();
-    }
-  }
-
-  private static boolean isComplete(final Collection<Ite> items) {
-    for (final Ite ite : items) {
-      if (ite.taken == null || ite.other == null) {
-        return false;
+    for (final BasicBlock succ : ctx.mirNodes.successorsOf(bb, ctx.mir)) {
+      final int index = ctx.preds.get(succ).indexOf(bb);
+      for (int i = 0; i < succ.insns.size(); ++i) {
+        final Instruction insn = succ.insns.get(i);
+        if (insn instanceof Phi) {
+          final Phi phi = (Phi) insn;
+          final VarInfo info = getInfo(phi.values.get(index));
+          phi.values.set(index, (Static) update(phi.target, info.current()));
+        }
       }
     }
-    return true;
+    if (ctx.dom.children.containsKey(bb)) {
+      for (final BasicBlock child : ctx.dom.children.get(bb)) {
+        searchRename(child, ctx);
+      }
+    }
+    for (final Instruction insn : bb.insns) {
+      if (insn instanceof SsaStore) {
+        final SsaStore origin = (SsaStore) insn;
+        getInfo(origin.target).fallback();
+      } else if (insn instanceof Phi) {
+        final Phi origin = (Phi) insn;
+        getInfo(origin.target).fallback();
+      }
+    }
   }
 
-  private Def define(final Static mem, final Instruction insn, final Node node) {
-    final Def def = new Def(mem, insn, node);
-    getDefs(node).put(mem.name, def);
-    return def;
+  private VarInfo getInfo(final Static mem) {
+    VarInfo info = varInfo.get(mem.name);
+    if (info == null) {
+      info = new VarInfo();
+      varInfo.put(mem.name, info);
+    }
+    return info;
   }
 
-  final static class Def {
-    Static mem;
-    Instruction insn;
-    Node bb;
+  final Map<String, VarInfo> varInfo = new java.util.HashMap<>();
 
-    public Def(Static mem, Instruction insn, Node bb) {
-      this.mem = mem;
+  private static final class VarInfo {
+    private final List<Integer> version = new java.util.ArrayList<>();
+    private int nassigned = 0;
+
+    VarInfo() { assign(); }
+
+    int assign() {
+      final int value = ++nassigned;
+      version.add(value);
+      return value;
+    }
+
+    int current() {
+      return lastOf(version);
+    }
+
+    void fallback() {
+      version.remove(version.size() - 1);
+    }
+  }
+
+  private void insertPhi(final GContext ctx) {
+    final Map<BasicBlock, Integer> queuedAt = new java.util.HashMap<>();
+    final Map<BasicBlock, Integer> placedAt = new java.util.HashMap<>();
+    queuedAt.put(ctx.mirNodes.entry, 0);
+    queuedAt.put(ctx.mirNodes.exit, 0);
+    placedAt.put(ctx.mirNodes.entry, 0);
+    placedAt.put(ctx.mirNodes.exit, 0);
+    for (final BasicBlock bb : ctx.mir.blocks) {
+      queuedAt.put(bb, 0);
+      placedAt.put(bb, 0);
+    }
+    int iterno = 0;
+    final Set<BasicBlock> queue = new java.util.HashSet<>();
+    final Map<Static, List<DefLoc>> vardefs = collectAssignments(ctx.mir.blocks);
+    for (final Static mem : vardefs.keySet()) {
+      ++iterno;
+      final List<DefLoc> defs = vardefs.get(mem);
+      queuedAt.put(ctx.mirNodes.entry, iterno);
+      queue.add(ctx.mirNodes.entry);
+      for (final DefLoc def : defs) {
+        queuedAt.put(def.bb, iterno);
+        queue.add(def.bb);
+      }
+      while (!queue.isEmpty()) {
+        final BasicBlock bb = queue.iterator().next();
+        queue.remove(bb);
+
+        for (final BasicBlock dfb : ctx.dom.frontiers.get(bb)) {
+          if (placedAt.get(dfb) < iterno) {
+            dfb.insns.add(0, newPhi(mem, ctx.preds.get(dfb).size()));
+            placedAt.put(dfb, iterno);
+            if (queuedAt.get(dfb) < iterno) {
+              queuedAt.put(dfb, iterno);
+              queue.add(dfb);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private static Phi newPhi(final Static mem, int n) {
+    return new Phi(mem, new java.util.ArrayList<>(Collections.nCopies(n, mem)));
+  }
+
+  private static class MirNodes implements GraphNodes<BasicBlock, MirContext> {
+    final BasicBlock entry = new BasicBlock();
+    final BasicBlock exit = new BasicBlock();
+
+    @Override
+    public Collection<BasicBlock> nodesOf(final MirContext mir) {
+      final List<BasicBlock> blocks = new java.util.ArrayList<>(mir.blocks.size() + 2);
+      blocks.add(entry);
+      blocks.addAll(mir.blocks);
+      blocks.add(exit);
+
+      return blocks;
+    }
+
+    @Override
+    public List<BasicBlock> successorsOf(final BasicBlock bb, final MirContext mir) {
+      if (bb.equals(entry)) {
+        return Arrays.asList(mir.blocks.get(0), exit);
+      }
+      if (bb.equals(exit)) {
+        return Collections.emptyList();
+      }
+      final List<BasicBlock> targets = targetsOf(bb);
+      if (targets.isEmpty()) {
+        return Collections.singletonList(exit);
+      }
+      return targets;
+    }
+  }
+
+  private static Map<Static, List<DefLoc>> collectAssignments(
+      final Collection<BasicBlock> blocks) {
+    final Map<Static, List<DefLoc>> storage = new java.util.HashMap<>();
+    for (final BasicBlock bb : blocks) {
+      for (final Instruction insn : bb.insns) {
+        if (insn instanceof Store) {
+          final Store store = (Store) insn;
+          final Static lhs = getMemory(store.target);
+          List<DefLoc> defs = storage.get(lhs);
+          if (defs == null) {
+            defs = new java.util.ArrayList<>();
+            storage.put(lhs, defs);
+          }
+          defs.add(new DefLoc(store, bb));
+        }
+      }
+    }
+    return storage;
+  }
+
+  private static final class DefLoc {
+    final Instruction insn;
+    final BasicBlock bb;
+
+    DefLoc(final Instruction insn, final BasicBlock bb) {
       this.insn = insn;
       this.bb = bb;
     }
-  }
-
-  private Static incrementVersion(final Static mem) {
-    final int ver = (versions.containsKey(mem.name)) ? versions.get(mem.name) + 1 : 2;
-    versions.put(mem.name, ver);
-
-    return new Static(mem.name, ver, mem.getType());
-  }
-
-  private Map<String, Def> getDefs(final Node node) {
-    return defs.get(blocks.indexOf(node));
   }
 
   private static Static getMemory(final Lvalue lval) {
@@ -277,7 +348,7 @@ public class GlobalNumbering extends Pass {
     return new Static(mem.name, v, mem.getType());
   }
 
-  private static List<Node> breadthFirst(final MirContext ctx) {
+  private static List<Node> topologicalOrder(final MirContext ctx) {
     final Map<BasicBlock, Node> map = new java.util.IdentityHashMap<>();
     for (final BasicBlock bb : ctx.blocks) {
       final Node node = new Node(bb);
@@ -314,34 +385,6 @@ public class GlobalNumbering extends Pass {
 
   private static <T> T lastOf(final List<T> list) {
     return list.get(list.size() - 1);
-  }
-
-  private static Map<Node, Node> mapForkJoin(final Collection<Node> blocks) {
-    final Map<Node, Node> forkJoin = new java.util.IdentityHashMap<>();
-    for (final Node fork : blocks) {
-      final Node join = searchJoin(fork);
-      if (join != null) {
-        forkJoin.put(fork, join);
-      }
-    }
-    return forkJoin;
-  }
-
-  private static Node searchJoin(final Node fork) {
-    final List<Node> succ = fork.succ;
-    if (succ.size() > 1) {
-      final List<Node> pathTaken =
-        DepthFirstPath.get(succ.get(0), new Forward());
-      final List<Node> pathOther =
-        DepthFirstPath.get(succ.get(1), new Forward());
-
-      for (final Node node : pathTaken) {
-        if (pathOther.contains(node)) {
-          return node;
-        }
-      }
-    }
-    return null;
   }
 
   static class DepthFirstPath <T> {
@@ -401,6 +444,11 @@ public class GlobalNumbering extends Pass {
     @Override
     public MirTy getType() {
       return taken.getType();
+    }
+
+    @Override
+    public String toString() {
+      return String.format("ite %s %s %s", guard, taken, other);
     }
   }
 
