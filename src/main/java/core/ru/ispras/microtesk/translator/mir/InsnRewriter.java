@@ -255,7 +255,7 @@ public class InsnRewriter extends InsnVisitor {
     } else {
       final Operand guard = rewrite(insn.guard);
       if (guard instanceof Constant) {
-        final int variant = ((Constant) guard).getValue().intValue();
+        final int variant = ((Constant) guard).getValue().abs().intValue();
         final BasicBlock target =
           (insn.target.containsKey(variant)) ? insn.target.get(variant) : insn.other;
         block.append(new Branch(getBlockImage(target)));
