@@ -633,8 +633,8 @@ public final class NmlIrTrans {
     public Access(final MirBlock ctx, final Location l) {
       if (l.getBitfield() != null) {
         final Location.Bitfield bits = l.getBitfield();
-        this.lo = translate(ctx, bits.getFrom().getNode());
-        this.hi = translate(ctx, bits.getTo().getNode());
+        this.lo = translate(ctx, bits.getTo().getNode());
+        this.hi = translate(ctx, bits.getFrom().getNode());
         this.size = bits.getType().getBitSize();
       } else {
         this.lo = null;
