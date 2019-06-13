@@ -739,7 +739,7 @@ public final class NmlIrTrans {
         final Local zext = ctx.newLocal(target.getType());
         ctx.append(new Zext(zext, ctx.assignLocal(value)));
 
-        final Rvalue rhs = BvOpcode.Shl.make(zext, access.lo);
+        final Rvalue rhs = shiftLeft(zext, access.lo);
 
         final Operand mask = createMask(target, access);
         final Rvalue clear = BvOpcode.And.make(oldval, mask);
@@ -752,13 +752,25 @@ public final class NmlIrTrans {
       }
     }
 
+    private Rvalue shiftLeft(final Operand value, final Operand amount) {
+      final Operand n;
+      if (amount.getType().getSize() < value.getType().getSize()) {
+        final Local local = ctx.newLocal(value.getType());
+        ctx.append(new Zext(local, amount));
+        n = local;
+      } else {
+        n = amount;
+      }
+      return BvOpcode.Shl.make(value, n);
+    }
+
     private Operand createMask(final Lvalue source, final Access access) {
       final int nbits = source.getType().getSize();
       final Constant ones = new Constant(nbits, -1);
       final BigInteger maskBase =
         BigInteger.valueOf(2).pow(access.size).subtract(BigInteger.ONE);
       final Rvalue nmask =
-        BvOpcode.Shl.make(new Constant(nbits, maskBase), access.lo);
+        shiftLeft(new Constant(nbits, maskBase), access.lo);
       final Rvalue mask = BvOpcode.Xor.make(ctx.assignLocal(nmask), ones);
 
       return ctx.assignLocal(mask);
