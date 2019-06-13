@@ -161,9 +161,11 @@ public final class EvalContext extends InsnVisitor {
 
   @Override
   public void visit(final GlobalNumbering.SsaStore insn) {
-    final Static mem = cast(insn.target, Static.class);
-    if (mem != null) {
+    final Static mem = insn.target;
+    if (insn.origin.target instanceof Static) {
       frame.set(mem.name, mem.version, getValueRec(insn.origin.source));
+    } else {
+      frame.set(mem.name, mem.version, VoidTy.VALUE);
     }
   }
 
