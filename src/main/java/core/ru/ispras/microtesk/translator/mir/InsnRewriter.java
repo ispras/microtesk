@@ -12,7 +12,7 @@ import static ru.ispras.microtesk.translator.mir.GlobalNumbering.SsaStore;
 
 public class InsnRewriter extends InsnVisitor {
   private final Frame frame;
-  private final List<BasicBlock> blocks = new java.util.ArrayList<>();
+  private final Map<BasicBlock, BasicBlock> bbMap = new java.util.HashMap<>();
 
   private SortedSet<Integer> retained;
   private MirBlock block;
@@ -71,22 +71,28 @@ public class InsnRewriter extends InsnVisitor {
     ctx.blocks.clear();
     ctx.blocks.addAll(worklist);
 
-    this.blocks.clear();
     this.retained = retained;
 
+    bbMap.clear();
+    final List<BasicBlock> blocks = new java.util.ArrayList<>();
     final int nblocks = ctx.blocks.size();
     for (int i = 0; i < nblocks; ++i) {
-      blocks.add(new BasicBlock());
+      final BasicBlock origin = ctx.blocks.get(i);
+      final BasicBlock bb = new BasicBlock();
+      blocks.add(bb);
+
+      bbMap.put(bb, origin);
+      bbMap.put(origin, bb);
     }
     for (int i = 0; i < nblocks; ++i) {
-      this.block = new MirBlock(ctx, this.blocks.get(i));
+      this.block = new MirBlock(ctx, blocks.get(i));
       this.nskip = 0;
       for (final Instruction insn : ctx.blocks.get(i).insns) {
         insn.accept(this);
       }
     }
     ctx.blocks.clear();
-    ctx.blocks.addAll(this.blocks);
+    ctx.blocks.addAll(blocks);
 
     retainIndices(ctx.locals, retained);
     retainIndices(this.frame.locals, retained);
@@ -194,11 +200,11 @@ public class InsnRewriter extends InsnVisitor {
   }
 
   private BasicBlock getBlockOrigin(final BasicBlock bb) {
-    return block.ctx.blocks.get(blocks.indexOf(bb));
+    return bbMap.get(bb);
   }
 
   private BasicBlock getBlockImage(final BasicBlock bb) {
-    return blocks.get(block.ctx.blocks.indexOf(bb));
+    return bbMap.get(bb);
   }
 
   private boolean isAlive(final Operand opnd) {
