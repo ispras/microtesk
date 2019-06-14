@@ -14,7 +14,7 @@ public class StoreAnalysis extends Pass {
   @Override
   public MirContext apply(final MirContext ctx) {
     final StoreVisitor visitor = new StoreVisitor();
-    for (final BasicBlock bb : ctx.blocks) {
+    for (final BasicBlock bb : EvalContext.topologicalOrder(ctx)) {
       for (final Instruction insn : bb.insns) {
         insn.accept(visitor);
       }
@@ -23,6 +23,10 @@ public class StoreAnalysis extends Pass {
     this.lastAssigned = visitor.lastAssigned;
 
     return ctx;
+  }
+
+  public Map<String, Static> modifiedMap() {
+    return Collections.unmodifiableMap(lastAssigned);
   }
 
   public Collection<Operand> getOutputValues(final String name) {
