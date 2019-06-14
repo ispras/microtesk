@@ -232,7 +232,7 @@ public class GlobalNumbering extends Pass {
       placedAt.put(bb, 0);
     }
     int iterno = 0;
-    final Set<BasicBlock> queue = new java.util.HashSet<>();
+    final Set<BasicBlock> queue = new java.util.LinkedHashSet<>();
     final Map<Static, List<DefLoc>> vardefs = collectAssignments(ctx.mir.blocks);
     for (final Static mem : vardefs.keySet()) {
       ++iterno;

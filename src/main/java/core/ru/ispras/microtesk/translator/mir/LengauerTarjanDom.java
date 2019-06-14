@@ -198,7 +198,7 @@ class DominanceTree <Node, Graph> {
     }
 
     Set<Node> calculateFrontier(final Node node) {
-      final Set<Node> frontier = new java.util.HashSet<>();
+      final Set<Node> frontier = new java.util.LinkedHashSet<>();
       if (nodeChildren.containsKey(node)) {
         for (final Node child : nodeChildren.get(node)) {
           for (final Node cdf : getFrontier(child)) {
@@ -222,7 +222,7 @@ class DominanceTree <Node, Graph> {
     for (final Map.Entry<Node, Node> entry : idom.entrySet()) {
       Set<Node> children = nodeChildren.get(entry.getValue());
       if (children == null) {
-        children = new java.util.HashSet<>();
+        children = new java.util.LinkedHashSet<>();
         nodeChildren.put(entry.getValue(), children);
       }
       children.add(entry.getKey());
