@@ -585,7 +585,7 @@ public final class NmlIrTrans {
     return -1;
   }
 
-  private static MirTy typeOf(final MemoryResource mem) {
+  static MirTy typeOf(final MemoryResource mem) {
     final MirTy type = new IntTy(mem.getType().getBitSize());
     final BigInteger length = mem.getSize();
     if (length.compareTo(BigInteger.ONE) > 0) {

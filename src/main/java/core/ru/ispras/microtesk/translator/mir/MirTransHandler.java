@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.ispras.castle.util.Logger;
+import ru.ispras.microtesk.model.memory.Memory;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.analysis.IrInquirer;
@@ -87,6 +88,8 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
   private static JsonObject createManifest(final Ir ir) {
     final IrInquirer inquirer = new IrInquirer(ir);
     final JsonObjectBuilder manifest = Json.createObjectBuilder();
+    final JsonArrayBuilder hwstate = Json.createArrayBuilder();
+
     for (final MemoryResource mem : ir.getMemory().values()) {
       final Location l = Location.createMemoryBased(mem.getName(), mem, null);
       if (inquirer.isPC(l)) {
@@ -94,7 +97,15 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
           .add("name", mem.getName())
           .add("size", mem.getType().getBitSize()));
       }
+      if (!mem.getKind().equals(Memory.Kind.VAR)) {
+        hwstate.add(Json.createObjectBuilder()
+          .add("name", mem.getName())
+          .add("kind", mem.getKind().toString().toLowerCase())
+          .add("type", NmlIrTrans.typeOf(mem).getName()));
+      }
     }
+    manifest.add("hwstate", hwstate);
+
     return manifest.build();
   }
 
