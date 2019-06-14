@@ -37,7 +37,7 @@ public final class EvalContext extends InsnVisitor {
   }
 
   private EvalContext evalInternal(final MirContext mir) {
-    eval(mir.locals.size(), breadthFirst(mir));
+    eval(mir.locals.size(), topologicalOrder(mir));
     return this;
   }
 
@@ -231,6 +231,35 @@ public final class EvalContext extends InsnVisitor {
 
   private void setLocal(final int index, final Operand value) {
     frame.locals.set(index, value);
+  }
+
+  public static List<BasicBlock> topologicalOrder(final MirContext mir) {
+    final Map<BasicBlock, Set<BasicBlock>> inedges = new java.util.HashMap<>();
+    for (final BasicBlock bb : mir.blocks) {
+      for (final BasicBlock succ : targetsOf(bb)) {
+        Set<BasicBlock> pred = inedges.get(succ);
+        if (pred == null) {
+          pred = new java.util.LinkedHashSet<>();
+          inedges.put(succ, pred);
+        }
+        pred.add(bb);
+      }
+    }
+    final List<BasicBlock> sorted = new java.util.ArrayList<>();
+    final List<BasicBlock> queued = new java.util.ArrayList<>();
+    queued.add(mir.blocks.get(0));
+    while (!queued.isEmpty()) {
+      final BasicBlock bb = queued.remove(queued.size() - 1);
+      for (final BasicBlock succ : targetsOf(bb)) {
+        final Set<BasicBlock> pred = inedges.get(succ);
+        pred.remove(bb);
+        if (pred.isEmpty()) {
+          queued.add(succ);
+        }
+      }
+      sorted.add(bb);
+    }
+    return sorted;
   }
 
   public static List<BasicBlock> breadthFirst(final MirContext mir) {

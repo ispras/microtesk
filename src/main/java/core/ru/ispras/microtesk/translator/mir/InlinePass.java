@@ -9,7 +9,7 @@ public class InlinePass extends Pass {
   public MirContext apply(final MirContext src) {
     final MirContext ctx = Pass.copyOf(src);
     final EvalContext evaluator = new EvalContext();
-    final List<BasicBlock> blocks = EvalContext.breadthFirst(ctx);
+    final List<BasicBlock> blocks = EvalContext.topologicalOrder(ctx);
 
     int evalIndex = 0;
     for (int i = 0; i < blocks.size(); ++i) {
@@ -94,10 +94,11 @@ public class InlinePass extends Pass {
       rebase(caller.locals.size() - 1, callee.blocks);
       caller.locals.addAll(Pass.tailList(callee.locals, 1));
 
+      final List<BasicBlock> blocks = EvalContext.topologicalOrder(callee);
+
       final BasicBlock entry = linkForward();
       linkBack(next, callsite, callee);
 
-      final List<BasicBlock> blocks = EvalContext.breadthFirst(callee);
       blocks.add(0, entry);
       blocks.add(next);
       return blocks;
