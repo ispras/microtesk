@@ -3,11 +3,13 @@ package ru.ispras.microtesk.translator.mir;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.*;
 
 public class StoreAnalysis extends Pass {
   private Frame analysisFrame;
+  private Map<String, Static> lastAssigned;
 
   @Override
   public MirContext apply(final MirContext ctx) {
@@ -18,6 +20,7 @@ public class StoreAnalysis extends Pass {
       }
     }
     this.analysisFrame = visitor.frame;
+    this.lastAssigned = visitor.lastAssigned;
 
     return ctx;
   }
@@ -32,7 +35,7 @@ public class StoreAnalysis extends Pass {
   }
 
   private Operand lastValueOf(final String name) {
-    final int version = analysisFrame.getValues(name).size();
+    final int version = lastAssigned.get(name).version;
     return analysisFrame.get(name, version);
   }
 
@@ -46,6 +49,7 @@ public class StoreAnalysis extends Pass {
 
   private static final class StoreVisitor extends InsnVisitor {
     private final Frame frame = new Frame();
+    private final Map<String, Static> lastAssigned = new java.util.HashMap<>();
     
     @Override
     public void visit(final Store insn) {
@@ -53,6 +57,7 @@ public class StoreAnalysis extends Pass {
       if (!Types.isArray(mem) && mem.version > 0) {
         store(mem, insn.source);
       }
+      assign(mem);
     }
 
     @Override
@@ -60,6 +65,7 @@ public class StoreAnalysis extends Pass {
       if (!Types.isArray(insn.target)) {
         store(insn.target, insn.origin.source);
       }
+      assign(insn.target);
     }
 
     @Override
@@ -67,6 +73,11 @@ public class StoreAnalysis extends Pass {
       if (!Types.isArray(insn.target) && insn.values != null) {
         store(insn.target, insn.value);
       }
+      assign(insn.target);
+    }
+
+    private void assign(final Static mem) {
+      lastAssigned.put(mem.name, mem);
     }
 
     private void store(final Static mem, final Operand val) {
