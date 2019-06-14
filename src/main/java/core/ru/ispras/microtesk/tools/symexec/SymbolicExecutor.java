@@ -38,6 +38,7 @@ import ru.ispras.microtesk.translator.mir.MirPassDriver;
 import ru.ispras.microtesk.translator.mir.MirText;
 import ru.ispras.microtesk.translator.mir.Operand;
 import ru.ispras.microtesk.translator.mir.SccpPass;
+import ru.ispras.microtesk.translator.mir.Static;
 import ru.ispras.microtesk.translator.mir.StoreAnalysis;
 
 import java.math.BigInteger;
@@ -121,6 +122,7 @@ public final class SymbolicExecutor {
 
       info.bbMir.add(opt);
       info.bbCond.add(analysis.getCondition(pcName));
+      info.bbModified.add(analysis.modifiedMap());
 
       Logger.debug(new MirText(opt).toString());
     }
@@ -175,6 +177,7 @@ public final class SymbolicExecutor {
     final List<Range> bbRange = new java.util.ArrayList<>();
     final List<MirContext> bbMir = new java.util.ArrayList<>();
     final List<Operand> bbCond = new java.util.ArrayList<>();
+    final List<Map<String, Static>> bbModified = new java.util.ArrayList<>();
 
     public BodyInfo(final List<IsaPrimitive> body, final MirArchive archive) {
       this.body = body;
@@ -228,6 +231,7 @@ public final class SymbolicExecutor {
       blocks.add(factory.createObjectBuilder()
         .add("range", factory.createArrayBuilder().add(range.start).add(range.end - 1))
         .add("condition_smt", (range.nextTaken == range.nextOther) ? "true" : info.bbCond.get(bbIndex).toString())
+        .add("hwstate_mod_smt", newHwstateMapping(bbIndex, info, factory))
         .add("target_taken", indexOf(range.nextTaken, ranges))
         .add("target_other", indexOf(range.nextOther, ranges)));
       ++bbIndex;
@@ -243,6 +247,27 @@ public final class SymbolicExecutor {
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
     }
+  }
+
+  private static JsonArrayBuilder newHwstateMapping(
+      final int index, final BodyInfo info, final JsonBuilderFactory factory) {
+    final JsonArray hwstate =
+        info.archive.getManifest().getJsonArray("hwstate");
+    final Map<String, Static> modified = info.bbModified.get(index);
+
+    final JsonArrayBuilder mapping = factory.createArrayBuilder();
+
+    for (int i = 0; i < hwstate.size(); ++i) {
+      final JsonObject state = hwstate.getJsonObject(i);
+      final Static mem = modified.get(state.getString("name"));
+      if (mem != null) {
+        mapping.add(factory.createObjectBuilder()
+          .add("asm", state)
+          .add("smt_in", mem.newVersion(1).toString())
+          .add("smt_out", mem.toString()));
+      }
+    }
+    return mapping;
   }
 
   private static int indexOf(final int start, final List<ControlFlowInspector.Range> ranges) {
