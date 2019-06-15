@@ -140,9 +140,9 @@ public class Mir2Node extends Pass {
       this.versionMax = versionMap;
     }
 
-    private int rebase(final String name, final int ver) {
+    private int rebase(final String name, final int ver, final int offset) {
       final Integer base = versionBase.get(name);
-      final int newver = ver + ((base != null) ? base - 1 : 0);
+      final int newver = ver + ((base != null) ? base + offset : 0);
 
       final Integer max = versionMax.get(name);
       final int newmax = Math.max(newver, (max != null) ? max : 1);
@@ -163,14 +163,14 @@ public class Mir2Node extends Pass {
 
     @Override
     public Node visitLocal(final Local opnd) {
-      final int newver = rebase("%", opnd.id);
+      final int newver = rebase("%", opnd.id, 0);
       final String varname = String.format("%%%d", newver);
       return NodeVariable.newBitVector(varname, sizeOf(opnd));
     }
 
     @Override
     public Node visitStatic(final Static opnd) {
-      final int newver = rebase(opnd.name, opnd.version);
+      final int newver = rebase(opnd.name, opnd.version, -1);
       final String varname = String.format("%s!%d", opnd.name, newver);
       return new NodeVariable(varname, typeOf(opnd.getType()));
     }
