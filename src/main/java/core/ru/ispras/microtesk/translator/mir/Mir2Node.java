@@ -12,10 +12,16 @@ import ru.ispras.fortress.expression.NodeVariable;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.*;
 
 public class Mir2Node extends Pass {
+  static final NodeValue BIT_ONE = NodeValue.newBitVector(1, 1);
+  static final NodeValue BIT_ZERO = NodeValue.newBitVector(0, 1);
+
+  private final Map<String, Integer> versionBase = new java.util.HashMap<>();
+  private final Map<String, Integer> versionMax = new java.util.HashMap<>();
   private List<Node> nodes;
 
   public List<Node> getFormulae() {
@@ -30,18 +36,16 @@ public class Mir2Node extends Pass {
         insn.accept(visitor);
       }
     }
+    versionBase.putAll(versionMax);
     this.nodes = visitor.nodes;
 
     return mir;
   }
 
-  private static class Insn2Node extends InsnVisitor {
-    public static final NodeValue BIT_ONE = NodeValue.newBitVector(1, 1);
-    public static final NodeValue BIT_ZERO = NodeValue.newBitVector(0, 1);
-
+  private class Insn2Node extends InsnVisitor {
     private final List<Node> nodes = new java.util.ArrayList<>();
     private final OperandWalker<Node> opnd2Node =
-      new OperandWalker<>(new Opnd2Node());
+      new OperandWalker<>(new Opnd2Node(versionBase, versionMax));
 
     private Node dispatch(final Operand opnd) {
       return opnd2Node.dispatch(opnd);
@@ -126,6 +130,27 @@ public class Mir2Node extends Pass {
  }
 
   private static class Opnd2Node extends OperandVisitor<Node> {
+    final Map<String, Integer> versionBase;
+    final Map<String, Integer> versionMax;
+
+    Opnd2Node(
+        final Map<String, Integer> versionBase,
+        final Map<String, Integer> versionMap) {
+      this.versionBase = versionBase;
+      this.versionMax = versionMap;
+    }
+
+    private int rebase(final String name, final int ver) {
+      final Integer base = versionBase.get(name);
+      final int newver = ver + ((base != null) ? base - 1 : 0);
+
+      final Integer max = versionMax.get(name);
+      final int newmax = Math.max(newver, (max != null) ? max : 1);
+      versionMax.put(name, newmax);
+
+      return newver;
+    }
+
     @Override
     public Node visitOperand(final Operand opnd) {
       throw new UnsupportedOperationException();
@@ -138,12 +163,16 @@ public class Mir2Node extends Pass {
 
     @Override
     public Node visitLocal(final Local opnd) {
-      return NodeVariable.newBitVector(opnd.toString(), sizeOf(opnd));
+      final int newver = rebase("%", opnd.id);
+      final String varname = String.format("%%%d", newver);
+      return NodeVariable.newBitVector(varname, sizeOf(opnd));
     }
 
     @Override
     public Node visitStatic(final Static opnd) {
-      return new NodeVariable(opnd.toString(), typeOf(opnd.getType()));
+      final int newver = rebase(opnd.name, opnd.version);
+      final String varname = String.format("%s!%d", opnd.name, newver);
+      return new NodeVariable(varname, typeOf(opnd.getType()));
     }
 
     @Override
@@ -153,7 +182,7 @@ public class Mir2Node extends Pass {
 
     @Override
     public Node visitIte(final Ite opnd, final Node guard, final Node taken, final Node other) {
-      return Nodes.ite(Nodes.eq(guard, Insn2Node.BIT_ONE), taken, other);
+      return Nodes.ite(Nodes.eq(guard, BIT_ONE), taken, other);
     }
   }
 
