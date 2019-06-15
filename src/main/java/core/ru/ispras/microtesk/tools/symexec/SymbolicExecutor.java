@@ -178,6 +178,7 @@ public final class SymbolicExecutor {
     final List<MirContext> bbMir = new java.util.ArrayList<>();
     final List<Operand> bbCond = new java.util.ArrayList<>();
     final List<Map<String, Static>> bbModified = new java.util.ArrayList<>();
+    final Map<String, Integer> modBase = new java.util.HashMap<>();
 
     public BodyInfo(final List<IsaPrimitive> body, final MirArchive archive) {
       this.body = body;
@@ -261,10 +262,15 @@ public final class SymbolicExecutor {
       final JsonObject state = hwstate.getJsonObject(i);
       final Static mem = modified.get(state.getString("name"));
       if (mem != null) {
+        final Integer base = info.modBase.get(mem.name);
+        final int oldver = (base != null) ? base : 1;
+        final int newver = oldver + mem.version - 1;
+        info.modBase.put(mem.name, newver);
+
         mapping.add(factory.createObjectBuilder()
           .add("asm", state)
-          .add("smt_in", mem.newVersion(1).toString())
-          .add("smt_out", mem.toString()));
+          .add("smt_in", mem.newVersion(oldver).toString())
+          .add("smt_out", mem.newVersion(newver).toString()));
       }
     }
     return mapping;
