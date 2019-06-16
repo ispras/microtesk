@@ -292,7 +292,8 @@ public final class SymbolicExecutor {
         mapping.add(factory.createObjectBuilder()
           .add("asm", state)
           .add("smt_in", mem.newVersion(oldver).toString())
-          .add("smt_out", mem.newVersion(newver).toString()));
+          .add("smt_out", mem.newVersion(newver).toString())
+          .add("smt_type", Mir2Node.stringOf(mem.getType())));
       }
     }
     return mapping;
