@@ -280,10 +280,16 @@ public final class NmlIrTrans {
 
       int offset = size;
       for (final Node lhs : operands) {
-        offset -= sizeOf(lhs);
+        final int fieldSize = sizeOf(lhs);
+        offset -= fieldSize;
 
-        final Rvalue field = BvOpcode.Lshr.make(rvalue, valueOf(offset, size));
-        translateAccess(ctx, locationOf(lhs), new WriteAccess(ctx, field));
+        final Rvalue shr = BvOpcode.Lshr.make(rvalue, valueOf(offset, size));
+        final Local field = ctx.extract(
+            ctx.assignLocal(shr),
+            fieldSize,
+            new Constant(size, 0),
+            new Constant(size, fieldSize - 1));
+        translateAccess(ctx, locationOf(lhs), new WriteAccess(ctx, rvalueOf(field)));
       }
     }
   }
