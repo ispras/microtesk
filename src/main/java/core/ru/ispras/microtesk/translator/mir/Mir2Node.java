@@ -198,6 +198,19 @@ public class Mir2Node extends Pass {
     return DataType.UNKNOWN;
   }
 
+  public static String stringOf(final MirTy type) {
+    if (type instanceof IntTy) {
+      return String.format("(_ BitVec %d)", type.getSize());
+    }
+    if (type instanceof MirArray) {
+      final MirArray atype = (MirArray) type;
+      final int indexBits = atype.indexBitLength();
+      return String.format("(Array (_BitVec %d) %s)",
+          indexBits, stringOf(atype.ref.type));
+    }
+    return "Int";
+  }
+
   private static int sizeOf(final Operand opnd) {
     return opnd.getType().getSize();
   }
