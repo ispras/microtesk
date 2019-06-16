@@ -229,12 +229,13 @@ public final class SymbolicExecutor {
     int bbIndex = 0;
     final List<Range> ranges = info.bbRange;
     for (final Range range : ranges) {
-      blocks.add(factory.createObjectBuilder()
+      final JsonObjectBuilder builder = factory.createObjectBuilder()
         .add("range", factory.createArrayBuilder().add(range.start).add(range.end - 1))
-        .add("condition_smt", (range.nextTaken == range.nextOther) ? "true" : info.bbCond.get(bbIndex).toString())
-        .add("hwstate_mod_smt", newHwstateMapping(bbIndex, info, factory))
         .add("target_taken", indexOf(range.nextTaken, ranges))
-        .add("target_other", indexOf(range.nextOther, ranges)));
+        .add("target_other", indexOf(range.nextOther, ranges));
+
+      writeSmtBinding(bbIndex, info, builder, factory);
+      blocks.add(builder);
       ++bbIndex;
     }
     final JsonObjectBuilder jsonDoc = factory.createObjectBuilder()
@@ -248,6 +249,27 @@ public final class SymbolicExecutor {
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
     }
+  }
+
+  private static void writeSmtBinding(
+      final int index,
+      final BodyInfo info,
+      final JsonObjectBuilder parent,
+      final JsonBuilderFactory factory) {
+    final String cond;
+    final Range range = info.bbRange.get(index);
+    if (range.nextTaken == range.nextOther) {
+      cond = "true";
+    } else {
+      int version =
+        Integer.valueOf(info.bbCond.get(index).toString().substring(1));
+      for (int i = 0; i < index; ++i) {
+        version += info.bbMir.get(i).locals.size() - 1;
+      }
+      cond = String.format("%%%d", version);
+    }
+    parent.add("condition_smt", cond);
+    parent.add("hwstate_mod_smt", newHwstateMapping(index, info, factory));
   }
 
   private static JsonArrayBuilder newHwstateMapping(
