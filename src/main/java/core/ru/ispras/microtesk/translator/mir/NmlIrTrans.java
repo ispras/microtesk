@@ -34,8 +34,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -336,7 +334,7 @@ public final class NmlIrTrans {
 
   private final class TransRvalue extends ExprTreeVisitorDefault {
     private final MirBlock ctx;
-    private final Map<Node, Operand> mapped = new IdentityHashMap<>();
+    private final Map<Node, Operand> mapped = new java.util.IdentityHashMap<>();
     private Operand result;
 
     public TransRvalue(final MirBlock ctx) {
@@ -829,9 +827,9 @@ public final class NmlIrTrans {
   }
 
   static final Map<Enum<?>, BinOpcode> OPCODE_MAPPING =
-      new IdentityHashMap<>();
+    new java.util.LinkedHashMap<>();
   static final Map<BinOpcode, Enum<?>> MIR2NODE_MAP =
-    new IdentityHashMap<>();
+    new java.util.LinkedHashMap<>();
 
   static {
     OPCODE_MAPPING.put(StandardOperation.AND, BvOpcode.And);
