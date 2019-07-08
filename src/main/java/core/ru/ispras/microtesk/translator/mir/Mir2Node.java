@@ -205,7 +205,7 @@ public class Mir2Node extends Pass {
     if (type instanceof MirArray) {
       final MirArray atype = (MirArray) type;
       final int indexBits = atype.indexBitLength();
-      return String.format("(Array (_BitVec %d) %s)",
+      return String.format("(Array (_ BitVec %d) %s)",
           indexBits, stringOf(atype.ref.type));
     }
     return "Int";
