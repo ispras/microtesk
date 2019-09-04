@@ -1,5 +1,7 @@
 package ru.ispras.microtesk.translator.mir;
 
+import ru.ispras.castle.util.Logger;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,6 +40,9 @@ public class MirPassDriver {
       final int nlocals = ctx.locals.size();
       ctx = pass.apply(ctx);
       pass.result.put(ctx.name, ctx);
+      Logger.debug(pass.getComment());
+      Logger.debug(new MirText(ctx).toString());
+      Logger.debug("");
     }
     return ctx;
   }
