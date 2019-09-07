@@ -328,7 +328,7 @@ abstract class DirectRewriter extends InsnVisitor {
   public void visit(final Zext insn) {
     final Operand rhs = dispatch(insn.rhs);
     final Lvalue lhs = visitLvalue(insn.lhs);
-    notifyRewrite(insn, new Sext(lhs, rhs));
+    notifyRewrite(insn, new Zext(lhs, rhs));
   }
 
   public void visit(final Branch insn) {
