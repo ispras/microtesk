@@ -265,7 +265,7 @@ public class MirParser {
     }
 
     public static Constant nextConst(final MirTy type, final Scanner s) {
-      return new Constant(type.getSize(), s.nextInt());
+      return new Constant(type.getSize(), s.nextBigInteger());
     }
 
     public Closure nextClosure(final Scanner s) {
