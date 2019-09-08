@@ -36,13 +36,14 @@ public class MirPassDriver {
 
   public MirContext apply(final MirContext source) {
     MirContext ctx = source;
+    Logger.debug("COMPILE");
+    Logger.debug(new MirText(source).toString());
     for (final Pass pass : getPasses()) {
       final int nlocals = ctx.locals.size();
-      ctx = pass.apply(ctx);
-      pass.result.put(ctx.name, ctx);
       Logger.debug(pass.getComment());
+      ctx = pass.apply(ctx);
       Logger.debug(new MirText(ctx).toString());
-      Logger.debug("");
+      pass.result.put(ctx.name, ctx);
     }
     return ctx;
   }
