@@ -10,23 +10,32 @@ import static ru.ispras.microtesk.translator.mir.GlobalNumbering.*;
 public class StoreAnalysis extends Pass {
   private Frame analysisFrame;
   private Map<String, Static> lastAssigned;
+  private Map<String, Static> lastVersioned;
 
   @Override
   public MirContext apply(final MirContext ctx) {
     final StoreVisitor visitor = new StoreVisitor();
+    final VersionVisitor indexer = new VersionVisitor();
+
     for (final BasicBlock bb : EvalContext.topologicalOrder(ctx)) {
       for (final Instruction insn : bb.insns) {
         insn.accept(visitor);
+        insn.accept(indexer.walker);
       }
     }
     this.analysisFrame = visitor.frame;
     this.lastAssigned = visitor.lastAssigned;
+    this.lastVersioned = indexer.lastVersioned;
 
     return ctx;
   }
 
   public Map<String, Static> modifiedMap() {
     return Collections.unmodifiableMap(lastAssigned);
+  }
+
+  public Map<String, Static> versionMap() {
+    return Collections.unmodifiableMap(lastVersioned);
   }
 
   public Collection<Operand> getOutputValues(final String name) {
@@ -49,6 +58,23 @@ public class StoreAnalysis extends Pass {
       return ((Ite) value).guard;
     }
     return new Constant(1, 1);
+  }
+
+  private static final class VersionVisitor extends OperandVisitor<Void> {
+    private final Map<String, Static> lastVersioned = new java.util.HashMap<>();
+    private final OperandWalker<Void> walker = new OperandWalker<>(this);
+
+    @Override
+    public Void visitOperand(final Operand opnd) { return null; }
+
+    @Override
+    public Void visitStatic(final Static opnd) {
+      final Static mem = lastVersioned.get(opnd.name);
+      if (mem == null || opnd.version > mem.version) {
+        lastVersioned.put(opnd.name, opnd);
+      }
+      return null;
+    }
   }
 
   private static final class StoreVisitor extends InsnVisitor {
