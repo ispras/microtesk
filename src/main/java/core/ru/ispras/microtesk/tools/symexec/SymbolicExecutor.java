@@ -123,6 +123,7 @@ public final class SymbolicExecutor {
       info.bbMir.add(opt);
       info.bbCond.add(analysis.getCondition(pcName));
       info.bbModified.add(analysis.modifiedMap());
+      info.bbIndexed.add(analysis.versionMap());
 
       Logger.debug(new MirText(opt).toString());
     }
@@ -178,6 +179,7 @@ public final class SymbolicExecutor {
     final List<MirContext> bbMir = new java.util.ArrayList<>();
     final List<Operand> bbCond = new java.util.ArrayList<>();
     final List<Map<String, Static>> bbModified = new java.util.ArrayList<>();
+    final List<Map<String, Static>> bbIndexed = new java.util.ArrayList<>();
     final Map<String, Integer> modBase = new java.util.HashMap<>();
 
     public BodyInfo(final List<IsaPrimitive> body, final MirArchive archive) {
@@ -277,22 +279,27 @@ public final class SymbolicExecutor {
     final JsonArray hwstate =
         info.archive.getManifest().getJsonArray("hwstate");
     final Map<String, Static> modified = info.bbModified.get(index);
+    final Map<String, Static> lastVersioned = info.bbIndexed.get(index);
 
     final JsonArrayBuilder mapping = factory.createArrayBuilder();
 
     for (int i = 0; i < hwstate.size(); ++i) {
       final JsonObject state = hwstate.getJsonObject(i);
-      final Static mem = modified.get(state.getString("name"));
+      final Static mem = lastVersioned.get(state.getString("name"));
       if (mem != null) {
         final Integer base = info.modBase.get(mem.name);
-        final int oldver = (base != null) ? base : 1;
-        final int newver = oldver + mem.version - 1;
-        info.modBase.put(mem.name, newver);
+        final Static modmem = modified.get(mem.name);
+
+        final int inputVer = (base != null) ? base : 1;
+        final int outputVer =
+            (modmem != null) ? inputVer + modmem.version - 1 : inputVer;
+
+        info.modBase.put(mem.name, inputVer + mem.version - 1);
 
         mapping.add(factory.createObjectBuilder()
           .add("asm", state)
-          .add("smt_in", mem.newVersion(oldver).toString())
-          .add("smt_out", mem.newVersion(newver).toString())
+          .add("smt_in", mem.newVersion(inputVer).toString())
+          .add("smt_out", mem.newVersion(outputVer).toString())
           .add("smt_type", Mir2Node.stringOf(mem.getType())));
       }
     }
