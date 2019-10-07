@@ -75,6 +75,11 @@ public class StoreAnalysis extends Pass {
       }
       return null;
     }
+
+    @Override
+    public Void visitLvalue(final Lvalue opnd) {
+      return walker.dispatch(opnd);
+    }
   }
 
   private static final class StoreVisitor extends InsnVisitor {
