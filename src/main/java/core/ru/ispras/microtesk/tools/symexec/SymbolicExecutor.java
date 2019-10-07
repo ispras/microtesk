@@ -294,7 +294,7 @@ public final class SymbolicExecutor {
         final int outputVer =
             (modmem != null) ? inputVer + modmem.version - 1 : inputVer;
 
-        info.modBase.put(mem.name, inputVer + mem.version - 1);
+        info.modBase.put(mem.name, inputVer + mem.version);
 
         mapping.add(factory.createObjectBuilder()
           .add("asm", state)

@@ -142,7 +142,8 @@ public class Mir2Node extends Pass {
 
     private int rebase(final String name, final int ver, final int offset) {
       final Integer base = versionBase.get(name);
-      final int newver = ver + ((base != null) ? base + offset : 0);
+      // FIXME explicitely request base version increment
+      final int newver = ver + ((base != null) ? base + offset + 1 : 0);
 
       final Integer max = versionMax.get(name);
       final int newmax = Math.max(newver, (max != null) ? max : 1);
