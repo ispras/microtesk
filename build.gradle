@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -11,6 +11,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
+
+import net.researchgate.release.ReleasePlugin
 
 import java.text.SimpleDateFormat
 import java.util.regex.Matcher
@@ -33,8 +35,8 @@ buildscript {
 
 plugins {
   id 'net.saliman.properties' version '1.4.4'
-  id 'net.researchgate.release' version '2.3.5'
-  id 'org.sonarqube' version '2.6.1'
+  id 'net.researchgate.release' version '2.6.0'
+  id 'org.sonarqube' version '2.6.2'
 }
 
 apply plugin: 'os'
@@ -105,7 +107,7 @@ release {
   ]
 }
 
-String getCurrentDateString()  {
+static String getCurrentDateString()  {
   new SimpleDateFormat( "yyMMdd" ).format( new Date() )
 }
 
@@ -151,9 +153,7 @@ macOs {
 configurations {
   jruby
   qemu
-/* // EXCLUDED FROM RELEASE (NOT READY)
-  jython
-//*/
+  // jython
 }
 
 configurations.all {
@@ -171,10 +171,8 @@ dependencies {
   compile 'commons-lang:commons-lang:2.4'
   compile 'org.jruby:jruby-complete:1.7.25'
   jruby 'org.jruby:jruby-complete:1.7.25'
-/* // EXCLUDED FROM RELEASE (NOT READY)
-  compile 'org.python:jython:2.7.0'
-  jython 'org.python:jython:2.7.0'
-//*/
+  // compile 'org.python:jython:2.7.0'
+  // jython 'org.python:jython:2.7.0'
   compile 'sat4j:org.sat4j.core:v20130525'
 
   compile ("fortress:fortress:${fortressVersion}") { changing = true }
