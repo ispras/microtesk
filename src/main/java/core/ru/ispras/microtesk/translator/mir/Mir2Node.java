@@ -142,8 +142,7 @@ public class Mir2Node extends Pass {
 
     private int rebase(final String name, final int ver, final int offset) {
       final Integer base = versionBase.get(name);
-      // FIXME explicitely request base version increment
-      final int newver = ver + ((base != null) ? base + offset + 1 : 0);
+      final int newver = ver + ((base != null) ? base + offset : 0);
 
       final Integer max = versionMax.get(name);
       final int newmax = Math.max(newver, (max != null) ? max : 1);
@@ -171,7 +170,8 @@ public class Mir2Node extends Pass {
 
     @Override
     public Node visitStatic(final Static opnd) {
-      final int newver = rebase(opnd.name, opnd.version, -1);
+      // FIXME explicitely request base version increment
+      final int newver = rebase(opnd.name, opnd.version, 0);
       final String varname = String.format("%s!%d", opnd.name, newver);
       return new NodeVariable(varname, typeOf(opnd.getType()));
     }
