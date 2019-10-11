@@ -22,6 +22,7 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 /**
  * The {@link RubyRunner} class runs test template scripts with JRuby.
@@ -53,9 +54,11 @@ final class RubyRunner {
         options.getValue(Option.JRUBY_THREAD_POOL_MAX).toString());
 
     final ScriptingContainer container = new ScriptingContainer();
-    container.setArgv(new String[] {templateFile});
+    container.setArgv(new String[] { templateFile });
+    // This line is to write "requires 'base_template'" instead of "requires '../base_template'".
+    container.setLoadPaths(Arrays.asList(new String[] {".", ".."}));
 
-    // To make sure that THREADPOOL_MAX has an expected value.
+    // To make sure that @code THREADPOOL_MAX has an expected value.
     //Logger.message("THREADPOOL_MAX=%d", org.jruby.util.cli.Options.THREADPOOL_MAX.load());
 
     try {

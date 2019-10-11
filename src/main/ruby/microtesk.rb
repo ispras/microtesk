@@ -1,5 +1,5 @@
 #
-# Copyright 2013-2015 ISP RAS (http://www.ispras.ru)
+# Copyright 2013-2019 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,33 +19,33 @@ require_relative 'template'
 
 module MicroTESK
 
-HOME     = ENV["MICROTESK_HOME"]
-TEMPLATE = File.join(HOME, "lib/ruby/template")
+  HOME     = ENV["MICROTESK_HOME"]
+  TEMPLATE = File.join(HOME, "lib/ruby/template")
 
-def self.main
-  template_file = File.expand_path ARGV[0]
+  def self.main
+    template_file = File.expand_path ARGV[0]
 
-  template_classes = prepare_template_classes(template_file)
-  template_classes.each do |template_class, template_class_file|
-    if template_class_file.eql?(template_file)
-      puts "Processing template #{template_class} defined in #{template_class_file}..."
-      template = template_class.new
-      template.generate
+    template_classes = prepare_template_classes(template_file)
+    template_classes.each do |template_class, template_class_file|
+      if template_class_file.eql?(template_file)
+        puts "Processing template #{template_class} defined in #{template_class_file}..."
+        template = template_class.new
+        template.generate
+      end
     end
   end
-end
 
-def self.prepare_template_classes(template_file)
+  def self.prepare_template_classes(template_file)
 
-  if File.file?(template_file)
-    ENV['TEMPLATE'] = TEMPLATE
-    require template_file
-  else
-    raise "The #{template_file} file does not exist."
+    if File.file?(template_file)
+      ENV['TEMPLATE'] = TEMPLATE
+      require template_file
+    else
+      raise "The #{template_file} file does not exist."
+    end
+
+    Template::template_classes
   end
-
-  Template::template_classes
-end
 
 end # MicroTESK
 

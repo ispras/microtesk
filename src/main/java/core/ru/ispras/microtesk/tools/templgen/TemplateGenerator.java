@@ -65,18 +65,18 @@ public final class TemplateGenerator {
       baseTemplatePath = modelName;
     }
 
-    String outPutDirectory;
+    String outputDirectory;
     if (options.hasValue(Option.OUTPUT_DIR)) {
-      outPutDirectory = options.getValueAsString(Option.OUTPUT_DIR);
+      outputDirectory = options.getValueAsString(Option.OUTPUT_DIR);
     } else {
       if (!options.hasValue(Option.ARCH_DIRS)) {
         Logger.error("The --%s option is undefined.", Option.ARCH_DIRS.getName());
-        outPutDirectory = "";
+        outputDirectory = "";
       } else {
         final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
         final String archPath = SysUtils.getArchDir(archDirs, modelName);
         // TODO:
-        outPutDirectory = archPath.replaceFirst("settings.xml", "templates/");
+        outputDirectory = archPath.replaceFirst("settings.xml", "templates/");
       }
     }
 
@@ -88,19 +88,19 @@ public final class TemplateGenerator {
 
     final SimpleTemplate simpleTemplate =
         new SimpleTemplate(metaModel, new RubyTemplatePrinter(SimpleTemplate.SIMPLE_TEMPLATE_NAME,
-            modelName, baseTemplateName, baseTemplatePath, outPutDirectory), ignoredInstructions);
-    generatedResult = generatedResult & simpleTemplate.generate();
+            modelName, baseTemplateName, baseTemplatePath, outputDirectory), ignoredInstructions);
+    generatedResult &= simpleTemplate.generate();
 
     final GroupTemplate groupTemplate =
         new GroupTemplate(metaModel, new RubyTemplatePrinter(GroupTemplate.GROUP_TEMPLATE_NAME,
-            modelName, baseTemplateName, baseTemplatePath, outPutDirectory), ignoredInstructions);
-    generatedResult = generatedResult & groupTemplate.generate();
+            modelName, baseTemplateName, baseTemplatePath, outputDirectory), ignoredInstructions);
+    generatedResult &= groupTemplate.generate();
 
     final BoundaryValuesTemplate boundaryTemplate = new BoundaryValuesTemplate(metaModel,
         new RubyTemplatePrinter(BoundaryValuesTemplate.BOUNDARY_TEMPLATE_NAME, modelName,
-            baseTemplateName, baseTemplatePath, outPutDirectory),
+            baseTemplateName, baseTemplatePath, outputDirectory),
         ignoredInstructions);
-    generatedResult = generatedResult & boundaryTemplate.generate();
+    generatedResult &= boundaryTemplate.generate();
 
     return generatedResult;
   }
