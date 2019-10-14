@@ -127,7 +127,7 @@ public final class NmlIrTrans {
     return ctx;
   }
 
-  private static MirTy typeOf(final Primitive p) {
+  static MirTy typeOf(final Primitive p) {
     if (p.getKind().equals(Primitive.Kind.IMM)) {
       return returnTypeOf(p);
     } else {
