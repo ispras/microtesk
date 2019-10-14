@@ -20,6 +20,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Location;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveOr;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.utils.NamePath;
 
@@ -82,6 +83,58 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
       }
     } catch (final IOException e) {
       Logger.error("Failed to store MIR '%s': %s", path.toString(), e.toString());
+    }
+    final Instantiator worker = new Instantiator(opt);
+    worker.run(ir.getOps().get("instruction"));
+  }
+
+  private static final class Instantiator {
+    final Map<String, MirContext> library;
+    final Map<String, MirContext> instances = new java.util.HashMap<>();
+
+    Instantiator(final Map<String, MirContext> library) {
+      this.library = library;
+    }
+
+    void run(final Primitive p) {
+      final List<PrimitiveAnd> entries =
+          listVariants(new java.util.ArrayList<PrimitiveAnd>(), p);
+      for (final PrimitiveAnd entry : entries) {
+        final List<PrimitiveAnd> variants = new java.util.ArrayList<>();
+
+        int count = 0;
+        for (final Primitive param : entry.getArguments().values()) {
+          if (param.getKind().equals(Primitive.Kind.OP) && param.isOrRule()) {
+            listVariants(variants, param);
+            ++count;
+          }
+        }
+        final String name = String.format("%s.action", entry.getName());
+        if (count == 0) {
+          instances.put(name, library.get(name));
+        } else if (count == 1) {
+        }
+      }
+    }
+
+    private static List<PrimitiveAnd> listVariants(
+        final List<PrimitiveAnd> variants, final Primitive root) {
+      final List<Primitive> queue = new java.util.ArrayList<>();
+      queue.add(root);
+
+      while (!queue.isEmpty()) {
+        final Primitive p = removeLast(queue);
+        if (p.isOrRule()) {
+          queue.addAll(((PrimitiveOr) p).getOrs());
+        } else {
+          variants.add((PrimitiveAnd) p);
+        }
+      }
+      return variants;
+    }
+
+    private static <T> T removeLast(final List<T> list) {
+      return list.remove(list.size() - 1);
     }
   }
 
