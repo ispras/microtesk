@@ -300,6 +300,9 @@ public final class AllocatorEngine {
 
         // The default allocation data associated with the given mode.
         final AllocationTable<Integer> allocationTable = allocationTables.get(modeName);
+        InvariantChecks.checkNotNull(allocationTable,
+            String.format("Cannot find an allocator for mode '%s'", modeName));
+
         final AllocationData<Integer> defaultAllocationData = allocationTable.getAllocationData();
 
         final AllocationData<Integer> allocationData;
