@@ -296,9 +296,9 @@ public abstract class X86Test extends TemplateTest {
     final File qemuLogFile = new File(qemuLog);
     final String qemuLogPath = qemuLogFile.getAbsolutePath();
 
-    if (!qemuLogFile.exists() || qemuLogFile.isDirectory()) {
-      Assert.fail(String.format("Can't find QEMU trace file: %s", qemuLogPath));
-    }
+    Assert.assertTrue(
+        String.format("Can't find QEMU trace file: %s", qemuLogPath),
+        qemuLogFile.exists());
 
     try {
       if (new BufferedReader(new FileReader(qemuLogFile)).readLine() == null) {
