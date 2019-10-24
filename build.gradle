@@ -300,6 +300,11 @@ assemble.dependsOn copyDistribution
 test.dependsOn copyDistribution
 
 test {
+  filter {
+    //include all test cases
+    includeTestsMatching "*TestCase"
+  }
+
   environment 'Z3_PATH', z3path
   environment 'CVC4_PATH', cvc4path
   environment 'MICROTESK_HOME', "${project.projectDir}/build/target"
