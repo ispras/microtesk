@@ -67,6 +67,9 @@ public final class BranchInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(branchTrace);
 
     if (branchTrace.isEmpty() || !branchEntry.isRegisterFirstUse()) {
+      Logger.debug("Make pre-initializer: branchTrace=%s, registerFirstUse=%b",
+        branchTrace, branchEntry.isRegisterFirstUse());
+
       return Collections.<AbstractCall>emptyList();
     }
 

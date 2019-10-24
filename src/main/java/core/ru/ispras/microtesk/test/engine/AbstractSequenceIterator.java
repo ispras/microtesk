@@ -79,8 +79,7 @@ final class AbstractSequenceIterator implements Iterator<AbstractSequence> {
     }
 
     for (int index = 0; index < abstractSequence.getSequence().size(); index++) {
-      final AbstractCall abstractCall =
-          abstractSequence.getSequence().get(index);
+      final AbstractCall abstractCall = abstractSequence.getSequence().get(index);
 
       final AbstractCall dependencyAbstractCall =
           (AbstractCall) abstractCall.getAttributes().get("dependsOn");

@@ -462,6 +462,11 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
         throw new GenerationAbortedException(
             "Failed to generate test data for " + concreteCall.getText(), e);
       } finally {
+        Logger.debug(
+          "%s Before increment: processing count = %d, execution count = %d",
+          callEntry.getConcreteCall().getText(),
+          callEntry.getProcessingCount(),
+          callEntry.getConcreteCall().getExecutionCount());
         callEntry.incProcessingCount();
       }
     }
