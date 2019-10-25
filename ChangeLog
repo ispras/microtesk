@@ -6,6 +6,9 @@
  2016/10/28 MicroTESK 2.4
 --------------------------------------------------------------------------------
 
+2019/10/XX MicroTESK 2.4.45 beta
+  - Tests: Test suite uses QEMU4V 0.3.3
+
 2019/01/29 MicroTESK 2.4.45 beta
   - Support for block-level register allocation constraints
   - Changes in the register allocation engine
