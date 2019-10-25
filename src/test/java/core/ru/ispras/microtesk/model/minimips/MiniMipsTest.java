@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -33,7 +33,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -49,7 +48,6 @@ public class MiniMipsTest extends TemplateTest {
     PROGRAM_GENERATION,
     COMPILATION,
     EMULATION,
-    CHECK_TRACES,
     NONE
   }
 
@@ -84,11 +82,6 @@ public class MiniMipsTest extends TemplateTest {
   private static final String TEST_PATH = System.getenv("TEST_PATH");
 
   /**
-   * Shell interpreter.
-   */
-  private static final File SHELL = new File(System.getenv("SHELL"));
-
-  /**
    * Test programs extension.
    */
   private static final String EXT = "s";
@@ -115,7 +108,7 @@ public class MiniMipsTest extends TemplateTest {
    */
   private static final String TCHAIN_PREFIX = "mips-linux-gnu-";
 
-  /* QEMU for MIPS64 parameters. */
+  /* QEMU4V parameters. */
 
   /**
    * QEMU binary name.
