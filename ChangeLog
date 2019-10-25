@@ -9,6 +9,7 @@
 2019/10/25 MicroTESK 2.4.46 beta
   - Updated TestBase
   - Bug fixes and code improvements
+  - Tests: Test suite uses QEMU4V 0.3.3
 
 2019/01/29 MicroTESK 2.4.45 beta
   - Support for block-level register allocation constraints
