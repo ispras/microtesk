@@ -201,7 +201,8 @@ public final class Disassembler {
 
       if (!imageSizeFixed) {
         final int bitsRead = result.getBitSize();
-        InvariantChecks.checkTrue(0 == bitsRead % 8);
+        InvariantChecks.checkTrue(0 == bitsRead % 8,
+          String.format("Primitive '%s' is of unsupported length: %d", primitive.getName(), bitsRead));
 
         final int bytesRead = bitsRead / 8;
         reader.retreat(byteSize - bytesRead);
