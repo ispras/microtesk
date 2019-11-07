@@ -53,8 +53,12 @@ public abstract class Decoder {
   }
 
   public final boolean isOpcMatch(final BitVector image) {
-    if (null == opc) {
+    if (null == opc || opcMask.getBitSize() == 0) {
       return true;
+    }
+
+    if (opcMask.getBitSize() > image.getBitSize()) {
+      return false;
     }
 
     final BitVector imageOpc = applyOpcMask(image);
@@ -62,8 +66,9 @@ public abstract class Decoder {
   }
 
   protected final BitVector applyOpcMask(final BitVector image) {
-    InvariantChecks.checkTrue(opcMask.getBitSize() == image.getBitSize());
-    return BitVectorMath.and(image, opcMask);
+    final BitVector croppedImage = image.getBitSize() > opcMask.getBitSize()
+            ? image.field(0, opcMask.getBitSize() - 1) : image;
+    return BitVectorMath.and(croppedImage, opcMask);
   }
 
   public abstract DecoderResult decode(BitVector image);

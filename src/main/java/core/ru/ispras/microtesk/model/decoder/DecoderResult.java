@@ -17,7 +17,7 @@ package ru.ispras.microtesk.model.decoder;
 import ru.ispras.microtesk.model.IsaPrimitive;
 
 /**
- * {@link DecoderResult} class hods the result of primitive decoding.
+ * {@link DecoderResult} class holds the result of primitive decoding.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
