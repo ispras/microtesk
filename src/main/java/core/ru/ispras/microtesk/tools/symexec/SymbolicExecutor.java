@@ -19,6 +19,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.solver.engine.smt.Cvc4Solver;
 import ru.ispras.fortress.solver.engine.smt.SmtTextBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.IsaPrimitive;
@@ -33,10 +34,12 @@ import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.GlobalNumbering;
 import ru.ispras.microtesk.translator.mir.Mir2Node;
 import ru.ispras.microtesk.translator.mir.MirArchive;
+import ru.ispras.microtesk.translator.mir.MirBuilder;
 import ru.ispras.microtesk.translator.mir.MirContext;
 import ru.ispras.microtesk.translator.mir.MirPassDriver;
 import ru.ispras.microtesk.translator.mir.MirText;
 import ru.ispras.microtesk.translator.mir.Operand;
+import ru.ispras.microtesk.translator.mir.Pass;
 import ru.ispras.microtesk.translator.mir.SccpPass;
 import ru.ispras.microtesk.translator.mir.Static;
 import ru.ispras.microtesk.translator.mir.StoreAnalysis;
@@ -129,15 +132,51 @@ public final class SymbolicExecutor {
     }
   }
 
+  /*
+  private static MirContext composeMir(final BodyInfo info) {
+    final MirContext mir = new MirContext("MIRbody", MirBuilder.VOID_TO_VOID_TYPE);
+
+    int bbIndex = 0;
+    for (final MirContext body : info.bbMir) {
+      final Map<String, Pair<Static, Static>> inoutMap = info.bbInOut.get(bbIndex);
+
+      final MirBlock inbb = mir.newBlock();
+      for (final Pair<Static, Static> inout : inoutMap.values()) {
+        inbb.assign(inout.first, inout.first.newVersion(0));
+      }
+
+      final int start = mir.blocks.size();
+      final int end = start + body.blocks.size();
+      Pass.inlineContext(mir, body);
+
+      final MirBlock outbb = mir.newBlock();
+      for (final Pair<Static, Static> inout : inoutMap.values()) {
+        outbb.assign(inout.second.newVersion(0), inout.second);
+      }
+
+      inbb.jump(mir.blocks.get(start));
+      for (final BasicBlock bb : mir.blocks.subList(start, end)) {
+        final int index = bb.insns.size() - 1;
+        final Instruction insn = bb.insns.get(index);
+
+        if (insn instanceof Return) {
+          bb.insns.set(index, new Branch(outbb.bb));
+        }
+      }
+
+      ++bbIndex;
+    }
+    return mir;
+  }
+  */
+
   private static BodyInfo writeMir(final Model model, final List<IsaPrimitive> insnList) {
     final Path path = Paths.get(SysUtils.getHomeDir(), "gen", model.getName() + ".zip");
     final MirArchive archive = MirArchive.open(path);
     final MirPassDriver driver =
       MirPassDriver.newDefault().setStorage(archive.loadAll());
 
-    final BodyInfo info = new BodyInfo(insnList, archive);
-
-    int index = 0;
+    final BodyInfo info = new BodyInfo(insnList, archive); int index = 0;
     for (final IsaPrimitive insn : insnList) {
       final String name = String.format("insn_%d.action", index++);
       final MirContext mir =
@@ -180,6 +219,7 @@ public final class SymbolicExecutor {
     final List<Operand> bbCond = new java.util.ArrayList<>();
     final List<Map<String, Static>> bbModified = new java.util.ArrayList<>();
     final List<Map<String, Static>> bbIndexed = new java.util.ArrayList<>();
+    final List<Map<String, Pair<Static, Static>>> bbInOut = new java.util.ArrayList<>();
     final Map<String, Integer> modBase = new java.util.HashMap<>();
 
     public BodyInfo(final List<IsaPrimitive> body, final MirArchive archive) {
@@ -281,11 +321,15 @@ public final class SymbolicExecutor {
     final Map<String, Static> modified = info.bbModified.get(index);
     final Map<String, Static> lastVersioned = info.bbIndexed.get(index);
 
+    final Map<String, Pair<Static, Static>> inout = new java.util.TreeMap<>();
+    info.bbInOut.set(index, inout);
+
     final JsonArrayBuilder mapping = factory.createArrayBuilder();
 
     for (int i = 0; i < hwstate.size(); ++i) {
       final JsonObject state = hwstate.getJsonObject(i);
-      final Static mem = lastVersioned.get(state.getString("name"));
+      final String name = state.getString("name");
+      final Static mem = lastVersioned.get(name);
       if (mem != null) {
         final Integer base = info.modBase.get(mem.name);
         final Static modmem = modified.get(mem.name);
@@ -296,10 +340,14 @@ public final class SymbolicExecutor {
 
         info.modBase.put(mem.name, inputVer + mem.version);
 
+        final Static input = mem.newVersion(inputVer);
+        final Static output = mem.newVersion(outputVer);
+        inout.put(name, new Pair<>(input, output));
+
         mapping.add(factory.createObjectBuilder()
           .add("asm", state)
-          .add("smt_in", mem.newVersion(inputVer).toString())
-          .add("smt_out", mem.newVersion(outputVer).toString())
+          .add("smt_in", input.toString())
+          .add("smt_out", output.toString())
           .add("smt_type", Mir2Node.stringOf(mem.getType())));
       }
     }
