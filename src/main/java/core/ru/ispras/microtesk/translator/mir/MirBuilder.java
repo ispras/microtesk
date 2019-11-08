@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class MirBuilder {
-  private final static FuncTy VOID_TO_VOID_TYPE =
+  public final static FuncTy VOID_TO_VOID_TYPE =
       new FuncTy(VoidTy.VALUE, Collections.<MirTy>emptyList());
   private final static Local SELF = new Local(0, VOID_TO_VOID_TYPE);
 
