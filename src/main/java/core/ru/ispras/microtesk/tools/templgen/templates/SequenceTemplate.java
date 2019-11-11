@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -24,10 +24,10 @@ import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 
-public final class BoundaryValuesTemplate extends GeneratedTemplate {
-  public static final String BOUNDARY_TEMPLATE_NAME = "Boundary";
+public final class SequenceTemplate extends GeneratedTemplate {
+  public static final String SEQUENCE_TEMPLATE_NAME = "Sequence";
 
-  public BoundaryValuesTemplate(MetaModel metaModel, TemplatePrinter printer,
+  public SequenceTemplate(MetaModel metaModel, TemplatePrinter printer,
       final Set<String> ignoredInstructions) {
     super(metaModel, printer, ignoredInstructions);
   }
@@ -36,7 +36,14 @@ public final class BoundaryValuesTemplate extends GeneratedTemplate {
     templatePrinter.addString("");
     templatePrinter.startSequence("sequence {");
     templatePrinter.addAlignedText(templateOperation.getCommand());
-    templatePrinter.addText(" do testdata('boundary') end");
+    templatePrinter.addString("");
+    templatePrinter.addAlignedText(templateOperation.getCommand());
+    templatePrinter.addString("");
+    templatePrinter.addAlignedText(templateOperation.getCommand());
+    templatePrinter.addString("");
+    templatePrinter.addAlignedText(templateOperation.getCommand());
+    templatePrinter.addString("");
+    templatePrinter.addAlignedText(templateOperation.getCommand());
     templatePrinter.addString("");
     templatePrinter.closeSequence("}.run");
   }

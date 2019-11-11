@@ -28,6 +28,7 @@ import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.templgen.printers.RubyTemplatePrinter;
 import ru.ispras.microtesk.tools.templgen.templates.BoundaryValuesTemplate;
 import ru.ispras.microtesk.tools.templgen.templates.GroupTemplate;
+import ru.ispras.microtesk.tools.templgen.templates.SequenceTemplate;
 import ru.ispras.microtesk.tools.templgen.templates.SimpleTemplate;
 
 /**
@@ -101,6 +102,13 @@ public final class TemplateGenerator {
             baseTemplateName, baseTemplatePath, outputDirectory),
         ignoredInstructions);
     generatedResult &= boundaryTemplate.generate();
+
+    // TODO: Fix: copy of boundary
+    final SequenceTemplate sequenceTemplate = new SequenceTemplate(metaModel,
+        new RubyTemplatePrinter(SequenceTemplate.SEQUENCE_TEMPLATE_NAME, modelName,
+            baseTemplateName, baseTemplatePath, outputDirectory),
+        ignoredInstructions);
+    generatedResult &= sequenceTemplate.generate();
 
     return generatedResult;
   }
