@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.*;
+
 public final class EvalContext extends InsnVisitor {
   private static final List<CmpOpcode> EQOPC = Arrays.asList(CmpOpcode.Eq, CmpOpcode.Ne);
 
@@ -272,7 +274,7 @@ public final class EvalContext extends InsnVisitor {
 
     for (int i = 0; i < blocks.size(); ++i) {
       final BasicBlock source = blocks.get(i);
-      if (source != endpoint) {
+      if (!source.equals(endpoint)) {
         for (final BasicBlock bb : targetsOf(source)) {
           if (!blocks.contains(bb)) {
             blocks.add(bb);

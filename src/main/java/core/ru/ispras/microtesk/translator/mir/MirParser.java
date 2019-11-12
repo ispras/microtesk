@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.*;
+
 public class MirParser {
   private final BufferedReader reader;
   private final List<String> lines = new java.util.ArrayList<>();

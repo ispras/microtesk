@@ -29,8 +29,8 @@ public class DomTreeBuilder {
 
   private static List<BasicBlock> targetsOf(final BasicBlock bb) {
     final Instruction insn = lastOf(bb.insns);
-    if (insn instanceof Branch) {
-      return ((Branch) insn).successors;
+    if (insn instanceof Instruction.Branch) {
+      return ((Instruction.Branch) insn).successors;
     }
     return Collections.emptyList();
   }

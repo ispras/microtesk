@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.*;
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.DepthFirstPath;
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Ite;
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Phi;
@@ -345,7 +346,7 @@ abstract class DirectRewriter extends InsnVisitor {
     }
   }
 
-  public void visit(final Exception insn) { /* TODO */ }
+  public void visit(final Instruction.Exception insn) { /* TODO */ }
 
   public void visit(final Call insn) {
     notifyRewrite(insn, rewriteCall(insn));

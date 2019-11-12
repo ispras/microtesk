@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.Store;
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.*;
 
 public class StoreAnalysis extends Pass {

@@ -11,9 +11,8 @@ import java.util.Map;
 
 public interface Instruction {
   void accept(InsnVisitor visitor);
-}
 
-final class Assignment implements Instruction {
+static final class Assignment implements Instruction {
   public final Lvalue lhs;
   public final BinOpcode opc;
   public final Operand op1;
@@ -32,7 +31,7 @@ final class Assignment implements Instruction {
   }
 }
 
-class Extract implements Instruction {
+static class Extract implements Instruction {
   public final Lvalue lhs;
   public final Operand rhs;
   public final Operand lo;
@@ -51,7 +50,7 @@ class Extract implements Instruction {
   }
 }
 
-class Concat implements Instruction {
+static class Concat implements Instruction {
   public final Lvalue lhs;
   public final List<Operand> rhs;
 
@@ -66,7 +65,7 @@ class Concat implements Instruction {
   }
 }
 
-final class Call implements Instruction {
+static final class Call implements Instruction {
   public final Operand callee;
   public final String method;
   public final List<Operand> args;
@@ -85,7 +84,7 @@ final class Call implements Instruction {
   }
 }
 
-final class Load implements Instruction {
+static final class Load implements Instruction {
   public final Lvalue source;
   public final Local target;
 
@@ -100,7 +99,7 @@ final class Load implements Instruction {
   }
 }
 
-final class Store implements Instruction {
+static final class Store implements Instruction {
   public final Lvalue target;
   public final Operand source;
 
@@ -115,7 +114,7 @@ final class Store implements Instruction {
   }
 }
 
-final class Disclose implements Instruction {
+static final class Disclose implements Instruction {
   public final Local target;
   public final Operand source;
   public final List<Constant> indices;
@@ -132,7 +131,7 @@ final class Disclose implements Instruction {
   }
 }
 
-abstract class Terminator implements Instruction {
+static abstract class Terminator implements Instruction {
   public final List<BasicBlock> successors;
 
   protected Terminator() {
@@ -146,7 +145,7 @@ abstract class Terminator implements Instruction {
   public abstract void accept(InsnVisitor visitor);
 }
 
-class Invoke extends Terminator {
+static class Invoke extends Terminator {
   public final Call call;
 
   public Invoke(final Call call) {
@@ -159,7 +158,7 @@ class Invoke extends Terminator {
   }
 }
 
-final class Branch extends Terminator {
+static final class Branch extends Terminator {
   public final Operand guard;
   public final Map<Integer, BasicBlock> target;
   public final BasicBlock other;
@@ -184,7 +183,7 @@ final class Branch extends Terminator {
   }
 }
 
-final class Return extends Terminator {
+static final class Return extends Terminator {
   public final Operand value;
 
   public Return(final Operand value) {
@@ -197,7 +196,7 @@ final class Return extends Terminator {
   }
 }
 
-final class Exception extends Terminator {
+static final class Exception extends Terminator {
   final String message;
 
   public Exception(final String message) {
@@ -210,10 +209,36 @@ final class Exception extends Terminator {
   }
 }
 
-abstract class Lvalue implements Operand {
+static class Sext implements Instruction {
+  public final Lvalue lhs;
+  public final Operand rhs;
+
+  Sext(final Lvalue lhs, final Operand rhs) {
+    this.lhs = lhs;
+    this.rhs = rhs;
+  }
+
   @Override
-  abstract public MirTy getType();
-  abstract public MirTy getContainerType();
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
+  }
+}
+
+static class Zext implements Instruction {
+  public final Lvalue lhs;
+  public final Operand rhs;
+
+  Zext(final Lvalue lhs, final Operand rhs) {
+    this.lhs = lhs;
+    this.rhs = rhs;
+  }
+
+  @Override
+  public void accept(final InsnVisitor visitor) {
+    visitor.visit(this);
+  }
+}
+
 }
 
 class Local extends Lvalue {
@@ -324,36 +349,6 @@ class Rvalue {
 
   public MirTy getType() {
     return opc.typeOf(op1, op2);
-  }
-}
-
-class Sext implements Instruction {
-  public final Lvalue lhs;
-  public final Operand rhs;
-
-  Sext(final Lvalue lhs, final Operand rhs) {
-    this.lhs = lhs;
-    this.rhs = rhs;
-  }
-
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
-
-class Zext implements Instruction {
-  public final Lvalue lhs;
-  public final Operand rhs;
-
-  Zext(final Lvalue lhs, final Operand rhs) {
-    this.lhs = lhs;
-    this.rhs = rhs;
-  }
-
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
   }
 }
 

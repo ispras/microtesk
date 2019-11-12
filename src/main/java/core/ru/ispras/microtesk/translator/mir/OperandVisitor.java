@@ -4,6 +4,7 @@ import java.util.List;
 
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Ite;
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Phi;
+import static ru.ispras.microtesk.translator.mir.Instruction.*;
 
 abstract class OperandVisitor<T> {
   public T visitConst(Constant opnd) { return visitOperand(opnd); }
@@ -99,7 +100,7 @@ class OperandWalker<T> extends InsnVisitor {
     dispatch(insn.value);
   }
 
-  public void visit(final Exception insn) { /* TODO */ }
+  public void visit(final Instruction.Exception insn) { /* TODO */ }
 
   public void visit(final Call insn) {
     dispatchAll(insn.args);

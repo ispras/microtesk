@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.*;
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.*;
 
 public class Mir2Node extends Pass {

@@ -3,6 +3,8 @@ package ru.ispras.microtesk.translator.mir;
 import java.util.List;
 import java.util.Map;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.Branch;
+
 public abstract class Pass {
   private String comment = "";
 

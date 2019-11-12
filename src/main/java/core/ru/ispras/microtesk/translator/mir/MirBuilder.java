@@ -4,6 +4,11 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.Call;
+import static ru.ispras.microtesk.translator.mir.Instruction.Load;
+import static ru.ispras.microtesk.translator.mir.Instruction.Return;
+import static ru.ispras.microtesk.translator.mir.Instruction.Store;
+
 public class MirBuilder {
   public final static FuncTy VOID_TO_VOID_TYPE =
       new FuncTy(VoidTy.VALUE, Collections.<MirTy>emptyList());

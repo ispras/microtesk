@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.Branch;
+import static ru.ispras.microtesk.translator.mir.Instruction.Load;
+import static ru.ispras.microtesk.translator.mir.Instruction.Store;
+
 public class GlobalNumbering extends Pass {
   public MirContext apply(final MirContext source) {
     final MirContext ctx = Pass.copyOf(source);

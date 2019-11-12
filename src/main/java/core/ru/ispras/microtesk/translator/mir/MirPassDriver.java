@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.Call;
+
 public class MirPassDriver {
   private final List<Pass> passList;
   private Map<String, MirContext> storage;

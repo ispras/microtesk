@@ -1,5 +1,7 @@
 package ru.ispras.microtesk.translator.mir;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.*;
+
 public class InsnVisitor {
   public void visit(final Assignment insn) {
   }
@@ -22,7 +24,7 @@ public class InsnVisitor {
   public void visit(final Return insn) {
   }
 
-  public void visit(final Exception insn) {
+  public void visit(final Instruction.Exception insn) {
   }
 
   public void visit(final Call insn) {

@@ -1,11 +1,11 @@
 package ru.ispras.microtesk.translator.mir;
 
 import java.math.BigInteger;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.*;
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Ite;
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Phi;
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.SsaStore;
@@ -275,7 +275,7 @@ public class InsnRewriter extends InsnVisitor {
     block.append(new Return(rewrite(insn.value)));
   }
 
-  public void visit(final Exception insn) {
+  public void visit(final Instruction.Exception insn) {
     block.append(insn); // TODO
   }
 
@@ -299,7 +299,7 @@ public class InsnRewriter extends InsnVisitor {
     block.append(new Store(rewriteLvalue(insn.target), rewrite(insn.source))); // FIXME
   }
 
-  public void visit(final GlobalNumbering.SsaStore insn) {
+  public void visit(final SsaStore insn) {
     final Store origin = insn.origin;
     final Store update = new Store(rewriteLvalue(origin.target), rewrite(origin.source));
     block.append(new GlobalNumbering.SsaStore(insn.target, update));

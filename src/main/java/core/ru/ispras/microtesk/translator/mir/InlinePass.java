@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.*;
+
 public class InlinePass extends Pass {
   @Override
   public MirContext apply(final MirContext src) {

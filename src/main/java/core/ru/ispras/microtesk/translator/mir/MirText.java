@@ -5,12 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static ru.ispras.microtesk.translator.mir.Instruction.*;
+
 public class MirText {
-  private final MirContext context;
   private final List<String> lines = new java.util.ArrayList<>();
 
   public MirText(final MirContext ctx) {
-    this.context = ctx;
     collect(lines, ctx);
   }
 
@@ -32,11 +32,14 @@ public class MirText {
     final Map<BasicBlock, String> labels = new java.util.IdentityHashMap<>();
 
     int i = 0;
-    for (final BasicBlock bb : ctx.blocks) {
+    // final List<BasicBlock> blocks = EvalContext.topologicalOrder(ctx);
+    final List<BasicBlock> blocks = ctx.blocks;
+
+    for (final BasicBlock bb : blocks) {
       labels.put(bb, String.format("bb%d", i++));
     }
     final InsnText visitor = new InsnText(labels, lines);
-    for (final BasicBlock bb : ctx.blocks) {
+    for (final BasicBlock bb : blocks) {
       lines.add(String.format("%s:", labels.get(bb)));
 
       int j = 0;
@@ -165,7 +168,7 @@ public class MirText {
     }
 
     @Override
-    public void visit(final Exception insn) {
+    public void visit(final Instruction.Exception insn) {
     }
 
     @Override
