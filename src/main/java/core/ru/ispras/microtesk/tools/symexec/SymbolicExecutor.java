@@ -28,12 +28,15 @@ import ru.ispras.microtesk.model.TemporaryVariables;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.Disassembler.Output;
+import ru.ispras.microtesk.translator.mir.BasicBlock;
 import ru.ispras.microtesk.translator.mir.ConcFlowPass;
 import ru.ispras.microtesk.translator.mir.Constant;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.GlobalNumbering;
+import ru.ispras.microtesk.translator.mir.Instruction;
 import ru.ispras.microtesk.translator.mir.Mir2Node;
 import ru.ispras.microtesk.translator.mir.MirArchive;
+import ru.ispras.microtesk.translator.mir.MirBlock;
 import ru.ispras.microtesk.translator.mir.MirBuilder;
 import ru.ispras.microtesk.translator.mir.MirContext;
 import ru.ispras.microtesk.translator.mir.MirPassDriver;
@@ -58,6 +61,8 @@ import javax.json.*;
 import javax.json.stream.JsonGenerator;
 
 import static ru.ispras.microtesk.tools.symexec.ControlFlowInspector.Range;
+import static ru.ispras.microtesk.translator.mir.Instruction.Branch;
+import static ru.ispras.microtesk.translator.mir.Instruction.Return;
 
 public final class SymbolicExecutor {
   private SymbolicExecutor() {}
@@ -94,6 +99,7 @@ public final class SymbolicExecutor {
     compileBasicBlocks(fileName, info);
     writeControlFlow(fileName + ".json", info);
     writeSmt(fileName, info);
+    writeMir(fileName, info);
 
     Logger.message("Created file: %s", smtFileName);
 
@@ -132,15 +138,25 @@ public final class SymbolicExecutor {
     }
   }
 
-  /*
-  private static MirContext composeMir(final BodyInfo info) {
-    final MirContext mir = new MirContext("MIRbody", MirBuilder.VOID_TO_VOID_TYPE);
+  private static void writeMir(final String name, final BodyInfo info) {
+    final MirContext mir = composeMir(name, info);
+    try (final java.io.BufferedWriter writer =
+        Files.newBufferedWriter(Paths.get(name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
+      writer.write(new MirText(mir).toString());
+    } catch (final java.io.IOException e) {
+      Logger.error(e.getMessage());
+    }
+  }
+
+  private static MirContext composeMir(final String name, final BodyInfo info) {
+    final MirContext mir = new MirContext(name, MirBuilder.VOID_TO_VOID_TYPE);
 
     int bbIndex = 0;
+    MirBlock link = mir.newBlock();
     for (final MirContext body : info.bbMir) {
       final Map<String, Pair<Static, Static>> inoutMap = info.bbInOut.get(bbIndex);
 
-      final MirBlock inbb = mir.newBlock();
+      final MirBlock inbb = link;
       for (final Pair<Static, Static> inout : inoutMap.values()) {
         inbb.assign(inout.first, inout.first.newVersion(0));
       }
@@ -154,7 +170,8 @@ public final class SymbolicExecutor {
         outbb.assign(inout.second.newVersion(0), inout.second);
       }
 
-      inbb.jump(mir.blocks.get(start));
+      final BasicBlock entry = mir.blocks.get(start);
+      inbb.jump(entry);
       for (final BasicBlock bb : mir.blocks.subList(start, end)) {
         final int index = bb.insns.size() - 1;
         final Instruction insn = bb.insns.get(index);
@@ -164,11 +181,13 @@ public final class SymbolicExecutor {
         }
       }
 
+      link = outbb;
       ++bbIndex;
     }
+    link.append(new Return(null));
+
     return mir;
   }
-  */
 
   private static BodyInfo writeMir(final Model model, final List<IsaPrimitive> insnList) {
     final Path path = Paths.get(SysUtils.getHomeDir(), "gen", model.getName() + ".zip");
@@ -176,7 +195,9 @@ public final class SymbolicExecutor {
     final MirPassDriver driver =
       MirPassDriver.newDefault().setStorage(archive.loadAll());
 
-    final BodyInfo info = new BodyInfo(insnList, archive); int index = 0;
+    final BodyInfo info = new BodyInfo(insnList, archive);
+
+    int index = 0;
     for (final IsaPrimitive insn : insnList) {
       final String name = String.format("insn_%d.action", index++);
       final MirContext mir =
@@ -322,7 +343,7 @@ public final class SymbolicExecutor {
     final Map<String, Static> lastVersioned = info.bbIndexed.get(index);
 
     final Map<String, Pair<Static, Static>> inout = new java.util.TreeMap<>();
-    info.bbInOut.set(index, inout);
+    info.bbInOut.add(inout); // FIXME
 
     final JsonArrayBuilder mapping = factory.createArrayBuilder();
 
