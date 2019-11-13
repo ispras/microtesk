@@ -49,10 +49,10 @@ public abstract class Pass {
       if (insn instanceof Branch) {
         final Branch br = (Branch) insn;
         if (br.successors.size() == 1) {
-          bb.insns.set(index, new Branch(retargetBlock(br.successors.get(0), src, dst)));
+          bb.insns.set(index, new Branch(retargetBlock(br.successors.get(0), src.blocks, body)));
         } else {
-          final BasicBlock taken = retargetBlock(br.successors.get(0), src, dst);
-          final BasicBlock other = retargetBlock(br.successors.get(1), src, dst);
+          final BasicBlock taken = retargetBlock(br.successors.get(0), src.blocks, body);
+          final BasicBlock other = retargetBlock(br.successors.get(1), src.blocks, body);
 
           bb.insns.set(index, new Branch(br.guard, taken, other));
         }
@@ -63,9 +63,9 @@ public abstract class Pass {
 
   private static BasicBlock retargetBlock(
       final BasicBlock bb,
-      final MirContext src,
-      final MirContext dst) {
-    return dst.blocks.get(src.blocks.indexOf(bb));
+      final List<BasicBlock> origins,
+      final List<BasicBlock> storage) {
+    return storage.get(origins.indexOf(bb));
   }
 
   static <T> List<T> tailList(final List<T> list, final int index) {
