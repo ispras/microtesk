@@ -23,7 +23,7 @@ import ru.ispras.microtesk.test.Statistics;
 public final class BoundaryTestCase extends MiniMipsTest {
   @Test
   public void test() {
-    final Statistics statistics = run("boundary_autogentemplate.rb");
+    final Statistics statistics = run("boundary_auto.rb");
     Assert.assertNotNull(statistics);
   }
 }

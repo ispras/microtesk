@@ -23,7 +23,7 @@ import ru.ispras.microtesk.test.Statistics;
 public final class SimpleTestCase extends MiniMipsTest {
   @Test
   public void test() {
-    final Statistics statistics = run("simple_autogentemplate.rb");
+    final Statistics statistics = run("simple_auto.rb");
     Assert.assertNotNull(statistics);
   }
 }
