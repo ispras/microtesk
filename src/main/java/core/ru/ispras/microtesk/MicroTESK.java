@@ -186,7 +186,7 @@ public final class MicroTESK {
       final File extensionDirFile = new File(extensionDir);
 
       if (!extensionDirFile.exists() || !extensionDirFile.isDirectory()) {
-        Logger.error("The extension folder %s does not exists or is not a folder.", extensionDir);
+        Logger.error("The extension folder %s does not exist or is not a folder.", extensionDir);
         return false;
       }
 
