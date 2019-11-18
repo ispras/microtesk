@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.settings;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -33,7 +34,9 @@ public class GeneratorSettings extends AbstractSettings {
 
   public static void set(final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(settings);
-    InvariantChecks.checkTrue(null == instance, "GeneratorSettings are already initialized.");
+    //InvariantChecks.checkTrue(null == instance, "GeneratorSettings are already initialized.");
+    if (null == instance)
+      Logger.warning("GeneratorSettings are already initialized.", "");
     instance = settings;
   }
 
