@@ -162,7 +162,7 @@ public final class Disassembler {
   private static BinaryReader newReader(final String fileName, final boolean bigEndian) {
     final File file = new File(fileName);
     if (!file.exists()) {
-      Logger.error("The %s file does not exists.", fileName);
+      Logger.error("The %s file does not exist.", fileName);
       return null;
     }
 

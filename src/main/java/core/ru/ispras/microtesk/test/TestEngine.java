@@ -126,7 +126,7 @@ public final class TestEngine {
     Logger.debug("Template file: " + templateFile);
 
     if (!new File(templateFile).exists()) {
-      reportAborted("The %s file does not exists.", templateFile);
+      reportAborted("The %s file does not exist.", templateFile);
       return false;
     }
 
