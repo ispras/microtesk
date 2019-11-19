@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.model.tracer;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import java.io.File;
@@ -41,7 +42,10 @@ public final class Tracer {
   private static boolean enabled = false;
 
   public static void initialize(final String filePath, final String filePrefix) {
-    InvariantChecks.checkTrue(null == instance);
+    // TODO: InvariantChecks.checkTrue(null == instance);
+    if (null != instance)
+      Logger.message("Tracer are already initialized.", "");
+
     instance = new Tracer(filePath, null != filePrefix ? filePrefix : FILE_PREFIX);
   }
 

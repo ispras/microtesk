@@ -34,7 +34,7 @@ public class GeneratorSettings extends AbstractSettings {
 
   public static void set(final GeneratorSettings settings) {
     InvariantChecks.checkNotNull(settings);
-    //InvariantChecks.checkTrue(null == instance, "GeneratorSettings are already initialized.");
+    //TODO: InvariantChecks.checkTrue(null == instance, "GeneratorSettings are already initialized.");
     if (null != instance)
       Logger.message("GeneratorSettings are already initialized.", "");
     instance = settings;
