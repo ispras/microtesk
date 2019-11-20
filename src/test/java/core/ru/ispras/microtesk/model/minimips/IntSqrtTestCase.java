@@ -20,13 +20,27 @@ import org.junit.Test;
 import ru.ispras.microtesk.test.Statistics;
 
 public class IntSqrtTestCase extends MiniMipsTest {
+
+  private void test(
+      final String file,
+      final int numberOfPrograms,
+      final int numberOfSequences,
+      final int numberOfInstructions) {
+    final Statistics statistics = run(file);
+
+    Assert.assertNotNull(statistics);
+    Assert.assertEquals(numberOfPrograms, statistics.getPrograms());
+    Assert.assertEquals(numberOfSequences, statistics.getSequences());
+    Assert.assertEquals(numberOfInstructions, statistics.getInstructions());
+  }
+
   @Test
   public void testSqrt() {
-    final Statistics statistics = run("int_sqrt.rb");
-    Assert.assertNotNull(statistics);
+    test("int_sqrt.rb", 1, 0, 23);
+  }
 
-    Assert.assertEquals(1, statistics.getPrograms());
-    Assert.assertEquals(0, statistics.getSequences());
-    Assert.assertEquals(23, statistics.getInstructions());
+  @Test
+  public void testSqrt4() {
+    test("int_sqrt4.rb", 1, 0, 24);
   }
 }
