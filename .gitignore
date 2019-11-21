@@ -1,5 +1,7 @@
 bin
 build
+output
+tools
 .*
 !.gitignore
 *.iml
