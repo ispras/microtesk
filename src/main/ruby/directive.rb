@@ -24,7 +24,7 @@ class Directive
   end
 
   def align(value)
-    value_in_bytes = alignment_in_bytes(value)
+    value_in_bytes = Directive.alignment_in_bytes(value)
     @factory.newAlign(value, value_in_bytes)
   end
 
@@ -43,7 +43,7 @@ class Directive
   end
 
   # By default, align n is interpreted as alignment on 2**n byte border.
-  def alignment_in_bytes(n)
+  def self.alignment_in_bytes(n)
     2 ** n
   end
 

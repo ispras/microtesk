@@ -1172,7 +1172,7 @@ class DataManager
   end
 
   def align(value)
-    value_in_bytes = @directive.alignment_in_bytes(value)
+    value_in_bytes = Directive.alignment_in_bytes(value)
     @builder.align value, value_in_bytes
   end
 
