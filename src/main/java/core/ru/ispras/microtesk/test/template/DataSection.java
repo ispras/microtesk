@@ -189,6 +189,7 @@ public final class DataSection {
         currentAddress = newAddress;
       }
     } finally {
+      allocationEndAddress = currentAddress;
       if (null == physicalAddress) {
         section.setPa(currentAddress);
       }
