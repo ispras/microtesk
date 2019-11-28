@@ -20,6 +20,7 @@ import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.ProcessingElement;
 import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.test.template.directive.Directive;
 
 import java.math.BigInteger;
 import java.util.Collections;
@@ -37,14 +38,11 @@ public final class ConcreteCall {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
   private final InstructionCall executable;
-  private final boolean relativeOrigin;
-  private final BigInteger origin;
-  private final BigInteger alignment;
-  private final BigInteger alignmentInBytes;
+  private final Directive directive;
   private final DataSection data;
 
   private final List<LocationAccessor> addressRefs;
-  private long address = 0;
+  private BigInteger address = BigInteger.ZERO;
   private final String text;
   private int executionCount = 0;
   private BigInteger originFromRelative = null;
@@ -79,10 +77,7 @@ public final class ConcreteCall {
     this.labelRefs = labelRefs;
     this.outputs = abstractCall.getOutputs();
     this.executable = executable;
-    this.relativeOrigin = abstractCall.isRelativeOrigin();
-    this.origin = abstractCall.getOrigin();
-    this.alignment = abstractCall.getAlignment();
-    this.alignmentInBytes = abstractCall.getAlignmentInBytes();
+    this.directive = abstractCall.getDirective();
     this.data = null;
     this.addressRefs = addressRefs;
   }
@@ -95,10 +90,7 @@ public final class ConcreteCall {
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
     this.executable = null;
-    this.relativeOrigin = abstractCall.isRelativeOrigin();
-    this.origin = abstractCall.getOrigin();
-    this.alignment = abstractCall.getAlignment();
-    this.alignmentInBytes = abstractCall.getAlignmentInBytes();
+    this.directive = abstractCall.getDirective();
     this.data = abstractCall.hasData() ? new DataSection(abstractCall.getData()) : null;
     this.addressRefs = Collections.emptyList();
   }
@@ -111,10 +103,7 @@ public final class ConcreteCall {
     this.labelRefs = Collections.<LabelReference>emptyList();
     this.outputs = Collections.<Output>emptyList();
     this.executable = executable;
-    this.relativeOrigin = false;
-    this.origin = null;
-    this.alignment = null;
-    this.alignmentInBytes = null;
+    this.directive = null;
     this.data = null;
     this.addressRefs = Collections.emptyList();
   }
@@ -160,6 +149,10 @@ public final class ConcreteCall {
     return null;
   }
 
+  public Directive getDirective() {
+    return directive;
+  }
+
   public int getExecutionCount() {
     return executionCount;
   }
@@ -196,49 +189,15 @@ public final class ConcreteCall {
     return executable.getByteSize();
   }
 
-  public long getAddress() {
+  public BigInteger getAddress() {
     return address;
   }
 
-  public long setAddress(final Section section,  final long value) {
-    long thisAddress = value;
-
-    if (origin != null) {
-      if (relativeOrigin) {
-        thisAddress = value + origin.longValue();
-        originFromRelative = section.virtualToOrigin(BigInteger.valueOf(thisAddress));
-      } else {
-        thisAddress = section.virtualFromOrigin(origin).longValue();
-      }
-    }
-
-    if (alignmentInBytes != null) {
-      final long alignmentLength = alignmentInBytes.longValue();
-      final long unalignedLength = thisAddress % alignmentLength;
-      if (0 != unalignedLength) {
-        thisAddress = thisAddress + (alignmentLength - unalignedLength);
-      }
-    }
-
-    this.address = thisAddress;
+  public void setAddress(final BigInteger address) {
+    this.address = address;
     for (final LocationAccessor locationAccessor : addressRefs) {
-      locationAccessor.setValue(BigInteger.valueOf(address));
+      locationAccessor.setValue(address);
     }
-
-    return thisAddress + getByteSize();
-  }
-
-  public BigInteger getOrigin() {
-    if (!relativeOrigin) {
-      return origin;
-    }
-
-    InvariantChecks.checkNotNull(relativeOrigin, "Relative origin is not calculated!");
-    return originFromRelative;
-  }
-
-  public BigInteger getAlignment() {
-    return alignment;
   }
 
   public DataSection getData() {

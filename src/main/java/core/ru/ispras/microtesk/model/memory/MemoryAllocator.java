@@ -16,6 +16,7 @@ package ru.ispras.microtesk.model.memory;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 
 import java.io.UnsupportedEncodingException;
@@ -37,10 +38,29 @@ public final class MemoryAllocator {
   private final int addressableUnitsInRegion;
 
   private BigInteger baseAddress; // in addressable units
-  private BigInteger currentAddress; // in addressable units
 
   private static String ERROR_INVALID_SIZE =
       "Memory region size (%d) must be a multiple of addressable unit size (%d).";
+
+  /**
+   * Aligns the specified address by the specified length and returns the resulting aligned address.
+   *
+   * @param address Address to be aligned.
+   * @param alignment Alignment length.
+   * @return Aligned address.
+   *
+   * @throws IllegalArgumentException if any of the parameters is negative.
+   */
+  public static BigInteger alignAddress(final BigInteger address, final int alignment) {
+    InvariantChecks.checkGreaterOrEq(address, BigInteger.ZERO);
+    InvariantChecks.checkGreaterOrEqZero(alignment);
+
+    final BigInteger alignmentLength = BigInteger.valueOf(alignment);
+    final BigInteger unaligned = address.mod(alignmentLength);
+    return unaligned.equals(BigInteger.ZERO)
+        ? address
+        : address.add(alignmentLength.subtract(unaligned));
+  }
 
   /**
    * Constructs a memory allocator object with the specified parameters. Important precondition:
@@ -74,7 +94,6 @@ public final class MemoryAllocator {
     this.addressableUnitsInRegion = regionBitSize / addressableUnitBitSize;
 
     this.baseAddress = baseAddress;
-    this.currentAddress = baseAddress;
   }
 
   public BigInteger getBaseAddress() {
@@ -85,25 +104,16 @@ public final class MemoryAllocator {
     baseAddress = value;
   }
 
-  public BigInteger getCurrentAddress() {
-    return currentAddress;
-  }
-
-  public void setCurrentAddress(final BigInteger value) {
-    currentAddress = value;
-  }
-
   public void reset() {
     memoryTracker.reset();
-    setCurrentAddress(getBaseAddress());
   }
 
-  public void setOrigin(final BigInteger value) {
-    setCurrentAddress(baseAddress.add(value));
+  public BigInteger origin(final BigInteger value) {
+    return baseAddress.add(value);
   }
 
-  public void align(final BigInteger value) {
-    currentAddress = alignAddress(currentAddress, value.intValue());
+  public BigInteger align(final BigInteger currentAddress, final BigInteger value) {
+    return alignAddress(currentAddress, value.intValue());
   }
 
   /**
@@ -143,22 +153,23 @@ public final class MemoryAllocator {
    * addressable units). The data is aligned in the memory by its size (in addressable units). Space
    * between allocations is filled with zeros.
    *
+   * @param currentAddress Current address.
    * @param data Data to be stored in the memory storage.
-   * @return Address of the allocated memory (in addressable units).
+   * @return Address of the allocated memory (in addressable units) and the current address.
    *
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-  public BigInteger allocate(final BitVector data) {
+  public Pair<BigInteger, BigInteger> allocate(
+      final BigInteger currentAddress, final BitVector data) {
     InvariantChecks.checkNotNull(data);
     final int dataBitSize = data.getBitSize();
 
     final int sizeInAddressableUnits = bitsToAddressableUnits(dataBitSize);
     final BigInteger address = alignAddress(currentAddress, sizeInAddressableUnits);
 
-    allocateAt(data, address);
-    currentAddress = address.add(BigInteger.valueOf(sizeInAddressableUnits));
+    allocateAt(address, data);
 
-    return address;
+    return new Pair<>(address, address.add(BigInteger.valueOf(sizeInAddressableUnits)));
   }
 
   /**
@@ -166,25 +177,29 @@ public final class MemoryAllocator {
    * returns the address (in addressable units) of the first element. The data is aligned in the
    * memory by its size (in addressable units). Space between allocations is filled with zeros.
    *
+   * @param currentAddress Current address.
    * @param data Data to be placed in the memory storage.
    * @param count Number of copies to be placed in the memory storage.
-   * @return Address of the allocated memory (in addressable units)
+   * @return Address of the allocated memory (in addressable units) and the current address.
    *
    * @throws IllegalArgumentException if the parameter is {@code null}.
    */
-  public BigInteger allocate(final BitVector data, final int count) {
+  public Pair<BigInteger, BigInteger> allocate(
+      final BigInteger currentAddress, final BitVector data, final int count) {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkGreaterThanZero(count);
 
     BigInteger address = BigInteger.ZERO;
+    BigInteger current = currentAddress;
     for (int index = 0; index < count; ++index) {
-      final BigInteger allocatedAddress = allocate(data);
+      final Pair<BigInteger, BigInteger> addressPair = allocate(current, data);
       if (0 == index) {
-        address = allocatedAddress;
+        address = addressPair.first;
       }
+      current = addressPair.second;
     }
 
-    return address;
+    return new Pair<>(address, current);
   }
 
   /**
@@ -193,15 +208,17 @@ public final class MemoryAllocator {
    * in memory by the size of data elements (in addressable units). Space between allocations
    * (if any is left) is filled with zeros.
    *
+   * @param currentAddress Current address.
    * @param data Collection of data elements to be stored in the memory storage.
-   * @return Address of the first allocated element.
+   * @return Address of the first allocated element and the current address.
    *
    * @throws IllegalArgumentException if the list is empty or it list elements have
    * different sizes.
    */
-  public BigInteger allocate(final BitVector... data) {
+  public Pair<BigInteger, BigInteger> allocate(
+      final BigInteger currentAddress, final BitVector... data) {
     InvariantChecks.checkGreaterThanZero(data.length);
-    return allocate(Arrays.asList(data));
+    return allocate(currentAddress, Arrays.asList(data));
   }
 
   /**
@@ -210,13 +227,15 @@ public final class MemoryAllocator {
    * in memory by the size of data elements (in addressable units). Space between allocations
    * (if any is left) is filled with zeros.
    *
+   * @param currentAddress Current address.
    * @param data Collection of data elements to be stored in the memory storage.
-   * @return Address of the first allocated element.
+   * @return Address of the first allocated element and the current address.
    *
    * @throws IllegalArgumentException if the parameter is {@code null};
    *         if the list is empty or it list elements have different sizes.
    */
-  public BigInteger allocate(final List<BitVector> data) {
+  public Pair<BigInteger, BigInteger> allocate(
+      final BigInteger currentAddress, final List<BitVector> data) {
     InvariantChecks.checkNotNull(data);
 
     if (data.isEmpty()) {
@@ -226,16 +245,17 @@ public final class MemoryAllocator {
     checkEqualBitSize(data);
 
     final Iterator<BitVector> dataIt = data.iterator();
-    final BigInteger address = allocate(dataIt.next());
+    final Pair<BigInteger, BigInteger> addressPair = allocate(currentAddress, dataIt.next());
 
+    BigInteger current = addressPair.second;
     while (dataIt.hasNext()) {
-      allocate(dataIt.next());
+      current = allocate(current, dataIt.next()).second;
     }
 
-    return address;
+    return new Pair<>(addressPair.first, current);
   }
 
-  public void allocateAt(final BitVector data, final BigInteger address) {
+  public void allocateAt(final BigInteger address, final BitVector data) {
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkNotNull(address);
 
@@ -317,14 +337,16 @@ public final class MemoryAllocator {
    * so that each character could be addressable. Therefore, each byte is aligned by the boundary of
    * an addressable units. If any space is left between characters, it is filled with zeros.
    *
+   * @param currentAddress Current address.
    * @param string String to be placed in the memory.
    * @param zeroTerm Specifies whether the string must be terminated with zero.
-   * @return Address of the allocated ASCII string (in addressable units).
+   * @return Address of the allocated ASCII string (in addressable units) and the current address.
    *
    * @throws IllegalArgumentException if the {@code string} parameter equals {@code null};
    *         if failed to convert the string to the "US-ASCII" encoding.
    */
-  public BigInteger allocateAsciiString(final String string, final boolean zeroTerm) {
+  public Pair<BigInteger, BigInteger> allocateAsciiString(
+      final BigInteger currentAddress, final String string, final boolean zeroTerm) {
     InvariantChecks.checkNotNull(string);
 
     final BitVector data = toAsciiBinary(string, zeroTerm);
@@ -333,6 +355,7 @@ public final class MemoryAllocator {
     final int sizeInAddressableUnits = bitsToAddressableUnits(dataBitSize);
 
     BigInteger address = BigInteger.ZERO;
+    BigInteger current = currentAddress;
     int startBitPos = 0;
 
     for (int index = 0; index < sizeInAddressableUnits; ++index) {
@@ -341,13 +364,14 @@ public final class MemoryAllocator {
       final BitVector unitData = BitVector.newMapping(data, startBitPos, unitBitSize);
       startBitPos += unitBitSize;
 
-      final BigInteger allocatedAddress = allocate(unitData);
+      final Pair<BigInteger, BigInteger> addressPair = allocate(current, unitData);
       if (index == 0) {
-        address = allocatedAddress;
+        address = addressPair.first;
       }
+      current = addressPair.second;
     }
 
-    return address;
+    return new Pair<>(address, current);
   }
 
   /**
@@ -362,26 +386,6 @@ public final class MemoryAllocator {
   public int bitsToAddressableUnits(final int bitSize) {
     InvariantChecks.checkGreaterThanZero(bitSize);
     return bitSize / addressableUnitBitSize + (bitSize % addressableUnitBitSize == 0 ? 0 : 1);
-  }
-
-  /**
-   * Aligns the specified address by the specified length and returns the resulting aligned address.
-   *
-   * @param address Address to be aligned.
-   * @param alignment Alignment length.
-   * @return Aligned address.
-   *
-   * @throws IllegalArgumentException if any of the parameters is negative.
-   */
-  static BigInteger alignAddress(final BigInteger address, final int alignment) {
-    InvariantChecks.checkGreaterOrEq(address, BigInteger.ZERO);
-    InvariantChecks.checkGreaterOrEqZero(alignment);
-
-    final BigInteger alignmentLength = BigInteger.valueOf(alignment);
-    final BigInteger unaligned = address.mod(alignmentLength);
-    return unaligned.equals(BigInteger.ZERO)
-        ? address
-        : address.add(alignmentLength.subtract(unaligned));
   }
 
   @Override

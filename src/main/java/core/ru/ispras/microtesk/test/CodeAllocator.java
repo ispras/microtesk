@@ -26,6 +26,7 @@ import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
+import ru.ispras.microtesk.test.template.directive.Directive;
 
 import java.math.BigInteger;
 import java.util.HashSet;
@@ -37,16 +38,14 @@ public final class CodeAllocator {
   private final Model model;
   private final LabelManager labelManager;
   private final NumericLabelTracker numericLabelTracker;
-  private final boolean placeToMemory;
 
   private Code code;
-  private long address;
+  private BigInteger address;
 
   public CodeAllocator(
       final Model model,
       final LabelManager labelManager,
-      final NumericLabelTracker numericLabelTracker,
-      final boolean placeToMemory) {
+      final NumericLabelTracker numericLabelTracker) {
     InvariantChecks.checkNotNull(model);
     InvariantChecks.checkNotNull(labelManager);
     InvariantChecks.checkNotNull(numericLabelTracker);
@@ -56,8 +55,7 @@ public final class CodeAllocator {
     this.numericLabelTracker = numericLabelTracker;
 
     this.code = null;
-    this.address = 0;
-    this.placeToMemory = placeToMemory;
+    this.address = BigInteger.ZERO;
   }
 
   public void init() {
@@ -66,7 +64,7 @@ public final class CodeAllocator {
 
     final Section section = Sections.get().getTextSection();
     InvariantChecks.checkNotNull("Section .text is not defined in the template!");
-    address = section.getBaseVa().longValue();
+    address = section.getBaseVa();
   }
 
   public void reset() {
@@ -75,7 +73,7 @@ public final class CodeAllocator {
 
     final Section section = Sections.get().getTextSection();
     InvariantChecks.checkNotNull("Section .text is not defined in the template!");
-    address = section.getBaseVa().longValue();
+    address = section.getBaseVa();
   }
 
   public Code getCode() {
@@ -83,11 +81,11 @@ public final class CodeAllocator {
     return code;
   }
 
-  public long getAddress() {
+  public BigInteger getAddress() {
     return address;
   }
 
-  public void setAddress(final long address) {
+  public void setAddress(final BigInteger address) {
     this.address = address;
   }
 
@@ -96,7 +94,10 @@ public final class CodeAllocator {
     allocateCalls(sequence.getSection(), calls, sequenceIndex);
 
     sequence.setAllocationAddresses(
-        !calls.isEmpty() ? calls.get(0).getAddress() : address, address);
+        !calls.isEmpty()
+            ? calls.get(0).getAddress().longValue()
+            : address.longValue(),
+        address.longValue());
   }
 
   private void allocateCalls(
@@ -105,7 +106,7 @@ public final class CodeAllocator {
       final int sequenceIndex) {
     if (!calls.isEmpty()) {
       allocate(section, calls, sequenceIndex);
-      code.addBreakAddress(address);
+      code.addBreakAddress(address.longValue());
     }
   }
 
@@ -114,7 +115,7 @@ public final class CodeAllocator {
     InvariantChecks.checkNotNull(handlers);
 
     // Saving current address. Exception handler allocation should not modify it.
-    final long currentAddress = address;
+    final BigInteger currentAddress = address;
 
     for (final Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>> handler: handlers) {
       final Set<Object> handlerSet = new HashSet<>();
@@ -138,7 +139,7 @@ public final class CodeAllocator {
           handlerSet.add(handlerSequence);
         }
 
-        getCode().addHandlerAddress(handlerName, handlerCalls.get(0).getAddress());
+        getCode().addHandlerAddress(handlerName, handlerCalls.get(0).getAddress().longValue());
       }
     }
 
@@ -153,32 +154,40 @@ public final class CodeAllocator {
     InvariantChecks.checkNotEmpty(calls);
     InvariantChecks.checkNotNull(section);
 
-    allocateCodeBlocks(section, calls);
+    allocateCodeBlocksAndMemory(section, calls);
     registerLabels(calls, sequenceIndex);
     patchLabels(calls, sequenceIndex, false);
-    allocateMemory(section, calls);
   }
 
-  private void allocateCodeBlocks(final Section section, final List<ConcreteCall> calls) {
+  private void allocateCodeBlocksAndMemory(final Section section, final List<ConcreteCall> calls) {
+    final MemoryAllocator allocator = model.getMemoryAllocator();
+    InvariantChecks.checkNotNull(allocator);
+
     Logger.debugHeader("Allocating code");
     Logger.debug("Section: %s%n", section.toString());
 
     int startIndex = 0;
     int currentIndex = startIndex;
 
-    long startAddress = address;
-    long currentAddress = startAddress;
+    BigInteger startAddress = address;
+    BigInteger currentAddress = startAddress;
 
     for (final ConcreteCall call : calls) {
       call.resetExecutionCount();
 
-      call.setAddress(section, currentAddress);
-      final long callAddress = call.getAddress();
+      BigInteger callAddress = currentAddress;
 
-      if (callAddress != currentAddress) {
+      final Directive directive = call.getDirective();
+      if (directive != null) {
+        callAddress = directive.apply(currentAddress, allocator);
+      }
+
+      if (!callAddress.equals(currentAddress)) {
         if (startIndex != currentIndex) {
           final CodeBlock block = new CodeBlock(
-              calls.subList(startIndex, currentIndex), startAddress, currentAddress);
+              calls.subList(startIndex, currentIndex),
+              startAddress.longValue(),
+              currentAddress.longValue());
 
           getCode().registerBlock(block);
           startIndex = currentIndex;
@@ -189,55 +198,47 @@ public final class CodeAllocator {
         // as a single sequence because empty space between them filled with zeros is
         // treated as NOPs. This assumption may be incorrect for other ISAs.
         // This situation must be handled in a more correct way. Probably, using decoder.
-        final boolean isAligned = call.getAlignment() != null;
-        final boolean isStartAddress = currentAddress == address;
+        final boolean isAligned = directive != null;
+        final boolean isStartAddress = currentAddress.equals(address);
         startAddress = isAligned && !isStartAddress ? currentAddress : callAddress;
 
         currentAddress = callAddress;
       }
 
-      currentAddress += call.getByteSize();
-      currentIndex++;
-    }
+      // Set the instruction call address.
+      call.setAddress(currentAddress);
 
-    final CodeBlock block = new CodeBlock(
-        startIndex == 0 ? calls : calls.subList(startIndex, currentIndex),
-        startAddress,
-        currentAddress
-        );
-
-    getCode().registerBlock(block);
-    address = currentAddress;
-  }
-
-  private void allocateMemory(final Section section, final List<ConcreteCall> calls) {
-    if (!placeToMemory) {
-      return;
-    }
-
-    final MemoryAllocator memoryAllocator = model.getMemoryAllocator();
-    InvariantChecks.checkNotNull(memoryAllocator);
-
-    for (final ConcreteCall call : calls) {
-      final BitVector virtualAddress = BitVector.valueOf(call.getAddress(), 64);
-      final BigInteger physicalAddress =
-              section.virtualToPhysical(virtualAddress.bigIntegerValue(false));
+      // Allocate the instruction call image in memory.
+      final BigInteger physicalAddress = section.virtualToPhysical(currentAddress);
 
       if (call.isExecutable()) {
         final BitVector image = BitVector.valueOf(call.getImage());
-        final int imageSize = memoryAllocator.bitsToAddressableUnits(image.getBitSize());
+        final int imageSize = allocator.bitsToAddressableUnits(image.getBitSize());
 
         if (Logger.isDebug()) {
           Logger.debug("0x%016x (PA): %s (0x%s)",
               physicalAddress, call.getText(), image.toHexString(true));
         }
 
-        memoryAllocator.allocateAt(image, physicalAddress);
-        section.setPa(physicalAddress.add(BigInteger.valueOf(imageSize)));
+        allocator.allocateAt(physicalAddress, image);
+
+        final BigInteger delta = BigInteger.valueOf(imageSize);
+        section.setPa(physicalAddress.add(delta));
+        currentAddress = currentAddress.add(delta);
       } else {
         section.setPa(physicalAddress);
       }
+
+      currentIndex++;
     }
+
+    final CodeBlock block = new CodeBlock(
+        startIndex == 0 ? calls : calls.subList(startIndex, currentIndex),
+        startAddress.longValue(),
+        currentAddress.longValue());
+
+    getCode().registerBlock(block);
+    address = currentAddress;
   }
 
   private void registerLabels(final List<ConcreteCall> calls, final int sequenceIndex) {
@@ -250,7 +251,7 @@ public final class CodeAllocator {
         }
       }
 
-      labelManager.addAllLabels(call.getLabels(), call.getAddress(), sequenceIndex);
+      labelManager.addAllLabels(call.getLabels(), call.getAddress().longValue(), sequenceIndex);
     }
     numericLabelTracker.restore();
   }

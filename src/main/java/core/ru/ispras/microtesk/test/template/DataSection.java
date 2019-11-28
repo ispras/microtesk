@@ -19,6 +19,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.LabelManager;
+import ru.ispras.microtesk.test.template.directive.Directive;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import java.util.List;
  */
 public final class DataSection {
   private final List<LabelValue> labelValues;
-  private final List<DataDirective> directives;
+  private final List<Directive> directives;
 
   private final BigInteger physicalAddress;
   private final Section section;
@@ -45,7 +46,7 @@ public final class DataSection {
 
   protected DataSection(
       final List<LabelValue> labelValues,
-      final List<DataDirective> directives,
+      final List<Directive> directives,
       final BigInteger physicalAddress,
       final Section section,
       final boolean global,
@@ -100,15 +101,15 @@ public final class DataSection {
     return result;
   }
 
-  private static List<DataDirective> copyAllDirectives(final List<DataDirective> directives) {
+  private static List<Directive> copyAllDirectives(final List<Directive> directives) {
     InvariantChecks.checkNotNull(directives);
 
     if (directives.isEmpty()) {
       return Collections.emptyList();
     }
 
-    final List<DataDirective> result = new ArrayList<>(directives.size());
-    for (final DataDirective directive : directives) {
+    final List<Directive> result = new ArrayList<>(directives.size());
+    for (final Directive directive : directives) {
       result.add(directive.copy());
     }
 
@@ -139,7 +140,7 @@ public final class DataSection {
     return result;
   }
 
-  public List<DataDirective> getDirectives() {
+  public List<Directive> getDirectives() {
     return directives;
   }
 
@@ -163,10 +164,10 @@ public final class DataSection {
     InvariantChecks.checkNotNull(allocator);
 
     allocator.setBaseAddress(section.getBasePa());
-    allocator.setCurrentAddress(section.getPa());
 
+    BigInteger currentAddress = section.getPa();
     if (null != physicalAddress) {
-      allocator.setCurrentAddress(physicalAddress);
+      currentAddress = physicalAddress;
     }
 
     Logger.debugHeader("Allocating data");
@@ -174,22 +175,22 @@ public final class DataSection {
     Logger.debug("Allocation starts: 0x%016x%n", section.getPa());
 
     try {
-      for (final DataDirective directive : directives) {
-        final BigInteger address = allocator.getCurrentAddress();
-        directive.apply(allocator);
+      for (final Directive directive : directives) {
+        final BigInteger newAddress = directive.apply(currentAddress, allocator);
 
         if (Logger.isDebug()) {
-          if (!address.equals(allocator.getCurrentAddress())) {
-            Logger.debug("0x%016x (PA): %s", address, directive.getText());
+          if (!newAddress.equals(currentAddress)) {
+            Logger.debug("0x%016x (PA): %s", currentAddress, directive.getText());
           } else {
             Logger.debug(directive.getText());
           }
         }
+
+        currentAddress = newAddress;
       }
     } finally {
-      allocationEndAddress = allocator.getCurrentAddress();
       if (null == physicalAddress) {
-        section.setPa(allocationEndAddress);
+        section.setPa(currentAddress);
       }
     }
   }

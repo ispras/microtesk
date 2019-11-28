@@ -16,7 +16,9 @@ package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.test.template.DataDirectiveFactory.TypeInfo;
+import ru.ispras.microtesk.test.template.directive.DirectiveFactory;
+import ru.ispras.microtesk.test.template.directive.DirectiveTypeInfo;
+import ru.ispras.microtesk.test.template.directive.Directive;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ import java.util.List;
  */
 public final class DataSectionBuilder {
   private final BlockId blockId;
-  private final DataDirectiveFactory directiveFactory;
+  private final DirectiveFactory directiveFactory;
 
   private final Section section;
   private BigInteger physicalAddress;
@@ -37,11 +39,11 @@ public final class DataSectionBuilder {
   private final boolean separateFile;
 
   private final List<LabelValue> labelValues;
-  private final List<DataDirective> directives;
+  private final List<Directive> directives;
 
   public DataSectionBuilder(
       final BlockId blockId,
-      final DataDirectiveFactory directiveFactory,
+      final DirectiveFactory directiveFactory,
       final Section section,
       final boolean isGlobal,
       final boolean isSeparateFile) {
@@ -75,7 +77,7 @@ public final class DataSectionBuilder {
     return separateFile;
   }
 
-  private void addDirective(final DataDirective directive) {
+  private void addDirective(final Directive directive) {
     InvariantChecks.checkNotNull(directive);
     directives.add(directive);
   }
@@ -142,17 +144,17 @@ public final class DataSectionBuilder {
   }
 
   public DataValueBuilder addDataValues(final String typeName) {
-    final DataDirectiveFactory.TypeInfo type = directiveFactory.findTypeInfo(typeName);
+    final DirectiveTypeInfo type = directiveFactory.findTypeInfo(typeName);
     return new DataValueBuilder(type);
   }
 
   public DataValueBuilder addDataValuesForSize(final int typeBitSize) {
-    final DataDirectiveFactory.TypeInfo type = directiveFactory.findTypeInfo(typeBitSize);
+    final DirectiveTypeInfo type = directiveFactory.findTypeInfo(typeBitSize);
     return new DataValueBuilder(type);
   }
 
   protected void addGeneratedData(
-      final TypeInfo typeInfo, final DataGenerator generator, final int count) {
+      final DirectiveTypeInfo typeInfo, final DataGenerator generator, final int count) {
     addDirective(directiveFactory.newData(typeInfo, generator, count));
   }
 
@@ -170,10 +172,10 @@ public final class DataSectionBuilder {
   }
 
   public final class DataValueBuilder {
-    private final DataDirectiveFactory.TypeInfo type;
+    private final DirectiveTypeInfo type;
     private final List<Value> values;
 
-    private DataValueBuilder(final DataDirectiveFactory.TypeInfo type) {
+    private DataValueBuilder(final DirectiveTypeInfo type) {
       InvariantChecks.checkNotNull(type);
 
       this.type = type;

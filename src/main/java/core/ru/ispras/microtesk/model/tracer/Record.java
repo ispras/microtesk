@@ -80,7 +80,7 @@ public abstract class Record {
       InvariantChecks.checkNotNull(call);
 
       this.cpu = cpu;
-      this.addr = call.getAddress();
+      this.addr = call.getAddress().longValue();
       this.disasm = call.getExecutable().getText();
 
       try {

@@ -41,6 +41,7 @@ import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.Stream;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -208,21 +209,18 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
 
     allocateData(engineContext, labelManager, sequence, sequenceIndex);
 
-    final boolean isFetchDecodeEnabled =
-        engineContext.getOptions().getValueAsBoolean(Option.FETCH_DECODE_ENABLED);
-
     final CodeAllocator codeAllocator = new CodeAllocator(
-        engineContext.getModel(), labelManager, numericLabelTracker, isFetchDecodeEnabled);
+        engineContext.getModel(), labelManager, numericLabelTracker);
 
     codeAllocator.init();
-    codeAllocator.setAddress(allocationAddress);
+    codeAllocator.setAddress(BigInteger.valueOf(allocationAddress));
     codeAllocator.allocateSequence(concreteSequence, sequenceIndex);
 
     final ConcreteCall first = sequence.get(0);
     final ConcreteCall last = sequence.get(sequence.size() - 1);
 
-    final long startAddress = first.getAddress();
-    final long endAddress = last.getAddress() + last.getByteSize();
+    final long startAddress = first.getAddress().longValue();
+    final long endAddress = last.getAddress().longValue() + last.getByteSize();
 
     listener.setAllocationAddress(endAddress);
 
@@ -259,7 +257,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
         }
 
         final ConcreteCall lastExecutedCall = listener.getLastExecutedCall();
-        final long nextAddress = lastExecutedCall.getAddress() + lastExecutedCall.getByteSize();
+        final long nextAddress = lastExecutedCall.getAddress().longValue() + lastExecutedCall.getByteSize();
 
         if (Logger.isDebug()) {
           Logger.debug(

@@ -68,7 +68,6 @@ final class PhysicalMemory extends Memory {
 
     if (null != other.allocator) {
       initAllocator(other.allocator.getAddressableUnitBitSize(), other.allocator.getBaseAddress());
-      this.allocator.setCurrentAddress(other.allocator.getCurrentAddress());
     }
 
     this.addressableUnitsInData = other.addressableUnitsInData;

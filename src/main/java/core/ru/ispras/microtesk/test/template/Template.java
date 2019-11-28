@@ -1204,13 +1204,13 @@ public final class Template {
     }
 
     debug("Set Origin to 0x%x", origin);
-    callBuilder.setOrigin(origin, false);
+    callBuilder.setDirective(context.getDataDirectiveFactory().newOrigin(origin));
     callBuilder.setWhere(where);
   }
 
   public void setRelativeOrigin(final BigInteger delta, final Where where) {
     debug("Set Relative Origin to 0x%x", delta);
-    callBuilder.setOrigin(delta, true);
+    callBuilder.setDirective(context.getDataDirectiveFactory().newOriginRelative(delta));
     callBuilder.setWhere(where);
   }
 
@@ -1219,7 +1219,7 @@ public final class Template {
       final BigInteger valueInBytes,
       final Where where) {
     debug("Align %d (%d bytes)", value, valueInBytes);
-    callBuilder.setAlignment(value, valueInBytes);
+    callBuilder.setDirective(context.getDataDirectiveFactory().newAlign(value, valueInBytes));
     callBuilder.setWhere(where);
   }
 

@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.template.directive.Directive;
 
 public final class AbstractCallBuilder {
   private final BlockId blockId;
@@ -31,10 +31,7 @@ public final class AbstractCallBuilder {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
 
-  private boolean relativeOrigin;
-  private BigInteger origin;
-  private BigInteger alignment;
-  private BigInteger alignmentInBytes;
+  private Directive directive;
 
   private PreparatorReference preparatorReference;
 
@@ -48,9 +45,7 @@ public final class AbstractCallBuilder {
     this.labels = new ArrayList<>();
     this.labelRefs = new ArrayList<>();
     this.outputs = new ArrayList<>();
-    this.origin = null;
-    this.alignment = null;
-    this.alignmentInBytes = null;
+    this.directive = null;
     this.preparatorReference = null;
   }
 
@@ -95,18 +90,9 @@ public final class AbstractCallBuilder {
     outputs.add(output);
   }
 
-  public void setOrigin(final BigInteger value, final boolean isRelative) {
-    InvariantChecks.checkNotNull(value);
-    this.origin = value;
-    this.relativeOrigin = isRelative;
-  }
-
-  public void setAlignment(final BigInteger value, final BigInteger valueInBytes) {
-    InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkNotNull(valueInBytes);
-
-    alignment = value;
-    alignmentInBytes = valueInBytes;
+  public void setDirective(final Directive directive) {
+    InvariantChecks.checkNotNull(directive);
+    this.directive = directive;
   }
 
   public void setPreparatorReference(final PreparatorReference preparatorReference) {
@@ -122,10 +108,7 @@ public final class AbstractCallBuilder {
         labels,
         labelRefs,
         outputs,
-        relativeOrigin,
-        origin,
-        alignment,
-        alignmentInBytes,
+        directive,
         preparatorReference,
         null,
         null,

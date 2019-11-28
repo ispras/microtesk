@@ -92,10 +92,10 @@ public final class Code {
     final List<ConcreteCall> calls = block.getCalls();
     for (int index = 0; index < calls.size(); index++) {
       final ConcreteCall call = calls.get(index);
-      final long address = call.getAddress();
+      final long address = call.getAddress().longValue();
 
       if (!addresses.containsKey(address)) {
-        addresses.put(call.getAddress(), new Pair<>(block, index));
+        addresses.put(address, new Pair<>(block, index));
       }
     }
   }

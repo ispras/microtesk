@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.template;
 
+import org.w3c.dom.TypeInfo;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Model;
@@ -21,6 +22,8 @@ import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.engine.EngineContext;
+import ru.ispras.microtesk.test.template.directive.DirectiveFactory;
+import ru.ispras.microtesk.test.template.directive.DirectiveTypeInfo;
 
 import java.math.BigInteger;
 
@@ -32,7 +35,7 @@ import java.math.BigInteger;
 public final class DataManager {
   private final EngineContext engineContext;
 
-  private DataDirectiveFactory.Builder factoryBuilder;
+  private DirectiveFactory.Builder factoryBuilder;
   private DataSectionBuilder dataBuilder;
 
   protected DataManager(final EngineContext engineContext) {
@@ -43,7 +46,7 @@ public final class DataManager {
     this.dataBuilder = null;
   }
 
-  public DataDirectiveFactory.Builder beginConfig(
+  public DirectiveFactory.Builder beginConfig(
       final String target,
       final int addressableUnitBitSize) throws ConfigurationException {
     InvariantChecks.checkNotNull(target);
@@ -55,7 +58,7 @@ public final class DataManager {
     final Options options = engineContext.getOptions();
 
     model.initMemoryAllocator(target, addressableUnitBitSize, BigInteger.ZERO);
-    factoryBuilder = new DataDirectiveFactory.Builder(options, addressableUnitBitSize);
+    factoryBuilder = new DirectiveFactory.Builder(options, addressableUnitBitSize);
 
     return factoryBuilder;
   }
@@ -76,7 +79,7 @@ public final class DataManager {
     checkInitialized();
     InvariantChecks.checkTrue(null == dataBuilder);
 
-    final DataDirectiveFactory factory = engineContext.getDataDirectiveFactory();
+    final DirectiveFactory factory = engineContext.getDataDirectiveFactory();
     dataBuilder = new DataSectionBuilder(blockId, factory, section, isGlobal, isSeparateFile);
     return dataBuilder;
   }
@@ -112,7 +115,7 @@ public final class DataManager {
     final Section section = Sections.get().getDataSection();
     InvariantChecks.checkNotNull(section, "Data section is not defined in the template!");
 
-    final DataDirectiveFactory factory = engineContext.getDataDirectiveFactory();
+    final DirectiveFactory factory = engineContext.getDataDirectiveFactory();
     final DataSectionBuilder dataBuilder = new DataSectionBuilder(
         new BlockId(),
         factory,
@@ -123,7 +126,7 @@ public final class DataManager {
 
     dataBuilder.setPhysicalAddress(address);
 
-    final DataDirectiveFactory.TypeInfo typeInfo = factory.findTypeInfo(typeId);
+    final DirectiveTypeInfo typeInfo = factory.findTypeInfo(typeId);
     final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
 
     dataBuilder.addLabel(labelName, false);

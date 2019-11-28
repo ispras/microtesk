@@ -39,7 +39,7 @@ import ru.ispras.microtesk.test.template.AbstractCall;
 import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.BufferPreparator;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
-import ru.ispras.microtesk.test.template.DataDirectiveFactory;
+import ru.ispras.microtesk.test.template.directive.DirectiveFactory;
 import ru.ispras.microtesk.test.template.DataSectionBuilder;
 import ru.ispras.microtesk.test.template.DataSectionBuilder.DataValueBuilder;
 import ru.ispras.microtesk.test.template.MemoryPreparator;
@@ -160,7 +160,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     final MmuBuffer buffer = bufferAccess.getBuffer();
 
     final BlockId blockId = new BlockId();
-    final DataDirectiveFactory dataDirectiveFactory = engineContext.getDataDirectiveFactory();
+    final DirectiveFactory dataDirectiveFactory = engineContext.getDataDirectiveFactory();
     InvariantChecks.checkNotNull(dataDirectiveFactory);
 
     final List<AbstractCall> preparation = new ArrayList<>();

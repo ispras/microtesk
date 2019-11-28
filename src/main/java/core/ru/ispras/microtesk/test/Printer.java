@@ -25,7 +25,7 @@ import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.DataDirective;
+import ru.ispras.microtesk.test.template.directive.Directive;
 import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Output;
@@ -336,14 +336,8 @@ public final class Printer {
     }
 
     for (final ConcreteCall call : calls) {
-      if (call.getOrigin() != null) {
-        printText(String.format(
-            options.getValueAsString(Option.ORIGIN_FORMAT), call.getOrigin()));
-      }
-
-      if (call.getAlignment() != null) {
-        printText(String.format(
-            options.getValueAsString(Option.ALIGN_FORMAT), call.getAlignment()));
+      if (call.getDirective() != null) {
+        printText(call.getDirective().getText());
       }
 
       printOutputs(model, call.getOutputs());
@@ -551,7 +545,7 @@ public final class Printer {
   }
 
   public void printData(final DataSection dataSection) {
-    for (final DataDirective directive : dataSection.getDirectives()) {
+    for (final Directive directive : dataSection.getDirectives()) {
       final String text = directive.getText();
       if (directive.needsIndent()) {
         printText(text);

@@ -24,7 +24,7 @@ import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.NumericLabelTracker;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
-import ru.ispras.microtesk.test.template.DataDirectiveFactory;
+import ru.ispras.microtesk.test.template.directive.DirectiveFactory;
 import ru.ispras.microtesk.test.template.MemoryPreparatorStore;
 import ru.ispras.microtesk.test.template.PreparatorStore;
 import ru.ispras.microtesk.test.template.StreamStore;
@@ -50,7 +50,7 @@ public final class EngineContext {
   private final int delaySlotSize;
   private long codeAllocationAddress;
   private CodeAllocator codeAllocator;
-  private DataDirectiveFactory dataDirectiveFactory;
+  private DirectiveFactory dataDirectiveFactory;
 
   // TODO: temporal solution for extending the context for custom engines.
   private final Map<String, Object> contextExtensions = new HashMap<>();
@@ -142,11 +142,11 @@ public final class EngineContext {
     this.codeAllocator = codeAllocator;
   }
 
-  public DataDirectiveFactory getDataDirectiveFactory() {
+  public DirectiveFactory getDataDirectiveFactory() {
     return dataDirectiveFactory;
   }
 
-  public void setDataDirectiveFactory(final DataDirectiveFactory value) {
+  public void setDataDirectiveFactory(final DirectiveFactory value) {
     InvariantChecks.checkNotNull(value);
     InvariantChecks.checkTrue(null == dataDirectiveFactory);
     dataDirectiveFactory = value;

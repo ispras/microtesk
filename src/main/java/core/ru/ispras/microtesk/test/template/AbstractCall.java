@@ -16,14 +16,10 @@ package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorAction;
+import ru.ispras.microtesk.test.template.directive.Directive;
 import ru.ispras.microtesk.utils.SharedObject;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class AbstractCall extends SharedObject<AbstractCall> {
   private final Where where;
@@ -35,10 +31,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
 
-  private final boolean relativeOrigin;
-  private final BigInteger origin;
-  private final BigInteger alignment;
-  private final BigInteger alignmentInBytes;
+  private final Directive directive;
 
   private final PreparatorReference preparatorReference;
   private final DataSection data;
@@ -57,9 +50,6 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        false,
-        null,
-        null,
         null,
         null,
         data,
@@ -79,9 +69,6 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        false,
-        null,
-        null,
         null,
         null,
         null,
@@ -98,9 +85,6 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        false,
-        null,
-        null,
         null,
         null,
         null,
@@ -123,9 +107,6 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.singletonList(new Output(Output.Kind.COMMENT, comment)),
-        false,
-        null,
-        null,
         null,
         null,
         null,
@@ -134,8 +115,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         );
   }
 
-  public static AbstractCall newOrigin(final BigInteger origin, final boolean isRelative) {
-    InvariantChecks.checkNotNull(origin);
+  public static AbstractCall newDirective(final Directive directive) {
+    InvariantChecks.checkNotNull(directive);
 
     return new AbstractCall(
         null,
@@ -144,10 +125,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        isRelative,
-        origin,
-        null,
-        null,
+        directive,
         null,
         null,
         null,
@@ -165,9 +143,6 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        false,
-        null,
-        null,
         null,
         null,
         null,
@@ -201,9 +176,6 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        false,
-        null,
-        null,
         null,
         null,
         null,
@@ -219,10 +191,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
       final List<Label> labels,
       final List<LabelReference> labelRefs,
       final List<Output> outputs,
-      final boolean relativeOrigin,
-      final BigInteger origin,
-      final BigInteger alignment,
-      final BigInteger alignmentInBytes,
+      final Directive directive,
       final PreparatorReference preparatorReference,
       final DataSection data,
       final List<AbstractCall> atomicSequence,
@@ -230,9 +199,6 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
-
-    // Both either null or not null
-    InvariantChecks.checkTrue((null == alignment) == (null == alignmentInBytes));
 
     // Both cannot be not null. A call cannot be both an instruction and a preparator invocation.
     InvariantChecks.checkTrue((null == rootOperation) || (null == preparatorReference));
@@ -244,11 +210,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     this.labels = labels; // Modifiable to allow adding labels.
     this.labelRefs = Collections.unmodifiableList(labelRefs);
     this.outputs = Collections.unmodifiableList(outputs);
-
-    this.relativeOrigin = relativeOrigin;
-    this.origin = origin;
-    this.alignment = alignment;
-    this.alignmentInBytes = alignmentInBytes;
+    this.directive = directive;
 
     this.preparatorReference = preparatorReference;
     this.data = data;
@@ -278,10 +240,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     this.labelRefs = LabelReference.copyAll(other.labelRefs);
     this.outputs = Output.copyAll(other.outputs);
 
-    this.relativeOrigin = other.relativeOrigin;
-    this.origin = other.origin;
-    this.alignment = other.alignment;
-    this.alignmentInBytes = other.alignmentInBytes;
+    this.directive = other.directive;
 
     this.preparatorReference = null != other.preparatorReference
         ? new PreparatorReference(other.preparatorReference) : null;
@@ -315,8 +274,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         && !isAllocatorAction()
         && labels.isEmpty()
         && outputs.isEmpty()
-        && null == origin
-        && null == alignment;
+        && null == directive;
   }
 
   public Where getWhere() {
@@ -370,28 +328,16 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     return outputs;
   }
 
+  public Directive getDirective() {
+    return directive;
+  }
+
   public LabelReference getTargetReference() {
     if (labelRefs.isEmpty()) {
       return null;
     }
 
     return labelRefs.get(0);
-  }
-
-  public boolean isRelativeOrigin() {
-    return relativeOrigin;
-  }
-
-  public BigInteger getOrigin() {
-    return origin;
-  }
-
-  public BigInteger getAlignment() {
-    return alignment;
-  }
-
-  public BigInteger getAlignmentInBytes() {
-    return alignmentInBytes;
   }
 
   public PreparatorReference getPreparatorReference() {

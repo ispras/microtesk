@@ -40,6 +40,7 @@ import ru.ispras.microtesk.test.template.Template.SectionKind;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -102,7 +103,7 @@ final class TemplateProcessor implements Template.Processor {
     this.instanceNumber = model.getPENumber();
     this.testProgram = new TestProgram();
     this.postponedBlocks = new LinkedHashSet<>();
-    this.allocator = new CodeAllocator(model, labelManager, numLabelTracker, isFetchDecodeEnabled);
+    this.allocator = new CodeAllocator(model, labelManager, numLabelTracker);
     this.executor = new Executor(engineContext);
     this.executorStatuses = new ArrayList<>(instanceNumber);
     this.interruptedSequences = new ArrayDeque<>();
@@ -621,7 +622,7 @@ final class TemplateProcessor implements Template.Processor {
       final Section section = sequence.getSection();
       allocationAddress = section.physicalToVirtual(section.getPa()).longValue();
     }
-    allocator.setAddress(allocationAddress);
+    allocator.setAddress(BigInteger.valueOf(allocationAddress));
 
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);

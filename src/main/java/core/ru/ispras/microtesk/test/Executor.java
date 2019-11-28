@@ -176,7 +176,7 @@ public final class Executor {
       iterator.next();
       final ConcreteCall next = iterator.current();
 
-      address = null != next ? next.getAddress() : address + current.getByteSize();
+      address = null != next ? next.getAddress().longValue() : address + current.getByteSize();
     }
 
     public void jump(final long jumpAddress) {
@@ -368,7 +368,7 @@ public final class Executor {
       }
 
       final long address = getPC();
-      final boolean isJump = address != call.getAddress() + call.getByteSize();
+      final boolean isJump = address != call.getAddress().longValue() + call.getByteSize();
 
       // NORMAL
       if (!isJump) {
@@ -484,12 +484,8 @@ public final class Executor {
       return;
     }
 
-    if (null != call.getOrigin()) {
-      Logger.debug(originFormat, call.getOrigin());
-    }
-
-    if (null != call.getAlignment()) {
-      Logger.debug(alignFormat, call.getAlignment());
+    if (null != call.getDirective()) {
+      Logger.debug(originFormat, call.getDirective());
     }
 
     for (final Output output : call.getOutputs()) {

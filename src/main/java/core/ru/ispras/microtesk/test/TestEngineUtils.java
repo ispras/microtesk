@@ -17,32 +17,15 @@ package ru.ispras.microtesk.test;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.test.engine.Engine;
-import ru.ispras.microtesk.test.engine.EngineConfig;
-import ru.ispras.microtesk.test.engine.EngineContext;
-import ru.ispras.microtesk.test.engine.EngineUtils;
-import ru.ispras.microtesk.test.engine.InitializerMaker;
-import ru.ispras.microtesk.test.template.AbstractCall;
-import ru.ispras.microtesk.test.template.AbstractCallBuilder;
-import ru.ispras.microtesk.test.template.Block;
-import ru.ispras.microtesk.test.template.BlockId;
-import ru.ispras.microtesk.test.template.ConcreteCall;
-import ru.ispras.microtesk.test.template.ExceptionHandler;
-import ru.ispras.microtesk.test.template.Label;
-import ru.ispras.microtesk.test.template.LabelUniqualizer;
-import ru.ispras.microtesk.test.template.Output;
-import ru.ispras.microtesk.test.template.Preparator;
+import ru.ispras.microtesk.test.engine.*;
+import ru.ispras.microtesk.test.template.*;
+import ru.ispras.microtesk.test.template.directive.Directive;
+import ru.ispras.microtesk.test.template.directive.DirectiveOrigin;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * {@link TestEngineUtils} implements utility methods to be used by the template processor
@@ -141,7 +124,7 @@ final class TestEngineUtils {
         Output.Kind.COMMENT, String.format("Exceptions: %s", entryPoint.getExceptions()));
 
     abstractCallBuilder.addOutput(comment);
-    abstractCallBuilder.setOrigin(entryPoint.getOrigin(), false);
+    abstractCallBuilder.setDirective(engineContext.getDataDirectiveFactory().newOrigin(entryPoint.getOrigin()));
 
     calls.add(abstractCallBuilder.build());
     calls.addAll(entryPoint.getCalls());
@@ -219,8 +202,11 @@ final class TestEngineUtils {
     InvariantChecks.checkNotNull(sequence);
 
     for (final AbstractCall call : sequence) {
-      if (null != call.getOrigin()) {
-        return !call.isRelativeOrigin();
+      final Directive directive = call.getDirective();
+
+      // Checks whether the directive fixes the memory location.
+      if (null != directive && directive instanceof DirectiveOrigin) {
+        return true;
       }
 
       if (call.isExecutable()) {
