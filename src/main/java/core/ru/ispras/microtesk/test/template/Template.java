@@ -37,6 +37,9 @@ import ru.ispras.microtesk.test.engine.allocator.Allocator;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorAction;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorEngine;
 import ru.ispras.microtesk.test.engine.allocator.ResourceOperation;
+import ru.ispras.microtesk.test.template.directive.Directive;
+import ru.ispras.microtesk.test.template.directive.DirectiveFactory;
+import ru.ispras.microtesk.test.template.directive.DirectiveOrigin;
 import ru.ispras.microtesk.utils.StringUtils;
 
 import java.math.BigInteger;
@@ -144,6 +147,10 @@ public final class Template {
     this.defaultSituations = new HashMap<>();
 
     this.unusedBlocks = new LinkedHashSet<>();
+  }
+
+  public DirectiveFactory getDirectiveFactory() {
+    return context.getDataDirectiveFactory();
   }
 
   public DataManager getDataManager() {
@@ -1197,29 +1204,17 @@ public final class Template {
     processor.process(data);
   }
 
-  public void setOrigin(final BigInteger origin, final Where where) {
-    // .org directives in external code split it into parts (only for main section)
-    if (currentSection == SectionKind.MAIN && currentBlockBuilder().isExternal()) {
-      processExternalCode();
+  public void setDirective(final Directive directive, final Where where) {
+    // TODO:
+    if (directive instanceof DirectiveOrigin) {
+      // .org directives in external code split it into parts (only for main section)
+      if (currentSection == SectionKind.MAIN && currentBlockBuilder().isExternal()) {
+        processExternalCode();
+      }
     }
 
-    debug("Set Origin to 0x%x", origin);
-    callBuilder.setDirective(context.getDataDirectiveFactory().newOrigin(origin));
-    callBuilder.setWhere(where);
-  }
-
-  public void setRelativeOrigin(final BigInteger delta, final Where where) {
-    debug("Set Relative Origin to 0x%x", delta);
-    callBuilder.setDirective(context.getDataDirectiveFactory().newOriginRelative(delta));
-    callBuilder.setWhere(where);
-  }
-
-  public void setAlignment(
-      final BigInteger value,
-      final BigInteger valueInBytes,
-      final Where where) {
-    debug("Align %d (%d bytes)", value, valueInBytes);
-    callBuilder.setDirective(context.getDataDirectiveFactory().newAlign(value, valueInBytes));
+    debug("Directive: %s", directive.getText());
+    callBuilder.setDirective(directive);
     callBuilder.setWhere(where);
   }
 

@@ -14,11 +14,9 @@
 
 package ru.ispras.microtesk.test.template.directive;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
 
 import java.math.BigInteger;
-import java.util.List;
 
 /**
  * {@link Directive} is to be supported by all data directives.
@@ -26,17 +24,6 @@ import java.util.List;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface Directive {
-  enum Kind {
-    /** Address modification directives ({@code .align}, {@code .org}, etc.). */
-    ADDR,
-    /** Data declaration directives ({@code .word}, {@code .ascii}, etc.). */
-    DATA,
-    /** Text and comment printing directives. */
-    TEXT,
-    /** Label definition directives. */
-    LABEL
-  }
-
   /**
    * Returns the string representation of the directive.
    *

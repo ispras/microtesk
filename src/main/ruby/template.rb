@@ -1,19 +1,20 @@
+####################################################################################################
 #
 # Copyright 2013-2019 ISP RAS (http://www.ispras.ru)
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License. You may obtain a copy of the License at
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing, software distributed under the License
+# is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+# or implied. See the License for the specific language governing permissions and limitations under
+# the License.
 #
+####################################################################################################
 
+require_relative 'directive'
 require_relative 'mmu_plugin'
 require_relative 'operators'
 require_relative 'template_builder'
@@ -21,6 +22,7 @@ require_relative 'utils'
 
 include TemplateBuilder
 
+####################################################################################################
 class Template
   include Operators
 
@@ -127,9 +129,7 @@ class Template
     add_new_block Block::Kind::ITERATE, attributes, get_caller_location, &contents
   end
 
-  #
   # Adds the given block to the current template.
-  #
   def add_new_block(kind, attributes, where, &contents)
     blockBuilder = @template.beginBlock kind
     blockBuilder.setWhere where
@@ -156,9 +156,7 @@ class Template
     set_attributes(:branches => true, &contents)
   end
 
-  #
   # Sets the given attributes to the nested operations.
-  #
   def set_attributes(attributes, &contents)
     mapBuilder = set_builder_attributes @template.newMapBuilder, attributes
     @template.beginAttributes mapBuilder
@@ -297,10 +295,8 @@ class Template
     end
   end
 
-  #
   # Creates an object for generating a random integer (to be used as an argument of a mode or op)
   # selected from the specified range or according to the specified distribution.
-  #
   def rand(*args)
     if args.count == 1
       distribution = args.at(0)
@@ -324,11 +320,8 @@ class Template
     end
   end
 
-  #
-  # Creates an object describing the probability distribution for
-  # random generation (biased generation). Methods arguments
-  # specify ranges of values with corresponding biases.
-  #
+  # Creates an object describing the probability distribution for random generation
+  # (biased generation). Methods arguments specify ranges of values with corresponding biases.
   def dist(*ranges)
     if !ranges.is_a?(Array)
       raise "#{ranges} is not an Array."
@@ -375,11 +368,8 @@ class Template
     Dist.new builder.build
   end
 
-  #
-  # Creates an object describing a value range (with corresponding bias)
-  # used in random generation. If the bias attribute is not specified,
-  # it will be set to nil, which means the default bias.
-  #
+  # Creates an object describing a value range (with corresponding bias) used in random generation.
+  # If the bias attribute is not specified, it will be set to nil, which means the default bias.
   def range(attrs = {})
     if !attrs.is_a?(Hash)
       raise "#{attrs} is not a Hash."
@@ -401,11 +391,9 @@ class Template
     ValueRange.new value, bias
   end
 
-  #
-  # Creates an object that specifies an unknown immediate value to be used
-  # as an argument of a mode or op. A corresponding concrete value must be
-  # produced as a result of test data generation for some test situation.
-  #
+  # Creates an object that specifies an unknown immediate value to be used as an argument of a mode
+  # or op. A corresponding concrete value must be produced as a result of test data generation for
+  # some test situation.
   def _(allocator = nil, attrs = {})
     if allocator.is_a? Hash and attrs.empty? then
       attrs = allocator
@@ -420,9 +408,7 @@ class Template
     @template.newUnknownImmediate(allocation_data)
   end
 
-  #
   # Creates a placeholder for label to be updated in the process of generation.
-  #
   def _label
     @template.newLazyLabel
   end
@@ -489,30 +475,22 @@ class Template
   # Text and Debug
   #=================================================================================================
 
-  #
   # Creates a location-based format argument for format-like output methods.
-  #
   def location(name, index)
     Location.new name, index
   end
 
-  #
   # Prints text into the simulator execution log.
-  #
   def trace(format, *args)
     print_format :TRACE, format, *args
   end
 
-  #
-  # Adds the new line character into the test program
-  #
+  # Adds the new line character into the test program.
   def newline
     text ''
   end
 
-  #
   # Adds text into the test program.
-  #
   def text(format, *args)
     if @is_multiline_comment
       print_format :COMMENT_ML_BODY, format, *args
@@ -521,33 +499,25 @@ class Template
     end
   end
 
-  #
   # Adds a comment into the test program (uses sl_comment_starts_with).
-  #
   def comment(format, *args)
     print_format :COMMENT, format, *args
   end
 
-  #
   # Starts a multi-line comment (uses sl_comment_starts_with)
-  #
   def start_comment
     @is_multiline_comment = true
     print_format :COMMENT_ML_START, ''
   end
 
-  #
   # Ends a multi-line comment (uses ml_comment_ends_with)
-  #
   def end_comment
     print_format :COMMENT_ML_END, ''
     @is_multiline_comment = false
   end
 
-  #
-  # Prints a format-based output to the simulator log or to the test program
-  # depending of the is_runtime flag.
-  #
+  # Prints a format-based output to the simulator log or to the test program depending of the
+  # is_runtime flag.
   def print_format(kind, format, *args)
     java_import Java::Ru.ispras.microtesk.test.template.Value
     java_import Java::Ru.ispras.microtesk.test.template.Primitive
@@ -570,25 +540,19 @@ class Template
     @template.addOutput builder.build
   end
 
-  #
   # Creates a pseudo instruction call that prints user-specified text.
-  #
   def pseudo(text)
     @template.setCallText text
     @template.endBuildingCall
   end
 
-  #
   # Adds text to the header of generated files.
-  #
   def add_to_header(text)
     java_import Java::Ru.ispras.microtesk.test.Printer
     Printer.addToHeader text
   end
 
-  #
   # Adds text to the footer of generated files.
-  #
   def add_to_footer(text)
     java_import Java::Ru.ispras.microtesk.test.Printer
     Printer.addToFooter text
@@ -676,17 +640,13 @@ class Template
     end
   end
 
-  #
   # Sign-extends the specified value (currently, supports only LazyValue objects).
-  #
   def sign_extend(value_object, bit_size)
     value_object = value_object.java_object if value_object.is_a? WrappedObject
     value_object.signExtend bit_size
   end
 
-  #
   # Zero-extends the specified value (currently, supports only LazyValue objects).
-  #
   def zero_extend(value_object, bit_size)
     value_object = value_object.java_object if value_object.is_a? WrappedObject
     value_object.zeroExtend bit_size
@@ -711,7 +671,7 @@ class Template
   # Memory Preparators
   #=================================================================================================
 
-  # uses address and data
+  # Uses address and data
   def memory_preparator(attrs, &contents)
     size = get_attribute attrs, :size
     builder = @template.beginMemoryPreparator size
@@ -720,7 +680,7 @@ class Template
   end
 
   #=================================================================================================
-  # Data Streams
+  # Data Streams (see also StreamPreparator)
   #=================================================================================================
 
   def stream_preparator(attrs, &contents)
@@ -885,30 +845,11 @@ class Template
   #=================================================================================================
 
   def org(origin)
-    if origin.is_a?(Integer)
-      @template.setOrigin origin, get_caller_location
-    elsif origin.is_a?(Hash)
-      delta = get_attribute origin, :delta
-      if !delta.is_a?(Integer)
-        raise "delta (#{delta}) must be an Integer."
-      end
-      @template.setRelativeOrigin delta, get_caller_location
-    else
-      raise "origin (#{origin}) must be an Integer or a Hash."
-    end
+    @template.setDirective @directive.org(origin), get_caller_location
   end
 
   def align(value)
-    value_in_bytes = alignment_in_bytes(value)
-    @template.setAlignment value, value_in_bytes, get_caller_location
-  end
-
-  #
-  # By default, align n is interpreted as alignment on 2**n byte border.
-  # This behavior can be overridden.
-  #
-  def alignment_in_bytes(n)
-    2 ** n
+    @template.setDirective @directive.align(value), get_caller_location
   end
 
   #=================================================================================================
@@ -1052,6 +993,7 @@ class Template
 
     TemplateBuilder.define_runtime_methods engine.getModel.getMetaData
     @template = engine.newTemplate
+    @directive = Directive.new(@template.getDirectiveFactory)
 
     @template.beginPreSection
     pre
@@ -1123,21 +1065,21 @@ class Template
 
 end # Template
 
-#
+####################################################################################################
 # Describes a value range with corresponding bias used in random generation.
-#
+####################################################################################################
 class ValueRange
   attr_reader :value, :bias
   def initialize(value, bias)
     @value = value
     @bias = bias
   end
-end
+end # ValueRange
 
-#
+####################################################################################################
 # Describes the probability distribution for random generation.
-# This is a wrapper around the corresponding java object.
-#
+# This is a wrapper around the corresponding Java object.
+####################################################################################################
 class Dist
   attr_reader :java_object
   def initialize(java_object)
@@ -1147,14 +1089,11 @@ class Dist
   def next_value
     @java_object.value
   end
-end
+end # Dist
 
-#
-# Description:
-#
-# The Location class describes an access to a specific location (register or
-# memory address) performed when printing data.
-#
+####################################################################################################
+# Describes an access to a specific location (register or memory) performed when printing data.
+####################################################################################################
 class Location
   attr_reader :name, :index
 
@@ -1168,6 +1107,7 @@ class Location
  end
 end # Location
 
+####################################################################################################
 class SituationManager
   include MmuPlugin
 
@@ -1184,11 +1124,10 @@ class SituationManager
       raise "Method '#{meth}' is not available in data sections."
     end
   end
-
 end # SituationManager
 
+####################################################################################################
 class DataManager
-
   class Type
     attr_reader :name
     attr_reader :args
@@ -1197,7 +1136,7 @@ class DataManager
       @name = args[0]
       @args = args.length > 1 ? args[1..args.length-1] : []
     end
-  end
+  end # Type
 
   def initialize(template, manager)
     @template = template
@@ -1233,7 +1172,7 @@ class DataManager
   end
 
   def align(value)
-    value_in_bytes = @template.alignment_in_bytes(value)
+    value_in_bytes = @directive.alignment_in_bytes(value)
     @builder.align value, value_in_bytes
   end
 
@@ -1352,11 +1291,10 @@ class DataManager
   end
 end # DataManager
 
-# Methods init, read, write are defined in a separate class to
-# avoid name conflicts
-#
+####################################################################################################
+# Describes stream methods init, read, write (separate class is to to avoid name conflicts).
+####################################################################################################
 class StreamPreparator
-
   def initialize context, template
     @context = context
     @template = template
@@ -1381,8 +1319,8 @@ class StreamPreparator
   end
 end # StreamPreparator
 
+####################################################################################################
 class ExceptionHandler
-
   def initialize context, builder
     @context = context
     @builder = builder
@@ -1396,15 +1334,16 @@ class ExceptionHandler
     @context.instance_eval &contents
     @builder.endEntryPoint
   end
-
 end # ExceptionHandler
 
+####################################################################################################
 class WrappedObject
   def java_object
     raise NotImplementedError, "Method java_object is not implemented"
   end
-end
+end # WrappedObject
 
+####################################################################################################
 class AddressReference < WrappedObject
   def initialize(template)
     @template = template
@@ -1429,6 +1368,7 @@ class AddressReference < WrappedObject
   end
 end # AddressReference
 
+####################################################################################################
 class BufferEntryReference < WrappedObject
   def initialize(template)
     @template = template
@@ -1465,6 +1405,7 @@ class BufferEntryReference < WrappedObject
   end
 end # BufferEntryReference
 
+####################################################################################################
 class PageTable
   def initialize(template, data_manager)
     @template = template
@@ -1538,4 +1479,5 @@ class PageTable
       @attrs[name.to_sym]
     end
   end # PageTable::Entry
+
 end # PageTable
