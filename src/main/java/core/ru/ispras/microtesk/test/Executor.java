@@ -198,8 +198,6 @@ public final class Executor {
   private final ConcreteCall invalidCall;
   private final int branchExecutionLimit;
   private final boolean isLoggingEnabled;
-  private final String originFormat;
-  private final String alignFormat;
 
   /**
    * Constructs an Executor object.
@@ -228,8 +226,6 @@ public final class Executor {
     this.invalidCall = EngineUtils.makeSpecialConcreteCall(context, "invalid_instruction");
     this.branchExecutionLimit = context.getOptions().getValueAsInteger(Option.BRANCH_EXEC_LIMIT);
     this.isLoggingEnabled = context.getOptions().getValueAsBoolean(Option.VERBOSE);
-    this.originFormat = context.getOptions().getValueAsString(Option.ORIGIN_FORMAT);
-    this.alignFormat = context.getOptions().getValueAsString(Option.ALIGN_FORMAT);
   }
 
   public Executor(final EngineContext context) {
@@ -486,7 +482,7 @@ public final class Executor {
     }
 
     for (final Directive directive : call.getDirectives()) {
-      Logger.debug(originFormat, directive);
+      Logger.debug(directive.getText());
     }
 
     for (final Output output : call.getOutputs()) {
