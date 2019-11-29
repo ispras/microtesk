@@ -23,7 +23,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * The {@link SysUtils} class provides utility methods to interact with the environment.
@@ -70,9 +72,8 @@ public final class SysUtils {
    * @throws IllegalStateException if the {@code MICROTESK_HOME} environment variable
    *         is not defined.
    */
-  public static String getModelsJarPath() {
-    final String homeDir = getHomeDir();
-    return Paths.get(homeDir, "lib", "jars", "models.jar").toString();
+  public static Path getModelsJarPath() {
+    return Paths.get(getHomeDir(), "lib", "jars", "models.jar");
   }
 
   /**
@@ -87,14 +88,21 @@ public final class SysUtils {
   public static Model loadModel(final String modelName) {
     InvariantChecks.checkNotNull(modelName);
 
-    final String modelClassName = String.format(
-        "%s.%s.Model", PackageInfo.MODEL_PACKAGE, modelName);
+    Model model = LOADED_MODELS.get(modelName);
+    if (model == null) {
+      final String modelClassName = String.format(
+          "%s.%s.Model", PackageInfo.MODEL_PACKAGE, modelName);
 
-    final ModelBuilder modelBuilder =
-        (ModelBuilder) loadFromModel(modelClassName);
-
-    return null != modelBuilder ? modelBuilder.build() : null;
+      final ModelBuilder builder = (ModelBuilder) loadFromModel(modelClassName);
+      if (builder != null) {
+        model = builder.build();
+        LOADED_MODELS.put(modelName, model);
+      }
+    }
+    return model;
   }
+
+  private static final Map<String, Model> LOADED_MODELS = new java.util.HashMap<>();
 
   /**
    * Loads a class with the specified name from {@code models.jar}.
@@ -107,44 +115,18 @@ public final class SysUtils {
    */
   public static Object loadFromModel(final String className) {
     InvariantChecks.checkNotNull(className);
-
-    final String modelsJarPath = getModelsJarPath();
-    final File file = new File(modelsJarPath);
-    if (!file.exists()) {
-      throw new IllegalArgumentException(String.format(
-          "File %s does not exist.", modelsJarPath));
-    }
-
-    final URL url;
     try {
-      url = file.toURI().toURL();
-    } catch (final MalformedURLException e) {
-      throw new IllegalArgumentException(String.format(
-          "Failed to create an URL for file %s. Reason: %s", modelsJarPath, e.getMessage()));
+      final URL url = getModelsJarPath().toUri().toURL();
+      final ClassLoader cl = new URLClassLoader(new URL[] { url });
+      return cl.loadClass(className).newInstance();
+    } catch (final MalformedURLException
+        | ClassNotFoundException
+        | InstantiationException
+        | IllegalAccessException e) {
+      throw new IllegalArgumentException(
+          String.format("Invalid class name '%s': %s", className, e.getMessage()),
+          e);
     }
-
-    final URL[] urls = new URL[] {url};
-    final ClassLoader cl = new URLClassLoader(urls);
-
-    final Class<?> cls;
-    final Object instance;
-
-    try {
-      cls = cl.loadClass(className);
-    } catch (final ClassNotFoundException e) {
-      throw new IllegalArgumentException(String.format(
-          "Failed to load the %s class from %s. Reason: %s",
-          className, modelsJarPath, e.getMessage()));
-    }
-
-    try {
-      instance = cls.newInstance();
-    } catch (final InstantiationException | IllegalAccessException e) {
-      throw new IllegalArgumentException(String.format(
-          "Failed to create an instance of %s. Reason: %s", className, e.getMessage()));
-    }
-
-    return instance;
   }
 
   /**
