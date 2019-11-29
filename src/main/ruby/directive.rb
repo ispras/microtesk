@@ -41,13 +41,13 @@ class Directive
   def org(origin)
     factory = @template.getDirectiveFactory
     if origin.is_a?(Integer)
-      factory.newOrigin origin
+      factory.newOriginAbsolute origin # Absolute
     elsif origin.is_a?(Hash)
       delta = get_attribute origin, :delta
       if !delta.is_a?(Integer)
         raise "delta (#{delta}) must be an Integer."
       end
-      factory.newOriginRelative delta
+      factory.newOriginRelative delta  # Relative
     else
       raise "origin (#{origin}) must be an Integer or a Hash."
     end

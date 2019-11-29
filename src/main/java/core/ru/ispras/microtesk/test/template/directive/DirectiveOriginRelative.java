@@ -46,6 +46,7 @@ public final class DirectiveOriginRelative extends Directive {
 
   @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
+    // Current address relative address.
     final BigInteger address = currentAddress.add(delta);
     origin = address.subtract(allocator.getBaseAddress());
     return address;

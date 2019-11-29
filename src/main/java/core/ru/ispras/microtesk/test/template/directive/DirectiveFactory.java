@@ -188,6 +188,10 @@ public final class DirectiveFactory {
     return new DirectiveOrigin(options, origin);
   }
 
+  public Directive newOriginAbsolute(final BigInteger origin) {
+    return new DirectiveOriginAbsolute(options, origin);
+  }
+
   public Directive newOriginRelative(final BigInteger delta) {
     return new DirectiveOriginRelative(options, delta);
   }

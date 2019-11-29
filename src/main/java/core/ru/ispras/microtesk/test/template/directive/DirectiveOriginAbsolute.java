@@ -21,27 +21,15 @@ import ru.ispras.microtesk.options.Options;
 
 import java.math.BigInteger;
 
-public class DirectiveOrigin extends Directive {
-  protected final Options options;
-  protected final BigInteger origin;
-
-  DirectiveOrigin(final Options options, final BigInteger origin) {
-    InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(origin);
-    InvariantChecks.checkGreaterOrEq(origin, BigInteger.ZERO);
-    this.options = options;
-    this.origin = origin;
-  }
-
-  @Override
-  public String getText() {
-    return String.format(options.getValueAsString(Option.ORIGIN_FORMAT), origin);
+public final class DirectiveOriginAbsolute extends DirectiveOrigin {
+  DirectiveOriginAbsolute(final Options options, final BigInteger origin) {
+    super(options, origin);
   }
 
   @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
-    // Section relative address.
-    return allocator.origin(origin);
+    // Absolute address.
+    return origin;
   }
 }
 
