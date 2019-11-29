@@ -21,7 +21,7 @@ import ru.ispras.microtesk.test.template.LabelValue;
 
 import java.math.BigInteger;
 
-public final class DirectiveLabel implements Directive {
+public final class DirectiveLabel extends Directive {
   private final Section section;
   private final LabelValue label;
 
@@ -37,11 +37,6 @@ public final class DirectiveLabel implements Directive {
   @Override
   public String getText() {
     return label.getLabel().getUniqueName() + ":";
-  }
-
-  @Override
-  public boolean needsIndent() {
-    return false;
   }
 
   @Override

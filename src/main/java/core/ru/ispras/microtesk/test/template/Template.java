@@ -1204,7 +1204,7 @@ public final class Template {
     processor.process(data);
   }
 
-  public void setDirective(final Directive directive, final Where where) {
+  public void addDirective(final Directive directive, final Where where) {
     // TODO:
     if (directive instanceof DirectiveOrigin) {
       // .org directives in external code split it into parts (only for main section)
@@ -1214,7 +1214,7 @@ public final class Template {
     }
 
     debug("Directive: %s", directive.getText());
-    callBuilder.setDirective(directive);
+    callBuilder.addDirective(directive);
     callBuilder.setWhere(where);
   }
 

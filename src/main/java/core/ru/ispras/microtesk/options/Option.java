@@ -97,8 +97,12 @@ public enum Option implements Property {
   COMMENT_TOKEN_START("Text that starts a multiline comment", "/*", GENERATE),
   COMMENT_TOKEN_END("Text that ends a multiline comment", "*/", GENERATE),
   SEPARATOR_TOKEN("Text used to create separators", "=", GENERATE),
+
   ORIGIN_FORMAT("Origin directive format", ".org 0x%x", GENERATE),
   ALIGN_FORMAT("Alignment directive format", ".align %d", GENERATE),
+  BYTE_ALIGN_FORMAT("Byte alignment directive format", ".balign %d", GENERATE),
+  POWER2_ALIGN_FORMAT("Power of 2 alignment directive format", ".p2align %d", GENERATE),
+  OPTION_FORMAT("Option directive format", ".option %s", GENERATE),
 
   TEXT_SECTION_KEYWORD("Text section directive", ".text", GENERATE),
   DATA_SECTION_KEYWORD("Data section directive", ".data", GENERATE),

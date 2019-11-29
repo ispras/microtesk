@@ -97,7 +97,6 @@ final class TemplateProcessor implements Template.Processor {
     final NumericLabelTracker numLabelTracker = engineContext.getNumericLabelTracker();
 
     final Options options = engineContext.getOptions();
-    final boolean isFetchDecodeEnabled = options.getValueAsBoolean(Option.FETCH_DECODE_ENABLED);
 
     this.engineContext = engineContext;
     this.instanceNumber = model.getPENumber();

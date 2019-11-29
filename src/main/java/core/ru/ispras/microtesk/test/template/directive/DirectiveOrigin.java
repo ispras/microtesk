@@ -21,7 +21,7 @@ import ru.ispras.microtesk.options.Options;
 
 import java.math.BigInteger;
 
-public final class DirectiveOrigin implements Directive {
+public final class DirectiveOrigin extends Directive {
   private final Options options;
   private final BigInteger origin;
 
@@ -39,23 +39,8 @@ public final class DirectiveOrigin implements Directive {
   }
 
   @Override
-  public boolean needsIndent() {
-    return true;
-  }
-
-  @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
     return allocator.origin(origin);
-  }
-
-  @Override
-  public Directive copy() {
-    return this;
-  }
-
-  @Override
-  public String toString() {
-    return getText();
   }
 }
 

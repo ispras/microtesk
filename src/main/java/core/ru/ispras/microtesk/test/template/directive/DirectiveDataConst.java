@@ -21,7 +21,7 @@ import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import java.math.BigInteger;
 import java.util.List;
 
-public final class DirectiveDataConst implements Directive {
+public final class DirectiveDataConst extends Directive {
   private final String typeText;
   private final List<BitVector> values;
 
@@ -55,11 +55,6 @@ public final class DirectiveDataConst implements Directive {
   }
 
   @Override
-  public boolean needsIndent() {
-    return true;
-  }
-
-  @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
     BigInteger current = currentAddress;
 
@@ -68,15 +63,5 @@ public final class DirectiveDataConst implements Directive {
     }
 
     return current;
-  }
-
-  @Override
-  public Directive copy() {
-    return this;
-  }
-
-  @Override
-  public String toString() {
-    return getText();
   }
 }

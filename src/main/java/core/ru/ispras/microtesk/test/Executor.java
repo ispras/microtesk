@@ -28,6 +28,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.Output;
+import ru.ispras.microtesk.test.template.directive.Directive;
 
 import java.math.BigInteger;
 
@@ -484,8 +485,8 @@ public final class Executor {
       return;
     }
 
-    if (null != call.getDirective()) {
-      Logger.debug(originFormat, call.getDirective());
+    for (final Directive directive : call.getDirectives()) {
+      Logger.debug(originFormat, directive);
     }
 
     for (final Output output : call.getOutputs()) {

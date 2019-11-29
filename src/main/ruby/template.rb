@@ -841,15 +841,27 @@ class Template
   end
 
   #=================================================================================================
-  # Code Allocation
+  # Code Allocation Directives
   #=================================================================================================
 
-  def org(origin)
-    @template.setDirective @directive.org(origin), get_caller_location
+  def align(value)
+    @template.addDirective @directive.align(value), get_caller_location
   end
 
-  def align(value)
-    @template.setDirective @directive.align(value), get_caller_location
+  def balign(value)
+    @template.addDirective @directive.balign(value), get_caller_location
+  end
+
+  def p2align(value)
+    @template.addDirective @directive.p2align(value), get_caller_location
+  end
+
+  def org(value)
+    @template.addDirective @directive.org(value), get_caller_location
+  end
+
+  def option(value)
+    @template.addDirective @directive.option(value), get_caller_location
   end
 
   #=================================================================================================
@@ -993,7 +1005,7 @@ class Template
 
     TemplateBuilder.define_runtime_methods engine.getModel.getMetaData
     @template = engine.newTemplate
-    @directive = Directive.new(@template.getDirectiveFactory)
+    @directive = Directive.new(@template)
 
     @template.beginPreSection
     pre
@@ -1172,8 +1184,7 @@ class DataManager
   end
 
   def align(value)
-    value_in_bytes = Directive.alignment_in_bytes(value)
-    @builder.align value, value_in_bytes
+    @builder.align value, 2 ** value
   end
 
   def org(origin)

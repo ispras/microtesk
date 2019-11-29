@@ -14,21 +14,21 @@
 
 package ru.ispras.microtesk.test.template.directive;
 
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 
-import java.math.BigInteger;
+public final class DirectiveOption extends Directive {
+  private final Options options;
+  private final String option;
 
-public class DirectiveText extends Directive {
-  private final String text;
-
-  DirectiveText(final String text) {
-    InvariantChecks.checkNotNull(text);
-    this.text = text;
+  DirectiveOption(final Options options, final String option) {
+    this.options = options;
+    this.option = option;
   }
 
   @Override
   public String getText() {
-    return text;
+    return String.format(options.getValueAsString(Option.OPTION_FORMAT), option);
   }
 }
+

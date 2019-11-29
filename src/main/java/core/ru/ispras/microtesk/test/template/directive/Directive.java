@@ -14,29 +14,51 @@
 
 package ru.ispras.microtesk.test.template.directive;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * {@link Directive} is to be supported by all data directives.
+ * {@link Directive} represents an assembly directive.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Directive {
+public abstract class Directive {
+
+  public static List<Directive> copyAll(final List<Directive> directives) {
+    InvariantChecks.checkNotNull(directives);
+
+    if (directives.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    final List<Directive> result = new ArrayList<>(directives.size());
+    for (final Directive directive : directives) {
+      result.add(directive.copy());
+    }
+
+    return result;
+  }
+
   /**
    * Returns the string representation of the directive.
    *
    * @return the directive text.
    */
-  String getText();
+  public abstract String getText();
 
   /**
    * Checks whether an indentation is required when printing the directive.
    *
    * @return {@code true} iff an indentation is required.
    */
-  boolean needsIndent();
+  public boolean needsIndent() {
+    return true;
+  }
 
   /**
    * Applies the directive to the current address and the memory allocator.
@@ -45,12 +67,21 @@ public interface Directive {
    * @param allocator the memory allocator.
    * @return the current address.
    */
-  BigInteger apply(BigInteger currentAddress, MemoryAllocator allocator);
+  public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
+    return currentAddress;
+  }
 
   /**
    * Copies the directive.
    *
    * @return a copy of the directive.
    */
-  Directive copy();
+  public Directive copy() {
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return getText();
+  }
 }

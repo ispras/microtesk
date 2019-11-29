@@ -124,7 +124,8 @@ final class TestEngineUtils {
         Output.Kind.COMMENT, String.format("Exceptions: %s", entryPoint.getExceptions()));
 
     abstractCallBuilder.addOutput(comment);
-    abstractCallBuilder.setDirective(engineContext.getDataDirectiveFactory().newOrigin(entryPoint.getOrigin()));
+    abstractCallBuilder.addDirective(
+        engineContext.getDataDirectiveFactory().newOrigin(entryPoint.getOrigin()));
 
     calls.add(abstractCallBuilder.build());
     calls.addAll(entryPoint.getCalls());
@@ -202,11 +203,11 @@ final class TestEngineUtils {
     InvariantChecks.checkNotNull(sequence);
 
     for (final AbstractCall call : sequence) {
-      final Directive directive = call.getDirective();
-
       // Checks whether the directive fixes the memory location.
-      if (null != directive && directive instanceof DirectiveOrigin) {
-        return true;
+      for (final Directive directive : call.getDirectives()) {
+        if (directive instanceof DirectiveOrigin) {
+          return true;
+        }
       }
 
       if (call.isExecutable()) {

@@ -19,7 +19,7 @@ import ru.ispras.microtesk.model.memory.MemoryAllocator;
 
 import java.math.BigInteger;
 
-public final class DirectiveAsciiStrings implements Directive {
+public final class DirectiveAsciiStrings extends Directive {
   private final String ztermStrText;
   private final String nztermStrText;
   private final boolean zeroTerm;
@@ -52,11 +52,6 @@ public final class DirectiveAsciiStrings implements Directive {
   }
 
   @Override
-  public boolean needsIndent() {
-    return true;
-  }
-
-  @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
     BigInteger current = currentAddress;
 
@@ -65,16 +60,6 @@ public final class DirectiveAsciiStrings implements Directive {
     }
 
     return current;
-  }
-
-  @Override
-  public Directive copy() {
-    return this;
-  }
-
-  @Override
-  public String toString() {
-    return getText();
   }
 }
 

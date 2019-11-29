@@ -20,7 +20,7 @@ import ru.ispras.microtesk.test.template.LabelValue;
 
 import java.math.BigInteger;
 
-public final class DirectiveGlobalLabel implements Directive {
+public final class DirectiveGlobalLabel extends Directive {
   private final LabelValue label;
 
   DirectiveGlobalLabel(final LabelValue label) {
@@ -36,11 +36,6 @@ public final class DirectiveGlobalLabel implements Directive {
   }
 
   @Override
-  public boolean needsIndent() {
-    return true;
-  }
-
-  @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
     return currentAddress;
   }
@@ -48,11 +43,6 @@ public final class DirectiveGlobalLabel implements Directive {
   @Override
   public Directive copy() {
     return new DirectiveGlobalLabel(label.sharedCopy());
-  }
-
-  @Override
-  public String toString() {
-    return getText();
   }
 }
 

@@ -180,6 +180,10 @@ public final class DirectiveFactory {
     return new DirectiveGlobalLabel(label);
   }
 
+  public Directive newOption(final String option) {
+    return new DirectiveOption(options, option);
+  }
+
   public Directive newOrigin(final BigInteger origin) {
     return new DirectiveOrigin(options, origin);
   }
@@ -188,15 +192,26 @@ public final class DirectiveFactory {
     return new DirectiveOriginRelative(options, delta);
   }
 
-  public Directive newAlign(final BigInteger alignment, final BigInteger alignmentInBytes) {
+  public Directive newAlign(
+      final BigInteger alignment, final BigInteger alignmentInBytes) {
     return new DirectiveAlign(options, alignment, alignmentInBytes);
+  }
+
+  public Directive newAlignByte(final BigInteger alignment) {
+    return new DirectiveAlignByte(options, alignment);
+  }
+
+  public Directive newAlignPower2(
+      final BigInteger alignment, final BigInteger alignmentInBytes) {
+    return new DirectiveAlignPower2(options, alignment, alignmentInBytes);
   }
 
   public Directive newSpace(final int length) {
     return new DirectiveSpace(spaceText, spaceData, length);
   }
 
-  public Directive newAsciiStrings(final boolean zeroTerm, final String[] strings) {
+  public Directive newAsciiStrings(
+      final boolean zeroTerm, final String[] strings) {
     return new DirectiveAsciiStrings(ztermStrText, nztermStrText, zeroTerm, strings);
   }
 
@@ -205,7 +220,8 @@ public final class DirectiveFactory {
     return newData(typeInfo, values);
   }
 
-  public Directive newData(final DirectiveTypeInfo typeInfo, final BigInteger[] values) {
+  public Directive newData(
+      final DirectiveTypeInfo typeInfo, final BigInteger[] values) {
     InvariantChecks.checkNotNull(typeInfo);
     InvariantChecks.checkNotEmpty(values);
 
@@ -243,7 +259,8 @@ public final class DirectiveFactory {
     return newDataValues(typeInfo, values);
   }
 
-  public Directive newDataValues(final DirectiveTypeInfo typeInfo, final List<Value> values) {
+  public Directive newDataValues(
+      final DirectiveTypeInfo typeInfo, final List<Value> values) {
     return new DirectiveDataValue(typeInfo, values);
   }
 

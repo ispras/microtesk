@@ -30,8 +30,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
   private final List<Label> labels;
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
-
-  private final Directive directive;
+  private final List<Directive> directives;
 
   private final PreparatorReference preparatorReference;
   private final DataSection data;
@@ -50,7 +49,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        null,
+        Collections.<Directive>emptyList(),
         null,
         data,
         null,
@@ -69,7 +68,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        null,
+        Collections.<Directive>emptyList(),
         null,
         null,
         null,
@@ -85,7 +84,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        null,
+        Collections.<Directive>emptyList(),
         null,
         null,
         null,
@@ -107,7 +106,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.singletonList(new Output(Output.Kind.COMMENT, comment)),
-        null,
+        Collections.<Directive>emptyList(),
         null,
         null,
         null,
@@ -125,7 +124,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        directive,
+        Collections.<Directive>singletonList(directive),
         null,
         null,
         null,
@@ -143,7 +142,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        null,
+        Collections.<Directive>emptyList(),
         null,
         null,
         expandAtomic(sequence),
@@ -176,7 +175,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         new ArrayList<Label>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        null,
+        Collections.<Directive>emptyList(),
         null,
         null,
         null,
@@ -191,7 +190,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
       final List<Label> labels,
       final List<LabelReference> labelRefs,
       final List<Output> outputs,
-      final Directive directive,
+      final List<Directive> directives,
       final PreparatorReference preparatorReference,
       final DataSection data,
       final List<AbstractCall> atomicSequence,
@@ -210,7 +209,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     this.labels = labels; // Modifiable to allow adding labels.
     this.labelRefs = Collections.unmodifiableList(labelRefs);
     this.outputs = Collections.unmodifiableList(outputs);
-    this.directive = directive;
+    this.directives = Collections.unmodifiableList(directives);
 
     this.preparatorReference = preparatorReference;
     this.data = data;
@@ -239,8 +238,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     this.labels = Label.copyAll(other.labels);
     this.labelRefs = LabelReference.copyAll(other.labelRefs);
     this.outputs = Output.copyAll(other.outputs);
-
-    this.directive = other.directive;
+    this.directives = Directive.copyAll(other.directives);
 
     this.preparatorReference = null != other.preparatorReference
         ? new PreparatorReference(other.preparatorReference) : null;
@@ -274,7 +272,7 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         && !isAllocatorAction()
         && labels.isEmpty()
         && outputs.isEmpty()
-        && null == directive;
+        && directives.isEmpty();
   }
 
   public Where getWhere() {
@@ -328,8 +326,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     return outputs;
   }
 
-  public Directive getDirective() {
-    return directive;
+  public List<Directive> getDirectives() {
+    return directives;
   }
 
   public LabelReference getTargetReference() {

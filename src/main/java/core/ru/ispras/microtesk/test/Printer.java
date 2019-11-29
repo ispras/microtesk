@@ -336,8 +336,8 @@ public final class Printer {
     }
 
     for (final ConcreteCall call : calls) {
-      if (call.getDirective() != null) {
-        printText(call.getDirective().getText());
+      for (final Directive directive : call.getDirectives()) {
+        printText(directive.getText());
       }
 
       printOutputs(model, call.getOutputs());

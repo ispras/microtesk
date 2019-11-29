@@ -37,8 +37,8 @@ public final class ConcreteCall {
   private final List<Label> labels;
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
+  private final List<Directive> directives;
   private final InstructionCall executable;
-  private final Directive directive;
   private final DataSection data;
 
   private final List<LocationAccessor> addressRefs;
@@ -76,8 +76,8 @@ public final class ConcreteCall {
     this.labels = Label.copyAll(abstractCall.getLabels());
     this.labelRefs = labelRefs;
     this.outputs = abstractCall.getOutputs();
+    this.directives = abstractCall.getDirectives();
     this.executable = executable;
-    this.directive = abstractCall.getDirective();
     this.data = null;
     this.addressRefs = addressRefs;
   }
@@ -89,8 +89,8 @@ public final class ConcreteCall {
     this.labels = Label.copyAll(abstractCall.getLabels());
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
+    this.directives = abstractCall.getDirectives();
     this.executable = null;
-    this.directive = abstractCall.getDirective();
     this.data = abstractCall.hasData() ? new DataSection(abstractCall.getData()) : null;
     this.addressRefs = Collections.emptyList();
   }
@@ -102,8 +102,8 @@ public final class ConcreteCall {
     this.labels = Collections.<Label>emptyList();
     this.labelRefs = Collections.<LabelReference>emptyList();
     this.outputs = Collections.<Output>emptyList();
+    this.directives = Collections.<Directive>emptyList();
     this.executable = executable;
-    this.directive = null;
     this.data = null;
     this.addressRefs = Collections.emptyList();
   }
@@ -149,8 +149,8 @@ public final class ConcreteCall {
     return null;
   }
 
-  public Directive getDirective() {
-    return directive;
+  public List<Directive> getDirectives() {
+    return directives;
   }
 
   public int getExecutionCount() {

@@ -30,8 +30,7 @@ public final class AbstractCallBuilder {
   private final List<Label> labels;
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
-
-  private Directive directive;
+  private final List<Directive> directives;
 
   private PreparatorReference preparatorReference;
 
@@ -45,7 +44,7 @@ public final class AbstractCallBuilder {
     this.labels = new ArrayList<>();
     this.labelRefs = new ArrayList<>();
     this.outputs = new ArrayList<>();
-    this.directive = null;
+    this.directives = new ArrayList<>();
     this.preparatorReference = null;
   }
 
@@ -90,9 +89,9 @@ public final class AbstractCallBuilder {
     outputs.add(output);
   }
 
-  public void setDirective(final Directive directive) {
+  public void addDirective(final Directive directive) {
     InvariantChecks.checkNotNull(directive);
-    this.directive = directive;
+    this.directives.add(directive);
   }
 
   public void setPreparatorReference(final PreparatorReference preparatorReference) {
@@ -108,7 +107,7 @@ public final class AbstractCallBuilder {
         labels,
         labelRefs,
         outputs,
-        directive,
+        directives,
         preparatorReference,
         null,
         null,

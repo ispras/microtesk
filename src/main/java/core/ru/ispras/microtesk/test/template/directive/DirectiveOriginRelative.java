@@ -21,7 +21,7 @@ import ru.ispras.microtesk.options.Options;
 
 import java.math.BigInteger;
 
-public final class DirectiveOriginRelative implements Directive {
+public final class DirectiveOriginRelative extends Directive {
   private final Options options;
   private final BigInteger delta;
   private BigInteger origin;
@@ -42,11 +42,6 @@ public final class DirectiveOriginRelative implements Directive {
   public String getText() {
     InvariantChecks.checkNotNull(origin, "Origin is not initialized.");
     return String.format(options.getValueAsString(Option.ORIGIN_FORMAT), origin);
-  }
-
-  @Override
-  public boolean needsIndent() {
-    return true;
   }
 
   @Override

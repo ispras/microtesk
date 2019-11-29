@@ -176,10 +176,8 @@ public final class CodeAllocator {
       call.resetExecutionCount();
 
       BigInteger callAddress = currentAddress;
-
-      final Directive directive = call.getDirective();
-      if (directive != null) {
-        callAddress = directive.apply(currentAddress, allocator);
+      for (final Directive directive : call.getDirectives()) {
+        callAddress = directive.apply(callAddress, allocator);
       }
 
       if (!callAddress.equals(currentAddress)) {
@@ -198,7 +196,7 @@ public final class CodeAllocator {
         // as a single sequence because empty space between them filled with zeros is
         // treated as NOPs. This assumption may be incorrect for other ISAs.
         // This situation must be handled in a more correct way. Probably, using decoder.
-        final boolean isAligned = directive != null;
+        final boolean isAligned = !call.getDirectives().isEmpty();
         final boolean isStartAddress = currentAddress.equals(address);
         startAddress = isAligned && !isStartAddress ? currentAddress : callAddress;
 

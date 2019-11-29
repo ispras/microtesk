@@ -21,10 +21,10 @@ import ru.ispras.microtesk.options.Options;
 
 import java.math.BigInteger;
 
-public final class DirectiveAlign implements Directive {
-  private final Options options;
-  private final BigInteger alignment;
-  private final BigInteger alignmentInBytes;
+public class DirectiveAlign extends Directive {
+  protected final Options options;
+  protected final BigInteger alignment;
+  protected final BigInteger alignmentInBytes;
 
   DirectiveAlign(
       final Options options,
@@ -45,18 +45,8 @@ public final class DirectiveAlign implements Directive {
   }
 
   @Override
-  public boolean needsIndent() {
-    return true;
-  }
-
-  @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
     return allocator.align(currentAddress, alignmentInBytes);
-  }
-
-  @Override
-  public Directive copy() {
-    return this;
   }
 
   @Override

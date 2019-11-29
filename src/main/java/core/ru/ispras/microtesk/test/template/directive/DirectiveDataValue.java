@@ -25,7 +25,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class DirectiveDataValue implements Directive {
+public final class DirectiveDataValue extends Directive {
   private final DirectiveTypeInfo typeInfo;
   private final List<Value> values;
 
@@ -73,11 +73,6 @@ public final class DirectiveDataValue implements Directive {
   }
 
   @Override
-  public boolean needsIndent() {
-    return true;
-  }
-
-  @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
     BigInteger current = currentAddress;
 
@@ -95,10 +90,5 @@ public final class DirectiveDataValue implements Directive {
       newValues.add(value.copy());
     }
     return new DirectiveDataValue(typeInfo, newValues);
-  }
-
-  @Override
-  public String toString() {
-    return getText();
   }
 }

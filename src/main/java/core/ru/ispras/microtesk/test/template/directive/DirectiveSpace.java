@@ -20,7 +20,7 @@ import ru.ispras.microtesk.model.memory.MemoryAllocator;
 
 import java.math.BigInteger;
 
-public final class DirectiveSpace implements Directive {
+public final class DirectiveSpace extends Directive {
   private final String text;
   private final BitVector data;
   private final int length;
@@ -40,22 +40,7 @@ public final class DirectiveSpace implements Directive {
   }
 
   @Override
-  public boolean needsIndent() {
-    return true;
-  }
-
-  @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
     return allocator.allocate(currentAddress, data, length).second;
-  }
-
-  @Override
-  public Directive copy() {
-    return this;
-  }
-
-  @Override
-  public String toString() {
-    return getText();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,21 +14,21 @@
 
 package ru.ispras.microtesk.test.template.directive;
 
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 
 import java.math.BigInteger;
 
-public class DirectiveText extends Directive {
-  private final String text;
-
-  DirectiveText(final String text) {
-    InvariantChecks.checkNotNull(text);
-    this.text = text;
+public class DirectiveAlignPower2 extends DirectiveAlign {
+  DirectiveAlignPower2(
+      final Options options,
+      final BigInteger alignment,
+      final BigInteger alignmentInBytes) {
+    super(options, alignment, alignmentInBytes);
   }
 
   @Override
   public String getText() {
-    return text;
+    return String.format(options.getValueAsString(Option.POWER2_ALIGN_FORMAT), alignment);
   }
 }
