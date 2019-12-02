@@ -841,7 +841,7 @@ class Template
   end
 
   #=================================================================================================
-  # Code Allocation Directives
+  # Assembler Directives (Code)
   #=================================================================================================
 
   def align(value)
@@ -857,7 +857,7 @@ class Template
   end
 
   def org(value)
-    @template.addDirective @directive.org(value), get_caller_location
+    @template.addDirective @directive.org(value, true), get_caller_location
   end
 
   def option(value)
@@ -1159,12 +1159,12 @@ class DataManager
   end
 
   def beginConfig(target, addressableSize)
-    @configurer = @manager.beginConfig target, addressableSize
+    @configurator = @manager.beginConfig target, addressableSize
   end
 
   def endConfig
     @manager.endConfig
-    @configurer = nil
+    @configurator = nil
   end
 
   def beginData(global, separate_file)
@@ -1183,26 +1183,36 @@ class DataManager
     end
   end
 
+  #=================================================================================================
+  # Assembler Directives (Data)
+  #=================================================================================================
+
   def align(value)
-    @builder.align value, 2 ** value
+    @builder.addDirective @directive.align(value)
   end
 
-  def org(origin)
-    if origin.is_a?(Integer)
-      @builder.setOrigin origin
-    elsif origin.is_a?(Hash)
-      delta = get_attribute origin, :delta
-      if !delta.is_a?(Integer)
-        raise "delta (#{delta}) must be an Integer."
-      end
-      @builder.setRelativeOrigin delta
-    else
-      raise "origin (#{origin}) must be an Integer or a Hash."
-    end
+  def balign(value)
+    @builder.addDirective @directive.balign(value)
   end
 
-  def type(*args)
-    Type.new *args
+  def p2align(value)
+    @builder.addDirective @directive.p2align(value)
+  end
+
+  def org(value)
+    @builder.addDirective @directive.org(value, false)
+  end
+
+  def option(value)
+    @builder.addDirective @directive.option(value)
+  end
+
+  def text(value)
+    @builder.addDirective @directive.text(value)
+  end
+
+  def comment(value)
+    @builder.addDirective @directive.comment(value)
   end
 
   def label(id)
@@ -1211,6 +1221,53 @@ class DataManager
 
   def global_label(id)
     @builder.addLabel id, true
+  end
+
+  def define_type(attrs)
+    id   = get_attribute attrs, :id
+    text = get_attribute attrs, :text
+    type = get_attribute attrs, :type
+    format = attrs.has_key?(:format) ? attrs[:format] : ''
+
+    @configurator.defineType id, text, type.name, type.args, format
+
+    p = lambda do |*arguments|
+      @builder.addDirective @directive._data(id, arguments)
+    end
+
+    define_method_for DataManager, id, 'type', p
+  end
+
+  def define_space(attrs)
+    id       = get_attribute attrs, :id
+    text     = get_attribute attrs, :text
+    fillWith = get_attribute attrs, :fill_with
+
+    @configurator.defineSpace id, text, fillWith
+
+    p = lambda do |length|
+      @builder.addDirective @directive._space(length)
+    end
+
+    define_method_for DataManager, id, 'space', p
+  end
+
+  def define_ascii_string(attrs)
+    id       = get_attribute attrs, :id
+    text     = get_attribute attrs, :text
+    zeroTerm = get_attribute attrs, :zero_term
+
+    @configurator.defineAsciiString id, text, zeroTerm
+
+    p = lambda do |*strings|
+      @builder.addDirective @directive._ascii(zeroTerm, strings)
+    end
+
+    define_method_for DataManager, id, 'string', p
+  end
+
+  def type(*args)
+    Type.new *args
   end
 
   def rand(from, to)
@@ -1223,65 +1280,6 @@ class DataManager
 
   def range(attrs = {})
     @template.range attrs
-  end
-
-  def define_type(attrs)
-    id   = get_attribute attrs, :id
-    text = get_attribute attrs, :text
-    type = get_attribute attrs, :type
-    format = attrs.has_key?(:format) ? attrs[:format] : ''
-
-    @configurer.defineType id, text, type.name, type.args, format
-
-    p = lambda do |*arguments|
-      dataBuilder = @builder.addDataValues id
-      arguments.each do |value|
-        if value.is_a?(Float) then
-          dataBuilder.addDouble value
-        else
-          dataBuilder.add value
-        end
-      end
-      dataBuilder.build
-    end
-
-    define_method_for DataManager, id, 'type', p
-  end
-
-  def define_space(attrs)
-    id       = get_attribute attrs, :id
-    text     = get_attribute attrs, :text
-    fillWith = get_attribute attrs, :fill_with
-
-    @configurer.defineSpace id, text, fillWith
-
-    p = lambda do |length|
-      @builder.addSpace length
-    end
-
-    define_method_for DataManager, id, 'space', p
-  end
-
-  def define_ascii_string(attrs)
-    id       = get_attribute attrs, :id
-    text     = get_attribute attrs, :text
-    zeroTerm = get_attribute attrs, :zero_term
-
-    @configurer.defineAsciiString id, text, zeroTerm
-
-    p = lambda do |*strings|
-      @builder.addAsciiStrings zeroTerm, strings
-    end
-
-    define_method_for DataManager, id, 'string', p
-  end
-
-  def text(value)
-    @builder.addText value
-  end
-
-  def comment(value)
-    @builder.addComment value
   end
 
   def value(*args)

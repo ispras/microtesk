@@ -41,7 +41,7 @@ import ru.ispras.microtesk.test.template.BufferPreparator;
 import ru.ispras.microtesk.test.template.BufferPreparatorStore;
 import ru.ispras.microtesk.test.template.directive.DirectiveFactory;
 import ru.ispras.microtesk.test.template.DataSectionBuilder;
-import ru.ispras.microtesk.test.template.DataSectionBuilder.DataValueBuilder;
+import ru.ispras.microtesk.test.template.directive.DirectiveFactory.DataValueBuilder;
 import ru.ispras.microtesk.test.template.MemoryPreparator;
 import ru.ispras.microtesk.test.template.MemoryPreparatorStore;
 import ru.ispras.microtesk.test.template.Primitive;
@@ -212,7 +212,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
 
       // FIXME: BigInteger -> BitVector
       dataSectionBuilder.setVirtualAddress(bufferAccessAddress.bigIntegerValue(false));
-      dataSectionBuilder.addComment(comment);
+      dataSectionBuilder.addDirective(dataDirectiveFactory.newComment(comment));
 
       final int maxItemSizeInBits = dataDirectiveFactory.getMaxTypeBitSize();
 
@@ -222,7 +222,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       }
 
       final DataValueBuilder dataValueBuilder =
-          dataSectionBuilder.addDataValuesForSize(itemSizeInBits);
+          dataDirectiveFactory.getDataValueBuilder(itemSizeInBits);
 
       for (int i = 0; i < sizeInBits; i += itemSizeInBits) {
         final BitVector item = entryValue.field(i, i + itemSizeInBits - 1);
@@ -235,7 +235,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
         entriesInDataSection.add(BitVector.valueOf(entryAddress, bufferAccessAddress.getBitSize()));
       }
 
-      dataValueBuilder.build();
+      dataSectionBuilder.addDirective(dataValueBuilder.build());
 
       final AbstractCall abstractCall = AbstractCall.newData(dataSectionBuilder.build());
       preparation.add(abstractCall);

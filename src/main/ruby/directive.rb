@@ -38,23 +38,65 @@ class Directive
     factory.newAlignPower2(value, 2 ** value)
   end
 
-  def org(origin)
+  def org(origin, is_code)
     factory = @template.getDirectiveFactory
     if origin.is_a?(Integer)
-      factory.newOriginAbsolute origin # Absolute
+      if is_code
+        factory.newOriginAbsolute origin # Absolute
+      else
+        factory.newOrigin origin # Section-Based
+      end
     elsif origin.is_a?(Hash)
       delta = get_attribute origin, :delta
       if !delta.is_a?(Integer)
         raise "delta (#{delta}) must be an Integer."
       end
-      factory.newOriginRelative delta  # Relative
+      factory.newOriginRelative delta # Relative
     else
       raise "origin (#{origin}) must be an Integer or a Hash."
     end
   end
 
   def option(value)
+    factory = @template.getDirectiveFactory
     factory.newOption(value)
+  end
+
+  def text(text)
+    factory = @template.getDirectiveFactory
+    factory.newText(text)
+  end
+
+  def comment(text)
+    factory = @template.getDirectiveFactory
+    factory.newComment(text)
+  end
+
+  #=================================================================================================
+  # The following directives are configured via data_config
+  #=================================================================================================
+
+  def _data(type, values)
+    factory = @template.getDirectiveFactory
+    dataBuilder = factory.getDataValueBuilder type
+    values.each do |value|
+      if value.is_a?(Float) then
+        dataBuilder.addDouble value
+      else
+        dataBuilder.add value
+      end
+    end
+    dataBuilder.build
+  end
+
+  def _space(length)
+    factory = @template.getDirectiveFactory
+    factory.newSpace(length)
+  end
+
+  def _ascii(zero_term, strings)
+    factory = @template.getDirectiveFactory
+    factory.newAsciiStrings(zero_term, strings)
   end
 
 end # Directives

@@ -77,28 +77,14 @@ public final class DataSectionBuilder {
     return separateFile;
   }
 
-  private void addDirective(final Directive directive) {
+  /**
+   * Adds the directive to the data section.
+   *
+   * @param directive Directive to be added.
+   */
+  public void addDirective(final Directive directive) {
     InvariantChecks.checkNotNull(directive);
     directives.add(directive);
-  }
-
-  /**
-   * Sets allocation origin. Inserts the ".org" directive in the test program.
-   *
-   * @param origin Origin value.
-   */
-  public void setOrigin(final BigInteger origin) {
-    addDirective(directiveFactory.newOrigin(origin));
-  }
-
-  /**
-   * Sets allocation origin related to the current address. The origin value is calculated
-   * depending on the context. Inserts the ".org" directive in the test program.
-   *
-   * @param delta Relative origin value.
-   */
-  public void setRelativeOrigin(final BigInteger delta) {
-    addDirective(directiveFactory.newOriginRelative(delta));
   }
 
   /**
@@ -113,16 +99,6 @@ public final class DataSectionBuilder {
     addDirective(directiveFactory.newOrigin(origin));
   }
 
-  /**
-   * Adds an alignment directive.
-   *
-   * @param value Alignment amount in addressable units.
-   * @param valueInBytes Alignment amount in bytes.
-   */
-  public void align(final BigInteger value, final BigInteger valueInBytes) {
-    addDirective(directiveFactory.newAlign(value, valueInBytes));
-  }
-
   public void addLabel(final String id, final boolean global) {
     final Label label = Label.newLabel(id, blockId);
     final LabelValue labelValue = LabelValue.newUnknown(label);
@@ -135,35 +111,9 @@ public final class DataSectionBuilder {
     labelValues.add(labelValue);
   }
 
-  public void addText(final String text) {
-    addDirective(directiveFactory.newText(text));
-  }
-
-  public void addComment(final String text) {
-    addDirective(directiveFactory.newComment(text));
-  }
-
-  public DataValueBuilder addDataValues(final String typeName) {
-    final DirectiveTypeInfo type = directiveFactory.findTypeInfo(typeName);
-    return new DataValueBuilder(type);
-  }
-
-  public DataValueBuilder addDataValuesForSize(final int typeBitSize) {
-    final DirectiveTypeInfo type = directiveFactory.findTypeInfo(typeBitSize);
-    return new DataValueBuilder(type);
-  }
-
   protected void addGeneratedData(
       final DirectiveTypeInfo typeInfo, final DataGenerator generator, final int count) {
     addDirective(directiveFactory.newData(typeInfo, generator, count));
-  }
-
-  public void addSpace(final int length) {
-    addDirective(directiveFactory.newSpace(length));
-  }
-
-  public void addAsciiStrings(final boolean zeroTerm, final String[] strings) {
-    addDirective(directiveFactory.newAsciiStrings(zeroTerm, strings));
   }
 
   public DataSection build() {
@@ -171,37 +121,4 @@ public final class DataSectionBuilder {
         labelValues, directives, physicalAddress, section, global, separateFile);
   }
 
-  public final class DataValueBuilder {
-    private final DirectiveTypeInfo type;
-    private final List<Value> values;
-
-    private DataValueBuilder(final DirectiveTypeInfo type) {
-      InvariantChecks.checkNotNull(type);
-
-      this.type = type;
-      this.values = new ArrayList<>();
-    }
-
-    public void add(final BigInteger value) {
-      InvariantChecks.checkNotNull(value);
-      values.add(new FixedValue(value));
-    }
-
-    public void add(final Value value) {
-      InvariantChecks.checkNotNull(value);
-      values.add(value);
-    }
-
-    public void addDouble(final double value) {
-      if (type.type.getBitSize() == 32) {
-        add(BigInteger.valueOf(Float.floatToIntBits((float) value)));
-      } else {
-        add(BigInteger.valueOf(Double.doubleToLongBits(value)));
-      }
-    }
-
-    public void build() {
-      addDirective(directiveFactory.newDataValues(type, values));
-    }
-  }
 }

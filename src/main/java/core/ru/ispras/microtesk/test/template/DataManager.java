@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import org.w3c.dom.TypeInfo;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Model;
@@ -130,7 +129,7 @@ public final class DataManager {
     final DataGenerator dataGenerator = DataGenerator.newInstance(method, typeInfo.type);
 
     dataBuilder.addLabel(labelName, false);
-    dataBuilder.addComment(String.format(" Address: 0x%016x", address));
+    dataBuilder.addDirective(factory.newComment(String.format(" Address: 0x%016x", address)));
 
     for (int index = 0; index < length; index += 4) {
       final int count = Math.min(length - index, 4);

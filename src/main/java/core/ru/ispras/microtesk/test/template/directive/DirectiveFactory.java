@@ -24,6 +24,7 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.template.DataGenerator;
+import ru.ispras.microtesk.test.template.FixedValue;
 import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.Value;
 
@@ -153,8 +154,7 @@ public final class DirectiveFactory {
           spaceText,
           spaceData,
           ztermStrText,
-          nztermStrText
-          );
+          nztermStrText);
     }
 
     private void debug(final String format, final Object... args) {
@@ -162,6 +162,50 @@ public final class DirectiveFactory {
         Logger.debug(format, args);
       }
     }
+  }
+
+  public final class DataValueBuilder {
+    private final DirectiveTypeInfo type;
+    private final List<Value> values;
+
+    private DataValueBuilder(final DirectiveTypeInfo type) {
+      InvariantChecks.checkNotNull(type);
+
+      this.type = type;
+      this.values = new ArrayList<>();
+    }
+
+    public void add(final BigInteger value) {
+      InvariantChecks.checkNotNull(value);
+      values.add(new FixedValue(value));
+    }
+
+    public void add(final Value value) {
+      InvariantChecks.checkNotNull(value);
+      values.add(value);
+    }
+
+    public void addDouble(final double value) {
+      if (type.type.getBitSize() == 32) {
+        add(BigInteger.valueOf(Float.floatToIntBits((float) value)));
+      } else {
+        add(BigInteger.valueOf(Double.doubleToLongBits(value)));
+      }
+    }
+
+    public Directive build() {
+      return newDataValues(type, values);
+    }
+  }
+
+  public DataValueBuilder getDataValueBuilder(final String typeName) {
+    final DirectiveTypeInfo type = findTypeInfo(typeName);
+    return new DataValueBuilder(type);
+  }
+
+  public DataValueBuilder getDataValueBuilder(final int typeBitSize) {
+    final DirectiveTypeInfo type = findTypeInfo(typeBitSize);
+    return new DataValueBuilder(type);
   }
 
   public Directive newText(final String text) {
