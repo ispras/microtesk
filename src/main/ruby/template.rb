@@ -807,15 +807,11 @@ class Template
     # Default value is 8 bits if other value is not explicitly specified
     addressableSize = attrs.has_key?(:item_size) ? attrs[:item_size] : 8
 
-    @data_manager = new_data_manager
+    @data_manager = DataManager.new(self)
     @data_manager.beginConfig target, addressableSize
 
     @data_manager.instance_eval &contents
     @data_manager.endConfig
-  end
-
-  def new_data_manager
-    DataManager.new(self)
   end
 
   def data(attrs = {}, &contents)
