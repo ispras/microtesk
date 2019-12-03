@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk;
 
+import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
 
@@ -53,7 +54,9 @@ final class RubyRunner {
     org.jruby.util.cli.Options.THREADPOOL_MAX.force(
         options.getValue(Option.JRUBY_THREAD_POOL_MAX).toString());
 
-    final ScriptingContainer container = new ScriptingContainer();
+    final ScriptingContainer container = new ScriptingContainer(LocalContextScope.THREADSAFE);
+
+    container.clear();
     container.setArgv(new String[] { templateFile });
     // This line is to write "requires 'base_template'" instead of "requires '../base_template'".
     container.setLoadPaths(Arrays.asList(new String[] {".", ".."}));
