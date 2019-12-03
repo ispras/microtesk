@@ -178,6 +178,7 @@ public final class CodeAllocator {
       BigInteger callAddress = currentAddress;
       for (final Directive directive : call.getDirectives()) {
         callAddress = directive.apply(callAddress, allocator);
+        Logger.debug("Directive: %s", directive.getText());
       }
 
       if (!callAddress.equals(currentAddress)) {
