@@ -1213,7 +1213,6 @@ public final class Template {
       }
     }
 
-    debug("Directive: %s", directive.getText());
     callBuilder.addDirective(directive);
     callBuilder.setWhere(where);
   }
