@@ -24,22 +24,22 @@ class Directive
   end
 
   def align(value)
-    factory = @template.getDirectiveFactory
+    factory = @template.get_directive_factory
     factory.newAlign(value, 2 ** value)
   end
 
   def balign(value)
-    factory = @template.getDirectiveFactory
+    factory = @template.get_directive_factory
     factory.newAlignByte(value)
   end
 
   def p2align(value)
-    factory = @template.getDirectiveFactory
+    factory = @template.get_directive_factory
     factory.newAlignPower2(value, 2 ** value)
   end
 
   def org(origin, is_code)
-    factory = @template.getDirectiveFactory
+    factory = @template.get_directive_factory
     if origin.is_a?(Integer)
       if is_code
         factory.newOriginAbsolute origin # Absolute
@@ -58,17 +58,17 @@ class Directive
   end
 
   def option(value)
-    factory = @template.getDirectiveFactory
+    factory = @template.get_directive_factory
     factory.newOption(value)
   end
 
   def text(text)
-    factory = @template.getDirectiveFactory
+    factory = @template.get_directive_factory
     factory.newText(text)
   end
 
   def comment(text)
-    factory = @template.getDirectiveFactory
+    factory = @template.get_directive_factory
     factory.newComment(text)
   end
 
@@ -76,9 +76,9 @@ class Directive
   # The following directives are configured via data_config
   #=================================================================================================
 
-  def _data(type, values)
-    factory = @template.getDirectiveFactory
-    dataBuilder = factory.getDataValueBuilder type
+  def data(type, values)
+    factory = @template.get_directive_factory
+    dataBuilder = factory.getDataValueBuilder type.to_s
     values.each do |value|
       if value.is_a?(Float) then
         dataBuilder.addDouble value
@@ -89,14 +89,20 @@ class Directive
     dataBuilder.build
   end
 
-  def _space(length)
-    factory = @template.getDirectiveFactory
+  def space(length)
+    factory = @template.get_directive_factory
     factory.newSpace(length)
   end
 
-  def _ascii(zero_term, strings)
-    factory = @template.getDirectiveFactory
+  def ascii(zero_term, strings)
+    factory = @template.get_directive_factory
     factory.newAsciiStrings(zero_term, strings)
+  end
+
+  #=================================================================================================
+
+  def method_missing(meth, *args, &block)
+    raise "Unknown directive '#{meth}'"
   end
 
 end # Directives

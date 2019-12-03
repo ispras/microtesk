@@ -807,20 +807,20 @@ class Template
     # Default value is 8 bits if other value is not explicitly specified
     addressableSize = attrs.has_key?(:item_size) ? attrs[:item_size] : 8
 
-    @data_manager = new_data_manager self, @template.getDataManager
+    @data_manager = new_data_manager
     @data_manager.beginConfig target, addressableSize
 
     @data_manager.instance_eval &contents
     @data_manager.endConfig
   end
 
-  def new_data_manager(template, manager)
+  def new_data_manager
     DataManager.new(self, @template.getDataManager)
   end
 
   def data(attrs = {}, &contents)
     if nil == @data_manager
-      raise "Data configuration is not defined"
+      raise "Data configuration is undefined"
     end
 
     if attrs.has_key?(:global)
@@ -1005,7 +1005,7 @@ class Template
 
     TemplateBuilder.define_runtime_methods engine.getModel.getMetaData
     @template = engine.newTemplate
-    @directive = Directive.new(@template)
+    @directive = Directive.new(self)
 
     @template.beginPreSection
     pre
@@ -1018,6 +1018,10 @@ class Template
     @template.beginMainSection
     run
     @template.endMainSection
+  end
+
+  def get_directive_factory
+    @template.getDirectiveFactory
   end
 
   def set_option_value(name, value)
@@ -1153,6 +1157,7 @@ class DataManager
   def initialize(template, manager)
     @template = template
     @manager = manager
+    @directive = Directive.new(template)
 
     @builder = nil
     @ref_count = 0
@@ -1231,8 +1236,8 @@ class DataManager
 
     @configurator.defineType id, text, type.name, type.args, format
 
-    p = lambda do |*arguments|
-      @builder.addDirective @directive._data(id, arguments)
+    p = lambda do |*values|
+      @builder.addDirective @directive.data(id, values)
     end
 
     define_method_for DataManager, id, 'type', p
@@ -1246,7 +1251,7 @@ class DataManager
     @configurator.defineSpace id, text, fillWith
 
     p = lambda do |length|
-      @builder.addDirective @directive._space(length)
+      @builder.addDirective @directive.space(length)
     end
 
     define_method_for DataManager, id, 'space', p
@@ -1260,7 +1265,7 @@ class DataManager
     @configurator.defineAsciiString id, text, zeroTerm
 
     p = lambda do |*strings|
-      @builder.addDirective @directive._ascii(zeroTerm, strings)
+      @builder.addDirective @directive.ascii(zeroTerm, strings)
     end
 
     define_method_for DataManager, id, 'string', p
