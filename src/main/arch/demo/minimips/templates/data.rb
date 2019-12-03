@@ -82,6 +82,17 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
     sw t5, 0, t0
     sw t1, 0, t4
 
+    j :data_end
+
+    # Data within the text
+    byte    1, 2, 3, 4
+    half    0xDEAD, 0xBEEF
+    word    0xDEADBEEF
+    ascii   'Hello'
+    asciiz  'World'
+    space   6
+
+    label :data_end
     trace_memory
 
     data(:separate_file => true){

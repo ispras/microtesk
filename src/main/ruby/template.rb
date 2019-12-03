@@ -1237,7 +1237,7 @@ class DataManager
     define_method_for DataManager, id, 'type', p
 
     # Defining data in code sections
-    p = lambda { |*values| @template.template.addDirective @directive.data(id, values) }
+    p = lambda { |*values| @template.addDirective @directive.data(id, values), get_caller_location }
     define_method_for Template, id, 'type', p
   end
 
@@ -1253,23 +1253,23 @@ class DataManager
     define_method_for DataManager, id, 'space', p
 
     # Defining data in code sections
-    p = lambda { |length| @template.template.addDirective @directive.space(length) }
+    p = lambda { |length| @template.addDirective @directive.space(length), get_caller_location }
     define_method_for Template, id, 'space', p
   end
 
   def define_ascii_string(attrs)
-    id       = get_attribute attrs, :id
-    text     = get_attribute attrs, :text
-    zeroTerm = get_attribute attrs, :zero_term
+    id    = get_attribute attrs, :id
+    text  = get_attribute attrs, :text
+    zterm = get_attribute attrs, :zero_term
 
-    @configurator.defineAsciiString id, text, zeroTerm
+    @configurator.defineAsciiString id, text, zterm
 
     # Define data in data sections
-    p = lambda { |*strings| @builder.addDirective @directive.ascii(zeroTerm, strings) }
+    p = lambda { |*strings| @builder.addDirective @directive.ascii(zterm, strings) }
     define_method_for DataManager, id, 'string', p
 
     # Define data in data sections
-    p = lambda { |*strings| @template.template.addDirective @directive.ascii(zeroTerm, strings) }
+    p = lambda { |*strings| @template.addDirective @directive.ascii(zterm, strings), get_caller_location }
     define_method_for Template, id, 'string', p
   end
 

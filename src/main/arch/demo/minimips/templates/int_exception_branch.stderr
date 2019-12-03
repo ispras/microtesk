@@ -1,5 +1,0 @@
-WARNING: An illegal reflective access operation has occurred
-WARNING: Illegal reflective access by org.jruby.util.io.ChannelDescriptor (file:/home/kamkin/work/microtesk/build/target/lib/jars/jruby-complete-1.7.25.jar) to method sun.nio.ch.SelChImpl.getFD()
-WARNING: Please consider reporting this to the maintainers of org.jruby.util.io.ChannelDescriptor
-WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
-WARNING: All illegal access operations will be denied in a future release
