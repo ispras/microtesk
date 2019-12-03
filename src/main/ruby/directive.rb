@@ -24,22 +24,22 @@ class Directive
   end
 
   def align(value)
-    factory = @template.get_directive_factory
+    factory = @template.template.getDirectiveFactory
     factory.newAlign(value, 2 ** value)
   end
 
   def balign(value)
-    factory = @template.get_directive_factory
+    factory = @template.template.getDirectiveFactory
     factory.newAlignByte(value)
   end
 
   def p2align(value)
-    factory = @template.get_directive_factory
+    factory = @template.template.getDirectiveFactory
     factory.newAlignPower2(value, 2 ** value)
   end
 
   def org(origin, is_code)
-    factory = @template.get_directive_factory
+    factory = @template.template.getDirectiveFactory
     if origin.is_a?(Integer)
       if is_code
         factory.newOriginAbsolute origin # Absolute
@@ -49,26 +49,26 @@ class Directive
     elsif origin.is_a?(Hash)
       delta = get_attribute origin, :delta
       if !delta.is_a?(Integer)
-        raise "delta (#{delta}) must be an Integer."
+        raise "delta (#{delta}) must be an Integer"
       end
       factory.newOriginRelative delta # Relative
     else
-      raise "origin (#{origin}) must be an Integer or a Hash."
+      raise "origin (#{origin}) must be an Integer or a Hash"
     end
   end
 
   def option(value)
-    factory = @template.get_directive_factory
+    factory = @template.template.getDirectiveFactory
     factory.newOption(value)
   end
 
   def text(text)
-    factory = @template.get_directive_factory
+    factory = @template.template.getDirectiveFactory
     factory.newText(text)
   end
 
   def comment(text)
-    factory = @template.get_directive_factory
+    factory = @template.template.getDirectiveFactory
     factory.newComment(text)
   end
 
@@ -77,7 +77,7 @@ class Directive
   #=================================================================================================
 
   def data(type, values)
-    factory = @template.get_directive_factory
+    factory = @template.template.getDirectiveFactory
     dataBuilder = factory.getDataValueBuilder type.to_s
     values.each do |value|
       if value.is_a?(Float) then
@@ -90,19 +90,19 @@ class Directive
   end
 
   def space(length)
-    factory = @template.get_directive_factory
+    factory = @template.template.getDirectiveFactory
     factory.newSpace(length)
   end
 
   def ascii(zero_term, strings)
-    factory = @template.get_directive_factory
+    factory = @template.template.getDirectiveFactory
     factory.newAsciiStrings(zero_term, strings)
   end
 
   #=================================================================================================
 
   def method_missing(meth, *args, &block)
-    raise "Unknown directive '#{meth}'"
+    raise "Unknown assembler directive '#{meth}'"
   end
 
 end # Directives

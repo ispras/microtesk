@@ -58,7 +58,7 @@ class Template
     raise "Failed to parse #{at}."
   end
 
-  # Hack to allow limited use of capslocked characters
+  # Hack to allow limited use of caps-locked characters
   def method_missing(meth, *args, &block)
     if self.respond_to?(meth.to_s.downcase)
       self.send meth.to_s.downcase.to_sym, *args, &block
@@ -78,7 +78,7 @@ class Template
     if !Template.method_defined?(method_name)
       Template.send(:define_method, method_name, &method_body)
     else
-      puts "Error: Failed to define the #{method_name} method."
+      puts "Error: Failed to define the #{method_name} method"
     end
   end
 
@@ -93,7 +93,7 @@ class Template
 
   # Main part
   def run
-    puts "MicroTESK [Ruby] Warning: Trying to execute the original Template#run."
+    puts "MicroTESK [Ruby] Warning: Trying to execute the original Template#run"
   end
 
   # Epilogue
@@ -180,7 +180,7 @@ class Template
   def label(name)
     if name.is_a?(Integer)
       if !name.between?(0, 9)
-        raise "#{name} is must be within the range 0..9."
+        raise "#{name} is must be within the range 0..9"
       end
       @template.addNumericLabel name
     else
@@ -230,7 +230,7 @@ class Template
 
   def get_new_situation(name, attrs, kind)
     if !attrs.is_a?(Hash)
-      raise "attrs (#{attrs}) must be a Hash."
+      raise "attrs (#{attrs}) must be a Hash"
     end
 
     builder = @template.newSituation name, kind
@@ -250,7 +250,7 @@ class Template
 
   def get_allocation_data(allocator, attrs)
     if !attrs.is_a?(Hash)
-      raise "attrs (#{attrs}) must be a Hash."
+      raise "attrs (#{attrs}) must be a Hash"
     end
 
     retain = attrs[:retain]
@@ -282,7 +282,7 @@ class Template
 
   def set_default_situation(names, &situations)
     if !names.is_a?(String) and !names.is_a?(Array)
-      raise "#{names} must be String or Array."
+      raise "#{names} must be String or Array"
     end
 
     default_situation = @situation_manager.instance_eval &situations
@@ -302,7 +302,7 @@ class Template
       distribution = args.at(0)
 
       if !distribution.is_a?(Dist)
-        raise "the argument must be a distribution."
+        raise "the argument must be a distribution"
       end
 
       @template.newRandom distribution.java_object
@@ -311,12 +311,12 @@ class Template
       to = args.at(1)
 
       if !from.is_a?(Integer) or !to.is_a?(Integer)
-        raise "the arguments must be integers."
+        raise "the arguments must be integers"
       end
 
       @template.newRandom from, to
     else
-      raise "Wrong argument count: #{args.count}. Must be 1 or 2."
+      raise "Wrong argument count: #{args.count}. Must be 1 or 2"
     end
   end
 
@@ -324,13 +324,13 @@ class Template
   # (biased generation). Methods arguments specify ranges of values with corresponding biases.
   def dist(*ranges)
     if !ranges.is_a?(Array)
-      raise "#{ranges} is not an Array."
+      raise "#{ranges} is not an Array"
     end
 
     builder = @template.newVariateBuilder
     ranges.each do |range_item|
       if !range_item.is_a?(ValueRange)
-        raise "#{range_item} is not a ValueRange."
+        raise "#{range_item} is not a ValueRange"
       end
 
       value = range_item.value
@@ -372,11 +372,11 @@ class Template
   # If the bias attribute is not specified, it will be set to nil, which means the default bias.
   def range(attrs = {})
     if !attrs.is_a?(Hash)
-      raise "#{attrs} is not a Hash."
+      raise "#{attrs} is not a Hash"
     end
 
     if !attrs.has_key?(:value)
-      raise "The :value attribute is not specified in #{attrs}."
+      raise "The :value attribute is not specified in #{attrs}"
     end
     value = attrs[:value]
 
@@ -384,7 +384,7 @@ class Template
     if attrs.has_key?(:bias)
       bias = attrs[:bias]
       if !bias.is_a?(Integer)
-        raise "#{bias} is not an Integer."
+        raise "#{bias} is not an Integer"
       end
     end
 
@@ -401,7 +401,7 @@ class Template
     end
 
     if !attrs.is_a?(Hash)
-      raise "#{attrs} is not a Hash."
+      raise "#{attrs} is not a Hash"
     end
 
     allocation_data = get_allocation_data allocator, attrs
@@ -455,7 +455,7 @@ class Template
 
   def define_mode_group(name, distribution)
     if !distribution.is_a?(Dist)
-      raise "#{distribution} is not a distribution."
+      raise "#{distribution} is not a distribution"
     end
 
     @template.defineGroup name, distribution.java_object
@@ -464,7 +464,7 @@ class Template
 
   def define_op_group(name, distribution)
     if !distribution.is_a?(Dist)
-      raise "#{distribution} is not a distribution."
+      raise "#{distribution} is not a distribution"
     end
 
     @template.defineGroup name, distribution.java_object
@@ -595,7 +595,7 @@ class Template
     arguments = attrs[:arguments]
     if !arguments.nil?
       if !arguments.is_a?(Hash)
-        raise "#{arguments} is not a Hash."
+        raise "#{arguments} is not a Hash"
       end
 
       arguments.each_pair do |name, value|
@@ -630,7 +630,7 @@ class Template
 
   def value(*args)
     if args.count != 0 and args.count != 2
-      raise "Wrong argument count: #{args.count}. Must be 0 or 2."
+      raise "Wrong argument count: #{args.count}. Must be 0 or 2"
     end
 
     if args.count == 2
@@ -729,7 +729,7 @@ class Template
 
   def address(*args)
     if args.count != 0 and args.count != 2
-      raise "Wrong argument count: #{args.count}. Must be 0 or 2."
+      raise "Wrong argument count: #{args.count}. Must be 0 or 2"
     end
 
     reference = AddressReference.new @template
@@ -742,7 +742,7 @@ class Template
 
   def entry(*args)
     if args.count != 0 and args.count != 2
-      raise "Wrong argument count: #{args.count}. Must be 0 or 2."
+      raise "Wrong argument count: #{args.count}. Must be 0 or 2"
     end
 
     reference = BufferEntryReference.new @template
@@ -815,7 +815,7 @@ class Template
   end
 
   def new_data_manager
-    DataManager.new(self, @template.getDataManager)
+    DataManager.new(self)
   end
 
   def data(attrs = {}, &contents)
@@ -941,7 +941,7 @@ class Template
       builder.setVa va.to_s
       is_va_label = true
     else
-      raise "The 'va' attribute has unsupported type #{va.class}."
+      raise "The 'va' attribute has unsupported type #{va.class}"
     end
 
     if !is_va_label
@@ -953,7 +953,7 @@ class Template
       elsif pa.is_a?(String) or pa.is_a?(Symbol)
         builder.setPa pa.to_s
       else
-        raise "The 'pa' attribute has unsupported type #{pa.class}."
+        raise "The 'pa' attribute has unsupported type #{pa.class}"
       end
     end
 
@@ -1020,10 +1020,6 @@ class Template
     @template.endMainSection
   end
 
-  def get_directive_factory
-    @template.getDirectiveFactory
-  end
-
   def set_option_value(name, value)
     java_import Java::Ru.ispras.microtesk.test.TestEngine
     engine = TestEngine.getInstance
@@ -1069,11 +1065,11 @@ class Template
 
   def numeric_label_ref(index, forward)
     if !index.is_a?(Integer)
-      raise "#{index} is not an Integer."
+      raise "#{index} is not an Integer"
     end
 
     if !index.between?(0, 9)
-      raise "#{index} is must be within the range 0..9."
+      raise "#{index} is must be within the range 0..9"
     end
 
     @template.newNumericLabelRef index, forward
@@ -1137,7 +1133,7 @@ class SituationManager
     if @template.respond_to?(meth)
       @template.send meth, *args, &block
     else
-      raise "Method '#{meth}' is not available in data sections."
+      raise "Method '#{meth}' is not available in data sections"
     end
   end
 end # SituationManager
@@ -1154,9 +1150,9 @@ class DataManager
     end
   end # Type
 
-  def initialize(template, manager)
+  def initialize(template)
     @template = template
-    @manager = manager
+    @manager = template.template.getDataManager
     @directive = Directive.new(template)
 
     @builder = nil
@@ -1236,11 +1232,13 @@ class DataManager
 
     @configurator.defineType id, text, type.name, type.args, format
 
-    p = lambda do |*values|
-      @builder.addDirective @directive.data(id, values)
-    end
-
+    # Defining data in data sections
+    p = lambda { |*values| @builder.addDirective @directive.data(id, values) }
     define_method_for DataManager, id, 'type', p
+
+    # Defining data in code sections
+    p = lambda { |*values| @template.template.addDirective @directive.data(id, values) }
+    define_method_for Template, id, 'type', p
   end
 
   def define_space(attrs)
@@ -1250,11 +1248,13 @@ class DataManager
 
     @configurator.defineSpace id, text, fillWith
 
-    p = lambda do |length|
-      @builder.addDirective @directive.space(length)
-    end
-
+    # Defining data in data sections
+    p = lambda { |length| @builder.addDirective @directive.space(length) }
     define_method_for DataManager, id, 'space', p
+
+    # Defining data in code sections
+    p = lambda { |length| @template.template.addDirective @directive.space(length) }
+    define_method_for Template, id, 'space', p
   end
 
   def define_ascii_string(attrs)
@@ -1264,11 +1264,13 @@ class DataManager
 
     @configurator.defineAsciiString id, text, zeroTerm
 
-    p = lambda do |*strings|
-      @builder.addDirective @directive.ascii(zeroTerm, strings)
-    end
-
+    # Define data in data sections
+    p = lambda { |*strings| @builder.addDirective @directive.ascii(zeroTerm, strings) }
     define_method_for DataManager, id, 'string', p
+
+    # Define data in data sections
+    p = lambda { |*strings| @template.template.addDirective @directive.ascii(zeroTerm, strings) }
+    define_method_for Template, id, 'string', p
   end
 
   def type(*args)
@@ -1300,7 +1302,7 @@ class DataManager
     if @template.respond_to?(meth) and not Template.instance_methods.include?(meth)
       @template.send meth, *args, &block
     else
-      raise "Method '#{meth}' is not available in data sections."
+      raise "Method '#{meth}' is not available in data sections"
     end
   end
 end # DataManager
@@ -1408,7 +1410,7 @@ class BufferEntryReference < WrappedObject
 
   def method_missing(meth, *args)
     if args.count != 0 and args.count != 2
-      raise "Wrong argument count: #{args.count}. Must be 0 or 2."
+      raise "Wrong argument count: #{args.count}. Must be 0 or 2"
     end
 
     if args.count == 2
@@ -1463,14 +1465,14 @@ class PageTable
 
     if attrs.is_a?(Hash)
       unless defined? @preparator
-        raise "page_table_preparator is not defined."
+        raise "page_table_preparator is not defined"
       end
 
       prep = @preparator
       @data_manager.instance_exec(Entry.new(attrs), &prep)
     elsif attrs.is_a?(MemoryObject)
       unless defined? @adapter
-        raise "page_table_adapter is not defined."
+        raise "page_table_adapter is not defined"
       end
       @adapter.call attrs
     else
@@ -1481,14 +1483,14 @@ class PageTable
   class Entry
     def initialize(attrs)
       if !attrs.is_a?(Hash)
-        raise "attrs (#{attrs}) must be a Hash."
+        raise "attrs (#{attrs}) must be a Hash"
       end
       @attrs = attrs
     end
 
     def method_missing(name, *args)
       if args.count != 0
-        raise "Wrong argument count: #{args.count}. Must be 0."
+        raise "Wrong argument count: #{args.count}. Must be 0"
       end
       @attrs[name.to_sym]
     end
