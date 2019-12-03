@@ -169,24 +169,29 @@ public final class CodeAllocator {
     int startIndex = 0;
     int currentIndex = startIndex;
 
-    BigInteger startAddress = address;
-    BigInteger currentAddress = startAddress;
+    BigInteger startVa = address;
+
+    BigInteger currentVa = startVa;
+    BigInteger currentPa = section.virtualToPhysical(currentVa);
 
     for (final ConcreteCall call : calls) {
       call.resetExecutionCount();
 
-      BigInteger callAddress = currentAddress;
+      // Memory allocation is based on physical addresses.
+      BigInteger callPa = currentPa;
+
       for (final Directive directive : call.getDirectives()) {
-        callAddress = directive.apply(callAddress, allocator);
+        callPa = directive.apply(callPa, allocator);
         Logger.debug("Directive: %s", directive.getText());
       }
 
-      if (!callAddress.equals(currentAddress)) {
+      if (!callPa.equals(currentPa)) {
         if (startIndex != currentIndex) {
+          // Code representation is based on virtual addresses.
           final CodeBlock block = new CodeBlock(
               calls.subList(startIndex, currentIndex),
-              startAddress.longValue(),
-              currentAddress.longValue());
+              startVa.longValue(),
+              currentVa.longValue());
 
           getCode().registerBlock(block);
           startIndex = currentIndex;
@@ -198,34 +203,36 @@ public final class CodeAllocator {
         // treated as NOPs. This assumption may be incorrect for other ISAs.
         // This situation must be handled in a more correct way. Probably, using decoder.
         final boolean isAligned = !call.getDirectives().isEmpty();
-        final boolean isStartAddress = currentAddress.equals(address);
-        startAddress = isAligned && !isStartAddress ? currentAddress : callAddress;
+        final boolean isStartAddress = currentVa.equals(address);
+        final BigInteger callVa = section.physicalToVirtual(callPa);
+        startVa = isAligned && !isStartAddress ? currentVa : callVa;
 
-        currentAddress = callAddress;
+        currentVa = callVa;
+        currentPa = callPa;
       }
 
-      // Set the instruction call address.
-      call.setAddress(currentAddress);
+      // Set the instruction call virtual address.
+      call.setAddress(currentVa);
 
       // Allocate the instruction call image in memory.
-      final BigInteger physicalAddress = section.virtualToPhysical(currentAddress);
-
       if (call.isExecutable()) {
         final BitVector image = BitVector.valueOf(call.getImage());
         final int imageSize = allocator.bitsToAddressableUnits(image.getBitSize());
 
         if (Logger.isDebug()) {
           Logger.debug("0x%016x (PA): %s (0x%s)",
-              physicalAddress, call.getText(), image.toHexString(true));
+              currentPa, call.getText(), image.toHexString(true));
         }
 
-        allocator.allocateAt(physicalAddress, image);
+        allocator.allocateAt(currentPa, image);
 
         final BigInteger delta = BigInteger.valueOf(imageSize);
-        section.setPa(physicalAddress.add(delta));
-        currentAddress = currentAddress.add(delta);
+        section.setPa(currentPa.add(delta));
+
+        currentVa = currentVa.add(delta);
+        currentPa = currentPa.add(delta);
       } else {
-        section.setPa(physicalAddress);
+        section.setPa(currentPa);
       }
 
       currentIndex++;
@@ -233,11 +240,11 @@ public final class CodeAllocator {
 
     final CodeBlock block = new CodeBlock(
         startIndex == 0 ? calls : calls.subList(startIndex, currentIndex),
-        startAddress.longValue(),
-        currentAddress.longValue());
+        startVa.longValue(),
+        currentVa.longValue());
 
     getCode().registerBlock(block);
-    address = currentAddress;
+    address = currentVa;
   }
 
   private void registerLabels(final List<ConcreteCall> calls, final int sequenceIndex) {
