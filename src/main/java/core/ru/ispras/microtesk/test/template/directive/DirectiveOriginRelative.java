@@ -40,8 +40,9 @@ public final class DirectiveOriginRelative extends Directive {
 
   @Override
   public String getText() {
-    InvariantChecks.checkNotNull(origin, "Origin is not initialized.");
-    return String.format(options.getValueAsString(Option.ORIGIN_FORMAT), origin);
+    return origin != null
+        ? String.format(options.getValueAsString(Option.ORIGIN_FORMAT), origin)
+        : String.format(options.getValueAsString(Option.ORIGIN_FORMAT) + " (relative)", delta);
   }
 
   @Override
@@ -55,12 +56,5 @@ public final class DirectiveOriginRelative extends Directive {
   @Override
   public Directive copy() {
     return new DirectiveOriginRelative(options, delta, origin);
-  }
-
-  @Override
-  public String toString() {
-    return origin != null
-        ? getText()
-        : String.format(options.getValueAsString(Option.ORIGIN_FORMAT) + " (relative)", delta);
   }
 }
