@@ -133,7 +133,7 @@ public final class DataManager {
 
     for (int index = 0; index < length; index += 4) {
       final int count = Math.min(length - index, 4);
-      dataBuilder.addGeneratedData(typeInfo, dataGenerator, count);
+      dataBuilder.addGeneratedData(typeInfo, dataGenerator, count, true);
     }
 
     return dataBuilder.build();

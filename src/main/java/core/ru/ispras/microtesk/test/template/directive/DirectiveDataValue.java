@@ -28,15 +28,18 @@ import java.util.List;
 public final class DirectiveDataValue extends Directive {
   private final DirectiveTypeInfo typeInfo;
   private final List<Value> values;
+  private final boolean align;
 
   DirectiveDataValue(
       final DirectiveTypeInfo typeInfo,
-      final List<Value> values) {
+      final List<Value> values,
+      final boolean align) {
     InvariantChecks.checkNotNull(typeInfo);
     InvariantChecks.checkNotEmpty(values);
 
     this.typeInfo = typeInfo;
     this.values = values;
+    this.align = align;
   }
 
   private BitVector toBitVector(final Value value) {
@@ -77,7 +80,7 @@ public final class DirectiveDataValue extends Directive {
     BigInteger current = currentAddress;
 
     for (final Value value : values) {
-      current = allocator.allocate(current, toBitVector(value)).second;
+      current = allocator.allocate(current, toBitVector(value), align).second;
     }
 
     return current;
@@ -89,6 +92,6 @@ public final class DirectiveDataValue extends Directive {
     for (final Value value : values) {
       newValues.add(value.copy());
     }
-    return new DirectiveDataValue(typeInfo, newValues);
+    return new DirectiveDataValue(typeInfo, newValues, align);
   }
 }

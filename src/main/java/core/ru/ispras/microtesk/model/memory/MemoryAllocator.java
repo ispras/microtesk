@@ -161,11 +161,30 @@ public final class MemoryAllocator {
    */
   public Pair<BigInteger, BigInteger> allocate(
       final BigInteger currentAddress, final BitVector data) {
+    return allocate(currentAddress, data, true);
+  }
+
+  /**
+   * Allocates memory in the memory storage to hold the specified data and returns its address (in
+   * addressable units). The data may be aligned in the memory by its size (in addressable units).
+   * Space between allocations is filled with zeros.
+   *
+   * @param currentAddress Current address.
+   * @param data Data to be stored in the memory storage.
+   * @param align Alignment flag.
+   * @return Address of the allocated memory (in addressable units) and the current address.
+   *
+   * @throws IllegalArgumentException if the parameter is {@code null}.
+   */
+  public Pair<BigInteger, BigInteger> allocate(
+      final BigInteger currentAddress, final BitVector data, final boolean align) {
     InvariantChecks.checkNotNull(data);
     final int dataBitSize = data.getBitSize();
 
     final int sizeInAddressableUnits = bitsToAddressableUnits(dataBitSize);
-    final BigInteger address = alignAddress(currentAddress, sizeInAddressableUnits);
+    final BigInteger address = align
+        ? alignAddress(currentAddress, sizeInAddressableUnits)
+        : currentAddress;
 
     allocateAt(address, data);
 

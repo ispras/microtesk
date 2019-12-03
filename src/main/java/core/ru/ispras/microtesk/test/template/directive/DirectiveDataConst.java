@@ -24,15 +24,18 @@ import java.util.List;
 public final class DirectiveDataConst extends Directive {
   private final String typeText;
   private final List<BitVector> values;
+  private final boolean align;
 
   DirectiveDataConst(
       final String typeText,
-      final List<BitVector> values) {
+      final List<BitVector> values,
+      final boolean align) {
     InvariantChecks.checkNotNull(typeText);
     InvariantChecks.checkNotEmpty(values);
 
     this.typeText = typeText;
     this.values = values;
+    this.align = align;
   }
 
   @Override
@@ -59,7 +62,7 @@ public final class DirectiveDataConst extends Directive {
     BigInteger current = currentAddress;
 
     for (final BitVector value : values) {
-      current = allocator.allocate(current, value).second;
+      current = allocator.allocate(current, value, align).second;
     }
 
     return current;

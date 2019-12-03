@@ -222,7 +222,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
       }
 
       final DataValueBuilder dataValueBuilder =
-          dataDirectiveFactory.getDataValueBuilder(itemSizeInBits);
+          dataDirectiveFactory.getDataValueBuilder(itemSizeInBits, true);
 
       for (int i = 0; i < sizeInBits; i += itemSizeInBits) {
         final BitVector item = entryValue.field(i, i + itemSizeInBits - 1);

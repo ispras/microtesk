@@ -76,9 +76,9 @@ class Directive
   # The following directives are configured via data_config
   #=================================================================================================
 
-  def data(type, values)
+  def data(type, values, align)
     factory = @template.template.getDirectiveFactory
-    dataBuilder = factory.getDataValueBuilder type.to_s
+    dataBuilder = factory.getDataValueBuilder type.to_s, align
     values.each do |value|
       if value.is_a?(Float) then
         dataBuilder.addDouble value

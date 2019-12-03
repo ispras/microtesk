@@ -1225,19 +1225,21 @@ class DataManager
   end
 
   def define_type(attrs)
-    id   = get_attribute attrs, :id
-    text = get_attribute attrs, :text
-    type = get_attribute attrs, :type
+    id     = get_attribute attrs, :id
+    text   = get_attribute attrs, :text
+    type   = get_attribute attrs, :type
     format = attrs.has_key?(:format) ? attrs[:format] : ''
+    align  = attrs.has_key?(:align)  ? attrs[:align] : true
 
     @configurator.defineType id, text, type.name, type.args, format
 
     # Defining data in data sections
-    p = lambda { |*values| @builder.addDirective @directive.data(id, values) }
+    p = lambda { |*values| @builder.addDirective @directive.data(id, values, align) }
     define_method_for DataManager, id, 'type', p
 
     # Defining data in code sections
-    p = lambda { |*values| @template.addDirective @directive.data(id, values), get_caller_location }
+    p = lambda { |*values| @template.addDirective @directive.data(id, values, align),
+                                                  get_caller_location }
     define_method_for Template, id, 'type', p
   end
 

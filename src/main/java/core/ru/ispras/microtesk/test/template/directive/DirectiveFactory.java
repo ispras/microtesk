@@ -167,12 +167,14 @@ public final class DirectiveFactory {
   public final class DataValueBuilder {
     private final DirectiveTypeInfo type;
     private final List<Value> values;
+    private final boolean align;
 
-    private DataValueBuilder(final DirectiveTypeInfo type) {
+    private DataValueBuilder(final DirectiveTypeInfo type, final boolean align) {
       InvariantChecks.checkNotNull(type);
 
       this.type = type;
       this.values = new ArrayList<>();
+      this.align = align;
     }
 
     public void add(final BigInteger value) {
@@ -194,18 +196,18 @@ public final class DirectiveFactory {
     }
 
     public Directive build() {
-      return newDataValues(type, values);
+      return newDataValues(type, values, align);
     }
   }
 
-  public DataValueBuilder getDataValueBuilder(final String typeName) {
+  public DataValueBuilder getDataValueBuilder(final String typeName, final boolean align) {
     final DirectiveTypeInfo type = findTypeInfo(typeName);
-    return new DataValueBuilder(type);
+    return new DataValueBuilder(type, align);
   }
 
-  public DataValueBuilder getDataValueBuilder(final int typeBitSize) {
+  public DataValueBuilder getDataValueBuilder(final int typeBitSize, final boolean align) {
     final DirectiveTypeInfo type = findTypeInfo(typeBitSize);
-    return new DataValueBuilder(type);
+    return new DataValueBuilder(type, align);
   }
 
   public Directive newText(final String text) {
@@ -259,17 +261,23 @@ public final class DirectiveFactory {
   }
 
   public Directive newAsciiStrings(
-      final boolean zeroTerm, final String[] strings) {
+      final boolean zeroTerm,
+      final String[] strings) {
     return new DirectiveAsciiStrings(ztermStrText, nztermStrText, zeroTerm, strings);
   }
 
-  public Directive newData(final String typeName, final BigInteger[] values) {
+  public Directive newData(
+      final String typeName,
+      final BigInteger[] values,
+      final boolean align) {
     final DirectiveTypeInfo typeInfo = findTypeInfo(typeName);
-    return newData(typeInfo, values);
+    return newData(typeInfo, values, align);
   }
 
   public Directive newData(
-      final DirectiveTypeInfo typeInfo, final BigInteger[] values) {
+      final DirectiveTypeInfo typeInfo,
+      final BigInteger[] values,
+      final boolean align) {
     InvariantChecks.checkNotNull(typeInfo);
     InvariantChecks.checkNotEmpty(values);
 
@@ -279,17 +287,23 @@ public final class DirectiveFactory {
       valueList.add(data);
     }
 
-    return new DirectiveDataConst(typeInfo.text, valueList);
+    return new DirectiveDataConst(typeInfo.text, valueList, align);
   }
 
   public Directive newData(
-          final String typeName, final DataGenerator generator, final int count) {
+      final String typeName,
+      final DataGenerator generator,
+      final int count,
+      final boolean align) {
     final DirectiveTypeInfo typeInfo = findTypeInfo(typeName);
-    return newData(typeInfo, generator, count);
+    return newData(typeInfo, generator, count, align);
   }
 
   public Directive newData(
-      final DirectiveTypeInfo typeInfo, final DataGenerator generator, final int count) {
+      final DirectiveTypeInfo typeInfo,
+      final DataGenerator generator,
+      final int count,
+      final boolean align) {
     InvariantChecks.checkNotNull(typeInfo);
     InvariantChecks.checkNotNull(generator);
     InvariantChecks.checkGreaterThanZero(count);
@@ -299,17 +313,22 @@ public final class DirectiveFactory {
       values.add(generator.nextData());
     }
 
-    return new DirectiveDataConst(typeInfo.text, values);
-  }
-
-  public Directive newDataValues(final String typeName, final List<Value> values) {
-    final DirectiveTypeInfo typeInfo = findTypeInfo(typeName);
-    return newDataValues(typeInfo, values);
+    return new DirectiveDataConst(typeInfo.text, values, align);
   }
 
   public Directive newDataValues(
-      final DirectiveTypeInfo typeInfo, final List<Value> values) {
-    return new DirectiveDataValue(typeInfo, values);
+      final String typeName,
+      final List<Value> values,
+      final boolean align) {
+    final DirectiveTypeInfo typeInfo = findTypeInfo(typeName);
+    return newDataValues(typeInfo, values, align);
+  }
+
+  public Directive newDataValues(
+      final DirectiveTypeInfo typeInfo,
+      final List<Value> values,
+      final boolean align) {
+    return new DirectiveDataValue(typeInfo, values, align);
   }
 
   public int getMaxTypeBitSize() {

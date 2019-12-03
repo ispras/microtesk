@@ -112,8 +112,11 @@ public final class DataSectionBuilder {
   }
 
   protected void addGeneratedData(
-      final DirectiveTypeInfo typeInfo, final DataGenerator generator, final int count) {
-    addDirective(directiveFactory.newData(typeInfo, generator, count));
+      final DirectiveTypeInfo typeInfo,
+      final DataGenerator generator,
+      final int count,
+      final boolean align) {
+    addDirective(directiveFactory.newData(typeInfo, generator, count, align));
   }
 
   public DataSection build() {

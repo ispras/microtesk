@@ -51,6 +51,10 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
            int32_dist.next_value, int32_dist.next_value
 
       space 6
+
+      byte  0xFF
+      byte2 0xDEAD, 0xBEEF
+      byte4 0xDEADBEEF
     }
   end
 
@@ -91,6 +95,9 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
     ascii   'Hello'
     asciiz  'World'
     space   6
+    byte    0xFF
+    byte2   0xDEAD, 0xBEEF
+    byte4   0xDEADBEEF
 
     label :data_end
     trace_memory
