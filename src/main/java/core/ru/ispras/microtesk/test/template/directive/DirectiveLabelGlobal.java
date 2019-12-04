@@ -20,10 +20,10 @@ import ru.ispras.microtesk.test.template.LabelValue;
 
 import java.math.BigInteger;
 
-public final class DirectiveGlobalLabel extends Directive {
+public final class DirectiveLabelGlobal extends Directive {
   private final LabelValue label;
 
-  DirectiveGlobalLabel(final LabelValue label) {
+  DirectiveLabelGlobal(final LabelValue label) {
     InvariantChecks.checkNotNull(label);
     InvariantChecks.checkNotNull(label.getLabel());
 
@@ -42,7 +42,7 @@ public final class DirectiveGlobalLabel extends Directive {
 
   @Override
   public Directive copy() {
-    return new DirectiveGlobalLabel(label.sharedCopy());
+    return new DirectiveLabelGlobal(label.sharedCopy());
   }
 }
 

@@ -1225,7 +1225,7 @@ class DataManager
     text   = get_attribute attrs, :text
     type   = get_attribute attrs, :type
     format = attrs.has_key?(:format) ? attrs[:format] : ''
-    align  = attrs.has_key?(:align)  ? attrs[:align] : true
+    align  = attrs.has_key?(:align)  ? attrs[:align]  : true
 
     @configurator.defineType id, text, type.name, type.args, format
 
@@ -1267,7 +1267,8 @@ class DataManager
     define_method_for DataManager, id, 'string', p
 
     # Define data in data sections
-    p = lambda { |*strings| @template.addDirective @directive.ascii(zterm, strings), get_caller_location }
+    p = lambda { |*strings| @template.addDirective @directive.ascii(zterm, strings),
+                                                   get_caller_location }
     define_method_for Template, id, 'string', p
   end
 

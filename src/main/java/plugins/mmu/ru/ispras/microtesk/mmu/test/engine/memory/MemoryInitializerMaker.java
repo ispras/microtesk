@@ -210,8 +210,8 @@ public final class MemoryInitializerMaker implements InitializerMaker {
           false /* Same file */
           );
 
-      // FIXME: BigInteger -> BitVector
-      dataSectionBuilder.setVirtualAddress(bufferAccessAddress.bigIntegerValue(false));
+      final BigInteger origin = section.virtualToOrigin(bufferAccessAddress.bigIntegerValue(false));
+      dataSectionBuilder.addDirective(dataDirectiveFactory.newOrigin(origin));
       dataSectionBuilder.addDirective(dataDirectiveFactory.newComment(comment));
 
       final int maxItemSizeInBits = dataDirectiveFactory.getMaxTypeBitSize();

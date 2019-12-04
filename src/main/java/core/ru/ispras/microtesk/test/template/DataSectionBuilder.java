@@ -87,18 +87,6 @@ public final class DataSectionBuilder {
     directives.add(directive);
   }
 
-  /**
-   * Sets allocation origin that corresponds to the specified virtual address.
-   * The origin value is calculated depending on the context. Inserts the ".org"
-   * directive in the test program.
-   *
-   * @param address Virtual address.
-   */
-  public void setVirtualAddress(final BigInteger address) {
-    final BigInteger origin = section.virtualToOrigin(address);
-    addDirective(directiveFactory.newOrigin(origin));
-  }
-
   public void addLabel(final String id, final boolean global) {
     final Label label = Label.newLabel(id, blockId);
     final LabelValue labelValue = LabelValue.newUnknown(label);

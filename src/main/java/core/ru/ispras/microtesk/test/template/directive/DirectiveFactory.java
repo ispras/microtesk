@@ -223,7 +223,7 @@ public final class DirectiveFactory {
   }
 
   public Directive newGlobalLabel(final LabelValue label) {
-    return new DirectiveGlobalLabel(label);
+    return new DirectiveLabelGlobal(label);
   }
 
   public Directive newOption(final String option) {
