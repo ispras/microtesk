@@ -429,10 +429,6 @@ public final class Printer {
     printText(text, true);
   }
 
-  private void printTextNoIndent(final String text) {
-    printText(text, false);
-  }
-
   /**
    * Prints a special header comment that specifies the start of a logically separate
    * part of code.
