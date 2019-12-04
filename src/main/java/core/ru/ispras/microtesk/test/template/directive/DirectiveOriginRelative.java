@@ -33,6 +33,7 @@ public final class DirectiveOriginRelative extends Directive {
   DirectiveOriginRelative(final Options options, final BigInteger delta, final BigInteger origin) {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(delta);
+
     this.options = options;
     this.delta = delta;
     this.origin = origin;
@@ -47,9 +48,14 @@ public final class DirectiveOriginRelative extends Directive {
 
   @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
-    // Current address relative address.
+    // Offset relative to the current address.
     final BigInteger address = currentAddress.add(delta);
+
     origin = address.subtract(allocator.getBaseAddress());
+    InvariantChecks.checkTrue(origin.compareTo(BigInteger.ZERO) >= 0,
+        String.format("Negative origin: %d (base %x)",
+            origin.longValue(), allocator.getBaseAddress().longValue()));
+
     return address;
   }
 

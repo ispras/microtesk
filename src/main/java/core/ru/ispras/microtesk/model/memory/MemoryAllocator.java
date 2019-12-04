@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -37,7 +37,12 @@ public final class MemoryAllocator {
   private final int addressableUnitBitSize;
   private final int addressableUnitsInRegion;
 
-  private BigInteger baseAddress; // in addressable units
+  /**
+   * Base address in addressable units.
+   *
+   * It is used to calculate relative origins.
+   */
+  private BigInteger baseAddress;
 
   private static String ERROR_INVALID_SIZE =
       "Memory region size (%d) must be a multiple of addressable unit size (%d).";
@@ -106,14 +111,6 @@ public final class MemoryAllocator {
 
   public void reset() {
     memoryTracker.reset();
-  }
-
-  public BigInteger origin(final BigInteger value) {
-    return baseAddress.add(value);
-  }
-
-  public BigInteger align(final BigInteger currentAddress, final BigInteger value) {
-    return alignAddress(currentAddress, value.intValue());
   }
 
   /**

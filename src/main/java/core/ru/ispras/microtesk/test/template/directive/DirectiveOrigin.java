@@ -40,8 +40,8 @@ public class DirectiveOrigin extends Directive {
 
   @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
-    // Section relative address.
-    return allocator.origin(origin);
+    // Offset relative to the current address.
+    return allocator.getBaseAddress().add(origin);
   }
 }
 

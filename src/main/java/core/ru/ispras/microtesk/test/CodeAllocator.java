@@ -154,14 +154,20 @@ public final class CodeAllocator {
     InvariantChecks.checkNotEmpty(calls);
     InvariantChecks.checkNotNull(section);
 
+    final MemoryAllocator allocator = model.getMemoryAllocator();
+    final BigInteger oldBasePa = allocator.getBaseAddress();
+
+    allocator.setBaseAddress(section.getBasePa());
+
     allocateCodeBlocksAndMemory(section, calls);
     registerLabels(calls, sequenceIndex);
     patchLabels(calls, sequenceIndex, false);
+
+    allocator.setBaseAddress(oldBasePa);
   }
 
   private void allocateCodeBlocksAndMemory(final Section section, final List<ConcreteCall> calls) {
     final MemoryAllocator allocator = model.getMemoryAllocator();
-    InvariantChecks.checkNotNull(allocator);
 
     Logger.debugHeader("Allocating code");
     Logger.debug("Section: %s%n", section.toString());

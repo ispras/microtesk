@@ -46,7 +46,7 @@ public class DirectiveAlign extends Directive {
 
   @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
-    return allocator.align(currentAddress, alignmentInBytes);
+    return MemoryAllocator.alignAddress(currentAddress, alignmentInBytes.intValue());
   }
 
   @Override
