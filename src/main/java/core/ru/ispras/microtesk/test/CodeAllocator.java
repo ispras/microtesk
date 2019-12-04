@@ -27,6 +27,7 @@ import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.directive.Directive;
+import ru.ispras.microtesk.test.template.directive.DirectiveLabel;
 
 import java.math.BigInteger;
 import java.util.HashSet;
@@ -159,14 +160,14 @@ public final class CodeAllocator {
 
     allocator.setBaseAddress(section.getBasePa());
 
-    allocateCodeBlocksAndMemory(section, calls);
-    registerLabels(calls, sequenceIndex);
+    allocateCodeAndRegisterLabels(section, calls, sequenceIndex);
     patchLabels(calls, sequenceIndex, false);
 
     allocator.setBaseAddress(oldBasePa);
   }
 
-  private void allocateCodeBlocksAndMemory(final Section section, final List<ConcreteCall> calls) {
+  private void allocateCodeAndRegisterLabels(
+      final Section section, final List<ConcreteCall> calls, final int sequenceIndex) {
     final MemoryAllocator allocator = model.getMemoryAllocator();
 
     Logger.debugHeader("Allocating code");
@@ -180,14 +181,30 @@ public final class CodeAllocator {
     BigInteger currentVa = startVa;
     BigInteger currentPa = section.virtualToPhysical(currentVa);
 
+    numericLabelTracker.save();
     for (final ConcreteCall call : calls) {
       call.resetExecutionCount();
 
       // Memory allocation is based on physical addresses.
       BigInteger callPa = currentPa;
+      BigInteger callVa = currentVa;
 
       for (final Directive directive : call.getDirectives()) {
+        // Register labels.
+        if (directive.getKind() == Directive.Kind.LABEL) {
+          final DirectiveLabel labelDirective = (DirectiveLabel) directive;
+          final Label label = labelDirective.getLabel();
+
+          if (label.isNumeric()) {
+            label.setReferenceNumber(numericLabelTracker.nextReferenceNumber(label.getName()));
+          }
+
+          labelManager.addLabel(label, callVa.longValue(), sequenceIndex);
+        }
+
         callPa = directive.apply(callPa, allocator);
+        callVa = section.physicalToVirtual(callPa);
+
         Logger.debug("Directive: %s", directive.getText());
       }
 
@@ -210,7 +227,6 @@ public final class CodeAllocator {
         // This situation must be handled in a more correct way. Probably, using decoder.
         final boolean isAligned = !call.getDirectives().isEmpty();
         final boolean isStartAddress = currentVa.equals(address);
-        final BigInteger callVa = section.physicalToVirtual(callPa);
         startVa = isAligned && !isStartAddress ? currentVa : callVa;
 
         currentVa = callVa;
@@ -242,7 +258,8 @@ public final class CodeAllocator {
       }
 
       currentIndex++;
-    }
+    } // for calls
+    numericLabelTracker.restore();
 
     final CodeBlock block = new CodeBlock(
         startIndex == 0 ? calls : calls.subList(startIndex, currentIndex),
@@ -251,21 +268,6 @@ public final class CodeAllocator {
 
     getCode().registerBlock(block);
     address = currentVa;
-  }
-
-  private void registerLabels(final List<ConcreteCall> calls, final int sequenceIndex) {
-    numericLabelTracker.save();
-    for (final ConcreteCall call : calls) {
-      for (final Label label : call.getLabels()) {
-        if (label.isNumeric()) {
-          label.setReferenceNumber(
-              numericLabelTracker.nextReferenceNumber(label.getName()));
-        }
-      }
-
-      labelManager.addAllLabels(call.getLabels(), call.getAddress().longValue(), sequenceIndex);
-    }
-    numericLabelTracker.restore();
   }
 
   private void patchLabels(

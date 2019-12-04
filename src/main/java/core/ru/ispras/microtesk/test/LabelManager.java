@@ -259,28 +259,24 @@ public final class LabelManager {
   }
 
   /**
-   * Adds information about label in the specified collection to the table of label targets. It is
-   * supposed that all labels in the collection point to the same address.
+   * Adds information about label in the specified collection to the table of label targets.
    *
-   * @param labels Collection of labels to be registered.
-   * @param address Address the labels in the collection point to.
+   * @param label Label to be registered.
+   * @param address Address the label point to.
    * @param sequenceIndex Index of the sequence.
    *
    * @throws IllegalArgumentException if the {@code label} parameter is {@code null}.
    * @throws IllegalArgumentException if an object in the {@code labels} collection is not a
    *         Label object.
    */
-  public void addAllLabels(
-      final Collection<Label> labels, final long address, final int sequenceIndex) {
-    InvariantChecks.checkNotNull(labels);
+  public void addLabel(final Label label, final long address, final int sequenceIndex) {
+    InvariantChecks.checkNotNull(label);
 
-    for (final Label label : labels) {
-      if (sequenceIndex != Label.NO_SEQUENCE_INDEX) {
-        label.setSequenceIndex(sequenceIndex);
-      }
-
-      addLabel(label, address);
+    if (sequenceIndex != Label.NO_SEQUENCE_INDEX) {
+      label.setSequenceIndex(sequenceIndex);
     }
+
+    addLabel(label, address);
   }
 
   /**
