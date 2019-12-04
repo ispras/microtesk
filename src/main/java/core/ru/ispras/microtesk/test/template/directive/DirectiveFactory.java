@@ -219,11 +219,15 @@ public final class DirectiveFactory {
   }
 
   public Directive newLabel(final Section section, final LabelValue label) {
-    return new DirectiveLabel(section, label);
+    return new DirectiveLabelLocal(section, label);
   }
 
   public Directive newGlobalLabel(final LabelValue label) {
     return new DirectiveLabelGlobal(label);
+  }
+
+  public Directive newWeakLabel(final LabelValue label) {
+    return new DirectiveLabelWeak(label);
   }
 
   public Directive newOption(final String option) {

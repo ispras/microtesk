@@ -35,6 +35,11 @@ public final class DirectiveSpace extends Directive {
   }
 
   @Override
+  public Kind getKind() {
+    return Kind.DATA;
+  }
+
+  @Override
   public String getText() {
     return String.format("%s %d", text, length);
   }

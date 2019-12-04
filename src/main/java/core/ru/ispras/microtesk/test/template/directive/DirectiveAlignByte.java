@@ -25,6 +25,11 @@ public class DirectiveAlignByte extends DirectiveAlign {
   }
 
   @Override
+  public Kind getKind() {
+    return Kind.ALIGN;
+  }
+
+  @Override
   public String getText() {
     return String.format(options.getValueAsString(Option.BYTE_ALIGN_FORMAT), alignmentInBytes);
   }

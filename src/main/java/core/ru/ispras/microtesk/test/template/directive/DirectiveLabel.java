@@ -15,41 +15,31 @@
 package ru.ispras.microtesk.test.template.directive;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.memory.MemoryAllocator;
-import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelValue;
 
-import java.math.BigInteger;
+public abstract class DirectiveLabel extends Directive {
+  protected final LabelValue label;
 
-public final class DirectiveLabel extends Directive {
-  private final Section section;
-  private final LabelValue label;
-
-  DirectiveLabel(final Section section, final LabelValue label) {
-    InvariantChecks.checkNotNull(section);
+  DirectiveLabel(final LabelValue label) {
     InvariantChecks.checkNotNull(label);
     InvariantChecks.checkNotNull(label.getLabel());
 
-    this.section = section;
     this.label = label;
+  }
+
+  public final Label getLabel() {
+    return label.getLabel();
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.LABEL;
   }
 
   @Override
   public String getText() {
     return label.getLabel().getUniqueName() + ":";
-  }
-
-  @Override
-  public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
-    final BigInteger virtualAddress = section.physicalToVirtual(currentAddress);
-    label.setAddress(virtualAddress);
-
-    return currentAddress;
-  }
-
-  @Override
-  public Directive copy() {
-    return new DirectiveLabel(section, label.sharedCopy());
   }
 
   @Override

@@ -14,32 +14,28 @@
 
 package ru.ispras.microtesk.test.template.directive;
 
-import ru.ispras.microtesk.options.Option;
-import ru.ispras.microtesk.options.Options;
+import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.test.template.LabelValue;
 
-public final class DirectiveComment extends DirectiveText {
-  private final Options options;
+import java.math.BigInteger;
 
-  DirectiveComment(final Options options, final String text) {
-    super(text);
-    this.options = options;
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.TEXT;
+public final class DirectiveLabelWeak extends DirectiveLabel {
+  DirectiveLabelWeak(final LabelValue label) {
+    super(label);
   }
 
   @Override
   public String getText() {
-    final String text = super.getText();
-    final String commentToken = options.getValueAsString(Option.COMMENT_TOKEN);
+    return String.format(".weak %s", label.getLabel().getUniqueName());
+  }
 
-    return String.format(
-        "%s%s%s",
-        commentToken,
-        text.isEmpty() || commentToken.endsWith(" ") ? "" : " ",
-        text);
+  @Override
+  public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
+    return currentAddress;
+  }
+
+  @Override
+  public Directive copy() {
+    return new DirectiveLabelWeak(label);
   }
 }
-

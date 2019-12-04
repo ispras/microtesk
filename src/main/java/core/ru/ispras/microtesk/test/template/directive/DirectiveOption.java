@@ -27,6 +27,11 @@ public final class DirectiveOption extends Directive {
   }
 
   @Override
+  public Kind getKind() {
+    return Kind.TEXT;
+  }
+
+  @Override
   public String getText() {
     return String.format(options.getValueAsString(Option.OPTION_FORMAT), option);
   }

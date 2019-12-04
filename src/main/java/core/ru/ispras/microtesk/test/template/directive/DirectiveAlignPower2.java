@@ -28,6 +28,11 @@ public class DirectiveAlignPower2 extends DirectiveAlign {
   }
 
   @Override
+  public Kind getKind() {
+    return Kind.ALIGN;
+  }
+
+  @Override
   public String getText() {
     return String.format(options.getValueAsString(Option.POWER2_ALIGN_FORMAT), alignment);
   }

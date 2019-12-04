@@ -42,6 +42,11 @@ public final class DirectiveDataValue extends Directive {
     this.align = align;
   }
 
+  @Override
+  public Kind getKind() {
+    return Kind.DATA;
+  }
+
   private BitVector toBitVector(final Value value) {
     return BitVector.valueOf(value.getValue(), typeInfo.type.getBitSize());
   }

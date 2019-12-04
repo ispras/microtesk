@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.template;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.engine.allocator.AllocatorAction;
 import ru.ispras.microtesk.test.template.directive.Directive;
+import ru.ispras.microtesk.test.template.directive.DirectiveLabel;
 import ru.ispras.microtesk.utils.SharedObject;
 
 import java.util.*;
@@ -27,10 +28,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
   private final Primitive rootOperation;
   private final Map<String, Object> attributes;
 
-  private final List<Label> labels;
+  private final List<Directive> directives;
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
-  private final List<Directive> directives;
 
   private final PreparatorReference preparatorReference;
   private final DataSection data;
@@ -46,10 +46,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        new ArrayList<Label>(),
+        Collections.<Directive>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        Collections.<Directive>emptyList(),
         null,
         data,
         null,
@@ -65,10 +64,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         text,
         null,
-        new ArrayList<Label>(),
+        Collections.<Directive>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        Collections.<Directive>emptyList(),
         null,
         null,
         null,
@@ -81,10 +79,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        new ArrayList<Label>(),
+        Collections.<Directive>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        Collections.<Directive>emptyList(),
         null,
         null,
         null,
@@ -103,10 +100,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        new ArrayList<Label>(),
+        Collections.<Directive>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.singletonList(new Output(Output.Kind.COMMENT, comment)),
-        Collections.<Directive>emptyList(),
         null,
         null,
         null,
@@ -121,10 +117,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        new ArrayList<Label>(),
+        Collections.<Directive>singletonList(directive),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        Collections.<Directive>singletonList(directive),
         null,
         null,
         null,
@@ -139,10 +134,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        new ArrayList<Label>(),
+        Collections.<Directive>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        Collections.<Directive>emptyList(),
         null,
         null,
         expandAtomic(sequence),
@@ -172,10 +166,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        new ArrayList<Label>(),
+        Collections.<Directive>emptyList(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
-        Collections.<Directive>emptyList(),
         null,
         null,
         null,
@@ -187,15 +180,13 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
       final Where where,
       final String text,
       final Primitive rootOperation,
-      final List<Label> labels,
+      final List<Directive> directives,
       final List<LabelReference> labelRefs,
       final List<Output> outputs,
-      final List<Directive> directives,
       final PreparatorReference preparatorReference,
       final DataSection data,
       final List<AbstractCall> atomicSequence,
       final AllocatorAction allocatorAction) {
-    InvariantChecks.checkNotNull(labels);
     InvariantChecks.checkNotNull(labelRefs);
     InvariantChecks.checkNotNull(outputs);
 
@@ -206,10 +197,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     this.text = text;
     this.rootOperation = rootOperation;
     this.attributes = new LinkedHashMap<>();
-    this.labels = labels; // Modifiable to allow adding labels.
+    this.directives = Collections.unmodifiableList(directives);
     this.labelRefs = Collections.unmodifiableList(labelRefs);
     this.outputs = Collections.unmodifiableList(outputs);
-    this.directives = Collections.unmodifiableList(directives);
 
     this.preparatorReference = preparatorReference;
     this.data = data;
@@ -235,10 +225,9 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
       }
     }
 
-    this.labels = Label.copyAll(other.labels);
+    this.directives = Directive.copyAll(other.directives);
     this.labelRefs = LabelReference.copyAll(other.labelRefs);
     this.outputs = Output.copyAll(other.outputs);
-    this.directives = Directive.copyAll(other.directives);
 
     this.preparatorReference = null != other.preparatorReference
         ? new PreparatorReference(other.preparatorReference) : null;
@@ -270,9 +259,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         && !hasData()
         && !isAtomicSequence()
         && !isAllocatorAction()
-        && labels.isEmpty()
-        && outputs.isEmpty()
-        && directives.isEmpty();
+        && directives.isEmpty()
+        && outputs.isEmpty();
   }
 
   public Where getWhere() {
@@ -314,8 +302,19 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     return isCommand ? Collections.singletonList(primitive) : commands;
   }
 
+  public List<Directive> getDirectives() {
+    return directives;
+  }
+
   public List<Label> getLabels() {
-    return labels;
+    final ArrayList<Label> labels = new ArrayList<>();
+    for (final Directive directive : directives) {
+      if (directive.getKind() == Directive.Kind.LABEL) {
+        final DirectiveLabel label = (DirectiveLabel) directive;
+        labels.add(label.getLabel());
+      }
+    }
+    return Collections.unmodifiableList(labels);
   }
 
   public List<LabelReference> getLabelReferences() {
@@ -324,10 +323,6 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
 
   public List<Output> getOutputs() {
     return outputs;
-  }
-
-  public List<Directive> getDirectives() {
-    return directives;
   }
 
   public LabelReference getTargetReference() {

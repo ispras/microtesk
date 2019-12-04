@@ -39,6 +39,11 @@ public final class DirectiveDataConst extends Directive {
   }
 
   @Override
+  public Kind getKind() {
+    return Kind.DATA;
+  }
+
+  @Override
   public String getText() {
     final StringBuilder sb = new StringBuilder(typeText);
 

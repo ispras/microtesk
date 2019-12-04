@@ -27,6 +27,11 @@ public final class DirectiveOriginAbsolute extends DirectiveOrigin {
   }
 
   @Override
+  public Kind getKind() {
+    return Kind.ORIGIN;
+  }
+
+  @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
     // Absolute address.
     return origin;

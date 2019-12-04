@@ -28,6 +28,11 @@ public class DirectiveText extends Directive {
   }
 
   @Override
+  public Kind getKind() {
+    return Kind.TEXT;
+  }
+
+  @Override
   public String getText() {
     return text;
   }

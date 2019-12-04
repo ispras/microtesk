@@ -14,28 +14,37 @@
 
 package ru.ispras.microtesk.test.template.directive;
 
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelValue;
 
 import java.math.BigInteger;
 
-public final class DirectiveLabelGlobal extends DirectiveLabel {
-  DirectiveLabelGlobal(final LabelValue label) {
+public class DirectiveLabelLocal extends DirectiveLabel {
+  private final Section section;
+
+  DirectiveLabelLocal(final Section section, final LabelValue label) {
     super(label);
+    this.section = section;
   }
 
   @Override
   public String getText() {
-    return String.format(".globl %s", label.getLabel().getUniqueName());
+    return label.getLabel().getUniqueName() + ":";
   }
 
   @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
+    final BigInteger virtualAddress = section.physicalToVirtual(currentAddress);
+    label.setAddress(virtualAddress);
+
     return currentAddress;
   }
 
   @Override
   public Directive copy() {
-    return new DirectiveLabelGlobal(label);
+    return new DirectiveLabelLocal(section, label);
   }
 }

@@ -34,6 +34,11 @@ public class DirectiveOrigin extends Directive {
   }
 
   @Override
+  public Kind getKind() {
+    return Kind.ORIGIN;
+  }
+
+  @Override
   public String getText() {
     return String.format(options.getValueAsString(Option.ORIGIN_FORMAT), origin);
   }

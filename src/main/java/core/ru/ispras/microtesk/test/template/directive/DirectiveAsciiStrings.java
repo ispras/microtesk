@@ -40,6 +40,11 @@ public final class DirectiveAsciiStrings extends Directive {
   }
 
   @Override
+  public Kind getKind() {
+    return Kind.DATA;
+  }
+
+  @Override
   public String getText() {
     final StringBuilder sb = new StringBuilder(zeroTerm ? ztermStrText : nztermStrText);
     for (int index = 0; index < strings.length; index++) {

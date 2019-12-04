@@ -40,6 +40,11 @@ public class DirectiveAlign extends Directive {
   }
 
   @Override
+  public Kind getKind() {
+    return Kind.ALIGN;
+  }
+
+  @Override
   public String getText() {
     return String.format(options.getValueAsString(Option.ALIGN_FORMAT), alignment);
   }

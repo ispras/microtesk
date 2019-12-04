@@ -40,6 +40,11 @@ public final class DirectiveOriginRelative extends Directive {
   }
 
   @Override
+  public Kind getKind() {
+    return Kind.ORIGIN;
+  }
+
+  @Override
   public String getText() {
     return origin != null
         ? String.format(options.getValueAsString(Option.ORIGIN_FORMAT), origin)

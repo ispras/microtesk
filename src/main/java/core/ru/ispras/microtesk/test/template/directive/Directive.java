@@ -28,6 +28,14 @@ import java.util.List;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class Directive {
+    /** Directive kind. */
+    public enum Kind {
+      ALIGN,
+      ORIGIN,
+      LABEL,
+      DATA,
+      TEXT
+    }
 
   public static List<Directive> copyAll(final List<Directive> directives) {
     InvariantChecks.checkNotNull(directives);
@@ -43,6 +51,13 @@ public abstract class Directive {
 
     return result;
   }
+
+  /**
+   * Returns the directive kind.
+   *
+   * @return the directive kind.
+   */
+  public abstract Kind getKind();
 
   /**
    * Returns the string representation of the directive.

@@ -21,8 +21,10 @@ import ru.ispras.microtesk.model.ProcessingElement;
 import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.template.directive.Directive;
+import ru.ispras.microtesk.test.template.directive.DirectiveLabel;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,10 +36,9 @@ import java.util.List;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class ConcreteCall {
-  private final List<Label> labels;
+  private final List<Directive> directives;
   private final List<LabelReference> labelRefs;
   private final List<Output> outputs;
-  private final List<Directive> directives;
   private final InstructionCall executable;
   private final DataSection data;
 
@@ -73,10 +74,9 @@ public final class ConcreteCall {
     InvariantChecks.checkNotNull(addressRefs);
 
     this.text = abstractCall.getText();
-    this.labels = Label.copyAll(abstractCall.getLabels());
+    this.directives = Directive.copyAll(abstractCall.getDirectives());
     this.labelRefs = labelRefs;
     this.outputs = abstractCall.getOutputs();
-    this.directives = abstractCall.getDirectives();
     this.executable = executable;
     this.data = null;
     this.addressRefs = addressRefs;
@@ -86,10 +86,9 @@ public final class ConcreteCall {
     InvariantChecks.checkNotNull(abstractCall);
 
     this.text = abstractCall.getText();
-    this.labels = Label.copyAll(abstractCall.getLabels());
+    this.directives = Directive.copyAll(abstractCall.getDirectives());
     this.labelRefs = abstractCall.getLabelReferences();
     this.outputs = abstractCall.getOutputs();
-    this.directives = abstractCall.getDirectives();
     this.executable = null;
     this.data = abstractCall.hasData() ? new DataSection(abstractCall.getData()) : null;
     this.addressRefs = Collections.emptyList();
@@ -99,10 +98,9 @@ public final class ConcreteCall {
     InvariantChecks.checkNotNull(executable);
 
     this.text = null;
-    this.labels = Collections.<Label>emptyList();
+    this.directives = Collections.<Directive>emptyList();
     this.labelRefs = Collections.<LabelReference>emptyList();
     this.outputs = Collections.<Output>emptyList();
-    this.directives = Collections.<Directive>emptyList();
     this.executable = executable;
     this.data = null;
     this.addressRefs = Collections.emptyList();
@@ -149,10 +147,6 @@ public final class ConcreteCall {
     return null;
   }
 
-  public List<Directive> getDirectives() {
-    return directives;
-  }
-
   public int getExecutionCount() {
     return executionCount;
   }
@@ -169,8 +163,19 @@ public final class ConcreteCall {
     return null != executable ? executable.getImage() : "";
   }
 
+  public List<Directive> getDirectives() {
+    return directives;
+  }
+
   public List<Label> getLabels() {
-    return labels;
+    final ArrayList<Label> labels = new ArrayList<>();
+    for (final Directive directive : directives) {
+      if (directive.getKind() == Directive.Kind.LABEL) {
+        final DirectiveLabel label = (DirectiveLabel) directive;
+        labels.add(label.getLabel());
+      }
+    }
+    return Collections.unmodifiableList(labels);
   }
 
   public List<LabelReference> getLabelReferences() {

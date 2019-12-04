@@ -405,22 +405,41 @@ public final class Template {
   }
 
   public void addLabel(final String name, final boolean global) {
-    final Label label = global ? Label.newGlobal(name, getCurrentBlockId())
-                               : Label.newLabel(name, getCurrentBlockId());
+    final Label label = Label.newLabel(name, getCurrentBlockId());
+    final LabelValue labelValue = LabelValue.newUnknown(label);
+
+    final Section section =
+        !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
+
     debug("Label: %s", label);
-    callBuilder.addLabel(label);
+    callBuilder.addDirective(getDirectiveFactory().newLabel(section, labelValue));
+  }
+
+  public void addGlobalLabel(final String name) {
+    final Label label = Label.newGlobal(name, getCurrentBlockId());
+    final LabelValue labelValue = LabelValue.newUnknown(label);
+
+    debug("Label: %s", label);
+    callBuilder.addDirective(getDirectiveFactory().newGlobalLabel(labelValue));
   }
 
   public void addWeakLabel(final String name) {
     final Label label = Label.newWeak(name, getCurrentBlockId());
+    final LabelValue labelValue = LabelValue.newUnknown(label);
+
     debug("Label: %s", label);
-    callBuilder.addLabel(label);
+    callBuilder.addDirective(getDirectiveFactory().newWeakLabel(labelValue));
   }
 
   public void addNumericLabel(final int index) {
     final Label label = Label.newNumeric(index, getCurrentBlockId());
+    final LabelValue labelValue = LabelValue.newUnknown(label);
+
+    final Section section =
+        !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
+
     debug("Label: %s", label);
-    callBuilder.addLabel(label);
+    callBuilder.addDirective(getDirectiveFactory().newLabel(section, labelValue));
   }
 
   public LabelValue newNumericLabelRef(final int index, final boolean forward) {
