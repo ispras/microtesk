@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -337,11 +337,10 @@ public final class Printer {
 
     for (final ConcreteCall call : calls) {
       for (final Directive directive : call.getDirectives()) {
-        printText(directive.getText());
+        printText(directive.getText(), directive.needsIndent());
       }
 
       printOutputs(model, call.getOutputs());
-      printLabels(call.getLabels());
 
       final boolean writeToFile = null != fileWritter;
       final String text = call.getText();
@@ -401,25 +400,6 @@ public final class Printer {
     }
   }
 
-  private void printLabels(final List<Label> labels) {
-    InvariantChecks.checkNotNull(labels);
-
-    for (final Label label : labels) {
-      final String name = label.getUniqueName();
-
-      if (label.isWeak()) {
-        printText(String.format(".weak %s", name));
-        continue;
-      }
-
-      if (label.isGlobal()) {
-        printText(String.format(".globl %s", name));
-      }
-
-      printTextNoIndent(name + ":");
-    }
-  }
-
   /**
    * Prints the specified text to the screen (as is) and to the file (a comment).
    * The text is followed by an empty line. Note specify parts of code that need
@@ -436,28 +416,21 @@ public final class Printer {
 
   /**
    * Prints text both to the file and to the screen (if corresponding options are enabled).
-   * @param text Text to be printed.
-   */
-  private void printText(final String text) {
-    if (text != null) {
-      printToScreen(text);
-      printToFile(text);
-    }
-  }
-
-  /**
-   * Prints text with no indent both to the file and to the screen (if corresponding options are
-   * enabled).
    *
    * @param text Text to be printed.
+   * @param needsIndent Indentation flag.
    */
+  private void printText(final String text, final boolean needsIndent) {
+    printToScreen(text, needsIndent);
+    printToFile(text, needsIndent);
+  }
+
+  private void printText(final String text) {
+    printText(text, true);
+  }
+
   private void printTextNoIndent(final String text) {
-    if (text != null) {
-      if (printToScreen) {
-        Logger.debug(text);
-      }
-      printToFileNoIndent(text);
-    }
+    printText(text, false);
   }
 
   /**
@@ -521,37 +494,36 @@ public final class Printer {
     printToFile(sb.toString());
   }
 
-  private void printToScreen(final String text) {
-    if (printToScreen && Logger.isDebug()) {
-      Logger.debug(indentToken + text);
+  private void printToScreen(final String text, final boolean needsIndent) {
+    if (null != text && printToScreen && Logger.isDebug()) {
+      Logger.debug((needsIndent ? indentToken : "") + text);
     }
   }
 
-  private void printToFile(final String text) {
+  private void printToScreen(final String text) {
+    printToScreen(text, true);
+  }
+
+  private void printToFile(final String text, final boolean needsIndent) {
     if (null != fileWritter && null != text) {
       if (text.isEmpty()) {
         fileWritter.println();
       } else {
-        fileWritter.print(indentToken);
+        if (needsIndent) {
+          fileWritter.print(indentToken);
+        }
         fileWritter.println(text);
       }
     }
   }
 
-  private void printToFileNoIndent(final String text) {
-    if (null != fileWritter) {
-      fileWritter.println(text);
-    }
+  private void printToFile(final String text) {
+    printToFile(text, true);
   }
 
   public void printData(final DataSection dataSection) {
     for (final Directive directive : dataSection.getDirectives()) {
-      final String text = directive.getText();
-      if (directive.needsIndent()) {
-        printText(text);
-      } else {
-        printTextNoIndent(text);
-      }
+      printText(directive.getText(), directive.needsIndent());
     }
   }
 

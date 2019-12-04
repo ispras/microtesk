@@ -43,6 +43,11 @@ public abstract class DirectiveLabel extends Directive {
   }
 
   @Override
+  public boolean needsIndent() {
+    return false;
+  }
+
+  @Override
   public String toString() {
     return String.format("%s (%s)", getText(), label);
   }
