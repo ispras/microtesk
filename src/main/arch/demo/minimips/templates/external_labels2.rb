@@ -27,8 +27,6 @@ require_relative 'minimips_base'
 class ExternalLabels2Template < MiniMipsBaseTemplate
 
   def run
-    org 0x00020000
-
     label :start
     nop
     j :down

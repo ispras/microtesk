@@ -28,11 +28,6 @@ class SelfChecksTemplate < MiniMipsBaseTemplate
     set_option_value 'self-checks', true
   end
 
-  def pre
-    super
-    org 0x00020000
-  end
-
   def run
     # A sequence is processed with presimulation enabled
     sequence {

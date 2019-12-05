@@ -22,14 +22,6 @@ require_relative 'minimips_base'
 # This test template demonstrates how to use instruction groups in test templates.
 #
 class GroupsTemplate < MiniMipsBaseTemplate
-
-  def pre
-    super
-
-    # Start address
-    org 0x00020000
-  end
-
   def run
     # Using groups defined in the specification
 

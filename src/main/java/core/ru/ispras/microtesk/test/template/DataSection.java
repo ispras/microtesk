@@ -20,6 +20,7 @@ import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.LabelManager;
 import ru.ispras.microtesk.test.template.directive.Directive;
+import ru.ispras.microtesk.test.template.directive.DirectiveLabel;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -33,7 +34,6 @@ import java.util.List;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class DataSection {
-  private final List<LabelValue> labelValues;
   private final List<Directive> directives;
 
   private final BigInteger physicalAddress;
@@ -45,17 +45,14 @@ public final class DataSection {
   private BigInteger allocationEndAddress;
 
   protected DataSection(
-      final List<LabelValue> labelValues,
       final List<Directive> directives,
       final BigInteger physicalAddress,
       final Section section,
       final boolean global,
       final boolean separateFile) {
-    InvariantChecks.checkNotNull(labelValues);
     InvariantChecks.checkNotNull(directives);
     InvariantChecks.checkNotNull(section);
 
-    this.labelValues = Collections.unmodifiableList(labelValues);
     this.directives = Collections.unmodifiableList(directives);
 
     this.physicalAddress = physicalAddress;
@@ -71,8 +68,7 @@ public final class DataSection {
     InvariantChecks.checkNotNull(other);
 
     try {
-      this.labelValues = copyAllLabelValues(other.labelValues);
-      this.directives = copyAllDirectives(other.directives);
+      this.directives = Directive.copyAll(other.directives);
     } catch (final Exception e) {
       Logger.error("Failed to copy %s", other);
       throw e;
@@ -84,36 +80,6 @@ public final class DataSection {
     this.separateFile = other.separateFile;
 
     this.sequenceIndex = other.sequenceIndex;
-  }
-
-  private static List<LabelValue> copyAllLabelValues(final List<LabelValue> labelValues) {
-    InvariantChecks.checkNotNull(labelValues);
-
-    if (labelValues.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    final List<LabelValue> result = new ArrayList<>(labelValues.size());
-    for (final LabelValue labelValue : labelValues) {
-      result.add(new LabelValue(labelValue));
-    }
-
-    return result;
-  }
-
-  private static List<Directive> copyAllDirectives(final List<Directive> directives) {
-    InvariantChecks.checkNotNull(directives);
-
-    if (directives.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    final List<Directive> result = new ArrayList<>(directives.size());
-    for (final Directive directive : directives) {
-      result.add(directive.copy());
-    }
-
-    return result;
   }
 
   public int getSequenceIndex() {
@@ -128,20 +94,19 @@ public final class DataSection {
     }
   }
 
-  public List<Label> getLabels() {
-    final List<Label> result = new ArrayList<>(labelValues.size());
-
-    for (final LabelValue labelValue : labelValues) {
-      final Label label = labelValue.getLabel();
-      InvariantChecks.checkNotNull(label);
-      result.add(label);
-    }
-
-    return result;
-  }
-
   public List<Directive> getDirectives() {
     return directives;
+  }
+
+  public List<Label> getLabels() {
+    final ArrayList<Label> labels = new ArrayList<>();
+    for (final Directive directive : directives) {
+      if (directive.getKind() == Directive.Kind.LABEL) {
+        final DirectiveLabel label = (DirectiveLabel) directive;
+        labels.add(label.getLabel());
+      }
+    }
+    return Collections.unmodifiableList(labels);
   }
 
   public Section getSection() {
@@ -160,55 +125,57 @@ public final class DataSection {
     return allocationEndAddress;
   }
 
-  public void allocate(final MemoryAllocator allocator) {
+  public void allocateDataAndRegisterLabels(
+      final MemoryAllocator allocator, final LabelManager labelManager) {
     InvariantChecks.checkNotNull(allocator);
 
     allocator.setBaseAddress(section.getBasePa());
 
-    BigInteger currentAddress = section.getPa();
+    BigInteger currentPa = section.getPa();
     if (null != physicalAddress) {
-      currentAddress = physicalAddress;
+      currentPa = physicalAddress;
     }
+    BigInteger currentVa = section.physicalToVirtual(currentPa);
 
     Logger.debugHeader("Allocating data");
     Logger.debug("Section: " + section.toString());
-    Logger.debug("Allocation starts: 0x%016x%n", section.getPa());
+    Logger.debug("Allocation starts: 0x%016x", section.getPa());
+    Logger.debug("Sequence index: %d%n", getSequenceIndex());
 
     try {
+      BigInteger nextPa = currentPa;
+      BigInteger nextVa = currentVa;
+
       for (final Directive directive : directives) {
-        final BigInteger newAddress = directive.apply(currentAddress, allocator);
+        // Register labels.
+        if (directive.getKind() == Directive.Kind.LABEL) {
+          final DirectiveLabel labelDirective = (DirectiveLabel) directive;
+
+          if (labelDirective.isRealLabel()) {
+            final Label label = labelDirective.getLabel();
+            labelManager.addLabel(label, nextVa.longValue(), getSequenceIndex());
+          }
+        }
+
+        nextPa = directive.apply(nextPa, allocator);
+        nextVa = section.physicalToVirtual(nextPa);
 
         if (Logger.isDebug()) {
-          if (!newAddress.equals(currentAddress)) {
-            Logger.debug("0x%016x (PA): %s", currentAddress, directive.getText());
+          if (!nextPa.equals(currentPa)) {
+            Logger.debug("0x%016x (PA): %s", currentPa, directive.getText());
           } else {
             Logger.debug(directive.getText());
           }
         }
 
-        currentAddress = newAddress;
+        currentPa = nextPa;
+        currentVa = nextVa;
       }
     } finally {
-      allocationEndAddress = currentAddress;
+      allocationEndAddress = currentPa;
       if (null == physicalAddress) {
-        section.setPa(currentAddress);
+        section.setPa(currentPa);
       }
-    }
-  }
-
-  public void registerLabels(final LabelManager labelManager) {
-    InvariantChecks.checkNotNull(labelManager);
-
-    final int sequenceIndex = getSequenceIndex();
-    for (final LabelValue labelValue : labelValues) {
-      final Label label = labelValue.getLabel();
-      InvariantChecks.checkNotNull(label);
-
-      final BigInteger address = labelValue.getAddress();
-      InvariantChecks.checkNotNull(address);
-
-      label.setSequenceIndex(sequenceIndex);
-      labelManager.addLabel(label, address.longValue());
     }
   }
 
@@ -219,7 +186,6 @@ public final class DataSection {
         section,
         global,
         separateFile,
-        labelValues,
         directives
         );
   }

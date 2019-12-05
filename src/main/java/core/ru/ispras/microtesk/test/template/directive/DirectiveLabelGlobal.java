@@ -25,6 +25,11 @@ public final class DirectiveLabelGlobal extends DirectiveLabel {
   }
 
   @Override
+  public boolean isRealLabel() {
+    return false;
+  }
+
+  @Override
   public String getText() {
     return String.format(".globl %s", label.getLabel().getUniqueName());
   }
@@ -36,6 +41,6 @@ public final class DirectiveLabelGlobal extends DirectiveLabel {
 
   @Override
   public Directive copy() {
-    return new DirectiveLabelGlobal(label);
+    return new DirectiveLabelGlobal(label.newCopy());
   }
 }

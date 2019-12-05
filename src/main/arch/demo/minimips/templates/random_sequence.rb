@@ -23,14 +23,6 @@ require_relative 'minimips_base'
 # by composing randomly selected blocks.
 #
 class RandomSituationTemplate < MiniMipsBaseTemplate
-
-  def pre
-    super
-
-    # Start address
-    org 0x00020000
-  end
-
   def run
     data {
       label :variable

@@ -26,8 +26,6 @@ class EuclidTemplate(MiniMipsBaseTemplate):
         MiniMipsBaseTemplate.__init__(self)
         
     def run(self):
-        org(0x00020000)
-        
         sequence({},
             lambda : [
                 setattr(thismodule,"val1",rand(1,63)),

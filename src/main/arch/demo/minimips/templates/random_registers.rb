@@ -32,11 +32,6 @@ class RandomRegisterTemplate < MiniMipsBaseTemplate
     epilogue {
       nop
     }
-
-    #
-    # Start address
-    #
-    org 0x00020000
   end
 
   def run

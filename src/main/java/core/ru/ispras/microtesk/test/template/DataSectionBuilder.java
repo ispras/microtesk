@@ -38,7 +38,6 @@ public final class DataSectionBuilder {
   private final boolean global;
   private final boolean separateFile;
 
-  private final List<LabelValue> labelValues;
   private final List<Directive> directives;
 
   public DataSectionBuilder(
@@ -60,7 +59,6 @@ public final class DataSectionBuilder {
     this.global = isGlobal;
     this.separateFile = isSeparateFile;
 
-    this.labelValues = new ArrayList<>();
     this.directives = new ArrayList<>();
   }
 
@@ -95,8 +93,7 @@ public final class DataSectionBuilder {
       addDirective(directiveFactory.newGlobalLabel(labelValue));
     }
 
-    addDirective(directiveFactory.newLabel(section, labelValue));
-    labelValues.add(labelValue);
+    addDirective(directiveFactory.newLabel(labelValue));
   }
 
   protected void addGeneratedData(
@@ -108,8 +105,7 @@ public final class DataSectionBuilder {
   }
 
   public DataSection build() {
-    return new DataSection(
-        labelValues, directives, physicalAddress, section, global, separateFile);
+    return new DataSection(directives, physicalAddress, section, global, separateFile);
   }
 
 }

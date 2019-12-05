@@ -185,30 +185,32 @@ public final class CodeAllocator {
     for (final ConcreteCall call : calls) {
       call.resetExecutionCount();
 
-      // Memory allocation is based on physical addresses.
-      BigInteger callPa = currentPa;
-      BigInteger callVa = currentVa;
+      BigInteger nextPa = currentPa;
+      BigInteger nextVa = currentVa;
 
       for (final Directive directive : call.getDirectives()) {
         // Register labels.
         if (directive.getKind() == Directive.Kind.LABEL) {
           final DirectiveLabel labelDirective = (DirectiveLabel) directive;
-          final Label label = labelDirective.getLabel();
 
-          if (label.isNumeric()) {
-            label.setReferenceNumber(numericLabelTracker.nextReferenceNumber(label.getName()));
+          if (labelDirective.isRealLabel()) {
+            final Label label = labelDirective.getLabel();
+
+            if (label.isNumeric()) {
+              label.setReferenceNumber(numericLabelTracker.nextReferenceNumber(label.getName()));
+            }
+
+            labelManager.addLabel(label, nextVa.longValue(), sequenceIndex);
           }
-
-          labelManager.addLabel(label, callVa.longValue(), sequenceIndex);
         }
 
-        callPa = directive.apply(callPa, allocator);
-        callVa = section.physicalToVirtual(callPa);
+        nextPa = directive.apply(nextPa, allocator);
+        nextVa = section.physicalToVirtual(nextPa);
 
         Logger.debug("Directive: %s", directive.getText());
       }
 
-      if (!callPa.equals(currentPa)) {
+      if (!nextPa.equals(currentPa)) {
         if (startIndex != currentIndex) {
           // Code representation is based on virtual addresses.
           final CodeBlock block = new CodeBlock(
@@ -227,10 +229,10 @@ public final class CodeAllocator {
         // This situation must be handled in a more correct way. Probably, using decoder.
         final boolean isAligned = !call.getDirectives().isEmpty();
         final boolean isStartAddress = currentVa.equals(address);
-        startVa = isAligned && !isStartAddress ? currentVa : callVa;
+        startVa = isAligned && !isStartAddress ? currentVa : nextVa;
 
-        currentVa = callVa;
-        currentPa = callPa;
+        currentPa = nextPa;
+        currentVa = nextVa;
       }
 
       // Set the instruction call virtual address.

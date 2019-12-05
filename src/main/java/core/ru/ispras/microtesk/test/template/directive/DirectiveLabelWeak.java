@@ -36,6 +36,6 @@ public final class DirectiveLabelWeak extends DirectiveLabel {
 
   @Override
   public Directive copy() {
-    return new DirectiveLabelWeak(label);
+    return new DirectiveLabelWeak(label.newCopy());
   }
 }

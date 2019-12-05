@@ -166,8 +166,10 @@ final class TemplateProcessor implements Template.Processor {
   public void process(final DataSection data) {
     InvariantChecks.checkNotNull(data);
 
-    data.allocate(engineContext.getModel().getMemoryAllocator());
-    data.registerLabels(engineContext.getLabelManager());
+    final MemoryAllocator memoryAllocator = engineContext.getModel().getMemoryAllocator();
+    final LabelManager labelManager = engineContext.getLabelManager();
+
+    data.allocateDataAndRegisterLabels(memoryAllocator, labelManager);
 
     if (data.isSeparateFile()) {
       try {
@@ -641,11 +643,11 @@ final class TemplateProcessor implements Template.Processor {
 
   private void reallocateGlobalData() {
     final MemoryAllocator memoryAllocator = engineContext.getModel().getMemoryAllocator();
+    final LabelManager labelManager = engineContext.getLabelManager();
     memoryAllocator.reset();
 
     for (final DataSection data : testProgram.getGlobalData()) {
-      data.allocate(memoryAllocator);
-      data.registerLabels(engineContext.getLabelManager());
+      data.allocateDataAndRegisterLabels(memoryAllocator, labelManager);
     }
 
     testProgram.readdGlobalData();

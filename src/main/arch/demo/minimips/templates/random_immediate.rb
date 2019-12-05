@@ -22,15 +22,6 @@ require_relative 'minimips_base'
 # This test template demonstrates how to generate random immadiate values.
 #
 class RandomImmediateTemplate < MiniMipsBaseTemplate
-  def pre
-    super
-
-    #
-    # Start address
-    #
-    org 0x00020000
-  end
-
   def run
     # Predefined probability distribution
     int16_dist = dist(range(:value => 0,              :bias => 25),  # Zero

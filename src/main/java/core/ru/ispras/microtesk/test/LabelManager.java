@@ -244,9 +244,9 @@ public final class LabelManager {
             targets.set(index, target);
             return;
           } else {
-            throw new GenerationAbortedException(String.format(
-                "Incorrect template. Label '%s' is redefined in the same scope.",
-                label.getName()));
+            throw new GenerationAbortedException(
+                String.format("Incorrect template: label '%s' has been already defined",
+                    label.getUniqueName()));
           }
         }
       }

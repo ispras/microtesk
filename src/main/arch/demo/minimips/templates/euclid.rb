@@ -28,8 +28,6 @@ require_relative 'minimips_base'
 class EuclidTemplate < MiniMipsBaseTemplate
 
   def run
-    org 0x00020000
-
     sequence {
       # Values from [1..63], zero is excluded because there is no solution
       val1 = rand(1, 63)

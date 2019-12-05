@@ -27,7 +27,6 @@ class ConstraintControlFlowTemplate(MiniMipsBaseTemplate):
         
     def pre(self):
         MiniMipsBaseTemplate.pre(self)
-        org(0x00020000)
         
     def run(self):
         sequence({},

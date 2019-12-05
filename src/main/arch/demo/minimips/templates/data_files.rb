@@ -31,8 +31,6 @@ class DataFilesTemplate < MiniMipsBaseTemplate
     generate_data 0x0000F000, :data1, 'word', 64, :random
     generate_data 0x0000FFFF, :data2, 'word', 64, :zero
 
-    org 0x00020000
-
     trace_memory_data :data0, 64
     la t0, :data0
 

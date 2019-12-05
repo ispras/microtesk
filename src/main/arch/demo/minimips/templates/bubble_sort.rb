@@ -54,8 +54,6 @@ class BubbleSortTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    org 0x00020000
-
     sequence {
       trace_data :data, :end
 

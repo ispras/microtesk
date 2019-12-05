@@ -23,14 +23,6 @@ require_relative 'minimips_base'
 # by using randomly selected test situations.
 #
 class RandomSituationTemplate < MiniMipsBaseTemplate
-
-  def pre
-    super
-
-    # Start address
-    org 0x00020000
-  end
-
   def run
     int32_dist = dist(
       range(:value => 0,                      :bias => 25),

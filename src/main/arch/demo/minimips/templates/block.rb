@@ -24,8 +24,6 @@ require_relative 'minimips_base'
 class BlockTemplate < MiniMipsBaseTemplate
 
   def run
-    org 0x00020000
-
     # Produces a single test case that consists of three instructions
     sequence {
       Add t0, t1, t2

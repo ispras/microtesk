@@ -154,7 +154,7 @@ public final class Preparator {
       final PreparatorStore preparators,
       final Primitive target,
       final BitVector data,
-      final String preferedVariantName) {
+      final String preferredVariantName) {
     InvariantChecks.checkNotNull(preparators);
     InvariantChecks.checkNotNull(target);
     InvariantChecks.checkNotNull(data);
@@ -162,7 +162,7 @@ public final class Preparator {
     targetHolder.setSource(target);
     dataHolder.setValue(data);
 
-    final List<AbstractCall> chosenCalls = chooseCalls(preferedVariantName);
+    final List<AbstractCall> chosenCalls = chooseCalls(preferredVariantName);
     return expandPreparators(labelSeriesId, preparators, chosenCalls);
   }
 

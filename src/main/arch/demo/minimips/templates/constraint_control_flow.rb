@@ -23,14 +23,6 @@ require_relative 'minimips_base'
 # that have jumps. Constraints must be resolved taking into account the control flow.
 #
 class ConstraintControlFlowTemplate < MiniMipsBaseTemplate
-
-  def pre
-    super
-
-    # Start address
-    org 0x00020000
-  end
-
   def run
     sequence {
       prepare t0, rand(0, 1)

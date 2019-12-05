@@ -39,8 +39,6 @@ class MinMaxTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    org 0x00020000
-
     trace_data :data, :end
 
     la t0, :data

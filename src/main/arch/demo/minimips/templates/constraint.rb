@@ -24,7 +24,6 @@ require_relative 'minimips_base'
 #
 class ConstraintTemplate < MiniMipsBaseTemplate
   def run
-    org 0x00020000
     sequence {
       add t0, t1, t2 do situation('constraint_int_overflow') end
       nop

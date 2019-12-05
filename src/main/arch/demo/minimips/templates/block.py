@@ -23,8 +23,6 @@ class BlockTemplate(MiniMipsBaseTemplate):
         MiniMipsBaseTemplate.__init__(self)
         
     def run(self):
-        org(0x00020000)
-        
         sequence({},
                 lambda : [
                     add(t0(),t1(),t2()),

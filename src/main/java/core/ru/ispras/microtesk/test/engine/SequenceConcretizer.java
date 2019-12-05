@@ -22,6 +22,7 @@ import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.memory.LocationAccessor;
 import ru.ispras.microtesk.model.memory.LocationManager;
+import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.Code;
 import ru.ispras.microtesk.test.CodeAllocator;
@@ -278,12 +279,13 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
     InvariantChecks.checkNotNull(labelManager);
     InvariantChecks.checkNotNull(sequence);
 
+    final MemoryAllocator memoryAllocator = engineContext.getModel().getMemoryAllocator();
+
     for (final ConcreteCall call : sequence) {
       if (call.getData() != null) {
         final DataSection data = call.getData();
         data.setSequenceIndex(sequenceIndex);
-        data.allocate(engineContext.getModel().getMemoryAllocator());
-        data.registerLabels(labelManager);
+        data.allocateDataAndRegisterLabels(memoryAllocator, labelManager);
       }
     }
   }

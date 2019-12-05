@@ -23,16 +23,6 @@ require_relative 'minimips_base'
 # sequences using block constructs.
 #
 class BlockRandomTemplate < MiniMipsBaseTemplate
-
-  def pre
-    super
-
-    #
-    # Start address
-    #
-    org 0x00020000
-  end
-
   def run
     instructions = iterate {
       Or   reg(_), reg(_), reg(_)

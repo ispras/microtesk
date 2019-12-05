@@ -40,8 +40,6 @@ class BubbleSortTemplate(MiniMipsBaseTemplate):
                   )
         
     def run(self):
-        org(0x00020000)
-        
         def swap(reg1,reg2):
             xor(reg1,reg1,reg2)
             xor(reg2,reg1,reg2)

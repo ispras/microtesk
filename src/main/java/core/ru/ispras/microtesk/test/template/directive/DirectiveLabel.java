@@ -18,7 +18,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelValue;
 
-public abstract class DirectiveLabel extends Directive {
+public class DirectiveLabel extends Directive {
   protected final LabelValue label;
 
   DirectiveLabel(final LabelValue label) {
@@ -30,6 +30,10 @@ public abstract class DirectiveLabel extends Directive {
 
   public final Label getLabel() {
     return label.getLabel();
+  }
+
+  public boolean isRealLabel() {
+    return true;
   }
 
   @Override
@@ -45,6 +49,11 @@ public abstract class DirectiveLabel extends Directive {
   @Override
   public boolean needsIndent() {
     return false;
+  }
+
+  @Override
+  public Directive copy() {
+    return new DirectiveLabel(label.newCopy());
   }
 
   @Override

@@ -408,11 +408,8 @@ public final class Template {
     final Label label = Label.newLabel(name, getCurrentBlockId());
     final LabelValue labelValue = LabelValue.newUnknown(label);
 
-    final Section section =
-        !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
-
     debug("Label: %s", label);
-    callBuilder.addDirective(getDirectiveFactory().newLabel(section, labelValue));
+    callBuilder.addDirective(getDirectiveFactory().newLabel(labelValue));
   }
 
   public void addGlobalLabel(final String name) {
@@ -435,11 +432,8 @@ public final class Template {
     final Label label = Label.newNumeric(index, getCurrentBlockId());
     final LabelValue labelValue = LabelValue.newUnknown(label);
 
-    final Section section =
-        !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
-
     debug("Label: %s", label);
-    callBuilder.addDirective(getDirectiveFactory().newLabel(section, labelValue));
+    callBuilder.addDirective(getDirectiveFactory().newLabel(labelValue));
   }
 
   public LabelValue newNumericLabelRef(final int index, final boolean forward) {

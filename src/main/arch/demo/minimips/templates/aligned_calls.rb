@@ -22,16 +22,6 @@ require_relative 'minimips_base'
 # This test template demonstrates how MicroTESK executes aligned calls.
 #
 class AlignedCallsTemplate < MiniMipsBaseTemplate
-
-  def pre
-    super
-
-    #
-    # Start address
-    #
-    org 0x00020000
-  end
-
   def run
     align 4
     add reg(_), reg(_ FREE), reg(_ FREE)

@@ -19,7 +19,6 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.model.data.Type;
-import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.GenerationAbortedException;
@@ -218,8 +217,8 @@ public final class DirectiveFactory {
     return new DirectiveComment(options, text);
   }
 
-  public Directive newLabel(final Section section, final LabelValue label) {
-    return new DirectiveLabelLocal(section, label);
+  public Directive newLabel(final LabelValue label) {
+    return new DirectiveLabel(label);
   }
 
   public Directive newGlobalLabel(final LabelValue label) {
