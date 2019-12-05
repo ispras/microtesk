@@ -42,6 +42,14 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
 
       label :world
       asciiz 'World'
+      space 5
+
+      byte  1
+
+      label :unaligned
+      byte2 0xDEAD, 0xBEEF
+      byte4 0xDEADBEEF
+      byte  2, 3, 4
 
       label :random_data
       int32_dist = dist(range(:value => 0,                      :bias => 25),  # Zero
@@ -49,12 +57,6 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
                         range(:value => 0xffffFFFE..0xffffFFFF, :bias => 50))  # Large
       word int32_dist.next_value, int32_dist.next_value,
            int32_dist.next_value, int32_dist.next_value
-
-      space 6
-
-      byte  0xFF
-      byte2 0xDEAD, 0xBEEF
-      byte4 0xDEADBEEF
     }
   end
 
@@ -94,10 +96,11 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
     word    0xDEADBEEF
     ascii   'Hello'
     asciiz  'World'
-    space   6
-    byte    0xFF
+    space   5
+    byte    1
     byte2   0xDEAD, 0xBEEF
     byte4   0xDEADBEEF
+    byte    2, 3, 4
 
     label :data_end
     trace_memory
@@ -117,8 +120,14 @@ class LoadStoreTemplate < MiniMipsBaseTemplate
 
       label :worldX
       asciiz 'World'
+      space 5
 
-      space 6
+      byte 1
+
+      label :unalignedX
+      byte2 0xDEAD, 0xBEEF
+      byte4 0xDEADBEEF
+      byte 2, 3, 4
     }
   end
 
