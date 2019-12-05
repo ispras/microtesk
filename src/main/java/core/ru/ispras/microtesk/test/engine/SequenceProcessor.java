@@ -335,16 +335,17 @@ public final class SequenceProcessor {
     final List<AbstractCall> abstractCalls = new ArrayList<>();
 
     for (int index = 0; index < abstractSequence.getSequence().size(); ++index) {
-      AbstractCall call = abstractSequence.getSequence().get(index);
+      final AbstractCall call = abstractSequence.getSequence().get(index);
 
       if (null != abstractSequence.getPrologues()) {
         final List<AbstractCall> prologue = abstractSequence.getPrologues().get(index);
         if (null != prologue) {
-          if (!call.getLabels().isEmpty()) {
-            final AbstractCall labelCall = AbstractCall.newEmpty();
-            labelCall.getLabels().addAll(call.getLabels());
-            abstractCalls.add(labelCall);
-            call.getLabels().clear();
+          // If the call has directives, all of them are moved before the prologue (control code).
+          if (!call.getDirectives().isEmpty()) {
+            final AbstractCall directiveCall = AbstractCall.newEmpty();
+            directiveCall.getDirectives().addAll(call.getDirectives());
+            abstractCalls.add(directiveCall);
+            call.getDirectives().clear();
           }
 
           abstractCalls.addAll(prologue);

@@ -40,10 +40,6 @@ public abstract class Directive {
   public static List<Directive> copyAll(final List<Directive> directives) {
     InvariantChecks.checkNotNull(directives);
 
-    if (directives.isEmpty()) {
-      return Collections.emptyList();
-    }
-
     final List<Directive> result = new ArrayList<>(directives.size());
     for (final Directive directive : directives) {
       result.add(directive.copy());

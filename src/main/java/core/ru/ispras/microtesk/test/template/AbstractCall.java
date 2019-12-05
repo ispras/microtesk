@@ -46,7 +46,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        Collections.<Directive>emptyList(),
+        // Directives are modifiable.
+        new ArrayList<Directive>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         null,
@@ -56,7 +57,6 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         );
   }
 
-  // TODO:
   public static AbstractCall newText(final String text) {
     InvariantChecks.checkNotNull(text);
 
@@ -64,7 +64,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         text,
         null,
-        Collections.<Directive>emptyList(),
+        // Directives are modifiable.
+        new ArrayList<Directive>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         null,
@@ -79,7 +80,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        Collections.<Directive>emptyList(),
+        // Directives are modifiable.
+        new ArrayList<Directive>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         null,
@@ -100,26 +102,10 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        Collections.<Directive>emptyList(),
+        // Directives are modifiable.
+        new ArrayList<Directive>(),
         Collections.<LabelReference>emptyList(),
         Collections.singletonList(new Output(Output.Kind.COMMENT, comment)),
-        null,
-        null,
-        null,
-        null
-        );
-  }
-
-  public static AbstractCall newDirective(final Directive directive) {
-    InvariantChecks.checkNotNull(directive);
-
-    return new AbstractCall(
-        null,
-        null,
-        null,
-        Collections.<Directive>singletonList(directive),
-        Collections.<LabelReference>emptyList(),
-        Collections.<Output>emptyList(),
         null,
         null,
         null,
@@ -134,7 +120,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        Collections.<Directive>emptyList(),
+        // Directives are modifiable.
+        new ArrayList<Directive>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         null,
@@ -166,7 +153,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
         null,
         null,
         null,
-        Collections.<Directive>emptyList(),
+        // Directives are modifiable.
+        new ArrayList<Directive>(),
         Collections.<LabelReference>emptyList(),
         Collections.<Output>emptyList(),
         null,
@@ -197,7 +185,8 @@ public final class AbstractCall extends SharedObject<AbstractCall> {
     this.text = text;
     this.rootOperation = rootOperation;
     this.attributes = new LinkedHashMap<>();
-    this.directives = Collections.unmodifiableList(directives);
+    // Directives are modifiable.
+    this.directives = directives;
     this.labelRefs = Collections.unmodifiableList(labelRefs);
     this.outputs = Collections.unmodifiableList(outputs);
 
