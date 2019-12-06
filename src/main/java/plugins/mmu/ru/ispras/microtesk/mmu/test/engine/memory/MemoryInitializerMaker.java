@@ -160,7 +160,7 @@ public final class MemoryInitializerMaker implements InitializerMaker {
     final MmuBuffer buffer = bufferAccess.getBuffer();
 
     final BlockId blockId = new BlockId();
-    final DirectiveFactory dataDirectiveFactory = engineContext.getDataDirectiveFactory();
+    final DirectiveFactory dataDirectiveFactory = engineContext.getDirectiveFactory();
     InvariantChecks.checkNotNull(dataDirectiveFactory);
 
     final List<AbstractCall> preparation = new ArrayList<>();

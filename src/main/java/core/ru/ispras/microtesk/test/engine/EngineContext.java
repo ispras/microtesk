@@ -50,7 +50,7 @@ public final class EngineContext {
   private final int delaySlotSize;
   private long codeAllocationAddress;
   private CodeAllocator codeAllocator;
-  private DirectiveFactory dataDirectiveFactory;
+  private DirectiveFactory directiveFactory;
 
   // TODO: temporal solution for extending the context for custom engines.
   private final Map<String, Object> contextExtensions = new HashMap<>();
@@ -82,7 +82,7 @@ public final class EngineContext {
 
     this.codeAllocationAddress = 0;
     this.codeAllocator = null;
-    this.dataDirectiveFactory = null;
+    this.directiveFactory = null;
   }
 
   public Options getOptions() {
@@ -142,14 +142,14 @@ public final class EngineContext {
     this.codeAllocator = codeAllocator;
   }
 
-  public DirectiveFactory getDataDirectiveFactory() {
-    return dataDirectiveFactory;
+  public DirectiveFactory getDirectiveFactory() {
+    return directiveFactory;
   }
 
-  public void setDataDirectiveFactory(final DirectiveFactory value) {
+  public void setDirectiveFactory(final DirectiveFactory value) {
     InvariantChecks.checkNotNull(value);
-    InvariantChecks.checkTrue(null == dataDirectiveFactory);
-    dataDirectiveFactory = value;
+    InvariantChecks.checkTrue(null == directiveFactory);
+    directiveFactory = value;
   }
 
   public Object getCustomContext(final String id) {

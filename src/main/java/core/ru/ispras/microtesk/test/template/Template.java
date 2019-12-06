@@ -150,7 +150,7 @@ public final class Template {
   }
 
   public DirectiveFactory getDirectiveFactory() {
-    return context.getDataDirectiveFactory();
+    return context.getDirectiveFactory();
   }
 
   public DataManager getDataManager() {

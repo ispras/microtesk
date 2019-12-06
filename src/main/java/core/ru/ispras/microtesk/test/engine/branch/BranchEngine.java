@@ -30,8 +30,10 @@ import ru.ispras.microtesk.test.template.Argument;
 import ru.ispras.microtesk.test.template.BlockId;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
+import ru.ispras.microtesk.test.template.LabelValue;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
+import ru.ispras.microtesk.test.template.directive.DirectiveFactory;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
 
@@ -344,10 +346,13 @@ public final class BranchEngine implements Engine {
 
         // Branching to any place in the sequence (_label).
         if (targetReference.getReference() == null) {
+          final DirectiveFactory directiveFactory = engineContext.getDirectiveFactory();
+
           // Generate the label name.
           final String name = String.format("%s_%d", AUTO_LABEL_PREFIX, autoLabel++);
           final BlockId blockId = new BlockId();
           final Label targetLabel = Label.newLabel(name, blockId);
+          final LabelValue targetLabelValue = LabelValue.newUnknown(targetLabel);
 
           // Put the label in a random position.
           final int randomIndex = Randomizer.get().nextIntRange(0, newSequence.size() - 1);
@@ -358,7 +363,7 @@ public final class BranchEngine implements Engine {
               ? randomIndex - 1 : randomIndex;
 
           final AbstractCall targetCall = newSequence.get(targetIndex);
-          targetCall.getLabels().add(targetLabel);
+          targetCall.getDirectives().add(directiveFactory.newLabel(targetLabelValue));
 
           // Patch the label in the call.
           targetReference.setReference(targetLabel);

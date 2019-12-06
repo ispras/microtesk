@@ -66,7 +66,7 @@ public final class DataManager {
     checkReinitialized();
 
     InvariantChecks.checkNotNull(factoryBuilder);
-    engineContext.setDataDirectiveFactory(factoryBuilder.build());
+    engineContext.setDirectiveFactory(factoryBuilder.build());
     factoryBuilder = null;
   }
 
@@ -78,7 +78,7 @@ public final class DataManager {
     checkInitialized();
     InvariantChecks.checkTrue(null == dataBuilder);
 
-    final DirectiveFactory factory = engineContext.getDataDirectiveFactory();
+    final DirectiveFactory factory = engineContext.getDirectiveFactory();
     dataBuilder = new DataSectionBuilder(blockId, factory, section, isGlobal, isSeparateFile);
     return dataBuilder;
   }
@@ -93,7 +93,7 @@ public final class DataManager {
   }
 
   public boolean isInitialized() {
-    return engineContext.getDataDirectiveFactory() != null;
+    return engineContext.getDirectiveFactory() != null;
   }
 
   public DataSection generateData(
@@ -114,7 +114,7 @@ public final class DataManager {
     final Section section = Sections.get().getDataSection();
     InvariantChecks.checkNotNull(section, "Data section is not defined in the template!");
 
-    final DirectiveFactory factory = engineContext.getDataDirectiveFactory();
+    final DirectiveFactory factory = engineContext.getDirectiveFactory();
     final DataSectionBuilder dataBuilder = new DataSectionBuilder(
         new BlockId(),
         factory,
