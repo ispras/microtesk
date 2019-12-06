@@ -38,6 +38,11 @@ public final class DirectiveLabelGlobal extends DirectiveLabel {
   }
 
   @Override
+  public boolean needsIndent() {
+    return true;
+  }
+
+  @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
     return currentAddress;
   }
