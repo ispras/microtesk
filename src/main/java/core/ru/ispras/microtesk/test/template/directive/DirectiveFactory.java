@@ -304,11 +304,24 @@ public final class DirectiveFactory {
     return typeInfo;
   }
 
+  public DirectiveTypeInfo findTypeInfo(final int typeSizeInBits) {
+    InvariantChecks.checkGreaterThanZero(typeSizeInBits);
+
+    for (final DirectiveTypeInfo typeInfo : types.values()) {
+      if (typeSizeInBits == typeInfo.type.getBitSize()) {
+        return typeInfo;
+      }
+    }
+
+    throw new GenerationAbortedException(
+        String.format("No %d-bit type is defined.", typeSizeInBits));
+  }
+
   public DirectiveTypeInfo findTypeInfo(final int typeSizeInBits, final boolean align) {
     InvariantChecks.checkGreaterThanZero(typeSizeInBits);
 
     for (final DirectiveTypeInfo typeInfo : types.values()) {
-      if (typeSizeInBits == typeInfo.type.getBitSize() && (!align || typeInfo.align)) {
+      if (typeSizeInBits == typeInfo.type.getBitSize() && align == typeInfo.align) {
         return typeInfo;
       }
     }
