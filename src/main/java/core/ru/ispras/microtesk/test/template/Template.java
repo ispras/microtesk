@@ -408,16 +408,12 @@ public final class Template {
     final Label label = Label.newLabel(name, getCurrentBlockId());
     final LabelValue labelValue = LabelValue.newUnknown(label);
 
+    if (global) {
+      callBuilder.addDirective(getDirectiveFactory().newGlobalLabel(labelValue));
+    }
+
     debug("Label: %s", label);
     callBuilder.addDirective(getDirectiveFactory().newLabel(labelValue));
-  }
-
-  public void addGlobalLabel(final String name) {
-    final Label label = Label.newGlobal(name, getCurrentBlockId());
-    final LabelValue labelValue = LabelValue.newUnknown(label);
-
-    debug("Label: %s", label);
-    callBuilder.addDirective(getDirectiveFactory().newGlobalLabel(labelValue));
   }
 
   public void addWeakLabel(final String name) {
