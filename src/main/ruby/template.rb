@@ -844,8 +844,8 @@ class Template
     @template.addDirective @directive.align(value), get_caller_location
   end
 
-  def balign(value)
-    @template.addDirective @directive.balign(value), get_caller_location
+  def balign(value, fill_with=-1)
+    @template.addDirective @directive.balign(value, fill_with), get_caller_location
   end
 
   def p2align(value)
@@ -1188,8 +1188,8 @@ class DataManager
     @builder.addDirective @directive.align(value)
   end
 
-  def balign(value)
-    @builder.addDirective @directive.balign(value)
+  def balign(value, fill_with=-1)
+    @builder.addDirective @directive.balign(value, fill_with)
   end
 
   def p2align(value)

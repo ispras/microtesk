@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.template.directive;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
@@ -23,15 +24,25 @@ import java.math.BigInteger;
 public class DirectiveAlign extends Directive {
   protected final int alignment;
   protected final int alignmentInBytes;
+  protected final int fillWith;
 
   DirectiveAlign(
       final Options options,
       final int alignment,
       final int alignmentInBytes) {
+    this(options, alignment, alignmentInBytes, -1);
+  }
+
+  DirectiveAlign(
+      final Options options,
+      final int alignment,
+      final int alignmentInBytes,
+      final int fillWith) {
     super(options);
 
     this.alignment = alignment;
     this.alignmentInBytes = alignmentInBytes;
+    this.fillWith = fillWith;
   }
 
   @Override
@@ -46,7 +57,20 @@ public class DirectiveAlign extends Directive {
 
   @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
-    return MemoryAllocator.alignAddress(currentAddress, alignmentInBytes);
+    final BigInteger alignedAddress = MemoryAllocator.alignAddress(currentAddress, alignmentInBytes);
+
+    if (fillWith != -1) {
+      final BigInteger delta = alignedAddress.subtract(currentAddress);
+
+      if (!delta.equals(BigInteger.ZERO)) {
+        allocator.allocate(
+            currentAddress,
+            BitVector.valueOf(fillWith, allocator.getAddressableUnitBitSize()),
+            delta.intValue());
+      }
+    }
+
+    return alignedAddress;
   }
 
   @Override

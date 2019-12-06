@@ -22,6 +22,10 @@ public class DirectiveAlignByte extends DirectiveAlign {
     super(options, alignmentInBytes, alignmentInBytes);
   }
 
+  DirectiveAlignByte(final Options options, final int alignmentInBytes, final int fillWith) {
+    super(options, alignmentInBytes, alignmentInBytes, fillWith);
+  }
+
   @Override
   public Kind getKind() {
     return Kind.ALIGN;
