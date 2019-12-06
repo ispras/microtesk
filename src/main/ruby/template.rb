@@ -840,16 +840,16 @@ class Template
   # Assembler Directives (Code)
   #=================================================================================================
 
-  def align(value)
-    @template.addDirective @directive.align(value), get_caller_location
+  def align(value, fill_with=-1)
+    @template.addDirective @directive.align(value, fill_with), get_caller_location
   end
 
   def balign(value, fill_with=-1)
     @template.addDirective @directive.balign(value, fill_with), get_caller_location
   end
 
-  def p2align(value)
-    @template.addDirective @directive.p2align(value), get_caller_location
+  def p2align(value, fill_with=-1)
+    @template.addDirective @directive.p2align(value, fill_with), get_caller_location
   end
 
   def org(value)
@@ -1184,16 +1184,16 @@ class DataManager
   # Assembler Directives (Data)
   #=================================================================================================
 
-  def align(value)
-    @builder.addDirective @directive.align(value)
+  def align(value, fill_with=-1)
+    @builder.addDirective @directive.align(value, fill_with)
   end
 
   def balign(value, fill_with=-1)
     @builder.addDirective @directive.balign(value, fill_with)
   end
 
-  def p2align(value)
-    @builder.addDirective @directive.p2align(value)
+  def p2align(value, fill_with=-1)
+    @builder.addDirective @directive.p2align(value, fill_with)
   end
 
   def org(value)

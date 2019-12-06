@@ -100,8 +100,11 @@ public enum Option implements Property {
 
   ORIGIN_FORMAT("Origin directive format", ".org 0x%x", GENERATE),
   ALIGN_FORMAT("Alignment directive format", ".align %d", GENERATE),
+  ALIGN_FORMAT2("Alignment directive format", ".align %d, 0x%02x", GENERATE),
   BYTE_ALIGN_FORMAT("Byte alignment directive format", ".balign %d", GENERATE),
+  BYTE_ALIGN_FORMAT2("Byte alignment directive format", ".balign %d, 0x%02x", GENERATE),
   POWER2_ALIGN_FORMAT("Power of 2 alignment directive format", ".p2align %d", GENERATE),
+  POWER2_ALIGN_FORMAT2("Power of 2 alignment directive format", ".p2align %d, 0x%02x", GENERATE),
   OPTION_FORMAT("Option directive format", ".option %s", GENERATE),
   GLOBAL_FORMAT("Global directive format", ".globl %s", GENERATE),
   WEAK_FORMAT("Weak directive format", ".weak %s", GENERATE),

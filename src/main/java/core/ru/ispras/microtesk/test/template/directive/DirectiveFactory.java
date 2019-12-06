@@ -196,17 +196,21 @@ public final class DirectiveFactory {
   }
 
   public Directive newAlign(
-      final int alignment, final int alignmentInBytes) {
-    return new DirectiveAlign(options, alignment, alignmentInBytes);
+      final int alignment,
+      final int alignmentInBytes,
+      final int fillWith) {
+    return new DirectiveAlign(options, alignment, alignmentInBytes, fillWith);
   }
 
-  public Directive newAlignByte(final int alignment) {
-    return new DirectiveAlignByte(options, alignment);
+  public Directive newAlignByte(final int alignment, final int fillWith) {
+    return new DirectiveAlignByte(options, alignment, fillWith);
   }
 
   public Directive newAlignPower2(
-      final int alignment, final int alignmentInBytes) {
-    return new DirectiveAlignPower2(options, alignment, alignmentInBytes);
+      final int alignment,
+      final int alignmentInBytes,
+      final int fillWith) {
+    return new DirectiveAlignPower2(options, alignment, alignmentInBytes, fillWith);
   }
 
   public Directive newSpace(

@@ -18,21 +18,14 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 
 public class DirectiveAlignByte extends DirectiveAlign {
-  DirectiveAlignByte(final Options options, final int alignmentInBytes) {
-    super(options, alignmentInBytes, alignmentInBytes);
-  }
-
   DirectiveAlignByte(final Options options, final int alignmentInBytes, final int fillWith) {
     super(options, alignmentInBytes, alignmentInBytes, fillWith);
   }
 
   @Override
-  public Kind getKind() {
-    return Kind.ALIGN;
-  }
-
-  @Override
   public String getText() {
-    return String.format(options.getValueAsString(Option.BYTE_ALIGN_FORMAT), alignmentInBytes);
+    return fillWith == -1
+        ? String.format(options.getValueAsString(Option.BYTE_ALIGN_FORMAT), alignment)
+        : String.format(options.getValueAsString(Option.BYTE_ALIGN_FORMAT2), alignment, fillWith);
   }
 }

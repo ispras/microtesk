@@ -21,17 +21,15 @@ public class DirectiveAlignPower2 extends DirectiveAlign {
   DirectiveAlignPower2(
       final Options options,
       final int alignment,
-      final int alignmentInBytes) {
-    super(options, alignment, alignmentInBytes);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.ALIGN;
+      final int alignmentInBytes,
+      final int fillWith) {
+    super(options, alignment, alignmentInBytes, fillWith);
   }
 
   @Override
   public String getText() {
-    return String.format(options.getValueAsString(Option.POWER2_ALIGN_FORMAT), alignment);
+    return fillWith == -1
+        ? String.format(options.getValueAsString(Option.POWER2_ALIGN_FORMAT), alignment)
+        : String.format(options.getValueAsString(Option.POWER2_ALIGN_FORMAT2), alignment, fillWith);
   }
 }

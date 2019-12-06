@@ -23,17 +23,17 @@ require_relative 'minimips_base'
 #
 class AlignedCallsTemplate < MiniMipsBaseTemplate
   def run
-    align 4
+    align 4, 0x00 # The second argument is optional
     add reg(_), reg(_ FREE), reg(_ FREE)
     sub reg(_), reg(_ FREE), reg(_ FREE)
     nop
 
-    align 8
+    balign 128, 0x00 # The second argument is optional
     add reg(_), reg(_ FREE), reg(_ FREE)
     sub reg(_), reg(_ FREE), reg(_ FREE)
     nop
 
-    align 16
+    p2align 16, 0x00 # The second argument is optional
     add reg(_), reg(_ FREE), reg(_ FREE)
     sub reg(_), reg(_ FREE), reg(_ FREE)
     nop

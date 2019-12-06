@@ -29,13 +29,6 @@ public class DirectiveAlign extends Directive {
   DirectiveAlign(
       final Options options,
       final int alignment,
-      final int alignmentInBytes) {
-    this(options, alignment, alignmentInBytes, -1);
-  }
-
-  DirectiveAlign(
-      final Options options,
-      final int alignment,
       final int alignmentInBytes,
       final int fillWith) {
     super(options);
@@ -52,7 +45,9 @@ public class DirectiveAlign extends Directive {
 
   @Override
   public String getText() {
-    return String.format(options.getValueAsString(Option.ALIGN_FORMAT), alignment);
+    return fillWith == -1
+      ? String.format(options.getValueAsString(Option.ALIGN_FORMAT), alignment)
+      : String.format(options.getValueAsString(Option.ALIGN_FORMAT2), alignment, fillWith);
   }
 
   @Override

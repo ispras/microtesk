@@ -23,9 +23,9 @@ class Directive
     @template = template
   end
 
-  def align(value)
+  def align(value, fill_with=-1)
     factory = @template.template.getDirectiveFactory
-    factory.newAlign(value, 2 ** value)
+    factory.newAlign(value, 2 ** value, fill_with)
   end
 
   def balign(value, fill_with=-1)
@@ -33,9 +33,9 @@ class Directive
     factory.newAlignByte(value, fill_with)
   end
 
-  def p2align(value)
+  def p2align(value, fill_with=-1)
     factory = @template.template.getDirectiveFactory
-    factory.newAlignPower2(value, 2 ** value)
+    factory.newAlignPower2(value, 2 ** value, fill_with)
   end
 
   def org(origin, is_code)
