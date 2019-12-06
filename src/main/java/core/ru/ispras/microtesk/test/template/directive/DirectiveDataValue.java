@@ -18,6 +18,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.template.Value;
 import ru.ispras.microtesk.utils.FormatMarker;
 
@@ -31,9 +32,12 @@ public final class DirectiveDataValue extends Directive {
   private final boolean align;
 
   DirectiveDataValue(
+      final Options options,
       final DirectiveTypeInfo typeInfo,
       final List<Value> values,
       final boolean align) {
+    super(options);
+
     InvariantChecks.checkNotNull(typeInfo);
     InvariantChecks.checkNotEmpty(values);
 
@@ -97,6 +101,6 @@ public final class DirectiveDataValue extends Directive {
     for (final Value value : values) {
       newValues.add(value.copy());
     }
-    return new DirectiveDataValue(typeInfo, newValues, align);
+    return new DirectiveDataValue(options, typeInfo, newValues, align);
   }
 }

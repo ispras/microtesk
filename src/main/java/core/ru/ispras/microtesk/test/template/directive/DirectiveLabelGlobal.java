@@ -15,13 +15,15 @@
 package ru.ispras.microtesk.test.template.directive;
 
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.template.LabelValue;
 
 import java.math.BigInteger;
 
 public final class DirectiveLabelGlobal extends DirectiveLabel {
-  DirectiveLabelGlobal(final LabelValue label) {
-    super(label);
+  DirectiveLabelGlobal(final Options options, final LabelValue label) {
+    super(options, label);
   }
 
   @Override
@@ -31,7 +33,8 @@ public final class DirectiveLabelGlobal extends DirectiveLabel {
 
   @Override
   public String getText() {
-    return String.format(".globl %s", label.getLabel().getUniqueName());
+    return String.format(options.getValueAsString(Option.GLOBAL_FORMAT),
+        label.getLabel().getUniqueName());
   }
 
   @Override
@@ -41,6 +44,6 @@ public final class DirectiveLabelGlobal extends DirectiveLabel {
 
   @Override
   public Directive copy() {
-    return new DirectiveLabelGlobal(label.newCopy());
+    return new DirectiveLabelGlobal(options, label.newCopy());
   }
 }

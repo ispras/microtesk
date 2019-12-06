@@ -89,14 +89,14 @@ class Directive
     dataBuilder.build
   end
 
-  def space(length)
+  def space(text, data, length)
     factory = @template.template.getDirectiveFactory
-    factory.newSpace(length)
+    factory.newSpace(text, data, length)
   end
 
-  def ascii(zero_term, strings)
+  def ascii(text, term, strings)
     factory = @template.template.getDirectiveFactory
-    factory.newAsciiStrings(zero_term, strings)
+    factory.newStrings(text, term, strings)
   end
 
   #=================================================================================================

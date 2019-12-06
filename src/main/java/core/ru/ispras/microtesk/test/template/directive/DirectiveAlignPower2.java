@@ -17,13 +17,11 @@ package ru.ispras.microtesk.test.template.directive;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 
-import java.math.BigInteger;
-
 public class DirectiveAlignPower2 extends DirectiveAlign {
   DirectiveAlignPower2(
       final Options options,
-      final BigInteger alignment,
-      final BigInteger alignmentInBytes) {
+      final int alignment,
+      final int alignmentInBytes) {
     super(options, alignment, alignmentInBytes);
   }
 

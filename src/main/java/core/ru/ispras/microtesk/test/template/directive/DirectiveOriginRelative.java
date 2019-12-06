@@ -22,7 +22,6 @@ import ru.ispras.microtesk.options.Options;
 import java.math.BigInteger;
 
 public final class DirectiveOriginRelative extends Directive {
-  private final Options options;
   private final BigInteger delta;
   private BigInteger origin;
 
@@ -31,10 +30,9 @@ public final class DirectiveOriginRelative extends Directive {
   }
 
   DirectiveOriginRelative(final Options options, final BigInteger delta, final BigInteger origin) {
-    InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(delta);
+    super(options);
 
-    this.options = options;
+    InvariantChecks.checkNotNull(delta);
     this.delta = delta;
     this.origin = origin;
   }

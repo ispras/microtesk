@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2019 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,28 +14,11 @@
 
 package ru.ispras.microtesk.test.template.directive;
 
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.options.Option;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.microtesk.options.Options;
 
-public final class DirectiveOption extends Directive {
-  private final String option;
-
-  DirectiveOption(final Options options, final String option) {
-    super(options);
-
-    InvariantChecks.checkNotNull(option);
-    this.option = option;
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.TEXT;
-  }
-
-  @Override
-  public String getText() {
-    return String.format(options.getValueAsString(Option.OPTION_FORMAT), option);
+public final class DirectiveZero extends DirectiveSpace {
+  DirectiveZero(final Options options, final int length) {
+    super(options, "zero", BitVector.valueOf(0, 8), length);
   }
 }
-

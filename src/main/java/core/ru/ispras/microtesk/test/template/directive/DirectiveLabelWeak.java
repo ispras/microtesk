@@ -15,18 +15,21 @@
 package ru.ispras.microtesk.test.template.directive;
 
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.template.LabelValue;
 
 import java.math.BigInteger;
 
 public final class DirectiveLabelWeak extends DirectiveLabel {
-  DirectiveLabelWeak(final LabelValue label) {
-    super(label);
+  DirectiveLabelWeak(final Options options, final LabelValue label) {
+    super(options, label);
   }
 
   @Override
   public String getText() {
-    return String.format(".weak %s", label.getLabel().getUniqueName());
+    return String.format(options.getValueAsString(Option.WEAK_FORMAT),
+        label.getLabel().getUniqueName());
   }
 
   @Override
@@ -36,6 +39,6 @@ public final class DirectiveLabelWeak extends DirectiveLabel {
 
   @Override
   public Directive copy() {
-    return new DirectiveLabelWeak(label.newCopy());
+    return new DirectiveLabelWeak(options, label.newCopy());
   }
 }

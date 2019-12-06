@@ -16,25 +16,26 @@ package ru.ispras.microtesk.test.template.directive;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.options.Options;
 
 import java.math.BigInteger;
 
-public final class DirectiveAsciiStrings extends Directive {
-  private final String ztermStrText;
-  private final String nztermStrText;
+public final class DirectiveString extends Directive {
+  private final String text;
   private final boolean zeroTerm;
   private final String[] strings;
 
-  DirectiveAsciiStrings(
-      final String ztermStrText,
-      final String nztermStrText,
+  DirectiveString(
+      final Options options,
+      final String text,
       final boolean zeroTerm,
       final String[] strings) {
-    InvariantChecks.checkTrue(zeroTerm ? ztermStrText != null : nztermStrText != null);
+    super(options);
+
+    InvariantChecks.checkTrue(text != null);
     InvariantChecks.checkNotEmpty(strings);
 
-    this.ztermStrText = ztermStrText;
-    this.nztermStrText = nztermStrText;
+    this.text = text;
     this.zeroTerm = zeroTerm;
     this.strings = strings;
   }
@@ -46,7 +47,7 @@ public final class DirectiveAsciiStrings extends Directive {
 
   @Override
   public String getText() {
-    final StringBuilder sb = new StringBuilder(zeroTerm ? ztermStrText : nztermStrText);
+    final StringBuilder sb = new StringBuilder(text);
     for (int index = 0; index < strings.length; index++) {
       if (index > 0) {
         sb.append(',');
@@ -61,7 +62,7 @@ public final class DirectiveAsciiStrings extends Directive {
     BigInteger current = currentAddress;
 
     for (int index = 0; index < strings.length; index++) {
-      current = allocator.allocateAsciiString(current, strings[index], zeroTerm).second;
+      current = allocator.allocateString(current, strings[index], zeroTerm).second;
     }
 
     return current;

@@ -17,10 +17,8 @@ package ru.ispras.microtesk.test.template.directive;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 
-import java.math.BigInteger;
-
 public class DirectiveAlignByte extends DirectiveAlign {
-  DirectiveAlignByte(final Options options, final BigInteger alignmentInBytes) {
+  DirectiveAlignByte(final Options options, final int alignmentInBytes) {
     super(options, alignmentInBytes, alignmentInBytes);
   }
 

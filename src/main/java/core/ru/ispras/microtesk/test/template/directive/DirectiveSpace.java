@@ -17,15 +17,18 @@ package ru.ispras.microtesk.test.template.directive;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.options.Options;
 
 import java.math.BigInteger;
 
-public final class DirectiveSpace extends Directive {
-  private final String text;
-  private final BitVector data;
-  private final int length;
+public class DirectiveSpace extends Directive {
+  protected final String text;
+  protected final BitVector data;
+  protected final int length;
 
-  DirectiveSpace(final String text, final BitVector data, final int length) {
+  DirectiveSpace(final Options options, final String text, final BitVector data, final int length) {
+    super(options);
+
     InvariantChecks.checkNotNull(text);
     InvariantChecks.checkNotNull(data);
     InvariantChecks.checkGreaterThanZero(length);

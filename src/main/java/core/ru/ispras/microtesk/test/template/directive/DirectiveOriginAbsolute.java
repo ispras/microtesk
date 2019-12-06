@@ -14,9 +14,7 @@
 
 package ru.ispras.microtesk.test.template.directive;
 
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
-import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 
 import java.math.BigInteger;

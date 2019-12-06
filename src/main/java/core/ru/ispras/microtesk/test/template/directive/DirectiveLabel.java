@@ -15,13 +15,16 @@
 package ru.ispras.microtesk.test.template.directive;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelValue;
 
 public class DirectiveLabel extends Directive {
   protected final LabelValue label;
 
-  DirectiveLabel(final LabelValue label) {
+  DirectiveLabel(final Options options, final LabelValue label) {
+    super(options);
+
     InvariantChecks.checkNotNull(label);
     InvariantChecks.checkNotNull(label.getLabel());
 
@@ -53,7 +56,7 @@ public class DirectiveLabel extends Directive {
 
   @Override
   public Directive copy() {
-    return new DirectiveLabel(label.newCopy());
+    return new DirectiveLabel(options, label.newCopy());
   }
 
   @Override

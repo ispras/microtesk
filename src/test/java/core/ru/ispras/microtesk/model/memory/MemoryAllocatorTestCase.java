@@ -71,7 +71,7 @@ public class MemoryAllocatorTestCase {
     Assert.assertEquals(BitVector.valueOf(0xFFFFFFFF, 32), memory.read(2));
     Assert.assertEquals(BitVector.valueOf(0x000000FF, 32), memory.read(3));
 
-    addressPair = allocator.allocateAsciiString(
+    addressPair = allocator.allocateString(
         addressPair.second,
         "TEST", true);
     Assert.assertEquals(BigInteger.valueOf(13), addressPair.first);

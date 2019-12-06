@@ -22,14 +22,13 @@ import ru.ispras.microtesk.options.Options;
 import java.math.BigInteger;
 
 public class DirectiveOrigin extends Directive {
-  protected final Options options;
   protected final BigInteger origin;
 
   DirectiveOrigin(final Options options, final BigInteger origin) {
-    InvariantChecks.checkNotNull(options);
+    super(options);
+
     InvariantChecks.checkNotNull(origin);
     InvariantChecks.checkGreaterOrEq(origin, BigInteger.ZERO);
-    this.options = options;
     this.origin = origin;
   }
 

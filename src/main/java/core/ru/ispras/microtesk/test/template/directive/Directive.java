@@ -16,10 +16,10 @@ package ru.ispras.microtesk.test.template.directive;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.options.Options;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,6 +46,13 @@ public abstract class Directive {
     }
 
     return result;
+  }
+
+  protected final Options options;
+
+  Directive(final Options options) {
+    InvariantChecks.checkNotNull(options);
+    this.options = options;
   }
 
   /**

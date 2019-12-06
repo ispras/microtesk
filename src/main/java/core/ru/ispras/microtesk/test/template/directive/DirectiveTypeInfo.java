@@ -24,12 +24,14 @@ public final class DirectiveTypeInfo {
   public final Type type;
   public final String text;
   public final String format;
+  public final boolean align;
   public final FormatMarker formatMarker;
 
   DirectiveTypeInfo(
       final Type type,
       final String text,
-      final String format) {
+      final String format,
+      final boolean align) {
     InvariantChecks.checkNotNull(type);
     InvariantChecks.checkNotNull(text);
     InvariantChecks.checkNotNull(format);
@@ -37,6 +39,7 @@ public final class DirectiveTypeInfo {
     this.type = type;
     this.text = text;
     this.format = format;
+    this.align = align;
 
     if (format.isEmpty()) {
       this.formatMarker = null;

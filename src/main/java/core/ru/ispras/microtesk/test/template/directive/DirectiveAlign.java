@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.test.template.directive;
 
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
@@ -22,19 +21,15 @@ import ru.ispras.microtesk.options.Options;
 import java.math.BigInteger;
 
 public class DirectiveAlign extends Directive {
-  protected final Options options;
-  protected final BigInteger alignment;
-  protected final BigInteger alignmentInBytes;
+  protected final int alignment;
+  protected final int alignmentInBytes;
 
   DirectiveAlign(
       final Options options,
-      final BigInteger alignment,
-      final BigInteger alignmentInBytes) {
-    InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(alignment);
-    InvariantChecks.checkNotNull(alignmentInBytes);
+      final int alignment,
+      final int alignmentInBytes) {
+    super(options);
 
-    this.options = options;
     this.alignment = alignment;
     this.alignmentInBytes = alignmentInBytes;
   }
@@ -51,7 +46,7 @@ public class DirectiveAlign extends Directive {
 
   @Override
   public BigInteger apply(final BigInteger currentAddress, final MemoryAllocator allocator) {
-    return MemoryAllocator.alignAddress(currentAddress, alignmentInBytes.intValue());
+    return MemoryAllocator.alignAddress(currentAddress, alignmentInBytes);
   }
 
   @Override

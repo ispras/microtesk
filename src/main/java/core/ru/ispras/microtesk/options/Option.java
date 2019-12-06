@@ -103,6 +103,8 @@ public enum Option implements Property {
   BYTE_ALIGN_FORMAT("Byte alignment directive format", ".balign %d", GENERATE),
   POWER2_ALIGN_FORMAT("Power of 2 alignment directive format", ".p2align %d", GENERATE),
   OPTION_FORMAT("Option directive format", ".option %s", GENERATE),
+  GLOBAL_FORMAT("Global directive format", ".globl %s", GENERATE),
+  WEAK_FORMAT("Weak directive format", ".weak %s", GENERATE),
 
   TEXT_SECTION_KEYWORD("Text section directive", ".text", GENERATE),
   DATA_SECTION_KEYWORD("Data section directive", ".data", GENERATE),

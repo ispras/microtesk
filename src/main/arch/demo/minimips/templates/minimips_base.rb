@@ -40,15 +40,14 @@ class MiniMipsBaseTemplate < Template
     # Information on data types to be used in data sections.
     #
     data_config(:target => 'M') {
-      define_type :id => :byte,  :text => '.byte',  :type => type('card', 8),  :align => true
-      define_type :id => :half,  :text => '.half',  :type => type('card', 16), :align => true
-      define_type :id => :word,  :text => '.word',  :type => type('card', 32), :align => true
-      define_type :id => :byte2, :text => '.2byte', :type => type('card', 16), :align => false
-      define_type :id => :byte4, :text => '.4byte', :type => type('card', 32), :align => false
-
-      define_space        :id => :space,  :text => '.space',  :fill_with => 0
-      define_ascii_string :id => :ascii,  :text => '.ascii',  :zero_term => false
-      define_ascii_string :id => :asciiz, :text => '.asciiz', :zero_term => true
+      define_type   :id => :byte,   :text => '.byte',   :type => type('card', 8),  :align => true
+      define_type   :id => :half,   :text => '.half',   :type => type('card', 16), :align => true
+      define_type   :id => :word,   :text => '.word',   :type => type('card', 32), :align => true
+      define_type   :id => :byte2,  :text => '.2byte',  :type => type('card', 16), :align => false
+      define_type   :id => :byte4,  :text => '.4byte',  :type => type('card', 32), :align => false
+      define_space  :id => :space,  :text => '.space',  :fill_with => 0
+      define_string :id => :ascii,  :text => '.ascii',  :zero_term => false
+      define_string :id => :asciiz, :text => '.asciiz', :zero_term => true
     }
 
     #

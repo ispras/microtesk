@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.template.directive;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
+import ru.ispras.microtesk.options.Options;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -27,9 +28,12 @@ public final class DirectiveDataConst extends Directive {
   private final boolean align;
 
   DirectiveDataConst(
+      final Options options,
       final String typeText,
       final List<BitVector> values,
       final boolean align) {
+    super(options);
+
     InvariantChecks.checkNotNull(typeText);
     InvariantChecks.checkNotEmpty(values);
 

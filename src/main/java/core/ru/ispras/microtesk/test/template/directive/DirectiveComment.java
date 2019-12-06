@@ -18,11 +18,8 @@ import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.Options;
 
 public final class DirectiveComment extends DirectiveText {
-  private final Options options;
-
   DirectiveComment(final Options options, final String text) {
-    super(text);
-    this.options = options;
+    super(options, text);
   }
 
   @Override

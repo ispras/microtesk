@@ -41,30 +41,21 @@ import java.util.Map;
 public final class DirectiveFactory {
   private final Options options;
   private final Map<String, DirectiveTypeInfo> types;
+  private final int addressableUnitBitSize;
   private final int maxTypeBitSize;
-  private final String spaceText;
-  private final BitVector spaceData;
-  private final String ztermStrText;
-  private final String nztermStrText;
 
   private DirectiveFactory(
       final Options options,
       final Map<String, DirectiveTypeInfo> types,
-      final int maxTypeBitSize,
-      final String spaceText,
-      final BitVector spaceData,
-      final String ztermStrText,
-      final String nztermStrText) {
+      final int addressableUnitBitSize,
+      final int maxTypeBitSize) {
     InvariantChecks.checkNotNull(options);
     InvariantChecks.checkNotNull(types);
 
     this.options = options;
     this.types = types;
+    this.addressableUnitBitSize = addressableUnitBitSize;
     this.maxTypeBitSize = maxTypeBitSize;
-    this.spaceText = spaceText;
-    this.spaceData = spaceData;
-    this.ztermStrText = ztermStrText;
-    this.nztermStrText = nztermStrText;
   }
 
   public static final class Builder {
@@ -74,10 +65,6 @@ public final class DirectiveFactory {
 
     private final Map<String, DirectiveTypeInfo> types;
     private int maxTypeBitSize;
-    private String spaceText;
-    private BitVector spaceData;
-    private String ztermStrText;
-    private String nztermStrText;
 
     public Builder(final Options options, final int addressableUnitBitSize) {
       InvariantChecks.checkNotNull(options);
@@ -89,10 +76,6 @@ public final class DirectiveFactory {
 
       this.types = new HashMap<>();
       this.maxTypeBitSize = 0;
-      this.spaceText = null;
-      this.spaceData = null;
-      this.ztermStrText = null;
-      this.nztermStrText = null;
     }
 
     public void defineType(
@@ -100,7 +83,8 @@ public final class DirectiveFactory {
         final String text,
         final String typeName,
         final int[] typeArgs,
-        final String format) {
+        final String format,
+        final boolean align) {
       InvariantChecks.checkNotNull(id);
       InvariantChecks.checkNotNull(text);
       InvariantChecks.checkNotNull(typeName);
@@ -110,50 +94,16 @@ public final class DirectiveFactory {
       final Type type = Type.typeOf(typeName, typeArgs);
       debug("Defining %s as %s ('%s%s')...", type, id, text, format.isEmpty() ? "" : " " + format);
 
-      types.put(id, new DirectiveTypeInfo(type, text, format));
+      types.put(id, new DirectiveTypeInfo(type, text, format, align));
       maxTypeBitSize = Math.max(maxTypeBitSize, type.getBitSize());
-    }
-
-    public void defineSpace(
-        final String id,
-        final String text,
-        final BigInteger fillWith) {
-      InvariantChecks.checkNotNull(id);
-      InvariantChecks.checkNotNull(text);
-      InvariantChecks.checkNotNull(fillWith);
-
-      debug("Defining space as %s ('%s') filled with %x...", id, text, fillWith);
-
-      spaceText = text;
-      spaceData = BitVector.valueOf(fillWith, addressableUnitBitSize);
-    }
-
-    public void defineAsciiString(
-        final String id,
-        final String text,
-        final boolean zeroTerm) {
-      InvariantChecks.checkNotNull(id);
-      InvariantChecks.checkNotNull(text);
-
-      debug("Defining %snull-terminated ASCII string as %s ('%s')...",
-          zeroTerm ? "" : "not ", id, text);
-
-      if (zeroTerm) {
-        ztermStrText = text;
-      } else {
-        nztermStrText = text;
-      }
     }
 
     public DirectiveFactory build() {
       return new DirectiveFactory(
           options,
           types,
-          maxTypeBitSize,
-          spaceText,
-          spaceData,
-          ztermStrText,
-          nztermStrText);
+          addressableUnitBitSize,
+          maxTypeBitSize);
     }
 
     private void debug(final String format, final Object... args) {
@@ -205,12 +155,12 @@ public final class DirectiveFactory {
   }
 
   public DataValueBuilder getDataValueBuilder(final int typeBitSize, final boolean align) {
-    final DirectiveTypeInfo type = findTypeInfo(typeBitSize);
+    final DirectiveTypeInfo type = findTypeInfo(typeBitSize, align);
     return new DataValueBuilder(type, align);
   }
 
   public Directive newText(final String text) {
-    return new DirectiveText(text);
+    return new DirectiveText(options, text);
   }
 
   public Directive newComment(final String text) {
@@ -218,15 +168,15 @@ public final class DirectiveFactory {
   }
 
   public Directive newLabel(final LabelValue label) {
-    return new DirectiveLabel(label);
+    return new DirectiveLabel(options, label);
   }
 
   public Directive newGlobalLabel(final LabelValue label) {
-    return new DirectiveLabelGlobal(label);
+    return new DirectiveLabelGlobal(options, label);
   }
 
   public Directive newWeakLabel(final LabelValue label) {
-    return new DirectiveLabelWeak(label);
+    return new DirectiveLabelWeak(options, label);
   }
 
   public Directive newOption(final String option) {
@@ -246,27 +196,31 @@ public final class DirectiveFactory {
   }
 
   public Directive newAlign(
-      final BigInteger alignment, final BigInteger alignmentInBytes) {
+      final int alignment, final int alignmentInBytes) {
     return new DirectiveAlign(options, alignment, alignmentInBytes);
   }
 
-  public Directive newAlignByte(final BigInteger alignment) {
+  public Directive newAlignByte(final int alignment) {
     return new DirectiveAlignByte(options, alignment);
   }
 
   public Directive newAlignPower2(
-      final BigInteger alignment, final BigInteger alignmentInBytes) {
+      final int alignment, final int alignmentInBytes) {
     return new DirectiveAlignPower2(options, alignment, alignmentInBytes);
   }
 
-  public Directive newSpace(final int length) {
-    return new DirectiveSpace(spaceText, spaceData, length);
+  public Directive newSpace(
+      final String text,
+      final int data,
+      final int length) {
+    return new DirectiveSpace(options, text, BitVector.valueOf(data, addressableUnitBitSize), length);
   }
 
-  public Directive newAsciiStrings(
+  public Directive newStrings(
+      final String text,
       final boolean zeroTerm,
       final String[] strings) {
-    return new DirectiveAsciiStrings(ztermStrText, nztermStrText, zeroTerm, strings);
+    return new DirectiveString(options, text, zeroTerm, strings);
   }
 
   public Directive newData(
@@ -290,7 +244,7 @@ public final class DirectiveFactory {
       valueList.add(data);
     }
 
-    return new DirectiveDataConst(typeInfo.text, valueList, align);
+    return new DirectiveDataConst(options, typeInfo.text, valueList, align);
   }
 
   public Directive newData(
@@ -316,7 +270,7 @@ public final class DirectiveFactory {
       values.add(generator.nextData());
     }
 
-    return new DirectiveDataConst(typeInfo.text, values, align);
+    return new DirectiveDataConst(options, typeInfo.text, values, align);
   }
 
   public Directive newDataValues(
@@ -331,7 +285,7 @@ public final class DirectiveFactory {
       final DirectiveTypeInfo typeInfo,
       final List<Value> values,
       final boolean align) {
-    return new DirectiveDataValue(typeInfo, values, align);
+    return new DirectiveDataValue(options, typeInfo, values, align);
   }
 
   public int getMaxTypeBitSize() {
@@ -350,11 +304,11 @@ public final class DirectiveFactory {
     return typeInfo;
   }
 
-  public DirectiveTypeInfo findTypeInfo(final int typeSizeInBits) {
+  public DirectiveTypeInfo findTypeInfo(final int typeSizeInBits, final boolean align) {
     InvariantChecks.checkGreaterThanZero(typeSizeInBits);
 
     for (final DirectiveTypeInfo typeInfo : types.values()) {
-      if (typeSizeInBits == typeInfo.type.getBitSize()) {
+      if (typeSizeInBits == typeInfo.type.getBitSize() && (!align || typeInfo.align)) {
         return typeInfo;
       }
     }

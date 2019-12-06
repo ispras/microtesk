@@ -1227,7 +1227,7 @@ class DataManager
     format = attrs.has_key?(:format) ? attrs[:format] : ''
     align  = attrs.has_key?(:align)  ? attrs[:align]  : true
 
-    @configurator.defineType id, text, type.name, type.args, format
+    @configurator.defineType id, text, type.name, type.args, format, align
 
     # Defining data in data sections
     p = lambda { |*values| @builder.addDirective @directive.data(id, values, align) }
@@ -1240,34 +1240,31 @@ class DataManager
   end
 
   def define_space(attrs)
-    id       = get_attribute attrs, :id
-    text     = get_attribute attrs, :text
-    fillWith = get_attribute attrs, :fill_with
-
-    @configurator.defineSpace id, text, fillWith
+    id   = get_attribute attrs, :id
+    text = get_attribute attrs, :text
+    data = get_attribute attrs, :fill_with
 
     # Defining data in data sections
-    p = lambda { |length| @builder.addDirective @directive.space(length) }
+    p = lambda { |length| @builder.addDirective @directive.space(text, data, length) }
     define_method_for DataManager, id, 'space', p
 
     # Defining data in code sections
-    p = lambda { |length| @template.addDirective @directive.space(length), get_caller_location }
+    p = lambda { |length| @template.addDirective @directive.space(text, data, length),
+                                                 get_caller_location }
     define_method_for Template, id, 'space', p
   end
 
-  def define_ascii_string(attrs)
-    id    = get_attribute attrs, :id
-    text  = get_attribute attrs, :text
-    zterm = get_attribute attrs, :zero_term
-
-    @configurator.defineAsciiString id, text, zterm
+  def define_string(attrs)
+    id   = get_attribute attrs, :id
+    text = get_attribute attrs, :text
+    term = get_attribute attrs, :zero_term
 
     # Define data in data sections
-    p = lambda { |*strings| @builder.addDirective @directive.ascii(zterm, strings) }
+    p = lambda { |*strings| @builder.addDirective @directive.ascii(text, term, strings) }
     define_method_for DataManager, id, 'string', p
 
     # Define data in data sections
-    p = lambda { |*strings| @template.addDirective @directive.ascii(zterm, strings),
+    p = lambda { |*strings| @template.addDirective @directive.ascii(text, term, strings),
                                                    get_caller_location }
     define_method_for Template, id, 'string', p
   end

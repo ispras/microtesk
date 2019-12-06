@@ -361,7 +361,7 @@ public final class MemoryAllocator {
    * @throws IllegalArgumentException if the {@code string} parameter equals {@code null};
    *         if failed to convert the string to the "US-ASCII" encoding.
    */
-  public Pair<BigInteger, BigInteger> allocateAsciiString(
+  public Pair<BigInteger, BigInteger> allocateString(
       final BigInteger currentAddress, final String string, final boolean zeroTerm) {
     InvariantChecks.checkNotNull(string);
 

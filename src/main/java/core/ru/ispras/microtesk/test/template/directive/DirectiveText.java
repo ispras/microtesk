@@ -15,14 +15,14 @@
 package ru.ispras.microtesk.test.template.directive;
 
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.model.memory.MemoryAllocator;
-
-import java.math.BigInteger;
+import ru.ispras.microtesk.options.Options;
 
 public class DirectiveText extends Directive {
   private final String text;
 
-  DirectiveText(final String text) {
+  DirectiveText(final Options options, final String text) {
+    super(options);
+
     InvariantChecks.checkNotNull(text);
     this.text = text;
   }
