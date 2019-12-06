@@ -852,8 +852,8 @@ class Template
     @template.addDirective @directive.p2align(value, fill_with), get_caller_location
   end
 
-  def org(value)
-    @template.addDirective @directive.org(value, true), get_caller_location
+  def org(value, is_absolute=false)
+    @template.addDirective @directive.org(value, is_absolute), get_caller_location
   end
 
   def option(value)
@@ -1196,8 +1196,8 @@ class DataManager
     @builder.addDirective @directive.p2align(value, fill_with)
   end
 
-  def org(value)
-    @builder.addDirective @directive.org(value, false)
+  def org(value, is_absolute=false)
+    @builder.addDirective @directive.org(value, is_absolute)
   end
 
   def option(value)

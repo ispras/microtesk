@@ -38,10 +38,10 @@ class Directive
     factory.newAlignPower2(value, 2 ** value, fill_with)
   end
 
-  def org(origin, is_code)
+  def org(origin, is_absolute=false)
     factory = @template.template.getDirectiveFactory
     if origin.is_a?(Integer)
-      if is_code
+      if is_absolute
         factory.newOriginAbsolute origin # Absolute
       else
         factory.newOrigin origin # Section-Based
