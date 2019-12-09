@@ -293,9 +293,12 @@ public final class SymbolicExecutor {
     final List<Range> ranges = info.bbRange;
     for (final Range range : ranges) {
       final JsonObjectBuilder builder = factory.createObjectBuilder()
-        .add("range", factory.createArrayBuilder().add(range.start).add(range.end - 1))
-        .add("target_taken", indexOf(range.nextTaken, ranges))
-        .add("target_other", indexOf(range.nextOther, ranges));
+        .add("range", factory.createArrayBuilder().add(range.start).add(range.end))
+        .add("target_taken", getLinkIndex(range, range.nextTaken, ranges))
+        .add("target_other", getLinkIndex(range, range.nextOther, ranges));
+      if (range.isEmpty()) {
+        builder.add("link_addr", range.addrTaken);
+      }
 
       writeSmtBinding(bbIndex, info, builder, factory);
       blocks.add(builder);
@@ -312,6 +315,41 @@ public final class SymbolicExecutor {
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
     }
+  }
+
+  private static int getLinkIndex(
+      final Range src, final int target, final List<Range> ranges) {
+    final List<Range> candidates = selectRanges(target, ranges);
+
+    if (candidates.size() == 1) {
+      return ranges.indexOf(candidates.get(0));
+    } else if (candidates.size() > 1) {
+      for (final Range dst : candidates) {
+        if (src.isEmpty() != dst.isEmpty()) {
+          return ranges.indexOf(dst);
+        }
+      }
+      throw new IllegalStateException();
+    } else {
+      return -1;
+    }
+  }
+
+  private static List<Range> selectRanges(final int start, final List<Range> ranges) {
+    int from = -1, to = -1;
+    for (int i = 0; i < ranges.size(); ++i) {
+      if (ranges.get(i).start == start) {
+        if (from < 0) {
+          from = i;
+        } else {
+          to = i;
+        }
+      }
+    }
+    if (from >= 0) {
+      return ranges.subList(from, to + 1);
+    }
+    return Collections.emptyList();
   }
 
   private static void writeSmtBinding(
@@ -373,15 +411,6 @@ public final class SymbolicExecutor {
       }
     }
     return mapping;
-  }
-
-  private static int indexOf(final int start, final List<ControlFlowInspector.Range> ranges) {
-    for (int i = 0; i < ranges.size(); ++i) {
-      if (ranges.get(i).contains(start)) {
-        return i;
-      }
-    }
-    return -1;
   }
 
   private static final class DisassemblerOutput implements Disassembler.Output {

@@ -1,5 +1,6 @@
 package ru.ispras.microtesk.tools.symexec;
 
+import java.math.BigInteger;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +17,7 @@ import static ru.ispras.microtesk.tools.symexec.SymbolicExecutor.BodyInfo;
 public class ControlFlowInspector {
   private final Model model;
   private final BodyInfo info;
-  private final List<Integer> addr;
+  private final List<BigInteger> insnAddr;
   private final List<IsaPrimitive> body;
   private final List<Range> ranges = new java.util.ArrayList<>();
   private final Queue<Integer> queue = new java.util.ArrayDeque<>();
@@ -24,13 +25,13 @@ public class ControlFlowInspector {
   public ControlFlowInspector(final Model model, final BodyInfo info) {
     this.model = model;
     this.info = info;
-    this.addr = new java.util.ArrayList<>(info.body.size());
+    this.insnAddr = new java.util.ArrayList<>(info.body.size());
     this.body = info.body;
 
-    int offset = 0;
+    BigInteger offset = BigInteger.ZERO;
     for (final IsaPrimitive insn : body) {
-      addr.add(offset);
-      offset += sizeOf(insn);
+      insnAddr.add(offset);
+      offset = offset.add(BigInteger.valueOf(sizeOf(insn)));
     }
   }
 
@@ -54,10 +55,10 @@ public class ControlFlowInspector {
         while (i < body.size() && !observed.get(i)) {
           final IsaPrimitive insn = body.get(i);
           if (isBranch(insn)) {
-            final int target =
-              addr.indexOf(addr.get(i) + getBranchOffset(insn));
-            // only local jumps considered for cfg
-            if (target >= 0 && target < body.size()) {
+            final BigInteger addr = insnAddr.get(i).add(getBranchOffset(insn));
+            final int target = Collections.binarySearch(insnAddr, addr);
+
+            if (target >= 0) {
               final Range r = new Range(start, i + 1);
               r.nextTaken = target;
               r.nextOther = (isConditional(insn)) ? i + 1 : target;
@@ -65,8 +66,21 @@ public class ControlFlowInspector {
 
               queue.add(target);
               queue.add(i + 1);
-              break;
+            } else {
+              final Range r = new Range(start, i + 1);
+              r.nextTaken = i + 1;
+              r.nextOther = i + 1;
+              ranges.add(r);
+
+              queue.add(i + 1);
+
+              final Range rcall = new Range(i + 1, i + 1);
+              rcall.nextTaken = i + 1;
+              rcall.nextOther = i + 1;
+              rcall.addrTaken = addr;
+              ranges.add(rcall);
             }
+            break;
           }
           observed.set(i++);
         }
@@ -90,17 +104,17 @@ public class ControlFlowInspector {
 
   public boolean isBranch(final IsaPrimitive insn) {
     final int offsetNext = sizeOf(insn);
-    return getBranchOffset(insn) != offsetNext;
+    return !getBranchOffset(insn).equals(BigInteger.valueOf(offsetNext));
   }
 
-  private int getBranchOffset(final IsaPrimitive insn) {
+  private BigInteger getBranchOffset(final IsaPrimitive insn) {
     final int index = body.indexOf(insn);
-    final int offsetNext = sizeOf(insn);
+    final BigInteger offsetNext = BigInteger.valueOf(sizeOf(insn));
 
     for (final Operand opnd : info.offsets.get(index)) {
       if (opnd instanceof Constant) {
-        final int offset = ((Constant) opnd).getValue().intValue();
-        if (offset != offsetNext) {
+        final BigInteger offset = ((Constant) opnd).getValue();
+        if (!offset.equals(offsetNext)) {
           return offset;
         }
       }
@@ -121,6 +135,8 @@ public class ControlFlowInspector {
     public int nextTaken;
     public int nextOther;
 
+    public BigInteger addrTaken;
+
     public Range(final int start, final int end) {
       this.start = start;
       this.end = end;
@@ -130,6 +146,10 @@ public class ControlFlowInspector {
 
     public int compareTo(final Range that) {
       return this.start - that.start;
+    }
+
+    public boolean isEmpty() {
+      return this.start >= this.end;
     }
 
     public boolean contains(final int index) {
