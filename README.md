@@ -1,20 +1,25 @@
-MicroTESK
-=========
+# MicroTESK
 
 ## Building from command line
 
-To build the project, the following commands can be used:
+To build the project, the following commands are available:
 
-- `gradle assemble` - building the distribution package;
-- `gradle test`     - running unit tests;
-- `gradle build`    - building the distribution package and running unit tests;
-- `gradle release`  - building the distribution package, running unit tests,
-                      creating tags, and publishing the distribution package
-                      into the build repository.
+* `gradle assemble`
+  - Building the distribution package
+* `gradle test`
+  - Running the unit tests
+* `gradle build`
+  - Building the distribution package
+  - Running the unit tests
+* `gradle release`
+  - Building the distribution package
+  - Running the unit tests
+  - Creating the tag
+  - Publishing the distribution package in the Nexus repository
 
 ## Working in IntelliJ IDEA
 
-- Open `build.gradle` as a project.
+- Open `build.gradle` as a project
 
 ## Working in Eclipse
 
@@ -23,15 +28,15 @@ To build the project, the following commands can be used:
    $ gradle eclipse
    ```
 
- - Create a workspace located in the directory with `microtesk`.
+ - Create a workspace located in the directory with `microtesk`
 
-   - Use the menu item `File/Switch Workspace...`.
-   - Browse the directory.
+   - Use the menu item `File/Switch Workspace...`
+   - Browse the directory
 
- - Import an existing project called `microtesk` into the workspace.
+ - Import an existing project called `microtesk` into the workspace
 
-   - Use the menu item `File/Import...`.
-   - Choose `General/Existing Projects into Workspace`.
-   - Select the `microtesk` folder as the root directory.
-   - Select the `microtesk` project located in this directory.
-   - Press the `Finish` button.
+   - Use the menu item `File/Import...`
+   - Choose `General/Existing Projects into Workspace`
+   - Select the `microtesk` folder as the root directory
+   - Select the `microtesk` project located in this directory
+   - Press the `Finish` button
