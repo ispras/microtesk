@@ -1,31 +1,35 @@
 # MicroTESK
 
-## Building from command line
+## Working in command line
 
-To build the project, the following commands are available:
+To build the project in command line, use Gradle (via the wrapper `gradlew`).
 
-* `gradle assemble`
-  - Building the distribution package
-* `gradle test`
-  - Running the unit tests
-* `gradle build`
-  - Building the distribution package
-  - Running the unit tests
-* `gradle release`
-  - Building the distribution package
-  - Running the unit tests
-  - Creating the tag
-  - Publishing the distribution package in the Nexus repository
+The following commands are available:
 
-## Working in IntelliJ IDEA
+* `./gradlew clean`
+  - Clean the previous build
+* `./gradlew assemble`
+  - Build the distribution package
+* `./gradlew test`
+  - Run the unit tests
+* `./gradlew build`
+  - Build the distribution package
+  - Run the unit tests
+* `./gradlew release`
+  - Build the distribution package
+  - Run the unit tests
+  - Create the tag
+  - Publish the distribution package in [Nexus](https://forge.ispras.ru/nexus/)
+
+## Working in [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
 - Open `build.gradle` as a project
 
-## Working in Eclipse
+## Working in [Eclipse IDE](https://www.eclipse.org/ide/)
 
  - Generate the Eclipse project and classpath files with Gradle:
    ```
-   $ gradle eclipse
+   $ ./gradlew eclipse
    ```
 
  - Create a workspace located in the directory with `microtesk`
