@@ -2,9 +2,7 @@
 
 ## Working in command line
 
-To build the project in command line, use [Gradle](https://gradle.org/) (via the wrapper `gradlew`).
-
-The following commands are available:
+In command line, use [Gradle](https://gradle.org/) (via the wrapper `gradlew`):
 
 * `./gradlew clean`
   - Clean the previous build
