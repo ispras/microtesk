@@ -2,7 +2,7 @@
 
 ## Working in command line
 
-To build the project in command line, use Gradle (via the wrapper `gradlew`).
+To build the project in command line, use [Gradle](https://gradle.org/) (via the wrapper `gradlew`).
 
 The following commands are available:
 
@@ -27,7 +27,7 @@ The following commands are available:
 
 ## Working in [Eclipse IDE](https://www.eclipse.org/ide/)
 
- - Generate the Eclipse project and classpath files with Gradle:
+ - Generate the Eclipse IDE project and classpath files with [Gradle](https://gradle.org/):
    ```
    $ ./gradlew eclipse
    ```
