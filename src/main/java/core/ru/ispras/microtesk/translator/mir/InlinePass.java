@@ -1,5 +1,7 @@
 package ru.ispras.microtesk.translator.mir;
 
+import ru.ispras.castle.util.Logger;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +11,7 @@ import static ru.ispras.microtesk.translator.mir.Instruction.*;
 public class InlinePass extends Pass {
   @Override
   public MirContext apply(final MirContext src) {
+    Logger.debug("PASS: inline '%s'", src.name);
     final MirContext ctx = Pass.copyOf(src);
     final EvalContext evaluator = new EvalContext();
     final List<BasicBlock> blocks = EvalContext.topologicalOrder(ctx);
@@ -27,6 +30,7 @@ public class InlinePass extends Pass {
 
         final MirContext callee = resolveCallee(call, origin, evaluator);
         if (callee != null) {
+          Logger.debug("PASS: inline call '%s'", callee.name);
           final Inliner inliner = new Inliner(call, bb, ctx, callee);
           final Collection<BasicBlock> newbb = inliner.run();
           blocks.addAll(i + 1, newbb);

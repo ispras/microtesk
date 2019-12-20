@@ -44,6 +44,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
         final PrimitiveAnd item = (PrimitiveAnd) p;
         for (final Attribute attr : item.getAttributes().values()) {
           if (attr.getKind().equals(Attribute.Kind.ACTION)) {
+            Logger.debug("TRANSLATE: nML -> MIR: %s.%s", item.getName(), attr.getName());
             final MirContext mir =
                 NmlIrTrans.translate(item, attr.getName(), attr.getStatements());
             final NamePath name = NamePath.get(item.getName(), attr.getName());
@@ -55,6 +56,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     for (final Primitive p : ir.getModes().values()) {
       if (!p.isOrRule() && p.getReturnType() != null) {
         final PrimitiveAnd item = (PrimitiveAnd) p;
+        Logger.debug("TRANSLATE: nML -> MIR: %s", item.getName());
         final NmlIrTrans.ModeAccess access = NmlIrTrans.translateMode(item);
         final NamePath name = NamePath.get(item.getName());
         mirs.put(name.resolve("read"), access.read);
