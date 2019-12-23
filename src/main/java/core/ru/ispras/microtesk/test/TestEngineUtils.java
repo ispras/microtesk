@@ -125,7 +125,7 @@ final class TestEngineUtils {
 
     abstractCallBuilder.addOutput(comment);
     abstractCallBuilder.addDirective(
-        engineContext.getDirectiveFactory().newOriginAbsolute(entryPoint.getOrigin()));
+        engineContext.getDirectiveFactory().newOrigin(entryPoint.getOrigin()));
 
     calls.add(abstractCallBuilder.build());
     calls.addAll(entryPoint.getCalls());

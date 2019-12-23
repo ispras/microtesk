@@ -491,14 +491,6 @@ public final class Executor {
       }
     }
 
-    for (final Label label : call.getLabels()) {
-      if (label.isWeak()) {
-        Logger.debug(".weak %s", label.getUniqueName());
-      } else {
-        Logger.debug(label.getUniqueName() + ":");
-      }
-    }
-
     if (invalidCall != call && null != call.getText()) {
       Logger.debug("0x%016x %s", call.getAddress(), call.getText());
     }
