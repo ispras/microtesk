@@ -133,7 +133,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
           return new ITNode(op, Collections.singletonMap(param.getKey(), variants));
         }
       }
-      return new ITNode(op, Collections.emptyMap());
+      return new ITNode(op, Collections.<String, List<PrimitiveAnd>>emptyMap());
     }
 
     static List<PrimitiveAnd> variantsOf(final Primitive p) {
