@@ -14,9 +14,16 @@
 
 package ru.ispras.microtesk.model;
 
+import java.io.File;
+import java.util.ArrayList;
+
+import com.unitesk.aspectrace.TraceMessage;
+import com.unitesk.aspectrace.TraceNode;
+import com.unitesk.aspectrace.Tracer;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.test.GenerationAbortedException;
+
 
 /**
  * The {@link Execution} class implements the execution environment.
@@ -26,86 +33,108 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public final class Execution {
-  private Execution() {}
+    private Execution() { }
 
-  private static boolean assertionsEnabled = false;
+    private static final String TRACE_NAME = "MicroTESK.atrace";
+    private static final String TRACE_PATH = "./build/test-outputs/";
 
-  public static void exception(final String text) {
-    Logger.debug("Exception was raised: %s", text);
-    throw new ExecutionException(text);
-  }
+    /** Tracks execution of primitives. */
+    public static final ArrayList<IsaPrimitive> CALL_STACK = new ArrayList<>();
 
-  public static void trace(final String format, final Object... args) {
-    Logger.debug(format, args);
-  }
-
-  public static void unpredicted() {
-    throw new GenerationAbortedException(
-        "Unpredicted state was reached during instruction call simulation");
-  }
-
-  public static void undefined() {
-    throw new GenerationAbortedException(
-        "Undefined state was reached during instruction call simulation");
-  }
-
-  public static void mark(final String name) {
-    //Logger.debug("Mark \"%s\" was reached", name);
-  }
-
-  public static void assertion(final boolean condition) {
-    assertion(condition, null);
-  }
-
-  public static void assertion(final boolean condition, final String message) {
-    if (condition || !assertionsEnabled) {
-      return;
+    static {
+        try {
+            Tracer.getInstance().addXmlTrace(new File(TRACE_PATH + TRACE_NAME));
+        } catch (Exception ex) {
+            System.err.print("Could not create a trace!");
+        }
     }
 
-    final StringBuilder sb = new StringBuilder("Assertion failed");
-    if (null != message) {
-      sb.append(": ");
-      sb.append(message);
+    private static boolean assertionsEnabled = false;
+
+    public static void exception(final String text) {
+        Logger.debug("Exception has been raised: %s", text);
+        throw new ExecutionException(text);
     }
 
-    throw new GenerationAbortedException(sb.toString());
-  }
-
-  public static void setAssertionsEnabled(final boolean value) {
-    assertionsEnabled = value;
-  }
-
-  public abstract static class InternalVariable {
-    public abstract int load();
-
-    public abstract void store(final int value);
-
-    public final void store(final Data data) {
-      store(data.bigIntegerValue().intValue());
-    }
-  }
-
-  public static final InternalVariable float_exception_flags = new InternalVariable() {
-    @Override
-    public int load() {
-      return Data.getFloatExceptionFlags();
+    public static void trace(final String format, final Object... args) {
+        Logger.debug(format, args);
     }
 
-    @Override
-    public void store(final int value) {
-      Data.setFloatExceptionFlags(value);
-    }
-  };
-
-  public static final InternalVariable float_rounding_mode = new InternalVariable() {
-    @Override
-    public int load() {
-      return Data.getFloatRoundingMode();
+    public static void unpredicted() {
+        Execution.mark("unpredicted");
+        throw new GenerationAbortedException(
+                "Unpredicted state has been reached during instruction call simulation");
     }
 
-    @Override
-    public void store(final int value) {
-      Data.setFloatRoundingMode(value);
+    public static void undefined() {
+        Execution.mark("undefined");
+        throw new GenerationAbortedException(
+                "Undefined state has been reached during instruction call simulation");
     }
-  };
+
+    public static void mark(final String name) {
+        StringBuilder buf = new StringBuilder();
+        for (int i = 0; i < CALL_STACK.size() ; ++i) {
+            buf.append(CALL_STACK.get(i).getName() + ".");
+        }
+        buf.append(name);
+        Tracer.traceMessage(new TraceMessage("coverage", new TraceNode("element","aspect", "coverage", "name", buf.toString(), "cs", "instruction paths")));
+        CALL_STACK.get(CALL_STACK.size() - 1).terminal = false;
+    }
+
+    public static void assertion(final boolean condition) {
+        assertion(condition, null);
+    }
+
+    public static void assertion(final boolean condition, final String message) {
+        if (condition || !assertionsEnabled) {
+            return;
+        }
+
+        final StringBuilder sb = new StringBuilder("Assertion failed");
+        if (null != message) {
+            sb.append(": ");
+            sb.append(message);
+        }
+
+        throw new GenerationAbortedException(sb.toString());
+    }
+
+    public static void setAssertionsEnabled(final boolean value) {
+        assertionsEnabled = value;
+    }
+
+    public abstract static class InternalVariable {
+        public abstract int load();
+
+        public abstract void store(final int value);
+
+        public final void store(final Data data) {
+            store(data.bigIntegerValue().intValue());
+        }
+    }
+
+    public static final InternalVariable float_exception_flags = new InternalVariable() {
+        @Override
+        public int load() {
+            return Data.getFloatExceptionFlags();
+        }
+
+        @Override
+        public void store(final int value) {
+            Data.setFloatExceptionFlags(value);
+        }
+    };
+
+    public static final InternalVariable float_rounding_mode = new InternalVariable() {
+        @Override
+        public int load() {
+            return Data.getFloatRoundingMode();
+        }
+
+        @Override
+        public void store(final int value) {
+            Data.setFloatRoundingMode(value);
+        }
+    };
 }
