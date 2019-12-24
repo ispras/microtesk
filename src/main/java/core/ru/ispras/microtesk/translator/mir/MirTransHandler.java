@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +88,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
       Logger.error("Failed to store MIR '%s': %s", path.toString(), e.toString());
     }
     final Instantiator worker = new Instantiator(opt);
-    worker.run(ir.getOps().get("instruction"));
+    worker.run(ir);
   }
 
   private static final class Instantiator {
@@ -98,45 +99,108 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
       this.library = library;
     }
 
-    void run(final Primitive p) {
-      final List<PrimitiveAnd> entries =
-          listVariants(new java.util.ArrayList<PrimitiveAnd>(), p);
-      for (final PrimitiveAnd entry : entries) {
-        final List<PrimitiveAnd> variants = new java.util.ArrayList<>();
+    void run(final Ir ir) {
+      final Map<Primitive, List<PrimitiveAnd>> variantMap = new java.util.HashMap<>();
+      for (final Primitive p : ir.getOps().values()) {
+        variantMap.put(p, variantsOf(p));
+      }
+      final InstanceTree tree = new InstanceTree();
+      for (final Primitive p : ir.getOps().values()) {
+        if (!p.isOrRule()) {
+          final PrimitiveAnd op = (PrimitiveAnd) p;
+          final ITNode node = newNode(op, variantMap);
 
-        int count = 0;
-        for (final Primitive param : entry.getArguments().values()) {
-          if (param.getKind().equals(Primitive.Kind.OP) && param.isOrRule()) {
-            listVariants(variants, param);
-            ++count;
+          tree.nodeMap.put(op, node);
+          if (node.siblings().isEmpty()) {
+            tree.instances.add(node);
           }
         }
-        final String name = String.format("%s.action", entry.getName());
-        if (count == 0) {
-          instances.put(name, library.get(name));
-        } else if (count == 1) {
+      }
+      for (final ITNode node : tree.nodes()) {
+        for (final PrimitiveAnd p : node.siblings()) {
+          tree.nodeMap.get(p).parents.add(node);
         }
       }
     }
 
-    private static List<PrimitiveAnd> listVariants(
-        final List<PrimitiveAnd> variants, final Primitive root) {
-      final List<Primitive> queue = new java.util.ArrayList<>();
-      queue.add(root);
+    static ITNode newNode(
+        final PrimitiveAnd op,
+        final Map<Primitive, List<PrimitiveAnd>> variantMap) {
+      for (final Map.Entry<String, Primitive> param : op.getArguments().entrySet()) {
+        final Primitive type = param.getValue();
+        if (type.getKind().equals(Primitive.Kind.OP) && type.isOrRule()) {
+          final List<PrimitiveAnd> variants = variantMap.get(param.getValue());
+          return new ITNode(op, Collections.singletonMap(param.getKey(), variants));
+        }
+      }
+      return new ITNode(op, Collections.emptyMap());
+    }
 
-      while (!queue.isEmpty()) {
-        final Primitive p = removeLast(queue);
+    static List<PrimitiveAnd> variantsOf(final Primitive p) {
+      if (p.isOrRule()) {
+        final List<PrimitiveAnd> variants = new java.util.ArrayList<>();
+        collectVariants((PrimitiveOr) p, variants);
+        return variants;
+      }
+      return Collections.singletonList((PrimitiveAnd) p);
+    }
+
+    static void collectVariants(final PrimitiveOr input, final List<PrimitiveAnd> variants) {
+      for (final Primitive p : input.getOrs()) {
         if (p.isOrRule()) {
-          queue.addAll(((PrimitiveOr) p).getOrs());
+          collectVariants((PrimitiveOr) p, variants);
         } else {
           variants.add((PrimitiveAnd) p);
         }
       }
-      return variants;
+    }
+  }
+
+  private static final class InstanceTree {
+    final Map<PrimitiveAnd, ITNode> nodeMap = new java.util.HashMap<>();
+    final List<ITNode> instances = new java.util.ArrayList<>();
+
+    Collection<ITNode> nodes() {
+      return nodeMap.values();
+    }
+  }
+
+  private static final class ITNode {
+    final PrimitiveAnd origin;
+    final Map<String, List<PrimitiveAnd>> bindings;
+    final List<ITNode> parents = new java.util.ArrayList<>();
+
+    ITNode(final PrimitiveAnd origin, final Map<String, List<PrimitiveAnd>> bindings) {
+      this.origin = origin;
+      this.bindings = bindings;
     }
 
-    private static <T> T removeLast(final List<T> list) {
-      return list.remove(list.size() - 1);
+    List<PrimitiveAnd> siblings() {
+      if (bindings.isEmpty()) {
+        return Collections.emptyList();
+      }
+      return bindings.values().iterator().next();
+    }
+
+    @Override
+    public String toString() {
+      final StringBuilder sb = new StringBuilder(origin.getName());
+      for (final Map.Entry<String, Primitive> entry : origin.getArguments().entrySet()) {
+        if (bindings.containsKey(entry.getKey())) {
+          sb.append(" (");
+          final java.util.Iterator<PrimitiveAnd> it = this.siblings().iterator();
+          sb.append(it.next().getName());
+          while (it.hasNext()) {
+            sb.append(" | ");
+            sb.append(it.next().getName());
+          }
+          sb.append(")");
+        } else {
+          sb.append(" ");
+          sb.append(entry.getValue().getName());
+        }
+      }
+      return sb.toString();
     }
   }
 
