@@ -176,7 +176,7 @@ public final class CodeAllocator {
     int startIndex = 0;
     int currentIndex = startIndex;
 
-    final BigInteger initialVa = addresses.containsKey(section)
+    final BigInteger initialVa = addresses.containsKey(section.getName())
         ? addresses.get(section.getName())
         : section.getBaseVa();
 
