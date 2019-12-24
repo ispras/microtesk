@@ -214,7 +214,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
         engineContext.getModel(), labelManager, numericLabelTracker);
 
     codeAllocator.init();
-    codeAllocator.setAddress(BigInteger.valueOf(allocationAddress));
+    codeAllocator.setAddress(concreteSequence.getSection(), BigInteger.valueOf(allocationAddress));
     codeAllocator.allocateSequence(concreteSequence, sequenceIndex);
 
     final ConcreteCall first = sequence.get(0);
