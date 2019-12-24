@@ -179,8 +179,7 @@ dependencies {
   compile ("castle:castle:${castleVersion}") { changing = true }
   compile ("testbase:testbase:${testbaseVersion}") { changing = true }
   compile ("jsoftfloat:jsoftfloat:${jsoftfloatVersion}") { changing = true }
-
-  compile fileTree(dir: 'libs', include: '*.jar')
+  compile ("aspectraceapi:aspectraceapi:${aspectraceapiVersion}") { changing = true }
 
   qemu("qemu4v:qemu4v:${qemuVersion}:@tar.gz") { changing = true }
 
