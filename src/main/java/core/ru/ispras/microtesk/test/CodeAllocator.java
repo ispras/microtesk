@@ -30,6 +30,7 @@ import ru.ispras.microtesk.test.template.directive.Directive;
 import ru.ispras.microtesk.test.template.directive.DirectiveLabel;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public final class CodeAllocator {
   private final NumericLabelTracker numericLabelTracker;
 
   private Code code;
-  private BigInteger address;
+  private Map<String, BigInteger> addresses;
 
   public CodeAllocator(
       final Model model,
@@ -54,27 +55,20 @@ public final class CodeAllocator {
     this.model = model;
     this.labelManager = labelManager;
     this.numericLabelTracker = numericLabelTracker;
-
-    this.code = null;
-    this.address = BigInteger.ZERO;
   }
 
   public void init() {
     InvariantChecks.checkTrue(null == code);
-    code = new Code();
 
-    final Section section = Sections.get().getTextSection();
-    InvariantChecks.checkNotNull("Section .text is not defined in the template!");
-    address = section.getBaseVa();
+    code = new Code();
+    addresses = new HashMap<>();
   }
 
   public void reset() {
     InvariantChecks.checkNotNull(code);
-    code = null;
 
-    final Section section = Sections.get().getTextSection();
-    InvariantChecks.checkNotNull("Section .text is not defined in the template!");
-    address = section.getBaseVa();
+    code = null;
+    addresses = null;
   }
 
   public Code getCode() {
@@ -82,22 +76,25 @@ public final class CodeAllocator {
     return code;
   }
 
-  public BigInteger getAddress() {
-    return address;
+  public BigInteger getAddress(final Section section) {
+    return addresses.get(section.getName());
   }
 
-  public void setAddress(final BigInteger address) {
-    this.address = address;
+  public void setAddress(final Section section, final BigInteger address) {
+    addresses.put(section.getName(), address);
   }
 
   public void allocateSequence(final ConcreteSequence sequence, final int sequenceIndex) {
     final List<ConcreteCall> calls = sequence.getAll();
-    allocateCalls(sequence.getSection(), calls, sequenceIndex);
+    final Section section = sequence.getSection();
+
+    allocateCalls(section, calls, sequenceIndex);
+
+    final BigInteger address = addresses.get(section.getName());
+    InvariantChecks.checkNotNull(address);
 
     sequence.setAllocationAddresses(
-        !calls.isEmpty()
-            ? calls.get(0).getAddress().longValue()
-            : address.longValue(),
+        !calls.isEmpty() ? calls.get(0).getAddress().longValue() : address.longValue(),
         address.longValue());
   }
 
@@ -106,6 +103,9 @@ public final class CodeAllocator {
       final List<ConcreteCall> calls,
       final int sequenceIndex) {
     if (!calls.isEmpty()) {
+      final BigInteger address = addresses.get(section.getName());
+      InvariantChecks.checkNotNull(address);
+
       allocate(section, calls, sequenceIndex);
       code.addBreakAddress(address.longValue());
     }
@@ -115,8 +115,8 @@ public final class CodeAllocator {
       final List<Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>>> handlers) {
     InvariantChecks.checkNotNull(handlers);
 
-    // Saving current address. Exception handler allocation should not modify it.
-    final BigInteger currentAddress = address;
+    // Saving current addresses. Exception handler allocation should not modify them.
+    final Map<String, BigInteger> savedAddresses = new HashMap<>(addresses);
 
     for (final Pair<List<ConcreteSequence>, Map<String, ConcreteSequence>> handler: handlers) {
       final Set<Object> handlerSet = new HashSet<>();
@@ -144,8 +144,8 @@ public final class CodeAllocator {
       }
     }
 
-    // Restoring initial address. Exception handler allocation should not modify it.
-    address = currentAddress;
+    // Restoring initial addresses. Exception handler allocation should not modify them.
+    addresses = savedAddresses;
   }
 
   private void allocate(
@@ -176,7 +176,11 @@ public final class CodeAllocator {
     int startIndex = 0;
     int currentIndex = startIndex;
 
-    BigInteger startVa = address;
+    final BigInteger initialVa = addresses.containsKey(section)
+        ? addresses.get(section.getName())
+        : section.getBaseVa();
+
+    BigInteger startVa = initialVa;
 
     BigInteger currentVa = startVa;
     BigInteger currentPa = section.virtualToPhysical(currentVa);
@@ -228,7 +232,7 @@ public final class CodeAllocator {
         // treated as NOPs. This assumption may be incorrect for other ISAs.
         // This situation must be handled in a more correct way. Probably, using decoder.
         final boolean isAligned = !call.getDirectives().isEmpty();
-        final boolean isStartAddress = currentVa.equals(address);
+        final boolean isStartAddress = currentVa.equals(initialVa);
         startVa = isAligned && !isStartAddress ? currentVa : nextVa;
 
         currentPa = nextPa;
@@ -269,7 +273,7 @@ public final class CodeAllocator {
         currentVa.longValue());
 
     getCode().registerBlock(block);
-    address = currentVa;
+    addresses.put(section.getName(), currentVa);
   }
 
   private void patchLabels(

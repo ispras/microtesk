@@ -617,13 +617,15 @@ final class TemplateProcessor implements Template.Processor {
     PrinterUtils.printSequenceToConsole(engineContext, sequence);
 
     final long allocationAddress;
+    final Section section = sequence.getSection();
+
     if (null != previous && previous.isAllocated()) {
       allocationAddress = previous.getEndAddress();
     } else {
-      final Section section = sequence.getSection();
       allocationAddress = section.physicalToVirtual(section.getPa()).longValue();
     }
-    allocator.setAddress(BigInteger.valueOf(allocationAddress));
+
+    allocator.setAddress(section, BigInteger.valueOf(allocationAddress));
 
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
