@@ -318,8 +318,11 @@ public final class NmlIrTrans {
   private static Constant newConstant(final Node node) {
     final NodeValue value = (NodeValue) node;
     if (node.isType(DataType.INTEGER)) {
-      // FIXME
+      // FIXME unsound int -> bv64 conversion
       return new Constant(64, value.getInteger());
+    } else if (node.isType(DataType.BOOLEAN)) {
+      // FIXME should be fixed on higher level
+      return new Constant(1, Boolean.compare(value.getBoolean(), false));
     }
     final BitVector bv = value.getBitVector();
     return new Constant(bv.getBitSize(), bv.bigIntegerValue());
