@@ -103,10 +103,9 @@ public final class CodeAllocator {
       final List<ConcreteCall> calls,
       final int sequenceIndex) {
     if (!calls.isEmpty()) {
-      final BigInteger address = addresses.get(section.getName());
-      InvariantChecks.checkNotNull(address);
-
       allocate(section, calls, sequenceIndex);
+
+      final BigInteger address = addresses.get(section.getName());
       code.addBreakAddress(address.longValue());
     }
   }
@@ -248,6 +247,7 @@ public final class CodeAllocator {
         final int imageSize = allocator.bitsToAddressableUnits(image.getBitSize());
 
         if (Logger.isDebug()) {
+          Logger.debug(currentPa.toString(16));
           Logger.debug("0x%016x (PA): %s (0x%s)",
               currentPa, call.getText(), image.toHexString(true));
         }

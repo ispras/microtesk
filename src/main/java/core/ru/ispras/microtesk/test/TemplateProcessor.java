@@ -37,6 +37,7 @@ import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.SectionKind;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 import java.io.IOException;
@@ -616,16 +617,16 @@ final class TemplateProcessor implements Template.Processor {
       final int sequenceIndex) throws ConfigurationException {
     PrinterUtils.printSequenceToConsole(engineContext, sequence);
 
-    final long allocationAddress;
+    final BigInteger allocationAddress;
     final Section section = sequence.getSection();
 
     if (null != previous && previous.isAllocated()) {
-      allocationAddress = previous.getEndAddress();
+      allocationAddress = BigIntegerUtils.valueOfUnsignedLong(previous.getEndAddress());
     } else {
-      allocationAddress = section.physicalToVirtual(section.getPa()).longValue();
+      allocationAddress = section.physicalToVirtual(section.getPa());
     }
 
-    allocator.setAddress(section, BigInteger.valueOf(allocationAddress));
+    allocator.setAddress(section, allocationAddress);
 
     allocateData(sequence, sequenceIndex);
     allocator.allocateSequence(sequence, sequenceIndex);
