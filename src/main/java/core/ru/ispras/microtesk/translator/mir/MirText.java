@@ -1,6 +1,7 @@
 package ru.ispras.microtesk.translator.mir;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,13 @@ public class MirText {
       sb.append(newline);
     }
     return sb.toString();
+  }
+
+  static String stringOf(final Instruction insn) {
+    final List<String> lines = new java.util.ArrayList<>();
+    insn.accept(new InsnText(Collections.<BasicBlock, String>emptyMap(), lines));
+
+    return lines.get(0);
   }
 
   private static void collect(final List<String> lines, final MirContext ctx) {

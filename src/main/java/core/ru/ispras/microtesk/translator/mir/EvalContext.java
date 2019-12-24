@@ -1,5 +1,7 @@
 package ru.ispras.microtesk.translator.mir;
 
+import ru.ispras.castle.util.Logger;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,6 +57,7 @@ public final class EvalContext extends InsnVisitor {
     for (final BasicBlock bb : blocks) {
       int i = 0;
       for (final Instruction insn : bb.insns) {
+        Logger.debug("EVAL: %s", MirText.stringOf(insn));
         this.origin = bb.getOrigin(i++);
         insn.accept(this);
       }
