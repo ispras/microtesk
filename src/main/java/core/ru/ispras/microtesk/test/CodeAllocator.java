@@ -247,7 +247,6 @@ public final class CodeAllocator {
         final int imageSize = allocator.bitsToAddressableUnits(image.getBitSize());
 
         if (Logger.isDebug()) {
-          Logger.debug(currentPa.toString(16));
           Logger.debug("0x%016x (PA): %s (0x%s)",
               currentPa, call.getText(), image.toHexString(true));
         }
