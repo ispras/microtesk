@@ -52,8 +52,8 @@ public final class Section {
       final boolean file) {
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(basePa);
-    InvariantChecks.checkNotNull(baseVa);
+    InvariantChecks.checkTrue(basePa != null && basePa.compareTo(BigInteger.ZERO) >= 0);
+    InvariantChecks.checkTrue(baseVa != null && baseVa.compareTo(BigInteger.ZERO) >= 0);
     InvariantChecks.checkNotNull(args);
 
     this.name = name;
