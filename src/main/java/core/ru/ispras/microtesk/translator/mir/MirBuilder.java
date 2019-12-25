@@ -17,14 +17,28 @@ public class MirBuilder {
   private final MirContext mir = new MirContext("", VOID_TO_VOID_TYPE);
   private MirBlock block = mir.newBlock();
 
+  private final List<MirTy> typeList = new java.util.ArrayList<>();
   private final List<Instruction> body = new java.util.ArrayList<>();
   private final List<Operand> operands = new java.util.ArrayList<>();
 
   public MirContext build(final String name) {
-    block.bb.insns.addAll(body);
-    block.bb.insns.add(new Return(null));
+    final MirContext ctx =
+        new MirContext(name, new FuncTy(VoidTy.VALUE, typeList));
+    final BasicBlock bb = ctx.newBlock().bb;
+    bb.insns.addAll(block.bb.insns);
+    bb.insns.addAll(body);
+    bb.insns.add(new Return(null));
 
-    return Pass.copyOf(this.mir, name);
+    return ctx;
+  }
+
+  public int addParameter(final int size) {
+    typeList.add(new IntTy(size));
+    return typeList.size();
+  }
+
+  public void refParameter(final int index) {
+    operands.add(new Local(index, typeList.get(index - 1)));
   }
 
   public void addValue(final int size, final BigInteger value) {
