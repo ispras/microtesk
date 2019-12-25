@@ -31,8 +31,10 @@ import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirBuilder;
 import ru.ispras.microtesk.translator.mir.MirContext;
+import ru.ispras.microtesk.translator.mir.MirPassDriver;
 import ru.ispras.microtesk.translator.mir.MirText;
 import ru.ispras.microtesk.utils.StringUtils;
 import ru.ispras.testbase.TestBaseContext;
@@ -142,6 +144,19 @@ public final class TestBase {
     }
 
     return fromSolverResult(query, result);
+  }
+
+  private static MirContext buildMir(final TestBaseQuery query) {
+    final String modelName =
+        (String) query.getContext().get(TestBaseContext.PROCESSOR);
+    final Path path = Paths.get(SysUtils.getHomeDir(), "gen", modelName + ".zip");
+    final MirArchive archive = MirArchive.open(path);
+
+    final MirContext mir = MirLinker.newMir(query);
+    final MirPassDriver mirc =
+        MirPassDriver.newOptimizing().setStorage(archive.loadAll());
+
+    return mirc.apply(mir);
   }
 
   private static Node findGuard(
