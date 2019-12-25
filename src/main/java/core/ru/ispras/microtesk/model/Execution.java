@@ -14,12 +14,8 @@
 
 package ru.ispras.microtesk.model;
 
-import java.io.File;
 import java.util.ArrayList;
 
-import com.unitesk.aspectrace.TraceMessage;
-import com.unitesk.aspectrace.TraceNode;
-import com.unitesk.aspectrace.Tracer;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.model.data.Data;
 import ru.ispras.microtesk.test.GenerationAbortedException;
@@ -35,24 +31,14 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 public final class Execution {
     private Execution() { }
 
-    private static final String TRACE_NAME = "MicroTESK.atrace";
-    private static final String TRACE_PATH = "./build/test-outputs/";
-
     /** Tracks execution of primitives. */
     public static final ArrayList<IsaPrimitive> CALL_STACK = new ArrayList<>();
-
-    static {
-        try {
-            Tracer.getInstance().addXmlTrace(new File(TRACE_PATH + TRACE_NAME));
-        } catch (Exception ex) {
-            System.err.print("Could not create a trace!");
-        }
-    }
 
     private static boolean assertionsEnabled = false;
 
     public static void exception(final String text) {
         Logger.debug("Exception has been raised: %s", text);
+        Execution.mark("exception");
         throw new ExecutionException(text);
     }
 
@@ -73,12 +59,7 @@ public final class Execution {
     }
 
     public static void mark(final String name) {
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < CALL_STACK.size() ; ++i) {
-            buf.append(CALL_STACK.get(i).getName() + ".");
-        }
-        buf.append(name);
-        Tracer.traceMessage(new TraceMessage("coverage", new TraceNode("element","aspect", "coverage", "name", buf.toString(), "cs", "instruction paths")));
+        Aspectracer.addInstrPath(name);
         CALL_STACK.get(CALL_STACK.size() - 1).terminal = false;
     }
 

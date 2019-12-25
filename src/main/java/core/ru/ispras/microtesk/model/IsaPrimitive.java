@@ -14,9 +14,6 @@
 
 package ru.ispras.microtesk.model;
 
-import com.unitesk.aspectrace.TraceMessage;
-import com.unitesk.aspectrace.TraceNode;
-import com.unitesk.aspectrace.Tracer;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Location;
@@ -34,14 +31,6 @@ import static ru.ispras.microtesk.model.Execution.CALL_STACK;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public abstract class IsaPrimitive {
-
-    static {
-        try {
-            Tracer.getInstance();
-        } catch (Exception ex) {
-            System.err.print("?");
-        }
-    }
 
     public boolean terminal = true;
 
@@ -194,12 +183,7 @@ public abstract class IsaPrimitive {
             action(processingElement, temporaryVariables);
         } finally {
             if (terminal) {
-                StringBuilder buf = new StringBuilder();
-                for (int i = 0; i < CALL_STACK.size() - 1 ; ++i) {
-                    buf.append(CALL_STACK.get(i).getName() + ".");
-                }
-                buf.append(CALL_STACK.get((CALL_STACK.size() - 1)).getName());
-                Tracer.traceMessage(new TraceMessage("coverage", new TraceNode("element","aspect", "coverage", "name", buf.toString(), "cs", "instruction paths")));
+                Aspectracer.addInstrPath(null);
             }
             CALL_STACK.remove(this);
             if (CALL_STACK.size() != 0)

@@ -18,6 +18,7 @@ import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
+import ru.ispras.microtesk.model.Aspectracer;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
@@ -114,6 +115,11 @@ final class TemplateProcessor implements Template.Processor {
     if (options.getValueAsBoolean(Option.TRACER_LOG)) {
       final String outDir = Printer.getOutDir(options);
       Tracer.initialize(outDir, options.getValueAsString(Option.CODE_FILE_PREFIX));
+    }
+    if (options.getValueAsBoolean(Option.COVERAGE_TRACKING))
+    {
+      final String outDir = Printer.getOutDir(options);
+      Aspectracer.initialize(outDir, options.getValueAsString(Option.CODE_FILE_PREFIX));
     }
 
     engineContext.setCodeAllocator(allocator);
@@ -533,6 +539,7 @@ final class TemplateProcessor implements Template.Processor {
     TestEngineUtils.notifyProgramStart();
 
     Tracer.createFile();
+    Aspectracer.createFile();
     allocator.init();
 
     if (engineContext.getStatistics().getPrograms() > 0) {
@@ -573,6 +580,7 @@ final class TemplateProcessor implements Template.Processor {
 
       PrinterUtils.printTestProgram(engineContext, testProgram);
       Tracer.closeFile();
+      Aspectracer.closeFile();
 
       // Clean up all the state
       engineContext.getModel().resetState();
