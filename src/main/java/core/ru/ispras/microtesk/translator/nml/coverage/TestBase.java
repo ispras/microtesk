@@ -14,23 +14,30 @@
 
 package ru.ispras.microtesk.translator.nml.coverage;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
+import ru.ispras.fortress.expression.ExprTreeWalker;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.solver.SolverResult;
 import ru.ispras.fortress.solver.constraint.Constraint;
+import ru.ispras.fortress.solver.constraint.ConstraintUtils;
 import ru.ispras.fortress.transformer.NodeTransformer;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.translator.mir.Mir2Node;
 import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirBuilder;
 import ru.ispras.microtesk.translator.mir.MirContext;
@@ -58,6 +65,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static ru.ispras.microtesk.utils.StringUtils.dotConc;
 
@@ -101,12 +110,12 @@ public final class TestBase {
 
     SolverResult result;
     try {
+      final String testCase = (String) query.getContext().get(TestBaseContext.TESTCASE);
       final PathConstraintBuilder builder = newPathConstraintBuilder(query);
 
       final Collection<Node> bindings = gatherBindings(query, builder.getVariables());
       bindings.add(findPathSpec(query, builder.getVariables()));
 
-      final String testCase = (String) query.getContext().get(TestBaseContext.TESTCASE);
       if (testCase.equals("normal")) {
         final List<NodeVariable> marks = builder.getSpecialMarks();
         if (!marks.isEmpty()) {
@@ -146,17 +155,17 @@ public final class TestBase {
     return fromSolverResult(query, result);
   }
 
-  private static MirContext buildMir(final TestBaseQuery query) {
+  private static MirInvoke buildMir(final TestBaseQuery query) {
     final String modelName =
         (String) query.getContext().get(TestBaseContext.PROCESSOR);
     final Path path = Paths.get(SysUtils.getHomeDir(), "gen", modelName + ".zip");
     final MirArchive archive = MirArchive.open(path);
 
-    final MirContext mir = MirLinker.newMir(query);
+    final MirInvoke invoke = MirLinker.invoke(query);
     final MirPassDriver mirc =
         MirPassDriver.newOptimizing().setStorage(archive.loadAll());
 
-    return mirc.apply(mir);
+    return new MirInvoke(mirc.apply(invoke.mir), invoke.args);
   }
 
   private static Node findGuard(
@@ -382,17 +391,109 @@ public final class TestBase {
       builder.refParameter(index);
     }
 
-    MirContext build() {
-      builder.makeCall(dotConc(rootInsn, "action"), 0);
-      return builder.build("");
-    }
-
-    static MirContext newMir(final TestBaseQuery query) {
+    static MirInvoke invoke(final TestBaseQuery query) {
       final MirLinker linker = new MirLinker(query);
       linker.buildItem(linker.rootInsn);
       linker.linkBindings(linker.bindings);
+      linker.builder.makeCall(dotConc(linker.rootInsn, "action"), 0);
 
-      return linker.build();
+      return new MirInvoke(linker.builder.build(""), linker.args);
+    }
+  }
+
+  private static final class MirInvoke {
+    final MirContext mir;
+    final List<Node> args;
+
+    MirInvoke(final MirContext mir, final List<Node> args) {
+      this.mir = mir;
+      this.args = args;
+    }
+
+    Constraint newConstraint(final String qualifier) {
+      final List<Node> nodes = bindArguments(this.args);
+      nodes.addAll(asNodes(mir));
+      collectConstraints(qualifier, nodes, nodes);
+      return ConstraintUtils.newConstraint(nodes);
+    }
+
+    static void collectConstraints(
+        final String qual, final List<Node> nodes, final List<Node> constraints) {
+      final List<NodeVariable> qualifiers = collectPathQualifiers(nodes);
+      if (qual.equals("normal")) {
+        final Pattern p = Pattern.compile("^\\.mark_.*");
+        final List<NodeVariable> relevant = new java.util.ArrayList<>(qualifiers);
+        relevant.removeAll(filter(qualifiers, p));
+
+        final Node zeroBit = NodeValue.newBitVector(0, 1);
+        for (final NodeVariable node : relevant) {
+          constraints.add(Nodes.eq(node, zeroBit));
+        }
+      } else {
+        final Pattern p = Pattern.compile(
+            String.format("^\\..*%s.*", Pattern.quote(qual)));
+        final List<NodeVariable> relevant = filter(qualifiers, p);
+        final List<Node> bound = new java.util.ArrayList<>();
+
+        final Node oneBit = NodeValue.newBitVector(1, 1);
+        for (final NodeVariable node : relevant) {
+          bound.add(Nodes.eq(node, oneBit));
+        }
+        if (bound.size() > 1) {
+          constraints.add(Nodes.or(bound));
+        } else {
+          constraints.addAll(bound);
+        }
+      }
+    }
+
+    static List<NodeVariable> filter(
+        final Collection<NodeVariable> vars, final Pattern p) {
+      final List<NodeVariable> filtered = new java.util.ArrayList<>();
+      for (final NodeVariable node : vars) {
+        if (p.matcher(node.getName()).matches()) {
+          filtered.add(node);
+        }
+      }
+      return filtered;
+    }
+
+    static List<NodeVariable> collectPathQualifiers(
+        final Collection<? extends Node> nodes) {
+      final Pattern hiddenName = Pattern.compile("^\\.(\\w+)!\\d+");
+      final Map<String, NodeVariable> qualifiers = new java.util.HashMap<>();
+      final ExprTreeWalker walker = new ExprTreeWalker(new ExprTreeVisitorDefault() {
+        @Override
+        public void onOperationBegin(final NodeOperation node) {
+          if (ExprUtils.isOperation(node, StandardOperation.EQ)
+              && ExprUtils.isVariable(node.getOperand(0))) {
+            final NodeVariable v = (NodeVariable) node.getOperand(0);
+            final Matcher m = hiddenName.matcher(v.getName());
+            if (m.matches()) {
+              qualifiers.put(m.group(1), v); // last wins the spot
+            }
+          }
+        }
+      });
+      walker.visit(nodes);
+      return new java.util.ArrayList<>(qualifiers.values());
+    }
+
+    static List<Node> bindArguments(final List<Node> args) {
+      final List<Node> bound = new java.util.ArrayList<>();
+      for (int i = 0; i < args.size(); ++i) {
+        final Node arg = args.get(i);
+        final Node var = NodeVariable.newBitVector(
+            String.format("%%%d", i + 1), arg.getDataType().getSize());
+        bound.add(Nodes.eq(var, arg));
+      }
+      return bound;
+    }
+
+    static List<Node> asNodes(final MirContext mir) {
+      final Mir2Node pass = new Mir2Node();
+      pass.apply(mir);
+      return pass.getFormulae();
     }
   }
 
