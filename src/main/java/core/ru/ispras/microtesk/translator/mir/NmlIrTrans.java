@@ -37,11 +37,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static ru.ispras.microtesk.translator.mir.Instruction.*;
 
 public final class NmlIrTrans {
   private final PrimitiveAnd source;
+  private final Pattern nonword = Pattern.compile("\\W+");
 
   private NmlIrTrans(final PrimitiveAnd source) {
     this.source = source;
@@ -183,11 +185,37 @@ public final class NmlIrTrans {
         break;
 
       case FUNCALL:
+        translatePathQualifier(ctx, (StatementFunctionCall) s);
+        break;
+
       case FORMAT:
         break;
       }
     }
     return terminals;
+  }
+
+  private void translatePathQualifier(
+      final MirBlock ctx, final StatementFunctionCall s) {
+    final String markName;
+    final String callee = s.getName();
+
+    final List<String> supported =
+        Arrays.asList("undefined", "unpredicted", "mark", "exception");
+    if (supported.contains(callee)) {
+      final String name;
+      if (s.getArgumentCount() > 0) {
+        name = String.format(".%s_%s",
+            callee, sanitizeName(s.getArgument(0).toString()));
+      } else {
+        name = "." + callee;
+      }
+      ctx.append(new Store(new Static(name, Types.BIT), valueOf(1, 1)));
+    }
+  }
+
+  private String sanitizeName(final String input) {
+    return nonword.matcher(input).replaceAll("_");
   }
 
   private void translate(final MirBlock block, final StatementAttributeCall s) {
