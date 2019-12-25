@@ -113,7 +113,6 @@ public final class TestBase {
       final String testCase = (String) query.getContext().get(TestBaseContext.TESTCASE);
 
       final MirInvoke invoke = buildMir(query);
-      Logger.warning(new MirText(invoke.mir).toString());
       final Constraint mirConstraint = invoke.newConstraint(testCase);
 
       final PathConstraintBuilder builder = newPathConstraintBuilder(query);
@@ -262,10 +261,12 @@ public final class TestBase {
 
     case SAT:
       final Map<String, Data> values = valueMap(result.getVariables());
+      values.keySet().retainAll(query.getBindings().keySet());
       final Map<String, Object> valuesOpaque =
-          new java.util.HashMap<String, Object>(values);
-      valuesOpaque.keySet().retainAll(query.getBindings().keySet());
-
+          new java.util.HashMap<>(values.size());
+      for (final Map.Entry<String, Data> entry : values.entrySet()) {
+        valuesOpaque.put(entry.getKey(), new NodeValue(entry.getValue()));
+      }
       return TestBaseQueryResult.success(
           new SingleValueIterator<>(new TestData(valuesOpaque)));
     }
