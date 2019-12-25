@@ -390,20 +390,6 @@ public final class TestBase {
       this.images = parseHierarchy(rootInsn, context);
     }
 
-    static String toString(final Map<String, ? extends Object> map) {
-      final StringBuilder sb = new StringBuilder();
-      sb.append("{");
-      for (final String key : map.keySet()) {
-        sb.append(" '")
-          .append(key)
-          .append("' : '")
-          .append(map.get(key).toString())
-          .append("' |");
-      }
-      sb.append("}");
-      return sb.toString();
-    }
-
     void buildItem(final String prefix) {
       final Map<String, String> params = images.get(prefix);
       for (final String key : params.keySet()) {
@@ -472,6 +458,8 @@ public final class TestBase {
     static void collectConstraints(
         final String qual, final List<Node> nodes, final List<Node> constraints) {
       final List<NodeVariable> qualifiers = collectPathQualifiers(nodes);
+      initQualifiers(qualifiers, constraints);
+
       if (qual.equals("normal")) {
         final Pattern p = Pattern.compile("^\\$mark_.*");
         final List<NodeVariable> relevant = new java.util.ArrayList<>(qualifiers);
@@ -496,6 +484,17 @@ public final class TestBase {
         } else {
           constraints.addAll(bound);
         }
+      }
+    }
+
+    static void initQualifiers(
+        final List<NodeVariable> qualifiers, final List<Node> constraints) {
+      final Pattern verp = Pattern.compile("!\\d+$");
+      final Node zeroBit = NodeValue.newBitVector(0, 1);
+
+      for (final NodeVariable node : qualifiers) {
+        final String name = verp.matcher(node.getName()).replaceFirst("!1");
+        constraints.add(Nodes.eq(NodeVariable.newBitVector(name, 1), zeroBit));
       }
     }
 
