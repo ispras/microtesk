@@ -205,10 +205,10 @@ public final class NmlIrTrans {
     if (supported.contains(callee)) {
       final String name;
       if (s.getArgumentCount() > 0) {
-        name = String.format(".%s_%s",
+        name = String.format("$%s_%s",
             callee, sanitizeName(s.getArgument(0).toString()));
       } else {
-        name = "." + callee;
+        name = "$" + callee;
       }
       ctx.append(new Store(new Static(name, Types.BIT), valueOf(1, 1)));
     }

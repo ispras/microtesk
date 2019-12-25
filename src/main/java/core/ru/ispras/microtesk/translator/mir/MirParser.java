@@ -80,7 +80,7 @@ public class MirParser {
       }
     },
     IDENT("\\w+"),
-    IDENT_HIDDEN("\\.?\\w+"),
+    IDENT_HIDDEN("\\$?\\w+"),
     EOF("");
     
     public boolean nextIn(final Scanner s) {

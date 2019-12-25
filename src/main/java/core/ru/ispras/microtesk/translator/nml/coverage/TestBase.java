@@ -450,7 +450,7 @@ public final class TestBase {
         final String qual, final List<Node> nodes, final List<Node> constraints) {
       final List<NodeVariable> qualifiers = collectPathQualifiers(nodes);
       if (qual.equals("normal")) {
-        final Pattern p = Pattern.compile("^\\.mark_.*");
+        final Pattern p = Pattern.compile("^\\$mark_.*");
         final List<NodeVariable> relevant = new java.util.ArrayList<>(qualifiers);
         relevant.removeAll(filter(qualifiers, p));
 
@@ -460,7 +460,7 @@ public final class TestBase {
         }
       } else {
         final Pattern p = Pattern.compile(
-            String.format("^\\..*%s.*", Pattern.quote(qual)));
+            String.format("^\\$.*%s.*", Pattern.quote(qual)));
         final List<NodeVariable> relevant = filter(qualifiers, p);
         final List<Node> bound = new java.util.ArrayList<>();
 
@@ -489,7 +489,7 @@ public final class TestBase {
 
     static List<NodeVariable> collectPathQualifiers(
         final Collection<? extends Node> nodes) {
-      final Pattern hiddenName = Pattern.compile("^\\.(\\w+)!\\d+");
+      final Pattern hiddenName = Pattern.compile("^\\$(\\w+)!\\d+");
       final Map<String, NodeVariable> qualifiers = new java.util.HashMap<>();
       final ExprTreeWalker walker = new ExprTreeWalker(new ExprTreeVisitorDefault() {
         @Override
