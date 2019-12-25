@@ -351,6 +351,28 @@ public final class TestBase {
     return new PathConstraintBuilder(formula);
   }
 
+  private static String toString(final Map<String, ? extends Object> map) {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("{");
+    for (final String key : map.keySet()) {
+      sb.append(" '")
+        .append(key)
+        .append("' : '")
+        .append(map.get(key).toString())
+        .append("' |");
+    }
+    sb.append("}");
+    return sb.toString();
+  }
+
+  private static String listToLines(final List<?> list) {
+    final StringBuilder sb = new StringBuilder();
+    for (final Object item : list) {
+      sb.append(item.toString()).append(System.lineSeparator());
+    }
+    return sb.toString();
+  }
+
   private static final class MirLinker {
     final Map<String, Object> context;
     final Map<String, Node> bindings;
