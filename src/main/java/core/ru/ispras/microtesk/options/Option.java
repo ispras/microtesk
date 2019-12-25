@@ -69,7 +69,7 @@ public enum Option implements Property {
   FETCH_DECODE_ENABLED("Enables allocation, fetching and decoding of instructions", false, GENERATE),
   ASSERTS_ENABLED("Enables assertion checks during simulation", false, GENERATE),
   TRACER_LOG("Enables generation of Tracer logs for simulation", false, GENERATE),
-  COVERAGE_TRACKING("Enables trace generation", true, GENERATE),
+  COVERAGE_TRACKING("Enables trace generation", false, GENERATE),
   SELF_CHECKS("Enables inserting self-checks into test programs", false, GENERATE),
   DEFAULT_TEST_DATA("Enables generation of default test data", false, GENERATE),
   NO_SIMULATION("Disables simulation of generated code", false, GENERATE),
