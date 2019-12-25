@@ -57,6 +57,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static ru.ispras.microtesk.utils.StringUtils.dotConc;
+
 public final class TestBase {
   private final Path outputDir;
   private final Map<String, Map<String, SsaForm>> storage;
@@ -329,7 +331,7 @@ public final class TestBase {
     void buildItem(final String prefix) {
       final Map<String, String> params = images.get(prefix);
       for (final String key : params.keySet()) {
-        buildItem(StringUtils.dotConc(prefix, key));
+        buildItem(dotConc(prefix, key));
       }
       final String type = context.get(prefix).toString();
       if (!type.equals("#IMM")) {
@@ -345,7 +347,8 @@ public final class TestBase {
           buildItem(key);
           refBoundVar(key);
 
-          builder.makeCall("write", 1);
+          final String callee = dotConc(context.get(key).toString(), "write");
+          builder.makeCall(callee, 1);
         }
       }
     }
@@ -365,7 +368,7 @@ public final class TestBase {
     }
 
     MirContext build() {
-      builder.makeCall("action", 0);
+      builder.makeCall(dotConc(rootInsn, "action"), 0);
       return builder.build("");
     }
 
@@ -390,7 +393,7 @@ public final class TestBase {
       images.put(prefix, args);
 
       for (final String key : args.keySet()) {
-        queue.add(StringUtils.dotConc(prefix, key));
+        queue.add(dotConc(prefix, key));
       }
     }
     return images;
