@@ -18,6 +18,7 @@ import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -30,6 +31,9 @@ import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.SysUtils;
+import ru.ispras.microtesk.translator.mir.MirBuilder;
+import ru.ispras.microtesk.translator.mir.MirContext;
+import ru.ispras.microtesk.translator.mir.MirText;
 import ru.ispras.microtesk.utils.StringUtils;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
@@ -289,6 +293,126 @@ public final class TestBase {
     final Node formula = assembler.assemble(context, instruction);
 
     return new PathConstraintBuilder(formula);
+  }
+
+  private static final class MirLinker {
+    final Map<String, Object> context;
+    final Map<String, Node> bindings;
+    final String rootInsn;
+    final Map<String, Map<String, String>> images;
+
+    final MirBuilder builder = new MirBuilder();
+    final List<Node> args = new java.util.ArrayList<>();
+    final Map<String, Integer> observedArgs = new java.util.HashMap<>();
+
+    MirLinker(final TestBaseQuery query) {
+      this.context = query.getContext();
+      this.bindings = query.getBindings();
+      this.rootInsn = context.get(TestBaseContext.INSTRUCTION).toString();
+      this.images = parseHierarchy(rootInsn, context);
+    }
+
+    static String toString(final Map<String, ? extends Object> map) {
+      final StringBuilder sb = new StringBuilder();
+      sb.append("{");
+      for (final String key : map.keySet()) {
+        sb.append(" '")
+          .append(key)
+          .append("' : '")
+          .append(map.get(key).toString())
+          .append("' |");
+      }
+      sb.append("}");
+      return sb.toString();
+    }
+
+    void buildItem(final String prefix) {
+      final Map<String, String> params = images.get(prefix);
+      for (final String key : params.keySet()) {
+        buildItem(StringUtils.dotConc(prefix, key));
+      }
+      final String type = context.get(prefix).toString();
+      if (!type.equals("#IMM")) {
+        builder.makeClosure(type, params.size());
+      } else {
+        refBoundVar(prefix);
+      }
+    }
+
+    void linkBindings(final Map<String, Node> bindings) {
+      for (final String key : bindings.keySet()) {
+        if (!images.get(key).isEmpty()) {
+          buildItem(key);
+          refBoundVar(key);
+
+          builder.makeCall("write", 1);
+        }
+      }
+    }
+
+    void refBoundVar(final String key) {
+      final int index;
+      if (observedArgs.containsKey(key)) {
+        index = observedArgs.get(key);
+      } else {
+        final Node node = bindings.get(key);
+        args.add(node);
+
+        index = builder.addParameter(node.getDataType().getSize());
+        observedArgs.put(key, index);
+      }
+      builder.refParameter(index);
+    }
+
+    MirContext build() {
+      builder.makeCall("action", 0);
+      return builder.build("");
+    }
+
+    static MirContext newMir(final TestBaseQuery query) {
+      final MirLinker linker = new MirLinker(query);
+      linker.buildItem(linker.rootInsn);
+      linker.linkBindings(linker.bindings);
+
+      return linker.build();
+    }
+  }
+
+  private static Map<String, Map<String, String>> parseHierarchy(
+      final String entry, final Map<String, Object> ctx) {
+    final List<String> queue = new java.util.ArrayList<>();
+    queue.add(entry);
+
+    final Map<String, Map<String, String>> images = new java.util.HashMap<>();
+    while (!queue.isEmpty()) {
+      final String prefix = removeLast(queue);
+      final Map<String, String> args = getArguments(prefix, ctx);
+      images.put(prefix, args);
+
+      for (final String key : args.keySet()) {
+        queue.add(StringUtils.dotConc(prefix, key));
+      }
+    }
+    return images;
+  }
+
+  private static Map<String, String> getArguments(
+      final String prefix, final Map<String, Object> ctx) {
+    final Map<String, String> args = new java.util.LinkedHashMap<>();
+    for (final String key : ctx.keySet()) {
+      if (key.startsWith(prefix) && key.lastIndexOf('.') == prefix.length()) {
+        final String name = key.substring(prefix.length() + 1);
+        args.put(name, ctx.get(key).toString());
+      }
+    }
+    if (args.isEmpty()) {
+      return Collections.emptyMap();
+    }
+    return args;
+  }
+
+  private static <T> T removeLast(final List<T> list) {
+    return list.remove(list.size() - 1);
   }
 
   public Map<String, SsaForm> getStorage(final String model) {
