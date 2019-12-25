@@ -29,10 +29,8 @@ import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.Disassembler.Output;
 import ru.ispras.microtesk.translator.mir.BasicBlock;
-import ru.ispras.microtesk.translator.mir.ConcFlowPass;
 import ru.ispras.microtesk.translator.mir.Constant;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
-import ru.ispras.microtesk.translator.mir.GlobalNumbering;
 import ru.ispras.microtesk.translator.mir.Instruction;
 import ru.ispras.microtesk.translator.mir.Mir2Node;
 import ru.ispras.microtesk.translator.mir.MirArchive;
@@ -43,7 +41,6 @@ import ru.ispras.microtesk.translator.mir.MirPassDriver;
 import ru.ispras.microtesk.translator.mir.MirText;
 import ru.ispras.microtesk.translator.mir.Operand;
 import ru.ispras.microtesk.translator.mir.Pass;
-import ru.ispras.microtesk.translator.mir.SccpPass;
 import ru.ispras.microtesk.translator.mir.Static;
 import ru.ispras.microtesk.translator.mir.StoreAnalysis;
 
@@ -109,12 +106,7 @@ public final class SymbolicExecutor {
 
   private static void compileBasicBlocks(final String fileName, final BodyInfo info) {
     final MirPassDriver driver =
-      MirPassDriver.newDefault().setStorage(info.storage)
-      .add(new GlobalNumbering().setComment("build SSA"))
-      .add(new ForwardPass().setComment("SSA forward"))
-      .add(new SccpPass().setComment("Nested SCCP"))
-      .add(new ForwardPass().setComment("SCCP forward"))
-      .add(new ConcFlowPass().setComment("cherry"));
+        MirPassDriver.newOptimizing().setStorage(info.storage);
     final StoreAnalysis analysis = new StoreAnalysis();
     final Mir2Node smtOutput = new Mir2Node();
 
@@ -209,13 +201,11 @@ public final class SymbolicExecutor {
 
     final String pcName =
       archive.getManifest().getJsonObject("program_counter").getString("name");
-    final MirPassDriver ssaDriver = new MirPassDriver(
-      new GlobalNumbering().setComment("build SSA"),
-      new ForwardPass(Collections.singletonMap(pcName, BigInteger.ZERO)).setComment("SSA forward"),
-      new SccpPass().setComment("Nested SCCP"),
-      new ForwardPass().setComment("SCCP forward"),
-      new ConcFlowPass().setComment("cherry"));
+    final List<Pass> ssaSeq = MirPassDriver.ssaOptimizeSequence();
+    ForwardPass.class.cast(ssaSeq.get(1)).initValues(
+        Collections.singletonMap(pcName, BigInteger.ZERO));
     final StoreAnalysis analysis = new StoreAnalysis();
+    final MirPassDriver ssaDriver = new MirPassDriver(ssaSeq);
     for (final MirContext mir : info.bodyMir) {
       final MirContext opt = ssaDriver.apply(mir);
       analysis.apply(opt);

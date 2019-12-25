@@ -5,14 +5,12 @@ import java.util.Collections;
 import java.util.Map;
 
 public class ForwardPass extends Pass {
-  private final Map<String, BigInteger> presets;
+  private Map<String, BigInteger> presets = Collections.emptyMap();
 
-  public ForwardPass() {
-    this(Collections.<String, BigInteger>emptyMap());
-  }
+  public ForwardPass initValues(final Map<String, BigInteger> valueMap) {
+    this.presets = new java.util.HashMap<>(valueMap);
 
-  public ForwardPass(final Map<String, BigInteger> presets) {
-    this.presets = presets;
+    return this;
   }
 
   @Override
