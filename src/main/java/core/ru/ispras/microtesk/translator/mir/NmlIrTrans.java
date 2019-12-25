@@ -903,7 +903,7 @@ public final class NmlIrTrans {
     OPCODE_MAPPING.put(StandardOperation.BVNOT, new BinOpcode() {
       @Override
       public Rvalue make(final Operand lhs, final Operand rhs) {
-        return BvOpcode.Xor.make(lhs, new Constant(64, -1));
+        return BvOpcode.Xor.make(lhs, valueOf(-1, lhs.getType().getSize()));
       }
 
       @Override
