@@ -16,7 +16,11 @@ public class MirPassDriver {
   private Map<String, MirContext> storage;
 
   public MirPassDriver(final Pass... passes) {
-    this.passList = new java.util.ArrayList<>(Arrays.asList(passes));
+    this(Arrays.asList(passes));
+  }
+
+  public MirPassDriver(final List<Pass> passList) {
+    this.passList = new java.util.ArrayList<>(passList);
     setStorage(new java.util.HashMap<String, MirContext>());
   }
 
@@ -26,6 +30,19 @@ public class MirPassDriver {
       new ForwardPass().setComment("propagate"),
       new ConcFlowPass().setComment("inline blocks")
     );
+  }
+
+  public static MirPassDriver newOptimizing() {
+    return MirPassDriver.newDefault().addAll(ssaOptimizeSequence());
+  }
+
+  public static List<Pass> ssaOptimizeSequence() {
+    return Arrays.asList(
+      new GlobalNumbering().setComment("build SSA"),
+      new ForwardPass().setComment("SSA forward"),
+      new SccpPass().setComment("Nested SCCP"),
+      new ForwardPass().setComment("SCCP forward"),
+      new ConcFlowPass().setComment("cherry"));
   }
 
   public MirPassDriver setStorage(final Map<String, MirContext> storage) {
