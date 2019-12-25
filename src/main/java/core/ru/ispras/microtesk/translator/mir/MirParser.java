@@ -80,6 +80,7 @@ public class MirParser {
       }
     },
     IDENT("\\w+"),
+    IDENT_HIDDEN("\\.?\\w+"),
     EOF("");
     
     public boolean nextIn(final Scanner s) {
@@ -290,7 +291,7 @@ public class MirParser {
     }
 
     public Lvalue nextMemory(final MirTy type, final Scanner s) {
-      final String name = TokenKind.IDENT.next(s);
+      final String name = TokenKind.IDENT_HIDDEN.next(s);
       Lvalue mem = new Static(name, type);
 
       while (s.hasNext()) {
