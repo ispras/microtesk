@@ -1,2 +1,7 @@
 #!/bin/bash
-sh $MICROTESK_HOME/bin/generate.sh minimips $1.rb --code-file-prefix $1 --code-file-extension s -v -sd 1>$1.stdout 2>$1.stderr
+sh $MICROTESK_HOME/bin/generate.sh minimips $1.rb \
+   --code-file-prefix $1 \
+   --code-file-extension s \
+   --tracer-log \
+   --coverage-tracking \
+   -v -sd 1>$1.stdout 2>$1.stderr

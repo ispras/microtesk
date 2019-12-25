@@ -163,6 +163,7 @@ public class MiniMipsTest extends TemplateTest {
     setTestDirPath(testDirPath);
 
     setCommandLineOption(ru.ispras.microtesk.options.Option.TRACER_LOG);
+    setCommandLineOption(ru.ispras.microtesk.options.Option.COVERAGE_TRACKING);
     setCommandLineOption(ru.ispras.microtesk.options.Option.OUTPUT_DIR, getTestDirPath());
     setCommandLineOption(ru.ispras.microtesk.options.Option.CODE_FILE_EXTENSION, EXT);
     setCommandLineOption(ru.ispras.microtesk.options.Option.DATA_FILE_EXTENSION, EXT);
