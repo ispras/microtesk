@@ -111,6 +111,11 @@ public final class TestBase {
     SolverResult result;
     try {
       final String testCase = (String) query.getContext().get(TestBaseContext.TESTCASE);
+
+      final MirInvoke invoke = buildMir(query);
+      Logger.warning(new MirText(invoke.mir).toString());
+      final Constraint mirConstraint = invoke.newConstraint(testCase);
+
       final PathConstraintBuilder builder = newPathConstraintBuilder(query);
 
       final Collection<Node> bindings = gatherBindings(query, builder.getVariables());
@@ -139,7 +144,8 @@ public final class TestBase {
       }
 
       final Constraint constraint = builder.build(bindings);
-      result = solverId.getSolver().solve(constraint);
+      result = solverId.getSolver().solve(mirConstraint);
+      return forwardResult(query, result);
     } catch (final Throwable e) {
       final List<String> errors = new ArrayList<>(rc.getErrors().size() + 1);
 
@@ -151,8 +157,7 @@ public final class TestBase {
 
       return TestBaseQueryResult.reportErrors(errors);
     }
-
-    return fromSolverResult(query, result);
+    // return fromSolverResult(query, result);
   }
 
   private static MirInvoke buildMir(final TestBaseQuery query) {
@@ -246,6 +251,34 @@ public final class TestBase {
     return NodeValue.newBoolean(true);
   }
 
+  private static TestBaseQueryResult forwardResult(
+      final TestBaseQuery query, final SolverResult result) {
+    switch (result.getStatus()) {
+    default:
+      return TestBaseQueryResult.success(EmptyIterator.<TestData>get());
+
+    case ERROR:
+      return TestBaseQueryResult.reportErrors(result.getErrors());
+
+    case SAT:
+      final Map<String, Data> values = valueMap(result.getVariables());
+      final Map<String, Object> valuesOpaque =
+          new java.util.HashMap<String, Object>(values);
+      valuesOpaque.keySet().retainAll(query.getBindings().keySet());
+
+      return TestBaseQueryResult.success(
+          new SingleValueIterator<>(new TestData(valuesOpaque)));
+    }
+  }
+
+  static Map<String, Data> valueMap(final Collection<Variable> vars) {
+    final Map<String, Data> values = new java.util.HashMap<>();
+    for (final Variable v : vars) {
+      values.put(v.getName(), v.getData());
+    }
+    return values;
+  }
+
   private TestBaseQueryResult fromSolverResult(
       final TestBaseQuery query,
       final SolverResult result) {
@@ -262,11 +295,7 @@ public final class TestBase {
   }
 
   private Iterator<TestData> parseResult(final TestBaseQuery query, final SolverResult result) {
-    final Map<String, Data> values = new HashMap<>();
-    for (final Variable variable : result.getVariables()) {
-      values.put(variable.getName(), variable.getData());
-    }
-
+    final Map<String, Data> values = valueMap(result.getVariables());
     final Map<String, Object> valueNodes = new HashMap<>();
     for (Map.Entry<String, Node> entry : query.getBindings().entrySet()) {
       if (entry.getValue().getKind() == Node.Kind.VARIABLE) {
