@@ -121,8 +121,8 @@ public final class BranchDetector implements TranslatorHandler<Ir> {
           primitive.getInfo().setBranch(true);
         }
 
-        System.out.printf("[B] %s - %sbranch%s%n",
-            primitive.getName(), isConditional ? "conditional " : "", ", condition:" + primitive.getInfo().getConditionForBranch());
+        //System.out.printf("[B] %s - %sbranch%s%n",
+        //    primitive.getName(), isConditional ? "conditional " : "", ", condition:" + primitive.getInfo().getConditionForBranch());
       }
     }
 
