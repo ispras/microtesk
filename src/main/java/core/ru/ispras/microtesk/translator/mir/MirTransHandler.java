@@ -2,6 +2,7 @@ package ru.ispras.microtesk.translator.mir;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -73,15 +74,18 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     final Map<String, MirContext> opt = driver.run(source);
 
     final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
-    try (final ArchiveWriter archive = new ArchiveWriter(path)) {
-      try (final JsonWriter writer =
-          Json.createWriter(archive.newText(MirArchive.MANIFEST))) {
-        writer.write(createManifest(ir));
-      }
-      for (final MirContext ctx : opt.values()) {
-        try (final Writer writer = archive.newText(ctx.name + ".mir")) {
-          final MirText text = new MirText(ctx);
-          writer.write(text.toString());
+    try {
+      Files.createDirectories(Paths.get(translator.getOutDir()));
+      try (final ArchiveWriter archive = new ArchiveWriter(path)) {
+        try (final JsonWriter writer =
+            Json.createWriter(archive.newText(MirArchive.MANIFEST))) {
+          writer.write(createManifest(ir));
+        }
+        for (final MirContext ctx : opt.values()) {
+          try (final Writer writer = archive.newText(ctx.name + ".mir")) {
+            final MirText text = new MirText(ctx);
+            writer.write(text.toString());
+          }
         }
       }
     } catch (final IOException e) {
