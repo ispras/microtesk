@@ -27,6 +27,6 @@ public final class ConstraintControlFlowTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1, statistics.getPrograms());
     Assert.assertEquals(10, statistics.getSequences());
-    Assert.assertEquals(211, statistics.getInstructions());
+    Assert.assertEquals(207, statistics.getInstructions());
   }
 }
