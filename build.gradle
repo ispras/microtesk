@@ -742,11 +742,11 @@ distributions {
       from('ChangeLog')
       from('LICENSE')
       from('NOTICE')
-      from('src/main/text/README')
+      from('src/main/text/README.md')
 
-      from('src/main/text/README_TOOLS') {
+      from('src/main/text/README_TOOLS.md') {
         into('tools')
-        rename('README_TOOLS', 'README')
+        rename('README_TOOLS.md', 'README.md')
       }
     }
   }
