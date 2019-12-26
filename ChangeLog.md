@@ -1,18 +1,21 @@
 # MicroTESK Builds
 
-## 2019/12/xx - MicroTESK 2.5
+## 2019/12/26 - MicroTESK 2.5
 
-### 2019/12/xx - MicroTESK 2.5.0 beta
+### 2019/12/26 - MicroTESK 2.5.0 beta
 
- * Introduced new internal representation, called *MIR* (*Middle-level* [or *MicroTESK*] *IR*)
+ * Introduced new internal representation, so-called *MIR* (*Middle-level* [or *MicroTESK*] *IR*)
    - Redesigned the constraint generator (for mark-based situations)
    - Redesigned the symbolic executor (for binary code analysis)
- * Unified the directives (alignment, data definition, and labels) for `text` and `data` sections:
-   - Enabled a possibility to define data in `text`
-   - Implemented new directives: `balign`, `p2align`, and `option`
-   - Refactored  the code/data allocation logic
+ * Unified the directives (alignment, data definition, and labels) for `.text` and `.data` sections:
+   - Enabled a possibility to define data in `.text`
+   - Implemented new directives: `.balign`, `.p2align`, and `.option`
+   - Refactored the code/data allocation logic
  * Implemented a simple instruction-level coverage tracker (experimental)
    - Enabled a possibility to generate test coverage reports
+   - Enabled a possibility to generate test coverage reports in Aspectrace format
+     (see https://forge.ispras.ru/projects/aspectrace)
+   - Introduced a new option `--coverage-log`
  * Used the `QEMU4V 0.3.4` simulator for running tests
 
 ## 2016/10/28 - MicroTESK 2.4

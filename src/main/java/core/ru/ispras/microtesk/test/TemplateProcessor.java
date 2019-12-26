@@ -116,7 +116,7 @@ final class TemplateProcessor implements Template.Processor {
       final String outDir = Printer.getOutDir(options);
       Tracer.initialize(outDir, options.getValueAsString(Option.CODE_FILE_PREFIX));
     }
-    if (options.getValueAsBoolean(Option.COVERAGE_TRACKING))
+    if (options.getValueAsBoolean(Option.COVERAGE_LOG))
     {
       final String outDir = Printer.getOutDir(options);
       Aspectracer.initialize(outDir, options.getValueAsString(Option.CODE_FILE_PREFIX));
