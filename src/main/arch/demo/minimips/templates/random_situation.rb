@@ -30,8 +30,8 @@ class RandomSituationTemplate < MiniMipsBaseTemplate
       range(:value => 0xffffFFFE..0xffffFFFF, :bias => 50))
 
     sit_dist = dist(
-      range(:value => situation('add.overflow'), :bias => 20),
-      range(:value => situation('add.normal'),   :bias => 20),
+      range(:value => situation('overflow'), :bias => 20),
+      range(:value => situation('normal'),   :bias => 20),
       range(:value => situation('zero'),         :bias => 25),
       range(:value => situation('random_biased', :dist => int32_dist), :bias => 35))
 

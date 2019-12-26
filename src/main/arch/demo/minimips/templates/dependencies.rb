@@ -28,10 +28,10 @@ class DependenciesTemplate < MiniMipsBaseTemplate
 
   def run
     sequence {
-      add t0, t0, t1 do situation('add.overflow') end
-      add t0, t0, t2 do situation('add.normal')   end
-      add t0, t0, t3 do situation('add.overflow') end
-      add t0, t0, t4 do situation('add.normal')   end
+      add t0, t0, t1 do situation('overflow') end
+      add t0, t0, t2 do situation('normal')   end
+      add t0, t0, t3 do situation('overflow') end
+      add t0, t0, t4 do situation('normal')   end
     }.run(5)
   end
 
