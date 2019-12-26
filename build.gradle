@@ -110,7 +110,7 @@ static String getCurrentDateString()  {
   new SimpleDateFormat( "yyMMdd" ).format( new Date() )
 }
 
-task unSnapshotVersion.doLast {
+unSnapshotVersion.doLast {
   def version = project.version.toString()
   version += '-' + getCurrentDateString()
    project.plugins.getPlugin( net.researchgate.release.ReleasePlugin.class )
