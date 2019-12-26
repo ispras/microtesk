@@ -17,7 +17,6 @@ package ru.ispras.microtesk.translator.nml.coverage;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.DataType;
-import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
@@ -32,8 +31,6 @@ import ru.ispras.fortress.solver.SolverId;
 import ru.ispras.fortress.solver.SolverResult;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.ConstraintUtils;
-import ru.ispras.fortress.transformer.NodeTransformer;
-import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.SysUtils;
@@ -43,7 +40,6 @@ import ru.ispras.microtesk.translator.mir.MirBuilder;
 import ru.ispras.microtesk.translator.mir.MirContext;
 import ru.ispras.microtesk.translator.mir.MirPassDriver;
 import ru.ispras.microtesk.translator.mir.MirText;
-import ru.ispras.microtesk.utils.StringUtils;
 import ru.ispras.testbase.TestBaseContext;
 import ru.ispras.testbase.TestBaseQuery;
 import ru.ispras.testbase.TestBaseQueryResult;
@@ -57,14 +53,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,7 +65,6 @@ import static ru.ispras.microtesk.utils.StringUtils.dotConc;
 
 public final class TestBase {
   private final Path outputDir;
-  private final Map<String, Map<String, SsaForm>> storage;
   private final ru.ispras.testbase.TestBase testBase;
 
   private static TestBase instance = null;
@@ -93,7 +85,6 @@ public final class TestBase {
 
   private TestBase(final String path) {
     this.outputDir = Paths.get(path);
-    this.storage = new HashMap<>();
     this.testBase = ru.ispras.testbase.TestBase.get();
   }
 
@@ -108,46 +99,15 @@ public final class TestBase {
       return rc;
     }
 
-    SolverResult result;
     try {
       final String testCase = (String) query.getContext().get(TestBaseContext.TESTCASE);
-
       final MirInvoke invoke = buildMir(query);
-      final Constraint mirConstraint = invoke.newConstraint(testCase);
-
-      final PathConstraintBuilder builder = newPathConstraintBuilder(query);
-
-      final Collection<Node> bindings = gatherBindings(query, builder.getVariables());
-      bindings.add(findPathSpec(query, builder.getVariables()));
-
-      if (testCase.equals("normal")) {
-        final List<NodeVariable> marks = builder.getSpecialMarks();
-        if (!marks.isEmpty()) {
-          bindings.add(Nodes.not(Nodes.or(marks)));
-        }
-      } else if (!testCase.equals("undefined") && !testCase.equals("unpredicted")) {
-        final List<NodeVariable> marks = new ArrayList<>();
-        for (final NodeVariable mark : builder.getSpecialMarks()) {
-          if (mark.getName().matches(".*\\.undefined(!(\\d+))?$")
-              || mark.getName().matches(".*\\.unpredicted(!(\\d+))?$")) {
-            marks.add(mark);
-          }
-        }
-        if (!marks.isEmpty()) {
-          bindings.add(Nodes.not(Nodes.or(marks)));
-        }
-        bindings.add(Nodes.eq(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
-      } else {
-        // unrestrited access to all paths: same as above, but w/o mark filtering
-        bindings.add(Nodes.eq(findGuard(testCase, builder.getVariables()), Nodes.TRUE));
-      }
-
-      final Constraint constraint = builder.build(bindings);
-      result = solverId.getSolver().solve(mirConstraint);
+      final Constraint c = invoke.newConstraint(testCase);
+      final SolverResult result = solverId.getSolver().solve(c);
       return forwardResult(query, result);
     } catch (final Throwable e) {
-      final List<String> errors = new ArrayList<>(rc.getErrors().size() + 1);
-
+      final List<String> errors =
+          new java.util.ArrayList<>(rc.getErrors().size() + 1);
       final StringWriter sw = new StringWriter();
       e.printStackTrace(new PrintWriter(sw));
 
@@ -156,7 +116,6 @@ public final class TestBase {
 
       return TestBaseQueryResult.reportErrors(errors);
     }
-    // return fromSolverResult(query, result);
   }
 
   private static MirInvoke buildMir(final TestBaseQuery query) {
@@ -170,34 +129,6 @@ public final class TestBase {
         MirPassDriver.newOptimizing().setStorage(archive.loadAll());
 
     return new MirInvoke(mirc.apply(invoke.mir), invoke.args);
-  }
-
-  private static Node findGuard(
-      final String testCase,
-      final Map<String, NodeVariable> variables) {
-    final Map<String, List<String>> components = new TreeMap<>();
-
-    for (final NodeVariable var : variables.values()) {
-      if (var.isType(DataType.BOOLEAN)) {
-        final int pos = var.getName().indexOf('!');
-        if (pos > 0) {
-          final String key = var.getName().substring(0, pos);
-          components.put(key, splitInverse(key));
-        }
-      }
-    }
-
-    final List<String> subset = splitInverse(testCase);
-    for (final Map.Entry<String, List<String>> entry : components.entrySet()) {
-      if (isOrderedSubset(subset, entry.getValue())) {
-        final NodeVariable node = variables.get(entry.getKey() + "!1");
-        if (node != null) {
-          return node;
-        }
-      }
-    }
-
-    throw new IllegalArgumentException(testCase);
   }
 
   private static boolean isOrderedSubset(
@@ -229,27 +160,6 @@ public final class TestBase {
     return tokens;
   }
 
-  private Node findPathSpec(
-      final TestBaseQuery query,
-      final Map<String, NodeVariable> variables) {
-    final Map<String, Object> context = query.getContext();
-
-    final String name = (String) context.get(TestBaseContext.INSTRUCTION);
-    final String situation = (String) context.get(TestBaseContext.TESTCASE);
-    final Pair<String, String> pair = StringUtils.splitOnFirst(situation, '.');
-
-    for (final Map.Entry<String, Object> entry : context.entrySet()) {
-      if (entry.getValue().equals(name)) {
-        final String varName = entry.getKey() + pair.second + "!1";
-        if (variables.containsKey(varName)) {
-          return variables.get(varName);
-        }
-      }
-    }
-
-    return NodeValue.newBoolean(true);
-  }
-
   private static TestBaseQueryResult forwardResult(
       final TestBaseQuery query, final SolverResult result) {
     switch (result.getStatus()) {
@@ -278,77 +188,6 @@ public final class TestBase {
       values.put(v.getName(), v.getData());
     }
     return values;
-  }
-
-  private TestBaseQueryResult fromSolverResult(
-      final TestBaseQuery query,
-      final SolverResult result) {
-    switch (result.getStatus()) {
-      case SAT:
-        return TestBaseQueryResult.success(parseResult(query, result));
-
-      case ERROR:
-        return TestBaseQueryResult.reportErrors(result.getErrors());
-
-      default:
-        return TestBaseQueryResult.success(EmptyIterator.<TestData>get());
-    }
-  }
-
-  private Iterator<TestData> parseResult(final TestBaseQuery query, final SolverResult result) {
-    final Map<String, Data> values = valueMap(result.getVariables());
-    final Map<String, Object> valueNodes = new HashMap<>();
-    for (Map.Entry<String, Node> entry : query.getBindings().entrySet()) {
-      if (entry.getValue().getKind() == Node.Kind.VARIABLE) {
-        final String name = entry.getKey() + "!1";
-        if (values.containsKey(name)) {
-          valueNodes.put(entry.getKey(), new NodeValue(values.get(name)));
-        } else {
-          if (entry.getValue().isType(DataTypeId.LOGIC_INTEGER)) {
-            // TODO: Bit width required.
-            // TODO: Randomization.
-            valueNodes.put(entry.getKey(), NodeValue.newInteger(0));
-          } else {
-            // TODO: Bit width required.
-            // TODO: Randomization.
-          }
-        }
-      }
-    }
-
-    final TestData data = new TestData(valueNodes);
-    return new SingleValueIterator<>(data);
-  }
-
-  private Collection<Node> gatherBindings(
-      final TestBaseQuery query,
-      final Map<String, NodeVariable> variables) {
-    final List<Node> bindings = new ArrayList<>();
-    final NodeTransformer caster = new NodeTransformer(IntegerCast.rules());
-
-    for (Map.Entry<String, Node> entry: query.getBindings().entrySet()) {
-      if (entry.getValue().getKind() == Node.Kind.VALUE) {
-        final String name = entry.getKey() + "!1";
-        if (variables.containsKey(name)) {
-          final Node binding = Nodes.eq(variables.get(name), entry.getValue());
-          bindings.add(Transformer.transform(binding, caster));
-        }
-      }
-    }
-
-    return bindings;
-  }
-
-  private PathConstraintBuilder newPathConstraintBuilder(final TestBaseQuery query) {
-    final Map<String, Object> context = query.getContext();
-
-    final String model = (String) context.get(TestBaseContext.PROCESSOR);
-    final String instruction = (String) context.get(TestBaseContext.INSTRUCTION);
-
-    final SsaAssembler assembler = new SsaAssembler(getStorage(model));
-    final Node formula = assembler.assemble(context, instruction);
-
-    return new PathConstraintBuilder(formula);
   }
 
   private static String toString(final Map<String, ? extends Object> map) {
@@ -583,17 +422,6 @@ public final class TestBase {
 
   private static <T> T removeLast(final List<T> list) {
     return list.remove(list.size() - 1);
-  }
-
-  public Map<String, SsaForm> getStorage(final String model) {
-    if (storage.containsKey(model)) {
-      return storage.get(model);
-    }
-
-    final Map<String, SsaForm> ssa = SsaStorage.load(outputDir, model);
-    storage.put(model, ssa);
-
-    return ssa;
   }
 
   public TestBaseRegistry getRegistry() {
