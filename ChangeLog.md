@@ -13,6 +13,7 @@
    - Refactored  the code/data allocation logic
  * Implemented a simple instruction-level coverage tracker (experimental)
    - Enabled a possibility to generate test coverage reports
+ * Used the `QEMU4V 0.3.4` simulator for running tests
 
 ## 2016/10/28 - MicroTESK 2.4
 
