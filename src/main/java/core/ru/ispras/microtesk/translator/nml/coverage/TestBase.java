@@ -312,9 +312,17 @@ public final class TestBase {
         final Pattern p = Pattern.compile(
             String.format("^\\$.*%s.*", Pattern.quote(qual)));
         final List<NodeVariable> relevant = filter(qualifiers, p);
-        final List<Node> bound = new java.util.ArrayList<>();
+        if (relevant.isEmpty()) {
+          Logger.error("TestBase: invalid path qualifier '%s', allowed values are substrings of:%s%s",
+            qual,
+            System.lineSeparator(),
+            listToLines(qualifiers).replaceAll("\\$|!\\d+", ""));
+          throw new IllegalArgumentException(
+              String.format("Invalid path qualifier '%s'", qual));
+        }
 
         final Node oneBit = NodeValue.newBitVector(1, 1);
+        final List<Node> bound = new java.util.ArrayList<>();
         for (final NodeVariable node : relevant) {
           bound.add(Nodes.eq(node, oneBit));
         }
