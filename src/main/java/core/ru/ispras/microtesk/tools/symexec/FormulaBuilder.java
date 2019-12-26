@@ -14,13 +14,6 @@
 
 package ru.ispras.microtesk.tools.symexec;
 
-import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeValue;
-import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.fortress.expression.Nodes;
-import ru.ispras.fortress.solver.constraint.Constraint;
-import ru.ispras.fortress.solver.constraint.Formulas;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.Immediate;
 import ru.ispras.microtesk.model.IsaPrimitive;
@@ -35,20 +28,10 @@ import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirBuilder;
 import ru.ispras.microtesk.translator.mir.MirContext;
-import ru.ispras.microtesk.translator.nml.coverage.PathConstraintBuilder;
-import ru.ispras.microtesk.translator.nml.coverage.SsaAssembler;
-import ru.ispras.microtesk.translator.nml.coverage.TestBase;
-import ru.ispras.microtesk.utils.NamePath;
 
-import ru.ispras.testbase.TestBaseContext;
-
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.json.JsonObject;
 
@@ -94,82 +77,6 @@ public final class FormulaBuilder {
         buildOperand(builder, p.adopt(arg));
       }
       builder.makeClosure(p.item.getName(), args.size());
-    }
-  }
-
-  public static List<Node> buildFormulas(
-      final Model model,
-      final List<IsaPrimitive> sequence) {
-    final SsaAssembler assembler = new SsaAssembler(TestBase.get().getStorage(model.getName()));
-    final List<Node> formulae = new ArrayList<>(sequence.size());
-
-    int n = 0;
-    for (final IsaPrimitive p : sequence) {
-      final String prefix = String.format("op_%d", n++, p.getName());
-      final String tag = String.format("%s_%s", prefix, p.getName());
-
-      final Map<String, Object> context = new HashMap<>();
-      final Map<String, BitVector> literals = new LinkedHashMap<>();
-      buildContext(model, context, literals, p);
-
-      for (final Map.Entry<String, BitVector> e : literals.entrySet()) {
-        final String name = String.format("%s_%s", prefix, e.getKey());
-        final BitVector value = e.getValue();
-
-        final Node variable = NodeVariable.newBitVector(name, value.getBitSize());
-        variable.setUserData(1);
-
-        formulae.add(Nodes.eq(variable, NodeValue.newBitVector(value)));
-      }
-
-      final Node f = assembler.assemble(context, p.getName(), tag);
-      formulae.add(f);
-    }
-
-    final Constraint c = new PathConstraintBuilder(formulae).build();
-    return ((Formulas) c.getInnerRep()).exprs();
-  }
-
-  private static void buildContext(
-      final Model model,
-      final Map<String, Object> context,
-      final Map<String, BitVector> literals,
-      final IsaPrimitive p) {
-    buildContext(context, literals, NamePath.get(p.getName()), new IsaInstance(model, p));
-    context.put(TestBaseContext.INSTRUCTION, p.getName());
-  }
-
-  private static void buildContext(
-      final Map<String, Object> context,
-      final Map<String, BitVector> literals,
-      final NamePath prefix,
-      final IsaInstance input) {
-    for (final Map.Entry<String, IsaPrimitive> entry : input.item.getArguments().entrySet()) {
-      final NamePath path;
-      final NamePath guessedPath = prefix.resolve(entry.getKey());
-
-      final IsaInstance arg = input.adopt(entry.getValue());
-      if (!input.acceptsArgument(entry.getKey(), arg)) {
-        final Pair<String, String> inter =
-          input.substituteArgument(entry.getKey(), arg);
-        context.put(guessedPath.toString(), inter.first);
-
-        path = guessedPath.resolve(inter.second);
-      } else {
-        path = guessedPath;
-      }
-
-      final String key = path.toString();
-      context.put(key, arg.item.getName());
-
-      if (arg.kind.equals(IsaPrimitiveKind.IMM)) {
-        final Location location = ((Immediate) arg.item).access();
-        literals.put(key, BitVector.valueOf(location.getValue(), location.getBitSize()));
-        // override context for immediates
-        context.put(key, Immediate.TYPE_NAME);
-      } else {
-        buildContext(context, literals, path, arg);
-      }
     }
   }
 
