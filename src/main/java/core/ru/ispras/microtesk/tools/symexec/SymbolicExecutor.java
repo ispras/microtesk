@@ -85,21 +85,12 @@ public final class SymbolicExecutor {
     final List<IsaPrimitive> instructions = output.getInstructions();
     InvariantChecks.checkNotNull(instructions);
 
-    final List<Node> ssa =
-      FormulaBuilder.buildFormulas(outputFactory.getModel(), instructions);
-
-    final String smtFileName = fileName + ".smt2";
-    writeSmt(smtFileName, ssa);
-
     final BodyInfo info = writeMir(outputFactory.getModel(), instructions);
     inspectControlFlow(model, info);
     compileBasicBlocks(fileName, info);
     writeControlFlow(fileName + ".json", info);
-    writeSmt(fileName, info);
+    writeBasicBlockSmt(fileName, info);
     writeMir(fileName, info);
-
-    Logger.message("Created file: %s", smtFileName);
-
 
     return true;
   }
@@ -240,7 +231,7 @@ public final class SymbolicExecutor {
     }
   }
 
-  private static void writeSmt(final String fileName, final BodyInfo info) {
+  private static void writeBasicBlockSmt(final String fileName, final BodyInfo info) {
     final Mir2Node smtOutput = new Mir2Node();
     for (final MirContext mir : info.bbMir) {
       smtOutput.apply(mir);
