@@ -7,7 +7,7 @@
  * Introduced new internal representation, so-called *MIR* (*Middle-level* [or *MicroTESK*] *IR*)
    - Redesigned the constraint generator (for mark-based situations)
    - Redesigned the symbolic executor (for binary code analysis)
- * Unified the directives (alignment, data definition, and labels) for `.text` and `.data` sections:
+ * Unified the directives (alignment, data definition, and labels) for `.text` and `.data` sections
    - Enabled a possibility to define data in `.text`
    - Implemented new directives: `.balign`, `.p2align`, and `.option`
    - Refactored the code/data allocation logic
