@@ -1,6 +1,6 @@
 # MicroTESK Builds
 
-## 2019/12/26 - MicroTESK 2.5
+## MicroTESK 2.5
 
 ### 2019/12/26 - MicroTESK 2.5.0 beta
 
@@ -17,7 +17,7 @@
      (see https://forge.ispras.ru/projects/aspectrace)
  * Used the `QEMU4V 0.3.4` simulator for running tests
 
-## 2016/10/28 - MicroTESK 2.4
+## MicroTESK 2.4
 
 ### 2019/10/25 - MicroTESK 2.4.46 beta
 
@@ -267,7 +267,7 @@
  * nML: the `init` attribute was made public
  * Refactoring in the ISA simulator
 
-## 2015/09/04 - MicroTESK 2.3
+## MicroTESK 2.3
 
 ### 2016/10/21 - MicroTESK 2.3.52 beta
 
@@ -531,7 +531,7 @@
 
  * Basic support for MMU-directed test program generation was implemented
 
-## 2015/03/24 - MicroTESK 2.2
+## MicroTESK 2.2
 
 ### 2015/08/28 - MicroTESK 2.2.17 beta
 
@@ -646,7 +646,7 @@
    which allows processing larger test templates
  * The `trace` method (test templates) now accepts objects created by the `rand` method
 
-## 2014/10/18 - MicroTESK 2.1
+## MicroTESK 2.1
 
 ### 2015/03/05 - MicroTESK 2.1.5 beta
 
@@ -687,7 +687,7 @@
  * New examples of test templates demonstrating features of MicroTESK were added
  * Ability to use labels rather than addresses in the generated code was implemented
 
-## 2011 - MicroTESK 2.0
+## MicroTESK 2.0
 
 ### 2014/04/18 - MicroTESK 2.0.2 beta
 
@@ -701,12 +701,14 @@
 
  * Initial build of MicroTESK 2.0 based on nML and Ruby
 
-## 2008 - MicroTESK 1.0
+## MicroTESK 1.0
 
 ### 2009/08/20 - MicroTESK 1.0.0 beta
 
  * Demo build of MicroTESK w/ predefined ISA specifications and situations (MIPS)
 
-## 2007 - TestFusion4M
+## TestFusion4M
+
+### 2007/mm/dd - TestFusion4M
 
  * Closed test program generator for a specific MIPS64-compatible microprocessor
