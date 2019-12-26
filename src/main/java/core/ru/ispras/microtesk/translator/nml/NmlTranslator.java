@@ -36,7 +36,6 @@ import ru.ispras.microtesk.translator.nml.codegen.metadata.MetaDataGenerator;
 import ru.ispras.microtesk.translator.nml.codegen.sim.Generator;
 import ru.ispras.microtesk.translator.nml.codegen.simc.GeneratorC;
 import ru.ispras.microtesk.translator.nml.codegen.whyml.WhymlGenerator;
-import ru.ispras.microtesk.translator.nml.coverage.Analyzer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlLexer;
 import ru.ispras.microtesk.translator.nml.grammar.NmlParser;
 import ru.ispras.microtesk.translator.nml.grammar.NmlTreeWalker;
@@ -76,7 +75,6 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new ArgumentModeDetector());
     addHandler(new BranchDetector());
     addHandler(new MemoryAccessDetector());
-    addHandler(new Analyzer(this));
     addHandler(new ru.ispras.microtesk.translator.mir.MirTransHandler(this));
     addHandler(new PrimitiveSyntesizer(this));
     addHandler(new ExceptionDetector());
