@@ -331,6 +331,14 @@ public final class TestBase {
         } else {
           constraints.addAll(bound);
         }
+
+        final Node zeroBit = NodeValue.newBitVector(0, 1);
+        for (final NodeVariable node : qualifiers) {
+          final String name = node.getName();
+          if (name.startsWith("$undefined") || name.startsWith("$unpredicted")) {
+            constraints.add(Nodes.eq(node, zeroBit));
+          }
+        }
       }
     }
 
