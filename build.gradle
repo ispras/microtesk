@@ -739,7 +739,7 @@ distributions {
         include('**/*microtesk*.pdf')
       }
 
-      from('ChangeLog')
+      from('ChangeLog.md')
       from('LICENSE')
       from('NOTICE')
       from('src/main/text/README.md')

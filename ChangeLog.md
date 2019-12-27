@@ -67,14 +67,13 @@
 
 ### 2018/05/04 - MicroTESK 2.4.40 beta
 
- - Autogen: support for automated generation of test templates
- * Templates: methods `rev_id` and `is_rev` to get information on revisions
-   supported by the model
- * Templates: support for global labels (the `global_label` method)
- * Templates: support for numeric labels
- * Templates: support for weak symbols (the `weak` method)
- * Templates: new method `set_default_mode_allocator`
- * Templates: runtime methods to trace the state of registers and memory
+ * Support for automated generation of test templates
+ * Methods `rev_id` and `is_rev` to get information on revisions
+ * Support for global labels (the `global_label` method)
+ * Support for numeric labels
+ * Support for weak symbols (the `weak` method)
+ * New method `set_default_mode_allocator`
+ * Runtime methods to trace the state of registers and memory
 
 ### 2018/02/19 - MicroTESK 2.4.39 beta
 
