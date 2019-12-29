@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.tools.templgen;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -69,16 +70,13 @@ public final class TemplateGenerator {
     String outputDirectory;
     if (options.hasValue(Option.OUTPUT_DIR)) {
       outputDirectory = options.getValueAsString(Option.OUTPUT_DIR);
+    } else if (options.hasValue(Option.ARCH_DIRS)) {
+      final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
+      final Path archPath = SysUtils.searchArchSettingsPath(archDirs, modelName);
+      outputDirectory = archPath.getParent().resolve("templates").toString();
     } else {
-      if (!options.hasValue(Option.ARCH_DIRS)) {
-        Logger.error("The --%s option is undefined.", Option.ARCH_DIRS.getName());
-        outputDirectory = "";
-      } else {
-        final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
-        final String archPath = SysUtils.getArchDir(archDirs, modelName);
-        // TODO:
-        outputDirectory = archPath.replaceFirst("settings.xml", "templates/");
-      }
+      Logger.error("The --%s option is undefined.", Option.ARCH_DIRS.getName());
+      outputDirectory = "";
     }
 
     final Model model = loadModel(modelName);

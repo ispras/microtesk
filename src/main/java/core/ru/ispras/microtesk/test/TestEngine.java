@@ -44,6 +44,7 @@ import ru.ispras.testbase.TestBaseRegistry;
 import ru.ispras.testbase.generator.DataGenerator;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -243,14 +244,14 @@ public final class TestEngine {
     }
 
     final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
-    final String archPath = SysUtils.getArchDir(archDirs, modelName);
+    final Path archPath = SysUtils.searchArchSettingsPath(archDirs, modelName);
 
     if (null == archPath) {
       Logger.error("The --%s option does not contain path to settings for %s.",
           Option.ARCH_DIRS.getName(), modelName);
     }
 
-    return SettingsParser.parse(archPath);
+    return SettingsParser.parse(archPath.toString());
   }
 
   private static Set<String> readRevisionIds(
@@ -267,15 +268,15 @@ public final class TestEngine {
     }
 
     final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
-    final String archPath = SysUtils.getArchDir(archDirs, modelName);
+    final Path archPath = SysUtils.searchArchSettingsPath(archDirs, modelName);
 
     if (null == archPath) {
       Logger.error("The --%s option does not contain path to settings for %s.",
           Option.ARCH_DIRS.getName(), modelName);
     }
 
-    final String path = new File(FileUtils.getFileDir(archPath), "revisions.xml").getPath();
-    final Revisions revisions = Config.loadRevisions(path);
+    final Path path = archPath.getParent().resolve("revisions.xml");
+    final Revisions revisions = Config.loadRevisions(path.toString());
 
     return revisions.getRevision(revisionId);
   }
