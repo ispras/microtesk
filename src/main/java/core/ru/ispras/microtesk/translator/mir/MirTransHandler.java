@@ -83,8 +83,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
         }
         for (final MirContext ctx : opt.values()) {
           try (final Writer writer = archive.newText(ctx.name + ".mir")) {
-            final MirText text = new MirText(ctx);
-            writer.write(text.toString());
+            writer.write(MirText.toString(ctx));
           }
         }
       }

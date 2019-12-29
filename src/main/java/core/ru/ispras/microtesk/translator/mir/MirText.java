@@ -11,6 +11,10 @@ import static ru.ispras.microtesk.translator.mir.Instruction.*;
 public class MirText {
   private final List<String> lines = new java.util.ArrayList<>();
 
+  public static String toString(final MirContext ctx) {
+    return new MirText(ctx).toString();
+  }
+
   public MirText(final MirContext ctx) {
     collect(lines, ctx);
   }
