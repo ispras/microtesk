@@ -61,20 +61,12 @@ public class ConcFlowPass extends Pass {
     }
   }
 
-  private static <T> T removeLast(final List<T> list) {
-    return list.remove(list.size() - 1);
-  }
-
   private static List<BasicBlock> targetsOf(final BasicBlock bb) {
-    final Instruction insn = lastOf(bb.insns);
+    final Instruction insn = Lists.lastOf(bb.insns);
     if (insn instanceof Instruction.Branch) {
       return ((Instruction.Branch) insn).successors;
     }
     return Collections.emptyList();
-  }
-
-  private static <T> T lastOf(final List<T> list) {
-    return list.get(list.size() - 1);
   }
 
   private static <T> T find(final Collection<? super T> source, final Class<T> cls) {

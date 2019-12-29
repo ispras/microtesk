@@ -46,19 +46,19 @@ public class MirBuilder {
   }
 
   public void makeClosure(final String name, final int nargs) {
-    final List<Operand> upvalues = removeLastN(operands, nargs);
+    final List<Operand> upvalues = Lists.removeLastN(operands, nargs);
     operands.add(new Closure(name, upvalues));
   }
 
   public void makeCall(final String method, final int nargs) {
-    final List<Operand> args = removeLastN(operands, nargs);
-    final Operand callee = removeLast(operands);
+    final List<Operand> args = Lists.removeLastN(operands, nargs);
+    final Operand callee = Lists.removeLast(operands);
 
     body.add(new Call(callee, method, args, null));
   }
 
   public void makeThisCall(final String method, final int nargs) {
-    final List<Operand> args = removeLastN(operands, nargs);
+    final List<Operand> args = Lists.removeLastN(operands, nargs);
     body.add(new Call(SELF, method, args, null));
   }
 
@@ -68,17 +68,5 @@ public class MirBuilder {
     final Local tmp = block.newLocal(type);
     body.add(new Load(mem, tmp));
     body.add(new Store(mem, tmp));
-  }
-
-  private static <T> T removeLast(final List<T> list) {
-    return list.remove(list.size() - 1);
-  }
-
-  private static <T> List<T> removeLastN(final List<T> list, final int n) {
-    final List<T> tail = list.subList(list.size() - n, list.size());
-    final List<T> items = new java.util.ArrayList<T>(tail);
-    tail.clear();
-
-    return items;
   }
 }

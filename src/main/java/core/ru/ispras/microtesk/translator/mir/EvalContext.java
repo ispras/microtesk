@@ -289,15 +289,11 @@ public final class EvalContext extends InsnVisitor {
   }
 
   public static List<BasicBlock> targetsOf(final BasicBlock bb) {
-    final Instruction insn = lastOf(bb.insns);
+    final Instruction insn = Lists.lastOf(bb.insns);
     if (insn instanceof Branch) {
       return ((Branch) insn).successors;
     }
     return Collections.emptyList();
-  }
-
-  private static <T> T lastOf(final List<T> list) {
-    return list.get(list.size() - 1);
   }
 
   private static <T> T cast(final Object o, final Class<T> cls) {

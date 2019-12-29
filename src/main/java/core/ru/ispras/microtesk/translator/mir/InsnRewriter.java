@@ -318,10 +318,6 @@ public class InsnRewriter extends InsnVisitor {
     }
   }
 
-  private static <T> T removeLast(final List<T> list) {
-    return list.remove(list.size() - 1);
-  }
-
   public void visit(final Disclose insn) {
     if (isAlive(insn.target)) {
       block.append(new Disclose((Local) rebase(insn.target), rewrite(insn.source), insn.indices));
