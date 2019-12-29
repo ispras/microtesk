@@ -14,12 +14,13 @@
 
 package ru.ispras.microtesk.tools.templgen.printers;
 
-import ru.ispras.castle.util.FileUtils;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 
 /**
@@ -52,18 +53,18 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
    * @param outputDirectory the output directory for template file.
    */
   public RubyTemplatePrinter(final String templateName, final String modelName,
-      final String baseTemplateName, final String baseTemplatePath, final String outputDirectory) {
+      final String baseTemplateName, final String baseTemplatePath, final Path outputDirectory) {
     this.modelName = modelName;
     this.templateName = templateName;
     this.baseTemplateName = baseTemplateName;
     this.baseTemplatePath = baseTemplatePath;
 
-    final File templateFile =
-        FileUtils.newFile(outputDirectory + templateName.toLowerCase() + TEMPLATE_FILE_NAME);
-
+    final String name = templateName.toLowerCase() + TEMPLATE_FILE_NAME;
     try {
-      printWriter = new PrintWriter(templateFile);
-    } catch (final FileNotFoundException e) {
+      Files.createDirectories(outputDirectory);
+      printWriter =
+          new PrintWriter(Files.newBufferedWriter(outputDirectory.resolve(name)));
+    } catch (final IOException e) {
       throw new IllegalArgumentException(e);
     }
   }
@@ -78,7 +79,7 @@ public final class RubyTemplatePrinter implements TemplatePrinter {
    */
   public RubyTemplatePrinter(final String templateName, final String modelName,
       final String baseTemplateName, final String baseTemplatePath) {
-    this(templateName, modelName, baseTemplateName, baseTemplatePath, "");
+    this(templateName, modelName, baseTemplateName, baseTemplatePath, Paths.get("")); 
   }
 
   @Override
