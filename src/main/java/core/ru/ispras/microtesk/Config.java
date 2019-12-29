@@ -24,7 +24,11 @@ import org.xml.sax.SAXException;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.InputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -52,7 +56,7 @@ public final class Config {
   private static final String         CONFIG = "config";
   private static final String         PLUGIN = "plugin";
   private static final String          CLASS = "class";
-  private static final String  SETTINGS_PATH = "/etc/settings.xml";
+  private static final Path    SETTINGS_PATH = Paths.get("etc", "settings.xml");
   private static final String       SETTINGS = "settings";
   private static final String        SETTING = "setting";
   private static final String      ATTR_NAME = "name";
@@ -76,21 +80,16 @@ public final class Config {
 
   public static List<Plugin> loadPlugins() {
     final URL configUrl = SysUtils.getResourceUrl(CONFIG_URL);
-    if (null == configUrl) {
-      throw new IllegalStateException(String.format("Document %s is not found.", CONFIG_URL));
+    final Node config;
+    try (final InputStream input = configUrl.openStream()) {
+      config = getDocumentRoot(CONFIG, CONFIG_URL, input);
+    } catch (final FileNotFoundException e) {
+      throw new IllegalStateException(
+          String.format("Document %s is not found.", CONFIG_URL), e);
+    } catch (final Exception e) {
+      throw new IllegalStateException(
+          String.format(ERR_FAILED_TO_PARSE, CONFIG_URL), e);
     }
-
-    final Document configDocument = parseDocument(configUrl);
-    if (null == configDocument) {
-      throw new IllegalStateException(String.format(ERR_FAILED_TO_PARSE, CONFIG_URL));
-    }
-
-    final Node config = configDocument.getFirstChild();
-    if (!CONFIG.equalsIgnoreCase((config.getNodeName()))) {
-      throw new IllegalStateException(String.format(
-          ERR_NO_ROOT_NODE, CONFIG_URL, CONFIG));
-    }
-
     final List<Plugin> result = new ArrayList<>();
     result.add(new Core());
 
@@ -111,38 +110,29 @@ public final class Config {
       final Plugin plugin = SysUtils.loadPlugin(className.getNodeValue());
       result.add(plugin);
     }
-
     return result;
   }
 
-  private static Document parseDocument(final URL url) {
-    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
-    factory.setIgnoringComments(true);
-    factory.setIgnoringElementContentWhitespace(true);
-    factory.setValidating(false);
-
-    try {
-      final DocumentBuilder builder = factory.newDocumentBuilder();
-      return builder.parse(new InputSource(url.openStream()));
-    } catch (final ParserConfigurationException | SAXException | IOException e) {
-      return null;
+  private static Node getDocumentRoot(
+      final String rootName, final String docName, final InputStream input)
+      throws ParserConfigurationException, SAXException, IOException {
+    final Node root = parseDocument(input).getFirstChild();
+    if (!rootName.equalsIgnoreCase((root.getNodeName()))) {
+      throw new IllegalStateException(String.format(
+          ERR_NO_ROOT_NODE, docName, rootName));
     }
+    return root;
   }
 
-  private static Document parseDocument(final File file) {
+  private static Document parseDocument(final InputStream input)
+      throws ParserConfigurationException, SAXException, IOException {
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
     factory.setIgnoringComments(true);
     factory.setIgnoringElementContentWhitespace(true);
     factory.setValidating(false);
 
-    try {
-      final DocumentBuilder builder = factory.newDocumentBuilder();
-      return builder.parse(file);
-    } catch (final ParserConfigurationException | SAXException | IOException e) {
-      return null;
-    }
+    return factory.newDocumentBuilder().parse(input);
   }
 
   public static Map<String, String> loadSettings() {
@@ -152,25 +142,17 @@ public final class Config {
       return Collections.emptyMap();
     }
 
-    final String fileName = homePath + SETTINGS_PATH;
-    final File file = new File(fileName);
-
-    if (!file.exists() || !file.isFile()) {
-      Logger.warning(ERR_SETTINGS_FILE_NOT_EXIST, file.getPath());
+    final Path path = Paths.get(homePath).resolve(SETTINGS_PATH);
+    final Node root;
+    try (final InputStream input = Files.newInputStream(path)) {
+      root = getDocumentRoot(SETTINGS, path.toString(), input);
+    } catch (final FileNotFoundException e) {
+      Logger.warning(ERR_SETTINGS_FILE_NOT_EXIST, path.toString());
       return Collections.emptyMap();
+    } catch (final Exception e) {
+      throw new IllegalStateException(
+          String.format(ERR_FAILED_TO_PARSE, path.toString()), e);
     }
-
-    final Document document = parseDocument(file);
-    if (null == document) {
-      throw new IllegalStateException(String.format(ERR_FAILED_TO_PARSE, CONFIG_URL));
-    }
-
-    final Node root = document.getFirstChild();
-    if (!SETTINGS.equalsIgnoreCase((root.getNodeName()))) {
-      throw new IllegalStateException(String.format(
-          ERR_NO_ROOT_NODE, file.getPath(), SETTINGS));
-    }
-
     final Map<String, String> result = new LinkedHashMap<>();
 
     final NodeList settings = root.getChildNodes();
@@ -200,26 +182,19 @@ public final class Config {
     return result;
   }
 
-  public static Revisions loadRevisions(final String fileName) {
-    InvariantChecks.checkNotNull(fileName);
-    final Revisions revisions = new Revisions();
+  public static Revisions loadRevisions(final Path path) {
+    InvariantChecks.checkNotNull(path);
 
-    final File file = new File(fileName);
-    if (!file.exists() || !file.isFile()) {
-      return revisions;
-    }
-
-    final Document document = parseDocument(file);
-    if (null == document) {
-      throw new IllegalStateException(String.format(ERR_FAILED_TO_PARSE, fileName));
-    }
-
-    final Node root = document.getFirstChild();
-    if (!REVISIONS.equalsIgnoreCase((root.getNodeName()))) {
+    final Node root;
+    try (final InputStream input = Files.newInputStream(path)) {
+      root = getDocumentRoot(REVISIONS, path.toString(), input);
+    } catch (final FileNotFoundException e) {
+      return new Revisions();
+    } catch (final Exception e) {
       throw new IllegalStateException(
-          String.format(ERR_NO_ROOT_NODE, file.getPath(), REVISIONS));
+          String.format(ERR_FAILED_TO_PARSE, path.toString()), e);
     }
-
+    final var revisions = new Revisions();
     final NodeList revisionList = root.getChildNodes();
     for (int revisionIndex = 0; revisionIndex < revisionList.getLength(); ++revisionIndex) {
       final Node revision = revisionList.item(revisionIndex);

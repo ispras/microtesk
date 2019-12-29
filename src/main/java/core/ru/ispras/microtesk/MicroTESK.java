@@ -172,8 +172,8 @@ public final class MicroTESK {
         final Path archDir = SysUtils.searchArchSettingsPath(archDirs, name);
 
         if (null != archDir) {
-          final Path path = archDir.getParent().resolve("revisions.xml");
-          final Revisions revisions = Config.loadRevisions(path.toString());
+          final Revisions revisions =
+              Config.loadRevisions(archDir.getParent().resolve("revisions.xml"));
           return revisions.getRevision(revisionId);
         }
       }

@@ -275,8 +275,8 @@ public final class TestEngine {
           Option.ARCH_DIRS.getName(), modelName);
     }
 
-    final Path path = archPath.getParent().resolve("revisions.xml");
-    final Revisions revisions = Config.loadRevisions(path.toString());
+    final Revisions revisions =
+        Config.loadRevisions(archPath.getParent().resolve("revisions.xml"));
 
     return revisions.getRevision(revisionId);
   }
