@@ -91,8 +91,6 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     } catch (final IOException e) {
       Logger.error("Failed to store MIR '%s': %s", path.toString(), e.toString());
     }
-    final Instantiator worker = new Instantiator(opt);
-    worker.run(ir);
   }
 
   static List<MirContext> instantiate(final PrimitiveAnd p) {
@@ -132,52 +130,6 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     return queue;
   }
 
-  private static final class Instantiator {
-    final Map<String, MirContext> library;
-    final Map<String, MirContext> instances = new java.util.HashMap<>();
-
-    Instantiator(final Map<String, MirContext> library) {
-      this.library = library;
-    }
-
-    void run(final Ir ir) {
-      final Map<Primitive, List<PrimitiveAnd>> variantMap = new java.util.HashMap<>();
-      for (final Primitive p : ir.getOps().values()) {
-        variantMap.put(p, variantsOf(p));
-      }
-      final InstanceTree tree = new InstanceTree();
-      for (final Primitive p : ir.getOps().values()) {
-        if (!p.isOrRule()) {
-          final PrimitiveAnd op = (PrimitiveAnd) p;
-          final ITNode node = newNode(op, variantMap);
-
-          tree.nodeMap.put(op, node);
-          if (node.siblings().isEmpty()) {
-            tree.instances.add(node);
-          }
-        }
-      }
-      for (final ITNode node : tree.nodes()) {
-        for (final PrimitiveAnd p : node.siblings()) {
-          tree.nodeMap.get(p).parents.add(node);
-        }
-      }
-    }
-
-    static ITNode newNode(
-        final PrimitiveAnd op,
-        final Map<Primitive, List<PrimitiveAnd>> variantMap) {
-      for (final Map.Entry<String, Primitive> param : op.getArguments().entrySet()) {
-        final Primitive type = param.getValue();
-        if (type.getKind().equals(Primitive.Kind.OP) && type.isOrRule()) {
-          final List<PrimitiveAnd> variants = variantMap.get(param.getValue());
-          return new ITNode(op, Collections.singletonMap(param.getKey(), variants));
-        }
-      }
-      return new ITNode(op, Collections.<String, List<PrimitiveAnd>>emptyMap());
-    }
-  }
-
   static List<PrimitiveAnd> variantsOf(final Primitive p) {
     if (p.isOrRule()) {
       final List<PrimitiveAnd> variants = new java.util.ArrayList<>();
@@ -194,54 +146,6 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
       } else {
         variants.add((PrimitiveAnd) p);
       }
-    }
-  }
-
-  private static final class InstanceTree {
-    final Map<PrimitiveAnd, ITNode> nodeMap = new java.util.HashMap<>();
-    final List<ITNode> instances = new java.util.ArrayList<>();
-
-    Collection<ITNode> nodes() {
-      return nodeMap.values();
-    }
-  }
-
-  private static final class ITNode {
-    final PrimitiveAnd origin;
-    final Map<String, List<PrimitiveAnd>> bindings;
-    final List<ITNode> parents = new java.util.ArrayList<>();
-
-    ITNode(final PrimitiveAnd origin, final Map<String, List<PrimitiveAnd>> bindings) {
-      this.origin = origin;
-      this.bindings = bindings;
-    }
-
-    List<PrimitiveAnd> siblings() {
-      if (bindings.isEmpty()) {
-        return Collections.emptyList();
-      }
-      return bindings.values().iterator().next();
-    }
-
-    @Override
-    public String toString() {
-      final StringBuilder sb = new StringBuilder(origin.getName());
-      for (final Map.Entry<String, Primitive> entry : origin.getArguments().entrySet()) {
-        if (bindings.containsKey(entry.getKey())) {
-          sb.append(" (");
-          final java.util.Iterator<PrimitiveAnd> it = this.siblings().iterator();
-          sb.append(it.next().getName());
-          while (it.hasNext()) {
-            sb.append(" | ");
-            sb.append(it.next().getName());
-          }
-          sb.append(")");
-        } else {
-          sb.append(" ");
-          sb.append(entry.getValue().getName());
-        }
-      }
-      return sb.toString();
     }
   }
 
