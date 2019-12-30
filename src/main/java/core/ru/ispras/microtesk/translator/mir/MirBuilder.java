@@ -14,12 +14,41 @@ public class MirBuilder {
       new FuncTy(VoidTy.VALUE, Collections.<MirTy>emptyList());
   private final static Local SELF = new Local(0, VOID_TO_VOID_TYPE);
 
-  private final MirContext mir = new MirContext("", VOID_TO_VOID_TYPE);
-  private MirBlock block = mir.newBlock();
+  private final MirContext mir;
+  private final MirBlock block;
 
   private final List<MirTy> typeList = new java.util.ArrayList<>();
-  private final List<Instruction> body = new java.util.ArrayList<>();
   private final List<Operand> operands = new java.util.ArrayList<>();
+  private final List<Instruction> body = new java.util.ArrayList<>();
+
+  public MirBuilder() {
+    this("");
+  }
+
+  public MirBuilder(final String name) {
+    this.mir = new MirContext(name, VOID_TO_VOID_TYPE);
+    this.block = mir.newBlock();
+  }
+
+  private MirBuilder(final String name, final MirBuilder that) {
+    this(name);
+    this.mir.locals.addAll(that.mir.locals);
+    this.typeList.addAll(that.typeList);
+    this.operands.addAll(that.operands);
+    this.body.addAll(that.body);
+  }
+
+  public MirBuilder copyAs(final String name) {
+    return new MirBuilder(name, this);
+  }
+
+  public String getName() {
+    return mir.name;
+  }
+
+  public MirContext build() {
+    return build(getName());
+  }
 
   public MirContext build(final String name) {
     final MirContext ctx =
