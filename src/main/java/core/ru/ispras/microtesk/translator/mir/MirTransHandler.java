@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.model.memory.Memory;
@@ -92,6 +93,43 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     }
     final Instantiator worker = new Instantiator(opt);
     worker.run(ir);
+  }
+
+  static List<MirContext> instantiate(final PrimitiveAnd p) {
+    return instantiateRec(p, new MirBuilder(p.getName())).stream()
+      .map(b -> { b.makeCall(p.getName() + ".action", 0); return b.build(); })
+      .collect(Collectors.toList());
+  }
+
+  static List<MirBuilder> instantiateRec(
+      final PrimitiveAnd op, final MirBuilder builder) {
+    final List<MirBuilder> queue = Lists.newList(builder);
+    final List<MirBuilder> swap = Lists.newList();
+    for (final var entry : op.getArguments().entrySet()) {
+      final Primitive p = entry.getValue();
+      if (p.isOrRule() && p.getKind().equals(Primitive.Kind.OP)) {
+        for (final PrimitiveAnd v : variantsOf(p)) {
+          for (final var b : queue) {
+            final String name = b.getName() + "_" + v.getName();
+            swap.addAll(instantiateRec(v, b.copyAs(name)));
+          }
+        }
+        Lists.moveAll(queue, swap);
+      } else if (p.getKind().equals(Primitive.Kind.OP)) {
+        for (final var b : queue) {
+          swap.addAll(instantiateRec((PrimitiveAnd) p, b));
+        }
+        Lists.moveAll(queue, swap);
+      } else {
+        for (final var b : queue) {
+          b.refParameter(b.addParameter(NmlIrTrans.typeOf(p)));
+        }
+      }
+    }
+    for (final var b : queue) {
+      b.makeClosure(op.getName(), op.getArguments().size());
+    }
+    return queue;
   }
 
   private static final class Instantiator {
