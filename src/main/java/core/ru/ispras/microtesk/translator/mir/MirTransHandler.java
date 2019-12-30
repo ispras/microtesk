@@ -75,7 +75,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
 
     final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
     try {
-      Files.createDirectories(Paths.get(translator.getOutDir()));
+      Files.createDirectories(path.getParent());
       try (final ArchiveWriter archive = new ArchiveWriter(path)) {
         try (final JsonWriter writer =
             Json.createWriter(archive.newText(MirArchive.MANIFEST))) {
