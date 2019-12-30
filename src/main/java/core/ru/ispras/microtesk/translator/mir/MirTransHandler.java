@@ -138,23 +138,23 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
       }
       return new ITNode(op, Collections.<String, List<PrimitiveAnd>>emptyMap());
     }
+  }
 
-    static List<PrimitiveAnd> variantsOf(final Primitive p) {
-      if (p.isOrRule()) {
-        final List<PrimitiveAnd> variants = new java.util.ArrayList<>();
-        collectVariants((PrimitiveOr) p, variants);
-        return variants;
-      }
-      return Collections.singletonList((PrimitiveAnd) p);
+  static List<PrimitiveAnd> variantsOf(final Primitive p) {
+    if (p.isOrRule()) {
+      final List<PrimitiveAnd> variants = new java.util.ArrayList<>();
+      collectVariants((PrimitiveOr) p, variants);
+      return variants;
     }
+    return Collections.singletonList((PrimitiveAnd) p);
+  }
 
-    static void collectVariants(final PrimitiveOr input, final List<PrimitiveAnd> variants) {
-      for (final Primitive p : input.getOrs()) {
-        if (p.isOrRule()) {
-          collectVariants((PrimitiveOr) p, variants);
-        } else {
-          variants.add((PrimitiveAnd) p);
-        }
+  static void collectVariants(final PrimitiveOr input, final List<PrimitiveAnd> variants) {
+    for (final Primitive p : input.getOrs()) {
+      if (p.isOrRule()) {
+        collectVariants((PrimitiveOr) p, variants);
+      } else {
+        variants.add((PrimitiveAnd) p);
       }
     }
   }
