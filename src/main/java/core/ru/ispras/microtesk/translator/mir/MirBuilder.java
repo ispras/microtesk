@@ -33,7 +33,11 @@ public class MirBuilder {
   }
 
   public int addParameter(final int size) {
-    typeList.add(new IntTy(size));
+    return addParameter(new IntTy(size));
+  }
+
+  public int addParameter(final MirTy type) {
+    typeList.add(type);
     return typeList.size();
   }
 
