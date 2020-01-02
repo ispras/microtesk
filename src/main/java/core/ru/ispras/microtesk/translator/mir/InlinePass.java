@@ -32,7 +32,7 @@ public class InlinePass extends Pass {
         if (callee != null) {
           Logger.debug("PASS: inline call '%s'", callee.name);
           final Inliner inliner = new Inliner(call, bb, ctx, callee);
-          final Collection<BasicBlock> newbb = inliner.run();
+          final Collection<BasicBlock> newbb = inliner.run(this);
           blocks.addAll(i + 1, newbb);
           break;
         }
@@ -77,6 +77,11 @@ public class InlinePass extends Pass {
     return Collections.emptyList();
   }
 
+  protected void notifyInline(
+      final Call call, final BasicBlock bb, final MirContext caller, final List<BasicBlock> body) {
+    bb.insns.remove(call);
+  }
+
   private static final class Inliner {
     public final int callOrg;
     public final Call callsite;
@@ -96,7 +101,7 @@ public class InlinePass extends Pass {
       this.callee = Pass.copyOf(callee);
     }
 
-    public Collection<BasicBlock> run() {
+    public Collection<BasicBlock> run(final InlinePass pass) {
       final BasicBlock next = splitCallSite();
       rebase(caller.locals.size() - 1, callee.blocks);
       caller.locals.addAll(Lists.tailOf(callee.locals, 1));
@@ -108,6 +113,9 @@ public class InlinePass extends Pass {
 
       blocks.add(0, entry);
       blocks.add(next);
+
+      pass.notifyInline(callsite, target, caller, blocks);
+
       return blocks;
     }
 
@@ -124,7 +132,6 @@ public class InlinePass extends Pass {
 
       move(bb.origins, orgView);
       move(bb.insns, insnView);
-      target.insns.remove(index);
 
       caller.blocks.add(bb);
       caller.blocks.addAll(callee.blocks);
