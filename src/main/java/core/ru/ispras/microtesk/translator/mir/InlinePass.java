@@ -21,7 +21,7 @@ public class InlinePass extends Pass {
       final BasicBlock bb = blocks.get(i);
       for (List<Instruction> tail = find(bb.insns, Call.class);
           !tail.isEmpty();
-          tail = find(Pass.tailList(tail, 1), Call.class)) {
+          tail = find(Lists.tailOf(tail, 1), Call.class)) {
         final Call call = (Call) tail.get(0);
         final int origin = bb.getOrigin(bb.insns.indexOf(call));
 
@@ -70,7 +70,7 @@ public class InlinePass extends Pass {
   private static <T> List<T> find(final List<T> source, final Class<? extends T> cls) {
     for (int i = 0; i < source.size(); ++i) {
       if (cls.isInstance(source.get(i))) {
-        return Pass.tailList(source, i);
+        return Lists.tailOf(source, i);
       }
     }
     return Collections.emptyList();
@@ -98,7 +98,7 @@ public class InlinePass extends Pass {
     public Collection<BasicBlock> run() {
       final BasicBlock next = splitCallSite();
       rebase(caller.locals.size() - 1, callee.blocks);
-      caller.locals.addAll(Pass.tailList(callee.locals, 1));
+      caller.locals.addAll(Lists.tailOf(callee.locals, 1));
 
       final List<BasicBlock> blocks = EvalContext.topologicalOrder(callee);
 
@@ -112,7 +112,7 @@ public class InlinePass extends Pass {
 
     private BasicBlock splitCallSite() {
       final int index = target.insns.indexOf(callsite);
-      final List<Instruction> insnView = Pass.tailList(target.insns, index + 1);
+      final List<Instruction> insnView = Lists.tailOf(target.insns, index + 1);
       final List<BasicBlock.Origin> orgView = getOutrangedOrigins(target, index);
 
       final BasicBlock bb = new BasicBlock();
@@ -140,7 +140,7 @@ public class InlinePass extends Pass {
       for (int i = 0; i < bb.origins.size(); ++i) {
         final BasicBlock.Origin org = bb.origins.get(i);
         if (org.range > index + 1) {
-          return Pass.tailList(bb.origins, i);
+          return Lists.tailOf(bb.origins, i);
         }
       }
       return Collections.emptyList();

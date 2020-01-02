@@ -20,8 +20,7 @@ final class Lists {
     return items;
   }
 
-  public static <T> List<? extends T> tailOf(
-      final List<? extends T> list, final int index) {
+  public static <T> List<T> tailOf(final List<T> list, final int index) {
     return list.subList(index, list.size());
   }
 
