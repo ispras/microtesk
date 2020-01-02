@@ -1,5 +1,7 @@
 package ru.ispras.microtesk.translator.mir;
 
+import java.util.List;
+
 import static ru.ispras.microtesk.translator.mir.Instruction.Call;
 
 public final class InlineNoAccess extends InlinePass {
@@ -22,5 +24,13 @@ public final class InlineNoAccess extends InlinePass {
       }
     }
     return super.resolveCallee(mir, call, org, eval);
+  }
+}
+
+final class InlinePreserve extends InlinePass {
+  @Override
+  protected void notifyInline(
+      final Call call, final BasicBlock bb, final MirContext caller, final List<BasicBlock> body) {
+    /* EMPTY */
   }
 }
