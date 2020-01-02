@@ -74,6 +74,10 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     }
     final MirPassDriver driver = MirPassDriver.newDefault();
     final Map<String, MirContext> opt = driver.run(source);
+
+    driver.getPasses().set(0, new InlineNoAccess().setComment("inline (no access)"));
+    driver.setStorage(source);
+
     final List<MirContext> isa = variantsOf(ir.getOps().get("instruction")).stream()
         .flatMap(x -> instancesOf(x))
         .map(x -> driver.apply(x))

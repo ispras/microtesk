@@ -28,7 +28,7 @@ public class InlinePass extends Pass {
         evaluator.eval(ctx.locals.size(), blocks.subList(evalIndex, i + 1));
         evalIndex = i + 1;
 
-        final MirContext callee = resolveCallee(call, origin, evaluator);
+        final MirContext callee = resolveCallee(ctx, call, origin, evaluator);
         if (callee != null) {
           Logger.debug("PASS: inline call '%s'", callee.name);
           final Inliner inliner = new Inliner(call, bb, ctx, callee);
@@ -41,7 +41,8 @@ public class InlinePass extends Pass {
     return ctx;
   }
 
-  private MirContext resolveCallee(
+  protected MirContext resolveCallee(
+      final MirContext mir,
       final Call call,
       final int origin,
       final EvalContext evaluator) {
