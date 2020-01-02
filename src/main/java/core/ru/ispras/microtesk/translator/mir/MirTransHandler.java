@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.model.memory.Memory;
@@ -73,30 +74,43 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     }
     final MirPassDriver driver = MirPassDriver.newDefault();
     final Map<String, MirContext> opt = driver.run(source);
+    final List<MirContext> isa = variantsOf(ir.getOps().get("instruction")).stream()
+        .flatMap(x -> instancesOf(x))
+        .map(x -> driver.apply(x))
+        .collect(Collectors.toList());
 
-    final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
+    final Path outDir = Paths.get(translator.getOutDir());
+    final String libName = ir.getModelName() + ".zip";
+    final String isaName = ir.getModelName() + "-isa.zip";
+    final JsonObject manifest = createManifest(ir);
     try {
-      Files.createDirectories(path.getParent());
-      try (final ArchiveWriter archive = new ArchiveWriter(path)) {
-        try (final JsonWriter writer =
-            Json.createWriter(archive.newText(MirArchive.MANIFEST))) {
-          writer.write(createManifest(ir));
-        }
-        for (final MirContext ctx : opt.values()) {
-          try (final Writer writer = archive.newText(ctx.name + ".mir")) {
-            writer.write(MirText.toString(ctx));
-          }
-        }
-      }
+      writeArchive(outDir.resolve(libName), manifest, opt.values());
+      writeArchive(outDir.resolve(isaName), manifest, isa);
     } catch (final IOException e) {
-      Logger.error("Failed to store MIR '%s': %s", path.toString(), e.toString());
+      Logger.error("Failed to store MIR archive: %s", e.toString());
     }
   }
 
-  static List<MirContext> instantiate(final PrimitiveAnd p) {
+  static void writeArchive(
+      final Path path, final JsonObject manifest, final Collection<MirContext> values)
+      throws IOException {
+    Files.createDirectories(path.getParent());
+    try (final ArchiveWriter archive = new ArchiveWriter(path)) {
+      try (final JsonWriter writer =
+          Json.createWriter(archive.newText(MirArchive.MANIFEST))) {
+        writer.write(manifest);
+      }
+      for (final MirContext ctx : values) {
+        try (final Writer writer = archive.newText(ctx.name + ".mir")) {
+          writer.write(MirText.toString(ctx));
+        }
+      }
+    }
+  }
+
+  static Stream<MirContext> instancesOf(final PrimitiveAnd p) {
     return instantiateRec(p, new MirBuilder(p.getName())).stream()
-      .map(b -> { b.makeCall(p.getName() + ".action", 0); return b.build(); })
-      .collect(Collectors.toList());
+      .map(b -> { b.makeCall(p.getName() + ".action", 0); return b.build(); });
   }
 
   static List<MirBuilder> instantiateRec(
