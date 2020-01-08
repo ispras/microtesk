@@ -20,7 +20,6 @@ import ru.ispras.fortress.solver.engine.smt.Cvc4Solver;
 import ru.ispras.fortress.solver.engine.smt.SmtTextBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
@@ -29,8 +28,8 @@ import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.Disassembler.Output;
 import ru.ispras.microtesk.translator.mir.BasicBlock;
-import ru.ispras.microtesk.translator.mir.Constant;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
+import ru.ispras.microtesk.translator.mir.GraphvizDrawer;
 import ru.ispras.microtesk.translator.mir.Instruction;
 import ru.ispras.microtesk.translator.mir.Mir2Node;
 import ru.ispras.microtesk.translator.mir.MirArchive;
@@ -123,6 +122,8 @@ public final class SymbolicExecutor {
 
   private static void writeMir(final String name, final BodyInfo info) {
     final MirContext mir = composeMir(name, info);
+    GraphvizDrawer visualizer = new GraphvizDrawer(name);
+    visualizer.apply(mir);
     try (final java.io.BufferedWriter writer =
         Files.newBufferedWriter(Paths.get(name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
       writer.write(MirText.toString(mir));
