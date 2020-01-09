@@ -2,6 +2,11 @@
 
 ## MicroTESK 2.5
 
+### 2020/mm/dd - MicroTESK 2.5.1 beta
+
+ * Moved the documentation sources into a separate project
+   (see https://forge.ispras.ru/projects/microtesk-docs)
+
 ### 2019/12/26 - MicroTESK 2.5.0 beta
 
  * Introduced new internal representation, so-called *MIR* (*Middle-level* [or *MicroTESK*] *IR*)
