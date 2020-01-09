@@ -4,8 +4,10 @@
 
 ### 2020/mm/dd - MicroTESK 2.5.1 beta
 
- * Moved the documentation sources into a separate project
-   (see https://forge.ispras.ru/projects/microtesk-docs)
+ * Rearranged the documentation
+   - Moved the documentation sources into a separate project
+     (see https://forge.ispras.ru/projects/microtesk-docs)
+   - Added the installation guide into the distribution package
 
 ### 2019/12/26 - MicroTESK 2.5.0 beta
 
@@ -20,14 +22,14 @@
    - Introduced a new option `--coverage-log` for tracking test coverage
    - Enabled a possibility to generate test coverage reports in Aspectrace format
      (see https://forge.ispras.ru/projects/aspectrace)
- * Used the `QEMU4V 0.3.4` simulator for running tests
+ * Used the QEMU4V 0.3.4 simulator for running tests
 
 ## MicroTESK 2.4
 
 ### 2019/10/25 - MicroTESK 2.4.46 beta
 
- * Updated the `TestBase` library
- * Used the `QEMU4V 0.3.3` simulator for running tests
+ * Updated the TestBase library
+ * Used the QEMU4V 0.3.3 simulator for running tests
 
 ### 2019/01/29 - MicroTESK 2.4.45 beta
 
