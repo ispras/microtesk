@@ -2,103 +2,102 @@
 
 ## System Requirements
 
-Being developed in Java, MicroTESK can be used on Windows, Linux, macOS, and other systems with
+Being developed in Java, MicroTESK can be used on Windows, Linux, macOS, and other platforms with
 the following software installed:
 
-* JDK 1.11+;
-* Apache Ant 1.8+.
+* JDK 11+ (https://openjdk.java.net);
+* Apache Ant 1.8+ (https://ant.apache.org).
 
-To generate test data based on constraints, MicroTESK needs an SMT solver such as Z3 or CVC4.
+To generate test data based on constraints (if required), MicroTESK needs an SMT solver such as
+Z3 or CVC4 (see `tools/README.md`).
 
 ## Installation Steps
 
-1. Download from http://forge.ispras.ru/projects/microtesk/files and unpack the MicroTESK
-   installation package (the `.tar.gz` file, latest release) to your computer.
+1. Download from http://forge.ispras.ru/projects/microtesk/files and unpack a distribution package
+   (the latest `.tar.gz` file).
+   The destination directory will be further referred to as `<INSTALL_DIR>`.
 
-2. Download and install constraint solver tools to the `<installation dir>/tools` directory
-   (see the `tools/README.md` document for details).
+1. Set the `MICROTESK_HOME` environment variable to the `<INSTALL_DIR>`+ path
+   (see [Setting Environment Variables](#setting_environment_variables)).
 
-3. Declare the `MICROTESK_HOME` environment variable and set its value to the path to the
-   installation directory (see the Setting Environment Variables section).
+1. Add the `<INSTALL_DIR>/bin` path to the `PATH` environment variable.
 
-4. Set the `<installation dir>/bin` as the working directory (add the path to the `PATH`
-   environment variable) to be able to run MicroTESK utilities from any path.
-
-5. Now you can run the `compile.sh` (or `.bat`) script to create a microprocessor model
-   and the `generate.sh` (or `.bat`) script to generate tests for this model.
+1. If required, install SMT solver(s) to the `<INSTALL_DIR>/tools` directory
+   (see `tools/README.md`).
 
 ## Setting Environment Variables
 
 ### Windows
 
-1. Open the `System Properties` window.
-2. Switch to the `Advanced` tab.
-3. Click on `Environment Variables`.
-4. Click `New...` under `System Variables`.
-5. In the `New System Variable` dialog specify variable name as `MICROTESK_HOME` and variable value
-   as `<instrallation dir>`.
-6. Click `OK` on all open windows.
-7. Reopen the command prompt window.
+1. Start the `Control Panel` dialog.
+1. Click on the following items:
+  - `System and Security`;
+  - `System`;
+  - `Advanced system settings`.
+1. Click on `Environment Variables`.
+1. Click on `New...` under `System Variables`.
+1. Specify `Variable name` as `MICROTESK_HOME` and `Variable value` as `<INSTALL_DIR>`.
+1. Click `OK` in all open windows.
+1. Reopen the command prompt window.
+
 
 ### Linux and macOS
 
-Add the command below to the `~.bash_profile` (Linux) or `~/.profile` (macOS) file:
+Add the command below to `~/.bash_profile` (Linux) or `~/.profile` (macOS):
 
 ```
-export MICROTESK_HOME=<installation dir>
+export MICROTESK_HOME=<INSTALL_DIR>
 ```
 
-To start editing the file, type `vi ~/.bash_profile` (or `vi ~/.profile`).
-Changes will be applied after restarting the command-line terminal or reboot.
-You can also execute the command in your command-line terminal to make temporary changes.
+Changes will be applied after restarting the terminal.
 
 ## Installation Directory Structure
 
-The MicroTESK installation directory contains the following subdirectories:
-
-
+`<INSTALL_DIR>` contains the following subdirectories:
 
 | Directory | Description |
 | :-------- | :-----------|
-| `arch` | Examples of microprocessor specifications and test templates for the described designs |
-| `bin`  | Scripts to run features of MicroTESK (modeling and test generation)                    |
-| `doc`  | Documentation on MicroTESK                                                             |
-| `etc`  | MicroTESK configuration files                                                          |
-| `gen`  | Generated Java models of the specified microprocessor designs                          |
-| `lib`  | JAR files and Ruby scripts to perform modeling and test generation tasks               |
-| `src`  | Source code of MicroTESK                                                               |
+| `arch`    | Microprocessor specifications and test templates |
+| `bin`     | Scripts for model compilation and test generation |
+| `doc`     | Documentation |
+| `etc`     | Configuration files |
+| `gen`     | Generated code of microprocessor models |
+| `lib`     | JAR files and Ruby scripts |
+| `src`     | Source code |
+| `tools`   | SMT solvers |
 
 ## Running MicroTESK
 
-To generate a Java model of a microprocessor from its nML specification, a user needs to run the
-`compile.sh` script (Linux and macOS) or the `compile.bat` script (Windows).
-For example, the following command generates a model for the miniMIPS specification:
+To compile a microprocessor model from its specification,
+run the following command:
+
+* `sh compile.sh <SPECIFICATION>` (Linux and macOS);
+* `compile.bat <SPECIFICATION>` (Windows).
+
+For example, the actions below compile the model from the miniMIPS specification:
 
 ```
+$ cd $MICROTESK_HOME
 $ sh bin/compile.sh arch/minimips/model/minimips.nml arch/minimips/model/mmu/minimips.mmu
 ```
 
-**NOTE:** Models for all demo specifications are included in the MicroTESK distribution package.
-So a user can start working with MicroTESK from generating test programs for these models.
+**NOTE:** Models for all demo specifications are included into the MicroTESK distribution package.
+There is no need to compile them.
 
-To generate a test program, a user needs to use
-the `generate.sh` script (Linux and macOS) or
-the `generate.bat` script (Windows).
+To generate a test program for a given architecture (model) and a given test template,
+run the following command:
 
-The scripts require the following mandatory parameters:
+* `sh generate.sh <ARCH> <TEMPLATE>` (Linux and macOS);
+* `generate.bat <ARCH> <TEMPLATE>` (Windows).
 
-* model name;
-* test template file path.
-
-For example, the following command runs the `euclid.rb` test template
-for the miniMIPS model generated by the command from the previous example and
-saves the generated test program to an assembly file:
+For example, the actions below generate a test program for the miniMIPS model compiled in
+the previous example and the `euclid.rb` test template:
 
 ```
+$ cd $MICROTESK_HOME
 $ sh bin/generate.sh minimips arch/minimips/templates/euclid.rb
 ```
 
-The file name is based on values of the `--code-file-prefix` and `--code-file-extension` options.
+The output file name depends on the `--code-file-prefix` and `--code-file-extension` options.
 
-Also, MicroTESK uses a set of additional parameters that can be used to customize its behavior.
-To get more information about them, the user needs to run MicroTESK with the `--help` key.
+To get more information on command-line options, run MicroTESK with `--help`.
