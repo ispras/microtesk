@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,34 +15,49 @@
 lexer grammar CommonLexer;
 
 @members {
-private ru.ispras.microtesk.translator.antlrex.Preprocessor pp;
-private ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable symbols;
+  private ru.ispras.microtesk.translator.antlrex.Preprocessor pp;
+  private ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable symbols;
 
-public final ru.ispras.microtesk.translator.antlrex.Preprocessor getPreprocessor() {
-  return pp;
-}
-public final void setPreprocessor(final ru.ispras.microtesk.translator.antlrex.Preprocessor pp) {
-  this.pp = pp;
-}
-
-private void pp() {
-  if(pp.isHidden()) {
-    skip();
+  public final ru.ispras.microtesk.translator.antlrex.Preprocessor getPreprocessor() {
+    return pp;
   }
-}
 
-private void pp(final String text) {
-  if(pp.isHidden()) {
-    skip();
-  } else {
-    setText(text);
+  public final void setPreprocessor(final ru.ispras.microtesk.translator.antlrex.Preprocessor pp) {
+    this.pp = pp;
   }
-}
 
-public final void setSymbols(
+  /**
+   * Skips a token if the scope is hidden.
+   */
+  private void pp() {
+    if(pp.isHidden()) {
+      skip();
+    }
+  }
+
+  /**
+   * Skips a token if the scope is hidden.
+   */
+  private void pp(final String text) {
+    if(pp.isHidden()) {
+      skip();
+    } else {
+      setText(text);
+    }
+  }
+
+  /**
+   * Injects a special token indicating start of a new sub-lexer.
+   */
+  private void returnNewSourceToken() {
+    state.token = new CommonToken(ru.ispras.castle.antlr.TokenSourceStack.NEW_SOURCE_TOKEN);
+  }
+
+  public final void setSymbols(
     final ru.ispras.microtesk.translator.antlrex.symbols.SymbolTable symbols) {
-  this.symbols = symbols;
-}}
+    this.symbols = symbols;
+  }
+}
 
 //==================================================================================================
 // Comments, Spaces and Newlines
@@ -105,16 +120,20 @@ PP_ENDIF : '#endif' {
 PP_INCLUDE : '#include' WHITESPACE '"' filename=PP_FILENAME '"' (WHITESPACE)? (NEWLINE | EOF) {
   if (!pp.isHidden()) {
     pp.includeTokensFromFile($filename.getText());
+    returnNewSourceToken();
+  } else {
+    skip();
   }
-  skip();
 };
 
 PP_EXPAND : '#' key=ID {
   if (!pp.isHidden()) {
     final String substitution = pp.expand($key.getText());
     pp.includeTokensFromString(substitution);
+    returnNewSourceToken();
+  } else {
+    skip();
   }
-  skip();
 };
 
 fragment
@@ -124,80 +143,84 @@ PP_FILENAME : (~('"' | '\n'))*;
 // Different Symbols
 //==================================================================================================
 
-LEFT_PARENTH  : '('           { pp(); };
-RIGHT_PARENTH : ')'           { pp(); };
+LEFT_PARENTH  : '(' { pp(); };
+RIGHT_PARENTH : ')' { pp(); };
 
-LEFT_BRACE    : '{'           { pp(); };
-RIGHT_BRACE   : '}'           { pp(); };
+LEFT_BRACE    : '{' { pp(); };
+RIGHT_BRACE   : '}' { pp(); };
 
-LEFT_HOOK     : '['           { pp(); };
-RIGHT_HOOK    : ']'           { pp(); };
+LEFT_HOOK     : '[' { pp(); };
+RIGHT_HOOK    : ']' { pp(); };
 
-COLON         : ':'           { pp(); };
-SEMI          : ';'           { pp(); };
-COMMA         : ','           { pp(); };
-DOT           : '.'           { pp(); };
+COLON         : ':' { pp(); };
+SEMI          : ';' { pp(); };
+COMMA         : ',' { pp(); };
+DOT           : '.' { pp(); };
 
-SHARP         : '#'           { pp(); };
+SHARP         : '#' { pp(); };
 
 //==================================================================================================
 // Operations
 //==================================================================================================
 
-ASSIGN        : '='           { pp(); };
+ASSIGN        : '='   { pp(); };
 
-PLUS          : '+'           { pp(); };
-MINUS         : '-'           { pp(); };
-MUL           : '*'           { pp(); };
-DIV           : '/'           { pp(); };
-REM           : '%'           { pp(); };
+PLUS          : '+'   { pp(); };
+MINUS         : '-'   { pp(); };
+MUL           : '*'   { pp(); };
+DIV           : '/'   { pp(); };
+REM           : '%'   { pp(); };
 
-DOUBLE_STAR   : '**'          { pp(); };
+DOUBLE_STAR   : '**'  { pp(); };
 
-LEFT_SHIFT    : '<<'          { pp(); };
-RIGHT_SHIFT   : '>>'          { pp(); };
-ROTATE_LEFT   : '<<<'         { pp(); };
-ROTATE_RIGHT  : '>>>'         { pp(); };
+LEFT_SHIFT    : '<<'  { pp(); };
+RIGHT_SHIFT   : '>>'  { pp(); };
+ROTATE_LEFT   : '<<<' { pp(); };
+ROTATE_RIGHT  : '>>>' { pp(); };
 
-LEQ           : '<='          { pp(); };
-GEQ           : '>='          { pp(); };
-EQ            : '=='          { pp(); };
-NEQ           : '!='          { pp(); };
+LEQ           : '<='  { pp(); };
+GEQ           : '>='  { pp(); };
+EQ            : '=='  { pp(); };
+NEQ           : '!='  { pp(); };
 
-LEFT_BROCKET  : '<'           { pp(); };
-RIGHT_BROCKET : '>'           { pp(); };
+LEFT_BROCKET  : '<'   { pp(); };
+RIGHT_BROCKET : '>'   { pp(); };
 
-NOT           : '!'           { pp(); };
-AND           : '&&'          { pp(); };
-OR            : '||'          { pp(); };
+NOT           : '!'   { pp(); };
+AND           : '&&'  { pp(); };
+OR            : '||'  { pp(); };
 
-TILDE         : '~'           { pp(); };
-AMPER         : '&'           { pp(); };
-UP_ARROW      : '^'           { pp(); };
-VERT_BAR      : '|'           { pp(); };
+TILDE         : '~'   { pp(); };
+AMPER         : '&'   { pp(); };
+UP_ARROW      : '^'   { pp(); };
+VERT_BAR      : '|'   { pp(); };
 
-DOUBLE_DOT    : '..'          { pp(); };
-DOUBLE_COLON  : '::'          { pp(); };
+DOUBLE_DOT    : '..'  { pp(); };
+DOUBLE_COLON  : '::'  { pp(); };
 
-SQRT          : 'sqrt'        { pp(); };
-ROUND         : 'round'       { pp(); };
-IS_NAN        : 'is_nan'      { pp(); };
+//==================================================================================================
+// Additional Operations
+//==================================================================================================
+
+IS_TYPE       : 'is_type'         { pp(); };
+TYPE_OF       : 'type_of'         { pp(); };
+SIZE_OF       : 'size_of'         { pp(); };
+
+SQRT          : 'sqrt'            { pp(); };
+ROUND         : 'round'           { pp(); };
+IS_NAN        : 'is_nan'          { pp(); };
 IS_SIGN_NAN   : 'is_signaling_nan'{ pp(); };
-
-IS_TYPE       : 'is_type'     { pp(); };
-TYPE_OF       : 'type_of'     { pp(); };
-SIZE_OF       : 'size_of'     { pp(); };
 
 //==================================================================================================
 // Control Statements
 //==================================================================================================
 
-IF            : 'if'          { pp(); };
-THEN          : 'then'        { pp(); };
-ELSE          : 'else'        { pp(); };
-ELSEIF        : 'elif'        { pp(); };
-ENDIF         : 'endif'       { pp(); };
-RETURN        : 'return'      { pp(); };
+IF            : 'if'     { pp(); };
+THEN          : 'then'   { pp(); };
+ELSE          : 'else'   { pp(); };
+ELSEIF        : 'elif'   { pp(); };
+ENDIF         : 'endif'  { pp(); };
+RETURN        : 'return' { pp(); };
 
 //==================================================================================================
 // Type Conversion Directive Names
@@ -233,20 +256,19 @@ REVISION      : '@rev'        { pp(); };
 //==================================================================================================
 
 ID : LETTER (LETTER | DIGIT | '_')* {
-if (null != symbols && symbols.isReserved($text)) {
-  final String newText = $text + "__";
-  ru.ispras.castle.util.Logger.warning(
-      "\%s \%d:\%d: Reserved keyword '\%s' was replaced with '\%s'.",
-      ru.ispras.castle.util.FileUtils.getShortFileName(getSourceName()),
-      getLine(),
-      getCharPositionInLine(),
-      $text,
-      newText
-      );
-  setText(newText);
-}
-
-pp();
+  if (null != symbols && symbols.isReserved($text)) {
+    final String newText = $text + "__";
+    ru.ispras.castle.util.Logger.warning(
+        "\%s \%d:\%d: Reserved keyword '\%s' was replaced with '\%s'.",
+        ru.ispras.castle.util.FileUtils.getShortFileName(getSourceName()),
+        getLine(),
+        getCharPositionInLine(),
+        $text,
+        newText
+        );
+    setText(newText);
+  }
+  pp();
 };
 
 //==================================================================================================

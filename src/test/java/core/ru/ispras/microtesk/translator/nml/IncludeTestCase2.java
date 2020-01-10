@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,12 +18,14 @@ import org.junit.Test;
 import ru.ispras.microtesk.translator.TranslatorTest;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 
-
-public class IncludeTestCase extends TranslatorTest<Ir> {
+/**
+ * Reproduces https://forge.ispras.ru/issues/7218
+ */
+public class IncludeTestCase2 extends TranslatorTest<Ir> {
 
   @Test
   public void test() {
     final NmlTranslator translator = new NmlTranslator();
-    translate(translator, "./src/test/nml/include_main.nml");
+    translate(translator, "./src/test/nml/file1.nml");
   }
 }
