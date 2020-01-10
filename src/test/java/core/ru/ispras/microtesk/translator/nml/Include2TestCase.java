@@ -21,7 +21,7 @@ import ru.ispras.microtesk.translator.nml.ir.Ir;
 /**
  * Reproduces https://forge.ispras.ru/issues/7218
  */
-public class IncludeTestCase2 extends TranslatorTest<Ir> {
+public class Include2TestCase extends TranslatorTest<Ir> {
 
   @Test
   public void test() {

@@ -18,7 +18,7 @@ import org.junit.Test;
 import ru.ispras.microtesk.translator.TranslatorTest;
 import ru.ispras.microtesk.translator.nml.ir.Ir;
 
-public class IncludeTestCase1 extends TranslatorTest<Ir> {
+public class Include1TestCase extends TranslatorTest<Ir> {
 
   @Test
   public void test() {
