@@ -1,4 +1,4 @@
 op empty()
-  action = {
-  }
-
+  syntax = "empty"
+  image  = "00000"
+  action = { }
