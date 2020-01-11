@@ -322,9 +322,8 @@ public final class SymbolicExecutor {
       if (ranges.get(i).start == start) {
         if (from < 0) {
           from = i;
-        } else {
-          to = i;
         }
+        to = i;
       }
     }
     if (from >= 0) {
