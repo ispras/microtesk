@@ -100,7 +100,10 @@ public class MirBuilder {
   public void refMemory(final int nbits, final String name) {
     final MirTy type = new IntTy(nbits);
     final Static mem = new Static(name, type);
-    final Local tmp = block.newLocal(type);
+    // WARN changing signature after ref will break MIR
+    final Local base = block.newLocal(type);
+    final Local tmp = new Local(base.id + typeList.size(), type);
+
     body.add(new Load(mem, tmp));
     body.add(new Store(mem, tmp));
   }
