@@ -50,7 +50,7 @@ public class ControlFlowInspector {
         if (range != null && range.start != start) {
           ranges.add(range.split(start));
         }
-      } else {
+      } else if (start >= 0 && start < body.size()) {
         int i = start;
         while (i < body.size() && !observed.get(i)) {
           final IsaPrimitive insn = body.get(i);
