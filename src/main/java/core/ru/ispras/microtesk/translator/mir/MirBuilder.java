@@ -53,6 +53,8 @@ public class MirBuilder {
   public MirContext build(final String name) {
     final MirContext ctx =
         new MirContext(name, new FuncTy(VoidTy.VALUE, typeList));
+    ctx.locals.addAll(Lists.tailOf(mir.locals, mir.getSignature().params.size() + 1));
+
     final BasicBlock bb = ctx.newBlock().bb;
     bb.insns.addAll(block.bb.insns);
     bb.insns.addAll(body);
