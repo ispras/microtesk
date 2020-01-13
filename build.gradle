@@ -343,8 +343,8 @@ task getDependencies(type: Copy) {
 
 compileJava {
   options.encoding = 'UTF-8'
-  sourceCompatibility = '1.7'
-  targetCompatibility = '1.7'
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
 }
 
 generateGrammarSource {

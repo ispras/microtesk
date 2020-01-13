@@ -35,6 +35,7 @@ import ru.ispras.testbase.generator.DataGenerator;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -143,26 +144,7 @@ public final class MicroTESK {
   }
 
   private static boolean translate(final Options options, final String[] arguments) {
-    final String revisionId = options.getValueAsString(Option.REV_ID);
-    final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
-
-    Set<String> revisionSet = revisionId.isEmpty() ? Collections.<String>emptySet()
-                                                   : Collections.<String>singleton(revisionId);
-
-    if (!revisionId.isEmpty() && !archDirs.isEmpty()) {
-      for (final String fileName : arguments) {
-        final String name = FileUtils.getShortFileNameNoExt(fileName);
-        final String archDir = SysUtils.getArchDir(archDirs, name);
-
-        if (null != archDir) {
-          final String path = new File(FileUtils.getFileDir(archDir), "revisions.xml").getPath();
-          final Revisions revisions = Config.loadRevisions(path);
-          revisionSet = revisions.getRevision(revisionId);
-          break;
-        }
-      }
-    }
-
+    final Set<String> revisionSet = loadRevisions(options, arguments);
     final TranslatorContext context = new TranslatorContext();
     for (final Translator<?> translator : translators) {
       if (!translator.translate(options, context, revisionSet, arguments)) {
@@ -178,6 +160,27 @@ public final class MicroTESK {
     }
 
     return true;
+  }
+
+  private static Set<String> loadRevisions(
+      final Options options, final String[] arguments) {
+    final String revisionId = options.getValueAsString(Option.REV_ID);
+    final String archDirs = options.getValueAsString(Option.ARCH_DIRS);
+    if (!revisionId.isEmpty() && !archDirs.isEmpty()) {
+      for (final String fileName : arguments) {
+        final String name = FileUtils.getShortFileNameNoExt(fileName);
+        final Path archDir = SysUtils.searchArchSettingsPath(archDirs, name);
+
+        if (null != archDir) {
+          final Revisions revisions =
+              Config.loadRevisions(archDir.getParent().resolve("revisions.xml"));
+          return revisions.getRevision(revisionId);
+        }
+      }
+    }
+    return (revisionId.isEmpty())
+        ? Collections.emptySet()
+        : Collections.singleton(revisionId);
   }
 
   private static boolean copyExtensions(final Options options) {

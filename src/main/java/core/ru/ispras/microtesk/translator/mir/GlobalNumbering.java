@@ -47,8 +47,8 @@ public class GlobalNumbering extends Pass {
 
     int iterno = 0;
     while (!worklist.isEmpty()) {
-      final BasicBlock bb = removeLast(worklist);
-      final Operand value = removeLast(datalist);
+      final BasicBlock bb = Lists.removeLast(worklist);
+      final Operand value = Lists.removeLast(datalist);
 
       if (!idom.equals(bb)) {
         final List<BasicBlock> preds = ctx.preds.get(bb);
@@ -59,7 +59,7 @@ public class GlobalNumbering extends Pass {
               info = new GsaInfo();
               forkInfo.put(pred, info);
             }
-            final Branch br = (Branch) lastOf(pred.insns);
+            final Branch br = (Branch) Lists.lastOf(pred.insns);
             if (br.other.equals(bb)) {
               info.valueOther = value;
             } else {
@@ -86,10 +86,6 @@ public class GlobalNumbering extends Pass {
       return info.valueTaken;
     }
     return new Ite(guard, info.valueTaken, info.valueOther);
-  }
-
-  private static <T> T removeLast(final List<T> list) {
-    return list.remove(list.size() - 1);
   }
 
   private static final class GsaInfo {
@@ -216,7 +212,7 @@ public class GlobalNumbering extends Pass {
     }
 
     int current() {
-      return lastOf(version);
+      return Lists.lastOf(version);
     }
 
     void fallback() {
@@ -380,15 +376,11 @@ public class GlobalNumbering extends Pass {
   }
 
   private static List<BasicBlock> targetsOf(final BasicBlock bb) {
-    final Instruction insn = lastOf(bb.insns);
+    final Instruction insn = Lists.lastOf(bb.insns);
     if (insn instanceof Branch) {
       return ((Branch) insn).successors;
     }
     return Collections.emptyList();
-  }
-
-  private static <T> T lastOf(final List<T> list) {
-    return list.get(list.size() - 1);
   }
 
   static class DepthFirstPath <T> {

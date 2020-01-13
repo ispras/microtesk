@@ -107,7 +107,7 @@ public class InsnRewriter extends InsnVisitor {
   }
 
   private static List<MirTy> localsOf(final MirContext ctx) {
-    return Pass.tailList(ctx.locals, ctx.getSignature().params.size() + 1);
+    return Lists.tailOf(ctx.locals, ctx.getSignature().params.size() + 1);
   }
 
   private InsnRewriter(final Frame frame) {
@@ -316,10 +316,6 @@ public class InsnRewriter extends InsnVisitor {
         block.append(new Store(insn.target, value));
       }
     }
-  }
-
-  private static <T> T removeLast(final List<T> list) {
-    return list.remove(list.size() - 1);
   }
 
   public void visit(final Disclose insn) {

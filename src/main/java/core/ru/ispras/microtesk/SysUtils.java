@@ -26,6 +26,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * The {@link SysUtils} class provides utility methods to interact with the environment.
@@ -166,7 +167,7 @@ public final class SysUtils {
   }
 
   /**
-   * Gets the path to the directory of that holds files related to the specified architecture.
+   * Searching for path to the settings file for the architecture specified.
    *
    * <p>The path is extracted from a string that stores a map of architecture names and
    * corresponding paths. The string has the following format:
@@ -174,30 +175,25 @@ public final class SysUtils {
    *
    * @param archDirs String that stores a map of architectures and their directories.
    * @param archName Architecture name.
-   * @return Architecture directory path or {@code null} if no such path is found.
+   * @return Path to arch-specific settings file or {@code null} if no such path is found.
    *
    * @throws IllegalArgumentException if any of the arguments is {@code null}.
    * @throws IllegalStateException if the {@code MICROTESK_HOME} environment variable is undefined.
    */
-  public static String getArchDir(final String archDirs, final String archName) {
+  public static Path searchArchSettingsPath(
+      final String archDirs, final String archName) {
     InvariantChecks.checkNotNull(archDirs);
     InvariantChecks.checkNotNull(archName);
 
-    final String[] archDirsArray = archDirs.split(":");
-    for (final String archDir : archDirsArray) {
-      final String[] archDirArray = archDir.trim().split("=");
-
-      if (archDirArray != null && archDirArray.length > 1 && archName.equals(archDirArray[0])) {
-        final File archFile = new File(archDirArray[1]);
-
-        final String archDirPath = archFile.isAbsolute()
-            ? archDirArray[1]
-            : String.format("%s%s%s", getHomeDir(), File.separator, archDirArray[1]);
-
-        return archDirPath;
+    final var pattern = "\\W*" + Pattern.quote(archName) + "=([^:]*)";
+    final var matcher = Pattern.compile(pattern).matcher(archDirs);
+    if (matcher.find()) {
+      final var path = Paths.get(matcher.group(1));
+      if (path.isAbsolute()) {
+        return path;
       }
+      return Paths.get(getHomeDir()).resolve(path);
     }
-
     return null;
   }
 }

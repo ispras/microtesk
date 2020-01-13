@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static ru.ispras.microtesk.translator.mir.Instruction.*;
 
@@ -135,19 +136,17 @@ public final class NmlIrTrans {
     if (p.getKind().equals(Primitive.Kind.IMM)) {
       return returnTypeOf(p);
     } else {
-      final List<MirTy> parameters;
-      if (p.isOrRule()) {
-        parameters = Collections.emptyList();
-      } else {
-        final PrimitiveAnd src = (PrimitiveAnd) p;
-
-        parameters = new java.util.ArrayList<>(src.getArguments().size());
-        for (final Primitive param : src.getArguments().values()) {
-          parameters.add(typeOf(param));
-        }
-      }
-      return new FuncTy(returnTypeOf(p), parameters);
+      return new FuncTy(returnTypeOf(p), getParameterList(p));
     }
+  }
+
+  private static List<MirTy> getParameterList(final Primitive p) {
+    if (!p.isOrRule()) {
+      return ((PrimitiveAnd) p).getArguments().values().stream()
+          .map(x -> typeOf(x))
+          .collect(Collectors.toList());
+    }
+    return Collections.emptyList();
   }
 
   private static MirTy returnTypeOf(final Primitive p) {

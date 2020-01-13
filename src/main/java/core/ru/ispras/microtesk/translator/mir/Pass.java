@@ -35,7 +35,7 @@ public abstract class Pass {
   }
 
   public static MirContext inlineContext(final MirContext dst, final MirContext src) {
-    dst.locals.addAll(tailList(src.locals, src.getSignature().params.size() + 1));
+    dst.locals.addAll(Lists.tailOf(src.locals, src.getSignature().params.size() + 1));
 
     final List<BasicBlock> body = new java.util.ArrayList<>();
     for (final BasicBlock bb : src.blocks) {
@@ -66,9 +66,5 @@ public abstract class Pass {
       final List<BasicBlock> origins,
       final List<BasicBlock> storage) {
     return storage.get(origins.indexOf(bb));
-  }
-
-  static <T> List<T> tailList(final List<T> list, final int index) {
-    return list.subList(index, list.size());
   }
 }

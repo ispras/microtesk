@@ -117,7 +117,7 @@ public final class SymbolicExecutor {
       info.bbModified.add(analysis.modifiedMap());
       info.bbIndexed.add(analysis.versionMap());
 
-      Logger.debug(new MirText(opt).toString());
+      Logger.debug(MirText.toString(opt));
     }
   }
 
@@ -125,7 +125,7 @@ public final class SymbolicExecutor {
     final MirContext mir = composeMir(name, info);
     try (final java.io.BufferedWriter writer =
         Files.newBufferedWriter(Paths.get(name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
-      writer.write(new MirText(mir).toString());
+      writer.write(MirText.toString(mir));
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
     }
@@ -322,9 +322,8 @@ public final class SymbolicExecutor {
       if (ranges.get(i).start == start) {
         if (from < 0) {
           from = i;
-        } else {
-          to = i;
         }
+        to = i;
       }
     }
     if (from >= 0) {

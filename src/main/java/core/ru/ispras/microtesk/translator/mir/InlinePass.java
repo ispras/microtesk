@@ -21,18 +21,18 @@ public class InlinePass extends Pass {
       final BasicBlock bb = blocks.get(i);
       for (List<Instruction> tail = find(bb.insns, Call.class);
           !tail.isEmpty();
-          tail = find(Pass.tailList(tail, 1), Call.class)) {
+          tail = find(Lists.tailOf(tail, 1), Call.class)) {
         final Call call = (Call) tail.get(0);
         final int origin = bb.getOrigin(bb.insns.indexOf(call));
 
         evaluator.eval(ctx.locals.size(), blocks.subList(evalIndex, i + 1));
         evalIndex = i + 1;
 
-        final MirContext callee = resolveCallee(call, origin, evaluator);
+        final MirContext callee = resolveCallee(ctx, call, origin, evaluator);
         if (callee != null) {
           Logger.debug("PASS: inline call '%s'", callee.name);
           final Inliner inliner = new Inliner(call, bb, ctx, callee);
-          final Collection<BasicBlock> newbb = inliner.run();
+          final Collection<BasicBlock> newbb = inliner.run(this);
           blocks.addAll(i + 1, newbb);
           break;
         }
@@ -41,7 +41,8 @@ public class InlinePass extends Pass {
     return ctx;
   }
 
-  private MirContext resolveCallee(
+  protected MirContext resolveCallee(
+      final MirContext mir,
       final Call call,
       final int origin,
       final EvalContext evaluator) {
@@ -70,10 +71,15 @@ public class InlinePass extends Pass {
   private static <T> List<T> find(final List<T> source, final Class<? extends T> cls) {
     for (int i = 0; i < source.size(); ++i) {
       if (cls.isInstance(source.get(i))) {
-        return Pass.tailList(source, i);
+        return Lists.tailOf(source, i);
       }
     }
     return Collections.emptyList();
+  }
+
+  protected void notifyInline(
+      final Call call, final BasicBlock bb, final MirContext caller, final List<BasicBlock> body) {
+    bb.insns.remove(call);
   }
 
   private static final class Inliner {
@@ -95,10 +101,10 @@ public class InlinePass extends Pass {
       this.callee = Pass.copyOf(callee);
     }
 
-    public Collection<BasicBlock> run() {
+    public Collection<BasicBlock> run(final InlinePass pass) {
       final BasicBlock next = splitCallSite();
       rebase(caller.locals.size() - 1, callee.blocks);
-      caller.locals.addAll(Pass.tailList(callee.locals, 1));
+      caller.locals.addAll(Lists.tailOf(callee.locals, 1));
 
       final List<BasicBlock> blocks = EvalContext.topologicalOrder(callee);
 
@@ -107,12 +113,15 @@ public class InlinePass extends Pass {
 
       blocks.add(0, entry);
       blocks.add(next);
+
+      pass.notifyInline(callsite, target, caller, blocks);
+
       return blocks;
     }
 
     private BasicBlock splitCallSite() {
       final int index = target.insns.indexOf(callsite);
-      final List<Instruction> insnView = Pass.tailList(target.insns, index + 1);
+      final List<Instruction> insnView = Lists.tailOf(target.insns, index + 1);
       final List<BasicBlock.Origin> orgView = getOutrangedOrigins(target, index);
 
       final BasicBlock bb = new BasicBlock();
@@ -123,7 +132,6 @@ public class InlinePass extends Pass {
 
       move(bb.origins, orgView);
       move(bb.insns, insnView);
-      target.insns.remove(index);
 
       caller.blocks.add(bb);
       caller.blocks.addAll(callee.blocks);
@@ -140,7 +148,7 @@ public class InlinePass extends Pass {
       for (int i = 0; i < bb.origins.size(); ++i) {
         final BasicBlock.Origin org = bb.origins.get(i);
         if (org.range > index + 1) {
-          return Pass.tailList(bb.origins, i);
+          return Lists.tailOf(bb.origins, i);
         }
       }
       return Collections.emptyList();

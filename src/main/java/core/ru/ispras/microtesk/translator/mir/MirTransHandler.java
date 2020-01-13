@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.model.memory.Memory;
@@ -73,138 +75,96 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     final MirPassDriver driver = MirPassDriver.newDefault();
     final Map<String, MirContext> opt = driver.run(source);
 
-    final Path path = Paths.get(translator.getOutDir(), ir.getModelName() + ".zip");
+    driver.getPasses().set(0, new InlineNoAccess().setComment("inline (no access)"));
+    driver.getPasses().add(1, new InlinePreserve().setComment("inline/dup access"));
+    driver.setStorage(source);
+
+    final List<MirContext> isa = variantsOf(ir.getOps().get("instruction")).stream()
+        .flatMap(x -> instancesOf(x))
+        .map(x -> driver.apply(x))
+        .collect(Collectors.toList());
+
+    final Path outDir = Paths.get(translator.getOutDir());
+    final String libName = ir.getModelName() + ".zip";
+    final String isaName = ir.getModelName() + "-isa.zip";
+    final JsonObject manifest = createManifest(ir);
     try {
-      Files.createDirectories(Paths.get(translator.getOutDir()));
-      try (final ArchiveWriter archive = new ArchiveWriter(path)) {
-        try (final JsonWriter writer =
-            Json.createWriter(archive.newText(MirArchive.MANIFEST))) {
-          writer.write(createManifest(ir));
-        }
-        for (final MirContext ctx : opt.values()) {
-          try (final Writer writer = archive.newText(ctx.name + ".mir")) {
-            final MirText text = new MirText(ctx);
-            writer.write(text.toString());
-          }
-        }
-      }
+      writeArchive(outDir.resolve(libName), manifest, opt.values());
+      writeArchive(outDir.resolve(isaName), manifest, isa);
     } catch (final IOException e) {
-      Logger.error("Failed to store MIR '%s': %s", path.toString(), e.toString());
+      Logger.error("Failed to store MIR archive: %s", e.toString());
     }
-    final Instantiator worker = new Instantiator(opt);
-    worker.run(ir);
   }
 
-  private static final class Instantiator {
-    final Map<String, MirContext> library;
-    final Map<String, MirContext> instances = new java.util.HashMap<>();
-
-    Instantiator(final Map<String, MirContext> library) {
-      this.library = library;
-    }
-
-    void run(final Ir ir) {
-      final Map<Primitive, List<PrimitiveAnd>> variantMap = new java.util.HashMap<>();
-      for (final Primitive p : ir.getOps().values()) {
-        variantMap.put(p, variantsOf(p));
+  static void writeArchive(
+      final Path path, final JsonObject manifest, final Collection<MirContext> values)
+      throws IOException {
+    Files.createDirectories(path.getParent());
+    try (final ArchiveWriter archive = new ArchiveWriter(path)) {
+      try (final JsonWriter writer =
+          Json.createWriter(archive.newText(MirArchive.MANIFEST))) {
+        writer.write(manifest);
       }
-      final InstanceTree tree = new InstanceTree();
-      for (final Primitive p : ir.getOps().values()) {
-        if (!p.isOrRule()) {
-          final PrimitiveAnd op = (PrimitiveAnd) p;
-          final ITNode node = newNode(op, variantMap);
+      for (final MirContext ctx : values) {
+        try (final Writer writer = archive.newText(ctx.name + ".mir")) {
+          writer.write(MirText.toString(ctx));
+        }
+      }
+    }
+  }
 
-          tree.nodeMap.put(op, node);
-          if (node.siblings().isEmpty()) {
-            tree.instances.add(node);
+  static Stream<MirContext> instancesOf(final PrimitiveAnd p) {
+    return instantiateRec(p, new MirBuilder(p.getName())).stream()
+      .map(b -> { b.makeCall(p.getName() + ".action", 0); return b.build(); });
+  }
+
+  static List<MirBuilder> instantiateRec(
+      final PrimitiveAnd op, final MirBuilder builder) {
+    final List<MirBuilder> queue = Lists.newList(builder);
+    final List<MirBuilder> swap = Lists.newList();
+    for (final var entry : op.getArguments().entrySet()) {
+      final Primitive p = entry.getValue();
+      if (p.isOrRule() && p.getKind().equals(Primitive.Kind.OP)) {
+        for (final PrimitiveAnd v : variantsOf(p)) {
+          for (final var b : queue) {
+            final String name = b.getName() + "_" + v.getName();
+            swap.addAll(instantiateRec(v, b.copyAs(name)));
           }
         }
-      }
-      for (final ITNode node : tree.nodes()) {
-        for (final PrimitiveAnd p : node.siblings()) {
-          tree.nodeMap.get(p).parents.add(node);
+        Lists.moveAll(queue, swap);
+      } else if (p.getKind().equals(Primitive.Kind.OP)) {
+        for (final var b : queue) {
+          swap.addAll(instantiateRec((PrimitiveAnd) p, b));
+        }
+        Lists.moveAll(queue, swap);
+      } else {
+        for (final var b : queue) {
+          b.refParameter(b.addParameter(NmlIrTrans.typeOf(p)));
         }
       }
     }
-
-    static ITNode newNode(
-        final PrimitiveAnd op,
-        final Map<Primitive, List<PrimitiveAnd>> variantMap) {
-      for (final Map.Entry<String, Primitive> param : op.getArguments().entrySet()) {
-        final Primitive type = param.getValue();
-        if (type.getKind().equals(Primitive.Kind.OP) && type.isOrRule()) {
-          final List<PrimitiveAnd> variants = variantMap.get(param.getValue());
-          return new ITNode(op, Collections.singletonMap(param.getKey(), variants));
-        }
-      }
-      return new ITNode(op, Collections.<String, List<PrimitiveAnd>>emptyMap());
+    for (final var b : queue) {
+      b.makeClosure(op.getName(), op.getArguments().size());
     }
+    return queue;
+  }
 
-    static List<PrimitiveAnd> variantsOf(final Primitive p) {
+  static List<PrimitiveAnd> variantsOf(final Primitive p) {
+    if (p.isOrRule()) {
+      final List<PrimitiveAnd> variants = new java.util.ArrayList<>();
+      collectVariants((PrimitiveOr) p, variants);
+      return variants;
+    }
+    return Collections.singletonList((PrimitiveAnd) p);
+  }
+
+  static void collectVariants(final PrimitiveOr input, final List<PrimitiveAnd> variants) {
+    for (final Primitive p : input.getOrs()) {
       if (p.isOrRule()) {
-        final List<PrimitiveAnd> variants = new java.util.ArrayList<>();
         collectVariants((PrimitiveOr) p, variants);
-        return variants;
+      } else {
+        variants.add((PrimitiveAnd) p);
       }
-      return Collections.singletonList((PrimitiveAnd) p);
-    }
-
-    static void collectVariants(final PrimitiveOr input, final List<PrimitiveAnd> variants) {
-      for (final Primitive p : input.getOrs()) {
-        if (p.isOrRule()) {
-          collectVariants((PrimitiveOr) p, variants);
-        } else {
-          variants.add((PrimitiveAnd) p);
-        }
-      }
-    }
-  }
-
-  private static final class InstanceTree {
-    final Map<PrimitiveAnd, ITNode> nodeMap = new java.util.HashMap<>();
-    final List<ITNode> instances = new java.util.ArrayList<>();
-
-    Collection<ITNode> nodes() {
-      return nodeMap.values();
-    }
-  }
-
-  private static final class ITNode {
-    final PrimitiveAnd origin;
-    final Map<String, List<PrimitiveAnd>> bindings;
-    final List<ITNode> parents = new java.util.ArrayList<>();
-
-    ITNode(final PrimitiveAnd origin, final Map<String, List<PrimitiveAnd>> bindings) {
-      this.origin = origin;
-      this.bindings = bindings;
-    }
-
-    List<PrimitiveAnd> siblings() {
-      if (bindings.isEmpty()) {
-        return Collections.emptyList();
-      }
-      return bindings.values().iterator().next();
-    }
-
-    @Override
-    public String toString() {
-      final StringBuilder sb = new StringBuilder(origin.getName());
-      for (final Map.Entry<String, Primitive> entry : origin.getArguments().entrySet()) {
-        if (bindings.containsKey(entry.getKey())) {
-          sb.append(" (");
-          final java.util.Iterator<PrimitiveAnd> it = this.siblings().iterator();
-          sb.append(it.next().getName());
-          while (it.hasNext()) {
-            sb.append(" | ");
-            sb.append(it.next().getName());
-          }
-          sb.append(")");
-        } else {
-          sb.append(" ");
-          sb.append(entry.getValue().getName());
-        }
-      }
-      return sb.toString();
     }
   }
 
