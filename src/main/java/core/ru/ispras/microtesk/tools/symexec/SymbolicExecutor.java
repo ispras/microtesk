@@ -33,6 +33,7 @@ import ru.ispras.microtesk.translator.mir.Constant;
 import ru.ispras.microtesk.translator.mir.DestructCssa;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.Instruction;
+import ru.ispras.microtesk.translator.mir.LoopUnroller;
 import ru.ispras.microtesk.translator.mir.Mir2Node;
 import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirBlock;
@@ -49,7 +50,6 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -124,12 +124,15 @@ public final class SymbolicExecutor {
 
   private static void writeMir(final String name, final BodyInfo info) {
     final MirContext mir = composeMir(name, info);
+    MirContext unrolledSsa = buildSsaWithUnrolledLoops(mir);
+
     try (final java.io.BufferedWriter writer =
-        Files.newBufferedWriter(Paths.get(name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
+                  Files.newBufferedWriter(Paths.get(name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
       writer.write(MirText.toString(mir));
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
     }
+    writeMirs(name, unrolledSsa);
   }
 
   private static MirContext composeMir(final String name, final BodyInfo info) {
@@ -372,6 +375,28 @@ public final class SymbolicExecutor {
       version += info.bbMir.get(i).locals.size() - 1;
     }
     return version;
+  }
+
+  private static void writeMirs(String filename, MirContext mir) {
+    Mir2Node mir2Node = new Mir2Node();
+
+    String path = String.format("%s.%s.smt2", filename, mir.name);
+
+    mir2Node.apply(mir);
+    writeSmt(path, mir2Node.getFormulae());
+  }
+
+  private static MirContext buildSsaWithUnrolledLoops(MirContext mir) {
+    LoopUnroller unroller = new LoopUnroller(2);
+    MirContext unrolledMir = unroller.unroll(mir);
+    try (final java.io.BufferedWriter writer =
+                 Files.newBufferedWriter(Paths.get(unrolledMir.name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
+      writer.write(MirText.toString(unrolledMir));
+    } catch (final java.io.IOException e) {
+      Logger.error(e.getMessage());
+    }
+    MirPassDriver driver = new MirPassDriver(MirPassDriver.ssaOptimizeSequence());
+    return driver.apply(unrolledMir);
   }
 
   private static JsonArrayBuilder newHwstateMapping(
