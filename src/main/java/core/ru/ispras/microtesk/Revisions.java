@@ -73,22 +73,25 @@ public final class Revisions {
       return expandedRevisions.get(revisionId);
     }
 
-    final Set<String> expandedRevision = new LinkedHashSet<>();
-    expandedRevision.add(revisionId);
+    final Set<String> includedRevisions = new LinkedHashSet<>();
+    final Set<String> excludedRevisions = new LinkedHashSet<>();
+    includedRevisions.add(revisionId);
 
     final Pair<Set<String>, Set<String>> revision = revisions.get(revisionId);
     if (null != revision) {
       for (final String includeRevisionId : revision.first) {
-        expandedRevision.addAll(expand(includeRevisionId));
+        includedRevisions.addAll(expand(includeRevisionId));
       }
 
       for (final String excludeRevisionId : revision.second) {
-        expandedRevision.removeAll(expand(excludeRevisionId));
+        excludedRevisions.removeAll(expand(excludeRevisionId));
       }
     }
 
-    expandedRevisions.put(revisionId, expandedRevision);
-    return expandedRevision;
+    includedRevisions.removeAll(excludedRevisions);
+
+    expandedRevisions.put(revisionId, includedRevisions);
+    return includedRevisions;
   }
 
   @Override
