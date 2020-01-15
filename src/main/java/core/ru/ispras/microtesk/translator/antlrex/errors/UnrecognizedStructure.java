@@ -18,7 +18,7 @@ import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 
 public final class UnrecognizedStructure implements ISemanticError {
   private static final String MESSAGE =
-      "Failed to recognize the grammar structure. It will be ignored";
+      "Failed to recognize the grammar structure (ignored)";
 
   private final String what;
 

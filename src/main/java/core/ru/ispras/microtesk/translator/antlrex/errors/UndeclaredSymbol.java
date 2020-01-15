@@ -17,7 +17,7 @@ package ru.ispras.microtesk.translator.antlrex.errors;
 import ru.ispras.microtesk.translator.antlrex.ISemanticError;
 
 public class UndeclaredSymbol implements ISemanticError {
-  private static final String FORMAT = "The '%s' symbol is not declared.";
+  private static final String FORMAT = "Symbol '%s' has not been declared";
 
   private final String symbolName;
 

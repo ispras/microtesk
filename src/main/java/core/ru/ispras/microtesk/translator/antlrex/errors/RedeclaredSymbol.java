@@ -19,10 +19,10 @@ import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 
 public final class RedeclaredSymbol implements ISemanticError {
   private static final String FORMAT =
-      "The '%s' name is already used to declare another symbol of type %s (position %d:%d).";
+      "Symbol '%s' has been already declared as %s (%s)";
 
   private final String FORMAT_KEYWORD =
-      "The '%s' name is already used a reserved keyword (the %s type).";
+      "Symbol '%s' is a reserved keyword of type %s";
 
   private final Symbol symbol;
 
@@ -40,8 +40,6 @@ public final class RedeclaredSymbol implements ISemanticError {
         FORMAT,
         symbol.getName(),
         symbol.getKind().name(),
-        symbol.getWhere().getLine(),
-        symbol.getWhere().getPosition()
-        );
+        symbol.getWhere());
   }
 }

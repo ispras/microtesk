@@ -22,7 +22,7 @@ import java.util.List;
 
 public final class SymbolTypeMismatch implements ISemanticError {
   public static final String FORMAT =
-      "The '%s' symbol uses a wrong type. It is %s while %s is expected in this expression.";
+      "Symbol '%s' is of the wrong type: %s while %s is expected";
 
   private final String symbolName;
   private final Enum<?> kind;
