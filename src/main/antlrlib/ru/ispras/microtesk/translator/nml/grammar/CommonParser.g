@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -259,7 +259,7 @@ location
     ;
 
 locationExpr
-    :  locationVal (DOUBLE_COLON^ locationExpr)*
+    :  locationVal (DOUBLE_COLON^ locationExpr)?
     ;
 
 /*  If the bitFieldExpr expression fires, we rewrite the rule as a bitfield expression,
@@ -282,9 +282,9 @@ bitFieldExpr
     ;
 finally { setInBitField(false); }
 
-/*======================================================================================*/
-/* Expression-like attribute rules(format expressions in the syntax and image attributes)*/
-/*======================================================================================*/
+//==================================================================================================
+// Expression-like attribute rules (format expressions in the syntax and image attributes)
+//==================================================================================================
 
 attrExpr
     :  STRING_CONST
@@ -312,9 +312,9 @@ attributeFormatCall
     :  SYNTAX | IMAGE
     ;
 
-/*======================================================================================*/
-/* Sequence statements (for action-like attributes)                                     */
-/*======================================================================================*/
+//==================================================================================================
+// Sequence statements (for action-like attributes)
+//==================================================================================================
 
 sequence
     :  (statement SEMI)* -> ^(SEQUENCE statement*) 

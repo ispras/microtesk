@@ -5,26 +5,21 @@ let SIZE = 10
 let REGS = 16
 let BIG  = 0xFFFFFFFFFF
 
-//let REGS = 11
+type MYTYPE = card(SIZE)
 
-//let byte = 11
+type BYTE   = card(8)
+type CHAR   = int(8)
 
-type MYTYPE         = card(SIZE)
+type WORD   = card(16)
+type SHORT  = int(16)
 
-type BYTE           = card(8)
-type CHAR           = int(8)
-
-type WORD           = card(16)
-type SHORT          = int(16)
-
-type DWORD          = card(32)
-type LONG           = int(32)
+type DWORD  = card(32)
+type LONG   = int(32)
   
-type bit 			= card(1)
-//type byte1		= card(8)
+type bit    = card(1)
 
-type byte1			= card(8)
-type byte2			= byte1
+type byte1  = card(8)
+type byte2  = byte1
 
 mem TEST_MEM1 [REGS*2, card(32)]
 
@@ -41,7 +36,7 @@ mode MMM()
 op test(m: MMM)
   syntax = "test"
   image  = "0010"
-  action =  {
+  action = {
     TEST_REG1[0] = TEST_REG1[0]<0..31> + 1;
     TEST_REG1[1] = zero_extend(DWORD, TEST_REG1[1]<8>) + 1;
     TEST_REG1[1] = zero_extend(DWORD, TEST_REG1[1]<1 + TEST_REG2 - 1..1 + TEST_REG2 + 5>) + 1;

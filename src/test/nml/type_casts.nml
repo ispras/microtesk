@@ -55,7 +55,7 @@ reg F128[32, DOUBLE128]
 op sign_extend_test()
   syntax = "sign_extend_test"
   image  = "000"
-  action =  {
+  action = {
     R32[0] = coerce(WORD, -1);
     R64[0] = sign_extend(DWORD, R32[0]);
   }
@@ -71,7 +71,7 @@ op zero_extend_test()
 op coerce_test()
   syntax = "coerce_test"
   image  = "010"
-  action =  {
+  action = {
     R32[2] = coerce(WORD, -1);
     R64[2] = coerce(DWORD, R32[2]);
   }
@@ -79,25 +79,25 @@ op coerce_test()
 op cast_test()
   syntax = "cast_test"
   image  = "011"
-  action =  {
+  action = {
   }
 
 op int_to_float_test()
   syntax = "int_to_float_test"
   image  = "100"
-  action =  {
+  action = {
   }
 
 op float_to_int_test()
   syntax = "float_to_int_test"
   image  = "101"
-  action =  {
+  action = {
   }
 
 op float_to_float_test()
   syntax = "float_to_float_test"
   image  = "110"
-  action =  {
+  action = {
     F32[0] = float_to_float(SINGLE, F64[0]);
   }
 

@@ -1,0 +1,19 @@
+/*
+ * This test reproduces https://forge.ispras.ru/issues/5783
+ */
+
+reg r[32, card(64)]
+
+mode R(i : card(5)) = r[i]
+
+op instruction (src : R)
+  action = {
+    src = src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::
+          src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::
+          src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::
+          src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::
+          src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::
+          src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::
+          src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::
+          src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>::src<63>;
+  }

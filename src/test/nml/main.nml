@@ -1,4 +1,4 @@
 include "generalTest.nml"
 
-let SIMPLE_INTEGER     = 10
+let SIMPLE_INTEGER = 10
 
