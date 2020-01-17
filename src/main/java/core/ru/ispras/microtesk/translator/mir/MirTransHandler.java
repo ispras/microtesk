@@ -79,7 +79,11 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     driver.getPasses().add(1, new InlinePreserve().setComment("inline/dup access"));
     driver.setStorage(source);
 
-    final List<MirContext> isa = variantsOf(ir.getOps().get("instruction")).stream()
+    final List<PrimitiveAnd> opList = ir.getOps().containsKey("instruction")
+        ? variantsOf(ir.getOps().get("instruction"))
+        : Collections.emptyList();
+
+    final List<MirContext> isa = opList.stream()
         .flatMap(x -> instancesOf(x))
         .map(x -> driver.apply(x))
         .collect(Collectors.toList());
