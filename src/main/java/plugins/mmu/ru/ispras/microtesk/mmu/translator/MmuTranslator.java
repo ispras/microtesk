@@ -127,6 +127,11 @@ public final class MmuTranslator extends Translator<Ir> {
         return false;
       }
 
+      if (ir.getMemories().isEmpty()) {
+        Logger.warning("No MMU definitions found in '%s', ignoring", fileName);
+        return true;
+      }
+
       if (!checkIr(ir)) {
         Logger.error("Translation was interrupted due to semantic errors.");
         return false;

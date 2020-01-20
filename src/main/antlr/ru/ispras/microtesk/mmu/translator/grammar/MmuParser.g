@@ -29,6 +29,7 @@ options {
 import commonParser=CommonParser;
 
 tokens {
+  MMU_TU;
   MMU_CONTEXT;
   MMU_FUNC;
   MMU_FUNC_DEF;
@@ -77,7 +78,7 @@ import ru.ispras.microtesk.mmu.translator.MmuSymbolKind;
 //==================================================================================================
 
 startRule 
-    : declarationRev* EOF!
+    : declarationRev* EOF -> ^(MMU_TU declarationRev*)
     ;
 
 declarationRev

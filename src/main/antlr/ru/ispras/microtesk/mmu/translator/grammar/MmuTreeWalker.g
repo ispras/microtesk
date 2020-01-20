@@ -76,7 +76,8 @@ import ru.ispras.microtesk.mmu.translator.ir.Type;
 //==================================================================================================
 
 startRule 
-    : declaration*
+    : ^(MMU_TU declaration+)
+    | MMU_TU
     ;
 
 declaration
