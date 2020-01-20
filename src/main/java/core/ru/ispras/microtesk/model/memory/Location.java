@@ -128,11 +128,10 @@ public final class Location implements LocationAccessor {
     InvariantChecks.checkNotNull(data);
 
     if (getBitSize() != data.getType().getBitSize()) {
-      throw new IllegalArgumentException(String.format(
-          "Assigning %d-bit data to %d-bit location is not allowed.",
-          data.getType().getBitSize(),
-          getBitSize())
-          );
+      throw new IllegalArgumentException(
+          String.format("Assigning %d-bit data to %d-bit location %s is not allowed.",
+              data.getType().getBitSize(),
+              getBitSize(), getLocationString()));
     }
 
     final BitVector rawData = data.getRawData();
@@ -302,5 +301,18 @@ public final class Location implements LocationAccessor {
       final BitVector dataItem = BitVector.newMapping(data, position, bitSize);
       atom.store(dataItem, callHandlers);
     }
+  }
+
+  private String getLocationString() {
+    final StringBuffer buffer = new StringBuffer();
+
+    for (final LocationAtom atom : atoms) {
+      if (buffer.length() != 0) {
+        buffer.append("::");
+      }
+      buffer.append(atom);
+    }
+
+    return buffer.toString();
   }
 }
