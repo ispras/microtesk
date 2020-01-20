@@ -1,0 +1,13 @@
+var temp6   [card(6)]
+var temp32  [card(32)]
+var temp128 [card(128)]
+
+op range_add()
+  syntax = "range0_128"
+  image  = "000"
+  action = {
+    temp32 = coerce(card(32), 0xffffffff);
+    temp6 = 40;
+    temp128<temp6 + 31..0+temp6> = temp32<31..0>;
+    trace("temp128 = 0x%x", temp32);
+  }
