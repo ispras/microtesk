@@ -107,7 +107,7 @@ public final class MmuTranslator extends Translator<Ir> {
       }
 
       if (!parser.isCorrect()) {
-        Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SYNTACTIC ERRORS.");
+        Logger.error("Translation was interrupted due to syntactic errors.");
         return false;
       }
 
@@ -123,12 +123,12 @@ public final class MmuTranslator extends Translator<Ir> {
       walker.startRule();
 
       if (!walker.isSuccessful()) {
-        Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SEMANTIC ERRORS.");
+        Logger.error("Translation was interrupted due to semantic errors.");
         return false;
       }
 
       if (!checkIr(ir)) {
-        Logger.error("TRANSLATION WAS INTERRUPTED DUE TO SEMANTIC ERRORS.");
+        Logger.error("Translation was interrupted due to semantic errors.");
         return false;
       }
 
@@ -143,8 +143,10 @@ public final class MmuTranslator extends Translator<Ir> {
 
   // Performs size checks for mapped buffers.
   private boolean checkIr(final Ir ir) {
-    final ru.ispras.microtesk.translator.nml.ir.Ir isaIr =
-        getContext().getIr(ru.ispras.microtesk.translator.nml.ir.Ir.class);
+    // If mmuSL specification is translated independently, it does not need the context.
+    final ru.ispras.microtesk.translator.nml.ir.Ir isaIr = getContext() != null
+        ? getContext().getIr(ru.ispras.microtesk.translator.nml.ir.Ir.class)
+        : null;
 
     for (final Buffer buffer: ir.getBuffers().values()) {
       switch (buffer.getKind()) {

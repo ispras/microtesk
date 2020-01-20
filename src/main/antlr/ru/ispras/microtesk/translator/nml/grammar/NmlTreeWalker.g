@@ -12,20 +12,19 @@
  * the License.
  */
 
-/*======================================================================================*/
-/* README SECTION                                                                       */
-/*                                                                                      */
-/* TODO:                                                                                */
-/* - Brief description of the tree rules' structure and format                          */
-/* - Instructions on how to debug and extend the rules                                  */
-/* - "TODO" notes                                                                       */     
-/*======================================================================================*/
+//==================================================================================================
+// README SECTION
+//
+// TODO:
+// - Brief description of the tree rules' structure and format
+// - Instructions on how to debug and extend the rules
+//==================================================================================================
 
 tree grammar NmlTreeWalker;
 
-/*======================================================================================*/
-/* Options                                                                              */
-/*======================================================================================*/
+//==================================================================================================
+// Options
+//==================================================================================================
 
 options {
   language=Java;
@@ -41,9 +40,9 @@ catch (final RecognitionException re) { // Default behavior
 }
 }
 
-/*======================================================================================*/
-/* Header for the generated tree walker Java class file (header comments, imports, etc).*/
-/*======================================================================================*/
+//==================================================================================================
+// Header for the generated tree walker Java class file (header comments, imports, etc).
+//==================================================================================================
 
 @header {
 /*
@@ -85,9 +84,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 }
 
-/*======================================================================================*/
-/* Root Rules of Processor Specification                                                */ 
-/*======================================================================================*/
+//==================================================================================================
+// Root Rules of Processor Specification
+//==================================================================================================
 
 // Start rule
 startRule 
@@ -108,9 +107,9 @@ procSpec
     |  opDef
     ;
 
-/*======================================================================================*/
-/* Let Rules                                                                            */
-/*======================================================================================*/
+//==================================================================================================
+// Let Rules
+//==================================================================================================
 
 letDef
     :  ^(LET id=ID le=letExpr[$id.text])
@@ -128,9 +127,9 @@ getLetFactory().createString(name, $sc.text);
 }
     ;
 
-/*======================================================================================*/
-/* Type Rules                                                                           */
-/*======================================================================================*/
+//==================================================================================================
+// Type Rules
+//==================================================================================================
 
 typeDef
     :  ^(TYPE id=ID te=typeExpr)
@@ -153,9 +152,9 @@ typeExpr returns [Type res]
     |   ^(t=TYPE_OF  e=dataExpr) { $res=getTypeFactory().typeOf(where($t), $e.res); }
     ;
 
-/*======================================================================================*/
-/* Struct Rules                                                                         */
-/*======================================================================================*/
+//==================================================================================================
+// Struct Rules
+//==================================================================================================
 
 structDef
     : ^(STRUCT id=ID str=structFields)
@@ -173,9 +172,9 @@ struct.addField($id.text, $te.res);
 })+ {$res = Type.STRUCT(struct);}
     ;
 
-/*======================================================================================*/
-/* Location Rules (Memory, Registers, Variables)                                        */
-/*======================================================================================*/
+//==================================================================================================
+// Location Rules (Memory, Registers, Variables)
+//==================================================================================================
 
 memDef
     :  ^(MEM sh=SHARED? id=ID st=sizeType al=alias?)
@@ -244,9 +243,9 @@ $res = factory.createAlias(where($id), $id.text, $min.res, $max.res);
 }
     ;
 
-/*======================================================================================*/
-/* Mode rules                                                                           */
-/*======================================================================================*/
+//==================================================================================================
+// Mode rules
+//==================================================================================================
 
 modeDef 
     :  ^(MODE label=LABEL? id=ID {pushSymbolScope(id);}
@@ -284,9 +283,9 @@ modeReturn returns [Expr res]
     :  ^(RETURN me=dataExpr {checkNotNull($me.start, $me.res, $me.text);}) {$res = $me.res;}
     ;
 
-/*======================================================================================*/
-/* Op rules                                                                             */
-/*======================================================================================*/
+//==================================================================================================
+// Op rules
+//==================================================================================================
 
 opDef
     :  ^(OP mod=modifier? id=(ID | EXCEPTION) {pushSymbolScope(id);}
@@ -324,18 +323,18 @@ $res = getPrimitiveFactory().createOpOR($w, $name, $orRes.res);
 }
     ;
 
-/*======================================================================================*/
-/* Or rules (for modes and ops)                                                         */
-/*======================================================================================*/
+//==================================================================================================
+// Or rules (for modes and ops)
+//==================================================================================================
 
 orRule returns [List<String> res]
 @init  {$res = new ArrayList<>();}
     :  ^(ALTERNATIVES (a=ID {$res.add($a.text);})+)
     ;
 
-/*======================================================================================*/
-/* And rules (for modes and ops)                                                        */
-/*======================================================================================*/
+//==================================================================================================
+// And rules (for modes and ops)
+//==================================================================================================
 
 andRule returns [Map<String,Primitive> res]
 @init  {final Map<String,Primitive> args = new LinkedHashMap<>();}
@@ -354,9 +353,9 @@ argType returns [Primitive res]
     |  te=typeExpr       {checkNotNull($te.start, $te.res, $te.text); $res = factory.createImm($te.res);}
     ;
 
-/*======================================================================================*/
-/* Attribute rules (for modes and ops)                                                  */
-/*======================================================================================*/
+//==================================================================================================
+// Attribute rules (for modes and ops)
+//==================================================================================================
 
 attrDefList returns [Map<String, Attribute> res]
 @init  {final Map<String,Attribute> attrs = new LinkedHashMap<>();}
@@ -432,9 +431,9 @@ $res = factory.createAction(actionName, $seq.res);
 }
     ;
 
-/*======================================================================================*/
-/* Expression-like attribute rules(format expressions in syntax and image attributes)   */
-/*======================================================================================*/
+//==================================================================================================
+// Expression-like attribute rules(format expressions in syntax and image attributes)
+//==================================================================================================
 
 attrExpr [String allowedAttr] returns [Statement res]
     :  str=STRING_CONST
@@ -499,9 +498,9 @@ $res = getStatementFactory().createCallNode(stmt);
 }
     ;
 
-/*======================================================================================*/
-/* Sequence statements (for action-like attributes)                                     */
-/*======================================================================================*/
+//==================================================================================================
+// Sequence statements (for action-like attributes)
+//==================================================================================================
 
 sequence returns [List<Statement> res]
 @init  {final List<Statement> stmts = new ArrayList<>();}
@@ -669,32 +668,31 @@ $res = Collections.singletonList(
 }
     ;
 
-/*======================================================================================*/
-/* Extended Expression Rules                                                            */
-/*                                                                                      */
-/* There are several use cases for expressions that impose certain restrictions on them:*/
-/*                                                                                      */
-/* 1. Constant expressions. These expressions are statically calculated at translation  */
-/*    time and evaluated to constant Java values (currently, "int" or "long"). Constant */
-/*    expressions are used in Let constructions.                                        */
-/*                                                                                      */
-/* 2. Size expressions. These expressions are constant expressions evaluated to         */
-/*    constant integer values. Size has the Java "int" type. Size expressions are used  */
-/*    to describe types (e.g. card(32)) and memory locations (reg, mem and var          */
-/*    definitions).                                                                     */
-/*                                                                                      */
-/* 3. Index expressions. These expressions should be evaluated to Java integer values.  */
-/*    Index is represented by then Java "int" type. Index expressions are used to       */
-/*    access locations by their index in a memory line (e.g. GPR[index + 1]) and to     */
-/*    address bitfields of locations (e.g. temp<x+1 .. x+5>).                           */
-/*                                                                                      */
-/* 4. Logic expressions. There expressions are evaluated to boolean values. Logic       */
-/*    expressions are used in condition statements.                                     */
-/*                                                                                      */
-/* 5. Data expressions. Data expressions are described in terms of locations. All       */
-/*    manipulations with locations are described by data expressions. These expressions */
-/*    are used in assignment statements, etc.                                           */
-/*======================================================================================*/
+//==================================================================================================
+// Extended Expression Rules
+//
+// There are several use cases for expressions that impose certain restrictions on them:
+//
+// 1. Constant expressions. These expressions are statically calculated at translation time and
+//    evaluated to constant Java values (currently, "int" or "long"). Constant expressions are used
+//    in Let constructions.
+//
+// 2. Size expressions. These expressions are constant expressions evaluated to constant integer
+//    values. Size has the Java "int" type. Size expressions are used to describe types
+//    (e.g. card(32)) and memory locations (reg, mem and var definitions).                                                                     */
+//
+// 3. Index expressions. These expressions should be evaluated to Java integer values. Index is
+//    represented by then Java "int" type. Index expressions are used to access locations by their
+//    index in a memory line (e.g. GPR[index + 1]) and to address bitfields of locations
+//    (e.g. temp<x+1 .. x+5>).
+//
+// 4. Logic expressions. There expressions are evaluated to boolean values. Logic expressions are
+//    used in condition statements.
+//
+// 5. Data expressions. Data expressions are described in terms of locations. All manipulations with
+//    locations are described by data expressions. These expressions are used in assignment
+//    statements, etc.
+//==================================================================================================
 
 constExpr returns [Expr res]
     :  e=expr[0]
@@ -736,9 +734,9 @@ $res = getExprFactory().evaluateData(where($e.start), $e.res);
 }
     ;   
 
-/*======================================================================================*/
-/* Expression rules                                                                     */
-/*======================================================================================*/
+//==================================================================================================
+// Expression rules
+//==================================================================================================
 
 expr [int depth] returns [Expr res]
 @after {$res = $e.res;}
@@ -746,9 +744,9 @@ expr [int depth] returns [Expr res]
     | e=numExpr[depth]
     ;
 
-/*======================================================================================*/
-/* Non-numeric expressions (TODO: temporary implementation)                             */
-/*======================================================================================*/
+//==================================================================================================
+// Non-numeric expressions (TODO: temporary implementation)
+//==================================================================================================
 
 nonNumExpr [int depth] returns [Expr res]
 @after {$res = $e.res;}
@@ -793,9 +791,9 @@ $res = new Pair<>(new Expr(NodeValue.newBoolean(true)), $e.res);
 }
     ;
 
-/*======================================================================================*/
-/* Numeric expressions                                                                  */
-/*======================================================================================*/
+//==================================================================================================
+// Numeric expressions
+//==================================================================================================
     
 numExpr [int depth] returns [Expr res]
 @after {$res = $e.res;}
@@ -889,9 +887,9 @@ $res = getExprFactory().sizeOf(where($token), $e.res);
 
     ;
 
-/*======================================================================================*/
-/* Type conversion resules                                                              */
-/*======================================================================================*/
+//==================================================================================================
+// Type conversion resules
+//==================================================================================================
 
 typeCast returns [Expr res]
     :  ^(token=SIGN_EXTEND te=typeExpr e=dataExpr
@@ -944,9 +942,9 @@ $res = getExprFactory().is_type(where($token), $e.res, $te.res);
 })
     ;
 
-/*======================================================================================*/
-/* Location rules (rules for accessing model memory)                                    */
-/*======================================================================================*/
+//==================================================================================================
+// Location rules (rules for accessing model memory)
+//==================================================================================================
 
 location returns [Expr res]
     :  ^(LOCATION le=locationExpr[0] {checkNotNull($le.start, $le.res, $le.text);})
@@ -1013,4 +1011,6 @@ $res = getLocationFactory().location(where($i.start), $i.res);
 }
     ;
 
-/*======================================================================================*/
+//==================================================================================================
+// The End
+//==================================================================================================

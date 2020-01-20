@@ -24,10 +24,4 @@ public class EmptyTestCase extends TranslatorTest<Ir> {
     final MmuTranslator translator = new MmuTranslator();
     translate(translator, "./src/test/mmu/empty.mmu");
   }
-
-  public static void main(final String[] argv) {
-    final MmuTranslator translator = new MmuTranslator();
-    final EmptyTestCase test = new EmptyTestCase();
-    test.translate(translator, argv[0]);
-  }
 }

@@ -196,7 +196,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
   }
 
   public final void assignContext(final TranslatorContext context) {
-    InvariantChecks.checkNotNull(context);
+    // Context is allowed to be null (e.g., when mmuSL is translated independently).
     this.context = context;
   }
 

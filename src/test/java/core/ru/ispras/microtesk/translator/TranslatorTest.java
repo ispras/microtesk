@@ -61,10 +61,7 @@ public abstract class TranslatorTest<Ir> {
     System.out.println(ir);
   }
 
-  protected void translate(
-      final Translator<Ir> translator,
-      final String... fileNames) {
-
+  protected void translate(final Translator<Ir> translator, final String... fileNames) {
     for (final String fileName : fileNames) {
       final String fileDir = FileUtils.getFileDir(fileName);
       if (null != fileDir) {
