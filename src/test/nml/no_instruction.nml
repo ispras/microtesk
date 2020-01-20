@@ -1,0 +1,6 @@
+/*
+ * This test reproduces https://forge.ispras.ru/issues/10044
+ */
+
+op bug_if_no_instruction ()
+  action = { }
