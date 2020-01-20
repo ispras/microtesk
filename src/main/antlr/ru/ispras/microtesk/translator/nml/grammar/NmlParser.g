@@ -44,6 +44,7 @@ import commonParser=CommonParser;
 tokens {
 //RANGE; // root node for range type definitions ([a..b]). Not supported in this version.
 
+  NML_TU; // translation unit root node
   SIZE_TYPE; // node for constructions that specify type and size of memory resources (reg, mem, var)
 
   LABEL; // imaginary token for let expression that specify an alias for some specified location
@@ -115,7 +116,7 @@ void setInBitField(boolean value) {
 
 // Start rule
 startRule
-    :  procSpecRev* EOF -> procSpecRev*
+    :  procSpecRev* EOF -> ^(NML_TU procSpecRev*)
     ;
 
 procSpecRev

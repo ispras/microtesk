@@ -90,7 +90,8 @@ import java.util.List;
 
 // Start rule
 startRule 
-    :  procSpec*
+    :  ^(NML_TU procSpec+)
+    | NML_TU
     ;
 
 procSpec
