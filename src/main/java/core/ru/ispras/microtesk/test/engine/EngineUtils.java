@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.test.engine;
 
+import org.apache.commons.lang.UnhandledException;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -57,6 +58,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@link EngineUtils} implements functions shared among test data generators.

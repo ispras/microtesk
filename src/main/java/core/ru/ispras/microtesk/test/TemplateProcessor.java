@@ -38,6 +38,7 @@ import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.SectionKind;
+import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -204,6 +205,7 @@ final class TemplateProcessor implements Template.Processor {
       }
 
       processPostponedBlocksNoSimulation();
+
       finishProgram();
 
       Logger.debugHeader("Ended Processing Template");
@@ -240,6 +242,7 @@ final class TemplateProcessor implements Template.Processor {
 
     final ConcreteSequence sequence =
         TestEngineUtils.makeExternalTestSequence(engineContext, block);
+
     allocateSequence(sequence, Label.NO_SEQUENCE_INDEX);
   }
 
@@ -254,7 +257,8 @@ final class TemplateProcessor implements Template.Processor {
 
   private ConcreteSequence processSelfChecks(
       final ConcreteSequence previous,
-      final int testCaseIndex) throws ConfigurationException {
+      final int testCaseIndex) throws ConfigurationException
+  {
     InvariantChecks.checkNotNull(previous);
 
     final List<SelfCheck> selfChecks = previous.getSelfChecks();
@@ -273,6 +277,7 @@ final class TemplateProcessor implements Template.Processor {
     Logger.debugHeader("Preparing %s", sequenceId);
     final Section section = previous.getSection();
     final ConcreteSequence sequence = SelfCheckEngine.solve(engineContext, section, selfChecks);
+
     sequence.setTitle(sequenceId);
 
     allocateSequenceAfter(previous, sequence, testCaseIndex);
@@ -356,6 +361,7 @@ final class TemplateProcessor implements Template.Processor {
 
     final ConcreteSequence sequence =
         TestEngineUtils.makeExternalTestSequence(engineContext, block);
+
     allocateSequenceWithReplace(entry, sequence, Label.NO_SEQUENCE_INDEX);
 
     runExecution(sequence);
@@ -414,6 +420,7 @@ final class TemplateProcessor implements Template.Processor {
 
         final Iterator<ConcreteSequence> concreteIt = SequenceProcessor.get().process(
             engineContext, block.getAttributes(), abstractSequence);
+
 
         for (concreteIt.init(); concreteIt.hasValue(); concreteIt.next()) {
           if (!isProgramStarted) {
@@ -579,6 +586,7 @@ final class TemplateProcessor implements Template.Processor {
       TestEngineUtils.notifyProgramEnd();
 
       PrinterUtils.printTestProgram(engineContext, testProgram);
+
       Tracer.closeFile();
       Aspectracer.closeFile();
 

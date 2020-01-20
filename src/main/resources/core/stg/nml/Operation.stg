@@ -15,7 +15,7 @@
 group Operation;
 
 op(
-  name, file, pack, imps, simps, base,
+  name, file, pack, imps, simps, base, modifier,
   arg_names, arg_types, arg_checks, arg_tnames,
   attrs,
   shortcuts, shortcut_defs
@@ -28,12 +28,13 @@ op(
        name,
        base,
        false,
-       body(name, arg_names, arg_types, 
+       body(name, modifier, arg_names, arg_types, 
          arg_checks, arg_tnames, attrs, shortcuts, shortcut_defs))>
 >>
 
 body(
   name,
+  modifier,
   arg_names,
   arg_types,
   arg_checks,
@@ -45,7 +46,7 @@ body(
 <info(name, arg_names, arg_types, arg_tnames, shortcut_defs)>
 <shortcuts>
 <class_const("IsaPrimitiveInfoAnd", "INFO", "new Info()")><\n>
-<op_constructor(name, arg_names, arg_types, arg_checks)><\n>
+<op_constructor(name, modifier, arg_names, arg_types, arg_checks)><\n>
 <attrs; separator="\n\n">
 >>
 
@@ -146,9 +147,10 @@ op_param(p) ::= <<
 
 ///////////////////////////////////////////////////////////////////////////////
 
-op_constructor(name, arg_names, arg_types, arg_checks) ::= <<
+op_constructor(name, modifier, arg_names, arg_types, arg_checks) ::= <<
 <if(arg_names)><arg_names, arg_types:{n, t | <op_arg_def(n, t)>}; separator="\n"><\n><endif>
 public <name>(<arg_names, arg_types:{n, t | final <t> <n>}; separator=", ">) {
+  this.modifier = <modifier>;
   <if(arg_checks)><arg_checks; separator="\n"><\n><endif>
   <arg_names:op_arg_init(); separator="\n">
   <if(arg_names)><\n><arg_names:{ n | addArgument("<n>", <n>);}; separator="\n"><endif>

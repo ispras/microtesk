@@ -38,7 +38,7 @@ public final class Execution {
 
     public static void exception(final String text) {
         Logger.debug("Exception has been raised: %s", text);
-        Execution.mark("exception");
+        Execution.mark("exception." + text);
         throw new ExecutionException(text);
     }
 

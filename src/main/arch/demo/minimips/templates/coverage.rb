@@ -28,7 +28,7 @@ class CoverageTemplate < MiniMipsBaseTemplate
     sequence {
       # ADD instruction with biased operand values.
       add t0, t1, t2 do situation('overflow') end
-      add t3, t4, t5 do situation('normal') end
+      #add t3, t4, t5 do situation('normal') end
     }.run
   end
 end

@@ -61,7 +61,7 @@ import java.util.Set;
  */
 public final class Template {
 
-  public static enum SectionKind {
+  public enum SectionKind {
     PRE,
     POST,
     MAIN

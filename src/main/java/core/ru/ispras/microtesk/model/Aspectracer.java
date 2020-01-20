@@ -43,7 +43,7 @@ public final class Aspectracer {
     private int fileCount;
 
     private static Aspectracer instance = null;
-    private static boolean enabled = false;
+    private static boolean enabled = true;
 
     public static void initialize(final String filePath, final String filePrefix) {
         // TODO: InvariantChecks.checkTrue(null == instance);
@@ -78,7 +78,7 @@ public final class Aspectracer {
     }
 
     public static void addInstrPath(final String mark) {
-        if (instance != null) {
+        if (instance != null && isEnabled()) {
             instance.printToTrace(mark);
         }
     }

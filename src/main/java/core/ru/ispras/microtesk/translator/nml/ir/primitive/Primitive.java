@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class Primitive {
-  public static enum Kind {
+  public enum Kind {
     /** Addressing mode. */
     MODE,
     /** Operation. */
@@ -32,7 +32,7 @@ public class Primitive {
     IMM
   }
 
-  public static enum Modifier {
+  public enum Modifier {
     /** Primitives that constitute instructions (default modifier) */
     NORMAL,
 

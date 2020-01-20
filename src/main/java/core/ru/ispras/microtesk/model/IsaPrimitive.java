@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static ru.ispras.microtesk.model.Execution.CALL_STACK;
+import static ru.ispras.microtesk.translator.nml.ir.primitive.Primitive.Modifier;
 
 /**
  * The {@link IsaPrimitive} class implements base functionality of addressing modes
@@ -33,6 +34,7 @@ import static ru.ispras.microtesk.model.Execution.CALL_STACK;
 public abstract class IsaPrimitive {
 
     public boolean terminal = true;
+    public Modifier modifier;
 
     /**
      * Stores arguments of the primitive.
@@ -179,13 +181,17 @@ public abstract class IsaPrimitive {
             final ProcessingElement processingElement,
             final TemporaryVariables temporaryVariables) {
         try {
-            CALL_STACK.add(this);
+            if (modifier != Modifier.PSEUDO) {
+                CALL_STACK.add(this);
+            }
             action(processingElement, temporaryVariables);
         } finally {
-            if (terminal) {
+            if (terminal && modifier != Modifier.PSEUDO) {
                 Aspectracer.addInstrPath(null);
             }
-            CALL_STACK.remove(this);
+            if (modifier != Modifier.PSEUDO) {
+                CALL_STACK.remove(this);
+            }
             if (CALL_STACK.size() != 0)
             {
                 CALL_STACK.get(CALL_STACK.size() - 1).terminal = false;

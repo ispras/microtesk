@@ -678,8 +678,9 @@ internal op instruction (command: Operations)
   syntax = command.syntax
   image  = command.image
   action = {
+  ////////////////////////////////////////////////////////////////////////////////
+  // This is just a demonstration that a user can define an attribute and call it
     foo;
-    sll(REG(0), REG(0), 0).action;
     GPR[0] = 0;
 
     // This code is responsible for updating the value of the program counter.
@@ -743,6 +744,9 @@ internal op instruction (command: Operations)
 
     CIA_COPY = CIA;
   }
+  
+  //////////////////////////////////////////////////////////////////////////////
+  // This is just a demonstration that a user can define an attribute
   foo = {}
 
 ////////////////////////////////////////////////////////////////////////////////

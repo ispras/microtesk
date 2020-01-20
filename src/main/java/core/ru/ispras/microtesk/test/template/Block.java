@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class Block {
-  public static enum Kind {
+  public enum Kind {
     BLOCK(false, false, false),
     SEQUENCE(false, true, false),
     ATOMIC(true, false, false),
@@ -33,7 +33,7 @@ public final class Block {
     private final boolean isSequence;
     private final boolean isIterate;
 
-    private Kind(final boolean isAtomic, final boolean isSequence, final boolean isIterate) {
+    Kind(final boolean isAtomic, final boolean isSequence, final boolean isIterate) {
       this.isAtomic = isAtomic;
       this.isSequence = isSequence;
       this.isIterate = isIterate;

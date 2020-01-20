@@ -110,7 +110,6 @@ public final class MetaDataGenerator implements TranslatorHandler<Ir> {
 
     final FileGenerator generator = new FileGeneratorStringTemplate(
         getFileName(className), templateGroups, templateBuilder);
-
     try {
       generator.generate();
     } catch (final IOException e) {

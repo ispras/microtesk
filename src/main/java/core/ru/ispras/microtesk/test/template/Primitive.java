@@ -24,13 +24,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public interface Primitive {
-  public static enum Kind {
+  enum Kind {
     OP("op"),
     MODE("mode");
 
     private final String text;
 
-    private Kind(final String text) {
+    Kind(final String text) {
       this.text = text;
     }
 

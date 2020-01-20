@@ -17,6 +17,7 @@ package ru.ispras.microtesk.test.engine;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.model.Aspectracer;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.InstructionCall;
 import ru.ispras.microtesk.model.IsaPrimitive;
@@ -231,6 +232,7 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
     }
 
     final Code code = codeAllocator.getCode();
+
     final Executor executor = new Executor(engineContext, labelManager, true);
 
     // Copies exception handler addresses from the global context.

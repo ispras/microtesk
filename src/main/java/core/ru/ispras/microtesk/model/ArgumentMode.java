@@ -38,7 +38,7 @@ public enum ArgumentMode {
   private final boolean isIn;
   private final boolean isOut;
 
-  private ArgumentMode(
+  ArgumentMode(
       final String text,
       final boolean isIn,
       final boolean isOut) {

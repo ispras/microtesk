@@ -68,7 +68,6 @@ public final class StbOperation extends StbPrimitiveBase {
   private void buildHeader(final ST t) {
     t.add("name", op.getName());
     t.add("pack", String.format(PackageInfo.OP_PACKAGE_FORMAT, modelName));
-
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());
     t.add("imps", ru.ispras.microtesk.model.Execution.class.getName());
@@ -79,15 +78,16 @@ public final class StbOperation extends StbPrimitiveBase {
     t.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".PE", modelName));
     t.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TempVars", modelName));
     t.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
+    t.add("simps", "ru.ispras.microtesk.translator.nml.ir.primitive.Primitive.Modifier");
 
     t.add("base", IsaPrimitive.class.getSimpleName());
-
     if (op.getModifier() == Primitive.Modifier.PSEUDO) {
       importModeDependencies(t);
     }
   }
 
   private void buildArguments(final STGroup group, final ST t) {
+    t.add("modifier",op.getModifier());
     for (final Map.Entry<String, Primitive> e : op.getArguments().entrySet()) {
       final String argName = e.getKey();
       final Primitive argType = e.getValue();
@@ -140,7 +140,6 @@ public final class StbOperation extends StbPrimitiveBase {
           if (isModeInstanceUsed(stmt)) {
             importModeDependencies(t);
           }
-
           addStatement(attrST, stmt, false);
         }
       } else if (Attribute.Kind.EXPRESSION == attr.getKind()) {

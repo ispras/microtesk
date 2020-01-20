@@ -16,6 +16,7 @@ package ru.ispras.microtesk.test;
 
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.model.Aspectracer;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.ProcessingElement;
 import ru.ispras.microtesk.model.memory.LocationAccessor;
@@ -303,6 +304,8 @@ public final class Executor {
       final Code code,
       final long startAddress) throws ConfigurationException {
     final Fetcher fetcher = new Fetcher(code, startAddress);
+
+    Aspectracer.setEnabled(!isPresimulation);
 
     while (fetcher.canFetch() && !fetcher.isBreakReached()) {
       final ConcreteCall call = fetcher.fetch();
