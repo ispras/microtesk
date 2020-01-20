@@ -4,12 +4,13 @@
 
 ### 2020/mm/dd - MicroTESK 2.5.1 beta
 
- * Fixed the `TokenSourceStack` class and moved to the Castle project
+ * Fixed the `TokenSourceStack` class and moved it to the Castle project
    (see https://forge.ispras.ru/projects/castle)
  * Rearranged the documentation
    - Moved the documentation sources into a separate project
      (see https://forge.ispras.ru/projects/microtesk-docs)
    - Added the installation guide into the distribution package
+ * Fixed a number of long-living bugs
  * Used the QEMU4V 0.3.5 simulator for running tests
 
 ### 2019/12/26 - MicroTESK 2.5.0 beta
