@@ -678,9 +678,6 @@ internal op instruction (command: Operations)
   syntax = command.syntax
   image  = command.image
   action = {
-  ////////////////////////////////////////////////////////////////////////////////
-  // This is just a demonstration that a user can define an attribute and call it
-    foo;
     GPR[0] = 0;
 
     // This code is responsible for updating the value of the program counter.
@@ -710,10 +707,6 @@ internal op instruction (command: Operations)
     else
       is_delay_slot = 0;
       jump_address = 0;
-      if CIA == 0 then
-      else
-        jump_address = CIA;
-      endif;
     endif;
 
     BRANCH = 0;
@@ -727,27 +720,12 @@ internal op instruction (command: Operations)
 
     if is_delay_slot == 1 then
       CIA = jump_address;
-      if CIA == 0 then
-        tmp = 0;
-      else
-        tmp = 1;
-      endif;
     else
       CIA = CIA + 4;
-      if CIA == 4 then
-        tmp = 3;
-      else
-        tmp = 4;
-      endif;
     endif;
-    jump_address = coerce(int(32), tmp);
 
     CIA_COPY = CIA;
   }
-  
-  //////////////////////////////////////////////////////////////////////////////
-  // This is just a demonstration that a user can define an attribute
-  foo = {}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Pseudo Instructions
