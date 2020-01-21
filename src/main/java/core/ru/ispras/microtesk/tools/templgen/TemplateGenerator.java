@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,12 +14,6 @@
 
 package ru.ispras.microtesk.tools.templgen;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.SysUtils;
@@ -32,6 +26,12 @@ import ru.ispras.microtesk.tools.templgen.templates.BoundaryValuesTemplate;
 import ru.ispras.microtesk.tools.templgen.templates.GroupTemplate;
 import ru.ispras.microtesk.tools.templgen.templates.SequenceTemplate;
 import ru.ispras.microtesk.tools.templgen.templates.SimpleTemplate;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The {@code TemplateGenerator} class automatically creates a set of templates for a model of

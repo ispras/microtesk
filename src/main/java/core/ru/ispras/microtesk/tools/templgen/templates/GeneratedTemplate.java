@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.tools.templgen.templates;
 
-import java.util.Collections;
-import java.util.Set;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
+
+import java.util.Collections;
+import java.util.Set;
 
 public abstract class GeneratedTemplate implements BaseTemplate {
   protected final MetaModel templateMetaModel;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2018-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,14 +14,15 @@
 
 package ru.ispras.microtesk.tools.templgen.templates;
 
-import java.util.Collection;
-
 import ru.ispras.microtesk.model.metadata.MetaArgument;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
 
+import java.util.Collection;
+
 /**
- * The {@link AutoGenInstruction} abstract class for instructions used in the template auto generation.
+ * The {@link AutoGenInstruction} abstract class for instructions used
+ * in the template auto generation.
  *
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
@@ -43,12 +44,15 @@ public abstract class BaseInstruction implements AutoGenInstruction {
    * @param templatePrinter printer for the template.
    */
   private final TemplatePrinter templatePrinter;
+
   BaseInstruction(final MetaOperation operation, final TemplatePrinter templatePrinter) {
     //this.initLabelsSet();
     this.templatePrinter = templatePrinter;
     name = this.templatePrinter.formattingOperation(operation.getName());
 
-    branch = operation.isConditionalBranch();// || ((name.startsWith("b") || name.startsWith("j")) && (getArgumentsNumber(operation.getArguments()) > 0));
+    branch = operation.isConditionalBranch();
+    // || ((name.startsWith("b") || name.startsWith("j"))
+    // && (getArgumentsNumber(operation.getArguments()) > 0));
     jump = operation.isBranch() && !branch;
 
     load = (operation.isLoad()) ? Boolean.TRUE : Boolean.FALSE;
@@ -57,7 +61,6 @@ public abstract class BaseInstruction implements AutoGenInstruction {
         (!branch && !jump && getArgumentsNumber(operation.getArguments()) == 3 && !load && !store)
             ? Boolean.TRUE
             : Boolean.FALSE;
-
   }  //public final boolean branch;
 
   public boolean isBranchOperation() {

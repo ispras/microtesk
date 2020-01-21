@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -76,7 +76,8 @@ public final class GroupTemplate extends GeneratedTemplate {
     final Iterable<MetaOperation> operationsIterator = templateMetaModel.getOperations();
     for (MetaOperation operation : operationsIterator) {
       if (operation.hasRootShortcuts() && !ignoredInstructions.contains(operation.getName())) {
-        TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter, templateMetaModel);
+        TemplateOperation templateOperation =
+            new TemplateOperation(operation, templatePrinter, templateMetaModel);
         if (templateOperation.isBranchOperation()) {
           branchSet.add(templateOperation);
         }

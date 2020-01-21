@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,12 +14,12 @@
 
 package ru.ispras.microtesk.tools.templgen.templates;
 
-import java.util.Set;
-
 import ru.ispras.microtesk.model.metadata.MetaModel;
 import ru.ispras.microtesk.model.metadata.MetaOperation;
 import ru.ispras.microtesk.tools.templgen.printers.TemplatePrinter;
 import ru.ispras.microtesk.tools.templgen.templates.TemplateOperation;
+
+import java.util.Set;
 
 /**
  * The {@code SimpleTemplate} class generates simple template of meta model.
@@ -45,10 +45,11 @@ public final class SimpleTemplate extends GeneratedTemplate {
 
     for (MetaOperation operation : operationsIterator) {
       if (operation.hasRootShortcuts() && !ignoredInstructions.contains(operation.getName())) {
-        TemplateOperation templateOperation = new TemplateOperation(operation, templatePrinter, templateMetaModel);
+        TemplateOperation templateOperation =
+            new TemplateOperation(operation, templatePrinter, templateMetaModel);
         templatePrinter.addString("");
         templateOperation.printOperationBlock(templatePrinter);
-        // printMetaOperation(templatePrinter, operation);
+        TemplatesUtils.printMetaOperation(operation);
       }
     }
 

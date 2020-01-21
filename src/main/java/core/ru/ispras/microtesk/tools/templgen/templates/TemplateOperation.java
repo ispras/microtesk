@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2018-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -49,12 +49,14 @@ public class TemplateOperation {
   private final MetaModel metaModel;
   //private Set<String> jumpLabelsSet;
 
-  TemplateOperation(final MetaOperation operation, final TemplatePrinter templatePrinter, final MetaModel metaModel) {
+  TemplateOperation(final MetaOperation operation, final TemplatePrinter templatePrinter,
+      final MetaModel metaModel) {
     this.metaModel = metaModel;
     this.templatePrinter = templatePrinter;
     name = this.templatePrinter.formattingOperation(operation.getName());
 
-    branch = operation.isConditionalBranch() || ((name.startsWith("b") || name.startsWith("j")) && (getArgumentsNumber(operation.getArguments()) > 0));
+    branch = operation.isConditionalBranch() || ((name.startsWith("b") || name.startsWith("j"))
+        && (getArgumentsNumber(operation.getArguments()) > 0));
     jump = operation.isBranch() && !branch;
 
    //if (branch || jump) {
@@ -80,7 +82,8 @@ public class TemplateOperation {
       //System.out.println(regTitle);
 
       // TODO: only for Jalr riscv: || null != regTitle
-      if (null != regTitle && !metaModel.getAddressingMode(regTitle).isLabel()) {//!jumpLabelsSet.contains(regTitle)) {
+      if (null != regTitle && !metaModel.getAddressingMode(regTitle).isLabel()) {
+        //!jumpLabelsSet.contains(regTitle)) {
         // System.out.println(regTitle);
         // TODO:
         preCommand = prepareReg(regTitle);
