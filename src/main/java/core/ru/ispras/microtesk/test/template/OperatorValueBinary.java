@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2018-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,13 +14,15 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.math.BigInteger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.SharedObject;
+
+import java.math.BigInteger;
 
 final class OperatorValueBinary extends SharedObject<OperatorValueBinary> implements Value {
   public interface Operator {
     String getText();
+
     BigInteger apply(final BigInteger operand1, final BigInteger operand2);
   }
 

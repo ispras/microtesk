@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,13 +14,6 @@
 
 package ru.ispras.microtesk.test.template;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Section;
 import ru.ispras.microtesk.test.GenerationAbortedException;
@@ -28,6 +21,13 @@ import ru.ispras.microtesk.test.sequence.GeneratorBuilder;
 import ru.ispras.microtesk.test.sequence.GeneratorUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 import ru.ispras.testbase.knowledge.iterator.SingleValueIterator;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class BlockBuilder {
   private final Block.Kind kind;

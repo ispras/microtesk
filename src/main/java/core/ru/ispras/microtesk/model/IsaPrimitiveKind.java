@@ -20,12 +20,18 @@ package ru.ispras.microtesk.model;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public enum IsaPrimitiveKind {
-  /** Immediate value */
+  /**
+   * Immediate value
+   */
   IMM,
 
-  /** Addressing mode */
+  /**
+   * Addressing mode
+   */
   MODE,
 
-  /** Operation */
+  /**
+   * Operation
+   */
   OP;
 }

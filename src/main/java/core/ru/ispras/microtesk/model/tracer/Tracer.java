@@ -43,8 +43,9 @@ public final class Tracer {
 
   public static void initialize(final String filePath, final String filePrefix) {
     // TODO: InvariantChecks.checkTrue(null == instance);
-    if (null != instance)
+    if (null != instance) {
       Logger.message("Tracer is already initialized.", "");
+    }
 
     instance = new Tracer(filePath, null != filePrefix ? filePrefix : FILE_PREFIX);
   }

@@ -15,10 +15,10 @@
 package ru.ispras.microtesk.options;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.utils.Property;
 
 import java.util.HashMap;
 import java.util.Map;
-import ru.ispras.microtesk.utils.Property;
 
 /**
  * The {@link Option} enumeration describes options.
@@ -66,7 +66,8 @@ public enum Option implements Property {
   RATE_LIMIT("Minimum generation rate", 0, GENERATE),
 
 
-  FETCH_DECODE_ENABLED("Enables allocation, fetching and decoding of instructions", false, GENERATE),
+  FETCH_DECODE_ENABLED("Enables allocation, fetching and decoding of instructions", false,
+      GENERATE),
   ASSERTS_ENABLED("Enables assertion checks during simulation", false, GENERATE),
   TRACER_LOG("Enables generation of Tracer logs for simulation", false, GENERATE),
   COVERAGE_LOG("Enables coverage trace generation", false, GENERATE),

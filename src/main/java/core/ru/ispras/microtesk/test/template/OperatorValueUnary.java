@@ -22,6 +22,7 @@ import java.math.BigInteger;
 final class OperatorValueUnary extends SharedObject<OperatorValueUnary> implements Value {
   public interface Operator {
     String getText();
+
     BigInteger apply(final BigInteger operand);
   }
 

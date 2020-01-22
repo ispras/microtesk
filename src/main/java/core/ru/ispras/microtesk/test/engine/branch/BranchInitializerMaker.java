@@ -67,8 +67,8 @@ public final class BranchInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(branchTrace);
 
     if (branchTrace.isEmpty() || !branchEntry.isRegisterFirstUse()) {
-      Logger.debug("Make pre-initializer: branchTrace=%s, registerFirstUse=%b",
-        branchTrace, branchEntry.isRegisterFirstUse());
+      Logger.debug("Make pre-initializer: branchTrace=%s, registerFirstUse=%b", branchTrace,
+          branchEntry.isRegisterFirstUse());
 
       return Collections.<AbstractCall>emptyList();
     }
@@ -147,78 +147,77 @@ public final class BranchInitializerMaker implements InitializerMaker {
     InvariantChecks.checkNotNull(situation);
 
     final boolean isDebug = Logger.isDebug();
-    Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG_PRINT) &&
-                    engineContext.getOptions().getValueAsBoolean(Option.VERBOSE));
+    Logger.setDebug(engineContext.getOptions().getValueAsBoolean(Option.DEBUG_PRINT)
+        && engineContext.getOptions().getValueAsBoolean(Option.VERBOSE));
     try {
 
-    final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
-    InvariantChecks.checkNotNull(branchEntry);
+      final BranchEntry branchEntry = BranchEngine.getBranchEntry(abstractCall);
+      InvariantChecks.checkNotNull(branchEntry);
 
-    Logger.debug("Make initializer (stage=%s, count=%d): %s, %s",
-        stage, processingCount, abstractCall, branchEntry);
+      Logger.debug("Make initializer (stage=%s, count=%d): %s, %s", stage, processingCount,
+          abstractCall, branchEntry);
 
-    InvariantChecks.checkTrue(stage == Stage.PRE || stage == Stage.POST || 0 <= processingCount);
+      InvariantChecks.checkTrue(stage == Stage.PRE || stage == Stage.POST || 0 <= processingCount);
 
-    // There is no need to construct the control code if the branch condition does not change.
-    // However, if multiple branches shares the same register, it makes sense.
-    final boolean isStreamBased = true;
+      // There is no need to construct the control code if the branch condition does not change.
+      // However, if multiple branches shares the same register, it makes sense.
+      final boolean isStreamBased = true;
 
-    if (stage == Stage.PRE) {
-      return makePreInitializer(
-          engineContext, abstractCall, primitive, situation, isStreamBased);
-    }
-
-    if (stage == Stage.POST) {
-      return makePostInitializer(
-          engineContext, abstractCall, primitive, situation, isStreamBased);
-    }
-
-    final BranchTrace branchTrace = branchEntry.getBranchTrace();
-    InvariantChecks.checkTrue(branchTrace != null && !branchTrace.isEmpty());
-
-    if (isStreamBased) {
-      final List<AbstractCall> initializer = new ArrayList<>();
-
-      // The initializer maker is called every time the control code is simulated.
-      // The control code can be executed more times than the corresponding branch, e.g.
-      //
-      //   START: control code
-      //          if (something) goto STOP
-      //          target branch
-      //          goto START
-      //   STOP:
-      //
-      // If processingCount > branchTrace.size(), we can write everything into the stream.
-
-      final BranchExecution execution =
-          processingCount < branchTrace.size() ? branchTrace.get(processingCount) : null;
-
-      // Calculate how many times the control code is executed before calling the branch.
-      final int executionCount = getControlCodeExecutionCount(branchEntry, processingCount);
-
-      final boolean branchCondition =
-          processingCount < branchTrace.size() ? execution.value() : Randomizer.get().nextBoolean();
-
-      Logger.debug("Branch execution: processingCount=%d, condition=%b, executionCount=%d",
-          processingCount, branchCondition, executionCount);
-
-      for (int i = 0; i < executionCount; i++) {
-        initializer.addAll(
-            makeInitializer(
-                engineContext,
-                processingCount,
-                abstractCall,
-                primitive,
-                situation,
-                branchCondition,
-                true /* Write into the stream */)
-        );
+      if (stage == Stage.PRE) {
+        return makePreInitializer(engineContext, abstractCall, primitive, situation, isStreamBased);
       }
 
-      return initializer;
-    } // Stream based.
+      if (stage == Stage.POST) {
+        return makePostInitializer(engineContext, abstractCall, primitive, situation,
+            isStreamBased);
+      }
 
-    return Collections.<AbstractCall>emptyList();
+      final BranchTrace branchTrace = branchEntry.getBranchTrace();
+      InvariantChecks.checkTrue(branchTrace != null && !branchTrace.isEmpty());
+
+      if (isStreamBased) {
+        final List<AbstractCall> initializer = new ArrayList<>();
+
+        // The initializer maker is called every time the control code is simulated.
+        // The control code can be executed more times than the corresponding branch, e.g.
+        //
+        //   START: control code
+        //          if (something) goto STOP
+        //          target branch
+        //          goto START
+        //   STOP:
+        //
+        // If processingCount > branchTrace.size(), we can write everything into the stream.
+
+        final BranchExecution execution =
+            processingCount < branchTrace.size() ? branchTrace.get(processingCount) : null;
+
+        // Calculate how many times the control code is executed before calling the branch.
+        final int executionCount = getControlCodeExecutionCount(branchEntry, processingCount);
+
+        final boolean branchCondition = processingCount < branchTrace.size() ? execution.value()
+            : Randomizer.get().nextBoolean();
+
+        Logger.debug("Branch execution: processingCount=%d, condition=%b, executionCount=%d",
+            processingCount, branchCondition, executionCount);
+
+        for (int i = 0; i < executionCount; i++) {
+          initializer.addAll(
+              makeInitializer(
+                  engineContext,
+                  processingCount,
+                  abstractCall,
+                  primitive,
+                  situation,
+                  branchCondition,
+                  true /* Write into the stream */)
+          );
+        }
+
+        return initializer;
+      } // Stream based.
+
+      return Collections.<AbstractCall>emptyList();
     } finally {
       Logger.setDebug(isDebug);
     }

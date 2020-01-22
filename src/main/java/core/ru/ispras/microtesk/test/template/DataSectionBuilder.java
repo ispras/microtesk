@@ -16,9 +16,9 @@ package ru.ispras.microtesk.test.template;
 
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.memory.Section;
+import ru.ispras.microtesk.test.template.directive.Directive;
 import ru.ispras.microtesk.test.template.directive.DirectiveFactory;
 import ru.ispras.microtesk.test.template.directive.DirectiveTypeInfo;
-import ru.ispras.microtesk.test.template.directive.Directive;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

@@ -21,40 +21,47 @@ package ru.ispras.microtesk.model.tracer;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public enum RecordKind {
+
   /**
-   * Instruction trace:<p>
-   * {@code <time> <scale> <cpu> [IT|IS] (<inst_id>) <addr> <opcode> [A|T|X] <mode>_<security> :
+   * Instruction trace.
+   *
+   * <p>{@code <time> <scale> <cpu> [IT|IS] (<inst_id>) <addr> <opcode> [A|T|X] <mode>_<security> :
    * <disasm>}
    */
   INSTRUCT,
 
   /**
-   * Program flow trace:<p>
-   * {@code <time> <scale> [FD|FI|FR] (<inst_id>) <addr> <targ_addr> [A|T|X]}
+   * Program flow trace.
+   *
+   * <p>{@code <time> <scale> [FD|FI|FR] (<inst_id>) <addr> <targ_addr> [A|T|X]}
    */
   FLOW,
 
   /**
-   * Register trace:<p>
-   * {@code <time> <scale> R <register> <value>}
+   * Register trace.
+   *
+   * <p>{@code <time> <scale> R <register> <value>}
    */
   REGISTER,
 
   /**
-   * Event trace:<p>
-   * {@code <time> <scale> E <value> <number> <desc>}
+   * Event trace.
+   *
+   * <p>{@code <time> <scale> E <value> <number> <desc>}
    */
   EVENT,
 
   /**
-   * Processor memory access trace:<p>
-   * {@code <time> <scale> M<rw><sz><attrib> <addr> <data>}
+   * Processor memory access trace.
+   *
+   * <p>{@code <time> <scale> M<rw><sz><attrib> <addr> <data>}
    */
   MEMORY,
 
   /**
-  * Memory bus trace:<p>
-  * {@code <time> <scale> B<rw><sz><fd><lk><p><s> l<wrcbs> O<wrcbs> <master_id> <addr> <data>}
+  * Memory bus trace.
+  *
+  * <p>{@code <time> <scale> B<rw><sz><fd><lk><p><s> l<wrcbs> O<wrcbs> <master_id> <addr> <data>}
   */
   BUS
 }
