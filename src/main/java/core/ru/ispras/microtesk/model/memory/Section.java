@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,10 +15,12 @@
 package ru.ispras.microtesk.model.memory;
 
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.test.template.Where;
 
 import java.math.BigInteger;
 
 public final class Section {
+  private final Where where;
   private final String name;
   private final String prefix;
   private final boolean standard;
@@ -34,15 +36,17 @@ public final class Section {
   private BigInteger savedPa;
 
   public Section(
+      final Where where,
       final String name,
       final String prefix,
       final boolean standard,
       final BigInteger basePa,
       final BigInteger baseVa) {
-    this(name, prefix, standard, basePa, baseVa, "", false);
+    this(where, name, prefix, standard, basePa, baseVa, "", false);
   }
 
   public Section(
+      final Where where,
       final String name,
       final String prefix,
       final boolean standard,
@@ -50,12 +54,14 @@ public final class Section {
       final BigInteger baseVa,
       final String args,
       final boolean file) {
+    InvariantChecks.checkNotNull(where);
     InvariantChecks.checkNotNull(name);
-    InvariantChecks.checkNotNull(name);
+    InvariantChecks.checkNotNull(prefix);
     InvariantChecks.checkTrue(basePa != null && basePa.compareTo(BigInteger.ZERO) >= 0);
     InvariantChecks.checkTrue(baseVa != null && baseVa.compareTo(BigInteger.ZERO) >= 0);
     InvariantChecks.checkNotNull(args);
 
+    this.where = where;
     this.name = name;
     this.prefix = prefix;
     this.standard = standard;
@@ -69,6 +75,10 @@ public final class Section {
 
     this.pa = basePa;
     this.savedPa = null;
+  }
+
+  public Where getWhere() {
+    return where;
   }
 
   public String getName() {

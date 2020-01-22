@@ -1,6 +1,6 @@
 ####################################################################################################
 #
-# Copyright 2013-2019 ISP RAS (http://www.ispras.ru)
+# Copyright 2013-2020 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 # in compliance with the License. You may obtain a copy of the License at
@@ -873,7 +873,7 @@ class Template
     args = attrs.has_key?(:args) ? attrs[:args] : ''
     file = attrs.has_key?(:file) ? attrs[:file] : false
 
-    @template.beginSection name, prefix, pa, va, args, file
+    @template.beginSection get_caller_location, name, prefix, pa, va, args, file
     self.instance_eval &contents
     @template.endSection
   end
@@ -885,7 +885,7 @@ class Template
     va   = attrs[:va]
     args = attrs.has_key?(:args) ? attrs[:args] : ''
 
-    @template.beginSectionText prefix, pa, va, args
+    @template.beginSectionText get_caller_location, prefix, pa, va, args
     self.instance_eval &contents
     @template.endSection
   end
@@ -897,7 +897,7 @@ class Template
     va   = attrs[:va]
     args = attrs.has_key?(:args) ? attrs[:args] : ''
 
-    @template.beginSectionData prefix, pa, va, args
+    @template.beginSectionData get_caller_location, prefix, pa, va, args
     self.instance_eval &contents
     @template.endSection
   end

@@ -1227,6 +1227,7 @@ public final class Template {
   }
 
   public void beginSection(
+      final Where where,
       final String name,
       final String prefix,
       final BigInteger pa,
@@ -1234,21 +1235,23 @@ public final class Template {
       final String args,
       final boolean file) {
     processExternalCode();
+    InvariantChecks.checkNotNull(where);
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(prefix);
 
     Section section = Sections.get().getSection(name, false);
     if (null == section) {
-      section = new Section(name, prefix, false, pa, va, args, file);
+      section = new Section(where, name, prefix, false, pa, va, args, file);
       Sections.get().addSection(section);
     } else {
-      checkSectionRedefined(section, pa, va, args);
+      checkSectionRedefined(section, where, pa, va, args);
     }
 
     sections.push(section);
   }
 
   public void beginSectionText(
+      final Where where,
       final String prefix,
       final BigInteger pa,
       final BigInteger va,
@@ -1258,16 +1261,17 @@ public final class Template {
 
     if (null == section) {
       final String name = context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD);
-      section = new Section(name, prefix, true, pa, va, args, false);
+      section = new Section(where, name, prefix, true, pa, va, args, false);
       Sections.get().setTextSection(section);
     } else {
-      checkSectionRedefined(section, pa, va, args);
+      checkSectionRedefined(section, where, pa, va, args);
     }
 
     sections.push(section);
   }
 
   public void beginSectionData(
+      final Where where,
       final String prefix,
       final BigInteger pa,
       final BigInteger va,
@@ -1277,10 +1281,10 @@ public final class Template {
 
     if (null == section) {
       final String name = context.getOptions().getValueAsString(Option.DATA_SECTION_KEYWORD);
-      section = new Section(name, prefix, true, pa, va, args, false);
+      section = new Section(where, name, prefix, true, pa, va, args, false);
       Sections.get().setDataSection(section);
     } else {
-      checkSectionRedefined(section, pa, va, args);
+      checkSectionRedefined(section, where, pa, va, args);
     }
 
     sections.push(section);
@@ -1293,13 +1297,16 @@ public final class Template {
 
   private static void checkSectionRedefined(
       final Section section,
+      final Where where,
       final BigInteger pa,
       final BigInteger va,
       final String args) {
     if (null != pa && !section.getBasePa().equals(pa)
         || null != va && !section.getBaseVa().equals(va)
         || null != args && !section.getArgs().equals(args)) {
-      Logger.warning("Changing section attributes is not allowed: %s.", section);
+      Logger.warning(
+          "Changing section attributes is prohibited (%s): %s has been already defined in %s",
+          where, section, section.getWhere());
     }
   }
 
