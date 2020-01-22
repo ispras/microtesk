@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,8 +18,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.Pair;
 
 /**
- * The role of {@code BufferObserver} interface is to provide information
- * on buffer state to engines that interact with MMU model.
+ * {@link BufferObserver} provides information on buffer state without changing the state.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -39,5 +38,5 @@ public interface BufferObserver {
    * @param way Line index.
    * @return Pair(Address, Data) or {@code null} if it is not found.
    */
-  Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way);
+  Pair<BitVector, BitVector> seeData(BitVector index, BitVector way);
 }

@@ -154,6 +154,8 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     buildNewLine(st);
     final ST stConstructor = group.getInstanceOf("buffer_constructor");
 
+    stConstructor.add("entry_type", String.format("%s.Entry", parentBuffer.getId()));
+    stConstructor.add("addr_type", buffer.getAddress().getId());
     stConstructor.add("name", buffer.getId());
     stConstructor.add("ways", buffer.getWays());
     stConstructor.add("sets", buffer.getSets());
@@ -165,28 +167,10 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     st.add("members", stConstructor);
   }
 
-  private void buildNewAddress(final ST st, final STGroup group) {
-    buildNewLine(st);
-    final ST stMethod = group.getInstanceOf("new_address");
-    stMethod.add("type", buffer.getAddress().getId());
-    st.add("members", stMethod);
-  }
-
   private void buildGetDataSize(ST st, STGroup group) {
     buildNewLine(st);
     final ST stMethod = group.getInstanceOf("get_data_size");
     stMethod.add("size", buffer.getDataArg().getBitSize());
-    st.add("members", stMethod);
-  }
-
-  private void buildNewData(ST st, STGroup group) {
-    buildNewLine(st);
-    final ST stMethod = group.getInstanceOf("new_data");
-
-    final String entryType = buffer == parentBuffer
-        ? "Entry" : String.format("%s.Entry", parentBuffer.getId());
-
-    stMethod.add("type", entryType);
     st.add("members", stMethod);
   }
 
@@ -235,8 +219,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       buildHeader(st);
       buildEntry(st, group);
       buildMemoryConstructor(st, group);
-      buildNewAddress(st, group);
-      buildNewData(st, group);
       buildGetDataSize(st, group);
     }
 
@@ -261,6 +243,8 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       final int entryByteSize = buffer.getEntry().getBitSize() / 8;
 
       final BigInteger byteSize = entries.multiply(BigInteger.valueOf(entryByteSize));
+      stConstructor.add("entry_type", String.format("%s.Entry", parentBuffer.getId()));
+      stConstructor.add("addr_type", buffer.getAddress().getId());
       stConstructor.add("size", byteSize.toString(16));
 
       st.add("members", stConstructor);
@@ -275,8 +259,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       buildIndexer(st, group);
       buildMatcher(st, group);
       buildConstructor(st, group);
-      buildNewAddress(st, group);
-      buildNewData(st, group);
     }
 
     private void buildHeader(final ST st) {
@@ -299,8 +281,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       buildMatcher(st, group);
       buildConstructor(st, group);
       buildGetMmu(st, group);
-      buildNewAddress(st, group);
-      buildNewData(st, group);
       buildGetDataSize(st, group);
     }
 
@@ -336,8 +316,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       buildIndexer(st, group);
       buildMatcher(st, group);
       buildConstructor(st, group);
-      buildNewAddress(st, group);
-      buildNewData(st, group);
       buildGetDataSize(st, group);
     }
 

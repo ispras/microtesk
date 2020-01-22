@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,17 +21,17 @@ import ru.ispras.fortress.util.Pair;
 import java.math.BigInteger;
 
 /**
- * The {@link MmuMapping} class describes a buffer mapped to memory.
- * An access to such a buffer causes a access to memory by virtual
- * address using MMU (address translation, caches, physical memory).
+ * {@link MmuMapping} describes a buffer mapped to memory.
+ *
+ * <p>An access to such a buffer causes a access to memory by virtual address using MMU
+ * (address translation, caches, physical memory).</p>
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  *
  * @param <D> Data type.
  * @param <A> Address type.
  */
-public abstract class MmuMapping<D extends Data, A extends Address & Data>
-    implements Buffer<D, A>, BufferObserver {
+public abstract class MmuMapping<D extends Struct, A extends Address> extends Buffer<D, A> {
 
   private final BigInteger length;
   private final int associativity;
@@ -43,6 +43,8 @@ public abstract class MmuMapping<D extends Data, A extends Address & Data>
   /**
    * Constructs a memory-mapped buffer of the given length and associativity.
    *
+   * @param dataCreator the data creator.
+   * @param addressCreator the address creator.
    * @param length the number of sets in the buffer.
    * @param associativity the number of lines in each set.
    * @param policyId the data replacement policy.
@@ -50,11 +52,15 @@ public abstract class MmuMapping<D extends Data, A extends Address & Data>
    * @param matcher the line matcher.
    */
   public MmuMapping(
+      final Struct<D> dataCreator,
+      final Address<A> addressCreator,
       final BigInteger length,
       final int associativity,
       final PolicyId policyId,
       final Indexer<A> indexer,
       final Matcher<D, A> matcher) {
+    super(dataCreator, addressCreator);
+
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
     InvariantChecks.checkGreaterThanZero(associativity);
@@ -76,17 +82,10 @@ public abstract class MmuMapping<D extends Data, A extends Address & Data>
   }
 
   @Override
-  public boolean isHit(final BitVector value) {
-    final A address = newAddress();
-    address.getValue().assign(value);
-    return isHit(address);
-  }
-
-  @Override
   public D getData(final A address) {
     final BitVector value = getMmu().getData(address);
     InvariantChecks.checkTrue(value.getBitSize() == getDataBitSize());
-    return newData(value);
+    return dataCreator.newStruct(value);
   }
 
   @Override
@@ -99,15 +98,20 @@ public abstract class MmuMapping<D extends Data, A extends Address & Data>
 
   @Override
   public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
-    // NOT SUPPORTED
     throw new UnsupportedOperationException();
   }
 
   protected abstract Mmu<A> getMmu();
 
-  protected abstract A newAddress();
-
-  protected abstract D newData(final BitVector value);
-
   protected abstract int getDataBitSize();
+
+  @Override
+  public void setUseTempState(final boolean value) {
+    // Do nothing.
+  }
+
+  @Override
+  public void resetState() {
+    // Do nothing.
+  }
 }

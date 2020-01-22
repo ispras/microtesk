@@ -10,7 +10,8 @@
    - Moved the documentation sources into a separate project
      (see https://forge.ispras.ru/projects/microtesk-docs)
    - Added the installation guide into the distribution package
- * Fixed a number of long-living bugs
+ * Modified the mmuSL code generation scheme
+ * Fixed a number of long-lived bugs
  * Used the QEMU4V 0.3.5 simulator for running tests
 
 ### 2019/12/26 - MicroTESK 2.5.0 beta

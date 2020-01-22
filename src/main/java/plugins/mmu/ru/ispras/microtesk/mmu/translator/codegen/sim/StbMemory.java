@@ -51,11 +51,10 @@ final class StbMemory extends StbCommon implements StringTemplateBuilder {
 
     final ST st = group.getInstanceOf("source_file");
     st.add("instance", "instance");
-    st.add("members", String.format("private %s() {}", memory.getId()));
 
     buildHeader(st);
+    buildConstructor(st, group);
     buildGetSize(st, group);
-    buildNewAddress(st, group);
     buildGetData(st, group, addressName, dataName);
     buildSetData(st, group, addressName, dataName);
 
@@ -71,6 +70,15 @@ final class StbMemory extends StbCommon implements StringTemplateBuilder {
     buildHeader(st, baseName);
   }
 
+  private void buildConstructor(final ST st, final STGroup group) {
+    final ST stConstructor = group.getInstanceOf("mmu_constructor");
+
+    stConstructor.add("name", memory.getId());
+    stConstructor.add("addr_type", memory.getAddress().getId());
+
+    st.add("members", stConstructor);
+  }
+
   private void buildGetSize(final ST st, final STGroup group) {
     final ST stMethod = group.getInstanceOf("get_size");
 
@@ -78,13 +86,6 @@ final class StbMemory extends StbCommon implements StringTemplateBuilder {
     stMethod.add("data_size", memory.getDataArg().getBitSize());
 
     st.add("members", "");
-    st.add("members", stMethod);
-  }
-
-  private void buildNewAddress(final ST st, final STGroup group) {
-    buildNewLine(st);
-    final ST stMethod = group.getInstanceOf("new_address");
-    stMethod.add("type", memory.getAddress().getId());
     st.add("members", stMethod);
   }
 

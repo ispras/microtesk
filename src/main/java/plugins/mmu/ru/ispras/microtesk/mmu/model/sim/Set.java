@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,14 +22,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class implements a cache set, which is a fully associative buffer consisting of cache lines.
+ * {@link Set} implements a cache set, which is a fully associative buffer consisting of cache lines.
  *
  * @param <D> the data type.
  * @param <A> the address type.
  *
- * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
+public class Set<D extends Struct, A extends Address> extends Buffer<D, A> {
+  /** The line matcher. */
+  private final Matcher<D, A> matcher;
+
   /** The array of cache lines. */
   private final List<Buffer<D, A>> lines = new ArrayList<>();
 
@@ -39,29 +42,37 @@ public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
   /**
    * Constructs a cache set of the given associativity.
    *
+   * @param dataCreator the data creator.
+   * @param addressCreator the address creator.
    * @param associativity the number of lines in the set.
    * @param policyId the identifier of the data replacement policy.
    * @param matcher the data-address matcher.
    */
   public Set(
+      final Struct<D> dataCreator,
+      final Address<A> addressCreator,
       final int associativity,
       final PolicyId policyId,
       final Matcher<D, A> matcher) {
+    super(dataCreator, addressCreator);
+
     InvariantChecks.checkGreaterThanZero(associativity);
     InvariantChecks.checkNotNull(policyId);
     InvariantChecks.checkNotNull(matcher);
 
+    this.matcher = matcher;
+
     // Fill the set with the default (invalid) lines.
     for (int i = 0; i < associativity; i++) {
-      final Buffer<D, A> line = newLine(matcher);
+      final Buffer<D, A> line = newLine();
       lines.add(line);
     }
 
     this.policy = policyId.newPolicy(associativity);
   }
 
-  protected Buffer<D, A> newLine(final Matcher<D, A> matcher) {
-    return new Line<D, A>(matcher);
+  protected Buffer<D, A> newLine() {
+    return new Line<D, A>(dataCreator, addressCreator, matcher);
   }
 
   @Override
@@ -111,14 +122,11 @@ public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
       final Buffer<D, A> line = lines.get(i);
 
       if (line.isHit(address)) {
-        if (index != -1) {
-          throw new IllegalStateException(
-              String.format("Multiple hits in a cache set. Address=%s:0x%s, Lines=%s",
-              address.getClass().getSimpleName(),
-              address.getValue().toHexString(),
-              lines.toString()
-              ));
-        }
+        InvariantChecks.checkTrue(index == -1,
+            String.format("Multiple hits in a cache set. Address=%s:0x%s, Lines=%s",
+                address.getClass().getSimpleName(),
+                address.getValue().toHexString(),
+                lines.toString()));
 
         index = i;
       }
@@ -129,6 +137,20 @@ public class Set<D extends Data, A extends Address> implements Buffer<D, A> {
     }
 
     return index == -1 ? null : lines.get(index);
+  }
+
+  @Override
+  public void setUseTempState(final boolean value) {
+    // Do nothing.
+  }
+
+  @Override
+  public void resetState() {
+    for (final Buffer<D, A> line : lines) {
+      line.resetState();
+    }
+
+    policy.resetState();
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,8 +21,7 @@ import ru.ispras.microtesk.model.memory.MemoryDevice;
 
 import java.math.BigInteger;
 
-public abstract class Memory<D extends Data, A extends Address>
-    implements Buffer<D, A>, BufferObserver {
+public abstract class Memory<D extends Struct, A extends Address> extends Buffer<D, A> {
   private final BigInteger byteSize;
   private MemoryDevice storage;
 
@@ -41,14 +40,18 @@ public abstract class Memory<D extends Data, A extends Address>
     }
 
     public D assign(final BitVector value) {
-      final D data = newData(value);
+      final D data = dataCreator.newStruct(value);
       return setData(address, data);
     }
   }
 
-  public Memory(final BigInteger byteSize) {
-    InvariantChecks.checkNotNull(byteSize);
+  public Memory(
+      final Struct<D> dataCreator,
+      final Address<A> addressCreator,
+      final BigInteger byteSize) {
+    super(dataCreator, addressCreator);
 
+    InvariantChecks.checkNotNull(byteSize);
     this.byteSize = byteSize;
     this.storage = null;
   }
@@ -62,13 +65,6 @@ public abstract class Memory<D extends Data, A extends Address>
   public boolean isHit(final A address) {
     final BigInteger addressValue = address.getValue().bigIntegerValue(false);
     return addressValue.compareTo(byteSize) < 0;
-  }
-
-  @Override
-  public boolean isHit(final BitVector value) {
-    final A address = newAddress();
-    address.getValue().assign(value);
-    return isHit(address);
   }
 
   @Override
@@ -94,12 +90,11 @@ public abstract class Memory<D extends Data, A extends Address>
       bitsRead += storage.getDataBitSize();
     }
 
-    return newData(dataValue);
+    return dataCreator.newStruct(dataValue);
   }
 
   @Override
   public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
-    // NOT SUPPORTED
     throw new UnsupportedOperationException();
   }
 
@@ -110,7 +105,7 @@ public abstract class Memory<D extends Data, A extends Address>
     final BitVector dataValue = data.asBitVector();
     final int dataBitSize = dataValue.getBitSize();
 
-    BigInteger index = addressToIndex(address.getValue(), dataBitSize);
+    BigInteger index = addressToIndex(address.asBitVector(), dataBitSize);
 
     int bitsWritten = 0;
     while (bitsWritten < dataBitSize) {
@@ -133,10 +128,6 @@ public abstract class Memory<D extends Data, A extends Address>
     return new Proxy(address);
   }
 
-  protected abstract A newAddress();
-
-  protected abstract D newData(final BitVector value);
-
   protected abstract int getDataBitSize();
 
   private BigInteger addressToIndex(final BitVector address, int blockBitSize) {
@@ -153,5 +144,15 @@ public abstract class Memory<D extends Data, A extends Address>
         BigInteger.valueOf(storage.getDataBitSize() / 8);
 
     return blockAddress.divide(bytesInRegion);
+  }
+
+  @Override
+  public void setUseTempState(final boolean value) {
+    // Do nothing.
+  }
+
+  @Override
+  public void resetState() {
+    // Do nothing.
   }
 }

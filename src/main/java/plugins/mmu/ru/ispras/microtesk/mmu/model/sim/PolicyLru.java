@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * The LRU (Least Recently Used) data replacement policy.
+ * {@link PolicyLru} implements the LRU (Least Recently Used) data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -23,7 +23,7 @@ final class PolicyLru extends Policy {
   /** Maps index to time. */
   private int[] times;
   /** Current time. */
-  private int time = 0;
+  private int time;
 
   /**
    * Constructs an LRU data replacement controller.
@@ -32,11 +32,7 @@ final class PolicyLru extends Policy {
    */
   PolicyLru(final int associativity) {
     super(associativity);
-
-    times = new int[associativity];
-    for (int i = 0; i < associativity; i++) {
-      times[i] = time++;
-    }
+    resetState();
   }
 
   @Override
@@ -57,5 +53,14 @@ final class PolicyLru extends Policy {
     }
 
     return victim;
+  }
+
+  @Override
+  public void resetState() {
+    time = 0;
+    times = new int[associativity];
+    for (int i = 0; i < associativity; i++) {
+      times[i] = time++;
+    }
   }
 }

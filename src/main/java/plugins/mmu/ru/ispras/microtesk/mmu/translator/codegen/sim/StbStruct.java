@@ -34,11 +34,11 @@ final class StbStruct implements StringTemplateBuilder {
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
+  public static final Class<?> STRUCT_CLASS =
+      ru.ispras.microtesk.mmu.model.sim.Struct.class;
+
   public static final Class<?> ADDRESS_CLASS =
       ru.ispras.microtesk.mmu.model.sim.Address.class;
-
-  public static final Class<?> DATA_CLASS =
-      ru.ispras.microtesk.mmu.model.sim.Data.class;
 
   private final String packageName;
   private final boolean isAddress;
@@ -81,6 +81,7 @@ final class StbStruct implements StringTemplateBuilder {
     buildHeader(st);
     buildFields(st, group, type.getId(), type);
     buildGetValue(st, group);
+    buildSetValue(st, group, type.getId());
 
     return st;
   }
@@ -88,15 +89,16 @@ final class StbStruct implements StringTemplateBuilder {
   private void buildHeader(final ST st) {
     st.add("name", type.getId());
     st.add("pack", packageName);
-    st.add("impls", DATA_CLASS.getSimpleName());
-
-    st.add("imps", BIT_VECTOR_CLASS.getName());
-    st.add("imps", DATA_CLASS.getName());
 
     if (isAddress) {
-      st.add("impls", ADDRESS_CLASS.getSimpleName());
+      st.add("impls", String.format("%s<%s>", ADDRESS_CLASS.getSimpleName(), type.getId()));
       st.add("imps", ADDRESS_CLASS.getName());
+    } else {
+      st.add("impls", String.format("%s<%s>", STRUCT_CLASS.getSimpleName(), type.getId()));
+      st.add("imps", STRUCT_CLASS.getName());
     }
+
+    st.add("imps", BIT_VECTOR_CLASS.getName());
   }
 
   public static void buildFields(
@@ -155,6 +157,20 @@ final class StbStruct implements StringTemplateBuilder {
     }
 
     final ST stAddress = group.getInstanceOf("struct_get_value");
+    stAddress.add("field_name", valueFieldName);
+
+    st.add("members", "");
+    st.add("members", stAddress);
+  }
+
+  private void buildSetValue(final ST st, final STGroup group, final String typeName) {
+    if (!isAddress) {
+      return;
+    }
+
+    final ST stAddress = group.getInstanceOf("struct_set_value");
+    stAddress.add("type", typeName);
+    stAddress.add("temp_name", "address");
     stAddress.add("field_name", valueFieldName);
 
     st.add("members", "");

@@ -70,10 +70,12 @@ final class StbSegment extends StbCommon implements StringTemplateBuilder {
 
     final int bitSize = segment.getAddress().getAddressType().getBitSize();
 
-    stConstructor.add(
-        "start", ExprPrinter.bitVectorToString(BitVector.valueOf(segment.getMin(), bitSize)));
-    stConstructor.add(
-        "end", ExprPrinter.bitVectorToString(BitVector.valueOf(segment.getMax(), bitSize)));
+    stConstructor.add("pa_type", segment.getDataArgAddress().getId());
+    stConstructor.add("va_type", segment.getAddress().getId());
+    stConstructor.add("start",
+        ExprPrinter.bitVectorToString(BitVector.valueOf(segment.getMin(), bitSize)));
+    stConstructor.add("end",
+        ExprPrinter.bitVectorToString(BitVector.valueOf(segment.getMax(), bitSize)));
 
     st.add("members", stConstructor);
   }

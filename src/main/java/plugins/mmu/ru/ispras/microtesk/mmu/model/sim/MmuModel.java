@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The {@link MmuModel} class is a base class for all MMU models.
+ * {@link MmuModel} is a base class for all MMU models.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
@@ -32,13 +32,13 @@ public class MmuModel implements ModelStateManager {
   private final Map<String, BufferObserver> buffers;
   private final List<ModelStateManager> stateManagers;
   private final MemoryDevice device;
-  private final Memory<? extends Data, ? extends Address> target;
+  private final Memory<? extends Struct, ? extends Address> target;
   private final String targetId;
 
   public MmuModel(
       final MemoryDevice device,
       final String targetId,
-      final Memory<? extends Data, ? extends Address> target) {
+      final Memory<? extends Struct, ? extends Address> target) {
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(targetId);
     InvariantChecks.checkNotNull(target);

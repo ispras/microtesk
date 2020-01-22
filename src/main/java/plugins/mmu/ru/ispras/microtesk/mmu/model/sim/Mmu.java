@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,8 +19,19 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
 
-public abstract class Mmu<A extends Address & Data>
-    implements Buffer<BitVector, A>, MemoryDevice {
+public abstract class Mmu<A extends Address>
+    extends Buffer<BitVector, A> implements MemoryDevice {
+
+  public Mmu(final Address<A> addressCreator) {
+    super(new Struct<BitVector>() {
+      @Override public BitVector newStruct(BitVector value) {
+        return value;
+      }
+      @Override public BitVector asBitVector() {
+        return null;
+      }
+    }, addressCreator);
+  }
 
   @Override
   public boolean isInitialized(final BitVector address) {
@@ -59,7 +70,6 @@ public abstract class Mmu<A extends Address & Data>
 
   @Override
   public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
-    // NOT SUPPORTED
     throw new UnsupportedOperationException();
   }
 
@@ -69,12 +79,19 @@ public abstract class Mmu<A extends Address & Data>
         String.format("Address size mismatch: storing %d-bit address to %d-bit location",
             value.getBitSize(), getAddressBitSize()));
 
-    final A address = newAddress();
-    address.getValue().assign(value);
-
+    final A address = addressCreator.setValue(value);
     Operation.initAddress(address);
+
     return address;
   }
 
-  protected abstract A newAddress();
+  @Override
+  public void setUseTempState(final boolean value) {
+    // Do nothing.
+  }
+
+  @Override
+  public void resetState() {
+    // Do nothing.
+  }
 }

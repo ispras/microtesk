@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,10 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
- * The PLRU (Pseudo Least Recently Used) data replacement policy.
+ * {@link PolicyPlru} implements the PLRU (Pseudo Least Recently Used) data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -33,14 +35,24 @@ final class PolicyPlru extends Policy {
   PolicyPlru(final int associativity) {
     super(associativity);
 
-    if (associativity > 32) {
-      throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
-    }
+    InvariantChecks.checkTrue(associativity <= Integer.SIZE,
+        String.format("Illegal associativity %d", associativity));
+
+    resetState();
   }
 
   @Override
   public void accessLine(final int index) {
     setBit(index);
+  }
+
+  private void setBit(final int i) {
+    final int mask = (1 << (last = i));
+
+    bits |= mask;
+    if (bits == ((1 << associativity) - 1)) {
+      bits = mask;
+    }
   }
 
   @Override
@@ -56,12 +68,9 @@ final class PolicyPlru extends Policy {
     throw new IllegalStateException("All bits are set to 1");
   }
 
-  private void setBit(final int i) {
-    final int mask = (1 << (last = i));
-
-    bits |= mask;
-    if (bits == ((1 << associativity) - 1)) {
-      bits = mask;
-    }
+  @Override
+  public void resetState() {
+    bits = 0;
+    last = 0;
   }
 }

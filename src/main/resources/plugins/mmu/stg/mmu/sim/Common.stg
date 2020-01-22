@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -109,6 +109,10 @@ public BitVector asBitVector() {
   <endif>
 }<\n>
 @Override
+public <type> newStruct(final BitVector value) {
+  return new <type>(value);
+}<\n>
+@Override
 public String toString() {
   <if(fnames)>
   return String.format(
@@ -131,14 +135,25 @@ public BitVector getValue() {
 }
 >>
 
+struct_set_value(type, temp_name, field_name) ::= <<
+@Override
+public <type> setValue(BitVector value) {
+  final <type> <temp_name> = new <type>();
+  address.<field_name>.assign(value);
+  return <temp_name>;
+}
+>>
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Segment-related templates
 
-segment_constructor(name, start, end) ::= <<
+segment_constructor(name, pa_type, va_type, start, end) ::= <<
 private <name>() {
   super(
-      <start>,
-      <end>
+    new <pa_type>(),
+    new <va_type>(),
+    <start>,
+    <end>
   );
 }
 >>
@@ -150,7 +165,7 @@ buffer_entry(members) ::= <<
 <class(["public", "static", "final"],
        "Entry",
        false,
-       "Data",
+       "Struct",
        members)>
 >>
 
@@ -172,26 +187,38 @@ private static final Matcher\<<entry_type>, <addr_type>\> MATCHER = new Matcher\
 };
 >>
 
-buffer_constructor(name, ways, sets, policy, is_mapped) ::= <<
+buffer_constructor(name, entry_type, addr_type, ways, sets, policy, is_mapped) ::= <<
 private <name>() {
   super(
+    new <entry_type>(),
+    new <addr_type>(),
     <if(is_mapped)>"<name>",<endif>
     new BigInteger("<sets>", 10),
     <ways>,
     <policy>,
     INDEXER,
     MATCHER
-    );
+  );
 }
 >>
 
-memory_constructor(size) ::= <<
+memory_constructor(entry_type, addr_type, size) ::= <<
 private <name>() {
-  super(new BigInteger("<size>", 16));
+  super(
+    new <entry_type>(),
+    new <addr_type>(),
+    new BigInteger("<size>", 16)
+  );
 }
 >>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+mmu_constructor(name, addr_type) ::= <<
+private <name>() {
+  super(new <addr_type>());
+}
+>>
 
 get_size(addr_size, data_size) ::= <<
 @Override
@@ -208,20 +235,6 @@ get_data_size(size) ::= <<
 @Override
 protected int getDataBitSize() {
   return <size>;
-}
->>
-
-new_data(type) ::= <<
-@Override
-protected <type> newData(final BitVector value) {
-  return new <type>(value);
-}
->>
-
-new_address(type) ::= <<
-@Override
-protected <type> newAddress() {
-  return new <type>();
 }
 >>
 

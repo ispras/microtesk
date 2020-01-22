@@ -50,9 +50,6 @@ abstract class StbCommon {
   public static final Class<?> BIT_VECTOR_CLASS =
       ru.ispras.fortress.data.types.bitvector.BitVector.class;
 
-  public static final Class<?> ADDRESS_CLASS =
-      ru.ispras.microtesk.mmu.model.sim.Address.class;
-
   public static final Class<?> BUFFER_CLASS =
       ru.ispras.microtesk.mmu.model.sim.Buffer.class;
 

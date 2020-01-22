@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -24,15 +24,14 @@ import ru.ispras.microtesk.utils.SparseArray;
 import java.math.BigInteger;
 
 /**
- * The {@link RegisterMapping} class implements a register-mapped buffer.
+ * {@link RegisterMapping} implements a register-mapped buffer.
  *
  * @param <D> the data type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class RegisterMapping<D extends Data, A extends Address>
-    implements Buffer<D, A>, BufferObserver {
+public abstract class RegisterMapping<D extends Struct, A extends Address> extends Buffer<D, A> {
 
   private final String name;
 
@@ -46,28 +45,34 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
   private BigInteger currentRegisterIndex;
 
   /**
-   * The {@link RegisterMappedSet} class is an extension of the {@link Set} class
-   * for register-mapped buffers.
+   * {@link RegisterMappedSet} is an extension of {@link Set} for register-mapped buffers.
    */
   private final class RegisterMappedSet extends Set<D, A> {
     public RegisterMappedSet() {
-      super(associativity, policyId, matcher);
+      super(
+          RegisterMapping.this.dataCreator,
+          RegisterMapping.this.addressCreator,
+          associativity,
+          policyId,
+          matcher
+      );
     }
 
     @Override
-    protected Buffer<D, A> newLine(final Matcher<D, A> matcher) {
+    protected Buffer<D, A> newLine() {
       return new RegisterMappedLine();
     }
   }
 
   /**
-   * The {@link RegisterMappedLine} class is an implementation of a line
-   * for register-mapped buffers.
+   * {@link RegisterMappedLine} is an implementation of a line for register-mapped buffers.
    */
-  private final class RegisterMappedLine implements Buffer<D, A> {
+  private final class RegisterMappedLine extends Buffer<D, A> {
     private final BitVector registerIndex;
 
     private RegisterMappedLine() {
+      super(RegisterMapping.this.dataCreator, RegisterMapping.this.addressCreator);
+
       final MemoryDevice storage = getRegisterDevice();
       this.registerIndex = BitVector.valueOf(currentRegisterIndex, storage.getAddressBitSize());
       currentRegisterIndex = currentRegisterIndex.add(BigInteger.ONE);
@@ -81,7 +86,7 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
       }
 
       final BitVector rawData = storage.load(registerIndex);
-      final D data = newData(rawData);
+      final D data = dataCreator.newStruct(rawData);
 
       return matcher.areMatching(data, address);
     }
@@ -90,7 +95,7 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     public D getData(final A address) {
       final MemoryDevice storage = getRegisterDevice();
       final BitVector rawData = storage.load(registerIndex);
-      return newData(rawData);
+      return dataCreator.newStruct(rawData);
     }
 
     @Override
@@ -105,15 +110,24 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
       final MemoryDevice storage = getRegisterDevice();
       return storage.isInitialized(registerIndex)
           ? new Pair<>(registerIndex, storage.load(registerIndex))
-          : null
-          ;
+          : null;
+    }
+
+    @Override
+    public void setUseTempState(final boolean value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void resetState() {
+      // Do nothing.
     }
 
     @Override
     public String toString() {
       final MemoryDevice storage = getRegisterDevice();
       final BitVector value = storage.load(registerIndex);
-      return String.format("RegisterMappedLine [data=%s]", newData(value));
+      return String.format("RegisterMappedLine [data=%s]", dataCreator.newStruct(value));
     }
   }
 
@@ -132,7 +146,7 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     }
 
     public D assign(final BitVector value) {
-      final D data = newData(value);
+      final D data = dataCreator.newStruct(value);
       return setData(address, data);
     }
   }
@@ -140,7 +154,9 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
   /**
    * Constructs a register-mapped buffer of the given length and associativity.
    *
-   * @param name Name of the register file mapped to the buffer.
+   * @param dataCreator the data creator.
+   * @param addressCreator the address creator.
+   * @param name the name of the register file mapped to the buffer.
    * @param length the number of sets in the buffer.
    * @param associativity the number of lines in each set.
    * @param policyId the data replacement policy.
@@ -148,12 +164,16 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
    * @param matcher the line matcher.
    */
   public RegisterMapping(
+      final Struct<D> dataCreator,
+      final Address<A> addressCreator,
       final String name,
       final BigInteger length,
       final int associativity,
       final PolicyId policyId,
       final Indexer<A> indexer,
       final Matcher<D, A> matcher) {
+    super(dataCreator, addressCreator);
+
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
@@ -195,13 +215,6 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
   }
 
   @Override
-  public final boolean isHit(final BitVector value) {
-    final A address = newAddress();
-    address.getValue().assign(value);
-    return isHit(address);
-  }
-
-  @Override
   public final D getData(final A address) {
     final Buffer<D, A> set = getSet(address);
     return set.getData(address);
@@ -228,11 +241,17 @@ public abstract class RegisterMapping<D extends Data, A extends Address>
     return sets.get(index);
   }
 
-  protected abstract A newAddress();
-
-  protected abstract D newData(final BitVector value);
-
   protected abstract int getDataBitSize();
+
+  @Override
+  public void setUseTempState(final boolean value) {
+    // Do nothing.
+  }
+
+  @Override
+  public void resetState() {
+    // Do nothing.
+  }
 
   @Override
   public String toString() {

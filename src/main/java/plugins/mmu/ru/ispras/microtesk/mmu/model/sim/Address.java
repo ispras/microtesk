@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,11 +17,12 @@ package ru.ispras.microtesk.mmu.model.sim;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
- * Interface to be supported by all address classes. Required to
- * check whether an address belongs to a specific segment (see {@link Segment}).
+ * {@link Address} must be supported by all address classes.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public interface Address {
+public interface Address<T> extends Struct<T> {
   BitVector getValue();
+
+  T setValue(BitVector value);
 }

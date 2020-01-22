@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,17 +15,19 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.utils.SparseArray;
 
 /**
- * This is an abstract representation of a cache line.
+ * {@link Line} represents an abstract cache line.
  *
  * @param <D> the data type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class Line<D extends Data, A extends Address> implements Buffer<D, A> {
+public final class Line<D extends Struct, A extends Address> extends Buffer<D, A> {
   /** The stored data. */
   private D data;
 
@@ -38,11 +40,20 @@ public final class Line<D extends Data, A extends Address> implements Buffer<D, 
   /**
    * Constructs a default (invalid) line.
    *
+   * @param dataCreator the data creator.
+   * @param addressCreator the address creator.
    * @param matcher the data-address matcher.
    */
-  public Line(final Matcher<D, A> matcher) {
+  public Line(
+      final Struct<D> dataCreator,
+      final Address<A> addressCreator,
+      final Matcher<D, A> matcher) {
+    super(dataCreator, addressCreator);
+
     this.data = null;
     this.address = null;
+
+    InvariantChecks.checkNotNull(matcher);
     this.matcher = matcher;
   }
 
@@ -71,15 +82,25 @@ public final class Line<D extends Data, A extends Address> implements Buffer<D, 
   }
 
   @Override
-  public String toString() {
-    return String.format("Line [data=%s]", data);
-  }
-
-  @Override
   public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
     return null != address && null != data
         ? new Pair<>(address.getValue(), data.asBitVector())
-        : null
-        ;
+        : null;
+  }
+
+  @Override
+  public void setUseTempState(final boolean value) {
+    // Do nothing.
+  }
+
+  @Override
+  public void resetState() {
+    data = null;
+    address = null;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Line [data=%s]", data);
   }
 }

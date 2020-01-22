@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -23,8 +23,9 @@ import ru.ispras.microtesk.utils.SparseArray;
 import java.math.BigInteger;
 
 /**
- * This is an abstract representation of a partially associative cache memory. A cache unit is
- * characterized by the following parameters (except the data and address types):
+ * {@link Cache} represents an abstract partially associative cache memory.
+ *
+ * A cache unit is characterized by the following parameters (except the data and address types):
  * <ol><li>{@code length} - the number of sets in the cache,
  * <li>{@code associativity} - the number of lines in each set,
  * <li>{@code policyId} - the data replacement policy,
@@ -36,8 +37,8 @@ import java.math.BigInteger;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class Cache<D extends Data, A extends Address>
-    implements Buffer<D, A>, BufferObserver, ModelStateManager {
+public abstract class Cache<D extends Struct, A extends Address>
+    extends Buffer<D, A> implements ModelStateManager {
   /** The table of associative sets. */
   private SparseArray<Set<D, A>> sets;
   private SparseArray<Set<D, A>> savedSets;
@@ -62,7 +63,7 @@ public abstract class Cache<D extends Data, A extends Address>
     }
 
     public D assign(final BitVector value) {
-      final D data = newData(value);
+      final D data = dataCreator.newStruct(value);
       return setData(address, data);
     }
   }
@@ -70,6 +71,8 @@ public abstract class Cache<D extends Data, A extends Address>
   /**
    * Constructs a buffer of the given length and associativity.
    *
+   * @param dataCreator the data creator.
+   * @param addressCreator the address creator.
    * @param length the number of sets in the buffer.
    * @param associativity the number of lines in each set.
    * @param policyId the data replacement policy.
@@ -77,11 +80,15 @@ public abstract class Cache<D extends Data, A extends Address>
    * @param matcher the line matcher.
    */
   public Cache(
+      final Struct<D> dataCreator,
+      final Address<A> addressCreator,
       final BigInteger length,
       final int associativity,
       final PolicyId policyId,
       final Indexer<A> indexer,
       final Matcher<D, A> matcher) {
+    super(dataCreator, addressCreator);
+
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThanZero(associativity);
     InvariantChecks.checkNotNull(policyId);
@@ -101,7 +108,13 @@ public abstract class Cache<D extends Data, A extends Address>
     Set<D, A> result = sets.get(index);
 
     if (null == result) {
-      result = new Set<>(associativity, policyId, matcher);
+      result = new Set<>(
+          Cache.this.dataCreator,
+          Cache.this.addressCreator,
+          associativity,
+          policyId,
+          matcher
+      );
       sets.set(index, result);
     }
 
@@ -113,13 +126,6 @@ public abstract class Cache<D extends Data, A extends Address>
     final BitVector index = indexer.getIndex(address);
     final Set<D, A> set = sets.get(index);
     return null != set && set.isHit(address);
-  }
-
-  @Override
-  public final boolean isHit(final BitVector value) {
-    final A address = newAddress();
-    address.getValue().assign(value);
-    return isHit(address);
   }
 
   @Override
@@ -145,10 +151,6 @@ public abstract class Cache<D extends Data, A extends Address>
   public final Proxy setData(final A address) {
     return new Proxy(address);
   }
-
-  protected abstract A newAddress();
-
-  protected abstract D newData(final BitVector value);
 
   @Override
   public String toString() {

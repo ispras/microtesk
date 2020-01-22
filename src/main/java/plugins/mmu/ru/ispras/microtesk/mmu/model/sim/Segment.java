@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,12 +18,17 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
-public abstract class Segment<D, A extends Address>
-    implements Buffer<D, A>, BufferObserver {
+public abstract class Segment<PA extends Address, VA extends Address> extends Buffer<PA, VA> {
   private final BitVector start;
   private final BitVector end;
 
-  public Segment(final BitVector start, final BitVector end) {
+  public Segment(
+      final Address<PA> targetCreator,
+      final Address<VA> sourceCreator,
+      final BitVector start,
+      final BitVector end) {
+    super(targetCreator, sourceCreator);
+
     InvariantChecks.checkNotNull(start);
     InvariantChecks.checkNotNull(end);
 
@@ -32,32 +37,34 @@ public abstract class Segment<D, A extends Address>
   }
 
   @Override
-  public boolean isHit(final A address) {
+  public boolean isHit(final VA address) {
     InvariantChecks.checkNotNull(address);
     final BitVector value = address.getValue();
-    return isHit(value);
-  }
-
-  @Override
-  public boolean isHit(final BitVector value) {
     return start.compareTo(value) <= 0 && end.compareTo(value) >= 0;
   }
 
   @Override
-  public D getData(final A va) {
-    // NOT SUPPORTED
+  public PA getData(final VA va) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public D setData(final A address, final D data) {
-    // NOT SUPPORTED
+  public PA setData(final VA address, final PA data) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
-    // NOT SUPPORTED
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setUseTempState(final boolean value) {
+    // Do nothing.
+  }
+
+  @Override
+  public void resetState() {
+    // Do nothing.
   }
 }

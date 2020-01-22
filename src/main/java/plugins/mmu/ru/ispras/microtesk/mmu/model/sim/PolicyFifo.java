@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.model.sim;
 import java.util.LinkedList;
 
 /**
- * The FIFO (First In - First Out) data replacement policy.
+ * {@link PolicyFifo} implements the FIFO (First In - First Out) data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -55,5 +55,10 @@ final class PolicyFifo extends Policy {
   @Override
   public int chooseVictim() {
     return fifo.peek();
+  }
+
+  @Override
+  public void resetState() {
+    fifo.clear();
   }
 }

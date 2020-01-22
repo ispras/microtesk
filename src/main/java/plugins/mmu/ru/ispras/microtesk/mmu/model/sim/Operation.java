@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -21,22 +21,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The {@link Operation} class describes objects responsible for initializing
- * fields of an address passed to the MMU simulator when simulation of a memory
- * access is started. Each {@code Operation} object is associated with a specific
- * operation defined in the ISA model and is called when a memory access has been
- * initiated by that ISA operation.
+ * {@link Operation} describes objects responsible for initializing fields of an address passed to
+ * the MMU simulator when simulation of a memory access is started.
+ *
+ * <p>Each {@code Operation} object is associated with a specific operation defined in the ISA model
+ * and is called when a memory access has been initiated by that ISA operation.</p>
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  *
  * @param <A> the address type.
  */
-public abstract class Operation<A extends Address & Data> {
+public abstract class Operation<A extends Address> {
   public abstract void init(final A address);
 
   private static final Map<String, Operation<? extends Address>> INSTANCES = new HashMap<>();
 
-  protected static <A extends Address & Data> void register(final Operation<A> operation) {
+  protected static <A extends Address> void register(final Operation<A> operation) {
     InvariantChecks.checkNotNull(operation);
     final String operationName = operation.getClass().getSimpleName();
     INSTANCES.put(operationName, operation);
@@ -47,7 +47,7 @@ public abstract class Operation<A extends Address & Data> {
   }
 
   @SuppressWarnings("unchecked")
-  public static <A extends Address & Data> void initAddress(final A address) {
+  public static <A extends Address> void initAddress(final A address) {
     InvariantChecks.checkNotNull(address);
 
     final String operationId = getCurrentOperation();

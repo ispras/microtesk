@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -20,7 +20,9 @@ package ru.ispras.microtesk.mmu.model.sim;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 abstract class Policy {
-  /** The associativity. */
+  /**
+   * The associativity.
+   */
   protected final int associativity;
 
   /**
@@ -49,4 +51,9 @@ abstract class Policy {
    * @return the line to be replaced.
    */
   public abstract int chooseVictim();
+
+  /**
+   * Resets the state of the policy object.
+   */
+  public abstract void resetState();
 }
