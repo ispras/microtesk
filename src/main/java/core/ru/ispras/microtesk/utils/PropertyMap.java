@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2018-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -27,12 +27,12 @@ import java.util.Map;
  *
  * @param <T> Type of the enumeration used to identify the stored properties.
  */
-public class PropertyMap<T extends Enum<? extends T> & Property> {
-  private final Map<T, Object> properties;
+public class PropertyMap<T extends Enum<T> & Property> {
+  private final EnumMap<T, Object> properties;
 
   public PropertyMap(final Class<T> tClass) {
     InvariantChecks.checkNotNull(tClass);
-    this.properties = new EnumMap(tClass);
+    this.properties = new EnumMap<>(tClass);
   }
 
   public final void setValue(final T property, final Object value) {
@@ -50,7 +50,7 @@ public class PropertyMap<T extends Enum<? extends T> & Property> {
     }
 
     if (property.getValueClass().equals(Integer.class) && value instanceof Long) {
-      properties.put(property, Integer.valueOf(((Long) value).intValue()));
+      properties.put(property, ((Long) value).intValue());
       return;
     }
 
@@ -103,7 +103,7 @@ public class PropertyMap<T extends Enum<? extends T> & Property> {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("Properties:");
-    for (final Map.Entry<T, Object> entry : properties.entrySet()) {
+    for (final Map.Entry<?, Object> entry : properties.entrySet()) {
       sb.append(System.lineSeparator());
       sb.append("    ");
       sb.append(entry.getKey());
