@@ -197,28 +197,28 @@ public class TreeParserEx extends TreeParser implements ErrorReporter {
   }
 
   protected final Where where(final CommonTree node) {
-    return new Where(getSourceName(), node.getLine(), node.getCharPositionInLine());
+    return Where.commonTree(node);
   }
 
   protected final void checkNotNull(
-      final Where w,
-      final Object obj,
+      final Where where,
+      final Object object,
       final String text) throws SemanticException {
-    if (null == obj) {
-      raiseError(w, new UnrecognizedStructure(text));
+    if (null == object) {
+      raiseError(where, new UnrecognizedStructure(text));
     }
   }
 
   protected final void checkNotNull(
       final CommonTree current,
-      final Object obj,
+      final Object object,
       final String text) throws SemanticException {
-    checkNotNull(where(current), obj, text);
+    checkNotNull(where(current), object, text);
   }
 
   protected final void checkNotNull(
       final CommonTree current,
-      final Object obj) throws SemanticException {
-    checkNotNull(where(current), obj, current.getText());
+      final Object object) throws SemanticException {
+    checkNotNull(where(current), object, current.getText());
   }
 }

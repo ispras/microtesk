@@ -94,7 +94,7 @@ public final class NmlTranslator extends Translator<Ir> {
   private void defineSymbolForInternalVariable(final LetConstant constant) {
     final String name = constant.getName();
     getSymbols().define(Symbol.newSymbol(
-        name, NmlSymbolKind.LET_CONST, new Where("", 0, 0), getSymbols().peek(), false));
+        name, NmlSymbolKind.LET_CONST, Where.nowhere(), getSymbols().peek(), false));
   }
 
   @Override
@@ -107,7 +107,7 @@ public final class NmlTranslator extends Translator<Ir> {
     InvariantChecks.checkNotNull(filenames);
 
     if (filenames.isEmpty()) {
-      Logger.error("FILES ARE NOT SPECIFIED.");
+      Logger.error("Files are not specified");
       return false;
     }
 

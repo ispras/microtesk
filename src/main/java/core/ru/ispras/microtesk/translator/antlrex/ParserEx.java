@@ -115,24 +115,24 @@ public class ParserEx extends Parser implements ErrorReporter {
     throw new SemanticException(where, new SemanticError(what));
   }
 
-  protected final Where where(final Token node) {
-    return new Where(getSourceName(), node.getLine(), node.getCharPositionInLine());
+  protected final Where where(final Token token) {
+    return Where.token(token);
   }
 
   protected final void checkNotNull(
-      final Token t,
-      final Object obj) throws SemanticException {
-    if (null == obj) {
-      raiseError(where(t), new UnrecognizedStructure());
+      final Token token,
+      final Object object) throws SemanticException {
+    if (null == object) {
+      raiseError(where(token), new UnrecognizedStructure());
     }
   }
 
   protected final void checkNotNull(
-      final Token t,
-      final Object obj,
+      final Token token,
+      final Object object,
       final String text) throws SemanticException {
-    if (null == obj) {
-      raiseError(where(t), new UnrecognizedStructure(text));
+    if (null == object) {
+      raiseError(where(token), new UnrecognizedStructure(text));
     }
   }
 }

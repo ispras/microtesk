@@ -14,6 +14,11 @@
 
 package ru.ispras.microtesk.translator.antlrex.symbols;
 
+import org.antlr.runtime.CharStream;
+import org.antlr.runtime.Token;
+import org.antlr.runtime.tree.CommonTree;
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * The {@link Where} class describes a location in a source file.
  *
@@ -24,6 +29,24 @@ public final class Where {
   private final int line;
   private final int position;
 
+  public static Where nowhere() {
+    return new Where("<nowhere>", 0, 0);
+  }
+
+  public static Where token(final Token token) {
+    final CharStream stream = token.getInputStream();
+    final String unit = stream != null ? stream.getSourceName() : "<unknown>";
+
+    return new Where(unit, token.getLine(), token.getCharPositionInLine());
+  }
+
+  public static final Where commonTree(final CommonTree tree) {
+    final CharStream stream = tree.getToken().getInputStream();
+    final CommonTree node = stream != null ? tree : (CommonTree) tree.getParent();
+
+    return token(node.getToken());
+  }
+
   /**
    * Constructs the object from unit name, line number and position.
    *
@@ -31,7 +54,9 @@ public final class Where {
    * @param line Number of the line.
    * @param position Position in the line.
    */
-  public Where(final String unit, final int line, final int position) {
+  private Where(final String unit, final int line, final int position) {
+    InvariantChecks.checkTrue(unit != null && unit.length() != 0);
+
     this.unit = unit;
     this.line = line;
     this.position = position;
