@@ -90,6 +90,19 @@ public class ParserBase extends ParserEx {
     symbols.define(symbol);
   }
 
+  protected final void declareLocal(final Token t, final Enum<?> kind)
+      throws SemanticException {
+    if (isRevisionApplicable()) {
+      final Symbol symbol = symbols.resolveMember(t.getText());
+      if (null != symbol) {
+        raiseError(where(t), new RedeclaredSymbol(symbol));
+      }
+      final Symbol local =
+          Symbol.newSymbol(t.getText(), kind, where(t), symbols.peek(), false);
+      symbols.define(local);
+    }
+  }
+
   protected final Symbol declareAndPushSymbolScope(
       final Token t,
       final Enum<?> kind) throws SemanticException {
