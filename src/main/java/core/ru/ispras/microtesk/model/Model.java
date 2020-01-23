@@ -268,7 +268,7 @@ public final class Model implements ModelStateManager {
     final MetaOperation metaData = getMetaData().getOperation(instantiate);
 
     if (null == metaData) { // instantiate is undefined
-      Logger.debug("The \"instantiate\" operation is undefined.");
+      Logger.debug("The '%s' operation is undefined.", instantiate);
       return;
     }
 

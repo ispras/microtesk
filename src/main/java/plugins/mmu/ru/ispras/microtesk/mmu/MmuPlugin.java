@@ -142,7 +142,7 @@ public final class MmuPlugin implements Plugin {
     try {
       mmuModel = getMmuModel();
     } catch (final Exception e) {
-      Logger.warning("Failed to load the MMU model. Physical memory will be accessed directly.");
+      Logger.warning("Failed to load the MMU model. The memory will be accessed directly.");
       return;
     }
 
@@ -150,6 +150,7 @@ public final class MmuPlugin implements Plugin {
     final MemoryDevice mmuDevice = mmuModel.getMmuDevice();
     final String memoryId = mmuModel.getStorageDeviceId();
 
+    // TODO: The same handler is registered for all PEs though caches are usually local.
     final MemoryDevice storageDevice = model.setMemoryHandler(memoryId, mmuDevice);
     mmuModel.setStorageDevice(storageDevice);
 
