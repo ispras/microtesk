@@ -1,0 +1,25 @@
+let VA_BITS = 16
+let PA_BITS = 14
+
+address VA(value: VA_BITS)
+address PA(value: PA_BITS)
+
+buffer MEM (pa: PA)
+  ways  = 1
+  sets  = 2 ** (PA_BITS - 1)
+  entry = (DATA: 16)
+  index = pa.value<(PA_BITS - 1)..1>
+  match = 0
+
+mmu vmem (va: VA) = (data: 16)
+  var pa: PA;
+
+  read = {
+    pa.value = va.value<13..1>; // Bug: Incorrect value
+    data = MEM(pa);
+  }
+
+  write = {
+    pa.value = va.value<13..1>; // Bug: Incorrect value
+    MEM(pa) = data;
+  }
