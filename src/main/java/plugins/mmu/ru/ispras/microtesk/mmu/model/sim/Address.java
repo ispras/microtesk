@@ -22,7 +22,19 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public interface Address<T> extends Struct<T> {
+  /**
+   * Returns the value field of the address struct.
+   *
+   * @return the address value.
+   */
   BitVector getValue();
 
+  /**
+   * Returns the address struct with the filled value.
+   *
+   * @param value the address value.
+   *
+   * @return the address struct.
+   */
   T setValue(BitVector value);
 }

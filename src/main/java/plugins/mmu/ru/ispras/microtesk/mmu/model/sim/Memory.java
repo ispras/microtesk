@@ -105,7 +105,7 @@ public abstract class Memory<D extends Struct, A extends Address> extends Buffer
     final BitVector dataValue = data.asBitVector();
     final int dataBitSize = dataValue.getBitSize();
 
-    BigInteger index = addressToIndex(address.asBitVector(), dataBitSize);
+    BigInteger index = addressToIndex(address.getValue(), dataBitSize);
 
     int bitsWritten = 0;
     while (bitsWritten < dataBitSize) {
@@ -138,7 +138,6 @@ public abstract class Memory<D extends Struct, A extends Address> extends Buffer
     final BigInteger addressInBytes = address.bigIntegerValue(false);
     final BigInteger blockMask = BigInteger.valueOf(blockBitSize / 8 - 1);
     final BigInteger blockAddress = addressInBytes.andNot(blockMask);
-
 
     final BigInteger bytesInRegion =
         BigInteger.valueOf(storage.getDataBitSize() / 8);

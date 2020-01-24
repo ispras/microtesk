@@ -22,7 +22,19 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public interface Struct<T> {
+  /**
+   * Returns the data struct initialized by the given bit vector.
+   *
+   * @param value the bit vector representing all fields of the struct.
+   *
+   * @return the data struct.
+   */
   T newStruct(BitVector value);
 
+  /**
+   * Converts the data struct to the bit vector.
+   *
+   * @return the bit vector representing all fields of the data struct.
+   */
   BitVector asBitVector();
 }
