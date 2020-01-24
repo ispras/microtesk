@@ -246,6 +246,7 @@ public class MiniMipsTest extends TemplateTest {
 
     final Collection<File> auxFiles = new LinkedHashSet<>();
     final Collection<File> tests = new LinkedHashSet<>();
+    File boot = null;
 
     Assert.assertNotNull("No test programs are generated from this template.", files);
 
@@ -255,6 +256,8 @@ public class MiniMipsTest extends TemplateTest {
       if (fileName.endsWith(EXT)) {
         if (fileName.startsWith(getProgramPrefix())) {
           tests.add(file);
+        } else if (fileName.startsWith("boot")) {
+          boot = file;
         } else {
           auxFiles.add(file);
         }
@@ -263,7 +266,7 @@ public class MiniMipsTest extends TemplateTest {
 
     for (final File program : tests) {
       skipRestPhases(false);
-      final File image = compile(program, auxFiles, asm, linker);
+      final File image = compile(program, auxFiles, boot, asm, linker);
       emulate(image);
     }
   }
@@ -297,7 +300,7 @@ public class MiniMipsTest extends TemplateTest {
         "unimp,nochain,in_asm",
         "-nographic",
         "-singlestep",
-        //"-trace-log",
+        "-trace-log",
         "-D",
         qemuLog,
         "-bios",
@@ -354,6 +357,7 @@ public class MiniMipsTest extends TemplateTest {
   private File compile(
       final File program,
       final Collection<File> auxFiles,
+      final File boot,
       final File asm,
       final File linker) {
 
@@ -375,6 +379,15 @@ public class MiniMipsTest extends TemplateTest {
           file.getAbsolutePath(),
           "-o",
           getOutOption(getNameNoExt(file), "o"));
+    }
+
+    if (boot != null) {
+      runCommand(
+          asm,
+          true,
+          boot.getAbsolutePath(),
+          "-o",
+          getOutOption(getNameNoExt(boot), "o"));
     }
 
     /* obj -> elf */
