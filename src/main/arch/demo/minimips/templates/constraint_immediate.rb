@@ -1,5 +1,5 @@
 #
-# Copyright 2017 ISP RAS (http://www.ispras.ru)
+# Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ class ConstraintImmediteTemplate < MiniMipsBaseTemplate
   end
 
   def run
-    org 0x00020000
     sequence {
       andi t0, t1, _ do situation('zero') end
       ori  t2, t3, _ do situation('zero') end

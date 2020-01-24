@@ -1,5 +1,5 @@
 #
-# Copyright 2017 ISP RAS (http://www.ispras.ru)
+# Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ class BranchGeneration1Template < MiniMipsBaseTemplate
   end
 
   def run
-    org 0x00020000
+    #org 0x00020000
 
     # Stream  Label            Data  Addr  Size
     stream   :branch_data_0,   s0,   s4,   128
