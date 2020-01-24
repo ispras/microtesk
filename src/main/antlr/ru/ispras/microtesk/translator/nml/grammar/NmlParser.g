@@ -271,7 +271,7 @@ andRule
     ;
 
 argDef
-    :  id=ID^ COLON! argType {declare($id, NmlSymbolKind.ARGUMENT, false);}
+    :  id=ID^ COLON! argType { declareLocal($id, NmlSymbolKind.ARGUMENT); }
     ;
 
 argType
