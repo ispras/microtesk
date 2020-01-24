@@ -342,9 +342,17 @@ task getDependencies(type: Copy) {
 }
 
 compileJava {
-  options.encoding = 'UTF-8'
+  options.encoding = "UTF-8"
   sourceCompatibility = JavaVersion.VERSION_11
   targetCompatibility = JavaVersion.VERSION_11
+  options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
+
+compileTestJava {
+  options.encoding = "UTF-8"
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+  options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
 
 generateGrammarSource {
@@ -589,6 +597,7 @@ task compileModels(type: JavaCompile) {
   destinationDir = file('build/classes/models')
   classpath = files('build/libs/microtesk.jar')
   classpath += sourceSets.main.runtimeClasspath
+  options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
 
 task jarModels(type: Jar) {
