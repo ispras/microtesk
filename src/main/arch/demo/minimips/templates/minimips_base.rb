@@ -1,5 +1,5 @@
 #
-# Copyright 2014-2018 ISP RAS (http://www.ispras.ru)
+# Copyright 2014-2020 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,6 +49,43 @@ class MiniMipsBaseTemplate < Template
       define_string :id => :ascii,  :text => '.ascii',  :zero_term => false
       define_string :id => :asciiz, :text => '.asciiz', :zero_term => true
     }
+    def st_va_start # Special for boot definition
+      0x0000
+    end
+
+    #
+    # Boot definition (ROM).
+    #
+    section(:name => 'boot', :pa => 0xbfc0_0000, :va => 0xbfc0_0000, :file => true) {
+      trace 'Exception handler (EPC = 0x%x)', location('COP0_R', 14)
+
+      text ".text"
+      text ".set noreorder"
+      text ".list"
+      newline
+
+      # Jump to test program 0xFFFFffffa0002000
+      lui ra, st_va_start
+      ori ra, ra, 0x2000
+      jr ra
+      nop
+      newline
+
+      # Next parts of the code will be copied to a0000180
+      org 0x380 # Others
+      mthi ra
+      mfc0 ra, rcop0(14)
+      addiu ra, ra, 4
+      mtc0 ra, rcop0(14)
+      mfhi ra
+      jr ra
+      newline
+
+      nop
+      nop
+      nop
+      nop
+    }
 
     #
     # Defines .text section.
@@ -56,7 +93,7 @@ class MiniMipsBaseTemplate < Template
     # pa: base physical address (used for memory allocation).
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
-    section_text(:pa => 0x0, :va => 0x0) {}
+    section_text(:pa => 0x0000_0000, :va => 0x0000_0000) {}
 
     #
     # Defines .data section.
@@ -64,7 +101,7 @@ class MiniMipsBaseTemplate < Template
     # pa: base physical address (used for memory allocation).
     # va: base virtual address (used for encoding instructions that refer to labels).
     #
-    section_data(:pa => 0x00080000, :va => 0x00080000) {}
+    section_data(:pa => 0x0008_0000, :va => 0x0008_0000) {}
 
     #
     # Simple exception handler. Continues execution from the next instruction.
@@ -279,7 +316,7 @@ class MiniMipsBaseTemplate < Template
     #
     # Start address
     #
-    org 0x00020000
+    org 0x0000_2000
   end
 
   def post
