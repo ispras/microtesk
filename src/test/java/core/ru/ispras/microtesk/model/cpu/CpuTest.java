@@ -38,7 +38,6 @@ public abstract class CpuTest extends TemplateTest {
   }
 
   private boolean isExpectedError(final String message) {
-    return message.contains(
-        "Failed to load the MMU model. Physical memory will be accessed directly.");
+    return message.contains("Failed to load the MMU model");
   }
 }
