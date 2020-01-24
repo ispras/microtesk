@@ -38,7 +38,6 @@ public abstract class VliwTest extends TemplateTest {
   }
 
   protected boolean isExpectedError(final String message) {
-    return message.contains(
-        "Failed to load the MMU model. Physical memory will be accessed directly.");
+    return message.contains("Failed to load the MMU model");
   }
 }
