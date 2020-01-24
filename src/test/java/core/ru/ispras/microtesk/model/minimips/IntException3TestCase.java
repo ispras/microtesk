@@ -27,6 +27,5 @@ public class IntException3TestCase extends MiniMipsTest {
 
     Assert.assertEquals(1, statistics.getPrograms());
     Assert.assertEquals(5, statistics.getSequences());
-    Assert.assertEquals(61, statistics.getInstructions());
   }
 }

@@ -27,6 +27,5 @@ public class EuclidTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1,  statistics.getPrograms());
     Assert.assertEquals(1,  statistics.getSequences());
-    Assert.assertEquals(20, statistics.getInstructions());
   }
 }

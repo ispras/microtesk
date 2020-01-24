@@ -27,6 +27,5 @@ public class RegisterAllocationTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1, statistics.getPrograms());
     Assert.assertEquals(3, statistics.getSequences());
-    Assert.assertEquals(120, statistics.getInstructions());
   }
 }

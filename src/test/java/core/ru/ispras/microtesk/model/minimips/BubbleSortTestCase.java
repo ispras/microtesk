@@ -28,6 +28,5 @@ public class BubbleSortTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1,  statistics.getPrograms());
     Assert.assertEquals(1,  statistics.getSequences());
-    Assert.assertEquals(30, statistics.getInstructions());
   }
 }

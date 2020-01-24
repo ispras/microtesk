@@ -27,6 +27,5 @@ public class IntExceptionBranchTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1, statistics.getPrograms());
     Assert.assertEquals(14, statistics.getSequences());
-    Assert.assertEquals(653, statistics.getInstructions());
   }
 }

@@ -27,6 +27,5 @@ public final class RandomImmediateTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1,  statistics.getPrograms());
     Assert.assertEquals(30, statistics.getSequences());
-    Assert.assertEquals(68, statistics.getInstructions());
   }
 }

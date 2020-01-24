@@ -27,6 +27,5 @@ public class BranchGeneration2TestCase extends MiniMipsTest {
 
     Assert.assertEquals(1, statistics.getPrograms());
     Assert.assertEquals(100, statistics.getSequences());
-    Assert.assertEquals(8207, statistics.getInstructions());
   }
 }

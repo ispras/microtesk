@@ -27,6 +27,5 @@ public final class TestDataTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1, statistics.getPrograms());
     Assert.assertEquals(162, statistics.getSequences());
-    Assert.assertEquals(1142, statistics.getInstructions());
   }
 }

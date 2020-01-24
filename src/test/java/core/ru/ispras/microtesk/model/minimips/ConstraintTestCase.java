@@ -27,6 +27,5 @@ public class ConstraintTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1,   statistics.getPrograms());
     Assert.assertEquals(100, statistics.getSequences());
-    Assert.assertEquals(827, statistics.getInstructions());
   }
 }

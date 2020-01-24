@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,28 +19,40 @@ import org.junit.Test;
 
 import ru.ispras.microtesk.test.Statistics;
 
-public class IntSqrtTestCase extends MiniMipsTest {
-
+public class MiniMipsTestCases extends MiniMipsTest {
   private void test(
       final String file,
       final int numberOfPrograms,
-      final int numberOfSequences,
-      final int numberOfInstructions) {
+      final int numberOfSequences) {
     final Statistics statistics = run(file);
 
     Assert.assertNotNull(statistics);
     Assert.assertEquals(numberOfPrograms, statistics.getPrograms());
     Assert.assertEquals(numberOfSequences, statistics.getSequences());
-    Assert.assertEquals(numberOfInstructions, statistics.getInstructions());
   }
 
   @Test
   public void testSqrt() {
-    test("int_sqrt.rb", 1, 0, 23);
+    test("int_sqrt.rb", 1, 0);
   }
 
   @Test
   public void testSqrt4() {
-    test("int_sqrt4.rb", 1, 0, 24);
+    test("int_sqrt4.rb", 1, 0);
+  }
+
+  @Test
+  public void testMinMax() {
+    test("min_max.rb", 1, 0);
+  }
+
+  @Test
+  public void testMultipleEngines() {
+    test("multiple_engines.rb", 1, 10);
+  }
+
+  @Test
+  public void testPageTable() {
+    test("page_table.rb", 1, 0);
   }
 }

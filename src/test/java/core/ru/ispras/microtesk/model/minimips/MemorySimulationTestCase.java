@@ -27,6 +27,5 @@ public class MemorySimulationTestCase extends MiniMipsTest {
 
     Assert.assertEquals(1, statistics.getPrograms());
     Assert.assertEquals(0, statistics.getSequences());
-    Assert.assertEquals(10, statistics.getInstructions());
   }
 }
