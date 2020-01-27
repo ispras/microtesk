@@ -11,6 +11,7 @@
      (see https://forge.ispras.ru/projects/microtesk-docs)
    - Added the installation guide into the distribution package
  * Modified the mmuSL code generation scheme
+ * Added a boot section to the miniMIPS test templates
  * Fixed a number of long-lived bugs
  * Used the QEMU4V 0.3.5 simulator for running tests
 
