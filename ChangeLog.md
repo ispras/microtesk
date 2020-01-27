@@ -2,9 +2,9 @@
 
 ## MicroTESK 2.5
 
-### 2020/mm/dd - MicroTESK 2.5.1 beta
+### 2020/01/27 - MicroTESK 2.5.1 beta
 
- * Fixed the `TokenSourceStack` class and moved it to the Castle project
+ * Fixed the `TokenSourceStack` class and moved it to the Castle 0.1.4 library
    (see https://forge.ispras.ru/projects/castle)
  * Rearranged the documentation
    - Moved the documentation sources into a separate project
