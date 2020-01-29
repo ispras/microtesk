@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import ru.ispras.microtesk.test.Statistics;
 
-public class MiniMipsTestCases extends MiniMipsTest {
+public class MiniMipsTestCase extends MiniMipsTest {
   private void test(
       final String file,
       final int numberOfPrograms,
