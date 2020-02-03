@@ -299,9 +299,9 @@ public abstract class X86Test extends TemplateTest {
         String.format("Can't find QEMU trace file: %s", qemuLogPath),
         qemuLogFile.exists());
 
-    if (isEmpty(qemuLogFile)) {
-      Assert.fail(String.format("QEMU trace file is empty: %s", qemuLogPath));
-    }
+    Assert.assertFalse(
+        String.format("QEMU trace file is empty: %s", qemuLogPath),
+        isEmpty(qemuLogFile));
 
     Logger.message("done.");
   }
