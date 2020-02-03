@@ -274,7 +274,7 @@ public abstract class X86Test extends TemplateTest {
 
     Logger.message("Start emulation ...");
     setPhase(TestPhase.EMULATION);
-    final String qemuLog = insertExt(image.getAbsolutePath(), "-qemu.log");
+    final String qemuLogName = insertExt(image.getAbsolutePath(), "-qemu.log");
 
     final String[] qemuArgs = new String[] {
       "-M",
@@ -287,21 +287,16 @@ public abstract class X86Test extends TemplateTest {
       "-singlestep",
       //"-trace-log",
       "-D",
-      qemuLog,
+      qemuLogName,
       "-hda",
       image.getAbsolutePath()};
     runCommand(qemu, QEMU_TIMEOUT_MILLIS, true, qemuArgs);
 
-    final File qemuLogFile = new File(qemuLog);
-    final String qemuLogPath = qemuLogFile.getAbsolutePath();
+    final File qemuLog = new File(qemuLogName);
+    final String qemuLogPath = qemuLog.getAbsolutePath();
 
-    Assert.assertTrue(
-        String.format("Can't find QEMU trace file: %s", qemuLogPath),
-        qemuLogFile.exists());
-
-    Assert.assertFalse(
-        String.format("QEMU trace file is empty: %s", qemuLogPath),
-        isEmpty(qemuLogFile));
+    Assert.assertTrue(String.format("Can't find QEMU trace: %s", qemuLogPath), qemuLog.exists());
+    Assert.assertFalse(String.format("QEMU trace is empty: %s", qemuLogPath), isEmpty(qemuLog));
 
     Logger.message("done.");
   }
