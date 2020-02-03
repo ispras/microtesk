@@ -19,7 +19,6 @@
     value="cpu=arch/demo/cpu/settings.xml:
            vliw=arch/demo/vliw/settings.xml:
            vmem=arch/demo/vmem/settings.xml:
-           x86=arch/demo/x86/settings.xml:
            x86gnu=arch/demo/x86/settings.xml:
            x86nasm=arch/demo/x86/settings.xml:
            minimips=arch/demo/minimips/settings.xml"
