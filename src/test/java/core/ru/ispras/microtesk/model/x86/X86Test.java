@@ -28,7 +28,6 @@ import ru.ispras.microtesk.test.testutils.TemplateTest;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -300,15 +299,8 @@ public abstract class X86Test extends TemplateTest {
         String.format("Can't find QEMU trace file: %s", qemuLogPath),
         qemuLogFile.exists());
 
-    try {
-      if (new BufferedReader(new FileReader(qemuLogFile)).readLine() == null) {
-        Assert.fail(String.format("QEMU trace file is empty: %s", qemuLogPath));
-      }
-
-
-    } catch (final IOException e) {
-      e.printStackTrace();
-      Assert.fail(e.getMessage());
+    if (isEmpty(qemuLogFile)) {
+      Assert.fail(String.format("QEMU trace file is empty: %s", qemuLogPath));
     }
 
     Logger.message("done.");
