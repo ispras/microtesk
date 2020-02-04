@@ -18,7 +18,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import ru.ispras.microtesk.test.Statistics;
 
-public final class BubbleSortTestCase extends X86NasmTest {
+public final class BubbleSort386TestCase extends X86NasmTest {
   @Test
   public void test() {
     final Statistics statistics = run("bubble_sort_386.rb");
