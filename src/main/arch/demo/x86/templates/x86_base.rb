@@ -45,7 +45,7 @@ class X86BaseTemplate < Template
     # Adds custom text for the header/footer of test programs
     if is_rev('I80386_GNU') then
       add_to_header '.code16'
-      #add_to_footer '.org 510'
+      add_to_footer '.org 510'
       add_to_footer '.word 0xaa55'
     end
 
