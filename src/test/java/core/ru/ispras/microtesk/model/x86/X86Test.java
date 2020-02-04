@@ -22,6 +22,7 @@ import org.junit.Before;
 import ru.ispras.castle.util.FileUtils;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.castle.util.Logger.EventType;
+import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.test.Statistics;
 import ru.ispras.microtesk.test.testutils.TemplateTest;
 
@@ -151,10 +152,10 @@ public abstract class X86Test extends TemplateTest {
         : Paths.get(TEST_PATH, getModelName(), getProgramPrefix());
     setTestDirPath(testDirPath);
 
-    setCommandLineOption(ru.ispras.microtesk.options.Option.TRACER_LOG);
-    setCommandLineOption(ru.ispras.microtesk.options.Option.OUTPUT_DIR, getTestDirPath());
-    setCommandLineOption(ru.ispras.microtesk.options.Option.CODE_FILE_EXTENSION, EXT);
-    setCommandLineOption(ru.ispras.microtesk.options.Option.DATA_FILE_EXTENSION, EXT);
+    setCommandLineOption(Option.TRACER_LOG);
+    setCommandLineOption(Option.OUTPUT_DIR, getTestDirPath());
+    setCommandLineOption(Option.CODE_FILE_EXTENSION, EXT);
+    setCommandLineOption(Option.DATA_FILE_EXTENSION, EXT);
     return super.run(file);
   }
 
