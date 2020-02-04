@@ -59,7 +59,7 @@ public final class TemplatesTestCase extends X86NasmTest {
 
   @Test
   public void testDebug00() {
-    runTemplate("debud00.rb");
+    runTemplate("debug00.rb");
   }
 
   @Test

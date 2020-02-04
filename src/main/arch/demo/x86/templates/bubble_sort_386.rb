@@ -54,7 +54,7 @@ class BubbleSortTemplatei386 < X86BaseTemplate
   end
   def run
     sequence {
-      if is_rev('I80386') then
+      if is_rev('I8086') then
         text "cpu 8086"
         newline
 
