@@ -46,15 +46,17 @@ class BubbleSortTemplatei386 < X86BaseTemplate
   def pre
     super
 
-    data {
-      label :data
-      word rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9)
-      label :end
-    }
+    if is_rev('I80386') then
+      data {
+        label :data
+        word rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9)
+        label :end
+      }
+    end
   end
   def run
     sequence {
-      if is_rev('I8086') then
+      if is_rev('I80386') then
         text "cpu 8086"
         newline
 
