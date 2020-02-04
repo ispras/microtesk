@@ -1,5 +1,5 @@
 #
-# Copyright 2017 ISP RAS (http://www.ispras.ru)
+# Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ require_relative 'x86_base'
 
 #
 
-class SimpleTemplate < X86BaseTemplate
+class Debug00 < X86BaseTemplate
   def run
     trace "ax = %x", gpr(0)
     mov_r16i16 ax, IMM16(11)
