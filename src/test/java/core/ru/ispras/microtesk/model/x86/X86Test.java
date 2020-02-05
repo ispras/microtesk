@@ -278,10 +278,6 @@ public abstract class X86Test extends TemplateTest {
     final String qemuLogName = insertExt(image.getAbsolutePath(), "-qemu.log");
 
     final String[] qemuArgs = new String[] {
-      "-M",
-      "pc",
-      "-cpu",
-      "486",
       "-d",
       "unimp,nochain,in_asm",
       "-nographic",
