@@ -252,6 +252,7 @@ public final class Printer {
       for (final String text : CUSTOM_HEADER) {
         printToFile(text);
       }
+      CUSTOM_HEADER.clear();
     }
   }
 
@@ -259,6 +260,7 @@ public final class Printer {
     for (final String text : CUSTOM_FOOTER) {
       printToFile(text);
     }
+    CUSTOM_FOOTER.clear();
   }
 
   private static String newSeparator(final int length, final String token) {
