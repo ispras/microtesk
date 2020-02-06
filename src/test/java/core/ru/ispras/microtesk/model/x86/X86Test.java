@@ -153,6 +153,7 @@ public abstract class X86Test extends TemplateTest {
     setTestDirPath(testDirPath);
 
     setCommandLineOption(Option.TRACER_LOG);
+    setCommandLineOption(Option.PROGRAM_LENGTH_LIMIT, "500");
     setCommandLineOption(Option.OUTPUT_DIR, getTestDirPath());
     setCommandLineOption(Option.CODE_FILE_EXTENSION, EXT);
     setCommandLineOption(Option.DATA_FILE_EXTENSION, EXT);
