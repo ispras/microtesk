@@ -231,34 +231,31 @@ public final class StatementBuilder {
       return ExprPrinter.toString(new Expr(argument));
     }
 
-    if (argument.isType(DataTypeId.BIT_VECTOR)) {
-      final String methodName;
-      switch (marker.getKind()) {
-        case BIN:
-          methodName = "toBinString()";
-          break;
-        case STR:
-          methodName = "toString()";
-          break;
-        case HEX:
-          methodName = "bigIntegerValue(false)";
-          break;
-        case DEC:
-          methodName = "bigIntegerValue()";
-          break;
-        default:
-          throw new IllegalArgumentException("Unsupported marker kind: " + marker.getKind());
-      }
-
-      return String.format("%s.%s", ExprPrinter.toString(new Expr(argument)), methodName);
-    }
-
     if (argument.isType(DataTypeId.LOGIC_STRING)) {
       InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.STR)
           || marker.isKind(FormatMarker.Kind.BIN));
       return ExprPrinter.toString(new Expr(argument));
     }
 
-    throw new IllegalArgumentException("Illegal data type: " + argument);
+    // Bit vector
+    final String methodName;
+    switch (marker.getKind()) {
+      case BIN:
+        methodName = "toBinString()";
+        break;
+      case STR:
+        methodName = "toString()";
+        break;
+      case HEX:
+        methodName = "bigIntegerValue(false)";
+        break;
+      case DEC:
+        methodName = "bigIntegerValue()";
+        break;
+      default:
+        throw new IllegalArgumentException("Unsupported marker kind: " + marker.getKind());
+    }
+
+    return String.format("%s.%s", ExprPrinter.toString(new Expr(argument)), methodName);
   }
 }

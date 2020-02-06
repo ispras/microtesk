@@ -165,6 +165,7 @@ public enum Operator {
   SIGN_EXTEND(null, 2, Kind.CAST /* No rules. These operator must be handled separately. */),
   ZERO_EXTEND(null, 2, Kind.CAST /* No rules. These operator must be handled separately. */),
   COERCE(null,      2, Kind.CAST /* No rules. These operator must be handled separately. */),
+  CAST(null,        2, Kind.CAST /* No rules. These operator must be handled separately. */),
 
   INT_TO_FLOAT(null,   2, Kind.CAST /* No rules. These operator must be handled separately. */),
   FLOAT_TO_INT(null,   2, Kind.CAST /* No rules. These operator must be handled separately. */),

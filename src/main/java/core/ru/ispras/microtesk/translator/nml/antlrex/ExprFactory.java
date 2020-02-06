@@ -448,10 +448,15 @@ public final class ExprFactory extends WalkerFactoryBase {
     hi.setUserData(NodeInfo.newConst(null));
 
     final Node node = Nodes.bvextract(hi, lo, src.getNode());
-    final NodeInfo nodeInfo = NodeInfo.newOperator(Operator.COERCE, type);
-    node.setUserData(nodeInfo);
 
-    return new Expr(node);
+    final Node resultSize = NodeValue.newInteger(newBitSize);
+    resultSize.setUserData(NodeInfo.newConst(null));
+
+    final Node cast = new NodeOperation(Operator.CAST, resultSize, node);
+    final NodeInfo castInfo = NodeInfo.newOperator(Operator.CAST, type);
+    cast.setUserData(castInfo);
+
+    return new Expr(cast);
   }
 
   public Expr cast(
@@ -470,14 +475,21 @@ public final class ExprFactory extends WalkerFactoryBase {
       return TypeCast.castConstantTo(src, type);
     }
 
-    if (src.getNodeInfo().getType().getBitSize() != type.getBitSize()) {
+    final int oldBitSize = src.getNodeInfo().getType().getBitSize();
+    final int newBitSize = type.getBitSize();
+
+    if (oldBitSize != newBitSize) {
       raiseError(w, "cast does not allow changing data size.");
     }
 
-    final NodeInfo newNodeInfo = src.getNodeInfo().coerceTo(type, NodeInfo.Coercion.CAST);
-    src.setNodeInfo(newNodeInfo);
+    final Node resultSize = NodeValue.newInteger(newBitSize);
+    resultSize.setUserData(NodeInfo.newConst(null));
 
-    return src;
+    final Node cast = new NodeOperation(Operator.CAST, resultSize, src.getNode());
+    final NodeInfo castInfo = NodeInfo.newOperator(Operator.CAST, type);
+    cast.setUserData(castInfo);
+
+    return new Expr(cast);
   }
 
   public Expr int_to_float(
@@ -775,7 +787,8 @@ public final class ExprFactory extends WalkerFactoryBase {
     private final Type type;         // Common Fortress type
     private final boolean constant;  // All operands are constant
 
-    private TypeCalculator(final Where w, final List<Expr> operands) throws SemanticException {
+    private TypeCalculator(final Where w, final List<Expr> operands)
+        throws SemanticException {
       InvariantChecks.checkNotNull(w);
       InvariantChecks.checkNotEmpty(operands);
 
@@ -786,7 +799,16 @@ public final class ExprFactory extends WalkerFactoryBase {
       for (final Expr operand : operands) {
         isAllConstant &= operand.isConstant();
 
-        final DataType currentDataType = operand.getNode().getDataType();
+        DataType currentDataType = operand.getNode().getDataType();
+        if (operand.getNode().getKind() == Node.Kind.OPERATION) {
+          final NodeOperation operation = (NodeOperation) operand.getNode();
+
+          if (operation.getOperationId() == Operator.CAST) {
+            final NodeValue value = (NodeValue) operation.getOperand(0);
+            currentDataType = DataType.bitVector(value.getInteger().intValue());
+          }
+        }
+
         final DataType previousDataType = commonDataType;
 
         commonDataType = previousDataType == null

@@ -125,6 +125,7 @@ final class ExprPrinter extends MapBasedPrinter {
         "", new String[] {".bitField(", ", "}, ")", new int[] {2, 0, 1});
 
     addMapping(Operator.COERCE, "coerce", " ", "");
+    addMapping(Operator.CAST, "coerce", " ", "");
 
     //===========================================>>
 
@@ -208,8 +209,11 @@ final class ExprPrinter extends MapBasedPrinter {
     }
 
     private void onCast(final NodeOperation expr) {
-      final int sourceSize = expr.getOperand(1).getDataType().getSize();
+      final int sourceSize1 = expr.getOperand(1).getDataType().getSize();
       final int targetSize = expr.getDataType().getSize();
+
+      // FIXME: if operand 1 is cast, then sourceSize is 0.
+      final int sourceSize = sourceSize1 == 0 ? 1 : sourceSize1;
 
       importer.addImport(WhymlUtils.getCastTheoryFullName(sourceSize, targetSize));
       BvCastTheoryGenerator.get().generate(sourceSize, targetSize);
