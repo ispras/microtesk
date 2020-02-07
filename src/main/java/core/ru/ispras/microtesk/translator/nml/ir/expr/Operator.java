@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2013-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,9 @@
 
 package ru.ispras.microtesk.translator.nml.ir.expr;
 
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
-import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.expression.*;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.data.TypeId;
 
@@ -192,6 +193,16 @@ public enum Operator {
 
   public static Operator forText(final String text) {
     return operators.get(text);
+  }
+
+  public static DataType getDataType(final Node node) {
+    if (ExprUtils.isOperation(node, Operator.CAST)) {
+      final NodeOperation operation = (NodeOperation) node;
+      final NodeValue value = (NodeValue) operation.getOperand(0);
+      return DataType.bitVector(value.getInteger().intValue());
+    }
+
+    return node.getDataType();
   }
 
   private final String text;

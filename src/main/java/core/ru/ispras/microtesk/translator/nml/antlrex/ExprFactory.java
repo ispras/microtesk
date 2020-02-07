@@ -799,16 +799,7 @@ public final class ExprFactory extends WalkerFactoryBase {
       for (final Expr operand : operands) {
         isAllConstant &= operand.isConstant();
 
-        DataType currentDataType = operand.getNode().getDataType();
-        if (operand.getNode().getKind() == Node.Kind.OPERATION) {
-          final NodeOperation operation = (NodeOperation) operand.getNode();
-
-          if (operation.getOperationId() == Operator.CAST) {
-            final NodeValue value = (NodeValue) operation.getOperand(0);
-            currentDataType = DataType.bitVector(value.getInteger().intValue());
-          }
-        }
-
+        final DataType currentDataType = Operator.getDataType(operand.getNode());
         final DataType previousDataType = commonDataType;
 
         commonDataType = previousDataType == null

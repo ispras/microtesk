@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.translator.nml.codegen.decoder;
 
 import ru.ispras.castle.util.Logger;
+import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
@@ -43,6 +44,7 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.Statement;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAssignment;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementAttributeCall;
 import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFormat;
+import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 import java.util.ArrayDeque;
@@ -390,11 +392,13 @@ final class ImageAnalyzer implements TranslatorHandler<Ir> {
   }
 
   private static ImageInfo getImageInfo(final PrimitiveAnd primitive, final Node field) {
-    InvariantChecks.checkTrue(field.isType(DataTypeId.BIT_VECTOR)
-        || field.isType(DataTypeId.LOGIC_STRING), primitive.getName());
+    final DataType dataType = Operator.getDataType(field);
 
-    if (field.isType(DataTypeId.BIT_VECTOR)) {
-      return new ImageInfo(field.getDataType().getSize(), true);
+    InvariantChecks.checkTrue(dataType.getTypeId() == DataTypeId.BIT_VECTOR
+        || dataType.getTypeId() == DataTypeId.LOGIC_STRING, primitive.getName());
+
+    if (dataType.getTypeId() == DataTypeId.BIT_VECTOR) {
+      return new ImageInfo(dataType.getSize(), true);
     }
 
     class ExprVisitor extends ExprTreeVisitorDefault {
