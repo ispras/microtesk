@@ -79,7 +79,7 @@ class X86BaseTemplate < Template
     #
     # pa: base physical address (used for memory allocation).
     # va: base virtual address (used for encoding instructions that refer to labels).
-    section(:name => '.boot', :pa => 0x01fe, :va => 0x01fe, :prefix => is_rev('I80386_GNU') ? '' : 'section') {}
+    section(:name => 'boot', :pa => 0x01fe, :va => 0x01fe, :prefix => is_rev('I80386_GNU') ? '.section' : 'section') {}
 
     #
     # Defines .text section.
