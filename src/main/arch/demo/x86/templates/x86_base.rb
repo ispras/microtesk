@@ -66,13 +66,25 @@ class X86BaseTemplate < Template
     #
     # Information on data types to be used in data sections.
     #
-    data_config(:target => 'MEM') {
-      define_type   :id => :byte,   :text => 'db',      :type => type('card', 8)
-      define_type   :id => :word,   :text => 'dw',      :type => type('card', 16)
-      define_space  :id => :space,  :text => '.space',  :fill_with => 0
-      define_string :id => :ascii,  :text => '.ascii',  :zero_term => false
-      define_string :id => :asciiz, :text => '.asciiz', :zero_term => true
-    }
+    if is_rev('I80386_GNU') then
+      data_config(:target => 'MEM') {
+        define_type   :id => :byte,    :text => '.byte',   :type => type('card', 8)
+        define_type   :id => :half,    :text => '.half',   :type => type('card', 16)
+        define_type   :id => :byte2,   :text => '.2byte',  :type => type('card', 16), :align => false
+        define_space  :id => :space,   :text => '.space',  :fill_with => 0
+        define_space  :id => :zero,    :text => '.zero',   :fill_with => 0
+        define_space  :id => :skip,    :text => '.skip',   :fill_with => 0
+        define_string :id => :ascii,   :text => '.ascii',  :zero_term => false
+        define_string :id => :asciz,   :text => '.asciz',  :zero_term => true
+        define_string :id => :asciiz,  :text => '.asciiz', :zero_term => true
+        define_string :id => :string,  :text => '.string', :zero_term => true
+      }
+    else
+      data_config(:target => 'MEM') {
+        define_type   :id => :byte,    :text => 'db',      :type => type('card', 8)
+        define_type   :id => :half,    :text => 'dw',      :type => type('card', 16)
+      }
+    end
 
     #
     # Defines .boot section (contains the magic bytes).
@@ -166,7 +178,7 @@ class X86BaseTemplate < Template
 
   def post
     section(:name => 'boot') {
-      word(0xaa55)
+      half(0xaa55)
     }
 
     if i386_assembler == true then

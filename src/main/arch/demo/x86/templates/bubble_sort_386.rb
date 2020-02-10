@@ -49,7 +49,7 @@ class BubbleSortTemplatei386 < X86BaseTemplate
     if is_rev('I80386') then
       data {
         label :data
-        word rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9)
+        half rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9), rand(1, 9)
         label :end
       }
     end
