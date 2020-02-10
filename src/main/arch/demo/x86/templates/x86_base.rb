@@ -69,7 +69,7 @@ class X86BaseTemplate < Template
     if is_rev('I80386_GNU') then
       data_config(:target => 'MEM') {
         define_type   :id => :byte,    :text => '.byte',   :type => type('card', 8)
-        define_type   :id => :half,    :text => '.half',   :type => type('card', 16)
+        define_type   :id => :half,    :text => '.hword',  :type => type('card', 16)
         define_type   :id => :byte2,   :text => '.2byte',  :type => type('card', 16), :align => false
         define_space  :id => :space,   :text => '.space',  :fill_with => 0
         define_space  :id => :zero,    :text => '.zero',   :fill_with => 0
