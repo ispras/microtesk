@@ -165,7 +165,7 @@ class X86BaseTemplate < Template
   ##################################################################################################
 
   def post
-    section(:name => '.boot') {
+    section(:name => 'boot') {
       word(0xaa55)
     }
 
