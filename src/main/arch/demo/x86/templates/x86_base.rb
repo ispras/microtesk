@@ -165,6 +165,10 @@ class X86BaseTemplate < Template
   ##################################################################################################
 
   def post
+    section(:name => '.boot') {
+      word(0xaa55)
+    }
+
     if i386_assembler == true then
       label :success
       mov_r16i16 ax, IMM16(1)
@@ -179,10 +183,6 @@ class X86BaseTemplate < Template
     end
 
     label :error
-
-    section(:name => '.boot') {
-      word(0xaa55)
-    }
   end
 
   ##################################################################################################
