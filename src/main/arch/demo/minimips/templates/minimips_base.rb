@@ -49,9 +49,6 @@ class MiniMipsBaseTemplate < Template
       define_string :id => :ascii,  :text => '.ascii',  :zero_term => false
       define_string :id => :asciiz, :text => '.asciiz', :zero_term => true
     }
-    def st_va_start # Special for boot definition
-      0x0000
-    end
 
     #
     # Boot definition (ROM).
@@ -64,14 +61,13 @@ class MiniMipsBaseTemplate < Template
       text ".list"
       newline
 
-      # Jump to test program 0xFFFFffffa0002000
-      lui ra, st_va_start
-      ori ra, ra, 0x2000
+      # Jump to test program
+      ori ra, zero, 0x2000
       jr ra
       nop
       newline
 
-      # Next parts of the code will be copied to a0000180
+      # Next parts of the code will be copied to the main memory
       org 0x380 # Others
       mthi ra
       mfc0 ra, rcop0(14)
@@ -79,12 +75,8 @@ class MiniMipsBaseTemplate < Template
       mtc0 ra, rcop0(14)
       mfhi ra
       jr ra
+      nop
       newline
-
-      nop
-      nop
-      nop
-      nop
     }
 
     #
