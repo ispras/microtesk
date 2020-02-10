@@ -23,5 +23,5 @@
     </mode>
   </allocation>
 
-  <delaySlot size="1" />
+  <delaySlot size="0" />
 </settings>

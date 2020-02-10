@@ -75,6 +75,13 @@ class X86BaseTemplate < Template
     }
 
     #
+    # Defines .boot section (contains the magic bytes).
+    #
+    # pa: base physical address (used for memory allocation).
+    # va: base virtual address (used for encoding instructions that refer to labels).
+    section(:name => '.boot', :pa => 0x01fe, :va => 0x01fe, :prefix => is_rev('I80386_GNU') ? '' : 'section') {}
+
+    #
     # Defines .text section.
     #
     # pa: base physical address (used for memory allocation).
@@ -172,6 +179,10 @@ class X86BaseTemplate < Template
     end
 
     label :error
+
+    section(:name => '.boot') {
+      word(0xaa55)
+    }
   end
 
   ##################################################################################################
