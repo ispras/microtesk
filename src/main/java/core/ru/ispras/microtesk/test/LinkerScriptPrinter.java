@@ -74,7 +74,7 @@ final class LinkerScriptPrinter {
 //              if (section == Sections.get().getDataSection()) {
 //                st.add("section_ids", ".bss");
 //                st.add("section_vas", null);
-              }
+//              }
             }
 
             return st;
