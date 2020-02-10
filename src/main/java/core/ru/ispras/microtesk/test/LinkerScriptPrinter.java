@@ -70,12 +70,10 @@ final class LinkerScriptPrinter {
 
               st.add("section_ids", section.getName());
               st.add("section_vas", toHexString(section.getBaseVa()));
-              st.add("section_flags", false);
 
-              if (section == Sections.get().getDataSection()) {
-                st.add("section_ids", ".bss");
-                st.add("section_vas", null);
-                st.add("section_flags", true);
+//              if (section == Sections.get().getDataSection()) {
+//                st.add("section_ids", ".bss");
+//                st.add("section_vas", null);
               }
             }
 
