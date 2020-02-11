@@ -19,6 +19,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationSource;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourceMemory;
 import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.expr.NodeInfo;
+import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.InstanceArgument;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
@@ -418,6 +419,8 @@ public final class NmlIrTrans {
             local = ctx.extract(value, evaluateBitSize(loNode, hiNode), lookUp(loNode), lookUp(hiNode));
             break;
           }
+        } else if (node.getOperationId().equals(Operator.CAST)) {
+          local = lookUp(node.getOperand(1));
         } else {
           local = translateMapping(node);
         }
