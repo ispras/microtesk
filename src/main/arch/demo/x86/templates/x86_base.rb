@@ -38,22 +38,8 @@ class X86BaseTemplate < Template
 
     # Sets the indentation token used in test programs
     set_option_value 'indent-token', "\t"
-
     # Sets the token used in separator lines printed into test programs
     set_option_value 'separator-token', '='
-
-    # Adds custom text for the header/footer of test programs
-    if is_rev('I80386_GNU') then
-      add_to_header '.code16'
-      add_to_footer '.org 510'
-      add_to_footer '.word 0xaa55'
-    end
-
-    if is_rev('I80386') then
-      add_to_header 'bits 16'
-      #add_to_footer 'times 510 - ($ - $$) db 0'
-      add_to_footer 'dw 0xAA55'
-    end
   end
 
   ##################################################################################################
@@ -69,20 +55,16 @@ class X86BaseTemplate < Template
     if is_rev('I80386_GNU') then
       data_config(:target => 'MEM') {
         define_type   :id => :byte,    :text => '.byte',   :type => type('card', 8)
-        define_type   :id => :half,    :text => '.hword',  :type => type('card', 16)
-        define_type   :id => :byte2,   :text => '.2byte',  :type => type('card', 16), :align => false
-        define_space  :id => :space,   :text => '.space',  :fill_with => 0
-        define_space  :id => :zero,    :text => '.zero',   :fill_with => 0
-        define_space  :id => :skip,    :text => '.skip',   :fill_with => 0
-        define_string :id => :ascii,   :text => '.ascii',  :zero_term => false
-        define_string :id => :asciz,   :text => '.asciz',  :zero_term => true
-        define_string :id => :asciiz,  :text => '.asciiz', :zero_term => true
-        define_string :id => :string,  :text => '.string', :zero_term => true
+        define_type   :id => :hword,   :text => '.hword',  :type => type('card', 16)
+        define_type   :id => :word,    :text => '.word',   :type => type('card', 32)
+        define_type   :id => :dword,   :text => '.dword',  :type => type('card', 64)
       }
     else
       data_config(:target => 'MEM') {
         define_type   :id => :byte,    :text => 'db',      :type => type('card', 8)
-        define_type   :id => :half,    :text => 'dw',      :type => type('card', 16)
+        define_type   :id => :hword,   :text => 'dw',      :type => type('card', 16)
+        define_type   :id => :word,    :text => 'dd',      :type => type('card', 32)
+        define_type   :id => :dword,   :text => 'dq',      :type => type('card', 64)
       }
     end
 
@@ -178,7 +160,7 @@ class X86BaseTemplate < Template
 
   def post
     section(:name => 'boot') {
-      half(0xaa55)
+      hword(0xaa55)
     }
 
     if i386_assembler == true then
