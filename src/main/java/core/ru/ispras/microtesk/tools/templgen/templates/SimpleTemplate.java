@@ -49,7 +49,7 @@ public final class SimpleTemplate extends GeneratedTemplate {
             new TemplateOperation(operation, templatePrinter, templateMetaModel);
         templatePrinter.addString("");
         templateOperation.printOperationBlock(templatePrinter);
-        TemplatesUtils.printMetaOperation(operation);
+        // TemplatesUtils.printMetaOperation(operation); TODO:
       }
     }
 

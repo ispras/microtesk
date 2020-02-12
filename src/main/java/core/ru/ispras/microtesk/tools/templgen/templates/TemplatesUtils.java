@@ -28,7 +28,7 @@ import java.io.PrintWriter;
  * @author <a href="mailto:protsenko@ispras.ru">Alexander Protsenko</a>
  */
 
-public class TemplatesUtils {
+public final class TemplatesUtils {
   public static void printMetaOperation(final MetaOperation operation) {
     FileWriter file = null;
     try {
