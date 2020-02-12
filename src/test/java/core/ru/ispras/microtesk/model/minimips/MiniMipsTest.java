@@ -383,12 +383,12 @@ public class MiniMipsTest extends TemplateTest {
     Collections.addAll(linkerArgs, objPaths);
 
     final String linkerScriptPath = getLinkerScript(new File(getTestDirPath()));
-    if (linkerScriptPath.length() > 0) {
-      linkerArgs.add("-T");
-      linkerArgs.add(linkerScriptPath);
-    } else {
+    if (linkerScriptPath.isEmpty()) {
       linkerArgs.add("-Ttext");
       linkerArgs.add("0x1000");
+    } else {
+      linkerArgs.add("-T");
+      linkerArgs.add(linkerScriptPath);
     }
 
     linkerArgs.add("-o");
