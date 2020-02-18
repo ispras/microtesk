@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
+ * Copyright 2018-2020 ISP RAS (http://www.ispras.ru), UniTESK Lab (http://www.unitesk.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -73,7 +73,6 @@ public abstract class X86NasmTest extends X86Test {
   protected File compile(final File program, final Collection<File> auxFiles) {
 
     Logger.message(String.format("Start compilation of %s ...", program.getName()));
-    setPhase(TestPhase.COMPILATION);
 
     /* Check whether toolchain has been installed. */
 
@@ -88,7 +87,6 @@ public abstract class X86NasmTest extends X86Test {
     /* asm -> obj */
     runCommand(
         asm,
-        true,
         program.getAbsolutePath(),
         "-f",
         "elf",
@@ -98,7 +96,6 @@ public abstract class X86NasmTest extends X86Test {
     for (final File file : auxFiles) {
       runCommand(
           asm,
-          true,
           file.getAbsolutePath(),
           "-f",
           "elf",
@@ -124,7 +121,7 @@ public abstract class X86NasmTest extends X86Test {
     linkerArgs.add("elf_i386");
     linkerArgs.add("-o");
     linkerArgs.add(getFile(getNameNoExt(program), "elf"));
-    runCommand(linker, true, linkerArgs.toArray(new String[0]));
+    runCommand(linker, linkerArgs.toArray(new String[0]));
 
     final File elfImage = new File(getElf(program));
 
