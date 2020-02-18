@@ -358,10 +358,7 @@ public abstract class X86Test extends TemplateTest {
       }
 
       if (!returnCodes.contains(exitCode)) {
-
-        final String returnMsg =
-            String.format("Process has returned '%d': \"%s\"%n", exitCode, command);
-        Assert.fail(returnMsg);
+        Assert.fail(String.format("Process has returned '%d': \"%s\"%n", exitCode, command));
       }
     } catch (final IOException | InterruptedException e) {
       e.printStackTrace();
