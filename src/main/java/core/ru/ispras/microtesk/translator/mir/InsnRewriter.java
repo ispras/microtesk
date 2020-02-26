@@ -174,6 +174,7 @@ public class InsnRewriter extends InsnVisitor {
     return ret;
   }
 
+  @SuppressWarnings("unchecked")
   private <T extends Operand> T rebase(final T source) {
     if (source instanceof Local) {
       return (T) new Local(offsetIndex(indexOf(source)), source.getType());

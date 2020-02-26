@@ -223,6 +223,7 @@ public class InlinePass extends Pass {
         new Assignment(rebase(insn.lhs), insn.opc.make(rebase(insn.op1), rebase(insn.op2))));
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Operand> T rebase(final T opnd) {
       if (opnd instanceof Local) {
         final Local lval = (Local) opnd;
