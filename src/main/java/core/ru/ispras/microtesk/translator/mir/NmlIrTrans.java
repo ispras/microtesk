@@ -418,6 +418,10 @@ public final class NmlIrTrans {
             final Operand value = lookUp(node.getOperand(2));
             local = ctx.extract(value, evaluateBitSize(loNode, hiNode), lookUp(loNode), lookUp(hiNode));
             break;
+
+          case ITE:
+            local = translateIte(node);
+            break;
           }
         } else if (node.getOperationId().equals(Operator.CAST)) {
           local = lookUp(node.getOperand(1));
@@ -430,6 +434,16 @@ public final class NmlIrTrans {
       }
     }
 
+    private Lvalue translateIte(final NodeOperation node) {
+      final Operand guard = lookUp(node.getOperand(0));
+      final Operand taken = lookUp(node.getOperand(1));
+      final Operand other = lookUp(node.getOperand(2));
+
+      final Local lhs = ctx.newLocal(taken.getType());
+      ctx.append(new Conditional(lhs, guard, taken, other));
+
+      return lhs;
+    }
     private int evaluateBitSize(final Node loNode, final Node hiNode) {
       final Expr lo = new Expr(loNode);
       final Expr hi = new Expr(hiNode);

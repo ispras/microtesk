@@ -64,6 +64,14 @@ class OperandWalker<T> extends InsnVisitor {
     return values;
   }
 
+  @Override
+  public void visit(final Conditional insn) {
+    dispatch(insn.guard);
+    dispatch(insn.taken);
+    dispatch(insn.other);
+    visitor.visitLvalue(insn.lhs);
+  }
+
   public void visit(final Assignment insn) {
     dispatch(insn.op1);
     dispatch(insn.op2);

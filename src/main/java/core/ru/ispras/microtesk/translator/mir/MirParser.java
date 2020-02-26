@@ -348,7 +348,11 @@ public class MirParser {
         }
 
         final MirTy lhsty = nextType(s);
-        final Lvalue lhs = newLocal(name, lhsty);
+        final Local lhs = newLocal(name, lhsty);
+
+        if (s.hasNext("ite")) {
+          return nextConditional(lhs, s);
+        }
 
         final String insn = TokenKind.IDENT.next(s);
         final MirTy rhsty = nextType(s);
@@ -374,6 +378,16 @@ public class MirParser {
         throw new IllegalArgumentException();
       }
       return null;
+    }
+
+    private Instruction nextConditional(final Local lhs, final Scanner s) {
+      TokenKind.IDENT.next(s);
+      final MirTy guardty = nextType(s);
+      final Operand guard = nextOperand(guardty, s);
+      final Operand taken = nextOperand(lhs.getType(), s);
+      final Operand other = nextOperand(lhs.getType(), s);
+
+      return new Conditional(lhs, guard, taken, other);
     }
 
     private Instruction nextDisclose(final String id, final Scanner s) {

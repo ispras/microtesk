@@ -233,6 +233,21 @@ public class MirText {
     }
 
     @Override
+    public void visit(final Conditional insn) {
+      lines.add(String.format("%s = %s ite %s %s %s %s",
+        stringOf(insn.lhs),
+        typeToString(insn.lhs),
+        typeToString(insn.guard),
+        stringOf(insn.guard),
+        stringOf(insn.taken),
+        stringOf(insn.other)));
+    }
+
+    static String typeToString(final Operand opnd) {
+      return opnd.getType().getName();
+    }
+
+    @Override
     public void visit(final GlobalNumbering.Phi insn) {
       lines.add(String.format("%s = phi %s",
         stringOf(insn.target),

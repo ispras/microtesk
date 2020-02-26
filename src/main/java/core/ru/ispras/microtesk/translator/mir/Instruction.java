@@ -239,6 +239,24 @@ static class Zext implements Instruction {
   }
 }
 
+  static class Conditional implements Instruction {
+    public final Local lhs;
+    public final Operand guard;
+    public final Operand taken;
+    public final Operand other;
+
+    Conditional(Local lhs, Operand guard, Operand taken, Operand other) {
+      this.lhs = lhs;
+      this.guard = guard;
+      this.taken = taken;
+      this.other = other;
+    }
+
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
+  }
 }
 
 class Local extends Lvalue {

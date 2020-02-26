@@ -128,6 +128,14 @@ public class Mir2Node extends Pass {
         assign(insn.target, dispatch(insn.origin.source));
       }
     }
+
+    @Override
+    public void visit(final Conditional insn) {
+      final Node guard = dispatch(insn.guard);
+      final Node taken = dispatch(insn.taken);
+      final Node other = dispatch(insn.other);
+      assign(insn.lhs, Nodes.ite(Nodes.eq(guard, BIT_ONE), taken, other));
+    }
  }
 
   private static class Opnd2Node extends OperandVisitor<Node> {

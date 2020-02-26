@@ -381,6 +381,15 @@ abstract class DirectRewriter extends InsnVisitor {
     notifyRewrite(insn, new Disclose(lhs, source, insn.indices));
   }
 
+  public void visit(final Conditional insn) {
+    final Operand guard = dispatch(insn.guard);
+    final Operand taken = dispatch(insn.taken);
+    final Operand other = dispatch(insn.other);
+    final Local lhs = (Local) visitLvalue(insn.lhs);
+
+    notifyRewrite(insn, new Conditional(lhs, guard, taken, other));
+  }
+
   public void visit(final Phi insn) {
     if (insn.value != null) {
       final Operand value = dispatch(insn.value);

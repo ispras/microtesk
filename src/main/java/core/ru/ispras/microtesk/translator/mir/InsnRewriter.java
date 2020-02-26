@@ -220,6 +220,19 @@ public class InsnRewriter extends InsnVisitor {
   }
 
   @Override
+  public void visit(final Conditional insn) {
+    if (isAlive(insn.lhs)) {
+      final Operand guard = rewrite(insn.guard);
+      final Operand taken = rewrite(insn.taken);
+      final Operand other = rewrite(insn.other);
+
+      block.append(new Conditional(rebase(insn.lhs), guard, taken, other));
+    } else {
+      ++nskip;
+    }
+  }
+
+  @Override
   public void visit(final Assignment insn) {
     if (isAlive(insn.lhs)) {
       final Operand op1 = rewrite(insn.op1);

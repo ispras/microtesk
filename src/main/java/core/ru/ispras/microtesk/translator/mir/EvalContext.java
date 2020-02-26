@@ -165,6 +165,21 @@ public final class EvalContext extends InsnVisitor {
   }
 
   @Override
+  public void visit(final Conditional insn) {
+    final Operand guard = getValueRec(insn.guard);
+    if (guard instanceof Constant) {
+      final Operand value = isNonZero(guard) ? insn.taken : insn.other;
+      setLocal(indexOf(insn.lhs), getValueRec(value));
+    } else {
+      final Operand taken = getValueRec(insn.taken);
+      final Operand other = getValueRec(insn.other);
+      if (taken.equals(other)) {
+        setLocal(indexOf(insn.lhs), taken);
+      }
+    }
+  }
+
+  @Override
   public void visit(final GlobalNumbering.SsaStore insn) {
     final Static mem = insn.target;
     if (insn.origin.target instanceof Static) {
