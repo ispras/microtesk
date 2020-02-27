@@ -7,9 +7,7 @@ import static ru.ispras.microtesk.translator.mir.Instruction.Branch;
 
 public abstract class Pass {
   private String comment = "";
-
   Map<String, MirContext> storage;
-  final Map<String, MirContext> result = new java.util.HashMap<>();
 
   public abstract MirContext apply(MirContext ctx);
 

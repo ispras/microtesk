@@ -65,7 +65,6 @@ public class MirPassDriver {
     for (final Pass pass : getPasses()) {
       final int nlocals = ctx.locals.size();
       ctx = pass.apply(ctx);
-      pass.result.put(ctx.name, ctx);
       debugReport(pass, ctx);
     }
     return ctx;
@@ -107,10 +106,6 @@ public class MirPassDriver {
 
   public List<Pass> getPasses() {
     return passList;
-  }
-
-  public Map<String, MirContext> get(int index) {
-    return getPasses().get(index).result;
   }
 
   private static List<String> dependencyOrder(final Map<String, MirContext> source) {
