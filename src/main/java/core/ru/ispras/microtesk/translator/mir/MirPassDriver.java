@@ -79,10 +79,18 @@ public class MirPassDriver {
   }
 
   public Map<String, MirContext> run(final Map<String, MirContext> source) {
+    Logger.message("  list dependencies...");
     final List<String> ordered = dependencyOrder(source);
+
+    final int threshold = Math.min(500, Math.max(ordered.size() / 5 - 1, 1));
+
+    int n = 0;
     for (final String name : ordered) {
       final MirContext ctx = apply(source.get(name));
       storage.put(name, ctx);
+      if (++n % threshold == 0) {
+        Logger.message("  %d/%d...", n, ordered.size());
+      }
     }
     return Collections.unmodifiableMap(this.storage);
   }
