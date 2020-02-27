@@ -12,6 +12,12 @@ import java.util.Set;
 import static ru.ispras.microtesk.translator.mir.Instruction.Call;
 
 public class MirPassDriver {
+  private static final Pass NO_PASS = new Pass() {
+    @Override public MirContext apply(MirContext mir) {
+      throw new UnsupportedOperationException();
+    }
+  }.setComment("input");
+
   private final List<Pass> passList;
   private Map<String, MirContext> storage;
 
@@ -55,16 +61,21 @@ public class MirPassDriver {
 
   public MirContext apply(final MirContext source) {
     MirContext ctx = source;
-    Logger.debug("COMPILE");
-    Logger.debug(MirText.toString(source));
+    debugReport(NO_PASS, source);
     for (final Pass pass : getPasses()) {
       final int nlocals = ctx.locals.size();
-      Logger.debug(pass.getComment());
       ctx = pass.apply(ctx);
-      Logger.debug(MirText.toString(ctx));
       pass.result.put(ctx.name, ctx);
+      debugReport(pass, ctx);
     }
     return ctx;
+  }
+
+  private static void debugReport(final Pass pass, final MirContext mir) {
+    if (Logger.isDebug()) {
+      Logger.debug("MIRPASS: %s", pass.getComment());
+      Logger.debug(MirText.toString(mir));
+    }
   }
 
   public Map<String, MirContext> run(final Map<String, MirContext> source) {
