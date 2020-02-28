@@ -137,7 +137,7 @@ public final class MmuTranslator extends Translator<Ir> {
         return false;
       }
 
-      processIr(ir);
+      processIr(ir, options);
     } catch (final Exception e) {
       e.printStackTrace();
       return false;

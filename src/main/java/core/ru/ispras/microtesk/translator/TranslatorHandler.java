@@ -14,6 +14,12 @@
 
 package ru.ispras.microtesk.translator;
 
+import ru.ispras.microtesk.options.Options;
+
 public interface TranslatorHandler<Ir> {
   void processIr(Ir ir);
+
+  default void processIr(Ir ir, Options options) {
+    processIr(ir);
+  }
 }

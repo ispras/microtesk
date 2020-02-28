@@ -78,10 +78,10 @@ public abstract class Translator<Ir> {
     handlers.add(handler);
   }
 
-  protected final void processIr(final Ir ir) {
+  protected final void processIr(final Ir ir, final Options opts) {
     InvariantChecks.checkNotNull(ir);
     for (final TranslatorHandler<Ir> handler : handlers) {
-      handler.processIr(ir);
+      handler.processIr(ir, opts);
     }
 
     if (null != context) {

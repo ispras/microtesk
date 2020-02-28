@@ -128,7 +128,7 @@ public final class NmlTranslator extends Translator<Ir> {
       return false;
     }
 
-    processIr(ir);
+    processIr(ir, options);
     return true;
   }
 
