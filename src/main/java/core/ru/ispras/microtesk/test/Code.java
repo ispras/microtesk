@@ -50,7 +50,7 @@ public final class Code {
     for (final CodeBlock block : blocks.values()) {
       final Pair<Long, Long> overlapping = block.getOverlapping(newBlock);
       if (null != overlapping) {
-        throw newOverlappingException(overlapping);
+        throw newOverlappingException(newBlock, overlapping);
       }
 
       if (block.getEndAddress() == newBlock.getStartAddress()) {
@@ -66,12 +66,15 @@ public final class Code {
     registerAddresses(newBlock);
   }
 
-  private GenerationAbortedException newOverlappingException(final Pair<Long, Long> overlapping) {
+  private GenerationAbortedException newOverlappingException(
+          final CodeBlock newBlock, final Pair<Long, Long> overlapping) {
     final StringBuilder sb = new StringBuilder();
 
-    sb.append("Failed to place code at addresses");
-    sb.append(String.format(" [0x%016x..0x%016x]. ", overlapping.first, overlapping.second));
-    sb.append("They are already used by:");
+    sb.append("Failed to place code at addresses ");
+    sb.append(String.format("[0x%016x..0x%016x]. ",
+      newBlock.getStartAddress(), newBlock.getEndAddress()));
+    sb.append(String.format("Addresses [0x%016x..0x%016x] are already used by:",
+      overlapping.first, overlapping.second));
 
     final Iterator iterator = getIterator(overlapping.first, false);
     for (int index = 0; index < 5 && iterator.current() != null; index++, iterator.next()) {
