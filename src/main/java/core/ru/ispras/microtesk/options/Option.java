@@ -51,6 +51,8 @@ public enum Option implements Property {
   EXTENSION_DIR("Directory that stores user-defined Java code", "", TRANSLATE),
   MODEL_NAME("Name of the constructed microprocessor model", "", TRANSLATE),
 
+  ENABLE_ISA_MIR("Enables MIR output for current model ISA", false, TRANSLATE),
+
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options
 

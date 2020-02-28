@@ -16,6 +16,8 @@ import java.util.stream.Stream;
 
 import ru.ispras.castle.util.Logger;
 import ru.ispras.microtesk.model.memory.Memory;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 import ru.ispras.microtesk.translator.nml.analysis.IrInquirer;
@@ -42,8 +44,42 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
 
   @Override
   public void processIr(final Ir ir) {
-    final Map<NamePath, MirContext> mirs = loadMir(ir);
+    processIr(ir, new Options());
+  }
+
+  @Override
+  public void processIr(final Ir ir, final Options opts) {
     Logger.message("Translating to MIR...");
+    final var mir = translateIr(ir, loadMir(ir));
+    Logger.message("done.");
+
+    Logger.message("Optimizing MIR...");
+    final Map<String, MirContext> opt = MirPassDriver.newDefault().run(mir);
+    Logger.message("done.");
+
+    final List<MirContext> isa;
+    if (opts.getValueAsBoolean(Option.ENABLE_ISA_MIR)) {
+      Logger.message("Instantiating MIR...");
+      isa = buildIsa(ir, mir);
+      Logger.message("done.");
+    } else {
+      isa = Collections.emptyList();
+    }
+
+    final Path outDir = Paths.get(translator.getOutDir());
+    final String libName = ir.getModelName() + ".zip";
+    final String isaName = ir.getModelName() + "-isa.zip";
+    final JsonObject manifest = createManifest(ir);
+    try {
+      writeArchive(outDir.resolve(libName), manifest, opt.values());
+      writeArchive(outDir.resolve(isaName), manifest, isa);
+    } catch (final IOException e) {
+      Logger.error("Failed to store MIR archive: %s", e.toString());
+    }
+  }
+
+  private static Map<String, MirContext> translateIr(
+      final Ir ir, final Map<NamePath, MirContext> mirs) {
     for (final Primitive p : ir.getOps().values()) {
       if (!p.isOrRule()) {
         final PrimitiveAnd item = (PrimitiveAnd) p;
@@ -67,17 +103,15 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
         mirs.put(name.resolve("write"), access.write);
       }
     }
-    Logger.message("done.");
-
     final Map<String, MirContext> source = new java.util.TreeMap<>();
     for (final MirContext ctx : mirs.values()) {
       source.put(ctx.name, ctx);
     }
-    Logger.message("Optimizing MIR...");
-    final MirPassDriver driver = MirPassDriver.newDefault();
-    final Map<String, MirContext> opt = driver.run(source);
-    Logger.message("done.");
+    return source;
+  }
 
+  private static List<MirContext> buildIsa(final Ir ir, final Map<String, MirContext> source) {
+    final MirPassDriver driver = MirPassDriver.newDefault();
     driver.getPasses().set(0, new InlineNoAccess().setComment("inline (no access)"));
     driver.getPasses().add(1, new InlinePreserve().setComment("inline/dup access"));
     driver.setStorage(source);
@@ -86,24 +120,12 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
         ? variantsOf(ir.getOps().get("instruction"))
         : Collections.emptyList();
 
-    Logger.message("Instantiating MIR...");
     final ProcessReport report = new ProcessReport();
     final List<MirContext> isa = opList.stream()
         .flatMap(x -> instancesOf(report, x))
         .map(x -> report.notifyDone(driver.apply(x)))
         .collect(Collectors.toList());
-    Logger.message("done.");
-
-    final Path outDir = Paths.get(translator.getOutDir());
-    final String libName = ir.getModelName() + ".zip";
-    final String isaName = ir.getModelName() + "-isa.zip";
-    final JsonObject manifest = createManifest(ir);
-    try {
-      writeArchive(outDir.resolve(libName), manifest, opt.values());
-      writeArchive(outDir.resolve(isaName), manifest, isa);
-    } catch (final IOException e) {
-      Logger.error("Failed to store MIR archive: %s", e.toString());
-    }
+    return isa;
   }
 
   static class ProcessReport {
