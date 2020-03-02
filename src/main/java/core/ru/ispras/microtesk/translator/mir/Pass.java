@@ -1,5 +1,6 @@
 package ru.ispras.microtesk.translator.mir;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -33,12 +34,15 @@ public abstract class Pass {
   }
 
   public static MirContext inlineContext(final MirContext dst, final MirContext src) {
-    dst.locals.addAll(Lists.tailOf(src.locals, src.getSignature().params.size() + 1));
+    final int nshift = src.getSignature().params.size() + 1;
+    final int origin = dst.locals.size() - nshift;
+    dst.locals.addAll(Lists.tailOf(src.locals, nshift));
 
     final List<BasicBlock> body = new java.util.ArrayList<>();
     for (final BasicBlock bb : src.blocks) {
       body.add(BasicBlock.copyOf(bb));
     }
+    rebaseBlocks(origin, body);
     dst.blocks.addAll(body);
 
     for (final BasicBlock bb : body) {
@@ -57,6 +61,12 @@ public abstract class Pass {
       }
     }
     return dst;
+  }
+
+  private static void rebaseBlocks(final int value, final Collection<BasicBlock> blocks) {
+    blocks.stream()
+      .flatMap(bb -> bb.origins.stream())
+      .forEach(org -> org.value += value);
   }
 
   private static BasicBlock retargetBlock(
