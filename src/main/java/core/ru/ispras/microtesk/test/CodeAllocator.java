@@ -191,6 +191,8 @@ public final class CodeAllocator {
       BigInteger nextPa = currentPa;
       BigInteger nextVa = currentVa;
 
+      // Process directives (if any): alignment, data and labels.
+      boolean isOrigin = false;
       for (final Directive directive : call.getDirectives()) {
         // Register labels.
         if (directive.getKind() == Directive.Kind.LABEL) {
@@ -205,6 +207,9 @@ public final class CodeAllocator {
 
             labelManager.addLabel(label, nextVa.longValue(), sequenceIndex);
           }
+        } else if (directive.getKind() == Directive.Kind.ORIGIN) {
+          // See the comment below.
+          isOrigin = true;
         }
 
         nextPa = directive.apply(nextPa, allocator);
@@ -215,22 +220,24 @@ public final class CodeAllocator {
 
       if (!nextPa.equals(currentPa)) {
         if (startIndex != currentIndex) {
-          // Code representation is based on virtual addresses.
+          // Code representation uses virtual addresses, not physical ones.
           final CodeBlock block = new CodeBlock(
               calls.subList(startIndex, currentIndex),
               startVa.longValue(),
               currentVa.longValue());
 
+          Logger.debug("Register the block: %s%n", block);
           getCode().registerBlock(block);
           startIndex = currentIndex;
         }
 
-        // TODO: This is a hack: it causes aligned code blocks to be linked together.
-        // This is done for the following reason. In MIPS, aligned calls are executed
-        // as a single sequence because empty space between them filled with zeros is
-        // treated as NOPs. This assumption may be incorrect for other ISAs.
-        // This situation must be handled in a more correct way. Probably, using decoder.
-        final boolean isAligned = !call.getDirectives().isEmpty();
+        // FIXME: This is a hack that causes aligned code blocks to be linked together.
+        // Empty space before aligned calls is usually filled with zeros and treated as NOPs.
+        // This situation must be handled in a more correct way (probably, w/ a decoder).
+        // Currently, there is a difference in handling empty spaces caused by .org and .align:
+        // 1) for .org, the empty space is excluded from the registered code block;
+        // 2) for other directives (including .align), the empty space is included.
+        final boolean isAligned = !call.getDirectives().isEmpty() && !isOrigin;
         final boolean isStartAddress = currentVa.equals(initialVa);
         startVa = isAligned && !isStartAddress ? currentVa : nextVa;
 
@@ -271,6 +278,7 @@ public final class CodeAllocator {
         startVa.longValue(),
         currentVa.longValue());
 
+    Logger.debug("Register the remaining block: %s%n", block);
     getCode().registerBlock(block);
     addresses.put(section.getName(), currentVa);
   }
