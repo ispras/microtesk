@@ -122,7 +122,7 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
 
     final ProcessReport report = new ProcessReport();
     final List<MirContext> isa = opList.stream()
-        .flatMap(x -> instancesOf(report, x))
+        .flatMap(x -> instancesOf(x, report))
         .map(x -> report.notifyDone(driver.apply(x)))
         .collect(Collectors.toList());
     return isa;
@@ -167,10 +167,14 @@ public class MirTransHandler implements TranslatorHandler<Ir> {
     }
   }
 
-  static Stream<MirContext> instancesOf(final ProcessReport report, final PrimitiveAnd p) {
+  static Stream<MirContext> instancesOf(final PrimitiveAnd p, final ProcessReport report) {
+    final var name = p.getName() + ".action";
     final var instances = instantiateRec(p, new MirBuilder(p.getName()));
-    return report.addAll(instances).stream()
-      .map(b -> { b.makeCall(p.getName() + ".action", 0); return b.build(); });
+    report.addAll(instances);
+
+    return instances.stream()
+      .peek(b -> b.makeCall(name, 0))
+      .map(MirBuilder::build);
   }
 
   static List<MirBuilder> instantiateRec(
