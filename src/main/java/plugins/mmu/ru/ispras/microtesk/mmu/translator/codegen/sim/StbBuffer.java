@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -38,8 +38,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
 
   private final Ir ir;
   private final Buffer buffer;
-  private final Buffer parentBuffer;
-  private final boolean isView;
+  private final Buffer next;
 
   private final BuildStrategy strategy;
 
@@ -55,8 +54,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
 
     this.ir = ir;
     this.buffer = buffer;
-    this.parentBuffer = getParentBuffer(buffer);
-    this.isView = buffer != parentBuffer;
+    this.next = getNext(buffer);
 
     switch (buffer.getKind()) {
       case MEMORY:
@@ -80,11 +78,11 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     }
   }
 
-  private static Buffer getParentBuffer(final Buffer buffer) {
+  private static Buffer getNext(final Buffer buffer) {
     Buffer parent = buffer;
 
-    while (null != parent.getParent()) {
-      parent = parent.getParent();
+    while (null != parent.getNext()) {
+      parent = parent.getNext();
     }
 
     return parent;
@@ -115,7 +113,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
   }
 
   private void buildEntry(final ST st, final STGroup group) {
-    if (isView) {
+    if (buffer.isView()) {
       return;
     }
 
@@ -141,7 +139,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     buildNewLine(st);
     final ST stMatcher = group.getInstanceOf("buffer_matcher");
 
-    stMatcher.add("entry_type", String.format("%s.Entry", parentBuffer.getId()));
+    stMatcher.add("entry_type", String.format("%s.Entry", next.getId()));
     stMatcher.add("addr_type", buffer.getAddress().getId());
     stMatcher.add("addr_name", removePrefix(buffer.getAddressArg().getName()));
     stMatcher.add("data_name", DATA_NAME);
@@ -154,7 +152,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     buildNewLine(st);
     final ST stConstructor = group.getInstanceOf("buffer_constructor");
 
-    stConstructor.add("entry_type", String.format("%s.Entry", parentBuffer.getId()));
+    stConstructor.add("entry_type", String.format("%s.Entry", next.getId()));
     stConstructor.add("addr_type", buffer.getAddress().getId());
     stConstructor.add("name", buffer.getId());
     stConstructor.add("ways", buffer.getWays());
@@ -225,7 +223,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     private void buildHeader(final ST st) {
       final String baseName = String.format("%s<%s, %s>",
           MEMORY_CLASS.getSimpleName(),
-          String.format("%s.Entry", parentBuffer.getId()),
+          String.format("%s.Entry", next.getId()),
           buffer.getAddress().getId()
           );
 
@@ -243,7 +241,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       final int entryByteSize = buffer.getEntry().getBitSize() / 8;
 
       final BigInteger byteSize = entries.multiply(BigInteger.valueOf(entryByteSize));
-      stConstructor.add("entry_type", String.format("%s.Entry", parentBuffer.getId()));
+      stConstructor.add("entry_type", String.format("%s.Entry", next.getId()));
       stConstructor.add("addr_type", buffer.getAddress().getId());
       stConstructor.add("size", byteSize.toString(16));
 
@@ -264,7 +262,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     private void buildHeader(final ST st) {
       final String baseName = String.format("%s<%s, %s>",
           CACHE_CLASS.getSimpleName(),
-          String.format("%s.Entry", parentBuffer.getId()),
+          String.format("%s.Entry", next.getId()),
           buffer.getAddress().getId()
           );
 
@@ -287,7 +285,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     private void buildHeader(final ST st) {
       final String baseName = String.format("%s<%s, %s>",
           MMU_MAPPING_CLASS.getSimpleName(),
-          String.format("%s.Entry", parentBuffer.getId()),
+          String.format("%s.Entry", next.getId()),
           buffer.getAddress().getId()
           );
 
@@ -322,7 +320,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     private void buildHeader(final ST st) {
       final String baseName = String.format("%s<%s, %s>",
           REG_MAPPING_CLASS.getSimpleName(),
-          String.format("%s.Entry", parentBuffer.getId()),
+          String.format("%s.Entry", next.getId()),
           buffer.getAddress().getId()
           );
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -31,16 +31,18 @@ public final class Buffer extends AbstractStorage {
       "%sbuffer %s(%s) ="
           + " {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s, parent=%s}";
   private final MmuBuffer.Kind kind;
+  private final boolean isView;
   private final BigInteger ways;
   private final BigInteger sets;
   private final Node index;
   private final Node match;
   private final PolicyId policy;
-  private final Buffer parent;
+  private final Buffer next;
 
   public Buffer(
       final String id,
       final MmuBuffer.Kind kind,
+      final boolean isView,
       final Address address,
       final Var addressArg,
       final Var dataArg,
@@ -49,7 +51,7 @@ public final class Buffer extends AbstractStorage {
       final Node index,
       final Node match,
       final PolicyId policy,
-      final Buffer parent) {
+      final Buffer next) {
 
     super(
         id,
@@ -68,12 +70,13 @@ public final class Buffer extends AbstractStorage {
     InvariantChecks.checkNotNull(policy);
 
     this.kind = kind;
+    this.isView = isView;
     this.ways = ways;
     this.sets = sets;
     this.index = index;
     this.match = match;
     this.policy = policy;
-    this.parent = parent;
+    this.next = next;
   }
 
   private static Map<String, Attribute> createAttributes(
@@ -101,6 +104,10 @@ public final class Buffer extends AbstractStorage {
     return kind;
   }
 
+  public boolean isView() {
+    return isView;
+  }
+
   public BigInteger getWays() {
     return ways;
   }
@@ -125,8 +132,8 @@ public final class Buffer extends AbstractStorage {
     return policy;
   }
 
-  public Buffer getParent() {
-    return parent;
+  public Buffer getNext() {
+    return next;
   }
 
   @Override
@@ -142,7 +149,7 @@ public final class Buffer extends AbstractStorage {
         index,
         match,
         policy,
-        parent != null ? parent.getId() : null
+        next != null ? next.getId() : null
         );
   }
 }

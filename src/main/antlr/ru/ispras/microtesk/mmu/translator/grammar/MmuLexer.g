@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import commonLexer=CommonLexer;
 
 @header {
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -83,12 +83,13 @@ MMU_ENTRY   : 'entry'   { pp(); };
 MMU_INDEX   : 'index'   { pp(); };
 MMU_MATCH   : 'match'   { pp(); };
 MMU_POLICY  : 'policy'  { pp(); };
+MMU_NEXT    : 'next'    { pp(); };
 
 MMU         : 'mmu'     { pp(); };
 MMU_VAR     : 'var'     { pp(); };
 
-MMU_OP      : 'op'     { pp(); };
+MMU_OP      : 'op'      { pp(); };
 
 //==================================================================================================
-// The end
+// The End
 //==================================================================================================

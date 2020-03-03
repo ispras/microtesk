@@ -142,8 +142,8 @@ final class StbBuffer implements StringTemplateBuilder {
         String.format("Collections.<%s>emptyList()", BINDING_CLASS.getSimpleName()));
 
     stConstructor.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
-    if (buffer.getParent() != null) {
-      stConstructor.add("parent", buffer.getParent().getId());
+    if (buffer.getNext() != null) {
+      stConstructor.add("parent", buffer.getNext().getId());
     }
 
     if (!analyzer.getMatchBindings().isEmpty()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file /xcept
  * in compliance with the License. You may obtain a copy of the License at
@@ -38,7 +38,7 @@ catch (final RecognitionException re) {
 
 @header {
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -215,14 +215,15 @@ buffer
             $bufferId, $addressArgId, $addressArgType, $parentBufferId, qualifiers);
       }
         (
-            ^(w=MMU_WAYS ways=expr[0])   {builder.setWays($w, $ways.res);}
-          | ^(w=MMU_SETS sets=expr[0])   {builder.setSets($w, $sets.res);}
+            ^(w=MMU_WAYS ways=expr[0])    {builder.setWays($w, $ways.res);}
+          | ^(w=MMU_SETS sets=expr[0])    {builder.setSets($w, $sets.res);}
           | ^(w=MMU_ENTRY e=structFields[$bufferId.getText() + ".Entry"]) {
               builder.setEntry($w, newType($bufferId, $e.res.build()));
             }
-          | ^(w=MMU_INDEX index=expr[0]) {builder.setIndex($w, $index.res);}
-          | ^(w=MMU_MATCH match=expr[0]) {builder.setMatch($w, $match.res);}
-          | ^(w=MMU_POLICY policyId=ID)  {builder.setPolicyId($w, $policyId);}
+          | ^(w=MMU_INDEX index=expr[0])  {builder.setIndex($w, $index.res);}
+          | ^(w=MMU_MATCH match=expr[0])  {builder.setMatch($w, $match.res);}
+          | ^(w=MMU_POLICY (policyId=ID   {builder.setPolicyId($w, $policyId);})+)
+          | ^(w=MMU_NEXT nextBufferId=ID) {builder.setNextBufferId($w, $nextBufferId);}
         )*
         {builder.build();}
       )

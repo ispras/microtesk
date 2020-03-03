@@ -683,15 +683,15 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private final Address address;
     private final String addressArgId;
     private final Var addressArg;
-    private final Buffer parent;
+    private final boolean isView;
 
     private Var dataArg = null; // stores entries
     private BigInteger ways = BigInteger.ZERO;
     private BigInteger sets = BigInteger.ZERO;
     private Node index = null;
     private Node match = null;
-    private Node guard = null;
     private PolicyId policy = null;
+    private Buffer next = null;
 
     /**
      * Constructs a builder for a Buffer object.
@@ -721,13 +721,14 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       storage.popScope();
 
       if (parentBufferId != null) {
-        this.parent = getBuffer(parentBufferId);
+        this.isView = true;
+        this.next = getBuffer(parentBufferId);
 
         // setDataArg() depends on context, therefore the latter should be
         // created prior to
-        setDataArg(id.getText(), this.parent.getEntry());
+        setDataArg(id.getText(), next.getEntry());
       } else {
-        this.parent = null;
+        this.isView = false;
       }
 
       if (qualifiers.contains(MmuBuffer.Kind.MEMORY.getText())) {
@@ -783,7 +784,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     public void setEntry(final CommonTree attrId, final Type attr) throws SemanticException {
       checkNotNull(attrId, attr);
 
-      if (parent != null) {
+      if (isView) {
         raiseError(where(attrId), "Buffer view forbids 'entry' attribute redefinition.");
       }
       checkRedefined(attrId, dataArg != null);
@@ -809,16 +810,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       match = attr;
     }
 
-    public void setGuard(final CommonTree attrId, final Node attr) throws SemanticException {
-      checkNotNull(attrId, attr);
-
-      if (parent == null) {
-        raiseError(where(attrId), "'guard' attribute is allowed only for buffer views.");
-      }
-      checkRedefined(attrId, guard != null);
-      guard = attr;
-    }
-
     public void setPolicyId(
         final CommonTree attrId, final CommonTree attr) throws SemanticException {
       checkRedefined(attrId, policy != null);
@@ -830,10 +821,20 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
     }
 
+    public void setNextBufferId(
+            final CommonTree attrId, final CommonTree attr) throws SemanticException {
+      checkRedefined(attrId, next != null);
+      try {
+        next = getBuffer(attr);
+      } catch (Exception e) {
+        raiseError(where(attr), "Unknown next buffer: " + attr.getText());
+      }
+    }
+
     public Buffer build() throws SemanticException {
       checkUndefined("ways", ways.equals(BigInteger.ZERO));
       checkUndefined("sets", sets.equals(BigInteger.ZERO));
-      checkUndefined("entry", dataArg == null && parent == null);
+      checkUndefined("entry", dataArg == null && !isView);
       checkUndefined("index", index == null);
       checkUndefined("match", match == null);
 
@@ -844,6 +845,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       final Buffer buffer = new Buffer(
           id.getText(),
           kind,
+          isView,
           address,
           addressArg,
           dataArg,
@@ -852,7 +854,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           index,
           match,
           policy,
-          parent
+          next
           );
 
       ir.addBuffer(buffer);

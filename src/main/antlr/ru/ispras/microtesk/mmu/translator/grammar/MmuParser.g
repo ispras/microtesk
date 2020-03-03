@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -41,7 +41,7 @@ tokens {
 
 @header {
 /*
- * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2020 ISP RAS (http://www.ispras.ru)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -82,11 +82,13 @@ startRule
     ;
 
 declarationRev
-    : rev=revision
-      {pushRevisionApplicable($rev.applicable);}
-      declaration
-      {popRevisionApplicable();} -> {$rev.applicable}? declaration
-                                 ->
+    : rev=revision {
+        pushRevisionApplicable($rev.applicable);
+      }
+      declaration {
+        popRevisionApplicable();
+      } -> {$rev.applicable}? declaration
+        ->
     ;
 
 declaration
@@ -106,10 +108,9 @@ declaration
 //==================================================================================================
 
 let
-    : MMU_LET^ id=ID ASSIGN! expr
-{
-declare($id, NmlSymbolKind.LET_CONST, false);
-}
+    : MMU_LET^ id=ID ASSIGN! expr {
+        declare($id, NmlSymbolKind.LET_CONST, false);
+      }
     ;
 
 //==================================================================================================
@@ -131,7 +132,6 @@ externExpr
 struct
     : MMU_STRUCT^ ID LEFT_PARENTH! fields RIGHT_PARENTH!
     ;
-
 
 fields
     : field (COMMA! field)*
@@ -208,8 +208,6 @@ nameType
     : LEFT_PARENTH! ID COLON! ID RIGHT_PARENTH!
     ;
 
-//--------------------------------------------------------------------------------------------------
-
 range
     : MMU_RANGE^ ASSIGN! LEFT_PARENTH! expr COMMA! expr RIGHT_PARENTH!
     ;
@@ -228,11 +226,13 @@ bufferId
     ;
 
 bufferParameterRev
-    : rev=revision
-      {pushRevisionApplicable($rev.applicable);}
-      bufferParameter
-      {popRevisionApplicable();} -> {$rev.applicable}? bufferParameter
-                                 ->
+    : rev=revision {
+        pushRevisionApplicable($rev.applicable);
+      }
+      bufferParameter {
+        popRevisionApplicable();
+      } -> {$rev.applicable}? bufferParameter
+        ->
     ;
 
 bufferParameter
@@ -242,42 +242,35 @@ bufferParameter
     | index
     | match
     | policy
+    | next
     ;
-
-//--------------------------------------------------------------------------------------------------
 
 ways
     : MMU_WAYS^ ASSIGN! expr
     ;
 
-//--------------------------------------------------------------------------------------------------
-
 sets
     : MMU_SETS^ ASSIGN! expr
     ;
-
-//--------------------------------------------------------------------------------------------------
 
 entry
     : MMU_ENTRY^ ASSIGN! LEFT_PARENTH! fields RIGHT_PARENTH!
     ;
 
-//--------------------------------------------------------------------------------------------------
-
 index
     : MMU_INDEX^ ASSIGN! expr
     ;
-
-//--------------------------------------------------------------------------------------------------
 
 match
     : MMU_MATCH^ ASSIGN! expr
     ;
 
-//--------------------------------------------------------------------------------------------------
-
 policy
-    : MMU_POLICY^ ASSIGN! ID
+    : MMU_POLICY^ ASSIGN! ID (VERT_BAR! ID)*
+    ;
+
+next
+    : MMU_NEXT^ ASSIGN! ID
     ;
 
 //==================================================================================================
