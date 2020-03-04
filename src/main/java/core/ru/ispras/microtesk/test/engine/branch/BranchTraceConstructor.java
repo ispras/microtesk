@@ -355,7 +355,7 @@ final class BranchTraceConstructor {
         for (final Map<Integer, Integer> segment : segments) {
           if (segment.containsKey(block)) {
             Integer count = counts.get(block);
-            count = count == null ? new Integer(0) : new Integer(count + 1);
+            count = count == null ? Integer.valueOf(0) : Integer.valueOf(count + 1);
 
             if (count > maxCount) {
               maxCount = count;
