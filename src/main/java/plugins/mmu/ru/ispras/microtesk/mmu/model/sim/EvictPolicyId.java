@@ -15,18 +15,18 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * {@link PolicyId} enumerates basic data replacement policies.
+ * {@link EvictPolicyId} enumerates basic data replacement policies.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public enum PolicyId {
+public enum EvictPolicyId {
   /**
    * The random data replacement policy.
    */
   RANDOM {
     @Override
-    public Policy newPolicy(final int associativity) {
-      return new PolicyRandom(associativity);
+    public EvictPolicy newPolicy(final int associativity) {
+      return new EvictPolicyRandom(associativity);
     }
   },
 
@@ -35,8 +35,8 @@ public enum PolicyId {
    */
   FIFO {
     @Override
-    public Policy newPolicy(final int associativity) {
-      return new PolicyFifo(associativity);
+    public EvictPolicy newPolicy(final int associativity) {
+      return new EvictPolicyFifo(associativity);
     }
   },
 
@@ -45,8 +45,8 @@ public enum PolicyId {
    */
   LRU {
     @Override
-    public Policy newPolicy(final int associativity) {
-      return new PolicyLru(associativity);
+    public EvictPolicy newPolicy(final int associativity) {
+      return new EvictPolicyLru(associativity);
     }
   },
 
@@ -55,8 +55,8 @@ public enum PolicyId {
    */
   PLRU {
     @Override
-    public Policy newPolicy(final int associativity) {
-      return new PolicyPlru(associativity);
+    public EvictPolicy newPolicy(final int associativity) {
+      return new EvictPolicyPlru(associativity);
     }
   },
 
@@ -65,10 +65,10 @@ public enum PolicyId {
    */
   NONE {
     @Override
-    public Policy newPolicy(final int associativity) {
+    public EvictPolicy newPolicy(final int associativity) {
       return null;
     }
   };
 
-  public abstract Policy newPolicy(int associativity);
+  public abstract EvictPolicy newPolicy(int associativity);
 }

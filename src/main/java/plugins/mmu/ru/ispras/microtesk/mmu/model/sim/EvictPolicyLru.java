@@ -15,11 +15,11 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * {@link PolicyLru} implements the LRU (Least Recently Used) data replacement policy.
+ * {@link EvictPolicyLru} implements the LRU (Least Recently Used) data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class PolicyLru extends Policy {
+final class EvictPolicyLru extends EvictPolicy {
   /** Maps index to time. */
   private int[] times;
   /** Current time. */
@@ -30,7 +30,7 @@ final class PolicyLru extends Policy {
    *
    * @param associativity the buffer associativity.
    */
-  PolicyLru(final int associativity) {
+  EvictPolicyLru(final int associativity) {
     super(associativity);
     resetState();
   }

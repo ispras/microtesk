@@ -14,54 +14,63 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
-import java.util.ArrayList;
-import java.util.List;
+import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link PolicyFifo} implements the FIFO (First In - First Out) data replacement policy.
+ * {@link EvictPolicyPlru} implements the PLRU (Pseudo Least Recently Used) data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class PolicyFifo extends Policy {
-  /** Keeps line indices in the order of their usage. */
-  private List<Integer> fifo = new ArrayList<Integer>();
+final class EvictPolicyPlru extends EvictPolicy {
+  /** The PLRU bits. */
+  private int bits;
+  /** The last access. */
+  private int last;
 
   /**
-   * Constructs a FIFO data replacement controller.
+   * Constructs a PLRU data replacement controller.
    *
    * @param associativity the buffer associativity.
    */
-  PolicyFifo(final int associativity) {
+  EvictPolicyPlru(final int associativity) {
     super(associativity);
 
-    for (int i = 0; i < associativity; i++) {
-      fifo.add(i);
-    }
+    InvariantChecks.checkTrue(associativity <= Integer.SIZE,
+        String.format("Illegal associativity %d", associativity));
+
+    resetState();
   }
 
   @Override
   public void accessLine(final int index) {
-    for (int i = 0; i < fifo.size(); i++) {
-      if (fifo.get(i) == index) {
-        fifo.remove(i);
-        fifo.add(index);
+    setBit(index);
+  }
 
-        return;
-      }
+  private void setBit(final int i) {
+    final int mask = (1 << (last = i));
+
+    bits |= mask;
+    if (bits == ((1 << associativity) - 1)) {
+      bits = mask;
     }
-
-    throw new IllegalStateException(String.format("Index %d cannot be found.", index));
   }
 
   @Override
   public int chooseVictim() {
-    return fifo.get(0);
+    for (int i = 0; i < associativity; i++) {
+      final int j = (last + i) % associativity;
+
+      if ((bits & (1 << j)) == 0) {
+        return j;
+      }
+    }
+
+    throw new IllegalStateException("All bits are set to 1");
   }
 
   @Override
   public void resetState() {
-    for (int i = 0; i < associativity; i++) {
-      fifo.set(i, i);
-    }
+    bits = 0;
+    last = 0;
   }
 }

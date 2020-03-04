@@ -47,7 +47,7 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
   private SparseArray<Set<D, A>> savedSets;
 
   private final int associativity;
-  private final PolicyId policyId;
+  private final EvictPolicyId evictPolicyId;
   private final Indexer<A> indexer;
   private final Matcher<D, A> matcher;
   private final Coercer<D> coercer;
@@ -80,7 +80,7 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
    * @param addressCreator the address creator.
    * @param length the number of sets in the buffer.
    * @param associativity the number of lines in each set.
-   * @param policyId the data replacement policy.
+   * @param evictPolicyId the data replacement policy.
    * @param indexer the set indexer.
    * @param matcher the line matcher.
    * @param coercer the line coercer.
@@ -91,7 +91,7 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
       final Address<A> addressCreator,
       final BigInteger length,
       final int associativity,
-      final PolicyId policyId,
+      final EvictPolicyId evictPolicyId,
       final Indexer<A> indexer,
       final Matcher<D, A> matcher,
       final Coercer<D> coercer,
@@ -100,14 +100,14 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
 
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThanZero(associativity);
-    InvariantChecks.checkNotNull(policyId);
+    InvariantChecks.checkNotNull(evictPolicyId);
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
 
     this.sets = new SparseArray<>(length);
     this.savedSets = null;
     this.associativity = associativity;
-    this.policyId = policyId;
+    this.evictPolicyId = evictPolicyId;
     this.indexer = indexer;
     this.matcher = matcher;
     this.coercer = coercer;
@@ -122,7 +122,7 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
           Cache.this.dataCreator,
           Cache.this.addressCreator,
           associativity,
-          policyId,
+              evictPolicyId,
           matcher
       );
       sets.set(index, result);

@@ -19,7 +19,7 @@ package ru.ispras.microtesk.mmu.model.sim;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-abstract class Policy {
+abstract class EvictPolicy {
   /**
    * The associativity.
    */
@@ -30,7 +30,7 @@ abstract class Policy {
    *
    * @param associativity the buffer associativity.
    */
-  protected Policy(final int associativity) {
+  protected EvictPolicy(final int associativity) {
     if (associativity <= 0) {
       throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
     }

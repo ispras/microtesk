@@ -17,17 +17,17 @@ package ru.ispras.microtesk.mmu.model.sim;
 import ru.ispras.fortress.randomizer.Randomizer;
 
 /**
- * {@link PolicyRandom} implements the random data replacement policy.
+ * {@link EvictPolicyRandom} implements the random data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class PolicyRandom extends Policy {
+final class EvictPolicyRandom extends EvictPolicy {
   /**
    * Constructs a random data replacement controller.
    *
    * @param associativity the buffer associativity.
    */
-  PolicyRandom(final int associativity) {
+  EvictPolicyRandom(final int associativity) {
     super(associativity);
   }
 

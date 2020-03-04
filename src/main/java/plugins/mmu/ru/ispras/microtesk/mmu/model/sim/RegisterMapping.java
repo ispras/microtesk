@@ -37,7 +37,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
   private final String name;
 
   private final int associativity;
-  private final PolicyId policyId;
+  private final EvictPolicyId evictPolicyId;
 
   private final Indexer<A> indexer;
   private final Matcher<D, A> matcher;
@@ -54,7 +54,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
           RegisterMapping.this.dataCreator,
           RegisterMapping.this.addressCreator,
           associativity,
-          policyId,
+              evictPolicyId,
           matcher
       );
     }
@@ -160,7 +160,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
    * @param name the name of the register file mapped to the buffer.
    * @param length the number of sets in the buffer.
    * @param associativity the number of lines in each set.
-   * @param policyId the data replacement policy.
+   * @param evictPolicyId the data replacement policy.
    * @param indexer the set indexer.
    * @param matcher the line matcher.
    */
@@ -170,7 +170,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
       final String name,
       final BigInteger length,
       final int associativity,
-      final PolicyId policyId,
+      final EvictPolicyId evictPolicyId,
       final Indexer<A> indexer,
       final Matcher<D, A> matcher) {
     super(dataCreator, addressCreator);
@@ -179,7 +179,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
     InvariantChecks.checkGreaterThanZero(associativity);
-    InvariantChecks.checkNotNull(policyId);
+    InvariantChecks.checkNotNull(evictPolicyId);
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
 
@@ -189,7 +189,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
     InvariantChecks.checkTrue(getDataBitSize() == storage.getDataBitSize());
 
     this.associativity = associativity;
-    this.policyId = policyId;
+    this.evictPolicyId = evictPolicyId;
     this.indexer = indexer;
     this.matcher = matcher;
 

@@ -37,7 +37,7 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
   private final List<Buffer<D, A>> lines = new ArrayList<>();
 
   /** The data replacement policy. */
-  private final Policy policy;
+  private final EvictPolicy evictPolicy;
 
   /**
    * Constructs a cache set of the given associativity.
@@ -45,19 +45,19 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
    * @param dataCreator the data creator.
    * @param addressCreator the address creator.
    * @param associativity the number of lines in the set.
-   * @param policyId the identifier of the data replacement policy.
+   * @param evictPolicyId the identifier of the data replacement policy.
    * @param matcher the data-address matcher.
    */
   public Set(
       final Struct<D> dataCreator,
       final Address<A> addressCreator,
       final int associativity,
-      final PolicyId policyId,
+      final EvictPolicyId evictPolicyId,
       final Matcher<D, A> matcher) {
     super(dataCreator, addressCreator);
 
     InvariantChecks.checkGreaterThanZero(associativity);
-    InvariantChecks.checkNotNull(policyId);
+    InvariantChecks.checkNotNull(evictPolicyId);
     InvariantChecks.checkNotNull(matcher);
 
     this.matcher = matcher;
@@ -68,7 +68,7 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
       lines.add(line);
     }
 
-    this.policy = policyId.newPolicy(associativity);
+    this.evictPolicy = evictPolicyId.newPolicy(associativity);
   }
 
   protected Buffer<D, A> newLine() {
@@ -92,8 +92,8 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
 
     // If there is a miss, choose a victim.
     if (line == null) {
-      if (null != policy) {
-        line = lines.get(policy.chooseVictim());
+      if (null != evictPolicy) {
+        line = lines.get(evictPolicy.chooseVictim());
       } else {
         InvariantChecks.checkTrue(1 == lines.size());
         line = lines.get(0);
@@ -132,8 +132,8 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
       }
     }
 
-    if (index != -1 && policy != null) {
-      policy.accessLine(index);
+    if (index != -1 && evictPolicy != null) {
+      evictPolicy.accessLine(index);
     }
 
     return index == -1 ? null : lines.get(index);
@@ -150,7 +150,7 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
       line.resetState();
     }
 
-    policy.resetState();
+    evictPolicy.resetState();
   }
 
   @Override

@@ -203,7 +203,7 @@ private static final Coercer\<<entry_type>\> COERCER = new Coercer\<<entry_type>
 };
 >>
 
-buffer_constructor(name, is_reg, is_mem, entry_type, addr_type, ways, sets, policy, has_next, next) ::= <<
+buffer_constructor(name, is_reg, is_mem, entry_type, addr_type, ways, sets, evict_policy, has_next, next) ::= <<
 private <name>() {
   super(
     new <entry_type>(),
@@ -211,7 +211,7 @@ private <name>() {
     <if(is_reg)>"<name>",<endif>
     new BigInteger("<sets>", 10),
     <ways>,
-    <policy>,
+    <evict_policy>,
     INDEXER,
     MATCHER<if(!is_reg && !is_mem)>,
     <if(has_next)>COERCER<else>null<endif>,

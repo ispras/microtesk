@@ -39,7 +39,7 @@ import ru.ispras.fortress.transformer.TypeConversion;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
-import ru.ispras.microtesk.mmu.model.sim.PolicyId;
+import ru.ispras.microtesk.mmu.model.sim.EvictPolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
@@ -690,7 +690,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private BigInteger sets = BigInteger.ZERO;
     private Node index = null;
     private Node match = null;
-    private PolicyId policy = null;
+    private EvictPolicyId policy = null;
     private Buffer next = null;
 
     /**
@@ -814,7 +814,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         final CommonTree attrId, final CommonTree attr) throws SemanticException {
       checkRedefined(attrId, policy != null);
       try {
-        final PolicyId value = PolicyId.valueOf(attr.getText());
+        final EvictPolicyId value = EvictPolicyId.valueOf(attr.getText());
         policy = value;
       } catch (Exception e) {
         raiseError(where(attr), "Unknown policy: " + attr.getText());
@@ -839,7 +839,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       checkUndefined("match", match == null);
 
       if (null == policy) {
-        policy = PolicyId.NONE;
+        policy = EvictPolicyId.NONE;
       }
 
       final Buffer buffer = new Buffer(

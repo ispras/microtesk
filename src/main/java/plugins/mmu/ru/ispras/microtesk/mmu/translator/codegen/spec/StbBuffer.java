@@ -22,7 +22,7 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
-import ru.ispras.microtesk.mmu.model.sim.PolicyId;
+import ru.ispras.microtesk.mmu.model.sim.EvictPolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
 
 import java.math.BigInteger;
@@ -141,7 +141,7 @@ final class StbBuffer implements StringTemplateBuilder {
     stConstructor.add("match",
         String.format("Collections.<%s>emptyList()", BINDING_CLASS.getSimpleName()));
 
-    stConstructor.add("replaceable", Boolean.toString(buffer.getPolicy() != PolicyId.NONE));
+    stConstructor.add("replaceable", Boolean.toString(buffer.getPolicy() != EvictPolicyId.NONE));
     if (buffer.getNext() != null) {
       stConstructor.add("parent", buffer.getNext().getId());
     }
