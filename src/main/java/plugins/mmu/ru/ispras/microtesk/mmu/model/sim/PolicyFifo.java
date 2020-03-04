@@ -14,7 +14,8 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@link PolicyFifo} implements the FIFO (First In - First Out) data replacement policy.
@@ -23,7 +24,7 @@ import java.util.LinkedList;
  */
 final class PolicyFifo extends Policy {
   /** Keeps line indices in the order of their usage. */
-  private LinkedList<Integer> fifo = new LinkedList<Integer>();
+  private List<Integer> fifo = new ArrayList<Integer>();
 
   /**
    * Constructs a FIFO data replacement controller.
@@ -54,11 +55,13 @@ final class PolicyFifo extends Policy {
 
   @Override
   public int chooseVictim() {
-    return fifo.peek();
+    return fifo.get(0);
   }
 
   @Override
   public void resetState() {
-    fifo.clear();
+    for (int i = 0; i < associativity; i++) {
+      fifo.set(i, i);
+    }
   }
 }

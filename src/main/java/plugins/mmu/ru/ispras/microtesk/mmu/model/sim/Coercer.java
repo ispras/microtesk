@@ -22,20 +22,11 @@ package ru.ispras.microtesk.mmu.model.sim;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface Coercer<D extends Struct<?>> {
-
   /**
-   * Converts the current-level entry to the next-level type (except for TAG).
+   * Converts an other-level entry to the current-level type (except for TAG).
    *
-   * @param data the current-level entry.
-   * @return the next-level entry.
-   */
-  Struct<?> coerceForward(D data);
-
-  /**
-   * Converts the next-level entry to the current-level type (except for TAG).
-   *
-   * @param data the next-level entry.
+   * @param data the other-level entry.
    * @return the current-level entry.
    */
-  D coerceBackward(Struct<?> data);
+  D coerce(Struct<?> data);
 }
