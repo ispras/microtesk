@@ -23,7 +23,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Indexer<A extends Address> {
+public interface Indexer<A extends Address<?>> {
   /**
    * Returns the cache set index for the given address.
    *

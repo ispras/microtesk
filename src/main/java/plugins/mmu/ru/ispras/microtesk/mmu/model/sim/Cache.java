@@ -37,7 +37,7 @@ import java.math.BigInteger;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class Cache<D extends Struct, A extends Address>
+public abstract class Cache<D extends Struct<?>, A extends Address<?>>
     extends Buffer<D, A> implements ModelStateManager {
   /** The table of associative sets. */
   private SparseArray<Set<D, A>> sets;

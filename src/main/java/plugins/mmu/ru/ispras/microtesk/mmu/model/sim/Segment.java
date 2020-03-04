@@ -18,7 +18,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
-public abstract class Segment<PA extends Address, VA extends Address> extends Buffer<PA, VA> {
+public abstract class Segment<PA extends Address<?>, VA extends Address<?>> extends Buffer<PA, VA> {
   private final BitVector start;
   private final BitVector end;
 

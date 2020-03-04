@@ -19,7 +19,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
 
-public abstract class Mmu<A extends Address>
+public abstract class Mmu<A extends Address<?>>
     extends Buffer<BitVector, A> implements MemoryDevice {
 
   public Mmu(final Address<A> addressCreator) {

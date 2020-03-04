@@ -21,7 +21,7 @@ import ru.ispras.microtesk.model.memory.MemoryDevice;
 
 import java.math.BigInteger;
 
-public abstract class Memory<D extends Struct, A extends Address> extends Buffer<D, A> {
+public abstract class Memory<D extends Struct<?>, A extends Address> extends Buffer<D, A> {
   private final BigInteger byteSize;
   private MemoryDevice storage;
 

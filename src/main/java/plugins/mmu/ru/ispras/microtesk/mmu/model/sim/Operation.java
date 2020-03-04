@@ -31,12 +31,12 @@ import java.util.Map;
  *
  * @param <A> the address type.
  */
-public abstract class Operation<A extends Address> {
+public abstract class Operation<A extends Address<?>> {
   public abstract void init(final A address);
 
-  private static final Map<String, Operation<? extends Address>> INSTANCES = new HashMap<>();
+  private static final Map<String, Operation<? extends Address<?>>> INSTANCES = new HashMap<>();
 
-  protected static <A extends Address> void register(final Operation<A> operation) {
+  protected static <A extends Address<?>> void register(final Operation<A> operation) {
     InvariantChecks.checkNotNull(operation);
     final String operationName = operation.getClass().getSimpleName();
     INSTANCES.put(operationName, operation);
@@ -47,13 +47,13 @@ public abstract class Operation<A extends Address> {
   }
 
   @SuppressWarnings("unchecked")
-  public static <A extends Address> void initAddress(final A address) {
+  public static <A extends Address<?>> void initAddress(final A address) {
     InvariantChecks.checkNotNull(address);
 
     final String operationId = getCurrentOperation();
     InvariantChecks.checkNotNull(operationId, "No operations on call stack.");
 
-    final Operation<? extends Address> operation = INSTANCES.get(operationId);
+    final Operation<? extends Address<?>> operation = INSTANCES.get(operationId);
     if (null != operation) {
       ((Operation<A>) operation).init(address);
       return;

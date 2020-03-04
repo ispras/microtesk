@@ -31,7 +31,7 @@ import java.math.BigInteger;
  * @param <D> Data type.
  * @param <A> Address type.
  */
-public abstract class MmuMapping<D extends Struct, A extends Address> extends Buffer<D, A> {
+public abstract class MmuMapping<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A> {
 
   private final BigInteger length;
   private final int associativity;

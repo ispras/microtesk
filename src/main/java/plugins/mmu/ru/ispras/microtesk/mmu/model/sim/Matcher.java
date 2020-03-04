@@ -22,7 +22,7 @@ package ru.ispras.microtesk.mmu.model.sim;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Matcher<D extends Struct, A extends Address> {
+public interface Matcher<D extends Struct<?>, A extends Address<?>> {
   /**
    * Checks whether the given data and the given address are matching each other.
    *

@@ -26,7 +26,7 @@ import ru.ispras.fortress.util.Pair;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class Line<D extends Struct, A extends Address> extends Buffer<D, A> {
+public final class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A> {
   /** The stored data. */
   private D data;
 

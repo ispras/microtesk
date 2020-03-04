@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class Set<D extends Struct, A extends Address> extends Buffer<D, A> {
+public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A> {
   /** The line matcher. */
   private final Matcher<D, A> matcher;
 

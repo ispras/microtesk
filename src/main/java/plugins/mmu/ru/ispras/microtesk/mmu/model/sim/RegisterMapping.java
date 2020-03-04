@@ -31,7 +31,8 @@ import java.math.BigInteger;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class RegisterMapping<D extends Struct, A extends Address> extends Buffer<D, A> {
+public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
+    extends Buffer<D, A> {
 
   private final String name;
 
