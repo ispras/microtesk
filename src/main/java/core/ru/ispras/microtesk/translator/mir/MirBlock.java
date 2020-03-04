@@ -61,7 +61,11 @@ public final class MirBlock {
 
   public Local extract(final Operand src, int size, final Operand lo, final Operand hi) {
     final Local ret = newLocal(new IntTy(size));
-    append(new Extract(ret, src, lo, hi));
+    final Local lo2 = newLocal(src.getType());
+    final Local hi2 = newLocal(src.getType());
+    append(new Zext(lo2, lo));
+    append(new Zext(hi2, hi));
+    append(new Extract(ret, src, lo2, hi2));
     return ret;
   }
 
