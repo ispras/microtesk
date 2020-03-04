@@ -61,7 +61,7 @@ public enum PolicyId {
   },
 
   /**
-   * The NONE policy. Means no data replacement is allowed.
+   * The NONE policy (no data replacement).
    */
   NONE {
     @Override

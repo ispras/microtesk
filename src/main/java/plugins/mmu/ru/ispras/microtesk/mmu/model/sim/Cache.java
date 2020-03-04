@@ -26,11 +26,13 @@ import java.math.BigInteger;
  * {@link Cache} represents an abstract partially associative cache memory.
  *
  * A cache unit is characterized by the following parameters (except the data and address types):
- * <ol><li>{@code length} - the number of sets in the cache,
+ * <ol>
+ * <li>{@code length} - the number of sets in the cache,
  * <li>{@code associativity} - the number of lines in each set,
  * <li>{@code policyId} - the data replacement policy,
  * <li>{@code indexer} - the set indexer, and
- * <li>{@code matcher} - the line matcher.</ol>
+ * <li>{@code matcher} - the line matcher.
+ * </ol>
  *
  * @param <D> the data type.
  * @param <A> the address type.
@@ -39,17 +41,19 @@ import java.math.BigInteger;
  */
 public abstract class Cache<D extends Struct<?>, A extends Address<?>>
     extends Buffer<D, A> implements ModelStateManager {
+
   /** The table of associative sets. */
   private SparseArray<Set<D, A>> sets;
   private SparseArray<Set<D, A>> savedSets;
 
-  private final Indexer<A> indexer;
   private final int associativity;
   private final PolicyId policyId;
+  private final Indexer<A> indexer;
   private final Matcher<D, A> matcher;
+  private final Cache<? extends Struct<?>, A> next = null; // FIXME:
 
   /**
-   * Proxy class is used to simply code of assignment expressions.
+   * Proxy class is used to simplify code of assignment expressions.
    */
   public final class Proxy {
     private final A address;
@@ -97,10 +101,9 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
 
     this.sets = new SparseArray<>(length);
     this.savedSets = null;
-    this.indexer = indexer;
-
     this.associativity = associativity;
     this.policyId = policyId;
+    this.indexer = indexer;
     this.matcher = matcher;
   }
 

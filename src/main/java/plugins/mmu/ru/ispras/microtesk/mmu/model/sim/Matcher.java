@@ -23,6 +23,7 @@ package ru.ispras.microtesk.mmu.model.sim;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface Matcher<D extends Struct<?>, A extends Address<?>> {
+
   /**
    * Checks whether the given data and the given address are matching each other.
    *
@@ -31,4 +32,13 @@ public interface Matcher<D extends Struct<?>, A extends Address<?>> {
    * @return {@code true} iff the data and address are matching each other.
    */
   boolean areMatching(D data, A address);
+
+  /**
+   * Extracts the tag from the given address and assigns it to the given data.
+   *
+   * @param data the data.
+   * @param address the address.
+   * @return the input data with the assigned tag.
+   */
+  D assignsTag(D data, A address);
 }
