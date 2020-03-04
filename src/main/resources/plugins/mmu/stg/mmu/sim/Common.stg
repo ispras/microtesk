@@ -165,7 +165,7 @@ buffer_entry(members) ::= <<
 <class(["public", "static", "final"],
        "Entry",
        false,
-       "Struct",
+       "Struct<Entry>",
        members)>
 >>
 
