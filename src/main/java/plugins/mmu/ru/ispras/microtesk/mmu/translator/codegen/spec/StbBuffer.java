@@ -141,7 +141,8 @@ final class StbBuffer implements StringTemplateBuilder {
     stConstructor.add("match",
         String.format("Collections.<%s>emptyList()", BINDING_CLASS.getSimpleName()));
 
-    stConstructor.add("replaceable", Boolean.toString(buffer.getPolicy() != EvictPolicyId.NONE));
+    stConstructor.add("replaceable",
+            Boolean.toString(buffer.getEvictPolicy() != EvictPolicyId.NONE));
     if (buffer.getNext() != null) {
       stConstructor.add("parent", buffer.getNext().getId());
     }

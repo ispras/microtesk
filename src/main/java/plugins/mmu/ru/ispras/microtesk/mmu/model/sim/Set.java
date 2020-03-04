@@ -39,13 +39,17 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
   /** The data replacement policy. */
   private final EvictPolicy evictPolicy;
 
+  /** The data write policy. */
+  private final WritePolicyId writePolicyId;
+
   /**
    * Constructs a cache set of the given associativity.
    *
    * @param dataCreator the data creator.
    * @param addressCreator the address creator.
    * @param associativity the number of lines in the set.
-   * @param evictPolicyId the identifier of the data replacement policy.
+   * @param evictPolicyId the data replacement policy.
+   * @param writePolicyId the data write policy.
    * @param matcher the data-address matcher.
    */
   public Set(
@@ -53,11 +57,13 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
       final Address<A> addressCreator,
       final int associativity,
       final EvictPolicyId evictPolicyId,
+      final WritePolicyId writePolicyId,
       final Matcher<D, A> matcher) {
     super(dataCreator, addressCreator);
 
     InvariantChecks.checkGreaterThanZero(associativity);
     InvariantChecks.checkNotNull(evictPolicyId);
+    InvariantChecks.checkNotNull(writePolicyId);
     InvariantChecks.checkNotNull(matcher);
 
     this.matcher = matcher;
@@ -69,6 +75,7 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
     }
 
     this.evictPolicy = evictPolicyId.newPolicy(associativity);
+    this.writePolicyId = writePolicyId;
   }
 
   protected Buffer<D, A> newLine() {

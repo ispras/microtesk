@@ -38,6 +38,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
 
   private final int associativity;
   private final EvictPolicyId evictPolicyId;
+  private final WritePolicyId writePolicyId;
 
   private final Indexer<A> indexer;
   private final Matcher<D, A> matcher;
@@ -54,7 +55,8 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
           RegisterMapping.this.dataCreator,
           RegisterMapping.this.addressCreator,
           associativity,
-              evictPolicyId,
+          evictPolicyId,
+          writePolicyId,
           matcher
       );
     }
@@ -171,6 +173,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
       final BigInteger length,
       final int associativity,
       final EvictPolicyId evictPolicyId,
+      final WritePolicyId writePolicyId,
       final Indexer<A> indexer,
       final Matcher<D, A> matcher) {
     super(dataCreator, addressCreator);
@@ -190,6 +193,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
 
     this.associativity = associativity;
     this.evictPolicyId = evictPolicyId;
+    this.writePolicyId = writePolicyId;
     this.indexer = indexer;
     this.matcher = matcher;
 

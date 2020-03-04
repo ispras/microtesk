@@ -18,6 +18,7 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.model.sim.EvictPolicyId;
+import ru.ispras.microtesk.mmu.model.sim.WritePolicyId;
 import ru.ispras.microtesk.mmu.model.spec.MmuBuffer;
 
 import java.math.BigInteger;
@@ -29,14 +30,15 @@ public final class Buffer extends AbstractStorage {
 
   private static final String TO_STRING_FMT =
       "%sbuffer %s(%s) ="
-          + " {ways=%d, sets=%d, entry=%s, index=%s, match=%s, policy=%s, parent=%s}";
+          + " {ways=%d, sets=%d, entry=%s, index=%s, match=%s, evict=%s, write=%s, parent=%s}";
   private final MmuBuffer.Kind kind;
   private final boolean isView;
   private final BigInteger ways;
   private final BigInteger sets;
   private final Node index;
   private final Node match;
-  private final EvictPolicyId policy;
+  private final EvictPolicyId evictPolicy;
+  private final WritePolicyId writePolicy;
   private final Buffer next;
 
   public Buffer(
@@ -50,7 +52,8 @@ public final class Buffer extends AbstractStorage {
       final BigInteger sets,
       final Node index,
       final Node match,
-      final EvictPolicyId policy,
+      final EvictPolicyId evictPolicy,
+      final WritePolicyId writePolicy,
       final Buffer next) {
 
     super(
@@ -67,7 +70,8 @@ public final class Buffer extends AbstractStorage {
     InvariantChecks.checkTrue(sets.compareTo(BigInteger.ZERO) > 0);
     InvariantChecks.checkNotNull(index);
     InvariantChecks.checkNotNull(match);
-    InvariantChecks.checkNotNull(policy);
+    InvariantChecks.checkNotNull(evictPolicy);
+    InvariantChecks.checkNotNull(writePolicy);
 
     this.kind = kind;
     this.isView = isView;
@@ -75,7 +79,8 @@ public final class Buffer extends AbstractStorage {
     this.sets = sets;
     this.index = index;
     this.match = match;
-    this.policy = policy;
+    this.evictPolicy = evictPolicy;
+    this.writePolicy = writePolicy;
     this.next = next;
   }
 
@@ -128,8 +133,12 @@ public final class Buffer extends AbstractStorage {
     return match;
   }
 
-  public EvictPolicyId getPolicy() {
-    return policy;
+  public EvictPolicyId getEvictPolicy() {
+    return evictPolicy;
+  }
+
+  public WritePolicyId getWritePolicy() {
+    return writePolicy;
   }
 
   public Buffer getNext() {
@@ -148,7 +157,8 @@ public final class Buffer extends AbstractStorage {
         getEntry(),
         index,
         match,
-        policy,
+        evictPolicy,
+        writePolicy,
         next != null ? next.getId() : null
         );
   }

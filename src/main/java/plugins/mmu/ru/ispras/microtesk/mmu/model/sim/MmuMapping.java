@@ -36,7 +36,7 @@ public abstract class MmuMapping<D extends Struct<?>, A extends Address<?>> exte
   private final BigInteger length;
   private final int associativity;
   private final EvictPolicyId evictPolicyId;
-
+  private final WritePolicyId writePolicyId;
   private final Indexer<A> indexer;
   private final Matcher<D, A> matcher;
 
@@ -57,6 +57,7 @@ public abstract class MmuMapping<D extends Struct<?>, A extends Address<?>> exte
       final BigInteger length,
       final int associativity,
       final EvictPolicyId evictPolicyId,
+      final WritePolicyId writePolicyId,
       final Indexer<A> indexer,
       final Matcher<D, A> matcher) {
     super(dataCreator, addressCreator);
@@ -65,12 +66,14 @@ public abstract class MmuMapping<D extends Struct<?>, A extends Address<?>> exte
     InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
     InvariantChecks.checkGreaterThanZero(associativity);
     InvariantChecks.checkNotNull(evictPolicyId);
+    InvariantChecks.checkNotNull(writePolicyId);
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
 
     this.length = length;
     this.associativity = associativity;
     this.evictPolicyId = evictPolicyId;
+    this.writePolicyId = writePolicyId;
     this.indexer = indexer;
     this.matcher = matcher;
   }
