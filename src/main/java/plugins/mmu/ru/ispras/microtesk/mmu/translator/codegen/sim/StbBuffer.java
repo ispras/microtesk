@@ -126,6 +126,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
   }
 
   private void buildIndexer(final ST st, final STGroup group) {
+    buildNewLine(st);
     final ST stIndexer = group.getInstanceOf("buffer_indexer");
 
     stIndexer.add("addr_type", buffer.getAddress().getId());
@@ -148,16 +149,31 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     st.add("members", stMatcher);
   }
 
+  private void buildCoercer(final ST st, final STGroup group) {
+    buildNewLine(st);
+    final ST stCoercer = group.getInstanceOf("coercer_matcher");
+
+    stCoercer.add("entry_type", String.format("%s.Entry", next.getId()));
+    stCoercer.add("data_name", DATA_NAME);
+
+    st.add("members", stCoercer);
+  }
+
   private void buildConstructor(final ST st, final STGroup group) {
     buildNewLine(st);
     final ST stConstructor = group.getInstanceOf("buffer_constructor");
 
+    stConstructor.add("name", buffer.getId());
+    stConstructor.add("is_reg", buffer.getKind() == Kind.REGISTER);
+    stConstructor.add("is_mem", buffer.getKind() == Kind.MEMORY);
     stConstructor.add("entry_type", String.format("%s.Entry", next.getId()));
     stConstructor.add("addr_type", buffer.getAddress().getId());
-    stConstructor.add("name", buffer.getId());
     stConstructor.add("ways", buffer.getWays());
     stConstructor.add("sets", buffer.getSets());
-    stConstructor.add("is_mapped", buffer.getKind() == Kind.REGISTER);
+    stConstructor.add("has_next", buffer.getNext() != null);
+    stConstructor.add("next", buffer.getNext() != null
+        ? String.format("%s.get()", buffer.getNext().getId())
+        : "null");
 
     stConstructor.add("policy", String.format("%s.%s",
         POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().name()));
@@ -256,6 +272,9 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       buildEntry(st, group);
       buildIndexer(st, group);
       buildMatcher(st, group);
+      if (buffer.getNext() != null) {
+        buildCoercer(st, group);
+      }
       buildConstructor(st, group);
     }
 

@@ -50,7 +50,8 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
   private final PolicyId policyId;
   private final Indexer<A> indexer;
   private final Matcher<D, A> matcher;
-  private final Cache<? extends Struct<?>, A> next = null; // FIXME:
+  private final Coercer<D> coercer;
+  private final Cache<? extends Struct<?>, A> next;
 
   /**
    * Proxy class is used to simplify code of assignment expressions.
@@ -82,6 +83,8 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
    * @param policyId the data replacement policy.
    * @param indexer the set indexer.
    * @param matcher the line matcher.
+   * @param coercer the line coercer.
+   * @param next the next-level cache.
    */
   public Cache(
       final Struct<D> dataCreator,
@@ -90,7 +93,9 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
       final int associativity,
       final PolicyId policyId,
       final Indexer<A> indexer,
-      final Matcher<D, A> matcher) {
+      final Matcher<D, A> matcher,
+      final Coercer<D> coercer,
+      final Cache<? extends Struct<?>, A> next) {
     super(dataCreator, addressCreator);
 
     InvariantChecks.checkNotNull(length);
@@ -105,6 +110,8 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
     this.policyId = policyId;
     this.indexer = indexer;
     this.matcher = matcher;
+    this.coercer = coercer;
+    this.next = next;
   }
 
   private Set<D, A> getSet(final BitVector index) {

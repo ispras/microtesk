@@ -71,12 +71,6 @@ abstract class StbCommon {
   public static final Class<?> MEMORY_CLASS =
       ru.ispras.microtesk.mmu.model.sim.Memory.class;
 
-  public static final Class<?> INDEXER_CLASS =
-      ru.ispras.microtesk.mmu.model.sim.Indexer.class;
-
-  public static final Class<?> MATCHER_CLASS =
-      ru.ispras.microtesk.mmu.model.sim.Matcher.class;
-
   public static final Class<?> POLICY_ID_CLASS =
       ru.ispras.microtesk.mmu.model.sim.PolicyId.class;
 
