@@ -422,6 +422,11 @@ public final class NmlIrTrans {
           case ITE:
             local = translateIte(node);
             break;
+
+          case BVROR:
+          case BVROL:
+            local = translateRot(node);
+            break;
           }
         } else if (node.getOperationId().equals(Operator.CAST)) {
           local = lookUp(node.getOperand(1));
@@ -432,6 +437,18 @@ public final class NmlIrTrans {
 
         result = local;
       }
+    }
+
+    private Lvalue translateRot(final NodeOperation node) {
+      final Operand value = lookUp(node.getOperand(0));
+      final Operand amount = lookUp(node.getOperand(1));
+
+      final Lvalue tmp = ctx.newLocal(value.getType());
+      final Lvalue lhs = ctx.newLocal(value.getType());
+      ctx.append(new Zext(tmp, amount));
+      ctx.assign(lhs, mapOpcode(node).make(value, tmp));
+
+      return lhs;
     }
 
     private Lvalue translateIte(final NodeOperation node) {
@@ -932,6 +949,8 @@ public final class NmlIrTrans {
     OPCODE_MAPPING.put(StandardOperation.BVASHL, BvOpcode.Shl);
     OPCODE_MAPPING.put(StandardOperation.BVASHR, BvOpcode.Ashr);
     OPCODE_MAPPING.put(StandardOperation.BVLSHR, BvOpcode.Lshr);
+    OPCODE_MAPPING.put(StandardOperation.BVROR, BvOpcode.Rotr);
+    OPCODE_MAPPING.put(StandardOperation.BVROL, BvOpcode.Rotl);
 
     for (final Map.Entry<Enum<?>, BinOpcode> entry : OPCODE_MAPPING.entrySet()) {
       final BinOpcode opc = entry.getValue();

@@ -513,6 +513,18 @@ enum BvOpcode implements BinOpcode, ConstEvaluated {
     BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
       return BitVectorMath.lshr(lhs, rhs);
     }
+  },
+  Rotr {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.rotr(lhs, rhs);
+    }
+  },
+  Rotl {
+    @Override
+    BitVector evalBitVector(final BitVector lhs, final BitVector rhs) {
+      return BitVectorMath.rotl(lhs, rhs);
+    }
   };
 
   @Override

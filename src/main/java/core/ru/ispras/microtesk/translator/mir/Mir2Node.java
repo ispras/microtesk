@@ -8,6 +8,7 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
+import ru.ispras.fortress.expression.StandardOperation;
 
 import java.math.BigInteger;
 import java.util.Collections;
@@ -62,11 +63,32 @@ public class Mir2Node extends Pass {
 
     public void visit(final Assignment insn) {
       final Enum<?> opc = NmlIrTrans.MIR2NODE_MAP.get(insn.opc);
-      final Node op = new NodeOperation(opc, dispatch(insn.op1), dispatch(insn.op2));
+      final Node op;
+      if (opc == BvOpcode.Rotl || opc == BvOpcode.Rotr) {
+        op = rotate(opc, insn.op1, insn.op2);
+      } else {
+        op = new NodeOperation(opc, dispatch(insn.op1), dispatch(insn.op2));
+      }
       if (insn.opc instanceof CmpOpcode) {
         assign(insn.lhs, Nodes.ite(op, BIT_ONE, BIT_ZERO));
       } else {
         assign(insn.lhs, op);
+      }
+    }
+
+    private NodeOperation rotate(Enum<?> opc, Operand op1, Operand op2) {
+      final Node value = dispatch(op1);
+      final Node amount = dispatch(op2);
+      if (op2 instanceof Constant) {
+        return new NodeOperation(opc, amount, value);
+      }
+      final Node nbits = NodeValue.newBitVector(sizeOf(op2), sizeOf(op2));
+      final Node modAmount = Nodes.bvurem(amount, nbits);
+      final Node invAmount = Nodes.bvsub(nbits, modAmount);
+      if (opc == StandardOperation.BVROR) {
+        return Nodes.bvor(Nodes.bvlshr(value, modAmount), Nodes.bvlshl(value, invAmount));
+      } else {
+        return Nodes.bvor(Nodes.bvlshl(value, modAmount), Nodes.bvlshr(value, invAmount));
       }
     }
 
