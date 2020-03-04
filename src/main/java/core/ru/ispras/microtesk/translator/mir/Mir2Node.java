@@ -64,7 +64,7 @@ public class Mir2Node extends Pass {
     public void visit(final Assignment insn) {
       final Enum<?> opc = NmlIrTrans.MIR2NODE_MAP.get(insn.opc);
       final Node op;
-      if (opc == BvOpcode.Rotl || opc == BvOpcode.Rotr) {
+      if (opc == StandardOperation.BVROR || opc == StandardOperation.BVROL) {
         op = rotate(opc, insn.op1, insn.op2);
       } else {
         op = new NodeOperation(opc, dispatch(insn.op1), dispatch(insn.op2));
