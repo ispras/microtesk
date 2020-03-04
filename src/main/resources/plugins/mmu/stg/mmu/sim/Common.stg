@@ -196,13 +196,13 @@ private static final Matcher\<<entry_type>, <addr_type>\> MATCHER = new Matcher\
 buffer_coercer(entry_type, data_name) ::= <<
 private static final Coercer\<<entry_type>\> COERCER = new Coercer\<<entry_type>\>() {
   @Override
-  public Struct\<?\> coerceForward(final <entry_type> <data_name>) {
+  public Struct\<?> coerceForward(final <entry_type> <data_name>) {
     // FIXME:
     return null;
   }
 
   @Override
-  public <entry_type> D coerceBackward(final Struct\<?\> <data_name>) {
+  public <entry_type> coerceBackward(final Struct\<?> <data_name>) {
     // FIXME:
     return null;
   }

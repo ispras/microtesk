@@ -100,7 +100,7 @@ buffer MEM (pa: PA)
   match = 0
   policy = NONE
 
-buffer L1 (pa : PA)
+buffer L1 (pa: PA)
   ways = 4
   sets = 2
   entry = (tag: 12, data: 16)

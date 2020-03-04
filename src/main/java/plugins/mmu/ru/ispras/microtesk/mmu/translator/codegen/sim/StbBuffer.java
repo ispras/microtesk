@@ -140,7 +140,8 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     buildNewLine(st);
     final ST stMatcher = group.getInstanceOf("buffer_matcher");
 
-    stMatcher.add("entry_type", String.format("%s.Entry", next.getId()));
+    stMatcher.add("entry_type", String.format("%s.Entry",
+        buffer.isView() ? next.getId() : buffer.getId()));
     stMatcher.add("addr_type", buffer.getAddress().getId());
     stMatcher.add("addr_name", removePrefix(buffer.getAddressArg().getName()));
     stMatcher.add("data_name", DATA_NAME);
@@ -151,9 +152,9 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
 
   private void buildCoercer(final ST st, final STGroup group) {
     buildNewLine(st);
-    final ST stCoercer = group.getInstanceOf("coercer_matcher");
+    final ST stCoercer = group.getInstanceOf("buffer_coercer");
 
-    stCoercer.add("entry_type", String.format("%s.Entry", next.getId()));
+    stCoercer.add("entry_type", String.format("%s.Entry", buffer.getId()));
     stCoercer.add("data_name", DATA_NAME);
 
     st.add("members", stCoercer);
@@ -166,12 +167,13 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     stConstructor.add("name", buffer.getId());
     stConstructor.add("is_reg", buffer.getKind() == Kind.REGISTER);
     stConstructor.add("is_mem", buffer.getKind() == Kind.MEMORY);
-    stConstructor.add("entry_type", String.format("%s.Entry", next.getId()));
+    stConstructor.add("entry_type",
+        String.format("%s.Entry", buffer.isView() ? next.getId() : buffer.getId()));
     stConstructor.add("addr_type", buffer.getAddress().getId());
     stConstructor.add("ways", buffer.getWays());
     stConstructor.add("sets", buffer.getSets());
-    stConstructor.add("has_next", buffer.getNext() != null);
-    stConstructor.add("next", buffer.getNext() != null
+    stConstructor.add("has_next", buffer.getNext() != null && !buffer.isView());
+    stConstructor.add("next", buffer.getNext() != null && !buffer.isView()
         ? String.format("%s.get()", buffer.getNext().getId())
         : "null");
 
@@ -257,7 +259,8 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       final int entryByteSize = buffer.getEntry().getBitSize() / 8;
 
       final BigInteger byteSize = entries.multiply(BigInteger.valueOf(entryByteSize));
-      stConstructor.add("entry_type", String.format("%s.Entry", next.getId()));
+      stConstructor.add("entry_type",
+          String.format("%s.Entry", buffer.isView() ? next.getId() : buffer.getId()));
       stConstructor.add("addr_type", buffer.getAddress().getId());
       stConstructor.add("size", byteSize.toString(16));
 
@@ -272,7 +275,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       buildEntry(st, group);
       buildIndexer(st, group);
       buildMatcher(st, group);
-      if (buffer.getNext() != null) {
+      if (buffer.getNext() != null && !buffer.isView()) {
         buildCoercer(st, group);
       }
       buildConstructor(st, group);
@@ -281,7 +284,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     private void buildHeader(final ST st) {
       final String baseName = String.format("%s<%s, %s>",
           CACHE_CLASS.getSimpleName(),
-          String.format("%s.Entry", next.getId()),
+          String.format("%s.Entry", buffer.isView() ? next.getId() : buffer.getId()),
           buffer.getAddress().getId()
           );
 
@@ -304,7 +307,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     private void buildHeader(final ST st) {
       final String baseName = String.format("%s<%s, %s>",
           MMU_MAPPING_CLASS.getSimpleName(),
-          String.format("%s.Entry", next.getId()),
+          String.format("%s.Entry", buffer.isView() ? next.getId() : buffer.getId()),
           buffer.getAddress().getId()
           );
 
@@ -339,7 +342,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     private void buildHeader(final ST st) {
       final String baseName = String.format("%s<%s, %s>",
           REG_MAPPING_CLASS.getSimpleName(),
-          String.format("%s.Entry", next.getId()),
+          String.format("%s.Entry", buffer.isView() ? next.getId() : buffer.getId()),
           buffer.getAddress().getId()
           );
 

@@ -51,7 +51,7 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
   private final Indexer<A> indexer;
   private final Matcher<D, A> matcher;
   private final Coercer<D> coercer;
-  private final Cache<? extends Struct<?>, A> next;
+  private final Buffer<? extends Struct<?>, A> next;
 
   /**
    * Proxy class is used to simplify code of assignment expressions.
@@ -95,7 +95,7 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
       final Indexer<A> indexer,
       final Matcher<D, A> matcher,
       final Coercer<D> coercer,
-      final Cache<? extends Struct<?>, A> next) {
+      final Buffer<? extends Struct<?>, A> next) {
     super(dataCreator, addressCreator);
 
     InvariantChecks.checkNotNull(length);
