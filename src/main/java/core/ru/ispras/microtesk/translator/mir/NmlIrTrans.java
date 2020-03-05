@@ -392,6 +392,10 @@ public final class NmlIrTrans {
             local = translateConcat2(node);
             break;
 
+          case BVREPEAT:
+            local = translateRepeat(node);
+            break;
+
           case BVSIGNEXT: {
             final int diff = ((NodeValue) node.getOperand(0)).getInteger().intValue();
             final Operand rhs = lookUp(node.getOperand(1));
@@ -427,6 +431,10 @@ public final class NmlIrTrans {
           case BVROL:
             local = translateRot(node);
             break;
+
+          case BVNEG:
+            local = translateNeg(node);
+            break;
           }
         } else if (node.getOperationId().equals(Operator.CAST)) {
           local = lookUp(node.getOperand(1));
@@ -437,6 +445,29 @@ public final class NmlIrTrans {
 
         result = local;
       }
+    }
+
+    private Lvalue translateNeg(final NodeOperation node) {
+      final Operand rhs = lookUp(node.getOperand(0));
+      final Local not =
+        ctx.assignLocal(BvOpcode.Xor.make(rhs, valueAssignable(-1, rhs)));
+      return ctx.assignLocal(BvOpcode.Add.make(not, valueAssignable(1, not)));
+    }
+
+    private Lvalue translateRepeat(final NodeOperation node) {
+      final Node ntimes = node.getOperand(0);
+      final Local lhs = ctx.newLocal(node.getDataType().getSize());
+      if (ntimes.getKind() == Node.Kind.VALUE) {
+        final int n = ((NodeValue) ntimes).getInteger().intValue();
+        final Operand opnd = lookUp(node.getOperand(1));
+        ctx.append(new Concat(lhs, Collections.nCopies(n, opnd)));
+      } else {
+        Logger.warning(
+          "Unsupported expression form: non-numeral parameter in '%s', replace with '%s = %s 0'",
+          node, lhs, lhs.getType());
+        ctx.assign(lhs, valueAssignable(0, lhs));
+      }
+      return lhs;
     }
 
     private Lvalue translateRot(final NodeOperation node) {
@@ -574,6 +605,10 @@ public final class NmlIrTrans {
 
   private static Location locationOf(final Node node) {
     return (Location) ((NodeInfo) node.getUserData()).getSource();
+  }
+
+  private static Constant valueAssignable(final int value, final Operand target) {
+    return valueOf(value, target.getType().getSize());
   }
 
   private static Constant valueOf(final long value, final int size) {
