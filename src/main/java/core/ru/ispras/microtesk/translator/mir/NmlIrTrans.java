@@ -427,6 +427,13 @@ public final class NmlIrTrans {
             local = translateIte(node);
             break;
 
+          case BVLSHL:
+          case BVLSHR:
+          case BVASHL:
+          case BVASHR:
+            local = translateShift(node);
+            break;
+
           case BVROR:
           case BVROL:
             local = translateRot(node);
@@ -468,6 +475,11 @@ public final class NmlIrTrans {
         ctx.assign(lhs, valueAssignable(0, lhs));
       }
       return lhs;
+    }
+
+    private Lvalue translateShift(final NodeOperation node) {
+      // TODO actually verify it is the same (NML rotations has inverse arg order)
+      return translateRot(node);
     }
 
     private Lvalue translateRot(final NodeOperation node) {
