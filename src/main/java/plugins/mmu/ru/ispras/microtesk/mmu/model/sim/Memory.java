@@ -99,18 +99,17 @@ public abstract class Memory<D extends Struct<?>, A extends Address> extends Buf
   }
 
   @Override
-  public final D setData(final A address, final D data) {
+  public final D setData(final A address, final BitVector data) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
 
-    final BitVector dataValue = data.asBitVector();
-    final int dataBitSize = dataValue.getBitSize();
+    final int dataBitSize = data.getBitSize();
 
     BigInteger index = addressToIndex(address.getValue(), dataBitSize);
 
     int bitsWritten = 0;
     while (bitsWritten < dataBitSize) {
       final BitVector mapping =
-          BitVector.newMapping(dataValue, bitsWritten, storage.getDataBitSize());
+          BitVector.newMapping(data, bitsWritten, storage.getDataBitSize());
 
       storage.store(
           BitVector.valueOf(index, storage.getAddressBitSize()),

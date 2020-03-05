@@ -196,7 +196,7 @@ private static final Matcher\<<entry_type>, <addr_type>\> MATCHER = new Matcher\
 buffer_coercer(entry_type, data_name) ::= <<
 private static final Coercer\<<entry_type>\> COERCER = new Coercer\<<entry_type>\>() {
   @Override
-  public <entry_type> coerce(final Struct\<?> <data_name>) {
+  public <entry_type> coerce(final BitVector <data_name>) {
     // FIXME:
     return null;
   }
@@ -266,7 +266,7 @@ public <data_type> getData(final <addr_type> <addr_name>) {
 
 set_data(addr_type, addr_name, data_type, data_name, stmts) ::= <<
 @Override
-public <data_type> setData(final <addr_type> <addr_name>, final <data_type> <data_name>) {
+public <data_type> setData(final <addr_type> <addr_name>, final BitVector <data_name>) {
   <stmts; separator="\n">
 }
 >>

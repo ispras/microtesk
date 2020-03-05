@@ -51,7 +51,7 @@ public abstract class Buffer<D, A> implements BufferObserver, ModelStateManager 
    * @param address the data address.
    * @return {@code true} iff the address causes a hit.
    */
-  public abstract boolean isHit(final A address);
+  public abstract boolean isHit(A address);
 
   /**
    * Returns the data associated with the given address.
@@ -59,17 +59,26 @@ public abstract class Buffer<D, A> implements BufferObserver, ModelStateManager 
    * @param address the data address.
    * @return the data object iff the address causes a hit.
    */
-  public abstract D getData(final A address);
+  public abstract D getData(A address);
 
   /**
    * Updates the data associated with the given address.
    *
+   * <p>
+   * An incoming entry (data to be written) is not necessarily of the {@code D} type.
+   * It may be returned from the previous- or next-level cache unit.
+   * It is the method's responsibility to convert the entry to the relevant type.
+   * </p>
+   *
    * @param address the data address.
    * @param data the new data.
-   *
    * @return the old data if they exist; {@code null} otherwise.
    */
-  public abstract D setData(final A address, final D data);
+  public abstract D setData(A address, BitVector data);
+
+  public final D setData(final A address, final Struct<?> data) {
+    return setData(address, data.asBitVector());
+  }
 
   @Override
   public final boolean isHit(final BitVector value) {
@@ -81,7 +90,7 @@ public abstract class Buffer<D, A> implements BufferObserver, ModelStateManager 
   public abstract Pair<BitVector, BitVector> seeData(BitVector index, BitVector way);
 
   @Override
-  public abstract void setUseTempState(final boolean value);
+  public abstract void setUseTempState(boolean value);
 
   @Override
   public abstract void resetState();

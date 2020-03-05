@@ -30,5 +30,5 @@ public interface Indexer<A extends Address<?>> {
    * @param address the data address.
    * @return the cache set index.
    */
-  BitVector getIndex(final A address);
+  BitVector getIndex(A address);
 }

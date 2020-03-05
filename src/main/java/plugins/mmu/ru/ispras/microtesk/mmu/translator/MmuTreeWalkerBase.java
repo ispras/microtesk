@@ -845,7 +845,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
 
       if (null == writePolicy) {
-        writePolicy = WritePolicyId.NONE;
+        writePolicy = WritePolicyId.WN;
       }
 
       final Buffer buffer = new Buffer(

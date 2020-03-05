@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+
 /**
  * {@link Coercer} is a generic interface of a coercer (converter) of different-level cache lines.
  *
@@ -28,5 +30,5 @@ public interface Coercer<D extends Struct<?>> {
    * @param data the other-level entry.
    * @return the current-level entry.
    */
-  D coerce(Struct<?> data);
+  D coerce(BitVector data);
 }

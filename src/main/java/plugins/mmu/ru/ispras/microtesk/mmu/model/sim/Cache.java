@@ -39,8 +39,7 @@ import java.math.BigInteger;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class Cache<D extends Struct<?>, A extends Address<?>>
-    extends Buffer<D, A> implements ModelStateManager {
+public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A> {
 
   /** The table of associative sets. */
   private SparseArray<Set<D, A>> sets;
@@ -107,6 +106,7 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
     InvariantChecks.checkNotNull(writePolicyId);
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
+    InvariantChecks.checkTrue(next == null || coercer != null);
 
     this.sets = new SparseArray<>(length);
     this.savedSets = null;
@@ -129,7 +129,9 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
           associativity,
           evictPolicyId,
           writePolicyId,
-          matcher
+          matcher,
+          coercer,
+          next
       );
       sets.set(index, result);
     }
@@ -158,7 +160,7 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final D setData(final A address, final D data) {
+  public final D setData(final A address, final BitVector data) {
     final BitVector index = indexer.getIndex(address);
     final Set<D, A> set = getSet(index);
     return set.setData(address, data);

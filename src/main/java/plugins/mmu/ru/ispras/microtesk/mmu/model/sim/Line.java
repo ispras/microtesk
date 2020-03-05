@@ -26,15 +26,18 @@ import ru.ispras.fortress.util.Pair;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A> {
-  /** The stored data. */
+public class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A> {
+  /** Stored data. */
   private D data;
-
   /** Address of the data */
   private A address;
+  /** Dirty bit used to implement the write-back policy. */
+  private boolean dirty;
 
-  /** The data-address matcher. */
+  /** Line matcher. */
   private final Matcher<D, A> matcher;
+  /** Line coercer. */
+  private final Coercer<D> coercer;
 
   /**
    * Constructs a default (invalid) line.
@@ -46,14 +49,16 @@ public final class Line<D extends Struct<?>, A extends Address<?>> extends Buffe
   public Line(
       final Struct<D> dataCreator,
       final Address<A> addressCreator,
-      final Matcher<D, A> matcher) {
+      final Matcher<D, A> matcher,
+      final Coercer<D> coercer) {
     super(dataCreator, addressCreator);
 
     this.data = null;
     this.address = null;
+    this.dirty = false;
 
-    InvariantChecks.checkNotNull(matcher);
     this.matcher = matcher;
+    this.coercer = coercer;
   }
 
   @Override
@@ -71,20 +76,40 @@ public final class Line<D extends Struct<?>, A extends Address<?>> extends Buffe
   }
 
   @Override
-  public D setData(final A address, final D newData) {
+  public D setData(final A address, final BitVector newData) {
     final D oldData = data;
 
-    this.data = newData;
+    this.data = coerce(address, newData);
     this.address = address;
+    InvariantChecks.checkTrue(matcher.areMatching(this.data, this.address));
 
     return oldData;
   }
 
+  private D coerce(final A address, final BitVector data) {
+    if (coercer == null) {
+      return dataCreator.newStruct(data);
+    }
+
+    final D newData = coercer.coerce(data);
+    matcher.assignsTag(newData, address);
+
+    return newData;
+  }
+
   @Override
   public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-    return null != address && null != data
+    return address != null && data != null
         ? new Pair<>(address.getValue(), data.asBitVector())
         : null;
+  }
+
+  public boolean isDirty() {
+    return dirty;
+  }
+
+  public void setDirty(final boolean dirty) {
+    this.dirty = dirty;
   }
 
   @Override
@@ -96,6 +121,7 @@ public final class Line<D extends Struct<?>, A extends Address<?>> extends Buffe
   public void resetState() {
     data = null;
     address = null;
+    dirty = false;
   }
 
   @Override

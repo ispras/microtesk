@@ -21,14 +21,24 @@ package ru.ispras.microtesk.mmu.model.sim;
  */
 public enum WritePolicyId {
     /** Local Write, Data Allocation. */
-    NONE,
+    WN(true, false, false),
 
     /** Write-Through, No Data Allocation. */
-    WT,
+    WT(false, true, false),
 
     /** Write-Through, Data Allocation. */
-    WTA,
+    WTA(true, true, false),
 
     /** Write-Back, Data Allocation. */
-    WB
+    WB(true, false, true);
+
+    public final boolean wa;
+    public final boolean wt;
+    public final boolean wb;
+
+    WritePolicyId(final boolean wa, final boolean wt, final boolean wb) {
+      this.wa = wa;
+      this.wt = wt;
+      this.wb = wb;
+    }
 }

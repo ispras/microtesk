@@ -57,12 +57,14 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
           associativity,
           evictPolicyId,
           writePolicyId,
-          matcher
+          matcher,
+          null,
+          null
       );
     }
 
     @Override
-    protected Buffer<D, A> newLine() {
+    protected Line<D, A> newLine() {
       return new RegisterMappedLine();
     }
   }
@@ -70,11 +72,11 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
   /**
    * {@link RegisterMappedLine} is an implementation of a line for register-mapped buffers.
    */
-  private final class RegisterMappedLine extends Buffer<D, A> {
+  private final class RegisterMappedLine extends Line<D, A> {
     private final BitVector registerIndex;
 
     private RegisterMappedLine() {
-      super(RegisterMapping.this.dataCreator, RegisterMapping.this.addressCreator);
+      super(RegisterMapping.this.dataCreator, RegisterMapping.this.addressCreator, null, null);
 
       final MemoryDevice storage = getRegisterDevice();
       this.registerIndex = BitVector.valueOf(currentRegisterIndex, storage.getAddressBitSize());
@@ -102,9 +104,9 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
     }
 
     @Override
-    public D setData(final A address, final D data) {
+    public D setData(final A address, final BitVector data) {
       final MemoryDevice storage = getRegisterDevice();
-      storage.store(registerIndex, data.asBitVector());
+      storage.store(registerIndex, data);
       return null;
     }
 
@@ -226,7 +228,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final D setData(final A address, final D data) {
+  public final D setData(final A address, final BitVector data) {
     final Buffer<D, A> set = getSet(address);
     return set.setData(address, data);
   }
