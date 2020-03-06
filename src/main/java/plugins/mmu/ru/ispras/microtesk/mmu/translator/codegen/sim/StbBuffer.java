@@ -23,10 +23,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.*;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.mmu.translator.ir.Buffer;
-import ru.ispras.microtesk.mmu.translator.ir.Ir;
-import ru.ispras.microtesk.mmu.translator.ir.Memory;
-import ru.ispras.microtesk.mmu.translator.ir.Type;
+import ru.ispras.microtesk.mmu.translator.ir.*;
 import ru.ispras.microtesk.mmu.model.spec.MmuBuffer.Kind;
 
 import java.math.BigInteger;
@@ -146,7 +143,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     stMatcher.add("addr_name", removePrefix(buffer.getAddressArg().getName()));
     stMatcher.add("data_name", DATA_NAME);
     stMatcher.add("expr", matchToExprString(buffer.getMatch()));
-    stMatcher.add("stmts", matchToStmtStrings(buffer.getMatch()));
+    stMatcher.add("stmts", matchToStmtStrings(buffer.getMatch(), buffer.getAddressArg().getName()));
 
     st.add("members", stMatcher);
   }
@@ -229,7 +226,12 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
   }
 
   private final class AssignTagExtractor extends ExprTreeVisitorDefault {
+    private final String addressVar;
     private final Collection<String> assigns = new ArrayList<>();
+
+    public AssignTagExtractor(final String addressVar) {
+      this.addressVar = addressVar;
+    }
 
     public Collection<String> getAssigns() {
       return assigns;
@@ -243,19 +245,41 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     @Override
     public void onOperationBegin(final NodeOperation node) {
       if (node.getOperationId() == StandardOperation.EQ) {
-        final Node lhs = node.getOperand(0);
-        final Node rhs = node.getOperand(1);
+        final Node operand0 = node.getOperand(0);
+        final Node operand1 = node.getOperand(1);
 
-        // FIXME:
-        assigns.add(String.format("%s.assign(%s);",
-            ExprPrinter.get().toString(lhs),
-            ExprPrinter.get().toString(rhs)));
+        final boolean isTag0 = !isConstantOrDependsOnAddress(operand0);
+        final boolean isTag1 = !isConstantOrDependsOnAddress(operand1);
+
+        if (isTag0 != isTag1) {
+          final Node lhs = isTag0 ? operand0 : operand1;
+          final Node rhs = isTag0 ? operand1 : operand0;
+
+          assigns.add(String.format("%s.assign(%s);",
+                  ExprPrinter.get().toString(lhs),
+                  ExprPrinter.get().toString(rhs)));
+        }
+
+        setStatus(Status.SKIP);
       }
+    }
+
+    private final boolean isConstantOrDependsOnAddress(final Node node) {
+      final Collection<NodeVariable> variables = ExprUtils.getVariables(node);
+      for (final NodeVariable variable : variables) {
+        final String name = variable.getName();
+
+        if (!name.equals(addressVar) && !name.startsWith(addressVar + ".")) {
+          return false;
+        }
+      }
+
+      return true;
     }
   }
 
-  private Collection<String> matchToStmtStrings(final Node expr) {
-    final AssignTagExtractor visitor = new AssignTagExtractor();
+  private Collection<String> matchToStmtStrings(final Node expr, final String addr) {
+    final AssignTagExtractor visitor = new AssignTagExtractor(addr);
     final ExprTreeWalker walker = new ExprTreeWalker(visitor);
 
     // Extracts the tag assignments from the match predicate.
