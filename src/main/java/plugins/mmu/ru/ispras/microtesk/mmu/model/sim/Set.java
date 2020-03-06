@@ -123,11 +123,12 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
 
   @Override
   public final D setData(final A address, final BitVector data) {
-    final Buffer<D, A> line = getLine(address);
+    final Line<D, A> line = getLine(address);
 
     final D oldData;
     if (line != null) {
       oldData = line.setData(address, data);
+      line.setDirty(true);
     } else if (writePolicyId.wa) {
       // Allocates the data and returns them.
       oldData = allocData(address, data, true);
