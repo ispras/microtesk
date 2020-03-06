@@ -36,8 +36,6 @@ public class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A
 
   /** Line matcher. */
   private final Matcher<D, A> matcher;
-  /** Line coercer. */
-  private final Coercer<D> coercer;
 
   /**
    * Constructs a default (invalid) line.
@@ -49,8 +47,7 @@ public class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A
   public Line(
       final Struct<D> dataCreator,
       final Address<A> addressCreator,
-      final Matcher<D, A> matcher,
-      final Coercer<D> coercer) {
+      final Matcher<D, A> matcher) {
     super(dataCreator, addressCreator);
 
     this.data = null;
@@ -58,7 +55,6 @@ public class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A
     this.dirty = false;
 
     this.matcher = matcher;
-    this.coercer = coercer;
   }
 
   @Override
@@ -79,22 +75,13 @@ public class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A
   public D setData(final A address, final BitVector newData) {
     final D oldData = data;
 
-    this.data = coerce(address, newData);
+    this.data = dataCreator.newStruct(newData);
     this.address = address;
+
+    matcher.assignTag(this.data, address);
     InvariantChecks.checkTrue(matcher.areMatching(this.data, this.address));
 
     return oldData;
-  }
-
-  private D coerce(final A address, final BitVector data) {
-    if (coercer == null) {
-      return dataCreator.newStruct(data);
-    }
-
-    final D newData = coercer.coerce(data);
-    matcher.assignTag(newData, address);
-
-    return newData;
   }
 
   @Override

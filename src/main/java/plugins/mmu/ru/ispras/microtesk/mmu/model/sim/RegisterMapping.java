@@ -58,7 +58,6 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
           evictPolicyId,
           writePolicyId,
           matcher,
-          null,
           null
       );
     }
@@ -76,7 +75,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
     private final BitVector registerIndex;
 
     private RegisterMappedLine() {
-      super(RegisterMapping.this.dataCreator, RegisterMapping.this.addressCreator, null, null);
+      super(RegisterMapping.this.dataCreator, RegisterMapping.this.addressCreator, null);
 
       final MemoryDevice storage = getRegisterDevice();
       this.registerIndex = BitVector.valueOf(currentRegisterIndex, storage.getAddressBitSize());

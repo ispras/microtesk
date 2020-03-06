@@ -148,16 +148,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     st.add("members", stMatcher);
   }
 
-  private void buildCoercer(final ST st, final STGroup group) {
-    buildNewLine(st);
-    final ST stCoercer = group.getInstanceOf("buffer_coercer");
-
-    stCoercer.add("entry_type", String.format("%s.Entry", buffer.getId()));
-    stCoercer.add("data_name", DATA_NAME);
-
-    st.add("members", stCoercer);
-  }
-
   private void buildConstructor(final ST st, final STGroup group) {
     buildNewLine(st);
     final ST stConstructor = group.getInstanceOf("buffer_constructor");
@@ -170,7 +160,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     stConstructor.add("addr_type", buffer.getAddress().getId());
     stConstructor.add("ways", buffer.getWays());
     stConstructor.add("sets", buffer.getSets());
-    stConstructor.add("has_next", buffer.getNext() != null && !buffer.isView());
     stConstructor.add("next", buffer.getNext() != null && !buffer.isView()
         ? String.format("%s.get()", buffer.getNext().getId())
         : "null");
@@ -338,9 +327,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       buildEntry(st, group);
       buildIndexer(st, group);
       buildMatcher(st, group);
-      if (buffer.getNext() != null && !buffer.isView()) {
-        buildCoercer(st, group);
-      }
       buildConstructor(st, group);
     }
 

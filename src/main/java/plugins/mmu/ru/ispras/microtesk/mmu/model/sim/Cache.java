@@ -50,7 +50,6 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends B
   private final WritePolicyId writePolicyId;
   private final Indexer<A> indexer;
   private final Matcher<D, A> matcher;
-  private final Coercer<D> coercer;
   private final Buffer<? extends Struct<?>, A> next;
 
   /**
@@ -84,7 +83,6 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends B
    * @param writePolicyId the data write policy.
    * @param indexer the set indexer.
    * @param matcher the line matcher.
-   * @param coercer the line coercer.
    * @param next the next-level cache.
    */
   public Cache(
@@ -96,7 +94,6 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends B
       final WritePolicyId writePolicyId,
       final Indexer<A> indexer,
       final Matcher<D, A> matcher,
-      final Coercer<D> coercer,
       final Buffer<? extends Struct<?>, A> next) {
     super(dataCreator, addressCreator);
 
@@ -106,7 +103,6 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends B
     InvariantChecks.checkNotNull(writePolicyId);
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
-    InvariantChecks.checkTrue(next == null || coercer != null);
 
     this.sets = new SparseArray<>(length);
     this.savedSets = null;
@@ -115,7 +111,6 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends B
     this.writePolicyId = writePolicyId;
     this.indexer = indexer;
     this.matcher = matcher;
-    this.coercer = coercer;
     this.next = next;
   }
 
@@ -130,7 +125,6 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends B
           evictPolicyId,
           writePolicyId,
           matcher,
-          coercer,
           next
       );
       sets.set(index, result);

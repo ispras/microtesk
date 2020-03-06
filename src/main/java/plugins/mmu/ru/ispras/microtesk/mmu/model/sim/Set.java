@@ -38,8 +38,6 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
   private final WritePolicyId writePolicyId;
   /** Line matcher. */
   private final Matcher<D, A> matcher;
-  /** Line coercer. */
-  private final Coercer<D> coercer;
   /** Next-level buffer. */
   final Buffer<? extends Struct<?>, A> next;
 
@@ -52,7 +50,6 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
    * @param evictPolicyId the data replacement policy.
    * @param writePolicyId the data write policy.
    * @param matcher the line matcher.
-   * @param coercer the line coercer.
    * @param next the next-level buffer.
    */
   public Set(
@@ -62,7 +59,6 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
       final EvictPolicyId evictPolicyId,
       final WritePolicyId writePolicyId,
       final Matcher<D, A> matcher,
-      final Coercer<D> coercer,
       final Buffer<? extends Struct<?>, A> next) {
     super(dataCreator, addressCreator);
 
@@ -70,10 +66,8 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
     InvariantChecks.checkNotNull(evictPolicyId);
     InvariantChecks.checkNotNull(writePolicyId);
     InvariantChecks.checkNotNull(matcher);
-    InvariantChecks.checkTrue(next == null || coercer != null);
 
     this.matcher = matcher;
-    this.coercer = coercer;
     this.next = next;
 
     // Fill the set with the default (invalid) lines.
@@ -87,7 +81,7 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
   }
 
   protected Line<D, A> newLine() {
-    return new Line<>(dataCreator, addressCreator, matcher, coercer);
+    return new Line<>(dataCreator, addressCreator, matcher);
   }
 
   @Override
@@ -109,8 +103,9 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
       final Struct<?> nextData = next.getData(address);
 
       if (nextData != null) {
-        final D data = coercer.coerce(nextData.asBitVector());
-        InvariantChecks.checkNotNull(data);
+        final D data = dataCreator.newStruct(nextData.asBitVector());
+        matcher.assignTag(data, address);
+        InvariantChecks.checkTrue(matcher.areMatching(data, address));
 
         // Allocates the data and returns them.
         allocData(address, data.asBitVector(), false);

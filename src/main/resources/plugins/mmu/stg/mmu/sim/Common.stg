@@ -193,17 +193,7 @@ private static final Matcher\<<entry_type>, <addr_type>\> MATCHER = new Matcher\
 };
 >>
 
-buffer_coercer(entry_type, data_name) ::= <<
-private static final Coercer\<<entry_type>\> COERCER = new Coercer\<<entry_type>\>() {
-  @Override
-  public <entry_type> coerce(final BitVector <data_name>) {
-    // FIXME:
-    return null;
-  }
-};
->>
-
-buffer_constructor(name, is_reg, is_mem, entry_type, addr_type, ways, sets, evict_policy, write_policy, has_next, next) ::= <<
+buffer_constructor(name, is_reg, is_mem, entry_type, addr_type, ways, sets, evict_policy, write_policy, next) ::= <<
 private <name>() {
   super(
     new <entry_type>(),
@@ -215,7 +205,6 @@ private <name>() {
     <write_policy>,
     INDEXER,
     MATCHER<if(!is_reg && !is_mem)>,
-    <if(has_next)>COERCER<else>null<endif>,
     <next><endif>
   );
 }
