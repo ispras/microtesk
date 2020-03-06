@@ -178,7 +178,7 @@ private static final Indexer\<<addr_type>\> INDEXER = new Indexer\<<addr_type>\>
 };
 >>
 
-buffer_matcher(entry_type, addr_type, addr_name, data_name, expr) ::= <<
+buffer_matcher(entry_type, addr_type, addr_name, data_name, expr, stmts) ::= <<
 private static final Matcher\<<entry_type>, <addr_type>\> MATCHER = new Matcher\<<entry_type>, <addr_type>\>() {
   @Override
   public boolean areMatching(final <entry_type> <data_name>, final <addr_type> <addr_name>) {
@@ -186,8 +186,8 @@ private static final Matcher\<<entry_type>, <addr_type>\> MATCHER = new Matcher\
   }
 
   @Override
-  public <entry_type> assignsTag(final <entry_type> <data_name>, final <addr_type> <addr_name>) {
-    // FIXME: Extracts the tag from <addr_name> and assigns it to <data_name>.
+  public <entry_type> assignTag(final <entry_type> <data_name>, final <addr_type> <addr_name>) {
+    <stmts; separator="\n">
     return <data_name>;
   }
 };

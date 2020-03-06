@@ -40,5 +40,5 @@ public interface Matcher<D extends Struct<?>, A extends Address<?>> {
    * @param address the address.
    * @return the input data with the assigned tag.
    */
-  D assignsTag(D data, A address);
+  D assignTag(D data, A address);
 }

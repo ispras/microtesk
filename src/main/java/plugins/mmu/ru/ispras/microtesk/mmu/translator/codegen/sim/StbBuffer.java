@@ -20,9 +20,7 @@ import org.stringtemplate.v4.STGroup;
 import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.ExprUtils;
-import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.NodeValue;
+import ru.ispras.fortress.expression.*;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.mmu.translator.ir.Buffer;
@@ -32,6 +30,8 @@ import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.model.spec.MmuBuffer.Kind;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
 
 final class StbBuffer extends StbCommon implements StringTemplateBuilder {
   private static final String DATA_NAME = "data";
@@ -145,7 +145,8 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     stMatcher.add("addr_type", buffer.getAddress().getId());
     stMatcher.add("addr_name", removePrefix(buffer.getAddressArg().getName()));
     stMatcher.add("data_name", DATA_NAME);
-    stMatcher.add("expr", matchToString(buffer.getMatch()));
+    stMatcher.add("expr", matchToExprString(buffer.getMatch()));
+    stMatcher.add("stmts", matchToStmtStrings(buffer.getMatch()));
 
     st.add("members", stMatcher);
   }
@@ -208,7 +209,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     return ExprPrinter.get().toString(expr);
   }
 
-  private String matchToString(final Node expr) {
+  private String matchToExprString(final Node expr) {
     InvariantChecks.checkNotNull(expr);
 
     if (ExprUtils.isConstant(expr)) {
@@ -227,8 +228,44 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     return ExprPrinter.get().toString(expr);
   }
 
+  private final class AssignTagExtractor extends ExprTreeVisitorDefault {
+    private final Collection<String> assigns = new ArrayList<>();
+
+    public Collection<String> getAssigns() {
+      return assigns;
+    }
+
+    @Override
+    public void onBegin() {
+      assigns.clear();
+    }
+
+    @Override
+    public void onOperationBegin(final NodeOperation node) {
+      if (node.getOperationId() == StandardOperation.EQ) {
+        final Node lhs = node.getOperand(0);
+        final Node rhs = node.getOperand(1);
+
+        // FIXME:
+        assigns.add(String.format("%s.assign(%s);",
+            ExprPrinter.get().toString(lhs),
+            ExprPrinter.get().toString(rhs)));
+      }
+    }
+  }
+
+  private Collection<String> matchToStmtStrings(final Node expr) {
+    final AssignTagExtractor visitor = new AssignTagExtractor();
+    final ExprTreeWalker walker = new ExprTreeWalker(visitor);
+
+    // Extracts the tag assignments from the match predicate.
+    walker.visit(expr);
+
+    return visitor.getAssigns();
+  }
+
   private interface BuildStrategy {
-    abstract void build(final ST st, final STGroup group);
+    void build(ST st, STGroup group);
   }
 
   private final class TargetStrategy implements BuildStrategy {

@@ -92,7 +92,7 @@ public class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A
     }
 
     final D newData = coercer.coerce(data);
-    matcher.assignsTag(newData, address);
+    matcher.assignTag(newData, address);
 
     return newData;
   }
