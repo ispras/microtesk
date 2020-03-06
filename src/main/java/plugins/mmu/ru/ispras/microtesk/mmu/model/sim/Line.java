@@ -72,16 +72,16 @@ public class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A
   }
 
   @Override
-  public D setData(final A address, final BitVector newData) {
-    final D oldData = data;
-
+  public void setData(final A address, final BitVector newData) {
     this.data = dataCreator.newStruct(newData);
     this.address = address;
 
     matcher.assignTag(this.data, address);
     InvariantChecks.checkTrue(matcher.areMatching(this.data, this.address));
+  }
 
-    return oldData;
+  public D seeData() {
+    return data;
   }
 
   @Override

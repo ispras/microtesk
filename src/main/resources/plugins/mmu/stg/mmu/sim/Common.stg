@@ -255,7 +255,7 @@ public <data_type> getData(final <addr_type> <addr_name>) {
 
 set_data(addr_type, addr_name, data_type, data_name, stmts) ::= <<
 @Override
-public <data_type> setData(final <addr_type> <addr_name>, final BitVector <data_name>) {
+public void setData(final <addr_type> <addr_name>, final <data_type> <data_name>) {
   <stmts; separator="\n">
 }
 >>

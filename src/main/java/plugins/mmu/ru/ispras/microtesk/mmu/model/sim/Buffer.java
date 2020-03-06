@@ -74,10 +74,10 @@ public abstract class Buffer<D, A> implements BufferObserver, ModelStateManager 
    * @param data the new data.
    * @return the old data if they exist; {@code null} otherwise.
    */
-  public abstract D setData(A address, BitVector data);
+  public abstract void setData(A address, BitVector data);
 
-  public final D setData(final A address, final Struct<?> data) {
-    return setData(address, data.asBitVector());
+  public final void setData(final A address, final Struct<?> data) {
+    setData(address, data.asBitVector());
   }
 
   @Override

@@ -92,10 +92,9 @@ public abstract class MmuMapping<D extends Struct<?>, A extends Address<?>> exte
   }
 
   @Override
-  public D setData(final A address, final BitVector data) {
+  public void setData(final A address, final BitVector data) {
     InvariantChecks.checkTrue(data.getBitSize() == getDataBitSize());
     getMmu().setData(address, data);
-    return null;
   }
 
   @Override

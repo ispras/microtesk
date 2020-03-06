@@ -143,9 +143,6 @@ final class StbMemory extends StbCommon implements StringTemplateBuilder {
     buildVariableDecls(stMethod, memory.getVariables());
     buildStmts(stMethod, group, attr.getStmts());
 
-    stMethod.add("stmts", "");
-    stMethod.add("stmts", "return null;");
-
     st.add("members", "");
     st.add("members", stMethod);
   }

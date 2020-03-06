@@ -62,13 +62,13 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends B
       this.address = address;
     }
 
-    public D assign(final D data) {
-      return setData(address, data);
+    public void assign(final D data) {
+      setData(address, data);
     }
 
-    public D assign(final BitVector value) {
+    public void assign(final BitVector value) {
       final D data = dataCreator.newStruct(value);
-      return setData(address, data);
+      setData(address, data);
     }
   }
 
@@ -154,10 +154,10 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends B
   }
 
   @Override
-  public final D setData(final A address, final BitVector data) {
+  public final void setData(final A address, final BitVector data) {
     final BitVector index = indexer.getIndex(address);
     final Set<D, A> set = getSet(index);
-    return set.setData(address, data);
+    set.setData(address, data);
   }
 
   public final Proxy setData(final A address) {

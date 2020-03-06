@@ -35,13 +35,13 @@ public abstract class Memory<D extends Struct<?>, A extends Address> extends Buf
       this.address = address;
     }
 
-    public D assign(final D data) {
-      return setData(address, data);
+    public void assign(final D data) {
+      setData(address, data);
     }
 
-    public D assign(final BitVector value) {
+    public void assign(final BitVector value) {
       final D data = dataCreator.newStruct(value);
-      return setData(address, data);
+      setData(address, data);
     }
   }
 
@@ -99,7 +99,7 @@ public abstract class Memory<D extends Struct<?>, A extends Address> extends Buf
   }
 
   @Override
-  public final D setData(final A address, final BitVector data) {
+  public final void setData(final A address, final BitVector data) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
 
     final int dataBitSize = data.getBitSize();
@@ -119,8 +119,6 @@ public abstract class Memory<D extends Struct<?>, A extends Address> extends Buf
       index = index.add(BigInteger.ONE);
       bitsWritten += storage.getDataBitSize();
     }
-
-    return null;
   }
 
   public final Proxy setData(final A address) {

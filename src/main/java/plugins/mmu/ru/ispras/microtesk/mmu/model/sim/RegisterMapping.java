@@ -103,10 +103,9 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
     }
 
     @Override
-    public D setData(final A address, final BitVector data) {
+    public void setData(final A address, final BitVector data) {
       final MemoryDevice storage = getRegisterDevice();
       storage.store(registerIndex, data);
-      return null;
     }
 
     @Override
@@ -145,13 +144,13 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
       this.address = address;
     }
 
-    public D assign(final D data) {
-      return setData(address, data);
+    public void assign(final D data) {
+      setData(address, data);
     }
 
-    public D assign(final BitVector value) {
+    public void assign(final BitVector value) {
       final D data = dataCreator.newStruct(value);
-      return setData(address, data);
+      setData(address, data);
     }
   }
 
@@ -227,9 +226,9 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final D setData(final A address, final BitVector data) {
+  public final void setData(final A address, final BitVector data) {
     final Buffer<D, A> set = getSet(address);
-    return set.setData(address, data);
+    set.setData(address, data);
   }
 
   public final Proxy setData(final A address) {

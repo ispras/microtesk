@@ -103,13 +103,8 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
       final Struct<?> nextData = next.getData(address);
 
       if (nextData != null) {
-        final D data = dataCreator.newStruct(nextData.asBitVector());
-        matcher.assignTag(data, address);
-        InvariantChecks.checkTrue(matcher.areMatching(data, address));
-
         // Allocates the data and returns them.
-        allocData(address, data.asBitVector(), false);
-        return data;
+        return allocData(address, nextData.asBitVector(), false);
       }
     }
 
@@ -117,25 +112,20 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
   }
 
   @Override
-  public final D setData(final A address, final BitVector data) {
+  public final void setData(final A address, final BitVector data) {
     final Line<D, A> line = getLine(address);
 
-    final D oldData;
     if (line != null) {
-      oldData = line.setData(address, data);
+      line.setData(address, data);
       line.setDirty(true);
     } else if (writePolicyId.wa) {
       // Allocates the data and returns them.
-      oldData = allocData(address, data, true);
-    } else {
-      oldData = null;
+      allocData(address, data, true);
     }
 
     if (next != null && writePolicyId.wt) {
       next.setData(address, data);
     }
-
-    return oldData;
   }
 
   private final D allocData(final A address, final BitVector data, final boolean dirty) {
@@ -146,7 +136,9 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
     }
 
     line.setDirty(dirty);
-    return line.setData(address, data);
+    line.setData(address, data);
+
+    return line.seeData();
   }
 
   @Override
