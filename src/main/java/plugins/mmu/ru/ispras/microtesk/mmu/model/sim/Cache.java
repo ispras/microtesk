@@ -118,8 +118,8 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
 
     if (null == result) {
       result = new Set<>(
-          //entryCreator,
-          //addressCreator,
+          entryCreator,
+          addressCreator,
           associativity,
           evictPolicyId,
           writePolicyId,

@@ -31,6 +31,7 @@ public class Line<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A
   private E entry;
   /** Entry address. */
   private A address;
+
   /** Dirty bit used to implement the write-back policy. */
   private boolean dirty;
 
