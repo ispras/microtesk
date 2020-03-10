@@ -33,7 +33,6 @@ public interface Address<T> extends Struct<T> {
    * Returns the address struct with the filled value.
    *
    * @param value the address value.
-   *
    * @return the address struct.
    */
   T setValue(BitVector value);

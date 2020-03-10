@@ -18,7 +18,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.Pair;
 
 /**
- * {@link BufferObserver} provides information on buffer state without changing the state.
+ * {@link BufferObserver} provides information on a buffer without changing its state.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */

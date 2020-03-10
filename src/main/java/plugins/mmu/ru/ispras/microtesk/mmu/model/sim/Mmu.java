@@ -48,7 +48,7 @@ public abstract class Mmu<A extends Address<?>>
 
   @Override
   public BitVector load(final BitVector address) {
-    return getData(toAddress(address));
+    return loadEntry(toAddress(address));
   }
 
   @Override
@@ -65,7 +65,7 @@ public abstract class Mmu<A extends Address<?>>
         String.format("Data size mismatch: storing %d-bit data to %d-bit location",
             data.getBitSize(), getDataBitSize()));
 
-    setData(toAddress(address), data);
+    storeEntry(toAddress(address), data);
   }
 
   @Override

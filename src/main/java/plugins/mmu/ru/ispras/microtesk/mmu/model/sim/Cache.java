@@ -25,31 +25,31 @@ import java.math.BigInteger;
 /**
  * {@link Cache} represents an abstract partially associative cache memory.
  *
- * A cache unit is characterized by the following parameters (except the data and address types):
+ * A cache unit is characterized by the following parameters (except the entry and address types):
  * <ol>
  * <li>{@code length} - the number of sets in the cache,
  * <li>{@code associativity} - the number of lines in each set,
- * <li>{@code policyId} - the data replacement policy,
+ * <li>{@code policyId} - the entry replacement policy,
  * <li>{@code indexer} - the set indexer, and
  * <li>{@code matcher} - the line matcher.
  * </ol>
  *
- * @param <D> the data type.
+ * @param <E> the entry type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A> {
+public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
 
-  /** The table of associative sets. */
-  private SparseArray<Set<D, A>> sets;
-  private SparseArray<Set<D, A>> savedSets;
+  /** Table of associative sets. */
+  private SparseArray<Set<E, A>> sets;
+  private SparseArray<Set<E, A>> savedSets;
 
   private final int associativity;
   private final EvictPolicyId evictPolicyId;
   private final WritePolicyId writePolicyId;
   private final Indexer<A> indexer;
-  private final Matcher<D, A> matcher;
+  private final Matcher<E, A> matcher;
   private final Buffer<? extends Struct<?>, A> next;
 
   /**
@@ -62,40 +62,39 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends B
       this.address = address;
     }
 
-    public void assign(final D data) {
-      setData(address, data);
+    public void assign(final E entry) {
+      storeEntry(address, entry);
     }
 
     public void assign(final BitVector value) {
-      final D data = dataCreator.newStruct(value);
-      setData(address, data);
+      storeEntry(address, value);
     }
   }
 
   /**
    * Constructs a buffer of the given length and associativity.
    *
-   * @param dataCreator the data creator.
+   * @param entryCreator the entry creator.
    * @param addressCreator the address creator.
    * @param length the number of sets in the buffer.
    * @param associativity the number of lines in each set.
-   * @param evictPolicyId the data replacement policy.
-   * @param writePolicyId the data write policy.
+   * @param evictPolicyId the entry replacement policy.
+   * @param writePolicyId the entry write policy.
    * @param indexer the set indexer.
    * @param matcher the line matcher.
    * @param next the next-level cache.
    */
   public Cache(
-      final Struct<D> dataCreator,
+      final Struct<E> entryCreator,
       final Address<A> addressCreator,
       final BigInteger length,
       final int associativity,
       final EvictPolicyId evictPolicyId,
       final WritePolicyId writePolicyId,
       final Indexer<A> indexer,
-      final Matcher<D, A> matcher,
+      final Matcher<E, A> matcher,
       final Buffer<? extends Struct<?>, A> next) {
-    super(dataCreator, addressCreator);
+    super(entryCreator, addressCreator);
 
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThanZero(associativity);
@@ -114,12 +113,12 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends B
     this.next = next;
   }
 
-  private Set<D, A> getSet(final BitVector index) {
-    Set<D, A> result = sets.get(index);
+  private Set<E, A> getSet(final BitVector index) {
+    Set<E, A> result = sets.get(index);
 
     if (null == result) {
       result = new Set<>(
-          dataCreator,
+          entryCreator,
           addressCreator,
           associativity,
           evictPolicyId,
@@ -136,32 +135,32 @@ public abstract class Cache<D extends Struct<?>, A extends Address<?>> extends B
   @Override
   public final boolean isHit(final A address) {
     final BitVector index = indexer.getIndex(address);
-    final Set<D, A> set = sets.get(index);
+    final Set<E, A> set = sets.get(index);
     return null != set && set.isHit(address);
   }
 
   @Override
-  public final D getData(final A address) {
+  public final E loadEntry(final A address) {
     final BitVector index = indexer.getIndex(address);
-    final Set<D, A> set = getSet(index);
-    return set.getData(address);
+    final Set<E, A> set = getSet(index);
+    return set.loadEntry(address);
+  }
+
+  @Override
+  public final void storeEntry(final A address, final BitVector entry) {
+    final BitVector index = indexer.getIndex(address);
+    final Set<E, A> set = getSet(index);
+    set.storeEntry(address, entry);
+  }
+
+  public final Proxy storeEntry(final A address) {
+    return new Proxy(address);
   }
 
   @Override
   public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-    final Set<D, A> set = sets.get(index);
+    final Set<E, A> set = sets.get(index);
     return null != set ? set.seeData(index, way) : null;
-  }
-
-  @Override
-  public final void setData(final A address, final BitVector data) {
-    final BitVector index = indexer.getIndex(address);
-    final Set<D, A> set = getSet(index);
-    set.setData(address, data);
-  }
-
-  public final Proxy setData(final A address) {
-    return new Proxy(address);
   }
 
   @Override

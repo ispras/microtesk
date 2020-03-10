@@ -45,7 +45,7 @@ public interface MemoryDevice {
    * @param address Load address.
    * @return Data of size equal to returned by {@link MemoryDevice#getDataBitSize()}.
    */
-  BitVector load(final BitVector address);
+  BitVector load(BitVector address);
 
   /**
    * Stores the specified data at the given address.
@@ -53,7 +53,7 @@ public interface MemoryDevice {
    * @param address Store address.
    * @param data Data of size equal to returned by {@link MemoryDevice#getDataBitSize()}.
    */
-  void store(final BitVector address, final BitVector data);
+  void store(BitVector address, BitVector data);
 
   /**
    * Stores the specified data at the given address.
@@ -62,7 +62,7 @@ public interface MemoryDevice {
    * @param offset Data offset in bits.
    * @param data Data of size equal to {@link MemoryDevice#getDataBitSize()} - {@code offset}.
    */
-  void store(final BitVector address, final int offset, final BitVector data);
+  void store(BitVector address, int offset, BitVector data);
 
   /**
    * Checks whether the specified address location has been initialized.
@@ -70,5 +70,5 @@ public interface MemoryDevice {
    * @param address Address to be checked.
    * @return {@code true} is the address location is initialized or {@code false} otherwise.
    */
-  boolean isInitialized(final BitVector address);
+  boolean isInitialized(BitVector address);
 }

@@ -241,21 +241,21 @@ public int getDataBitSize() {
 
 get_data_size(size) ::= <<
 @Override
-protected int getDataBitSize() {
+protected int getEntryBitSize() {
   return <size>;
 }
 >>
 
 get_data(addr_type, addr_name, data_type, stmts) ::= <<
 @Override
-public <data_type> getData(final <addr_type> <addr_name>) {
+public <data_type> loadEntry(final <addr_type> <addr_name>) {
   <stmts; separator="\n">
 }
 >>
 
 set_data(addr_type, addr_name, data_type, data_name, stmts) ::= <<
 @Override
-public void setData(final <addr_type> <addr_name>, final <data_type> <data_name>) {
+public void storeEntry(final <addr_type> <addr_name>, final <data_type> <data_name>) {
   <stmts; separator="\n">
 }
 >>

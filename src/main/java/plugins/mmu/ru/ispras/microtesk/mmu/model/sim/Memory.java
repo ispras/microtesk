@@ -21,7 +21,7 @@ import ru.ispras.microtesk.model.memory.MemoryDevice;
 
 import java.math.BigInteger;
 
-public abstract class Memory<D extends Struct<?>, A extends Address> extends Buffer<D, A> {
+public abstract class Memory<E extends Struct<?>, A extends Address> extends Buffer<E, A> {
   private final BigInteger byteSize;
   private MemoryDevice storage;
 
@@ -35,21 +35,20 @@ public abstract class Memory<D extends Struct<?>, A extends Address> extends Buf
       this.address = address;
     }
 
-    public void assign(final D data) {
-      setData(address, data);
+    public void assign(final E entry) {
+      storeEntry(address, entry);
     }
 
     public void assign(final BitVector value) {
-      final D data = dataCreator.newStruct(value);
-      setData(address, data);
+      storeEntry(address, value);
     }
   }
 
   public Memory(
-      final Struct<D> dataCreator,
+      final Struct<E> entryCreator,
       final Address<A> addressCreator,
       final BigInteger byteSize) {
-    super(dataCreator, addressCreator);
+    super(entryCreator, addressCreator);
 
     InvariantChecks.checkNotNull(byteSize);
     this.byteSize = byteSize;
@@ -68,21 +67,21 @@ public abstract class Memory<D extends Struct<?>, A extends Address> extends Buf
   }
 
   @Override
-  public final D getData(final A address) {
+  public final E loadEntry(final A address) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
 
-    final int dataBitSize = getDataBitSize();
-    final BitVector dataValue = BitVector.newEmpty(dataBitSize);
+    final int entryBitSize = getEntryBitSize();
+    final BitVector entry = BitVector.newEmpty(entryBitSize);
 
-    BigInteger index = addressToIndex(address.getValue(), dataBitSize);
+    BigInteger index = addressToIndex(address.getValue(), entryBitSize);
 
     int bitsRead = 0;
-    while (bitsRead < dataBitSize) {
+    while (bitsRead < entryBitSize) {
       final BitVector regionData =
           storage.load(BitVector.valueOf(index, storage.getAddressBitSize()));
 
       final BitVector mapping =
-          BitVector.newMapping(dataValue, bitsRead, regionData.getBitSize());
+          BitVector.newMapping(entry, bitsRead, regionData.getBitSize());
 
       mapping.assign(regionData);
 
@@ -90,26 +89,21 @@ public abstract class Memory<D extends Struct<?>, A extends Address> extends Buf
       bitsRead += storage.getDataBitSize();
     }
 
-    return dataCreator.newStruct(dataValue);
+    return entryCreator.newStruct(entry);
   }
 
   @Override
-  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public final void setData(final A address, final BitVector data) {
+  public final void storeEntry(final A address, final BitVector entry) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
 
-    final int dataBitSize = data.getBitSize();
+    final int dataBitSize = entry.getBitSize();
 
     BigInteger index = addressToIndex(address.getValue(), dataBitSize);
 
     int bitsWritten = 0;
     while (bitsWritten < dataBitSize) {
       final BitVector mapping =
-          BitVector.newMapping(data, bitsWritten, storage.getDataBitSize());
+          BitVector.newMapping(entry, bitsWritten, storage.getDataBitSize());
 
       storage.store(
           BitVector.valueOf(index, storage.getAddressBitSize()),
@@ -121,11 +115,16 @@ public abstract class Memory<D extends Struct<?>, A extends Address> extends Buf
     }
   }
 
-  public final Proxy setData(final A address) {
+  public final Proxy storeEntry(final A address) {
     return new Proxy(address);
   }
 
-  protected abstract int getDataBitSize();
+  @Override
+  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
+    throw new UnsupportedOperationException();
+  }
+
+  protected abstract int getEntryBitSize();
 
   private BigInteger addressToIndex(final BitVector address, int blockBitSize) {
     InvariantChecks.checkNotNull(address);

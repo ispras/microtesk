@@ -24,43 +24,43 @@ import java.util.List;
 /**
  * {@link Set} implements a cache set, which is a fully associative buffer consisting of cache lines.
  *
- * @param <D> the data type.
+ * @param <E> the entry type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A> {
+public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
   /** Array of cache lines. */
-  private final List<Line<D, A>> lines = new ArrayList<>();
-  /** Data replacement policy. */
+  private final List<Line<E, A>> lines = new ArrayList<>();
+  /** Entry replacement policy. */
   private final EvictPolicy evictPolicy;
-  /** Data write policy. */
+  /** Entry write policy. */
   private final WritePolicyId writePolicyId;
-  /** Line matcher. */
-  private final Matcher<D, A> matcher;
+  /** Entry-address matcher. */
+  private final Matcher<E, A> matcher;
   /** Next-level buffer. */
   final Buffer<? extends Struct<?>, A> next;
 
   /**
    * Constructs a cache set of the given associativity.
    *
-   * @param dataCreator the data creator.
+   * @param entryCreator the entry creator.
    * @param addressCreator the address creator.
    * @param associativity the number of lines in the set.
-   * @param evictPolicyId the data replacement policy.
-   * @param writePolicyId the data write policy.
-   * @param matcher the line matcher.
+   * @param evictPolicyId the entry replacement policy.
+   * @param writePolicyId the entry write policy.
+   * @param matcher the entry-address matcher.
    * @param next the next-level buffer.
    */
   public Set(
-      final Struct<D> dataCreator,
+      final Struct<E> entryCreator,
       final Address<A> addressCreator,
       final int associativity,
       final EvictPolicyId evictPolicyId,
       final WritePolicyId writePolicyId,
-      final Matcher<D, A> matcher,
+      final Matcher<E, A> matcher,
       final Buffer<? extends Struct<?>, A> next) {
-    super(dataCreator, addressCreator);
+    super(entryCreator, addressCreator);
 
     InvariantChecks.checkGreaterThanZero(associativity);
     InvariantChecks.checkNotNull(evictPolicyId);
@@ -72,7 +72,7 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
 
     // Fill the set with the default (invalid) lines.
     for (int i = 0; i < associativity; i++) {
-      final Line<D, A> line = newLine();
+      final Line<E, A> line = newLine();
       lines.add(line);
     }
 
@@ -80,8 +80,8 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
     this.writePolicyId = writePolicyId;
   }
 
-  protected Line<D, A> newLine() {
-    return new Line<>(dataCreator, addressCreator, matcher);
+  protected Line<E, A> newLine() {
+    return new Line<>(entryCreator, addressCreator, matcher);
   }
 
   @Override
@@ -90,21 +90,21 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
   }
 
   @Override
-  public final D getData(final A address) {
-    final Line<D, A> line = getLine(address);
+  public final E loadEntry(final A address) {
+    final Line<E, A> line = getLine(address);
 
-    // If there is a cache hit, returns the data
+    // If there is a cache hit, return the entry.
     if (line != null) {
-      return line.getData(address);
+      return line.loadEntry(address);
     }
 
-    // Otherwise, tries to access the next-level cache.
+    // Otherwise, try to access the next-level cache.
     if (next != null) {
-      final Struct<?> nextData = next.getData(address);
+      final Struct<?> nextData = next.loadEntry(address);
 
       if (nextData != null) {
-        // Allocates the data and returns them.
-        return allocData(address, nextData.asBitVector(), false);
+        // Allocate the entry and return it.
+        return allocEntry(address, nextData.asBitVector(), false);
       }
     }
 
@@ -112,52 +112,54 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
   }
 
   @Override
-  public final void setData(final A address, final BitVector data) {
-    final Line<D, A> line = getLine(address);
+  public final void storeEntry(final A address, final BitVector entry) {
+    final Line<E, A> line = getLine(address);
 
     if (line != null) {
-      line.setData(address, data);
+      line.storeEntry(address, entry);
       line.setDirty(true);
     } else if (writePolicyId.wa) {
-      // Allocates the data and returns them.
-      allocData(address, data, true);
+      // Allocate the entry and write it.
+      allocEntry(address, entry, true);
     }
 
     if (next != null && writePolicyId.wt) {
-      next.setData(address, data);
+      next.storeEntry(address, entry);
     }
   }
 
-  private final D allocData(final A address, final BitVector data, final boolean dirty) {
-    final Line<D, A> line = lines.get(evictPolicy.chooseVictim());
+  private final E allocEntry(final A address, final BitVector data, final boolean dirty) {
+    final int index = evictPolicy.chooseVictim();
+    final Line<E, A> line = lines.get(index);
 
     if (line.isDirty() && writePolicyId.wb) {
-      next.setData(address, data);
+      next.storeEntry(address, data);
     }
 
     line.setDirty(dirty);
-    line.setData(address, data);
+    line.storeEntry(address, data);
+    evictPolicy.accessLine(index);
 
-    return line.seeData();
+    return line.getEntry();
   }
 
   @Override
   public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-    final Buffer<D, A> line = lines.get(way.intValue());
+    final Buffer<E, A> line = lines.get(way.intValue());
     return line != null ? line.seeData(index, way) : null;
   }
 
   /**
    * Returns the line associated with the given address.
    *
-   * @param address the data address.
+   * @param address the address.
    * @return the line associated with the given address if it exists; {@code null} otherwise.
    */
-  private Line<D, A> getLine(final A address) {
+  private Line<E, A> getLine(final A address) {
     int index = -1;
 
     for (int i = 0; i < lines.size(); i++) {
-      final Line<D, A> line = lines.get(i);
+      final Line<E, A> line = lines.get(i);
 
       if (line.isHit(address)) {
         InvariantChecks.checkTrue(index == -1,
@@ -184,7 +186,7 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
 
   @Override
   public void resetState() {
-    for (final Buffer<D, A> line : lines) {
+    for (final Buffer<E, A> line : lines) {
       line.resetState();
     }
 
@@ -200,7 +202,7 @@ public class Set<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A>
         sb.append(", ");
       }
 
-      final Buffer<D, A> line = lines.get(index);
+      final Buffer<E, A> line = lines.get(index);
       sb.append(String.format("%d: %s", index, line));
     }
 

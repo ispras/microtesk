@@ -21,36 +21,36 @@ import ru.ispras.fortress.util.Pair;
 /**
  * {@link Line} represents an abstract cache line.
  *
- * @param <D> the data type.
+ * @param <E> the entry type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A> {
-  /** Stored data. */
-  private D data;
-  /** Address of the data */
+public class Line<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
+  /** Stored entry. */
+  private E entry;
+  /** Entry address. */
   private A address;
   /** Dirty bit used to implement the write-back policy. */
   private boolean dirty;
 
   /** Line matcher. */
-  private final Matcher<D, A> matcher;
+  private final Matcher<E, A> matcher;
 
   /**
    * Constructs a default (invalid) line.
    *
-   * @param dataCreator the data creator.
+   * @param entryCreator the entry creator.
    * @param addressCreator the address creator.
-   * @param matcher the data-address matcher.
+   * @param matcher the entry-address matcher.
    */
   public Line(
-      final Struct<D> dataCreator,
+      final Struct<E> entryCreator,
       final Address<A> addressCreator,
-      final Matcher<D, A> matcher) {
-    super(dataCreator, addressCreator);
+      final Matcher<E, A> matcher) {
+    super(entryCreator, addressCreator);
 
-    this.data = null;
+    this.entry = null;
     this.address = null;
     this.dirty = false;
 
@@ -59,36 +59,29 @@ public class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A
 
   @Override
   public boolean isHit(final A address) {
-    if (null == data) {
+    if (entry == null) {
       return false;
     }
 
-    return matcher.areMatching(data, address);
+    return matcher.areMatching(entry, address);
   }
 
   @Override
-  public D getData(final A address) {
-    return isHit(address) ? data : null;
+  public E loadEntry(final A address) {
+    return isHit(address) ? entry : null;
   }
 
   @Override
-  public void setData(final A address, final BitVector newData) {
-    this.data = dataCreator.newStruct(newData);
+  public void storeEntry(final A address, final BitVector entry) {
+    this.entry = entryCreator.newStruct(entry);
     this.address = address;
 
-    matcher.assignTag(this.data, address);
-    InvariantChecks.checkTrue(matcher.areMatching(this.data, this.address));
+    matcher.assignTag(this.entry, address);
+    InvariantChecks.checkTrue(matcher.areMatching(this.entry, this.address));
   }
 
-  public D seeData() {
-    return data;
-  }
-
-  @Override
-  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-    return address != null && data != null
-        ? new Pair<>(address.getValue(), data.asBitVector())
-        : null;
+  public E getEntry() {
+    return entry;
   }
 
   public boolean isDirty() {
@@ -100,19 +93,26 @@ public class Line<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A
   }
 
   @Override
+  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
+    return address != null && entry != null
+        ? new Pair<>(address.getValue(), entry.asBitVector())
+        : null;
+  }
+
+  @Override
   public void setUseTempState(final boolean value) {
     // Do nothing.
   }
 
   @Override
   public void resetState() {
-    data = null;
+    entry = null;
     address = null;
     dirty = false;
   }
 
   @Override
   public String toString() {
-    return String.format("Line [data=%s]", data);
+    return String.format("Line [entry=%s]", entry);
   }
 }

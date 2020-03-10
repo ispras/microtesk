@@ -44,12 +44,12 @@ public abstract class Segment<PA extends Address<?>, VA extends Address<?>> exte
   }
 
   @Override
-  public PA getData(final VA va) {
+  public PA loadEntry(final VA va) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setData(final VA address, final BitVector data) {
+  public void storeEntry(final VA address, final BitVector entry) {
     throw new UnsupportedOperationException();
   }
 

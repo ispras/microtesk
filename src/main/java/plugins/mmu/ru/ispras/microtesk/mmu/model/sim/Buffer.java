@@ -20,64 +20,63 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.ModelStateManager;
 
 /**
- * {@link Buffer} represents a buffer (i.e., a component that stores addressable data).
+ * {@link Buffer} represents a buffer (i.e., a component that stores addressable entries).
  *
- * @param <D> the data type.
+ * @param <E> the entry type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class Buffer<D, A> implements BufferObserver, ModelStateManager {
-  protected final Struct<D> dataCreator;
+public abstract class Buffer<E, A> implements BufferObserver, ModelStateManager {
+  protected final Struct<E> entryCreator;
   protected final Address<A> addressCreator;
 
   /**
    * Creates a buffer.
    *
-   * @param dataCreator the data creator.
+   * @param entryCreator the entry creator.
    * @param addressCreator the address creator.
    */
-  public Buffer(final Struct<D> dataCreator, final Address<A> addressCreator) {
-    InvariantChecks.checkNotNull(dataCreator);
+  public Buffer(final Struct<E> entryCreator, final Address<A> addressCreator) {
+    InvariantChecks.checkNotNull(entryCreator);
     InvariantChecks.checkNotNull(addressCreator);
 
-    this.dataCreator = dataCreator;
+    this.entryCreator = entryCreator;
     this.addressCreator = addressCreator;
   }
 
   /**
    * Checks whether the given address causes a hit.
    *
-   * @param address the data address.
+   * @param address the address.
    * @return {@code true} iff the address causes a hit.
    */
   public abstract boolean isHit(A address);
 
   /**
-   * Returns the data associated with the given address.
+   * Loads the entry associated with the given address.
    *
-   * @param address the data address.
-   * @return the data object iff the address causes a hit.
+   * @param address the address.
+   * @return the entry associated with the address or {@code null}.
    */
-  public abstract D getData(A address);
+  public abstract E loadEntry(A address);
 
   /**
-   * Updates the data associated with the given address.
+   * Stores the entry associated with the given address.
    *
    * <p>
-   * An incoming entry (data to be written) is not necessarily of the {@code D} type.
+   * An incoming entry is not necessarily of the {@code E} type.
    * It may be returned from the previous- or next-level cache unit.
    * It is the method's responsibility to convert the entry to the relevant type.
    * </p>
    *
-   * @param address the data address.
-   * @param data the new data.
-   * @return the old data if they exist; {@code null} otherwise.
+   * @param address the address.
+   * @param entry the new entry.
    */
-  public abstract void setData(A address, BitVector data);
+  public abstract void storeEntry(A address, BitVector entry);
 
-  public final void setData(final A address, final Struct<?> data) {
-    setData(address, data.asBitVector());
+  public final void storeEntry(final A address, final Struct<?> entry) {
+    storeEntry(address, entry.asBitVector());
   }
 
   @Override

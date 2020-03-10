@@ -28,22 +28,22 @@ import java.math.BigInteger;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  *
- * @param <D> Data type.
+ * @param <E> Entry type.
  * @param <A> Address type.
  */
-public abstract class MmuMapping<D extends Struct<?>, A extends Address<?>> extends Buffer<D, A> {
+public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
 
   private final BigInteger length;
   private final int associativity;
   private final EvictPolicyId evictPolicyId;
   private final WritePolicyId writePolicyId;
   private final Indexer<A> indexer;
-  private final Matcher<D, A> matcher;
+  private final Matcher<E, A> matcher;
 
   /**
    * Constructs a memory-mapped buffer of the given length and associativity.
    *
-   * @param dataCreator the data creator.
+   * @param entryCreator the entry creator.
    * @param addressCreator the address creator.
    * @param length the number of sets in the buffer.
    * @param associativity the number of lines in each set.
@@ -52,15 +52,15 @@ public abstract class MmuMapping<D extends Struct<?>, A extends Address<?>> exte
    * @param matcher the line matcher.
    */
   public MmuMapping(
-      final Struct<D> dataCreator,
+      final Struct<E> entryCreator,
       final Address<A> addressCreator,
       final BigInteger length,
       final int associativity,
       final EvictPolicyId evictPolicyId,
       final WritePolicyId writePolicyId,
       final Indexer<A> indexer,
-      final Matcher<D, A> matcher) {
-    super(dataCreator, addressCreator);
+      final Matcher<E, A> matcher) {
+    super(entryCreator, addressCreator);
 
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
@@ -85,16 +85,16 @@ public abstract class MmuMapping<D extends Struct<?>, A extends Address<?>> exte
   }
 
   @Override
-  public D getData(final A address) {
-    final BitVector value = getMmu().getData(address);
-    InvariantChecks.checkTrue(value.getBitSize() == getDataBitSize());
-    return dataCreator.newStruct(value);
+  public E loadEntry(final A address) {
+    final BitVector value = getMmu().loadEntry(address);
+    InvariantChecks.checkTrue(value.getBitSize() == getEntryBitSize());
+    return entryCreator.newStruct(value);
   }
 
   @Override
-  public void setData(final A address, final BitVector data) {
-    InvariantChecks.checkTrue(data.getBitSize() == getDataBitSize());
-    getMmu().setData(address, data);
+  public void storeEntry(final A address, final BitVector data) {
+    InvariantChecks.checkTrue(data.getBitSize() == getEntryBitSize());
+    getMmu().storeEntry(address, data);
   }
 
   @Override
@@ -104,7 +104,7 @@ public abstract class MmuMapping<D extends Struct<?>, A extends Address<?>> exte
 
   protected abstract Mmu<A> getMmu();
 
-  protected abstract int getDataBitSize();
+  protected abstract int getEntryBitSize();
 
   @Override
   public void setUseTempState(final boolean value) {

@@ -17,28 +17,28 @@ package ru.ispras.microtesk.mmu.model.sim;
 /**
  * {@link Matcher} is a generic interface of a cache line matcher (hit checker).
  *
- * @param <D> the data type.
+ * @param <E> the entry type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Matcher<D extends Struct<?>, A extends Address<?>> {
+public interface Matcher<E extends Struct<?>, A extends Address<?>> {
 
   /**
-   * Checks whether the given data and the given address are matching each other.
+   * Checks whether the given entry and the given address are matching each other.
    *
-   * @param data the data.
+   * @param entry the entry.
    * @param address the address.
    * @return {@code true} iff the data and address are matching each other.
    */
-  boolean areMatching(D data, A address);
+  boolean areMatching(E entry, A address);
 
   /**
-   * Extracts the tag from the given address and assigns it to the given data.
+   * Extracts the tag from the given address and assigns it to the given entry.
    *
-   * @param data the data.
+   * @param entry the entry.
    * @param address the address.
    * @return the input data with the assigned tag.
    */
-  D assignTag(D data, A address);
+  E assignTag(E entry, A address);
 }

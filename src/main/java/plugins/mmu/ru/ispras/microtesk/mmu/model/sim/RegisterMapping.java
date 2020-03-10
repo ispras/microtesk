@@ -26,13 +26,13 @@ import java.math.BigInteger;
 /**
  * {@link RegisterMapping} implements a register-mapped buffer.
  *
- * @param <D> the data type.
+ * @param <E> the entry type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
-    extends Buffer<D, A> {
+public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
+    extends Buffer<E, A> {
 
   private final String name;
 
@@ -41,18 +41,18 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
   private final WritePolicyId writePolicyId;
 
   private final Indexer<A> indexer;
-  private final Matcher<D, A> matcher;
+  private final Matcher<E, A> matcher;
 
-  private final SparseArray<Buffer<D, A>> sets;
+  private final SparseArray<Buffer<E, A>> sets;
   private BigInteger currentRegisterIndex;
 
   /**
    * {@link RegisterMappedSet} is an extension of {@link Set} for register-mapped buffers.
    */
-  private final class RegisterMappedSet extends Set<D, A> {
+  private final class RegisterMappedSet extends Set<E, A> {
     public RegisterMappedSet() {
       super(
-          RegisterMapping.this.dataCreator,
+          RegisterMapping.this.entryCreator,
           RegisterMapping.this.addressCreator,
           associativity,
           evictPolicyId,
@@ -63,7 +63,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
     }
 
     @Override
-    protected Line<D, A> newLine() {
+    protected Line<E, A> newLine() {
       return new RegisterMappedLine();
     }
   }
@@ -71,11 +71,11 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
   /**
    * {@link RegisterMappedLine} is an implementation of a line for register-mapped buffers.
    */
-  private final class RegisterMappedLine extends Line<D, A> {
+  private final class RegisterMappedLine extends Line<E, A> {
     private final BitVector registerIndex;
 
     private RegisterMappedLine() {
-      super(RegisterMapping.this.dataCreator, RegisterMapping.this.addressCreator, null);
+      super(RegisterMapping.this.entryCreator, RegisterMapping.this.addressCreator, null);
 
       final MemoryDevice storage = getRegisterDevice();
       this.registerIndex = BitVector.valueOf(currentRegisterIndex, storage.getAddressBitSize());
@@ -90,20 +90,20 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
       }
 
       final BitVector rawData = storage.load(registerIndex);
-      final D data = dataCreator.newStruct(rawData);
+      final E data = entryCreator.newStruct(rawData);
 
       return matcher.areMatching(data, address);
     }
 
     @Override
-    public D getData(final A address) {
+    public E loadEntry(final A address) {
       final MemoryDevice storage = getRegisterDevice();
       final BitVector rawData = storage.load(registerIndex);
-      return dataCreator.newStruct(rawData);
+      return entryCreator.newStruct(rawData);
     }
 
     @Override
-    public void setData(final A address, final BitVector data) {
+    public void storeEntry(final A address, final BitVector data) {
       final MemoryDevice storage = getRegisterDevice();
       storage.store(registerIndex, data);
     }
@@ -130,7 +130,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
     public String toString() {
       final MemoryDevice storage = getRegisterDevice();
       final BitVector value = storage.load(registerIndex);
-      return String.format("RegisterMappedLine [data=%s]", dataCreator.newStruct(value));
+      return String.format("RegisterMappedLine [entry=%s]", entryCreator.newStruct(value));
     }
   }
 
@@ -144,20 +144,19 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
       this.address = address;
     }
 
-    public void assign(final D data) {
-      setData(address, data);
+    public void assign(final E entry) {
+      storeEntry(address, entry);
     }
 
     public void assign(final BitVector value) {
-      final D data = dataCreator.newStruct(value);
-      setData(address, data);
+      storeEntry(address, value);
     }
   }
 
   /**
    * Constructs a register-mapped buffer of the given length and associativity.
    *
-   * @param dataCreator the data creator.
+   * @param entryCreator the entry creator.
    * @param addressCreator the address creator.
    * @param name the name of the register file mapped to the buffer.
    * @param length the number of sets in the buffer.
@@ -167,7 +166,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
    * @param matcher the line matcher.
    */
   public RegisterMapping(
-      final Struct<D> dataCreator,
+      final Struct<E> entryCreator,
       final Address<A> addressCreator,
       final String name,
       final BigInteger length,
@@ -175,8 +174,8 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
       final EvictPolicyId evictPolicyId,
       final WritePolicyId writePolicyId,
       final Indexer<A> indexer,
-      final Matcher<D, A> matcher) {
-    super(dataCreator, addressCreator);
+      final Matcher<E, A> matcher) {
+    super(entryCreator, addressCreator);
 
     InvariantChecks.checkNotNull(name);
     InvariantChecks.checkNotNull(length);
@@ -189,7 +188,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
     this.name = name;
 
     final MemoryDevice storage = getRegisterDevice();
-    InvariantChecks.checkTrue(getDataBitSize() == storage.getDataBitSize());
+    InvariantChecks.checkTrue(getEntryBitSize() == storage.getDataBitSize());
 
     this.associativity = associativity;
     this.evictPolicyId = evictPolicyId;
@@ -203,7 +202,7 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
     for (BigInteger index = BigInteger.ZERO;
          index.compareTo(length) < 0;
          index = index.add(BigInteger.ONE)) {
-      final Buffer<D, A> set = new RegisterMappedSet();
+      final Buffer<E, A> set = new RegisterMappedSet();
       final BitVector setIndex = BitVector.valueOf(index, storage.getAddressBitSize());
       sets.set(setIndex, set);
     }
@@ -215,38 +214,38 @@ public abstract class RegisterMapping<D extends Struct<?>, A extends Address<?>>
 
   @Override
   public final boolean isHit(final A address) {
-    final Buffer<D, A> set = getSet(address);
+    final Buffer<E, A> set = getSet(address);
     return null != set && set.isHit(address);
   }
 
   @Override
-  public final D getData(final A address) {
-    final Buffer<D, A> set = getSet(address);
-    return set.getData(address);
+  public final E loadEntry(final A address) {
+    final Buffer<E, A> set = getSet(address);
+    return set.loadEntry(address);
   }
 
   @Override
-  public final void setData(final A address, final BitVector data) {
-    final Buffer<D, A> set = getSet(address);
-    set.setData(address, data);
+  public final void storeEntry(final A address, final BitVector entry) {
+    final Buffer<E, A> set = getSet(address);
+    set.storeEntry(address, entry);
   }
 
-  public final Proxy setData(final A address) {
+  public final Proxy storeEntry(final A address) {
     return new Proxy(address);
   }
 
   @Override
   public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-    final Buffer<D, A> set = sets.get(index);
+    final Buffer<E, A> set = sets.get(index);
     return null != set ? set.seeData(index, way) : null;
   }
 
-  private Buffer<D, A> getSet(final A address) {
+  private Buffer<E, A> getSet(final A address) {
     final BitVector index = indexer.getIndex(address);
     return sets.get(index);
   }
 
-  protected abstract int getDataBitSize();
+  protected abstract int getEntryBitSize();
 
   @Override
   public void setUseTempState(final boolean value) {
