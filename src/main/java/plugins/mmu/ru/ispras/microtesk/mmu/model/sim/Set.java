@@ -129,10 +129,10 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
   }
 
   private final E allocEntry(final A address, final BitVector data, final boolean dirty) {
-    final int index = evictPolicy.chooseVictim();
+    final int index = evictPolicy != null ? evictPolicy.chooseVictim() : 0;
     final Line<E, A> line = lines.get(index);
 
-    if (line.isDirty() && writePolicyId.wb) {
+    if (line.isDirty() && next != null && writePolicyId.wb) {
       next.storeEntry(address, data);
     }
 
