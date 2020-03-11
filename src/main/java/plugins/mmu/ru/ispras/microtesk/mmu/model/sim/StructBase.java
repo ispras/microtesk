@@ -15,25 +15,31 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link Struct} must be supported by all structures (including data and addresses).
+ * {@link StructBase} is an abstract base class for buffer entries.
  *
- * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Struct<T> {
-  /**
-   * Returns the data struct initialized by the given bit vector.
-   *
-   * @param value the bit vector representing all fields of the struct.
-   * @return the data struct.
-   */
-  T newStruct(BitVector value);
+public abstract class StructBase<T> implements Struct<T> {
+  private BitVector entry = null;
 
-  /**
-   * Converts the data struct to the bit vector.
-   *
-   * @return the bit vector representing all fields of the data struct.
-   */
-  BitVector asBitVector();
+  @Override
+  public abstract T newStruct(BitVector value);
+
+  @Override
+  public final BitVector asBitVector() {
+    return entry;
+  }
+
+  protected void setEntry(final BitVector entry) {
+    InvariantChecks.checkTrue(this.entry == null && entry != null);
+    this.entry = entry;
+  }
+
+  public final void assign(final BitVector entry) {
+    // If entry is of different size, it will be truncated or zero extended.
+    this.entry.assign(entry);
+  }
 }

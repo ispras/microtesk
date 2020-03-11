@@ -21,6 +21,7 @@ import ru.ispras.castle.codegen.StringTemplateBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
+import ru.ispras.microtesk.mmu.model.sim.StructBase;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 
@@ -39,6 +40,9 @@ final class StbStruct implements StringTemplateBuilder {
 
   public static final Class<?> ADDRESS_CLASS =
       ru.ispras.microtesk.mmu.model.sim.Address.class;
+
+  public static final Class<?> STRUCT_BASE_CLASS =
+          StructBase.class;
 
   private final String packageName;
   private final boolean isAddress;
@@ -90,6 +94,8 @@ final class StbStruct implements StringTemplateBuilder {
     st.add("name", type.getId());
     st.add("pack", packageName);
 
+    st.add("imps", BIT_VECTOR_CLASS.getName());
+
     if (isAddress) {
       st.add("impls", String.format("%s<%s>", ADDRESS_CLASS.getSimpleName(), type.getId()));
       st.add("imps", ADDRESS_CLASS.getName());
@@ -98,7 +104,8 @@ final class StbStruct implements StringTemplateBuilder {
       st.add("imps", STRUCT_CLASS.getName());
     }
 
-    st.add("imps", BIT_VECTOR_CLASS.getName());
+    st.add("ext", String.format("%s<%s>", STRUCT_BASE_CLASS.getSimpleName(), type.getId()));
+    st.add("imps", STRUCT_BASE_CLASS.getName());
   }
 
   public static void buildFields(

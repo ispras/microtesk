@@ -87,26 +87,23 @@ this.<name> = <value>;
 >>
 
 struct_body(type, fnames, ftypes, fvalues, fis_struct, fnames_rev, fis_struct_rev) ::= <<
-<fnames, ftypes:{n, t | public final <t> <n>;}; separator="\n"><\n>
+<fnames, ftypes, fvalues:{n, t, v | public final <t> <n> = <v>;}; separator="\n"><\n>
 public <type>() {
-  <fnames, fvalues:{n, v | this.<n> = <v>;}; separator="\n">
+  setEntry(<if(fnames_rev)>
+    BitVector.newMapping(
+      <fnames_rev, fis_struct_rev:{n, fis | <n><if(fis)>.asBitVector()<endif>}; separator=",\n">
+    )
+  <else>
+    null
+  <endif>
+  );
 }<\n>
 public <type>(final BitVector value) {
   this();
-  asBitVector().assign(value);
+  assign(value);
 }<\n>
 public void assign(final <type> other) {
   <fnames:{n | this.<n>.assign(other.<n>);}; separator="\n">
-}<\n>
-@Override
-public BitVector asBitVector() {
-  <if(fnames_rev)>
-  return BitVector.newMapping(
-      <fnames_rev, fis_struct_rev:{n, fis | <n><if(fis)>.asBitVector()<endif>}; separator=",\n">
-      );
-  <else>
-  return null;
-  <endif>
 }<\n>
 @Override
 public <type> newStruct(final BitVector value) {
@@ -116,9 +113,9 @@ public <type> newStruct(final BitVector value) {
 public String toString() {
   <if(fnames)>
   return String.format(
-      "<type> [<fnames, fis_struct : {n, fis | <n>=<if(!fis)>0x<endif>%s}; separator=", ">]",
-      <fnames, fis_struct : {n, fis | <n><if(!fis)>.toHexString()<endif>}; separator=",\n">
-      );
+    "<type> [<fnames, fis_struct : {n, fis | <n>=<if(!fis)>0x<endif>%s}; separator=", ">]",
+    <fnames, fis_struct : {n, fis | <n><if(!fis)>.toHexString()<endif>}; separator=",\n">
+  );
   <else>
   return "";
   <endif>
@@ -164,7 +161,7 @@ private <name>() {
 buffer_entry(members) ::= <<
 <class(["public", "static", "final"],
        "Entry",
-       false,
+       "StructBase<Entry>",
        "Struct<Entry>",
        members)>
 >>

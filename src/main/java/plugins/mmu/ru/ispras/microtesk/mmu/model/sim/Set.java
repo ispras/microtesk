@@ -119,7 +119,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
       line.storeEntry(address, entry);
       line.setDirty(true);
     } else if (writePolicyId.wa) {
-      // Allocate the entry and write it.
+      // Allocate the entry and mark it as dirty.
       allocEntry(address, entry, true);
     }
 
