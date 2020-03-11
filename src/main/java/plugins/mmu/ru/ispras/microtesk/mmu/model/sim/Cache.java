@@ -17,7 +17,6 @@ package ru.ispras.microtesk.mmu.model.sim;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.model.ModelStateManager;
 import ru.ispras.microtesk.utils.SparseArray;
 
 import java.math.BigInteger;

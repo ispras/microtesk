@@ -138,7 +138,10 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
 
     line.setDirty(dirty);
     line.storeEntry(address, data);
-    evictPolicy.accessLine(index);
+
+    if (evictPolicy != null) {
+      evictPolicy.accessLine(index);
+    }
 
     return line.getEntry();
   }
