@@ -103,6 +103,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     final ST st = group.getInstanceOf("source_file");
     st.add("instance", "instance");
 
+    buildAccessor(st, group);
     strategy.build(st, group);
 
     ExprPrinter.get().popVariableScope();
@@ -120,6 +121,19 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     StbStruct.buildFields(stEntry, group, "Entry", type);
 
     st.add("members", stEntry);
+  }
+
+  private void buildAccessor(final ST st, final STGroup group) {
+    final ST accessor = group.getInstanceOf("buffer_access_point");
+
+    final String poolName = "instancePool";
+    accessor.add("name", poolName);
+    accessor.add("type", buffer.getId());
+    accessor.add("init", String.format("%s = Collections.singletonList(new %s());", poolName, buffer.getId()));
+
+    st.add("imps", "java.util.Collections");
+    st.add("imps", "java.util.List");
+    st.add("members", accessor);
   }
 
   private void buildIndexer(final ST st, final STGroup group) {
