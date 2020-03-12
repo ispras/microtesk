@@ -34,10 +34,13 @@ import ru.ispras.fortress.util.InvariantChecks;
  * ( MODIFIED,  READ,   MODIFIED  )
  * ( MODIFIED,  WRITE,  MODIFIED  )
  * ( MODIFIED,  EVICT,  INVALID   )
+ * ( INVALID,   SN_I,   INVALID   )
  * ( SHARED,    SN_I,   INVALID   )
  * ( EXCLUSIVE, SN_I,   INVALID   )
  * ( OWNED,     SN_I,   INVALID   )
  * ( MODIFIED,  SN_I,   INVALID   )
+ * ( INVALID,   SN_R,   INVALID  )
+ * ( SHARED,    SN_R,   SHARED   )
  * ( EXCLUSIVE, SN_R,   SHARED    )
  * ( OWNED,     SN_R,   OWNED     )
  * ( MODIFIED,  SN_R,   OWNED     )
@@ -50,7 +53,6 @@ final class ProtocolMoesi extends ProtocolBase {
   public ProtocolBase.State onRead(final ProtocolBase.State state) {
     switch (state) {
       case INVALID:
-      case SHARED:
         return ProtocolBase.State.SHARED;
       default:
         return state;
@@ -73,12 +75,10 @@ final class ProtocolMoesi extends ProtocolBase {
     switch (state) {
       case EXCLUSIVE:
         return ProtocolBase.State.SHARED;
-      case OWNED:
       case MODIFIED:
         return ProtocolBase.State.OWNED;
       default:
-        InvariantChecks.checkTrue(false);
-        return null;
+        return state;
     }
   }
 }

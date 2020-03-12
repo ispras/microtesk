@@ -28,8 +28,11 @@ import ru.ispras.fortress.util.InvariantChecks;
  * ( MODIFIED,  READ,   MODIFIED )
  * ( MODIFIED,  WRITE,  MODIFIED )
  * ( MODIFIED,  EVICT,  INVALID  )
+ * ( INVALID,   SN_I,   INVALID  )
  * ( SHARED,    SN_I,   INVALID  )
  * ( MODIFIED,  SN_I,   INVALID  )
+ * ( INVALID,   SN_R,   INVALID  )
+ * ( SHARED,    SN_R,   SHARED   )
  * ( MODIFIED,  SN_R,   SHARED   )
  * </p>
  *
@@ -43,11 +46,8 @@ final class ProtocolMsi extends ProtocolBase {
       case INVALID:
       case MODIFIED:
         return ProtocolBase.State.MODIFIED;
-      case SHARED:
-        return ProtocolBase.State.SHARED;
       default:
-        InvariantChecks.checkTrue(false);
-        return null;
+        return state;
     }
   }
 
@@ -57,8 +57,7 @@ final class ProtocolMsi extends ProtocolBase {
       case MODIFIED:
         return ProtocolBase.State.SHARED;
       default:
-        InvariantChecks.checkTrue(false);
-        return null;
+        return state;
     }
   }
 }
