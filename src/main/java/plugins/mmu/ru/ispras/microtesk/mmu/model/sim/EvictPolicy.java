@@ -15,14 +15,12 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * Base interface to be implemented by all data replacement policies.
+ * {@link EvictPolicy} is a base class for a data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 abstract class EvictPolicy {
-  /**
-   * The associativity.
-   */
+  /** The associativity. */
   protected final int associativity;
 
   /**
