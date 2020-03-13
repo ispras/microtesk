@@ -17,8 +17,9 @@ package ru.ispras.microtesk.mmu.model.sim;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link ProtocolMoesi} describes the MOESI cache coherence protocol.
+ * {@link CoherenceProtocolMesi} describes the MESI cache coherence protocol.
  *
+ * <p>
  * ( INVALID,   READ,   SHARED    )
  * ( INVALID,   READX,  EXCLUSIVE )
  * ( INVALID,   WRITE,  MODIFIED  )
@@ -28,42 +29,37 @@ import ru.ispras.fortress.util.InvariantChecks;
  * ( EXCLUSIVE, READ,   EXCLUSIVE )
  * ( EXCLUSIVE, WRITE,  MODIFIED  )
  * ( EXCLUSIVE, EVICT,  INVALID   )
- * ( OWNED,     READ,   OWNED     )
- * ( OWNED,     WRITE,  MODIFIED  )
- * ( OWNED,     EVICT,  INVALID   )
  * ( MODIFIED,  READ,   MODIFIED  )
  * ( MODIFIED,  WRITE,  MODIFIED  )
  * ( MODIFIED,  EVICT,  INVALID   )
  * ( INVALID,   SN_I,   INVALID   )
  * ( SHARED,    SN_I,   INVALID   )
  * ( EXCLUSIVE, SN_I,   INVALID   )
- * ( OWNED,     SN_I,   INVALID   )
  * ( MODIFIED,  SN_I,   INVALID   )
  * ( INVALID,   SN_R,   INVALID  )
  * ( SHARED,    SN_R,   SHARED   )
  * ( EXCLUSIVE, SN_R,   SHARED    )
- * ( OWNED,     SN_R,   OWNED     )
- * ( MODIFIED,  SN_R,   OWNED     )
+ * ( MODIFIED,  SN_R,   SHARED    )
+ * </p>
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class ProtocolMoesi extends ProtocolBase {
-
+final class CoherenceProtocolMesi extends CoherenceProtocolBase {
   @Override
-  public ProtocolBase.State onRead(final ProtocolBase.State state) {
+  public CoherenceProtocolBase.State onRead(final CoherenceProtocolBase.State state) {
     switch (state) {
       case INVALID:
-        return ProtocolBase.State.SHARED;
+        return CoherenceProtocolBase.State.SHARED;
       default:
         return state;
     }
   }
 
   @Override
-  public ProtocolBase.State onReadX(final ProtocolBase.State state) {
+  public CoherenceProtocolBase.State onReadX(final CoherenceProtocolBase.State state) {
     switch (state) {
       case INVALID:
-        return ProtocolBase.State.EXCLUSIVE;
+        return CoherenceProtocolBase.State.EXCLUSIVE;
       default:
         InvariantChecks.checkTrue(false);
         return null;
@@ -71,12 +67,11 @@ final class ProtocolMoesi extends ProtocolBase {
   }
 
   @Override
-  public ProtocolBase.State onSnR(final ProtocolBase.State state) {
+  public CoherenceProtocolBase.State onSnR(final CoherenceProtocolBase.State state) {
     switch (state) {
       case EXCLUSIVE:
-        return ProtocolBase.State.SHARED;
       case MODIFIED:
-        return ProtocolBase.State.OWNED;
+        return CoherenceProtocolBase.State.SHARED;
       default:
         return state;
     }

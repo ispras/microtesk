@@ -14,10 +14,8 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
-import ru.ispras.fortress.util.InvariantChecks;
-
 /**
- * {@link ProtocolMsi} describes the MSI cache coherence protocol.
+ * {@link CoherenceProtocolMsi} describes the MSI cache coherence protocol.
  *
  * <p>
  * ( INVALID,   READ,   SHARED   )
@@ -38,24 +36,24 @@ import ru.ispras.fortress.util.InvariantChecks;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class ProtocolMsi extends ProtocolBase {
+final class CoherenceProtocolMsi extends CoherenceProtocolBase {
 
   @Override
-  public ProtocolBase.State onRead(final ProtocolBase.State state) {
+  public CoherenceProtocolBase.State onRead(final CoherenceProtocolBase.State state) {
     switch (state) {
       case INVALID:
       case MODIFIED:
-        return ProtocolBase.State.MODIFIED;
+        return CoherenceProtocolBase.State.MODIFIED;
       default:
         return state;
     }
   }
 
   @Override
-  public ProtocolBase.State onSnR(final ProtocolBase.State state) {
+  public CoherenceProtocolBase.State onSnR(final CoherenceProtocolBase.State state) {
     switch (state) {
       case MODIFIED:
-        return ProtocolBase.State.SHARED;
+        return CoherenceProtocolBase.State.SHARED;
       default:
         return state;
     }

@@ -15,11 +15,11 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * {@link EvictPolicy} is a base class for a data replacement policy.
+ * {@link EvictionPolicy} is a base class for a data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-abstract class EvictPolicy {
+abstract class EvictionPolicy {
   /** The associativity. */
   protected final int associativity;
 
@@ -28,7 +28,7 @@ abstract class EvictPolicy {
    *
    * @param associativity the buffer associativity.
    */
-  protected EvictPolicy(final int associativity) {
+  protected EvictionPolicy(final int associativity) {
     if (associativity <= 0) {
       throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
     }

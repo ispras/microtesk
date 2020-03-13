@@ -15,13 +15,13 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * {@link Protocol} is an interface of a cache coherence protocol.
+ * {@link CoherenceProtocol} is an interface of a cache coherence protocol.
  *
  * @param <S> the state enumeration type.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Protocol<S extends Enum<?>> {
+public interface CoherenceProtocol<S extends Enum<?>> {
   S getResetState();
   S onRead(S state);
   S onReadX(S state);

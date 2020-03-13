@@ -23,31 +23,37 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 public final class Policy {
   public static Policy create(
-      final EvictPolicyId evict,
+      final EvictionPolicyId eviction,
       final WritePolicyId write,
-      final InclusionPolicyId inclusion) {
-    return new Policy(evict, write, inclusion);
+      final InclusionPolicyId inclusion,
+      final CoherenceProtocolId coherence) {
+    return new Policy(eviction, write, inclusion, coherence);
   }
 
-  public final EvictPolicyId evict;
+  public final EvictionPolicyId eviction;
   public final WritePolicyId write;
   public final InclusionPolicyId inclusion;
+  public final CoherenceProtocolId coherence;
 
   private Policy(
-        final EvictPolicyId evict,
+        final EvictionPolicyId eviction,
         final WritePolicyId write,
-        final InclusionPolicyId inclusion) {
-    InvariantChecks.checkNotNull(evict);
+        final InclusionPolicyId inclusion,
+        final CoherenceProtocolId coherence) {
+    InvariantChecks.checkNotNull(eviction);
     InvariantChecks.checkNotNull(write);
     InvariantChecks.checkNotNull(inclusion);
+    InvariantChecks.checkNotNull(coherence);
 
-    this.evict = evict;
+    this.eviction = eviction;
     this.write = write;
     this.inclusion = inclusion;
+    this.coherence = coherence;
   }
 
   @Override
   public String toString() {
-    return String.format("%s:%s:%s", evict.name(), write.name(), inclusion.name());
+    return String.format("%s:%s:%s:%s",
+        eviction.name(), write.name(), inclusion.name(), coherence.name());
   }
 }

@@ -14,53 +14,54 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * {@link EvictPolicyLru} implements the LRU (Least Recently Used) data replacement policy.
+ * {@link EvictionPolicyFifo} implements the FIFO (First In - First Out) data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class EvictPolicyLru extends EvictPolicy {
-  /** Maps index to time. */
-  private int[] times;
-  /** Current time. */
-  private int time;
+final class EvictionPolicyFifo extends EvictionPolicy {
+  /** Keeps line indices in the order of their usage. */
+  private final List<Integer> fifo = new ArrayList<>();
 
   /**
-   * Constructs an LRU data replacement controller.
+   * Constructs a FIFO data replacement controller.
    *
    * @param associativity the buffer associativity.
    */
-  EvictPolicyLru(final int associativity) {
+  EvictionPolicyFifo(final int associativity) {
     super(associativity);
-    resetState();
+
+    for (int i = 0; i < associativity; i++) {
+      fifo.add(i);
+    }
   }
 
   @Override
   public void accessLine(final int index) {
-    times[index] = time++;
+    for (int i = 0; i < fifo.size(); i++) {
+      if (fifo.get(i) == index) {
+        fifo.remove(i);
+        fifo.add(index);
+
+        return;
+      }
+    }
+
+    throw new IllegalStateException(String.format("Index %d cannot be found.", index));
   }
 
   @Override
   public int chooseVictim() {
-    int victim = 0;
-    int minTime = times[0];
-
-    for (int i = 1; i < times.length; i++) {
-      if (times[i] < minTime) {
-        victim = i;
-        minTime = times[i];
-      }
-    }
-
-    return victim;
+    return fifo.get(0);
   }
 
   @Override
   public void resetState() {
-    time = 0;
-    times = new int[associativity];
     for (int i = 0; i < associativity; i++) {
-      times[i] = time++;
+      fifo.set(i, i);
     }
   }
 }

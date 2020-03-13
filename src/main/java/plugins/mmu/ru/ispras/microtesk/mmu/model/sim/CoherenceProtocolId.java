@@ -15,18 +15,18 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * {@link ProtocolId} enumerates basic cache coherence protocols.
+ * {@link CoherenceProtocolId} enumerates basic cache coherence protocols.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public enum ProtocolId {
+public enum CoherenceProtocolId {
   /**
    * The MSI cache coherence protocol.
    */
   MSI {
     @Override
-    public ProtocolBase newProtocol() {
-      return new ProtocolMsi();
+    public CoherenceProtocolBase newProtocol() {
+      return new CoherenceProtocolMsi();
     }
   },
 
@@ -35,8 +35,8 @@ public enum ProtocolId {
    */
   MOSI {
     @Override
-    public ProtocolBase newProtocol() {
-      return new ProtocolMosi();
+    public CoherenceProtocolBase newProtocol() {
+      return new CoherenceProtocolMosi();
     }
   },
 
@@ -45,8 +45,8 @@ public enum ProtocolId {
    */
   MESI {
     @Override
-    public ProtocolBase newProtocol() {
-      return new ProtocolMesi();
+    public CoherenceProtocolBase newProtocol() {
+      return new CoherenceProtocolMesi();
     }
   },
 
@@ -55,8 +55,8 @@ public enum ProtocolId {
    */
   MOESI {
     @Override
-    public ProtocolBase newProtocol() {
-      return new ProtocolMoesi();
+    public CoherenceProtocolBase newProtocol() {
+      return new CoherenceProtocolMoesi();
     }
   },
 
@@ -65,10 +65,10 @@ public enum ProtocolId {
    */
   NONE {
     @Override
-    public ProtocolBase newProtocol() {
+    public CoherenceProtocolBase newProtocol() {
       return null;
     }
   };
 
-  public abstract Protocol<? extends Enum<?>> newProtocol();
+  public abstract CoherenceProtocol<? extends Enum<?>> newProtocol();
 }

@@ -39,10 +39,7 @@ import ru.ispras.fortress.transformer.TypeConversion;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
-import ru.ispras.microtesk.mmu.model.sim.EvictPolicyId;
-import ru.ispras.microtesk.mmu.model.sim.InclusionPolicyId;
-import ru.ispras.microtesk.mmu.model.sim.Policy;
-import ru.ispras.microtesk.mmu.model.sim.WritePolicyId;
+import ru.ispras.microtesk.mmu.model.sim.*;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
 import ru.ispras.microtesk.mmu.translator.ir.Attribute;
@@ -693,9 +690,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private BigInteger sets = BigInteger.ZERO;
     private Node index = null;
     private Node match = null;
-    private EvictPolicyId evictPolicy = null;
+    private EvictionPolicyId evictionPolicy = null;
     private WritePolicyId writePolicy = null;
     private InclusionPolicyId inclusionPolicy = null;
+    private CoherenceProtocolId coherenceProtocol = null;
     private Buffer next = null;
 
     /**
@@ -817,10 +815,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     public void setPolicyId(
         final CommonTree attrId, final CommonTree attr) throws SemanticException {
-      checkRedefined(attrId, evictPolicy != null);
+      checkRedefined(attrId, evictionPolicy != null);
       try {
-        final EvictPolicyId value = EvictPolicyId.valueOf(attr.getText());
-        evictPolicy = value;
+        final EvictionPolicyId value = EvictionPolicyId.valueOf(attr.getText());
+        evictionPolicy = value;
       } catch (Exception e) {
         raiseError(where(attr), "Unknown policy: " + attr.getText());
       }
@@ -855,9 +853,10 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           index,
           match,
           Policy.create(
-            evictPolicy != null ? evictPolicy : EvictPolicyId.NONE,
+            evictionPolicy != null ? evictionPolicy : EvictionPolicyId.NONE,
             writePolicy != null ? writePolicy : WritePolicyId.WN,
-            inclusionPolicy != null ? inclusionPolicy : InclusionPolicyId.NINE
+            inclusionPolicy != null ? inclusionPolicy : InclusionPolicyId.NINE,
+            coherenceProtocol != null ? coherenceProtocol : CoherenceProtocolId.NONE
           ),
           next);
 

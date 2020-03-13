@@ -40,7 +40,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
   /** Array of cache lines. */
   private final List<Line<E, A>> lines = new ArrayList<>();
   /** Eviction policy with inner state. */
-  private final EvictPolicy evictPolicy;
+  private final EvictionPolicy evictionPolicy;
 
   /**
    * Constructs a cache set of the given associativity.
@@ -75,7 +75,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
       lines.add(line);
     }
 
-    this.evictPolicy = policy.evict.newPolicy(associativity);
+    this.evictionPolicy = policy.eviction.newPolicy(associativity);
   }
 
   protected Line<E, A> newLine() {
@@ -127,7 +127,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
   }
 
   private final E allocEntry(final A address, final BitVector data, final boolean dirty) {
-    final int index = evictPolicy != null ? evictPolicy.chooseVictim() : 0;
+    final int index = evictionPolicy != null ? evictionPolicy.chooseVictim() : 0;
     final Line<E, A> line = lines.get(index);
 
     if (line.isDirty() && next != null && policy.write.wb) {
@@ -137,8 +137,8 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
     line.setDirty(dirty);
     line.storeEntry(address, data);
 
-    if (evictPolicy != null) {
-      evictPolicy.accessLine(index);
+    if (evictionPolicy != null) {
+      evictionPolicy.accessLine(index);
     }
 
     return line.getEntry();
@@ -173,8 +173,8 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
       }
     }
 
-    if (index != -1 && evictPolicy != null) {
-      evictPolicy.accessLine(index);
+    if (index != -1 && evictionPolicy != null) {
+      evictionPolicy.accessLine(index);
     }
 
     return index == -1 ? null : lines.get(index);
@@ -191,7 +191,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
       line.resetState();
     }
 
-    evictPolicy.resetState();
+    evictionPolicy.resetState();
   }
 
   @Override

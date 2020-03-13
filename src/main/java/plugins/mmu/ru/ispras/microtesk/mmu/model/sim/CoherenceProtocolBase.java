@@ -15,11 +15,11 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * {@link ProtocolBase} is a base class for the MOESI family cache coherence protocols.
+ * {@link CoherenceProtocolBase} is a base class for the MOESI family cache coherence protocols.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-abstract class ProtocolBase implements Protocol<ProtocolBase.State> {
+abstract class CoherenceProtocolBase implements CoherenceProtocol<CoherenceProtocolBase.State> {
 
   public enum State {
     /** Modified (M). */

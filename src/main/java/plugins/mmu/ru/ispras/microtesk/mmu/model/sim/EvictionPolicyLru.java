@@ -14,63 +14,53 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
-import ru.ispras.fortress.util.InvariantChecks;
-
 /**
- * {@link EvictPolicyPlru} implements the PLRU (Pseudo Least Recently Used) data replacement policy.
+ * {@link EvictionPolicyLru} implements the LRU (Least Recently Used) data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-final class EvictPolicyPlru extends EvictPolicy {
-  /** The PLRU bits. */
-  private int bits;
-  /** The last access. */
-  private int last;
+final class EvictionPolicyLru extends EvictionPolicy {
+  /** Maps index to time. */
+  private int[] times;
+  /** Current time. */
+  private int time;
 
   /**
-   * Constructs a PLRU data replacement controller.
+   * Constructs an LRU data replacement controller.
    *
    * @param associativity the buffer associativity.
    */
-  EvictPolicyPlru(final int associativity) {
+  EvictionPolicyLru(final int associativity) {
     super(associativity);
-
-    InvariantChecks.checkTrue(associativity <= Integer.SIZE,
-        String.format("Illegal associativity %d", associativity));
-
     resetState();
   }
 
   @Override
   public void accessLine(final int index) {
-    setBit(index);
-  }
-
-  private void setBit(final int i) {
-    final int mask = (1 << (last = i));
-
-    bits |= mask;
-    if (bits == ((1 << associativity) - 1)) {
-      bits = mask;
-    }
+    times[index] = time++;
   }
 
   @Override
   public int chooseVictim() {
-    for (int i = 0; i < associativity; i++) {
-      final int j = (last + i) % associativity;
+    int victim = 0;
+    int minTime = times[0];
 
-      if ((bits & (1 << j)) == 0) {
-        return j;
+    for (int i = 1; i < times.length; i++) {
+      if (times[i] < minTime) {
+        victim = i;
+        minTime = times[i];
       }
     }
 
-    throw new IllegalStateException("All bits are set to 1");
+    return victim;
   }
 
   @Override
   public void resetState() {
-    bits = 0;
-    last = 0;
+    time = 0;
+    times = new int[associativity];
+    for (int i = 0; i < associativity; i++) {
+      times[i] = time++;
+    }
   }
 }

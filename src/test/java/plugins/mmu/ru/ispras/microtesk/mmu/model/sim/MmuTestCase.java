@@ -30,25 +30,25 @@ import org.junit.Test;
 public class MmuTestCase {
   public static final int ASSOCIATIVITY = 10;
 
-  private void testPolicy(final EvictPolicyId evictPolicyId) {
-    final EvictPolicy evictPolicy = evictPolicyId.newPolicy(ASSOCIATIVITY);
+  private void testPolicy(final EvictionPolicyId evictionPolicyId) {
+    final EvictionPolicy evictionPolicy = evictionPolicyId.newPolicy(ASSOCIATIVITY);
 
-    int victim = evictPolicy.chooseVictim();
+    int victim = evictionPolicy.chooseVictim();
     Assert.assertEquals(victim, 0);
 
     for (int i = 0; i < ASSOCIATIVITY; i++) {
-      evictPolicy.accessLine(i);
+      evictionPolicy.accessLine(i);
 
-      victim = evictPolicy.chooseVictim();
+      victim = evictionPolicy.chooseVictim();
       Assert.assertTrue(victim != i);
 
       for (int j = 0; j < ASSOCIATIVITY; j++) {
         if (j != i) {
-          evictPolicy.accessLine(j);
+          evictionPolicy.accessLine(j);
         }
       }
 
-      victim = evictPolicy.chooseVictim();
+      victim = evictionPolicy.chooseVictim();
       Assert.assertTrue(victim == i || victim == 0 /* for PLRU */);
     }
   }
@@ -56,26 +56,26 @@ public class MmuTestCase {
   @Test
   public void testRandom() {
     final int count = 100;
-    final EvictPolicy evictPolicy = EvictPolicyId.RANDOM.newPolicy(ASSOCIATIVITY);
+    final EvictionPolicy evictionPolicy = EvictionPolicyId.RANDOM.newPolicy(ASSOCIATIVITY);
 
     for (int i = 0; i < count; i++) {
-      final int victim = evictPolicy.chooseVictim();
+      final int victim = evictionPolicy.chooseVictim();
       Assert.assertTrue(0 <= victim && victim < ASSOCIATIVITY);
     }
   }
 
   @Test
   public void testFIFO() {
-    testPolicy(EvictPolicyId.FIFO);
+    testPolicy(EvictionPolicyId.FIFO);
   }
 
   @Test
   public void testPLRU() {
-    testPolicy(EvictPolicyId.PLRU);
+    testPolicy(EvictionPolicyId.PLRU);
   }
 
   @Test
   public void testLRU() {
-    testPolicy(EvictPolicyId.LRU);
+    testPolicy(EvictionPolicyId.LRU);
   }
 }
