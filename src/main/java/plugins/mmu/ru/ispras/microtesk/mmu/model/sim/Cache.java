@@ -20,6 +20,8 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.utils.SparseArray;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * {@link Cache} represents an abstract partially associative cache memory.
@@ -45,11 +47,11 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
   private SparseArray<Set<E, A>> savedSets;
 
   private final int associativity;
-  private final EvictPolicyId evictPolicyId;
-  private final WritePolicyId writePolicyId;
+  private final Policy policy;
   private final Indexer<A> indexer;
   private final Matcher<E, A> matcher;
   private final Buffer<? extends Struct<?>, A> next;
+  private final Collection<Cache<? extends Struct<?>, A>> previous = new ArrayList<>();
 
   /**
    * Proxy class is used to simplify code of assignment expressions.
@@ -77,8 +79,7 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
    * @param addressCreator the address creator.
    * @param length the number of sets in the buffer.
    * @param associativity the number of lines in each set.
-   * @param evictPolicyId the entry replacement policy.
-   * @param writePolicyId the entry write policy.
+   * @param policy the cache policy.
    * @param indexer the set indexer.
    * @param matcher the line matcher.
    * @param next the next-level cache.
@@ -88,8 +89,7 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
       final Address<A> addressCreator,
       final BigInteger length,
       final int associativity,
-      final EvictPolicyId evictPolicyId,
-      final WritePolicyId writePolicyId,
+      final Policy policy,
       final Indexer<A> indexer,
       final Matcher<E, A> matcher,
       final Buffer<? extends Struct<?>, A> next) {
@@ -97,19 +97,23 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
 
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThanZero(associativity);
-    InvariantChecks.checkNotNull(evictPolicyId);
-    InvariantChecks.checkNotNull(writePolicyId);
+    InvariantChecks.checkNotNull(policy);
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
 
     this.sets = new SparseArray<>(length);
     this.savedSets = null;
     this.associativity = associativity;
-    this.evictPolicyId = evictPolicyId;
-    this.writePolicyId = writePolicyId;
+    this.policy = policy;
     this.indexer = indexer;
     this.matcher = matcher;
     this.next = next;
+
+    // The next buffer is allowed to be the main memory.
+    if (next != null && next instanceof Cache) {
+      final Cache<? extends Struct<?>, A> nextCache = (Cache<? extends Struct<?>, A>) next;
+      nextCache.previous.add(this);
+    }
   }
 
   private Set<E, A> getSet(final BitVector index) {
@@ -120,8 +124,7 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
           entryCreator,
           addressCreator,
           associativity,
-          evictPolicyId,
-          writePolicyId,
+          policy,
           matcher,
           next
       );

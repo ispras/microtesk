@@ -24,7 +24,7 @@ import java.util.List;
  */
 final class EvictPolicyFifo extends EvictPolicy {
   /** Keeps line indices in the order of their usage. */
-  private final List<Integer> fifo = new ArrayList<Integer>();
+  private final List<Integer> fifo = new ArrayList<>();
 
   /**
    * Constructs a FIFO data replacement controller.

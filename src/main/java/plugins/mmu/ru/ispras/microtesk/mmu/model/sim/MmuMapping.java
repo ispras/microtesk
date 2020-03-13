@@ -35,8 +35,7 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> exte
 
   private final BigInteger length;
   private final int associativity;
-  private final EvictPolicyId evictPolicyId;
-  private final WritePolicyId writePolicyId;
+  private final Policy policy;
   private final Indexer<A> indexer;
   private final Matcher<E, A> matcher;
 
@@ -47,7 +46,7 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> exte
    * @param addressCreator the address creator.
    * @param length the number of sets in the buffer.
    * @param associativity the number of lines in each set.
-   * @param evictPolicyId the data replacement policy.
+   * @param policy the cache policy.
    * @param indexer the set indexer.
    * @param matcher the line matcher.
    */
@@ -56,8 +55,7 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> exte
       final Address<A> addressCreator,
       final BigInteger length,
       final int associativity,
-      final EvictPolicyId evictPolicyId,
-      final WritePolicyId writePolicyId,
+      final Policy policy,
       final Indexer<A> indexer,
       final Matcher<E, A> matcher) {
     super(entryCreator, addressCreator);
@@ -65,15 +63,13 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> exte
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
     InvariantChecks.checkGreaterThanZero(associativity);
-    InvariantChecks.checkNotNull(evictPolicyId);
-    InvariantChecks.checkNotNull(writePolicyId);
+    InvariantChecks.checkNotNull(policy);
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
 
     this.length = length;
     this.associativity = associativity;
-    this.evictPolicyId = evictPolicyId;
-    this.writePolicyId = writePolicyId;
+    this.policy = policy;
     this.indexer = indexer;
     this.matcher = matcher;
   }

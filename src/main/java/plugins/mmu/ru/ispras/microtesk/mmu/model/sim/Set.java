@@ -30,16 +30,17 @@ import java.util.List;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
-  /** Array of cache lines. */
-  private final List<Line<E, A>> lines = new ArrayList<>();
-  /** Entry replacement policy. */
-  private final EvictPolicy evictPolicy;
-  /** Entry write policy. */
-  private final WritePolicyId writePolicyId;
+  /** Cache policy. */
+  private final Policy policy;
   /** Entry-address matcher. */
   private final Matcher<E, A> matcher;
   /** Next-level buffer. */
-  final Buffer<? extends Struct<?>, A> next;
+  private final Buffer<? extends Struct<?>, A> next;
+
+  /** Array of cache lines. */
+  private final List<Line<E, A>> lines = new ArrayList<>();
+  /** Eviction policy with inner state. */
+  private final EvictPolicy evictPolicy;
 
   /**
    * Constructs a cache set of the given associativity.
@@ -47,8 +48,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
    * @param entryCreator the entry creator.
    * @param addressCreator the address creator.
    * @param associativity the number of lines in the set.
-   * @param evictPolicyId the entry replacement policy.
-   * @param writePolicyId the entry write policy.
+   * @param policy the cache policy.
    * @param matcher the entry-address matcher.
    * @param next the next-level buffer.
    */
@@ -56,17 +56,16 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
       final Struct<E> entryCreator,
       final Address<A> addressCreator,
       final int associativity,
-      final EvictPolicyId evictPolicyId,
-      final WritePolicyId writePolicyId,
+      final Policy policy,
       final Matcher<E, A> matcher,
       final Buffer<? extends Struct<?>, A> next) {
     super(entryCreator, addressCreator);
 
     InvariantChecks.checkGreaterThanZero(associativity);
-    InvariantChecks.checkNotNull(evictPolicyId);
-    InvariantChecks.checkNotNull(writePolicyId);
+    InvariantChecks.checkNotNull(policy);
     InvariantChecks.checkNotNull(matcher);
 
+    this.policy = policy;
     this.matcher = matcher;
     this.next = next;
 
@@ -76,8 +75,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
       lines.add(line);
     }
 
-    this.evictPolicy = evictPolicyId.newPolicy(associativity);
-    this.writePolicyId = writePolicyId;
+    this.evictPolicy = policy.evict.newPolicy(associativity);
   }
 
   protected Line<E, A> newLine() {
@@ -118,12 +116,12 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
     if (line != null) {
       line.storeEntry(address, entry);
       line.setDirty(true);
-    } else if (writePolicyId.wa) {
+    } else if (policy.write.wa) {
       // Allocate the entry and mark it as dirty.
       allocEntry(address, entry, true);
     }
 
-    if (next != null && writePolicyId.wt) {
+    if (next != null && policy.write.wt) {
       next.storeEntry(address, entry);
     }
   }
@@ -132,7 +130,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
     final int index = evictPolicy != null ? evictPolicy.chooseVictim() : 0;
     final Line<E, A> line = lines.get(index);
 
-    if (line.isDirty() && next != null && writePolicyId.wb) {
+    if (line.isDirty() && next != null && policy.write.wb) {
       next.storeEntry(address, data);
     }
 

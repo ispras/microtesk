@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
-import java.util.EnumSet;
-
 /**
  * {@link ProtocolBase} is a base class for the MOESI family cache coherence protocols.
  *

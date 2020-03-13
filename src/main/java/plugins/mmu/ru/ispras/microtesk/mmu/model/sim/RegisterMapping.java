@@ -37,8 +37,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
   private final String name;
 
   private final int associativity;
-  private final EvictPolicyId evictPolicyId;
-  private final WritePolicyId writePolicyId;
+  private final Policy policy;
 
   private final Indexer<A> indexer;
   private final Matcher<E, A> matcher;
@@ -55,8 +54,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
           RegisterMapping.this.entryCreator,
           RegisterMapping.this.addressCreator,
           associativity,
-          evictPolicyId,
-          writePolicyId,
+          policy,
           matcher,
           null
       );
@@ -161,7 +159,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
    * @param name the name of the register file mapped to the buffer.
    * @param length the number of sets in the buffer.
    * @param associativity the number of lines in each set.
-   * @param evictPolicyId the data replacement policy.
+   * @param policy the cache policy.
    * @param indexer the set indexer.
    * @param matcher the line matcher.
    */
@@ -171,8 +169,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
       final String name,
       final BigInteger length,
       final int associativity,
-      final EvictPolicyId evictPolicyId,
-      final WritePolicyId writePolicyId,
+      final Policy policy,
       final Indexer<A> indexer,
       final Matcher<E, A> matcher) {
     super(entryCreator, addressCreator);
@@ -181,7 +178,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
     InvariantChecks.checkGreaterThanZero(associativity);
-    InvariantChecks.checkNotNull(evictPolicyId);
+    InvariantChecks.checkNotNull(policy);
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
 
@@ -191,8 +188,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     InvariantChecks.checkTrue(getEntryBitSize() == storage.getDataBitSize());
 
     this.associativity = associativity;
-    this.evictPolicyId = evictPolicyId;
-    this.writePolicyId = writePolicyId;
+    this.policy = policy;
     this.indexer = indexer;
     this.matcher = matcher;
 

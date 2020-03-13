@@ -71,11 +71,12 @@ abstract class StbCommon {
   public static final Class<?> MEMORY_CLASS =
       ru.ispras.microtesk.mmu.model.sim.Memory.class;
 
+  public static final Class<?> POLICY_CLASS =
+      ru.ispras.microtesk.mmu.model.sim.Policy.class;
   public static final Class<?> EVICT_POLICY_ID_CLASS =
-      ru.ispras.microtesk.mmu.model.sim.EvictPolicyId.class;
-
+          ru.ispras.microtesk.mmu.model.sim.EvictPolicyId.class;
   public static final Class<?> WRITE_POLICY_ID_CLASS =
-      ru.ispras.microtesk.mmu.model.sim.WritePolicyId.class;
+          ru.ispras.microtesk.mmu.model.sim.WritePolicyId.class;
 
   public static final Class<?> EXECUTION_CLASS =
       ru.ispras.microtesk.model.Execution.class;
