@@ -178,10 +178,11 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
         ? String.format("%s.get()", buffer.getNext().getId())
         : "null");
 
-    stConstructor.add("policy", String.format("%s.create(%s.%s, %s.%s)",
+    stConstructor.add("policy", String.format("%s.create(%s.%s, %s.%s, %s.%s)",
         POLICY_CLASS.getSimpleName(),
-        EVICT_POLICY_ID_CLASS.getSimpleName(), buffer.getEvictPolicy().name(),
-        WRITE_POLICY_ID_CLASS.getSimpleName(), buffer.getWritePolicy().name()));
+        EVICT_POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().evict.name(),
+        WRITE_POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().write.name(),
+        INCLUSION_POLICY_ID_CLASS.getSimpleName(), buffer.getPolicy().inclusion.name()));
 
     st.add("members", stConstructor);
   }

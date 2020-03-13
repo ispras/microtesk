@@ -77,6 +77,8 @@ abstract class StbCommon {
           ru.ispras.microtesk.mmu.model.sim.EvictPolicyId.class;
   public static final Class<?> WRITE_POLICY_ID_CLASS =
           ru.ispras.microtesk.mmu.model.sim.WritePolicyId.class;
+  public static final Class<?> INCLUSION_POLICY_ID_CLASS =
+          ru.ispras.microtesk.mmu.model.sim.InclusionPolicyId.class;
 
   public static final Class<?> EXECUTION_CLASS =
       ru.ispras.microtesk.model.Execution.class;

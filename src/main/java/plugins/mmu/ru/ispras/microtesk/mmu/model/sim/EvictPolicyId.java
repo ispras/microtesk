@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * {@link EvictPolicyId} enumerates basic data replacement (eviction) policies.
+ * {@link EvictPolicyId} contains the data replacement (eviction) policies.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

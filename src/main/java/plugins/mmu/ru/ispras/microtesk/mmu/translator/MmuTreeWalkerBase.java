@@ -40,6 +40,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.mmu.model.sim.EvictPolicyId;
+import ru.ispras.microtesk.mmu.model.sim.InclusionPolicyId;
+import ru.ispras.microtesk.mmu.model.sim.Policy;
 import ru.ispras.microtesk.mmu.model.sim.WritePolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
 import ru.ispras.microtesk.mmu.translator.ir.Address;
@@ -693,6 +695,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     private Node match = null;
     private EvictPolicyId evictPolicy = null;
     private WritePolicyId writePolicy = null;
+    private InclusionPolicyId inclusionPolicy = null;
     private Buffer next = null;
 
     /**
@@ -840,14 +843,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       checkUndefined("index", index == null);
       checkUndefined("match", match == null);
 
-      if (null == evictPolicy) {
-        evictPolicy = EvictPolicyId.NONE;
-      }
-
-      if (null == writePolicy) {
-        writePolicy = WritePolicyId.WN;
-      }
-
       final Buffer buffer = new Buffer(
           id.getText(),
           kind,
@@ -859,10 +854,12 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           sets,
           index,
           match,
-          evictPolicy,
-          writePolicy,
-          next
-          );
+          Policy.create(
+            evictPolicy != null ? evictPolicy : EvictPolicyId.NONE,
+            writePolicy != null ? writePolicy : WritePolicyId.WN,
+            inclusionPolicy != null ? inclusionPolicy : InclusionPolicyId.NINE
+          ),
+          next);
 
       ir.addBuffer(buffer);
       globals.put(id.getText(), buffer);

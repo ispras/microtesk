@@ -15,30 +15,17 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * {@link WritePolicyId} contains the cache write policies.
+ * {@link InclusionPolicyId} contains the cache inclusion policies.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public enum WritePolicyId {
-    /** Local Write, Data Allocation. */
-    WN(true, false, false),
+public enum InclusionPolicyId {
+    /** Inclusive policy. */
+    INCLUSIVE,
 
-    /** Write-Through, No Data Allocation. */
-    WT(false, true, false),
+    /** Exclusive policy. */
+    EXCLUSIVE,
 
-    /** Write-Through, Data Allocation. */
-    WTA(true, true, false),
-
-    /** Write-Back, Data Allocation. */
-    WB(true, false, true);
-
-    public final boolean wa;
-    public final boolean wt;
-    public final boolean wb;
-
-    WritePolicyId(final boolean wa, final boolean wt, final boolean wb) {
-      this.wa = wa;
-      this.wt = wt;
-      this.wb = wb;
-    }
+    /** Non-Inclusive Non-Exclusive. */
+    NINE
 }
