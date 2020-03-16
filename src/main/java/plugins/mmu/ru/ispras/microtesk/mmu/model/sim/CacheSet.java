@@ -22,14 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link Set} implements a cache set, which is a fully associative buffer consisting of cache lines.
+ * {@link CacheSet} implements a cache set, which is a fully associative buffer consisting of cache lines.
  *
  * @param <E> the entry type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
+public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
   /** Cache policy. */
   private final CachePolicy policy;
   /** Entry-address matcher. */
@@ -40,7 +40,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
   private final Buffer<? extends Struct<?>, A> next;
 
   /** Array of cache lines. */
-  private final List<Line<E, A>> lines = new ArrayList<>();
+  private final List<CacheLine<E, A>> lines = new ArrayList<>();
   /** Eviction policy with inner state. */
   private final EvictionPolicy evictionPolicy;
 
@@ -55,7 +55,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
    * @param cache the current cache.
    * @param next the next-level buffer.
    */
-  public Set(
+  public CacheSet(
       final Struct<E> entryCreator,
       final Address<A> addressCreator,
       final int associativity,
@@ -77,15 +77,15 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
 
     // Fill the set with the default (invalid) lines.
     for (int i = 0; i < associativity; i++) {
-      final Line<E, A> line = newLine();
+      final CacheLine<E, A> line = newLine();
       lines.add(line);
     }
 
     this.evictionPolicy = policy.eviction.newPolicy(associativity);
   }
 
-  protected Line<E, A> newLine() {
-    return new Line<>(entryCreator, addressCreator, matcher, cache);
+  protected CacheLine<E, A> newLine() {
+    return new CacheLine<>(entryCreator, addressCreator, matcher, cache);
   }
 
   @Override
@@ -95,7 +95,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
 
   @Override
   public final E loadEntry(final A address) {
-    final Line<E, A> line = getLine(address);
+    final CacheLine<E, A> line = getLine(address);
 
     // If there is a cache hit, return the entry.
     if (line != null) {
@@ -117,7 +117,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
 
   @Override
   public final void storeEntry(final A address, final BitVector entry) {
-    final Line<E, A> line = getLine(address);
+    final CacheLine<E, A> line = getLine(address);
 
     if (line != null) {
       line.storeEntry(address, entry);
@@ -133,8 +133,8 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
   }
 
   private final E allocEntry(final A address, final BitVector data, final boolean dirty) {
-    final int index = evictionPolicy != null ? evictionPolicy.chooseVictim() : 0;
-    final Line<E, A> line = lines.get(index);
+    final int index = evictionPolicy != null ? evictionPolicy.getVictim() : 0;
+    final CacheLine<E, A> line = lines.get(index);
 
     if (line.isDirty() && next != null && policy.write.wb) {
       next.storeEntry(address, data);
@@ -144,7 +144,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
     line.storeEntry(address, data);
 
     if (evictionPolicy != null) {
-      evictionPolicy.accessLine(index);
+      evictionPolicy.onAccess(index);
     }
 
     return line.getEntry();
@@ -162,11 +162,11 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
    * @param address the address.
    * @return the line associated with the given address if it exists; {@code null} otherwise.
    */
-  private Line<E, A> getLine(final A address) {
+  private CacheLine<E, A> getLine(final A address) {
     int index = -1;
 
     for (int i = 0; i < lines.size(); i++) {
-      final Line<E, A> line = lines.get(i);
+      final CacheLine<E, A> line = lines.get(i);
 
       if (line.isHit(address)) {
         InvariantChecks.checkTrue(index == -1,
@@ -180,7 +180,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
     }
 
     if (index != -1 && evictionPolicy != null) {
-      evictionPolicy.accessLine(index);
+      evictionPolicy.onAccess(index);
     }
 
     return index == -1 ? null : lines.get(index);

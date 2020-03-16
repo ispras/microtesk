@@ -40,7 +40,7 @@ final class EvictionPolicyFifo extends EvictionPolicy {
   }
 
   @Override
-  public void accessLine(final int index) {
+  public void onAccess(final int index) {
     for (int i = 0; i < fifo.size(); i++) {
       if (fifo.get(i) == index) {
         fifo.remove(i);
@@ -54,7 +54,7 @@ final class EvictionPolicyFifo extends EvictionPolicy {
   }
 
   @Override
-  public int chooseVictim() {
+  public int getVictim() {
     return fifo.get(0);
   }
 

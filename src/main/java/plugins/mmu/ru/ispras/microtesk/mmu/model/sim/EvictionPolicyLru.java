@@ -36,12 +36,12 @@ final class EvictionPolicyLru extends EvictionPolicy {
   }
 
   @Override
-  public void accessLine(final int index) {
+  public void onAccess(final int index) {
     times[index] = time++;
   }
 
   @Override
-  public int chooseVictim() {
+  public int getVictim() {
     int victim = 0;
     int minTime = times[0];
 

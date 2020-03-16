@@ -42,7 +42,7 @@ final class EvictionPolicyPlru extends EvictionPolicy {
   }
 
   @Override
-  public void accessLine(final int index) {
+  public void onAccess(final int index) {
     setBit(index);
   }
 
@@ -56,7 +56,7 @@ final class EvictionPolicyPlru extends EvictionPolicy {
   }
 
   @Override
-  public int chooseVictim() {
+  public int getVictim() {
     for (int i = 0; i < associativity; i++) {
       final int j = (last + i) % associativity;
 

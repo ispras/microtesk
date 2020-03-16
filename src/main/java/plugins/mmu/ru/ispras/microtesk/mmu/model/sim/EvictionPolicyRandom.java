@@ -32,12 +32,12 @@ final class EvictionPolicyRandom extends EvictionPolicy {
   }
 
   @Override
-  public void accessLine(final int index) {
+  public void onAccess(final int index) {
     // Do nothing.
   }
 
   @Override
-  public int chooseVictim() {
+  public int getVictim() {
     return Randomizer.get().nextIntRange(0, associativity - 1);
   }
 

@@ -19,7 +19,6 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
 import ru.ispras.microtesk.test.TestEngine;
-import ru.ispras.microtesk.utils.SparseArray;
 
 import java.math.BigInteger;
 
@@ -38,9 +37,9 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
   private BigInteger currentRegisterIndex;
 
   /**
-   * {@link RegisterMappedSet} is an extension of {@link Set} for register-mapped buffers.
+   * {@link RegisterMappedSet} is an extension of {@link CacheSet} for register-mapped buffers.
    */
-  private final class RegisterMappedSet extends Set<E, A> {
+  private final class RegisterMappedSet extends CacheSet<E, A> {
     public RegisterMappedSet() {
       super(
           RegisterMapping.this.entryCreator,
@@ -54,7 +53,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     }
 
     @Override
-    protected Line<E, A> newLine() {
+    protected CacheLine<E, A> newLine() {
       return new RegisterMappedLine();
     }
   }
@@ -62,7 +61,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
   /**
    * {@link RegisterMappedLine} is an implementation of a line for register-mapped buffers.
    */
-  private final class RegisterMappedLine extends Line<E, A> {
+  private final class RegisterMappedLine extends CacheLine<E, A> {
     private final BitVector registerIndex;
 
     private RegisterMappedLine() {
@@ -180,7 +179,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-    final Set<E, A> set = getSet(index);
+    final CacheSet<E, A> set = getSet(index);
     return null != set ? set.seeData(index, way) : null;
   }
 

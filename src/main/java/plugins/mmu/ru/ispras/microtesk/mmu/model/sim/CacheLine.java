@@ -19,14 +19,14 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
 /**
- * {@link Line} represents an abstract cache line.
+ * {@link CacheLine} represents an abstract cache line.
  *
  * @param <E> the entry type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public class Line<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
+public class CacheLine<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
   /** Stored entry. */
   private E entry;
   /** Entry address. */
@@ -47,7 +47,7 @@ public class Line<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A
    * @param addressCreator the address creator.
    * @param matcher the entry-address matcher.
    */
-  public Line(
+  public CacheLine(
       final Struct<E> entryCreator,
       final Address<A> addressCreator,
       final Matcher<E, A> matcher,

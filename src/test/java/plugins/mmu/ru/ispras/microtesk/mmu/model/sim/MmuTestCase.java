@@ -33,22 +33,22 @@ public class MmuTestCase {
   private void testPolicy(final EvictionPolicyId evictionPolicyId) {
     final EvictionPolicy evictionPolicy = evictionPolicyId.newPolicy(ASSOCIATIVITY);
 
-    int victim = evictionPolicy.chooseVictim();
+    int victim = evictionPolicy.getVictim();
     Assert.assertEquals(victim, 0);
 
     for (int i = 0; i < ASSOCIATIVITY; i++) {
-      evictionPolicy.accessLine(i);
+      evictionPolicy.onAccess(i);
 
-      victim = evictionPolicy.chooseVictim();
+      victim = evictionPolicy.getVictim();
       Assert.assertTrue(victim != i);
 
       for (int j = 0; j < ASSOCIATIVITY; j++) {
         if (j != i) {
-          evictionPolicy.accessLine(j);
+          evictionPolicy.onAccess(j);
         }
       }
 
-      victim = evictionPolicy.chooseVictim();
+      victim = evictionPolicy.getVictim();
       Assert.assertTrue(victim == i || victim == 0 /* for PLRU */);
     }
   }
@@ -59,7 +59,7 @@ public class MmuTestCase {
     final EvictionPolicy evictionPolicy = EvictionPolicyId.RANDOM.newPolicy(ASSOCIATIVITY);
 
     for (int i = 0; i < count; i++) {
-      final int victim = evictionPolicy.chooseVictim();
+      final int victim = evictionPolicy.getVictim();
       Assert.assertTrue(0 <= victim && victim < ASSOCIATIVITY);
     }
   }

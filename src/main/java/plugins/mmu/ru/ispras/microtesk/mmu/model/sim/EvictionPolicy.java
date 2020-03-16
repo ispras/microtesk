@@ -14,13 +14,15 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * {@link EvictionPolicy} is a base class for a data replacement policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 abstract class EvictionPolicy {
-  /** The associativity. */
+  /** Associativity. */
   protected final int associativity;
 
   /**
@@ -29,10 +31,7 @@ abstract class EvictionPolicy {
    * @param associativity the buffer associativity.
    */
   protected EvictionPolicy(final int associativity) {
-    if (associativity <= 0) {
-      throw new IllegalArgumentException(String.format("Illegal associativity %d", associativity));
-    }
-
+    InvariantChecks.checkGreaterThanZero(associativity);
     this.associativity = associativity;
   }
 
@@ -41,14 +40,14 @@ abstract class EvictionPolicy {
    *
    * @param index the line being hit.
    */
-  public abstract void accessLine(int index);
+  public abstract void onAccess(int index);
 
   /**
    * Handles a buffer miss.
    *
    * @return the line to be replaced.
    */
-  public abstract int chooseVictim();
+  public abstract int getVictim();
 
   /**
    * Resets the state of the policy object.

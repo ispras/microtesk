@@ -43,8 +43,8 @@ import java.util.Collection;
 public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
 
   /** Table of associative sets. */
-  private SparseArray<Set<E, A>> sets;
-  private SparseArray<Set<E, A>> savedSets;
+  private SparseArray<CacheSet<E, A>> sets;
+  private SparseArray<CacheSet<E, A>> savedSets;
 
   protected final int associativity;
   protected final CachePolicy policy;
@@ -116,11 +116,11 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
     }
   }
 
-  protected final Set<E, A> getSet(final BitVector index) {
-    Set<E, A> set = sets.get(index);
+  protected final CacheSet<E, A> getSet(final BitVector index) {
+    CacheSet<E, A> set = sets.get(index);
 
     if (null == set) {
-      set = new Set<>(
+      set = new CacheSet<>(
           entryCreator,
           addressCreator,
           associativity,
@@ -135,28 +135,28 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
     return set;
   }
 
-  protected final void setSet(final BitVector index, final Set<E, A> set) {
+  protected final void setSet(final BitVector index, final CacheSet<E, A> set) {
     sets.set(index, set);
   }
 
   @Override
   public final boolean isHit(final A address) {
     final BitVector index = indexer.getIndex(address);
-    final Set<E, A> set = sets.get(index);
+    final CacheSet<E, A> set = sets.get(index);
     return null != set && set.isHit(address);
   }
 
   @Override
   public final E loadEntry(final A address) {
     final BitVector index = indexer.getIndex(address);
-    final Set<E, A> set = getSet(index);
+    final CacheSet<E, A> set = getSet(index);
     return set.loadEntry(address);
   }
 
   @Override
   public final void storeEntry(final A address, final BitVector entry) {
     final BitVector index = indexer.getIndex(address);
-    final Set<E, A> set = getSet(index);
+    final CacheSet<E, A> set = getSet(index);
     set.storeEntry(address, entry);
   }
 
@@ -166,7 +166,7 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
 
   @Override
   public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-    final Set<E, A> set = sets.get(index);
+    final CacheSet<E, A> set = sets.get(index);
     return null != set ? set.seeData(index, way) : null;
   }
 
