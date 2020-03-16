@@ -36,14 +36,21 @@ abstract class EvictionPolicy {
   }
 
   /**
-   * Handles a buffer hit.
+   * Handles a line access.
    *
-   * @param index the line being hit.
+   * @param index the line being accessed.
    */
   public abstract void onAccess(int index);
 
   /**
-   * Handles a buffer miss.
+   * Handles a line eviction.
+   *
+   * @param index the line being evicted.
+   */
+  public abstract void onEvict(int index);
+
+  /**
+   * Chooses a line to be replaced.
    *
    * @return the line to be replaced.
    */

@@ -17,14 +17,14 @@ package ru.ispras.microtesk.mmu.model.sim;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link EvictionPolicyPlru} implements the PLRU (Pseudo Least Recently Used) data replacement policy.
+ * {@link EvictionPolicyPlru} implements the PLRU (Pseudo Least Recently Used) eviction policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class EvictionPolicyPlru extends EvictionPolicy {
-  /** The PLRU bits. */
+  /** PLRU bits. */
   private int bits;
-  /** The last access. */
+  /** Latest access. */
   private int last;
 
   /**
@@ -43,16 +43,20 @@ final class EvictionPolicyPlru extends EvictionPolicy {
 
   @Override
   public void onAccess(final int index) {
-    setBit(index);
-  }
-
-  private void setBit(final int i) {
-    final int mask = (1 << (last = i));
+    final int mask = (1 << index);
 
     bits |= mask;
     if (bits == ((1 << associativity) - 1)) {
       bits = mask;
     }
+
+    last = index;
+  }
+
+  @Override
+  public void onEvict(final int index) {
+    final int mask = (1 << index);
+    bits &= ~mask;
   }
 
   @Override

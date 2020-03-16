@@ -18,50 +18,58 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link EvictionPolicyFifo} implements the FIFO (First In - First Out) data replacement policy.
+ * {@link EvictionPolicyFifo} implements the FIFO (First In - First Out) eviction policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class EvictionPolicyFifo extends EvictionPolicy {
-  /** Keeps line indices in the order of their usage. */
-  private final List<Integer> fifo = new ArrayList<>();
+  /** Unallocated lines: sorted in order of eviction. */
+  private final List<Integer> free = new ArrayList<>();
+  /** Allocated lines: sorted from LRU to MRU. */
+  private final List<Integer> used = new ArrayList<>();
 
-  /**
-   * Constructs a FIFO data replacement controller.
-   *
-   * @param associativity the buffer associativity.
-   */
   EvictionPolicyFifo(final int associativity) {
     super(associativity);
-
-    for (int i = 0; i < associativity; i++) {
-      fifo.add(i);
-    }
+    resetState();
   }
 
   @Override
   public void onAccess(final int index) {
+    if (remove(used, index) || remove(free, index)) {
+      used.add(index);
+    }
+  }
+
+  @Override
+  public void onEvict(final int index) {
+    if (remove(used, index)) {
+      free.add(index);
+    }
+  }
+
+  private static boolean remove(final List<Integer> fifo, final int index) {
     for (int i = 0; i < fifo.size(); i++) {
       if (fifo.get(i) == index) {
         fifo.remove(i);
         fifo.add(index);
-
-        return;
+        return true;
       }
     }
-
-    throw new IllegalStateException(String.format("Index %d cannot be found.", index));
+    return false;
   }
 
   @Override
   public int getVictim() {
-    return fifo.get(0);
+    return !free.isEmpty() ? free.get(0) : used.get(0);
   }
 
   @Override
   public void resetState() {
+    free.clear();
+    used.clear();
+
     for (int i = 0; i < associativity; i++) {
-      fifo.set(i, i);
+      free.add(i);
     }
   }
 }

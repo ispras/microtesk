@@ -15,7 +15,7 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 /**
- * {@link EvictionPolicyLru} implements the LRU (Least Recently Used) data replacement policy.
+ * {@link EvictionPolicyLru} implements the LRU (Least Recently Used) eviction policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -25,19 +25,21 @@ final class EvictionPolicyLru extends EvictionPolicy {
   /** Current time. */
   private int time;
 
-  /**
-   * Constructs an LRU data replacement controller.
-   *
-   * @param associativity the buffer associativity.
-   */
   EvictionPolicyLru(final int associativity) {
     super(associativity);
+
+    this.times = new int[associativity];
     resetState();
   }
 
   @Override
   public void onAccess(final int index) {
-    times[index] = time++;
+    times[index] = ++time;
+  }
+
+  @Override
+  public void onEvict(final int index) {
+    times[index] = 0;
   }
 
   @Override
@@ -58,9 +60,8 @@ final class EvictionPolicyLru extends EvictionPolicy {
   @Override
   public void resetState() {
     time = 0;
-    times = new int[associativity];
-    for (int i = 0; i < associativity; i++) {
-      times[i] = time++;
+    for (int i = 0; i < times.length; i++) {
+      times[i] = 0;
     }
   }
 }

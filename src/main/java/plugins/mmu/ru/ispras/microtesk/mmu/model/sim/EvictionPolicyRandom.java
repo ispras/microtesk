@@ -17,22 +17,23 @@ package ru.ispras.microtesk.mmu.model.sim;
 import ru.ispras.fortress.randomizer.Randomizer;
 
 /**
- * {@link EvictionPolicyRandom} implements the random data replacement policy.
+ * {@link EvictionPolicyRandom} implements the random eviction policy.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class EvictionPolicyRandom extends EvictionPolicy {
-  /**
-   * Constructs a random data replacement controller.
-   *
-   * @param associativity the buffer associativity.
-   */
+
   EvictionPolicyRandom(final int associativity) {
     super(associativity);
   }
 
   @Override
   public void onAccess(final int index) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onEvict(final int index) {
     // Do nothing.
   }
 
