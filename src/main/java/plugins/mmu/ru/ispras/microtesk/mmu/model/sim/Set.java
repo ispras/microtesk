@@ -34,6 +34,8 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
   private final CachePolicy policy;
   /** Entry-address matcher. */
   private final Matcher<E, A> matcher;
+  /** Cache that contains this set. */
+  private final Cache<E, A> cache;
   /** Next-level buffer. */
   private final Buffer<? extends Struct<?>, A> next;
 
@@ -50,6 +52,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
    * @param associativity the number of lines in the set.
    * @param policy the cache policy.
    * @param matcher the entry-address matcher.
+   * @param cache the current cache.
    * @param next the next-level buffer.
    */
   public Set(
@@ -58,15 +61,18 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
       final int associativity,
       final CachePolicy policy,
       final Matcher<E, A> matcher,
+      final Cache<E, A> cache,
       final Buffer<? extends Struct<?>, A> next) {
     super(entryCreator, addressCreator);
 
     InvariantChecks.checkGreaterThanZero(associativity);
     InvariantChecks.checkNotNull(policy);
     InvariantChecks.checkNotNull(matcher);
+    InvariantChecks.checkNotNull(cache);
 
     this.policy = policy;
     this.matcher = matcher;
+    this.cache = cache;
     this.next = next;
 
     // Fill the set with the default (invalid) lines.
@@ -79,7 +85,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
   }
 
   protected Line<E, A> newLine() {
-    return new Line<>(entryCreator, addressCreator, matcher);
+    return new Line<>(entryCreator, addressCreator, matcher, cache);
   }
 
   @Override

@@ -46,12 +46,12 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
   private SparseArray<Set<E, A>> sets;
   private SparseArray<Set<E, A>> savedSets;
 
-  private final int associativity;
-  private final CachePolicy policy;
-  private final Indexer<A> indexer;
-  private final Matcher<E, A> matcher;
-  private final Buffer<? extends Struct<?>, A> next;
-  private final Collection<Cache<? extends Struct<?>, A>> previous = new ArrayList<>();
+  protected final int associativity;
+  protected final CachePolicy policy;
+  protected final Indexer<A> indexer;
+  protected final Matcher<E, A> matcher;
+  protected final Buffer<? extends Struct<?>, A> next;
+  protected final Collection<Cache<? extends Struct<?>, A>> previous = new ArrayList<>();
 
   /**
    * Proxy class is used to simplify code of assignment expressions.
@@ -116,22 +116,27 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
     }
   }
 
-  private Set<E, A> getSet(final BitVector index) {
-    Set<E, A> result = sets.get(index);
+  protected final Set<E, A> getSet(final BitVector index) {
+    Set<E, A> set = sets.get(index);
 
-    if (null == result) {
-      result = new Set<>(
+    if (null == set) {
+      set = new Set<>(
           entryCreator,
           addressCreator,
           associativity,
           policy,
           matcher,
+          this,
           next
       );
-      sets.set(index, result);
+      sets.set(index, set);
     }
 
-    return result;
+    return set;
+  }
+
+  protected final void setSet(final BitVector index, final Set<E, A> set) {
+    sets.set(index, set);
   }
 
   @Override

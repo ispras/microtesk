@@ -37,6 +37,8 @@ public class Line<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A
 
   /** Line matcher. */
   private final Matcher<E, A> matcher;
+  /** Cache that contains this line. */
+  private final Cache<E, A> cache;
 
   /**
    * Constructs a default (invalid) line.
@@ -48,7 +50,8 @@ public class Line<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A
   public Line(
       final Struct<E> entryCreator,
       final Address<A> addressCreator,
-      final Matcher<E, A> matcher) {
+      final Matcher<E, A> matcher,
+      final Cache<E, A> cache) {
     super(entryCreator, addressCreator);
 
     this.entry = null;
@@ -56,6 +59,7 @@ public class Line<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A
     this.dirty = false;
 
     this.matcher = matcher;
+    this.cache = cache;
   }
 
   @Override
