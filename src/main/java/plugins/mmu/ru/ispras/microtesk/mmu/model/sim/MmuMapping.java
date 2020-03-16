@@ -35,7 +35,7 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> exte
 
   private final BigInteger length;
   private final int associativity;
-  private final Policy policy;
+  private final CachePolicy policy;
   private final Indexer<A> indexer;
   private final Matcher<E, A> matcher;
 
@@ -55,7 +55,7 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> exte
       final Address<A> addressCreator,
       final BigInteger length,
       final int associativity,
-      final Policy policy,
+      final CachePolicy policy,
       final Indexer<A> indexer,
       final Matcher<E, A> matcher) {
     super(entryCreator, addressCreator);

@@ -47,7 +47,7 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
   private SparseArray<Set<E, A>> savedSets;
 
   private final int associativity;
-  private final Policy policy;
+  private final CachePolicy policy;
   private final Indexer<A> indexer;
   private final Matcher<E, A> matcher;
   private final Buffer<? extends Struct<?>, A> next;
@@ -89,7 +89,7 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
       final Address<A> addressCreator,
       final BigInteger length,
       final int associativity,
-      final Policy policy,
+      final CachePolicy policy,
       final Indexer<A> indexer,
       final Matcher<E, A> matcher,
       final Buffer<? extends Struct<?>, A> next) {

@@ -17,17 +17,17 @@ package ru.ispras.microtesk.mmu.model.sim;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link Policy} contains all cache-related policies.
+ * {@link CachePolicy} contains all cache-related policies.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class Policy {
-  public static Policy create(
+public final class CachePolicy {
+  public static CachePolicy create(
       final EvictionPolicyId eviction,
       final WritePolicyId write,
       final InclusionPolicyId inclusion,
       final CoherenceProtocolId coherence) {
-    return new Policy(eviction, write, inclusion, coherence);
+    return new CachePolicy(eviction, write, inclusion, coherence);
   }
 
   public final EvictionPolicyId eviction;
@@ -35,7 +35,7 @@ public final class Policy {
   public final InclusionPolicyId inclusion;
   public final CoherenceProtocolId coherence;
 
-  private Policy(
+  private CachePolicy(
         final EvictionPolicyId eviction,
         final WritePolicyId write,
         final InclusionPolicyId inclusion,

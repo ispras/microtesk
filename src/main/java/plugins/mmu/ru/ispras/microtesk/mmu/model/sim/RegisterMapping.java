@@ -37,7 +37,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
   private final String name;
 
   private final int associativity;
-  private final Policy policy;
+  private final CachePolicy policy;
 
   private final Indexer<A> indexer;
   private final Matcher<E, A> matcher;
@@ -169,7 +169,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
       final String name,
       final BigInteger length,
       final int associativity,
-      final Policy policy,
+      final CachePolicy policy,
       final Indexer<A> indexer,
       final Matcher<E, A> matcher) {
     super(entryCreator, addressCreator);

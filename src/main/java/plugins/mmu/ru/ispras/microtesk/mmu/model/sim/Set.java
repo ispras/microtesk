@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
   /** Cache policy. */
-  private final Policy policy;
+  private final CachePolicy policy;
   /** Entry-address matcher. */
   private final Matcher<E, A> matcher;
   /** Next-level buffer. */
@@ -56,7 +56,7 @@ public class Set<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A>
       final Struct<E> entryCreator,
       final Address<A> addressCreator,
       final int associativity,
-      final Policy policy,
+      final CachePolicy policy,
       final Matcher<E, A> matcher,
       final Buffer<? extends Struct<?>, A> next) {
     super(entryCreator, addressCreator);

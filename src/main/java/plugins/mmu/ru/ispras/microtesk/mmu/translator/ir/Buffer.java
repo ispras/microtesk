@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.translator.ir;
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.mmu.model.sim.Policy;
+import ru.ispras.microtesk.mmu.model.sim.CachePolicy;
 import ru.ispras.microtesk.mmu.model.spec.MmuBuffer;
 
 import java.math.BigInteger;
@@ -36,7 +36,7 @@ public final class Buffer extends AbstractStorage {
   private final BigInteger sets;
   private final Node index;
   private final Node match;
-  private final Policy policy;
+  private final CachePolicy policy;
   private final Buffer next;
 
   public Buffer(
@@ -50,7 +50,7 @@ public final class Buffer extends AbstractStorage {
       final BigInteger sets,
       final Node index,
       final Node match,
-      final Policy policy,
+      final CachePolicy policy,
       final Buffer next) {
 
     super(
@@ -128,7 +128,7 @@ public final class Buffer extends AbstractStorage {
     return match;
   }
 
-  public Policy getPolicy() {
+  public CachePolicy getPolicy() {
     return policy;
   }
 

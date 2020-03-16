@@ -852,7 +852,7 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
           sets,
           index,
           match,
-          Policy.create(
+          CachePolicy.create(
             evictionPolicy != null ? evictionPolicy : EvictionPolicyId.NONE,
             writePolicy != null ? writePolicy : WritePolicyId.WN,
             inclusionPolicy != null ? inclusionPolicy : InclusionPolicyId.NINE,
