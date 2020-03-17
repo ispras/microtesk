@@ -92,6 +92,14 @@ public abstract class Buffer<E, A> implements BufferObserver, ModelStateManager 
    */
   public abstract void evictEntry(A address);
 
+  /**
+   * Allocates the entry associated with the given address.
+   *
+   * @param address the address.
+   * @param entry the allocated entry.
+   */
+  public abstract E allocEntry(A address, final BitVector entry);
+
   @Override
   public final boolean isHit(final BitVector value) {
     final A address = addressCreator.setValue(value);

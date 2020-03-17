@@ -120,6 +120,11 @@ public abstract class Memory<E extends Struct<?>, A extends Address> extends Buf
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public final E allocEntry(final A address, final BitVector entry) {
+    throw new UnsupportedOperationException();
+  }
+
   public final Proxy writeEntry(final A address) {
     return new Proxy(address);
   }

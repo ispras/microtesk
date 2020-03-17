@@ -91,6 +91,17 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>> extends Buffer
     this.entry = null;
   }
 
+  @Override
+  public E allocEntry(final A address, final BitVector entry) {
+    this.entry = entryCreator.newStruct(entry);
+    this.address = address;
+
+    matcher.assignTag(this.entry, address);
+    InvariantChecks.checkTrue(matcher.areMatching(this.entry, this.address));
+
+    return this.entry;
+  }
+
   public final E getEntry() {
     return entry;
   }

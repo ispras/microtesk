@@ -74,6 +74,11 @@ public abstract class Mmu<A extends Address<?>>
   }
 
   @Override
+  public final BitVector allocEntry(final A address, final BitVector entry) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way) {
     throw new UnsupportedOperationException();
   }

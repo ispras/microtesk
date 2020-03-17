@@ -142,8 +142,8 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
   @Override
   public final boolean isHit(final A address) {
     final BitVector index = indexer.getIndex(address);
-    final CacheSet<E, A> set = sets.get(index);
-    return null != set && set.isHit(address);
+    final CacheSet<E, A> set = getSet(index);
+    return set.isHit(address);
   }
 
   @Override
@@ -165,6 +165,19 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
     final BitVector index = indexer.getIndex(address);
     final CacheSet<E, A> set = getSet(index);
     set.evictEntry(address);
+  }
+
+  @Override
+  public final E allocEntry(final A address, final BitVector entry) {
+    final BitVector index = indexer.getIndex(address);
+    final CacheSet<E, A> set = getSet(index);
+    return set.allocEntry(address, entry);
+  }
+
+  public final CacheLine<E, A> getLine(final A address) {
+    final BitVector index = indexer.getIndex(address);
+    final CacheSet<E, A> set = getSet(index);
+    return set.getLine(address);
   }
 
   public final Proxy writeEntry(final A address) {

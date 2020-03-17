@@ -107,6 +107,11 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     }
 
     @Override
+    public E allocEntry(final A address, final BitVector entry) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Pair<BitVector, BitVector> seeEntry(final BitVector index, final BitVector way) {
       final MemoryDevice storage = getRegisterDevice();
       return storage.isInitialized(registerIndex)

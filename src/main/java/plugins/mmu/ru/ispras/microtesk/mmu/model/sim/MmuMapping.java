@@ -99,6 +99,12 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> exte
   }
 
   @Override
+  public final E allocEntry(final A address, final BitVector entry) {
+    final BitVector value = getMmu().allocEntry(address, entry);
+    return entryCreator.newStruct(value);
+  }
+
+  @Override
   public Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way) {
     throw new UnsupportedOperationException();
   }

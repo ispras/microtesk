@@ -59,6 +59,11 @@ public abstract class Segment<PA extends Address<?>, VA extends Address<?>> exte
   }
 
   @Override
+  public PA allocEntry(final VA address, final BitVector entry) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way) {
     throw new UnsupportedOperationException();
   }

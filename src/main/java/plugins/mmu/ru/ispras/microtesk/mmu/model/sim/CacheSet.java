@@ -90,20 +90,20 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
 
   @Override
   public final boolean isHit(final A address) {
-    return getLineIndex(address) != -1;
+    return getWay(address) != -1;
   }
 
   @Override
   public final E readEntry(final A address) {
-    final int index = getLineIndex(address);
+    final int way = getWay(address);
 
     // If there is a cache hit, return the entry.
-    if (index != -1) {
+    if (way != -1) {
       if (evictionPolicy != null) {
-        evictionPolicy.onAccess(index);
+        evictionPolicy.onAccess(way);
       }
 
-      final CacheLine<E, A> line = lines.get(index);
+      final CacheLine<E, A> line = lines.get(way);
       return line.readEntry(address);
     }
 
@@ -113,7 +113,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
 
       if (nextData != null) {
         // Allocate the entry and return it.
-        return allocEntry(address, nextData.asBitVector(), false);
+        return allocEntry(address, nextData.asBitVector());
       }
     }
 
@@ -122,19 +122,23 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
 
   @Override
   public final void writeEntry(final A address, final BitVector entry) {
-     final int index = getLineIndex(address);
+     final int way = getWay(address);
 
-    if (index != -1) {
+    if (way != -1) {
       if (evictionPolicy != null) {
-        evictionPolicy.onAccess(index);
+        evictionPolicy.onAccess(way);
       }
 
-      final CacheLine<E, A> line = lines.get(index);
+      final CacheLine<E, A> line = lines.get(way);
       line.writeEntry(address, entry);
       line.setDirty(true);
     } else if (policy.write.wa) {
-      // Allocate the entry and mark it as dirty.
-      allocEntry(address, entry, true);
+      allocEntry(address, entry);
+
+      final CacheLine<E, A> line = getLine(address);
+      InvariantChecks.checkNotNull(line);
+
+      line.setDirty(true);
     }
 
     if (next != null && policy.write.wt) {
@@ -144,34 +148,68 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
 
   @Override
   public final void evictEntry(final A address) {
-    final int index = getLineIndex(address);
+    final int way = getWay(address);
+    InvariantChecks.checkNotNull(way != -1);
 
-    if (index != -1) {
-      if (evictionPolicy != null) {
-        evictionPolicy.onEvict(index);
-      }
+    final CacheLine<E, A> line = lines.get(way);
 
-      final CacheLine<E, A> line = lines.get(index);
-      line.evictEntry(address);
+    switch (policy.inclusion) {
+      case INCLUSIVE:
+        for (final Cache<?, A> prevCache : this.cache.previous) {
+          InvariantChecks.checkTrue(prevCache.policy.inclusion == policy.inclusion);
+
+          if (prevCache.isHit(address)) {
+            // Backward invalidation of the previous caches.
+            prevCache.evictEntry(address);
+          }
+        }
+        break;
+
+      case EXCLUSIVE:
+        if (this.cache.next != null && this.cache.next instanceof Cache) {
+          final Cache<?, A> nextCache = (Cache<?, A>) this.cache.next;
+          nextCache.allocEntry(address, line.getEntry().asBitVector());
+
+          final CacheLine<?, A> nextLine = nextCache.getLine(address);
+          nextLine.setDirty(line.isDirty());
+        }
+        break;
+
+      default:
+        break;
     }
+
+    // Evict the line from this cache.
+    if (evictionPolicy != null) {
+      evictionPolicy.onEvict(way);
+    }
+
+    line.evictEntry(address);
   }
 
-  private final E allocEntry(final A address, final BitVector data, final boolean dirty) {
-    final int index = evictionPolicy != null ? evictionPolicy.getVictim() : 0;
-    final CacheLine<E, A> line = lines.get(index);
+  @Override
+  public final E allocEntry(final A address, final BitVector data) {
+    final int way = evictionPolicy != null ? evictionPolicy.getVictim() : 0;
+    final CacheLine<E, A> line = lines.get(way);
 
     if (line.isDirty() && next != null && policy.write.wb) {
       next.writeEntry(address, data);
     }
 
-    line.setDirty(dirty);
     line.writeEntry(address, data);
 
     if (evictionPolicy != null) {
-      evictionPolicy.onAccess(index);
+      evictionPolicy.onAccess(way);
     }
 
     return line.getEntry();
+  }
+
+  public final CacheLine<E, A> getLine(final A address) {
+    final int way = getWay(address);
+    InvariantChecks.checkNotNull(way != -1);
+
+    return lines.get(way);
   }
 
   @Override
@@ -181,29 +219,29 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
   }
 
   /**
-   * Returns the line associated with the given address.
+   * Returns the index of the way that stores data associated with the given address.
    *
    * @param address the address.
-   * @return the line associated with the given address if it exists; {@code null} otherwise.
+   * @return the way index or {@code -1}.
    */
-  private int getLineIndex(final A address) {
-    int index = -1;
+  private int getWay(final A address) {
+    int way = -1;
 
     for (int i = 0; i < lines.size(); i++) {
       final CacheLine<E, A> line = lines.get(i);
 
       if (line.isHit(address)) {
-        InvariantChecks.checkTrue(index == -1,
+        InvariantChecks.checkTrue(way == -1,
             String.format("Multiple hits in a cache set. Address=%s:0x%s, Lines=%s",
                 address.getClass().getSimpleName(),
                 address.getValue().toHexString(),
                 lines.toString()));
 
-        index = i;
+        way = i;
       }
     }
 
-    return index;
+    return way;
   }
 
   @Override
@@ -224,13 +262,13 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
   public String toString() {
     final StringBuilder sb = new StringBuilder("Set [");
 
-    for (int index = 0; index < lines.size(); index++) {
-      if (0 != index) {
+    for (int way = 0; way < lines.size(); way++) {
+      if (way != 0) {
         sb.append(", ");
       }
 
-      final Buffer<E, A> line = lines.get(index);
-      sb.append(String.format("%d: %s", index, line));
+      final Buffer<E, A> line = lines.get(way);
+      sb.append(String.format("%d: %s", way, line));
     }
 
     sb.append(']');
