@@ -255,14 +255,14 @@ protected int getEntryBitSize() {
 
 get_data(addr_type, addr_name, data_type, stmts) ::= <<
 @Override
-public <data_type> loadEntry(final <addr_type> <addr_name>) {
+public <data_type> readEntry(final <addr_type> <addr_name>) {
   <stmts; separator="\n">
 }
 >>
 
 set_data(addr_type, addr_name, data_type, data_name, stmts) ::= <<
 @Override
-public void storeEntry(final <addr_type> <addr_name>, final <data_type> <data_name>) {
+public void writeEntry(final <addr_type> <addr_name>, final <data_type> <data_name>) {
   <stmts; separator="\n">
 }
 >>

@@ -250,8 +250,8 @@ public final class ExprPrinter extends MapBasedPrinter {
     public Visitor() {
       attrMap = new HashMap<>();
       attrMap.put(AbstractStorage.HIT_ATTR_NAME,   "isHit");
-      attrMap.put(AbstractStorage.READ_ATTR_NAME,  "loadEntry");
-      attrMap.put(AbstractStorage.WRITE_ATTR_NAME, "storeEntry");
+      attrMap.put(AbstractStorage.READ_ATTR_NAME,  "readEntry");
+      attrMap.put(AbstractStorage.WRITE_ATTR_NAME, "writeEntry");
     }
 
     @Override

@@ -64,11 +64,11 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
     }
 
     public void assign(final E entry) {
-      storeEntry(address, entry);
+      writeEntry(address, entry);
     }
 
     public void assign(final BitVector value) {
-      storeEntry(address, value);
+      writeEntry(address, value);
     }
   }
 
@@ -147,31 +147,38 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
   }
 
   @Override
-  public final E loadEntry(final A address) {
+  public final E readEntry(final A address) {
     final BitVector index = indexer.getIndex(address);
     final CacheSet<E, A> set = getSet(index);
-    return set.loadEntry(address);
+    return set.readEntry(address);
   }
 
   @Override
-  public final void storeEntry(final A address, final BitVector entry) {
+  public final void writeEntry(final A address, final BitVector entry) {
     final BitVector index = indexer.getIndex(address);
     final CacheSet<E, A> set = getSet(index);
-    set.storeEntry(address, entry);
+    set.writeEntry(address, entry);
   }
 
-  public final Proxy storeEntry(final A address) {
+  @Override
+  public final void evictEntry(final A address) {
+    final BitVector index = indexer.getIndex(address);
+    final CacheSet<E, A> set = getSet(index);
+    set.evictEntry(address);
+  }
+
+  public final Proxy writeEntry(final A address) {
     return new Proxy(address);
   }
 
   @Override
-  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
+  public final Pair<BitVector, BitVector> seeEntry(final BitVector index, final BitVector way) {
     final CacheSet<E, A> set = sets.get(index);
-    return null != set ? set.seeData(index, way) : null;
+    return set != null ? set.seeEntry(index, way) : null;
   }
 
   @Override
-  public String toString() {
+  public final String toString() {
     return String.format("%s %s", getClass().getSimpleName(), sets);
   }
 

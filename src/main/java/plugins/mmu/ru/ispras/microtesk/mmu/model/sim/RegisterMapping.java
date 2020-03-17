@@ -30,8 +30,7 @@ import java.math.BigInteger;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
-    extends Cache<E, A> {
+public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>> extends Cache<E, A> {
 
   private final String name;
   private BigInteger currentRegisterIndex;
@@ -90,20 +89,25 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     }
 
     @Override
-    public E loadEntry(final A address) {
+    public E readEntry(final A address) {
       final MemoryDevice storage = getRegisterDevice();
       final BitVector rawData = storage.load(registerIndex);
       return entryCreator.newStruct(rawData);
     }
 
     @Override
-    public void storeEntry(final A address, final BitVector data) {
+    public void writeEntry(final A address, final BitVector data) {
       final MemoryDevice storage = getRegisterDevice();
       storage.store(registerIndex, data);
     }
 
     @Override
-    public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
+    public void evictEntry(final A address) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Pair<BitVector, BitVector> seeEntry(final BitVector index, final BitVector way) {
       final MemoryDevice storage = getRegisterDevice();
       return storage.isInitialized(registerIndex)
           ? new Pair<>(registerIndex, storage.load(registerIndex))
@@ -175,12 +179,6 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
 
   private MemoryDevice getRegisterDevice() {
     return TestEngine.getInstance().getModel().getPE().getMemoryDevice(name);
-  }
-
-  @Override
-  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-    final CacheSet<E, A> set = getSet(index);
-    return null != set ? set.seeData(index, way) : null;
   }
 
   protected abstract int getEntryBitSize();

@@ -499,7 +499,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     // TAG == TAG[0] || ... || TAG == TAG[w-1].
     for (int i = 0; i < buffer.getWays(); i++) {
       final BitVector way = BitVector.valueOf(i, Integer.SIZE);
-      final Pair<BitVector, BitVector> taggedData = bufferObserver.seeData(index, way);
+      final Pair<BitVector, BitVector> taggedData = bufferObserver.seeEntry(index, way);
 
       if (taggedData != null) {
         final BitVector address = taggedData.first;
@@ -528,7 +528,7 @@ public final class MemoryDataGenerator implements DataGenerator {
     // TAG != TAG[0] && ... && TAG != TAG[w-1].
     for (int i = 0; i < buffer.getWays(); i++) {
       final BitVector way = BitVector.valueOf(i, Integer.SIZE);
-      final Pair<BitVector, BitVector> taggedData = bufferObserver.seeData(index, way);
+      final Pair<BitVector, BitVector> taggedData = bufferObserver.seeEntry(index, way);
 
       if (taggedData != null) {
         final BitVector address = taggedData.first;

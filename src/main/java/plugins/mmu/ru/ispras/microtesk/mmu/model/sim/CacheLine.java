@@ -72,12 +72,12 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>> extends Buffer
   }
 
   @Override
-  public E loadEntry(final A address) {
+  public E readEntry(final A address) {
     return isHit(address) ? entry : null;
   }
 
   @Override
-  public void storeEntry(final A address, final BitVector entry) {
+  public void writeEntry(final A address, final BitVector entry) {
     this.entry = entryCreator.newStruct(entry);
     this.address = address;
 
@@ -85,20 +85,26 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>> extends Buffer
     InvariantChecks.checkTrue(matcher.areMatching(this.entry, this.address));
   }
 
-  public E getEntry() {
+  @Override
+  public void evictEntry(final A address) {
+    InvariantChecks.checkTrue(matcher.areMatching(this.entry, address));
+    this.entry = null;
+  }
+
+  public final E getEntry() {
     return entry;
   }
 
-  public boolean isDirty() {
+  public final boolean isDirty() {
     return dirty;
   }
 
-  public void setDirty(final boolean dirty) {
+  public final void setDirty(final boolean dirty) {
     this.dirty = dirty;
   }
 
   @Override
-  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
+  public Pair<BitVector, BitVector> seeEntry(final BitVector index, final BitVector way) {
     return address != null && entry != null
         ? new Pair<>(address.getValue(), entry.asBitVector())
         : null;

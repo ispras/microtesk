@@ -90,21 +90,26 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
 
   @Override
   public final boolean isHit(final A address) {
-    return getLine(address) != null;
+    return getLineIndex(address) != -1;
   }
 
   @Override
-  public final E loadEntry(final A address) {
-    final CacheLine<E, A> line = getLine(address);
+  public final E readEntry(final A address) {
+    final int index = getLineIndex(address);
 
     // If there is a cache hit, return the entry.
-    if (line != null) {
-      return line.loadEntry(address);
+    if (index != -1) {
+      if (evictionPolicy != null) {
+        evictionPolicy.onAccess(index);
+      }
+
+      final CacheLine<E, A> line = lines.get(index);
+      return line.readEntry(address);
     }
 
     // Otherwise, try to access the next-level cache.
     if (next != null) {
-      final Struct<?> nextData = next.loadEntry(address);
+      final Struct<?> nextData = next.readEntry(address);
 
       if (nextData != null) {
         // Allocate the entry and return it.
@@ -116,11 +121,16 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
   }
 
   @Override
-  public final void storeEntry(final A address, final BitVector entry) {
-    final CacheLine<E, A> line = getLine(address);
+  public final void writeEntry(final A address, final BitVector entry) {
+     final int index = getLineIndex(address);
 
-    if (line != null) {
-      line.storeEntry(address, entry);
+    if (index != -1) {
+      if (evictionPolicy != null) {
+        evictionPolicy.onAccess(index);
+      }
+
+      final CacheLine<E, A> line = lines.get(index);
+      line.writeEntry(address, entry);
       line.setDirty(true);
     } else if (policy.write.wa) {
       // Allocate the entry and mark it as dirty.
@@ -128,7 +138,21 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
     }
 
     if (next != null && policy.write.wt) {
-      next.storeEntry(address, entry);
+      next.writeEntry(address, entry);
+    }
+  }
+
+  @Override
+  public final void evictEntry(final A address) {
+    final int index = getLineIndex(address);
+
+    if (index != -1) {
+      if (evictionPolicy != null) {
+        evictionPolicy.onEvict(index);
+      }
+
+      final CacheLine<E, A> line = lines.get(index);
+      line.evictEntry(address);
     }
   }
 
@@ -137,11 +161,11 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
     final CacheLine<E, A> line = lines.get(index);
 
     if (line.isDirty() && next != null && policy.write.wb) {
-      next.storeEntry(address, data);
+      next.writeEntry(address, data);
     }
 
     line.setDirty(dirty);
-    line.storeEntry(address, data);
+    line.writeEntry(address, data);
 
     if (evictionPolicy != null) {
       evictionPolicy.onAccess(index);
@@ -151,9 +175,9 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
   }
 
   @Override
-  public Pair<BitVector, BitVector> seeData(final BitVector index, final BitVector way) {
-    final Buffer<E, A> line = lines.get(way.intValue());
-    return line != null ? line.seeData(index, way) : null;
+  public Pair<BitVector, BitVector> seeEntry(final BitVector index, final BitVector way) {
+    final CacheLine<E, A> line = lines.get(way.intValue());
+    return line != null ? line.seeEntry(index, way) : null;
   }
 
   /**
@@ -162,7 +186,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
    * @param address the address.
    * @return the line associated with the given address if it exists; {@code null} otherwise.
    */
-  private CacheLine<E, A> getLine(final A address) {
+  private int getLineIndex(final A address) {
     int index = -1;
 
     for (int i = 0; i < lines.size(); i++) {
@@ -179,11 +203,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
       }
     }
 
-    if (index != -1 && evictionPolicy != null) {
-      evictionPolicy.onAccess(index);
-    }
-
-    return index == -1 ? null : lines.get(index);
+    return index;
   }
 
   @Override

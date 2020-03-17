@@ -81,20 +81,25 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> exte
   }
 
   @Override
-  public E loadEntry(final A address) {
-    final BitVector value = getMmu().loadEntry(address);
+  public E readEntry(final A address) {
+    final BitVector value = getMmu().readEntry(address);
     InvariantChecks.checkTrue(value.getBitSize() == getEntryBitSize());
     return entryCreator.newStruct(value);
   }
 
   @Override
-  public void storeEntry(final A address, final BitVector data) {
+  public void writeEntry(final A address, final BitVector data) {
     InvariantChecks.checkTrue(data.getBitSize() == getEntryBitSize());
-    getMmu().storeEntry(address, data);
+    getMmu().writeEntry(address, data);
   }
 
   @Override
-  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
+  public void evictEntry(final A address) {
+    getMmu().evictEntry(address);
+  }
+
+  @Override
+  public Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way) {
     throw new UnsupportedOperationException();
   }
 

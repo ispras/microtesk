@@ -44,17 +44,22 @@ public abstract class Segment<PA extends Address<?>, VA extends Address<?>> exte
   }
 
   @Override
-  public PA loadEntry(final VA va) {
+  public PA readEntry(final VA va) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void storeEntry(final VA address, final BitVector entry) {
+  public void writeEntry(final VA address, final BitVector entry) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
+  public void evictEntry(final VA address) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way) {
     throw new UnsupportedOperationException();
   }
 

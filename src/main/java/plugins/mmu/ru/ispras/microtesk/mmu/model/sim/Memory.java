@@ -36,11 +36,11 @@ public abstract class Memory<E extends Struct<?>, A extends Address> extends Buf
     }
 
     public void assign(final E entry) {
-      storeEntry(address, entry);
+      writeEntry(address, entry);
     }
 
     public void assign(final BitVector value) {
-      storeEntry(address, value);
+      writeEntry(address, value);
     }
   }
 
@@ -67,7 +67,7 @@ public abstract class Memory<E extends Struct<?>, A extends Address> extends Buf
   }
 
   @Override
-  public final E loadEntry(final A address) {
+  public final E readEntry(final A address) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
 
     final int entryBitSize = getEntryBitSize();
@@ -93,7 +93,7 @@ public abstract class Memory<E extends Struct<?>, A extends Address> extends Buf
   }
 
   @Override
-  public final void storeEntry(final A address, final BitVector entry) {
+  public final void writeEntry(final A address, final BitVector entry) {
     InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
 
     final int dataBitSize = entry.getBitSize();
@@ -115,12 +115,17 @@ public abstract class Memory<E extends Struct<?>, A extends Address> extends Buf
     }
   }
 
-  public final Proxy storeEntry(final A address) {
+  @Override
+  public final void evictEntry(final A address) {
+    throw new UnsupportedOperationException();
+  }
+
+  public final Proxy writeEntry(final A address) {
     return new Proxy(address);
   }
 
   @Override
-  public Pair<BitVector, BitVector> seeData(BitVector index, BitVector way) {
+  public Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way) {
     throw new UnsupportedOperationException();
   }
 

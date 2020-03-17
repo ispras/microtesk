@@ -59,7 +59,7 @@ public abstract class Buffer<E, A> implements BufferObserver, ModelStateManager 
    * @param address the address.
    * @return the entry associated with the address or {@code null}.
    */
-  public abstract E loadEntry(A address);
+  public abstract E readEntry(A address);
 
   /**
    * Stores the entry associated with the given address.
@@ -73,11 +73,24 @@ public abstract class Buffer<E, A> implements BufferObserver, ModelStateManager 
    * @param address the address.
    * @param entry the new entry.
    */
-  public abstract void storeEntry(A address, BitVector entry);
+  public abstract void writeEntry(A address, BitVector entry);
 
-  public final void storeEntry(final A address, final Struct<?> entry) {
-    storeEntry(address, entry.asBitVector());
+  /**
+   * Stores the entry associated with the given address.
+   *
+   * @param address the address.
+   * @param entry the new entry.
+   */
+  public final void writeEntry(final A address, final Struct<?> entry) {
+    writeEntry(address, entry.asBitVector());
   }
+
+  /**
+   * Invalidates the entry associated with the given address.
+   *
+   * @param address the address.
+   */
+  public abstract void evictEntry(A address);
 
   @Override
   public final boolean isHit(final BitVector value) {
@@ -86,7 +99,7 @@ public abstract class Buffer<E, A> implements BufferObserver, ModelStateManager 
   }
 
   @Override
-  public abstract Pair<BitVector, BitVector> seeData(BitVector index, BitVector way);
+  public abstract Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way);
 
   @Override
   public abstract void setUseTempState(boolean value);

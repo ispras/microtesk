@@ -38,5 +38,5 @@ public interface BufferObserver {
    * @param way Line index.
    * @return Pair(Address, Data) or {@code null} if it is not found.
    */
-  Pair<BitVector, BitVector> seeData(BitVector index, BitVector way);
+  Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way);
 }
