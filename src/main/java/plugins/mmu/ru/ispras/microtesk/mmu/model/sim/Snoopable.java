@@ -14,22 +14,24 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
+import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.model.ModelStateManager;
+
 /**
- * {@link CoherenceProtocol} is an interface of a cache coherence protocol.
+ * {@link Snoopable} is an interface of a snoopable buffer.
  *
- * @param <S> the state enumeration type.
+ * @param <E> the entry type.
+ * @param <A> the address type.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface CoherenceProtocol<S extends Enum<?>> {
-  S onRead(S state);
-  S onReadX(S state);
-  S onWrite(S state);
-  S onEvict(S state);
-  S onSnoopRead(S state);
-  S onSnoopWrite(S state);
-  S onSnoopEvict(S state);
-  S getResetState();
-  boolean isOwnerState(S state);
-  boolean isCoherent(S[] states);
+public interface Snoopable<E, A>  {
+
+  E snoopRead(A address);
+
+  void snoopWrite(A address, BitVector entry);
+
+  void snoopEvict(A address);
 }

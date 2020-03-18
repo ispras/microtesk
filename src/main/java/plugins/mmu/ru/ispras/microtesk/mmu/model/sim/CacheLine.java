@@ -26,7 +26,16 @@ import ru.ispras.fortress.util.Pair;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public class CacheLine<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
+public class CacheLine<E extends Struct<?>, A extends Address<?>>
+    extends Buffer<E, A> implements Snoopable<E, A> {
+
+  /** Coherence protocol. */
+  private final CoherenceProtocol protocol;
+  /** Line matcher. */
+  private final Matcher<E, A> matcher;
+  /** Cache that contains this line. */
+  private final Cache<E, A> cache;
+
   /** Stored entry. */
   private E entry;
   /** Entry address. */
@@ -34,22 +43,22 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>> extends Buffer
 
   /** Dirty bit used to implement the write-back policy. */
   private boolean dirty;
-
-  /** Line matcher. */
-  private final Matcher<E, A> matcher;
-  /** Cache that contains this line. */
-  private final Cache<E, A> cache;
+  /** Coherence protocol state. */
+  private Enum<?> state;
 
   /**
-   * Constructs a default (invalid) line.
+   * Constructs an invalid cache line.
    *
    * @param entryCreator the entry creator.
    * @param addressCreator the address creator.
+   * @param policy the cache policy.
    * @param matcher the entry-address matcher.
+   * @param cache the current cache.
    */
   public CacheLine(
       final Struct<E> entryCreator,
       final Address<A> addressCreator,
+      final CachePolicy policy,
       final Matcher<E, A> matcher,
       final Cache<E, A> cache) {
     super(entryCreator, addressCreator);
@@ -60,11 +69,14 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>> extends Buffer
 
     this.matcher = matcher;
     this.cache = cache;
+
+    this.protocol = policy.coherence.newProtocol();
+    this.state = this.protocol.getResetState();
   }
 
   @Override
   public boolean isHit(final A address) {
-    if (entry == null) {
+    if (entry == null || state == protocol.getResetState()) {
       return false;
     }
 
@@ -73,11 +85,14 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>> extends Buffer
 
   @Override
   public E readEntry(final A address) {
+    state = protocol.onWrite(state);
     return isHit(address) ? entry : null;
   }
 
   @Override
   public void writeEntry(final A address, final BitVector entry) {
+    state = protocol.onWrite(state);
+
     this.entry = entryCreator.newStruct(entry);
     this.address = address;
 
@@ -87,8 +102,8 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>> extends Buffer
 
   @Override
   public void evictEntry(final A address) {
-    InvariantChecks.checkTrue(matcher.areMatching(this.entry, address));
-    this.entry = null;
+    state = protocol.onEvict(state);
+    entry = null;
   }
 
   @Override
@@ -100,6 +115,24 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>> extends Buffer
     InvariantChecks.checkTrue(matcher.areMatching(this.entry, this.address));
 
     return this.entry;
+  }
+
+  @Override
+  public final E snoopRead(final A address) {
+    final E result = protocol.isOwnerState(state) ? entry : null;
+    state = protocol.onSnoopRead(state);
+
+    return result;
+  }
+
+  @Override
+  public final void snoopWrite(final A address, final BitVector entry) {
+    state = protocol.onSnoopWrite(state);
+  }
+
+  @Override
+  public final void snoopEvict(final A address) {
+    state = protocol.onSnoopEvict(state);
   }
 
   public final E getEntry() {
@@ -131,6 +164,7 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>> extends Buffer
     entry = null;
     address = null;
     dirty = false;
+    state = protocol.getResetState();
   }
 
   @Override

@@ -29,7 +29,9 @@ import java.util.List;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
+public class CacheSet<E extends Struct<?>, A extends Address<?>>
+    extends Buffer<E, A> implements Snoopable<E, A> {
+
   /** Cache policy. */
   private final CachePolicy policy;
   /** Entry-address matcher. */
@@ -85,7 +87,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
   }
 
   protected CacheLine<E, A> newLine() {
-    return new CacheLine<>(entryCreator, addressCreator, matcher, cache);
+    return new CacheLine<>(entryCreator, addressCreator, policy, matcher, cache);
   }
 
   @Override
@@ -195,7 +197,25 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
     return line.getEntry();
   }
 
-  public final CacheLine<E, A> getLine(final A address) {
+  @Override
+  public final E snoopRead(final A address) {
+    final CacheLine<E, A> line = getLine(address);
+    return line.snoopRead(address);
+  }
+
+  @Override
+  public final void snoopWrite(final A address, final BitVector entry) {
+    final CacheLine<E, A> line = getLine(address);
+    line.snoopWrite(address, entry);
+  }
+
+  @Override
+  public final void snoopEvict(final A address) {
+    final CacheLine<E, A> line = getLine(address);
+    line.snoopEvict(address);
+  }
+
+  final CacheLine<E, A> getLine(final A address) {
     final int way = getWay(address);
     InvariantChecks.checkNotNull(way != -1);
 

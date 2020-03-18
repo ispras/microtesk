@@ -19,31 +19,34 @@ import ru.ispras.fortress.util.InvariantChecks;
 /**
  * {@link CoherenceProtocolMoesi} describes the MOESI cache coherence protocol.
  *
- * ( INVALID,   READ,   SHARED    )
- * ( INVALID,   READX,  EXCLUSIVE )
- * ( INVALID,   WRITE,  MODIFIED  )
- * ( SHARED,    READ,   SHARED    )
- * ( SHARED,    WRITE,  MODIFIED  )
- * ( SHARED,    EVICT,  INVALID   )
- * ( EXCLUSIVE, READ,   EXCLUSIVE )
- * ( EXCLUSIVE, WRITE,  MODIFIED  )
- * ( EXCLUSIVE, EVICT,  INVALID   )
- * ( OWNED,     READ,   OWNED     )
- * ( OWNED,     WRITE,  MODIFIED  )
- * ( OWNED,     EVICT,  INVALID   )
- * ( MODIFIED,  READ,   MODIFIED  )
- * ( MODIFIED,  WRITE,  MODIFIED  )
- * ( MODIFIED,  EVICT,  INVALID   )
- * ( INVALID,   SN_I,   INVALID   )
- * ( SHARED,    SN_I,   INVALID   )
- * ( EXCLUSIVE, SN_I,   INVALID   )
- * ( OWNED,     SN_I,   INVALID   )
- * ( MODIFIED,  SN_I,   INVALID   )
- * ( INVALID,   SN_R,   INVALID  )
- * ( SHARED,    SN_R,   SHARED   )
- * ( EXCLUSIVE, SN_R,   SHARED    )
- * ( OWNED,     SN_R,   OWNED     )
- * ( MODIFIED,  SN_R,   OWNED     )
+ * -------------------------------
+ * ( INVALID,   READ,  SHARED    )
+ * ( INVALID,   READX, EXCLUSIVE )
+ * ( INVALID,   WRITE, MODIFIED  )
+ * ( SHARED,    READ,  SHARED    )
+ * ( SHARED,    WRITE, MODIFIED  )
+ * ( SHARED,    EVICT, INVALID   )
+ * ( EXCLUSIVE, READ,  EXCLUSIVE )
+ * ( EXCLUSIVE, WRITE, MODIFIED  )
+ * ( EXCLUSIVE, EVICT, INVALID   )
+ * ( OWNED,     READ,  OWNED     )
+ * ( OWNED,     WRITE, MODIFIED  )
+ * ( OWNED,     EVICT, INVALID   )
+ * ( MODIFIED,  READ,  MODIFIED  )
+ * ( MODIFIED,  WRITE, MODIFIED  )
+ * ( MODIFIED,  EVICT, INVALID   )
+ * -------------------------------
+ * ( INVALID,   SN_RD, INVALID   )
+ * ( SHARED,    SN_RD, SHARED    )
+ * ( EXCLUSIVE, SN_RD, SHARED    )
+ * ( OWNED,     SN_RD, OWNED     )
+ * ( MODIFIED,  SN_RD, OWNED     )
+ * ( INVALID,   SN_WR, INVALID   )
+ * ( SHARED,    SN_WR, INVALID   )
+ * ( EXCLUSIVE, SN_WR, INVALID   )
+ * ( OWNED,     SN_WR, INVALID   )
+ * ( MODIFIED,  SN_WR, INVALID   )
+ * -------------------------------
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
@@ -71,7 +74,7 @@ final class CoherenceProtocolMoesi extends CoherenceProtocolBase {
   }
 
   @Override
-  public CoherenceProtocolBase.State onSnR(final CoherenceProtocolBase.State state) {
+  public CoherenceProtocolBase.State onSnoopRead(final CoherenceProtocolBase.State state) {
     switch (state) {
       case EXCLUSIVE:
         return CoherenceProtocolBase.State.SHARED;

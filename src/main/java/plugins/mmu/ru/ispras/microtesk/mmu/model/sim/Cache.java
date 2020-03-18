@@ -40,7 +40,8 @@ import java.util.Collection;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
+public abstract class Cache<E extends Struct<?>, A extends Address<?>>
+    extends Buffer<E, A> implements Snoopable<E, A> {
 
   /** Table of associative sets. */
   private SparseArray<CacheSet<E, A>> sets;
@@ -139,49 +140,67 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>> extends B
     sets.set(index, set);
   }
 
+  protected final CacheSet<E, A> getSet(final A address) {
+    final BitVector index = indexer.getIndex(address);
+    return getSet(index);
+  }
+
   @Override
   public final boolean isHit(final A address) {
-    final BitVector index = indexer.getIndex(address);
-    final CacheSet<E, A> set = getSet(index);
+    final CacheSet<E, A> set = getSet(address);
     return set.isHit(address);
   }
 
   @Override
   public final E readEntry(final A address) {
-    final BitVector index = indexer.getIndex(address);
-    final CacheSet<E, A> set = getSet(index);
+    final CacheSet<E, A> set = getSet(address);
     return set.readEntry(address);
   }
 
   @Override
   public final void writeEntry(final A address, final BitVector entry) {
-    final BitVector index = indexer.getIndex(address);
-    final CacheSet<E, A> set = getSet(index);
+    final CacheSet<E, A> set = getSet(address);
     set.writeEntry(address, entry);
+  }
+
+  public final Proxy writeEntry(final A address) {
+    return new Proxy(address);
   }
 
   @Override
   public final void evictEntry(final A address) {
-    final BitVector index = indexer.getIndex(address);
-    final CacheSet<E, A> set = getSet(index);
+    final CacheSet<E, A> set = getSet(address);
     set.evictEntry(address);
   }
 
   @Override
   public final E allocEntry(final A address, final BitVector entry) {
-    final BitVector index = indexer.getIndex(address);
-    final CacheSet<E, A> set = getSet(index);
+    final CacheSet<E, A> set = getSet(address);
     return set.allocEntry(address, entry);
+  }
+
+  @Override
+  public final E snoopRead(final A address) {
+    final CacheSet<E, A> set = getSet(address);
+    return set.snoopRead(address);
+  }
+
+  @Override
+  public final void snoopWrite(final A address, final BitVector entry) {
+    final CacheSet<E, A> set = getSet(address);
+    set.snoopWrite(address, entry);
+  }
+
+  @Override
+  public final void snoopEvict(final A address) {
+    final CacheSet<E, A> set = getSet(address);
+    set.snoopEvict(address);
   }
 
   public final CacheLine<E, A> getLine(final A address) {
     final BitVector index = indexer.getIndex(address);
     final CacheSet<E, A> set = getSet(index);
     return set.getLine(address);
-  }
-
-  public final Proxy writeEntry(final A address) {
-    return new Proxy(address);
   }
 
   @Override

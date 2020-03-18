@@ -68,6 +68,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
           RegisterMapping.this.entryCreator,
           RegisterMapping.this.addressCreator,
           null,
+          null,
           RegisterMapping.this);
 
       final MemoryDevice storage = getRegisterDevice();

@@ -18,20 +18,23 @@ package ru.ispras.microtesk.mmu.model.sim;
  * {@link CoherenceProtocolMsi} describes the MSI cache coherence protocol.
  *
  * <p>
- * ( INVALID,   READ,   SHARED   )
- * ( INVALID,   WRITE,  MODIFIED )
- * ( SHARED,    READ,   SHARED   )
- * ( SHARED,    WRITE,  MODIFIED )
- * ( SHARED,    EVICT,  INVALID  )
- * ( MODIFIED,  READ,   MODIFIED )
- * ( MODIFIED,  WRITE,  MODIFIED )
- * ( MODIFIED,  EVICT,  INVALID  )
- * ( INVALID,   SN_I,   INVALID  )
- * ( SHARED,    SN_I,   INVALID  )
- * ( MODIFIED,  SN_I,   INVALID  )
- * ( INVALID,   SN_R,   INVALID  )
- * ( SHARED,    SN_R,   SHARED   )
- * ( MODIFIED,  SN_R,   SHARED   )
+ * -----------------------------
+ * ( INVALID,  READ,  SHARED   )
+ * ( INVALID,  WRITE, MODIFIED )
+ * ( SHARED,   READ,  SHARED   )
+ * ( SHARED,   WRITE, MODIFIED )
+ * ( SHARED,   EVICT, INVALID  )
+ * ( MODIFIED, READ,  MODIFIED )
+ * ( MODIFIED, WRITE, MODIFIED )
+ * ( MODIFIED, EVICT, INVALID  )
+ * -----------------------------
+ * ( INVALID,  SN_RD, INVALID  )
+ * ( SHARED,   SN_RD, SHARED   )
+ * ( MODIFIED, SN_RD, SHARED   )
+ * ( INVALID,  SN_WR, INVALID  )
+ * ( SHARED,   SN_WR, INVALID  )
+ * ( MODIFIED, SN_WR, INVALID  )
+ * -----------------------------
  * </p>
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
@@ -50,7 +53,7 @@ final class CoherenceProtocolMsi extends CoherenceProtocolBase {
   }
 
   @Override
-  public CoherenceProtocolBase.State onSnR(final CoherenceProtocolBase.State state) {
+  public CoherenceProtocolBase.State onSnoopRead(final CoherenceProtocolBase.State state) {
     switch (state) {
       case MODIFIED:
         return CoherenceProtocolBase.State.SHARED;

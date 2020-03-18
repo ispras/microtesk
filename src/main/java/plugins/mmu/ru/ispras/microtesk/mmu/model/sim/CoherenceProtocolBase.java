@@ -35,11 +35,6 @@ abstract class CoherenceProtocolBase implements CoherenceProtocol<CoherenceProto
   }
 
   @Override
-  public State getResetState() {
-    return State.INVALID;
-  }
-
-  @Override
   public abstract State onRead(final State state);
 
   @Override
@@ -58,12 +53,33 @@ abstract class CoherenceProtocolBase implements CoherenceProtocol<CoherenceProto
   }
 
   @Override
-  public State onSnI(final State state) {
+  public abstract State onSnoopRead(final State state);
+
+  @Override
+  public State onSnoopWrite(final State state) {
     return State.INVALID;
   }
 
   @Override
-  public abstract State onSnR(final State state);
+  public State onSnoopEvict(final State state) {
+    return state;
+  }
+
+  @Override
+  public State getResetState() {
+    return State.INVALID;
+  }
+
+  @Override
+  public boolean isOwnerState(final State state) {
+    switch (state) {
+      case SHARED:
+      case INVALID:
+        return false;
+      default:
+        return true;
+    }
+  }
 
   @Override
   public boolean isCoherent(final State[] states) {
