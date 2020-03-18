@@ -99,9 +99,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
 
     // If there is a cache hit, return the entry.
     if (way != -1) {
-      if (evictionPolicy != null) {
-        evictionPolicy.onAccess(way);
-      }
+      evictionPolicy.onAccess(way);
 
       final CacheLine<E, A> line = lines.get(way);
       return line.readEntry(address);
@@ -125,9 +123,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
      final int way = getWay(address);
 
     if (way != -1) {
-      if (evictionPolicy != null) {
-        evictionPolicy.onAccess(way);
-      }
+      evictionPolicy.onAccess(way);
 
       final CacheLine<E, A> line = lines.get(way);
       line.writeEntry(address, entry);
@@ -180,16 +176,13 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
     }
 
     // Evict the line from this cache.
-    if (evictionPolicy != null) {
-      evictionPolicy.onEvict(way);
-    }
-
+    evictionPolicy.onEvict(way);
     line.evictEntry(address);
   }
 
   @Override
   public final E allocEntry(final A address, final BitVector data) {
-    final int way = evictionPolicy != null ? evictionPolicy.getVictim() : 0;
+    final int way = evictionPolicy.getVictim();
     final CacheLine<E, A> line = lines.get(way);
 
     if (line.isDirty() && next != null && policy.write.wb) {
@@ -198,10 +191,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
 
     line.writeEntry(address, data);
 
-    if (evictionPolicy != null) {
-      evictionPolicy.onAccess(way);
-    }
-
+    evictionPolicy.onAccess(way);
     return line.getEntry();
   }
 
@@ -218,12 +208,6 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>> extends Buffer<
     return line != null ? line.seeEntry(index, way) : null;
   }
 
-  /**
-   * Returns the index of the way that stores data associated with the given address.
-   *
-   * @param address the address.
-   * @return the way index or {@code -1}.
-   */
   private int getWay(final A address) {
     int way = -1;
 

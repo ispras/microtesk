@@ -66,7 +66,7 @@ public enum EvictionPolicyId {
   NONE {
     @Override
     public EvictionPolicy newPolicy(final int associativity) {
-      return null;
+      return new EvictionPolicyNone(associativity);
     }
   };
 
