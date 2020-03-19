@@ -52,9 +52,9 @@ public interface Buffer<E, A> {
    * </p>
    *
    * @param address the address.
-   * @param entry the new entry.
+   * @param newEntry the new entry.
    */
-  void writeEntry(A address, BitVector entry);
+  void writeEntry(A address, BitVector newEntry);
 
   /**
    * Evicts the entry associated with the given address from the buffer.
@@ -67,9 +67,9 @@ public interface Buffer<E, A> {
    * Allocates the entry associated with the given address.
    *
    * @param address the address.
-   * @param entry the allocated entry.
+   * @param newEntry the allocated entry.
    */
-  E allocEntry(A address, final BitVector entry);
+  E allocEntry(A address, final BitVector newEntry);
 
   /**
    * Resets the buffer state.

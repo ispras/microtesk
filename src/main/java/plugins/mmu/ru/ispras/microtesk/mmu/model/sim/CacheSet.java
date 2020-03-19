@@ -115,17 +115,17 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final void writeEntry(final A address, final BitVector entry) {
+  public final void writeEntry(final A address, final BitVector newEntry) {
      final int way = getWay(address);
 
     if (way != -1) {
       evictionPolicy.onAccess(way);
 
       final CacheLine<E, A> line = lines.get(way);
-      line.writeEntry(address, entry);
+      line.writeEntry(address, newEntry);
       line.setDirty(true);
     } else if (policy.write.wa) {
-      allocEntry(address, entry);
+      allocEntry(address, newEntry);
 
       final CacheLine<E, A> line = getLine(address);
       InvariantChecks.checkNotNull(line);
@@ -134,7 +134,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
     }
 
     if (next != null && policy.write.wt) {
-      next.writeEntry(address, entry);
+      next.writeEntry(address, newEntry);
     }
   }
 
@@ -177,15 +177,15 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final E allocEntry(final A address, final BitVector data) {
+  public final E allocEntry(final A address, final BitVector newEntry) {
     final int way = evictionPolicy.getVictim();
     final CacheLine<E, A> line = lines.get(way);
 
     if (line.isDirty() && next != null && policy.write.wb) {
-      next.writeEntry(address, data);
+      next.writeEntry(address, newEntry);
     }
 
-    line.writeEntry(address, data);
+    line.writeEntry(address, newEntry);
 
     evictionPolicy.onAccess(way);
     return line.getEntry();
@@ -207,15 +207,15 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final void snoopWrite(final A address, final BitVector entry) {
+  public final E snoopWrite(final A address, final BitVector newEntry) {
     final CacheLine<E, A> line = getLine(address);
-    line.snoopWrite(address, entry);
+    return line.snoopWrite(address, newEntry);
   }
 
   @Override
-  public final void snoopEvict(final A address) {
+  public final void snoopEvict(final A address, final BitVector oldEntry) {
     final CacheLine<E, A> line = getLine(address);
-    line.snoopEvict(address);
+    line.snoopEvict(address, oldEntry);
   }
 
   final CacheLine<E, A> getLine(final A address) {

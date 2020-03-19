@@ -137,7 +137,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
    *
    * @param address the address (used to assign the tag).
    * @param entry the entry data w/o tag.
-   * @return the constructed entry.
+   * @return the constructed entry w/ tag.
    */
   final E newEntry(final A address, final BitVector entry) {
     final E result = entryCreator.newStruct(entry);
@@ -171,13 +171,9 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final void writeEntry(final A address, final BitVector entry) {
+  public final void writeEntry(final A address, final BitVector newEntry) {
     final CacheSet<E, A> set = getSet(address);
-    set.writeEntry(address, entry);
-  }
-
-  public final Proxy writeEntry(final A address) {
-    return new Proxy(address);
+    set.writeEntry(address, newEntry);
   }
 
   @Override
@@ -187,9 +183,9 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final E allocEntry(final A address, final BitVector entry) {
+  public final E allocEntry(final A address, final BitVector newEntry) {
     final CacheSet<E, A> set = getSet(address);
-    return set.allocEntry(address, entry);
+    return set.allocEntry(address, newEntry);
   }
 
   @Override
@@ -199,15 +195,19 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final void snoopWrite(final A address, final BitVector entry) {
+  public final E snoopWrite(final A address, final BitVector newEntry) {
     final CacheSet<E, A> set = getSet(address);
-    set.snoopWrite(address, entry);
+    return set.snoopWrite(address, newEntry);
   }
 
   @Override
-  public final void snoopEvict(final A address) {
+  public final void snoopEvict(final A address, final BitVector oldEntry) {
     final CacheSet<E, A> set = getSet(address);
-    set.snoopEvict(address);
+    set.snoopEvict(address, oldEntry);
+  }
+
+  public final Proxy writeEntry(final A address) {
+    return new Proxy(address);
   }
 
   public final CacheLine<E, A> getLine(final A address) {

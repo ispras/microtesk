@@ -108,10 +108,10 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public void writeEntry(final A address, final BitVector entry) {
+  public void writeEntry(final A address, final BitVector newEntry) {
     state = protocol.onWrite(state);
 
-    this.entry = cache.newEntry(address, entry);
+    this.entry = cache.newEntry(address, newEntry);
     this.address = address;
   }
 
@@ -122,8 +122,8 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public E allocEntry(final A address, final BitVector entry) {
-    this.entry = cache.newEntry(address, entry);
+  public E allocEntry(final A address, final BitVector newEntry) {
+    this.entry = cache.newEntry(address, newEntry);
     this.address = address;
 
     return this.entry;
@@ -146,12 +146,15 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final void snoopWrite(final A address, final BitVector entry) {
+  public final E snoopWrite(final A address, final BitVector newEntry) {
+    final E result = isHit(address) ? entry : null;
     state = protocol.onSnoopWrite(state);
+
+    return result;
   }
 
   @Override
-  public final void snoopEvict(final A address) {
+  public final void snoopEvict(final A address, final BitVector oldVector) {
     state = protocol.onSnoopEvict(state);
   }
 

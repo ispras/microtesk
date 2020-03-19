@@ -31,7 +31,7 @@ public interface Snoopable<E, A>  {
 
   E snoopRead(A address);
 
-  void snoopWrite(A address, BitVector entry);
+  E snoopWrite(A address, BitVector newEntry);
 
-  void snoopEvict(A address);
+  void snoopEvict(A address, BitVector oldEntry);
 }
