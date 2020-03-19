@@ -33,7 +33,6 @@ public abstract class Segment<PA extends Address<?>, VA extends Address<?>>
 
   @Override
   public boolean isHit(final VA address) {
-    InvariantChecks.checkNotNull(address);
     final BitVector value = address.getValue();
     return start.compareTo(value) <= 0 && end.compareTo(value) >= 0;
   }
@@ -49,12 +48,12 @@ public abstract class Segment<PA extends Address<?>, VA extends Address<?>>
   }
 
   @Override
-  public void evictEntry(final VA address) {
+  public void allocEntry(final VA address) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public PA allocEntry(final VA address, final BitVector entry) {
+  public void evictEntry(final VA address) {
     throw new UnsupportedOperationException();
   }
 

@@ -57,19 +57,18 @@ public interface Buffer<E, A> {
   void writeEntry(A address, BitVector newEntry);
 
   /**
+   * Allocates the entry associated with the given address.
+   *
+   * @param address the address.
+   */
+  void allocEntry(A address);
+
+  /**
    * Evicts the entry associated with the given address from the buffer.
    *
    * @param address the address.
    */
   void evictEntry(A address);
-
-  /**
-   * Allocates the entry associated with the given address.
-   *
-   * @param address the address.
-   * @param newEntry the allocated entry.
-   */
-  E allocEntry(A address, final BitVector newEntry);
 
   /**
    * Resets the buffer state.

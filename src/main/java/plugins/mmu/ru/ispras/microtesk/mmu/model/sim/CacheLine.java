@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 
 /**
  * {@link CacheLine} represents an abstract cache line.
@@ -61,27 +60,35 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     InvariantChecks.checkNotNull(matcher);
     InvariantChecks.checkNotNull(cache);
 
-    this.entry = null;
-    this.address = null;
-    this.dirty = false;
-
     this.matcher = matcher;
     this.cache = cache;
 
     this.protocol = policy.coherence.newProtocol();
-    this.state = this.protocol.getResetState();
+    this.state = this.protocol.onReset();
+
+    this.entry = null;
+    this.address = null;
+    this.dirty = false;
   }
 
   public final boolean isValid() {
-    return entry != null && state != protocol.getResetState();
+    return entry != null && state != protocol.onReset();
   }
 
   public final E getEntry() {
     return entry;
   }
 
+  public final void setEntry(final BitVector entry) {
+    this.entry.asBitVector().assign(entry);
+  }
+
   public final A getAddress() {
     return address;
+  }
+
+  public final void setAddress(final A address) {
+    this.address = address;
   }
 
   public final boolean isDirty() {
@@ -94,39 +101,60 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public boolean isHit(final A address) {
-    if (!isValid()) {
-      return false;
-    }
-
-    return matcher.areMatching(entry, address);
+    // After allocation, when the entry is invalid but not null, the method may return true.
+    return entry != null ? matcher.areMatching(entry, address) : false;
   }
 
   @Override
   public E readEntry(final A address) {
-    state = protocol.onWrite(state);
-    return isHit(address) ? entry : null;
+    // Entry should be allocated.
+    InvariantChecks.checkNotNull(isHit(address));
+
+    final Struct<?> snoopEntry = cache.sendSnoopRead(address, isValid());
+    InvariantChecks.checkTrue(isValid() || snoopEntry != null);
+
+    if (!isValid()) {
+      entry.asBitVector().assign(snoopEntry.asBitVector());
+    }
+
+    state = protocol.onRead(state);
+    return entry;
   }
 
   @Override
   public void writeEntry(final A address, final BitVector newEntry) {
-    state = protocol.onWrite(state);
+    // Entry should be allocated.
+    InvariantChecks.checkNotNull(isHit(address));
 
-    this.entry = cache.newEntry(address, newEntry);
+    final Struct<?> snoopEntry = cache.sendSnoopWrite(address, newEntry, isValid());
+    InvariantChecks.checkTrue(isValid() || snoopEntry != null);
+
+    if (!isValid()) {
+      entry.asBitVector().assign(snoopEntry.asBitVector());
+    }
+
+    // TODO: Implement partial assignment.
+    entry.asBitVector().assign(newEntry);
+    state = protocol.onWrite(state);
+  }
+
+  @Override
+  public void allocEntry(final A address) {
+    this.entry = cache.newEntry(address);
     this.address = address;
+
+    state = protocol.onReset();
   }
 
   @Override
   public void evictEntry(final A address) {
-    state = protocol.onEvict(state);
+    // Entry should be allocated and valid.
+    InvariantChecks.checkNotNull(isHit(address) && isValid());
+
+    cache.sendSnoopEvict(address, entry.asBitVector(), dirty);
     entry = null;
-  }
 
-  @Override
-  public E allocEntry(final A address, final BitVector newEntry) {
-    this.entry = cache.newEntry(address, newEntry);
-    this.address = address;
-
-    return this.entry;
+    state = protocol.onReset();
   }
 
   @Override
@@ -134,14 +162,13 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     entry = null;
     address = null;
     dirty = false;
-    state = protocol.getResetState();
+    state = protocol.onReset();
   }
 
   @Override
   public final E snoopRead(final A address) {
     final E result = isHit(address) ? entry : null;
     state = protocol.onSnoopRead(state);
-
     return result;
   }
 
@@ -149,12 +176,11 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   public final E snoopWrite(final A address, final BitVector newEntry) {
     final E result = isHit(address) ? entry : null;
     state = protocol.onSnoopWrite(state);
-
     return result;
   }
 
   @Override
-  public final void snoopEvict(final A address, final BitVector oldVector) {
+  public final void snoopEvict(final A address, final BitVector oldEntry) {
     state = protocol.onSnoopEvict(state);
   }
 

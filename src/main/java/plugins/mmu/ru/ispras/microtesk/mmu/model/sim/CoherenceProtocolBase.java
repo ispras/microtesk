@@ -37,6 +37,11 @@ abstract class CoherenceProtocolBase implements CoherenceProtocol {
   }
 
   @Override
+  public Enum<?> onReset() {
+    return State.INVALID;
+  }
+
+  @Override
   public abstract Enum<?> onRead(final Enum<?> state);
 
   @Override
@@ -50,11 +55,6 @@ abstract class CoherenceProtocolBase implements CoherenceProtocol {
   }
 
   @Override
-  public Enum<?> onEvict(final Enum<?> state) {
-    return State.INVALID;
-  }
-
-  @Override
   public abstract Enum<?> onSnoopRead(final Enum<?> state);
 
   @Override
@@ -65,11 +65,6 @@ abstract class CoherenceProtocolBase implements CoherenceProtocol {
   @Override
   public Enum<?> onSnoopEvict(final Enum<?> state) {
     return state;
-  }
-
-  @Override
-  public Enum<?> getResetState() {
-    return State.INVALID;
   }
 
   @Override

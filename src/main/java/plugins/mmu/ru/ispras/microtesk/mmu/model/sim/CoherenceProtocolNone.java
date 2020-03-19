@@ -42,11 +42,6 @@ public final class CoherenceProtocolNone implements CoherenceProtocol {
   }
 
   @Override
-  public Enum<?> onEvict(final Enum<?> state) {
-    return State.INVALID;
-  }
-
-  @Override
   public Enum<?> onSnoopRead(final Enum<?> state) {
     return state;
   }
@@ -62,7 +57,7 @@ public final class CoherenceProtocolNone implements CoherenceProtocol {
   }
 
   @Override
-  public Enum<?> getResetState() {
+  public Enum<?> onReset() {
     return State.INVALID;
   }
 

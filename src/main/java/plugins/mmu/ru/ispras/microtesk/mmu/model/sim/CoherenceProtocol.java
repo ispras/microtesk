@@ -21,21 +21,19 @@ package ru.ispras.microtesk.mmu.model.sim;
  */
 public interface CoherenceProtocol {
 
+  Enum<?> onReset();
+
   Enum<?> onRead(Enum<?> state);
 
   Enum<?> onReadX(Enum<?> state);
 
   Enum<?> onWrite(Enum<?> state);
 
-  Enum<?> onEvict(Enum<?> state);
-
   Enum<?> onSnoopRead(Enum<?> state);
 
   Enum<?> onSnoopWrite(Enum<?> state);
 
   Enum<?> onSnoopEvict(Enum<?> state);
-
-  Enum<?> getResetState();
 
   boolean isCoherent(Enum<?>[] states);
 }

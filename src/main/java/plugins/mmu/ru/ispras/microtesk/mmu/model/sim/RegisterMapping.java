@@ -101,12 +101,12 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     }
 
     @Override
-    public void evictEntry(final A address) {
+    public void allocEntry(final A address) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public E allocEntry(final A address, final BitVector entry) {
+    public void evictEntry(final A address) {
       throw new UnsupportedOperationException();
     }
 

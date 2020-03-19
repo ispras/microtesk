@@ -95,23 +95,14 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
     // If there is a cache hit, return the entry.
     if (way != -1) {
-      evictionPolicy.onAccess(way);
-
       final CacheLine<E, A> line = lines.get(way);
+
+      evictionPolicy.onAccess(way);
       return line.readEntry(address);
     }
 
-    // Otherwise, try to access the next-level cache.
-    if (next != null) {
-      final Struct<?> nextData = next.readEntry(address);
-
-      if (nextData != null) {
-        // Allocate the entry and return it.
-        return allocEntry(address, nextData.asBitVector());
-      }
-    }
-
-    return null;
+    allocEntry(address);
+    return readEntry(address);
   }
 
   @Override
@@ -119,76 +110,38 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
      final int way = getWay(address);
 
     if (way != -1) {
-      evictionPolicy.onAccess(way);
-
       final CacheLine<E, A> line = lines.get(way);
+
+      evictionPolicy.onAccess(way);
       line.writeEntry(address, newEntry);
       line.setDirty(true);
     } else if (policy.write.wa) {
-      allocEntry(address, newEntry);
-
-      final CacheLine<E, A> line = getLine(address);
-      InvariantChecks.checkNotNull(line);
-
-      line.setDirty(true);
+      allocEntry(address);
+      writeEntry(address, newEntry);
     }
+  }
 
-    if (next != null && policy.write.wt) {
-      next.writeEntry(address, newEntry);
-    }
+  @Override
+  public final void allocEntry(final A address) {
+    InvariantChecks.checkFalse(isHit(address));
+
+    final int way = evictionPolicy.getVictim();
+    final CacheLine<E, A> line = lines.get(way);
+
+    line.evictEntry(address);
+    line.allocEntry(address);
   }
 
   @Override
   public final void evictEntry(final A address) {
+    InvariantChecks.checkTrue(isHit(address));
+
     final int way = getWay(address);
-    InvariantChecks.checkNotNull(way != -1);
-
     final CacheLine<E, A> line = lines.get(way);
-
-    switch (policy.inclusion) {
-      case INCLUSIVE:
-        for (final CacheUnit<?, A> prevCache : this.cache.previous) {
-          InvariantChecks.checkTrue(prevCache.policy.inclusion == policy.inclusion);
-
-          if (prevCache.isHit(address)) {
-            // Backward invalidation of the previous caches.
-            prevCache.evictEntry(address);
-          }
-        }
-        break;
-
-      case EXCLUSIVE:
-        if (this.cache.next != null && this.cache.next instanceof CacheUnit) {
-          final CacheUnit<?, A> nextCache = (CacheUnit<?, A>) this.cache.next;
-          nextCache.allocEntry(address, line.getEntry().asBitVector());
-
-          final CacheLine<?, A> nextLine = nextCache.getLine(address);
-          nextLine.setDirty(line.isDirty());
-        }
-        break;
-
-      default:
-        break;
-    }
 
     // Evict the line from this cache.
     evictionPolicy.onEvict(way);
     line.evictEntry(address);
-  }
-
-  @Override
-  public final E allocEntry(final A address, final BitVector newEntry) {
-    final int way = evictionPolicy.getVictim();
-    final CacheLine<E, A> line = lines.get(way);
-
-    if (line.isDirty() && next != null && policy.write.wb) {
-      next.writeEntry(address, newEntry);
-    }
-
-    line.writeEntry(address, newEntry);
-
-    evictionPolicy.onAccess(way);
-    return line.getEntry();
   }
 
   @Override

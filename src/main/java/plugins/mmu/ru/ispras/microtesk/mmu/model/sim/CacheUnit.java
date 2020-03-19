@@ -52,7 +52,8 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   final Indexer<A> indexer;
   final Matcher<E, A> matcher;
   final Buffer<? extends Struct<?>, A> next;
-  final Collection<CacheUnit<? extends Struct<?>, A>> previous = new ArrayList<>();
+  final Collection<CacheUnit<?, A>> previous = new ArrayList<>();
+  final Collection<CacheUnit<?, A>> neighbor = new ArrayList<>();
 
   private SparseArray<CacheSet<E, A>> sets;
   private SparseArray<CacheSet<E, A>> savedSets;
@@ -123,7 +124,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   /**
-   * Constructs an entry.
+   * Constructs a filled entry w/o tag.
    *
    * @param entry the entry data.
    * @return the constructed entry.
@@ -133,7 +134,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   /**
-   * Constructs an entry.
+   * Constructs a filled entry w/ tag.
    *
    * @param address the address (used to assign the tag).
    * @param entry the entry data w/o tag.
@@ -146,6 +147,17 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     InvariantChecks.checkTrue(matcher.areMatching(result, address));
 
     return result;
+  }
+
+  /**
+   * Constructs an empty entry w/ tag.
+   *
+   * @param address the address (used to assign the tag).
+   * @return the constructed entry w/o data.
+   */
+  final E newEntry(final A address) {
+    final int bitSize = entryCreator.asBitVector().getBitSize();
+    return newEntry(address, BitVector.newEmpty(bitSize));
   }
 
   /**
@@ -177,15 +189,15 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final void evictEntry(final A address) {
+  public final void allocEntry(final A address) {
     final CacheSet<E, A> set = getSet(address);
-    set.evictEntry(address);
+    set.allocEntry(address);
   }
 
   @Override
-  public final E allocEntry(final A address, final BitVector newEntry) {
+  public final void evictEntry(final A address) {
     final CacheSet<E, A> set = getSet(address);
-    return set.allocEntry(address, newEntry);
+    set.evictEntry(address);
   }
 
   @Override
@@ -204,6 +216,98 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   public final void snoopEvict(final A address, final BitVector oldEntry) {
     final CacheSet<E, A> set = getSet(address);
     set.snoopEvict(address, oldEntry);
+  }
+
+  final Struct<?> sendSnoopRead(final A address, final boolean hasValid) {
+    Struct<?> result = null;
+
+    // Send snoops to the same-level caches.
+    for (final CacheUnit<?, A> other : neighbor) {
+      InvariantChecks.checkTrue(other != this);
+      final Struct<?> snoop = other.snoopRead(address);
+
+      if (snoop != null && result == null) {
+        result = snoop;
+      }
+    }
+
+    return result != null || hasValid ? result : sendReadNext(address);
+  }
+
+  final Struct<?> sendSnoopWrite(final A address, final BitVector newEntry, final boolean hasValid) {
+    Struct<?> result = null;
+
+    // Send snoops to the same-level caches.
+    for (final CacheUnit<?, A> other : neighbor) {
+      InvariantChecks.checkTrue(other != this);
+      final Struct<?> snoop = other.snoopWrite(address, newEntry);
+
+      if (snoop != null && result == null) {
+        result = snoop;
+      }
+    }
+
+    // TODO: Write-Through & Allocate
+    return result != null || hasValid ? result : sendReadNext(address);
+  }
+
+  final void sendSnoopEvict(final A address, final BitVector oldEntry, final boolean dirty) {
+    // Send snoops to the same-level caches.
+    for (final CacheUnit<?, A> other : neighbor) {
+      InvariantChecks.checkTrue(other != this);
+      other.snoopEvict(address, oldEntry);
+    }
+
+    // Backward invalidation of the previous caches.
+    for (final CacheUnit<?, A> other : previous) {
+      if (other.isHit(address) && other.policy.inclusion == InclusionPolicyId.INCLUSIVE) {
+        other.evictEntry(address);
+      }
+    }
+
+    // Reallocate the entry to the next cache.
+    if (policy.write.wb && dirty) {
+      InvariantChecks.checkNotNull(next);
+      next.writeEntry(address, oldEntry);
+      return;
+    }
+
+    if (policy.inclusion == InclusionPolicyId.EXCLUSIVE) {
+      if (next != null && next instanceof CacheUnit) {
+        final CacheUnit<?, A> other = (CacheUnit<?, A>) next;
+        other.allocEntry(address);
+
+        final CacheLine<?, A> line = other.getLine(address);
+        line.setDirty(dirty);
+        // TODO: Update protocol state.
+      }
+    }
+  }
+
+  final Struct<?> sendReadNext(final A address) {
+    if (next == null) {
+      return null;
+    }
+
+    // Inclusive cache.
+    if (policy.inclusion != InclusionPolicyId.EXCLUSIVE) {
+      return next.readEntry(address);
+    }
+
+    // Exclusive cache.
+    Buffer<? extends Struct<?>, A> other = next;
+    while (other != null && !other.isHit(address)) {
+      other = other instanceof CacheUnit ? ((CacheUnit) other).next : null;
+    }
+
+    if (other == null) {
+      return null;
+    }
+
+    final Struct<?> result = other.readEntry(address);
+    other.evictEntry(address);
+
+    return result;
   }
 
   public final Proxy writeEntry(final A address) {

@@ -100,14 +100,13 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public void evictEntry(final A address) {
-    getMmu().evictEntry(address);
+  public final void allocEntry(final A address) {
+    getMmu().allocEntry(address);
   }
 
   @Override
-  public final E allocEntry(final A address, final BitVector entry) {
-    final BitVector value = getMmu().allocEntry(address, entry);
-    return entryCreator.newStruct(value);
+  public void evictEntry(final A address) {
+    getMmu().evictEntry(address);
   }
 
   protected abstract Mmu<A> getMmu();
