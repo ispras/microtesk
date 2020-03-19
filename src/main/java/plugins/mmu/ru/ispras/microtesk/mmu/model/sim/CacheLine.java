@@ -139,7 +139,7 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public final E snoopRead(final A address) {
-    final E result = protocol.isOwnerState(state) ? entry : null;
+    final E result = isHit(address) ? entry : null;
     state = protocol.onSnoopRead(state);
 
     return result;

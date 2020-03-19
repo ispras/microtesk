@@ -14,39 +14,31 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
-import ru.ispras.fortress.util.InvariantChecks;
-
 /**
- * {@link CoherenceProtocolBase} is a base class for the MOESI family cache coherence protocols.
+ * {@link CoherenceProtocolNone} implements the trivial cache coherence protocols.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-abstract class CoherenceProtocolBase implements CoherenceProtocol {
+public final class CoherenceProtocolNone implements CoherenceProtocol {
 
   public enum State {
-    /** Modified (M). */
-    MODIFIED,
-    /** Owned (O). */
-    OWNED,
-    /** Exclusive (E). */
-    EXCLUSIVE,
-    /** Shared (S). */
-    SHARED,
-    /** Invalid (I). */
+    VALID,
     INVALID
   }
 
   @Override
-  public abstract Enum<?> onRead(final Enum<?> state);
+  public Enum<?> onRead(final Enum<?> state) {
+    return State.VALID;
+  }
 
   @Override
   public Enum<?> onReadX(final Enum<?> state) {
-    return onRead(state);
+    return State.VALID;
   }
 
   @Override
   public Enum<?> onWrite(final Enum<?> state) {
-    return State.MODIFIED;
+    return State.VALID;
   }
 
   @Override
@@ -55,11 +47,13 @@ abstract class CoherenceProtocolBase implements CoherenceProtocol {
   }
 
   @Override
-  public abstract Enum<?> onSnoopRead(final Enum<?> state);
+  public Enum<?> onSnoopRead(final Enum<?> state) {
+    return state;
+  }
 
   @Override
   public Enum<?> onSnoopWrite(final Enum<?> state) {
-    return State.INVALID;
+    return state;
   }
 
   @Override
@@ -74,34 +68,6 @@ abstract class CoherenceProtocolBase implements CoherenceProtocol {
 
   @Override
   public boolean isCoherent(final Enum<?>[] states) {
-    boolean isModified = false;
-    boolean isOwned = false;
-    boolean isExclusive = false;
-    boolean isShared = false;
-
-    for (final Enum<?> state : states) {
-      switch ((State) state) {
-        case MODIFIED:
-        case EXCLUSIVE:
-          if (isModified || isOwned || isExclusive || isShared) {
-            return false;
-          }
-          break;
-        case OWNED:
-          if (isModified || isOwned || isExclusive) {
-            return false;
-          }
-          break;
-        case SHARED:
-          if (isModified || isExclusive) {
-            return false;
-          }
-          break;
-        default:
-          break;
-      }
-    }
-
-    return true;
+    return false;
   }
 }

@@ -25,7 +25,7 @@ public enum CoherenceProtocolId {
    */
   MSI {
     @Override
-    public CoherenceProtocolBase newProtocol() {
+    public CoherenceProtocol newProtocol() {
       return new CoherenceProtocolMsi();
     }
   },
@@ -35,7 +35,7 @@ public enum CoherenceProtocolId {
    */
   MOSI {
     @Override
-    public CoherenceProtocolBase newProtocol() {
+    public CoherenceProtocol newProtocol() {
       return new CoherenceProtocolMosi();
     }
   },
@@ -45,7 +45,7 @@ public enum CoherenceProtocolId {
    */
   MESI {
     @Override
-    public CoherenceProtocolBase newProtocol() {
+    public CoherenceProtocol newProtocol() {
       return new CoherenceProtocolMesi();
     }
   },
@@ -55,7 +55,7 @@ public enum CoherenceProtocolId {
    */
   MOESI {
     @Override
-    public CoherenceProtocolBase newProtocol() {
+    public CoherenceProtocol newProtocol() {
       return new CoherenceProtocolMoesi();
     }
   },
@@ -65,10 +65,10 @@ public enum CoherenceProtocolId {
    */
   NONE {
     @Override
-    public CoherenceProtocolBase newProtocol() {
-      return null;
+    public CoherenceProtocol newProtocol() {
+      return new CoherenceProtocolNone();
     }
   };
 
-  public abstract CoherenceProtocol<? extends Enum<?>> newProtocol();
+  public abstract CoherenceProtocol newProtocol();
 }

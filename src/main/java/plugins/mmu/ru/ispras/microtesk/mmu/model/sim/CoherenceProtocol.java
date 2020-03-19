@@ -17,29 +17,25 @@ package ru.ispras.microtesk.mmu.model.sim;
 /**
  * {@link CoherenceProtocol} is an interface of a cache coherence protocol.
  *
- * @param <S> the state enumeration type.
- *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface CoherenceProtocol<S extends Enum<?>> {
+public interface CoherenceProtocol {
 
-  S onRead(S state);
+  Enum<?> onRead(Enum<?> state);
 
-  S onReadX(S state);
+  Enum<?> onReadX(Enum<?> state);
 
-  S onWrite(S state);
+  Enum<?> onWrite(Enum<?> state);
 
-  S onEvict(S state);
+  Enum<?> onEvict(Enum<?> state);
 
-  S onSnoopRead(S state);
+  Enum<?> onSnoopRead(Enum<?> state);
 
-  S onSnoopWrite(S state);
+  Enum<?> onSnoopWrite(Enum<?> state);
 
-  S onSnoopEvict(S state);
+  Enum<?> onSnoopEvict(Enum<?> state);
 
-  S getResetState();
+  Enum<?> getResetState();
 
-  boolean isOwnerState(S state);
-
-  boolean isCoherent(S[] states);
+  boolean isCoherent(Enum<?>[] states);
 }

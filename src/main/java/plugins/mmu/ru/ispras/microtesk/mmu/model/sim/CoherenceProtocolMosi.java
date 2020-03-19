@@ -47,8 +47,8 @@ package ru.ispras.microtesk.mmu.model.sim;
 final class CoherenceProtocolMosi extends CoherenceProtocolBase {
 
   @Override
-  public CoherenceProtocolBase.State onRead(final CoherenceProtocolBase.State state) {
-    switch (state) {
+  public Enum<?> onRead(final Enum<?> state) {
+    switch ((State) state) {
       case INVALID:
         return CoherenceProtocolBase.State.SHARED;
       default:
@@ -57,8 +57,8 @@ final class CoherenceProtocolMosi extends CoherenceProtocolBase {
   }
 
   @Override
-  public CoherenceProtocolBase.State onSnoopRead(final CoherenceProtocolBase.State state) {
-    switch (state) {
+  public Enum<?> onSnoopRead(final Enum<?> state) {
+    switch ((State) state) {
       case MODIFIED:
         return CoherenceProtocolBase.State.OWNED;
       default:

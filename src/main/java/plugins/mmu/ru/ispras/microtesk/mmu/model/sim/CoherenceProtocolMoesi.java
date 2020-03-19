@@ -53,8 +53,8 @@ import ru.ispras.fortress.util.InvariantChecks;
 final class CoherenceProtocolMoesi extends CoherenceProtocolBase {
 
   @Override
-  public CoherenceProtocolBase.State onRead(final CoherenceProtocolBase.State state) {
-    switch (state) {
+  public Enum<?> onRead(final Enum<?> state) {
+    switch ((State) state) {
       case INVALID:
         return CoherenceProtocolBase.State.SHARED;
       default:
@@ -63,8 +63,8 @@ final class CoherenceProtocolMoesi extends CoherenceProtocolBase {
   }
 
   @Override
-  public CoherenceProtocolBase.State onReadX(final CoherenceProtocolBase.State state) {
-    switch (state) {
+  public Enum<?> onReadX(final Enum<?> state) {
+    switch ((State) state) {
       case INVALID:
         return CoherenceProtocolBase.State.EXCLUSIVE;
       default:
@@ -74,8 +74,8 @@ final class CoherenceProtocolMoesi extends CoherenceProtocolBase {
   }
 
   @Override
-  public CoherenceProtocolBase.State onSnoopRead(final CoherenceProtocolBase.State state) {
-    switch (state) {
+  public Enum<?> onSnoopRead(final Enum<?> state) {
+    switch ((State) state) {
       case EXCLUSIVE:
         return CoherenceProtocolBase.State.SHARED;
       case MODIFIED:
