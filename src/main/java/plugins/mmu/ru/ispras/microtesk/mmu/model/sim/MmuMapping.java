@@ -31,7 +31,11 @@ import java.math.BigInteger;
  * @param <E> Entry type.
  * @param <A> Address type.
  */
-public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
+public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>>
+    implements Buffer<E, A> {
+
+  private Struct<E> entryCreator;
+  private Struct<A> addressCreator;
 
   private final BigInteger length;
   private final int associativity;
@@ -58,8 +62,8 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> exte
       final CachePolicy policy,
       final Indexer<A> indexer,
       final Matcher<E, A> matcher) {
-    super(entryCreator, addressCreator);
-
+    InvariantChecks.checkNotNull(entryCreator);
+    InvariantChecks.checkNotNull(addressCreator);
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThan(length, BigInteger.ZERO);
     InvariantChecks.checkGreaterThanZero(associativity);
@@ -67,6 +71,8 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> exte
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
 
+    this.entryCreator = entryCreator;
+    this.addressCreator = addressCreator;
     this.length = length;
     this.associativity = associativity;
     this.policy = policy;
@@ -104,19 +110,9 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>> exte
     return entryCreator.newStruct(value);
   }
 
-  @Override
-  public Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way) {
-    throw new UnsupportedOperationException();
-  }
-
   protected abstract Mmu<A> getMmu();
 
   protected abstract int getEntryBitSize();
-
-  @Override
-  public void setUseTempState(final boolean value) {
-    // Do nothing.
-  }
 
   @Override
   public void resetState() {

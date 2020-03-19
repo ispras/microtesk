@@ -50,8 +50,10 @@ public class MmuModel implements ModelStateManager {
     this.targetId = targetId;
   }
 
-  protected final void addBuffer(final String bufferId, final BufferObserver buffer) {
-    buffers.put(bufferId, buffer);
+  protected final void addBuffer(final String bufferId, final Buffer<?,?> buffer) {
+    if (buffer instanceof BufferObserver) {
+      buffers.put(bufferId, (BufferObserver) buffer);
+    }
     if (buffer instanceof ModelStateManager) {
       stateManagers.add((ModelStateManager) buffer);
     }

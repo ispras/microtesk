@@ -22,14 +22,24 @@ package ru.ispras.microtesk.mmu.model.sim;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface CoherenceProtocol<S extends Enum<?>> {
+
   S onRead(S state);
+
   S onReadX(S state);
+
   S onWrite(S state);
+
   S onEvict(S state);
+
   S onSnoopRead(S state);
+
   S onSnoopWrite(S state);
+
   S onSnoopEvict(S state);
+
   S getResetState();
+
   boolean isOwnerState(S state);
+
   boolean isCoherent(S[] states);
 }

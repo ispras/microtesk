@@ -16,19 +16,14 @@ package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 
-public abstract class Segment<PA extends Address<?>, VA extends Address<?>> extends Buffer<PA, VA> {
+public abstract class Segment<PA extends Address<?>, VA extends Address<?>>
+    implements Buffer<PA, VA> {
+
   private final BitVector start;
   private final BitVector end;
 
-  public Segment(
-      final Address<PA> targetCreator,
-      final Address<VA> sourceCreator,
-      final BitVector start,
-      final BitVector end) {
-    super(targetCreator, sourceCreator);
-
+  public Segment(final BitVector start, final BitVector end) {
     InvariantChecks.checkNotNull(start);
     InvariantChecks.checkNotNull(end);
 
@@ -61,16 +56,6 @@ public abstract class Segment<PA extends Address<?>, VA extends Address<?>> exte
   @Override
   public PA allocEntry(final VA address, final BitVector entry) {
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setUseTempState(final boolean value) {
-    // Do nothing.
   }
 
   @Override

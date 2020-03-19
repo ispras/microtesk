@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link CacheSet} implements a cache set, which is a fully associative buffer consisting of cache lines.
+ * {@link CacheSet} implements a cache set, i.e. a fully associative buffer of cache lines.
  *
  * @param <E> the entry type.
  * @param <A> the address type.
@@ -30,14 +30,14 @@ import java.util.List;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class CacheSet<E extends Struct<?>, A extends Address<?>>
-    extends Buffer<E, A> implements Snoopable<E, A> {
+    implements Buffer<E, A>, Snoopable<E, A> {
 
   /** Cache policy. */
   private final CachePolicy policy;
   /** Entry-address matcher. */
   private final Matcher<E, A> matcher;
   /** Cache that contains this set. */
-  private final Cache<E, A> cache;
+  private final CacheUnit<E, A> cache;
   /** Next-level buffer. */
   private final Buffer<? extends Struct<?>, A> next;
 
@@ -49,8 +49,6 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   /**
    * Constructs a cache set of the given associativity.
    *
-   * @param entryCreator the entry creator.
-   * @param addressCreator the address creator.
    * @param associativity the number of lines in the set.
    * @param policy the cache policy.
    * @param matcher the entry-address matcher.
@@ -58,15 +56,11 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
    * @param next the next-level buffer.
    */
   public CacheSet(
-      final Struct<E> entryCreator,
-      final Address<A> addressCreator,
       final int associativity,
       final CachePolicy policy,
       final Matcher<E, A> matcher,
-      final Cache<E, A> cache,
+      final CacheUnit<E, A> cache,
       final Buffer<? extends Struct<?>, A> next) {
-    super(entryCreator, addressCreator);
-
     InvariantChecks.checkGreaterThanZero(associativity);
     InvariantChecks.checkNotNull(policy);
     InvariantChecks.checkNotNull(matcher);
@@ -87,7 +81,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   protected CacheLine<E, A> newLine() {
-    return new CacheLine<>(entryCreator, addressCreator, policy, matcher, cache);
+    return new CacheLine<>(policy, matcher, cache);
   }
 
   @Override
@@ -153,7 +147,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
     switch (policy.inclusion) {
       case INCLUSIVE:
-        for (final Cache<?, A> prevCache : this.cache.previous) {
+        for (final CacheUnit<?, A> prevCache : this.cache.previous) {
           InvariantChecks.checkTrue(prevCache.policy.inclusion == policy.inclusion);
 
           if (prevCache.isHit(address)) {
@@ -164,8 +158,8 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
         break;
 
       case EXCLUSIVE:
-        if (this.cache.next != null && this.cache.next instanceof Cache) {
-          final Cache<?, A> nextCache = (Cache<?, A>) this.cache.next;
+        if (this.cache.next != null && this.cache.next instanceof CacheUnit) {
+          final CacheUnit<?, A> nextCache = (CacheUnit<?, A>) this.cache.next;
           nextCache.allocEntry(address, line.getEntry().asBitVector());
 
           final CacheLine<?, A> nextLine = nextCache.getLine(address);
@@ -198,6 +192,15 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
+  public void resetState() {
+    for (final Buffer<E, A> line : lines) {
+      line.resetState();
+    }
+
+    evictionPolicy.resetState();
+  }
+
+  @Override
   public final E snoopRead(final A address) {
     final CacheLine<E, A> line = getLine(address);
     return line.snoopRead(address);
@@ -217,18 +220,15 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
   final CacheLine<E, A> getLine(final A address) {
     final int way = getWay(address);
-    InvariantChecks.checkNotNull(way != -1);
+    return getLine(way);
+  }
 
+  final CacheLine<E, A> getLine(final int way) {
+    InvariantChecks.checkBounds(way, lines.size());
     return lines.get(way);
   }
 
-  @Override
-  public Pair<BitVector, BitVector> seeEntry(final BitVector index, final BitVector way) {
-    final CacheLine<E, A> line = lines.get(way.intValue());
-    return line != null ? line.seeEntry(index, way) : null;
-  }
-
-  private int getWay(final A address) {
+  final int getWay(final A address) {
     int way = -1;
 
     for (int i = 0; i < lines.size(); i++) {
@@ -246,20 +246,6 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
     }
 
     return way;
-  }
-
-  @Override
-  public void setUseTempState(final boolean value) {
-    // Do nothing.
-  }
-
-  @Override
-  public void resetState() {
-    for (final Buffer<E, A> line : lines) {
-      line.resetState();
-    }
-
-    evictionPolicy.resetState();
   }
 
   @Override

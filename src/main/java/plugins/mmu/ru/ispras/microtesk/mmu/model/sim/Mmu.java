@@ -19,18 +19,12 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
 
-public abstract class Mmu<A extends Address<?>>
-    extends Buffer<BitVector, A> implements MemoryDevice {
+public abstract class Mmu<A extends Address<?>>  implements Buffer<BitVector, A>, MemoryDevice {
+  private final Address<A> addressCreator;
 
   public Mmu(final Address<A> addressCreator) {
-    super(new Struct<BitVector>() {
-      @Override public BitVector newStruct(BitVector value) {
-        return value;
-      }
-      @Override public BitVector asBitVector() {
-        return null;
-      }
-    }, addressCreator);
+    InvariantChecks.checkNotNull(addressCreator);
+    this.addressCreator = addressCreator;
   }
 
   @Override
@@ -79,8 +73,8 @@ public abstract class Mmu<A extends Address<?>>
   }
 
   @Override
-  public Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way) {
-    throw new UnsupportedOperationException();
+  public void resetState() {
+    // Do nothing.
   }
 
   private A toAddress(final BitVector value) {
@@ -93,15 +87,5 @@ public abstract class Mmu<A extends Address<?>>
     Operation.initAddress(address);
 
     return address;
-  }
-
-  @Override
-  public void setUseTempState(final boolean value) {
-    // Do nothing.
-  }
-
-  @Override
-  public void resetState() {
-    // Do nothing.
   }
 }

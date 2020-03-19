@@ -147,8 +147,6 @@ public <type> setValue(BitVector value) {
 segment_constructor(name, pa_type, va_type, start, end) ::= <<
 private <name>() {
   super(
-    new <pa_type>(),
-    new <va_type>(),
     <start>,
     <end>
   );

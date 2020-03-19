@@ -26,6 +26,7 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.mmu.model.sim.CachePolicy;
+import ru.ispras.microtesk.mmu.model.sim.CacheUnit;
 import ru.ispras.microtesk.mmu.model.sim.EvictionPolicyId;
 import ru.ispras.microtesk.mmu.translator.ir.AttributeRef;
 import ru.ispras.microtesk.mmu.translator.ir.Callable;
@@ -56,7 +57,7 @@ abstract class StbCommon {
       ru.ispras.microtesk.mmu.model.sim.Buffer.class;
 
   public static final Class<?> CACHE_CLASS =
-      ru.ispras.microtesk.mmu.model.sim.Cache.class;
+      CacheUnit.class;
 
   public static final Class<?> SEGMENT_CLASS =
       ru.ispras.microtesk.mmu.model.sim.Segment.class;

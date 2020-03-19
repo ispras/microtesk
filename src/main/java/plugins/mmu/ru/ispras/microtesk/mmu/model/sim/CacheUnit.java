@@ -17,6 +17,7 @@ package ru.ispras.microtesk.mmu.model.sim;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
+import ru.ispras.microtesk.model.ModelStateManager;
 import ru.ispras.microtesk.utils.SparseArray;
 
 import java.math.BigInteger;
@@ -24,38 +25,40 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * {@link Cache} represents an abstract partially associative cache memory.
+ * {@link CacheUnit} represents an abstract way-associative cache memory.
  *
  * A cache unit is characterized by the following parameters (except the entry and address types):
- * <ol>
+ * <ul>
  * <li>{@code length} - the number of sets in the cache,
  * <li>{@code associativity} - the number of lines in each set,
- * <li>{@code policyId} - the entry replacement policy,
+ * <li>{@code policy} - the cache policy,
  * <li>{@code indexer} - the set indexer, and
  * <li>{@code matcher} - the line matcher.
- * </ol>
+ * </ul>
  *
  * @param <E> the entry type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class Cache<E extends Struct<?>, A extends Address<?>>
-    extends Buffer<E, A> implements Snoopable<E, A> {
+public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
+    implements Buffer<E, A>, Snoopable<E, A>, BufferObserver, ModelStateManager {
 
-  /** Table of associative sets. */
+  private final Struct<E> entryCreator;
+  private final Address<A> addressCreator;
+
+  final int associativity;
+  final CachePolicy policy;
+  final Indexer<A> indexer;
+  final Matcher<E, A> matcher;
+  final Buffer<? extends Struct<?>, A> next;
+  final Collection<CacheUnit<? extends Struct<?>, A>> previous = new ArrayList<>();
+
   private SparseArray<CacheSet<E, A>> sets;
   private SparseArray<CacheSet<E, A>> savedSets;
 
-  protected final int associativity;
-  protected final CachePolicy policy;
-  protected final Indexer<A> indexer;
-  protected final Matcher<E, A> matcher;
-  protected final Buffer<? extends Struct<?>, A> next;
-  protected final Collection<Cache<? extends Struct<?>, A>> previous = new ArrayList<>();
-
   /**
-   * Proxy class is used to simplify code of assignment expressions.
+   * Proxy class is used to ease code generation for assignments.
    */
   public final class Proxy {
     private final A address;
@@ -65,7 +68,7 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>>
     }
 
     public void assign(final E entry) {
-      writeEntry(address, entry);
+      writeEntry(address, entry.asBitVector());
     }
 
     public void assign(final BitVector value) {
@@ -85,7 +88,7 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>>
    * @param matcher the line matcher.
    * @param next the next-level cache.
    */
-  public Cache(
+  public CacheUnit(
       final Struct<E> entryCreator,
       final Address<A> addressCreator,
       final BigInteger length,
@@ -94,14 +97,16 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>>
       final Indexer<A> indexer,
       final Matcher<E, A> matcher,
       final Buffer<? extends Struct<?>, A> next) {
-    super(entryCreator, addressCreator);
-
+    InvariantChecks.checkNotNull(entryCreator);
+    InvariantChecks.checkNotNull(addressCreator);
     InvariantChecks.checkNotNull(length);
     InvariantChecks.checkGreaterThanZero(associativity);
     InvariantChecks.checkNotNull(policy);
     InvariantChecks.checkNotNull(indexer);
     InvariantChecks.checkNotNull(matcher);
 
+    this.entryCreator = entryCreator;
+    this.addressCreator = addressCreator;
     this.sets = new SparseArray<>(length);
     this.savedSets = null;
     this.associativity = associativity;
@@ -111,38 +116,46 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>>
     this.next = next;
 
     // The next buffer is allowed to be the main memory.
-    if (next != null && next instanceof Cache) {
-      final Cache<? extends Struct<?>, A> nextCache = (Cache<? extends Struct<?>, A>) next;
+    if (next != null && next instanceof CacheUnit) {
+      final CacheUnit<? extends Struct<?>, A> nextCache = (CacheUnit<? extends Struct<?>, A>) next;
       nextCache.previous.add(this);
     }
   }
 
-  protected final CacheSet<E, A> getSet(final BitVector index) {
-    CacheSet<E, A> set = sets.get(index);
-
-    if (null == set) {
-      set = new CacheSet<>(
-          entryCreator,
-          addressCreator,
-          associativity,
-          policy,
-          matcher,
-          this,
-          next
-      );
-      sets.set(index, set);
-    }
-
-    return set;
+  /**
+   * Constructs an entry.
+   *
+   * @param entry the entry data.
+   * @return the constructed entry.
+   */
+  final E newEntry(final BitVector entry) {
+    return entryCreator.newStruct(entry);
   }
 
-  protected final void setSet(final BitVector index, final CacheSet<E, A> set) {
-    sets.set(index, set);
+  /**
+   * Constructs an entry.
+   *
+   * @param address the address (used to assign the tag).
+   * @param entry the entry data w/o tag.
+   * @return the constructed entry.
+   */
+  final E newEntry(final A address, final BitVector entry) {
+    final E result = entryCreator.newStruct(entry);
+
+    matcher.assignTag(result, address);
+    InvariantChecks.checkTrue(matcher.areMatching(result, address));
+
+    return result;
   }
 
-  protected final CacheSet<E, A> getSet(final A address) {
-    final BitVector index = indexer.getIndex(address);
-    return getSet(index);
+  /**
+   * Constructs an address.
+   *
+   * @param value the address value (other fields are ignored).
+   * @return the constructed address.
+   */
+  final A newAddress(final BitVector value) {
+    return addressCreator.setValue(value);
   }
 
   @Override
@@ -198,15 +211,49 @@ public abstract class Cache<E extends Struct<?>, A extends Address<?>>
   }
 
   public final CacheLine<E, A> getLine(final A address) {
-    final BitVector index = indexer.getIndex(address);
-    final CacheSet<E, A> set = getSet(index);
+    final CacheSet<E, A> set = getSet(address);
     return set.getLine(address);
+  }
+
+  protected final CacheSet<E, A> getSet(final BitVector index) {
+    CacheSet<E, A> set = sets.get(index);
+
+    if (set == null) {
+      set = new CacheSet<>(associativity, policy, matcher,this, next);
+      sets.set(index, set);
+    }
+
+    return set;
+  }
+
+  protected final void setSet(final BitVector index, final CacheSet<E, A> set) {
+    sets.set(index, set);
+  }
+
+  protected final CacheSet<E, A> getSet(final A address) {
+    final BitVector index = indexer.getIndex(address);
+    return getSet(index);
+  }
+
+  @Override
+  public final boolean isHit(final BitVector value) {
+    final A address = newAddress(value);
+    return isHit(address);
   }
 
   @Override
   public final Pair<BitVector, BitVector> seeEntry(final BitVector index, final BitVector way) {
     final CacheSet<E, A> set = sets.get(index);
-    return set != null ? set.seeEntry(index, way) : null;
+
+    if (set != null) {
+      final CacheLine<E, A> line = set.getLine(way.intValue());
+
+      if (line != null && line.isValid()) {
+        return new Pair<>(line.getAddress().asBitVector(), line.getEntry().asBitVector());
+      }
+    }
+
+    return null;
   }
 
   @Override

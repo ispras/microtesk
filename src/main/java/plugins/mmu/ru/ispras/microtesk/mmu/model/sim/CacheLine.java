@@ -27,14 +27,14 @@ import ru.ispras.fortress.util.Pair;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public class CacheLine<E extends Struct<?>, A extends Address<?>>
-    extends Buffer<E, A> implements Snoopable<E, A> {
+    implements Buffer<E, A>, Snoopable<E, A> {
 
   /** Coherence protocol. */
   private final CoherenceProtocol protocol;
   /** Line matcher. */
   private final Matcher<E, A> matcher;
   /** Cache that contains this line. */
-  private final Cache<E, A> cache;
+  private final CacheUnit<E, A> cache;
 
   /** Stored entry. */
   private E entry;
@@ -49,19 +49,17 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   /**
    * Constructs an invalid cache line.
    *
-   * @param entryCreator the entry creator.
-   * @param addressCreator the address creator.
    * @param policy the cache policy.
    * @param matcher the entry-address matcher.
    * @param cache the current cache.
    */
   public CacheLine(
-      final Struct<E> entryCreator,
-      final Address<A> addressCreator,
       final CachePolicy policy,
       final Matcher<E, A> matcher,
-      final Cache<E, A> cache) {
-    super(entryCreator, addressCreator);
+      final CacheUnit<E, A> cache) {
+    InvariantChecks.checkNotNull(policy);
+    InvariantChecks.checkNotNull(matcher);
+    InvariantChecks.checkNotNull(cache);
 
     this.entry = null;
     this.address = null;
@@ -74,9 +72,29 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     this.state = this.protocol.getResetState();
   }
 
+  public final boolean isValid() {
+    return entry != null && state != protocol.getResetState();
+  }
+
+  public final E getEntry() {
+    return entry;
+  }
+
+  public final A getAddress() {
+    return address;
+  }
+
+  public final boolean isDirty() {
+    return dirty;
+  }
+
+  public final void setDirty(final boolean dirty) {
+    this.dirty = dirty;
+  }
+
   @Override
   public boolean isHit(final A address) {
-    if (entry == null || state == protocol.getResetState()) {
+    if (!isValid()) {
       return false;
     }
 
@@ -93,11 +111,8 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   public void writeEntry(final A address, final BitVector entry) {
     state = protocol.onWrite(state);
 
-    this.entry = entryCreator.newStruct(entry);
+    this.entry = cache.newEntry(address, entry);
     this.address = address;
-
-    matcher.assignTag(this.entry, address);
-    InvariantChecks.checkTrue(matcher.areMatching(this.entry, this.address));
   }
 
   @Override
@@ -108,13 +123,18 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public E allocEntry(final A address, final BitVector entry) {
-    this.entry = entryCreator.newStruct(entry);
+    this.entry = cache.newEntry(address, entry);
     this.address = address;
 
-    matcher.assignTag(this.entry, address);
-    InvariantChecks.checkTrue(matcher.areMatching(this.entry, this.address));
-
     return this.entry;
+  }
+
+  @Override
+  public void resetState() {
+    entry = null;
+    address = null;
+    dirty = false;
+    state = protocol.getResetState();
   }
 
   @Override
@@ -133,38 +153,6 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   @Override
   public final void snoopEvict(final A address) {
     state = protocol.onSnoopEvict(state);
-  }
-
-  public final E getEntry() {
-    return entry;
-  }
-
-  public final boolean isDirty() {
-    return dirty;
-  }
-
-  public final void setDirty(final boolean dirty) {
-    this.dirty = dirty;
-  }
-
-  @Override
-  public Pair<BitVector, BitVector> seeEntry(final BitVector index, final BitVector way) {
-    return address != null && entry != null
-        ? new Pair<>(address.getValue(), entry.asBitVector())
-        : null;
-  }
-
-  @Override
-  public void setUseTempState(final boolean value) {
-    // Do nothing.
-  }
-
-  @Override
-  public void resetState() {
-    entry = null;
-    address = null;
-    dirty = false;
-    state = protocol.getResetState();
   }
 
   @Override

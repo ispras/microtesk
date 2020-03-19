@@ -21,7 +21,10 @@ import ru.ispras.microtesk.model.memory.MemoryDevice;
 
 import java.math.BigInteger;
 
-public abstract class Memory<E extends Struct<?>, A extends Address> extends Buffer<E, A> {
+public abstract class Memory<E extends Struct<?>, A extends Address> implements Buffer<E, A> {
+  private final Struct<E> entryCreator;
+  private final Address<A> addressCreator;
+
   private final BigInteger byteSize;
   private MemoryDevice storage;
 
@@ -36,7 +39,7 @@ public abstract class Memory<E extends Struct<?>, A extends Address> extends Buf
     }
 
     public void assign(final E entry) {
-      writeEntry(address, entry);
+      writeEntry(address, entry.asBitVector());
     }
 
     public void assign(final BitVector value) {
@@ -48,9 +51,12 @@ public abstract class Memory<E extends Struct<?>, A extends Address> extends Buf
       final Struct<E> entryCreator,
       final Address<A> addressCreator,
       final BigInteger byteSize) {
-    super(entryCreator, addressCreator);
-
+    InvariantChecks.checkNotNull(entryCreator);
+    InvariantChecks.checkNotNull(addressCreator);
     InvariantChecks.checkNotNull(byteSize);
+
+    this.entryCreator = entryCreator;
+    this.addressCreator = addressCreator;
     this.byteSize = byteSize;
     this.storage = null;
   }
@@ -115,6 +121,10 @@ public abstract class Memory<E extends Struct<?>, A extends Address> extends Buf
     }
   }
 
+  public final Proxy writeEntry(final A address) {
+    return new Proxy(address);
+  }
+
   @Override
   public final void evictEntry(final A address) {
     throw new UnsupportedOperationException();
@@ -125,13 +135,9 @@ public abstract class Memory<E extends Struct<?>, A extends Address> extends Buf
     throw new UnsupportedOperationException();
   }
 
-  public final Proxy writeEntry(final A address) {
-    return new Proxy(address);
-  }
-
   @Override
-  public Pair<BitVector, BitVector> seeEntry(BitVector index, BitVector way) {
-    throw new UnsupportedOperationException();
+  public void resetState() {
+    // Do nothing.
   }
 
   protected abstract int getEntryBitSize();
@@ -149,15 +155,5 @@ public abstract class Memory<E extends Struct<?>, A extends Address> extends Buf
         BigInteger.valueOf(storage.getDataBitSize() / 8);
 
     return blockAddress.divide(bytesInRegion);
-  }
-
-  @Override
-  public void setUseTempState(final boolean value) {
-    // Do nothing.
-  }
-
-  @Override
-  public void resetState() {
-    // Do nothing.
   }
 }

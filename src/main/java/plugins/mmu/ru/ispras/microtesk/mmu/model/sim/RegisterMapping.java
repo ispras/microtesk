@@ -30,7 +30,8 @@ import java.math.BigInteger;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>> extends Cache<E, A> {
+public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
+    extends CacheUnit<E, A> {
 
   private final String name;
   private BigInteger currentRegisterIndex;
@@ -41,8 +42,6 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
   private final class RegisterMappedSet extends CacheSet<E, A> {
     public RegisterMappedSet() {
       super(
-          RegisterMapping.this.entryCreator,
-          RegisterMapping.this.addressCreator,
           associativity,
           policy,
           matcher,
@@ -65,8 +64,6 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
 
     private RegisterMappedLine() {
       super(
-          RegisterMapping.this.entryCreator,
-          RegisterMapping.this.addressCreator,
           null,
           null,
           RegisterMapping.this);
@@ -83,17 +80,18 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
         return false;
       }
 
-      final BitVector rawData = storage.load(registerIndex);
-      final E data = entryCreator.newStruct(rawData);
+      final BitVector data = storage.load(registerIndex);
+      final E entry = newEntry(data);
 
-      return matcher.areMatching(data, address);
+      return matcher.areMatching(entry, address);
     }
 
     @Override
     public E readEntry(final A address) {
       final MemoryDevice storage = getRegisterDevice();
-      final BitVector rawData = storage.load(registerIndex);
-      return entryCreator.newStruct(rawData);
+      final BitVector data = storage.load(registerIndex);
+
+      return newEntry(data);
     }
 
     @Override
@@ -113,19 +111,6 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     }
 
     @Override
-    public Pair<BitVector, BitVector> seeEntry(final BitVector index, final BitVector way) {
-      final MemoryDevice storage = getRegisterDevice();
-      return storage.isInitialized(registerIndex)
-          ? new Pair<>(registerIndex, storage.load(registerIndex))
-          : null;
-    }
-
-    @Override
-    public void setUseTempState(final boolean value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void resetState() {
       // Do nothing.
     }
@@ -133,8 +118,9 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     @Override
     public String toString() {
       final MemoryDevice storage = getRegisterDevice();
-      final BitVector value = storage.load(registerIndex);
-      return String.format("RegisterMappedLine [entry=%s]", entryCreator.newStruct(value));
+      final BitVector data = storage.load(registerIndex);
+
+      return String.format("RegisterMappedLine [entry=%s]", newEntry(data));
     }
   }
 
