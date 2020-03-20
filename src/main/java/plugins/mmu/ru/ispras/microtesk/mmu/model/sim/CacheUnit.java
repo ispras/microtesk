@@ -216,6 +216,16 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     set.snoopEvict(address, oldEntry);
   }
 
+  final boolean isExclusive(final A address) {
+    for (final CacheUnit<?, A> other : neighbor) {
+      InvariantChecks.checkTrue(other != this);
+      if (other.isHit(address)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   final Struct<?> sendSnoopRead(final A address, final boolean hasValid) {
     Struct<?> result = snoopEntry;
 
