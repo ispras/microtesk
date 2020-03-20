@@ -168,6 +168,18 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     return addressCreator.setValue(value);
   }
 
+  /**
+   * Makes a link between this cache and a neighbor.
+   *
+   * @param other the neighbor to be linked.
+   */
+  public void addNeighbor(final CacheUnit<?, A> other) {
+    InvariantChecks.checkNotNull(other);
+    InvariantChecks.checkTrue(other != this);
+
+    neighbor.add(other);
+  }
+
   @Override
   public final boolean isHit(final A address) {
     final CacheSet<E, A> set = getSet(address);
