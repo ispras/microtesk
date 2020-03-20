@@ -23,7 +23,6 @@ import ru.ispras.microtesk.utils.SparseArray;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * {@link CacheUnit} represents an abstract way-associative cache memory.
@@ -277,7 +276,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     }
 
     // If no data are available at this level, access the next one.
-    return (result != null || hasValid) ? result : sendReadNext(address);
+    return (result != null || hasValid) ? result : readThrough(address);
   }
 
   final Struct<?> sendSnoopWrite(final A address, final BitVector newEntry, final boolean hasValid) {
@@ -295,7 +294,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
     // Calling this method implies that write-allocate is enabled.
     // If no data are available at this level, access the next one.
-    return result != null || hasValid ? result : sendReadNext(address);
+    return result != null || hasValid ? result : readThrough(address);
   }
 
   final void sendSnoopEvict(final A address, final BitVector oldEntry, final boolean dirty) {
@@ -344,7 +343,8 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     }
   }
 
-  final Struct<?> sendReadNext(final A address) {
+  final Struct<?> readThrough(final A address) {
+    // No forward link.
     if (next == null) {
       return null;
     }
@@ -357,7 +357,8 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     // Exclusive cache.
     Buffer<? extends Struct<?>, A> other = next;
     while (other != null && !other.isHit(address)) {
-      other = other instanceof CacheUnit ? ((CacheUnit<?, A>) other).next : null;
+      final CacheUnit<?, A> cache = other instanceof CacheUnit ? (CacheUnit<?, A>) other : null;
+      other = cache != null ? cache.next : null;
     }
 
     InvariantChecks.checkNotNull(other);
@@ -368,6 +369,45 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     }
 
     return result;
+  }
+
+  final void writeThrough(final A address, final BitVector newEntry) {
+    // No forward link.
+    if (next == null) {
+      return;
+    }
+
+    // Inclusive cache.
+    if (policy.inclusion.yes || policy.inclusion.dontCare) {
+      next.writeEntry(address, newEntry);
+      return;
+    }
+
+    // Exclusive cache.
+    boolean allocated = policy.write.alloc;
+    Buffer<? extends Struct<?>, A> other = next;
+
+    while (other != null) {
+      final CacheUnit<?, A> cache = other instanceof CacheUnit ? (CacheUnit<?, A>) other : null;
+
+      if (other.isHit(address)) {
+        if (cache != null) {
+          if (allocated) {
+            // Evict the entry to maintain exclusiveness.
+            cache.evictEntry(address);
+          } else if (cache.policy.write.alloc) {
+            // Write the entry into the cache.
+            cache.writeEntry(address, newEntry);
+            allocated = true;
+          }
+        } else {
+          // Write the entry into the main memory.
+          other.writeEntry(address, newEntry);
+        }
+      }
+
+      other = cache != null ? cache.next : null;
+    }
   }
 
   public final Proxy writeEntry(final A address) {

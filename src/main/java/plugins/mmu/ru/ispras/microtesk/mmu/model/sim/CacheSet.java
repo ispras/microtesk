@@ -133,8 +133,8 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
     }
 
     // Do write-through if required.
-    if (next != null && policy.write.through) {
-      next.writeEntry(address, newEntry);
+    if (policy.write.through) {
+      cache.writeThrough(address, newEntry);
     }
   }
 
@@ -211,7 +211,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
       if (line.isHit(address)) {
         InvariantChecks.checkTrue(way == -1,
-            String.format("Multiple hits in a cache set. Address=%s:0x%s, Lines=%s",
+            String.format("Multiple hits in a cache set: address=%s:0x%s, lines=%s",
                 address.getClass().getSimpleName(),
                 address.getValue().toHexString(),
                 lines.toString()));
