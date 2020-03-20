@@ -23,9 +23,7 @@ public interface CoherenceProtocol {
 
   Enum<?> onReset();
 
-  Enum<?> onRead(Enum<?> state);
-
-  Enum<?> onReadX(Enum<?> state);
+  Enum<?> onRead(Enum<?> state, boolean exclusive);
 
   Enum<?> onWrite(Enum<?> state);
 

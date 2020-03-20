@@ -49,23 +49,12 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 final class CoherenceProtocolMesi extends CoherenceProtocolBase {
   @Override
-  public Enum<?> onRead(final Enum<?> state) {
+  public Enum<?> onRead(final Enum<?> state, final boolean exclusive) {
     switch ((State) state) {
       case INVALID:
-        return CoherenceProtocolBase.State.SHARED;
+        return exclusive ? State.EXCLUSIVE : State.SHARED;
       default:
         return state;
-    }
-  }
-
-  @Override
-  public Enum<?> onReadX(final Enum<?> state) {
-    switch ((State) state) {
-      case INVALID:
-        return CoherenceProtocolBase.State.EXCLUSIVE;
-      default:
-        InvariantChecks.checkTrue(false);
-        return null;
     }
   }
 
@@ -74,7 +63,7 @@ final class CoherenceProtocolMesi extends CoherenceProtocolBase {
     switch ((State) state) {
       case EXCLUSIVE:
       case MODIFIED:
-        return CoherenceProtocolBase.State.SHARED;
+        return State.SHARED;
       default:
         return state;
     }

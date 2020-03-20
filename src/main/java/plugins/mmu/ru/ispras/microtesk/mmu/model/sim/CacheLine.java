@@ -113,7 +113,10 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
       entry.asBitVector().assign(snoopEntry.asBitVector());
     }
 
-    state = protocol.onRead(state);
+    // TODO:
+    final boolean exclusive = false;
+
+    state = protocol.onRead(state, exclusive);
     return entry;
   }
 

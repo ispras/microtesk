@@ -42,12 +42,7 @@ abstract class CoherenceProtocolBase implements CoherenceProtocol {
   }
 
   @Override
-  public abstract Enum<?> onRead(final Enum<?> state);
-
-  @Override
-  public Enum<?> onReadX(final Enum<?> state) {
-    return onRead(state);
-  }
+  public abstract Enum<?> onRead(final Enum<?> state, boolean exclusive);
 
   @Override
   public Enum<?> onWrite(final Enum<?> state) {

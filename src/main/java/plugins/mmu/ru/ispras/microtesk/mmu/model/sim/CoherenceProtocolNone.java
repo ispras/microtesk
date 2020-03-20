@@ -27,12 +27,7 @@ public final class CoherenceProtocolNone implements CoherenceProtocol {
   }
 
   @Override
-  public Enum<?> onRead(final Enum<?> state) {
-    return State.VALID;
-  }
-
-  @Override
-  public Enum<?> onReadX(final Enum<?> state) {
+  public Enum<?> onRead(final Enum<?> state, final boolean exclusive) {
     return State.VALID;
   }
 
