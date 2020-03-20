@@ -17,7 +17,14 @@ package ru.ispras.microtesk.mmu.model.sim;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link CachePolicy} contains all cache-related policies.
+ * {@link CachePolicy} contains all cache-related policies including:
+ *
+ * <ul>
+ *  <li>an eviction policy;</li>
+ *  <li>a write policy;</li>
+ *  <li>an inclusion policy;</li>
+ *  <li>a coherence policy.</li>
+ * <ul/>
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

@@ -15,23 +15,39 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.model.ModelStateManager;
 
 /**
- * {@link Snoopable} is an interface of a snoopable buffer.
+ * {@link SnoopController} is an interface of a snoopy cache unit.
  *
  * @param <E> the entry type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Snoopable<E, A>  {
+public interface SnoopController<E, A>  {
 
+  /**
+   * Snoops a read transaction from another cache unit.
+   *
+   * @param address the address used in the transaction.
+   * @return the local entry if it is valid.
+   */
   E snoopRead(A address);
 
+  /**
+   * Snoops a write transaction from another cache unit.
+   *
+   * @param address the address used in the transaction.
+   * @param newEntry the entry being written.
+   * @return the local entry if it is valid.
+   */
   E snoopWrite(A address, BitVector newEntry);
 
+  /**
+   * Snoops an evict transaction from another cache unit.
+   *
+   * @param address the address used in the transaction.
+   * @param oldEntry the entry being evicted.
+   */
   void snoopEvict(A address, BitVector oldEntry);
 }

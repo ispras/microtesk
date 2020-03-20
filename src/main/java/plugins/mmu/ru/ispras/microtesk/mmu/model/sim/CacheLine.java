@@ -26,7 +26,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public class CacheLine<E extends Struct<?>, A extends Address<?>>
-    implements Buffer<E, A>, Snoopable<E, A> {
+    implements Buffer<E, A>, SnoopController<E, A> {
 
   /** Coherence protocol. */
   private final CoherenceProtocol protocol;
@@ -91,12 +91,8 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     this.address = address;
   }
 
-  public final boolean isDirty() {
-    return dirty;
-  }
-
-  public final void setDirty(final boolean dirty) {
-    this.dirty = dirty;
+  public final Enum<?> getState() {
+    return state;
   }
 
   @Override
@@ -107,8 +103,8 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public E readEntry(final A address) {
-    // Entry should be allocated.
-    InvariantChecks.checkNotNull(isHit(address));
+    // Entry should be allocated but not necessarily valid.
+    InvariantChecks.checkTrue(isHit(address));
 
     final Struct<?> snoopEntry = cache.sendSnoopRead(address, isValid());
     InvariantChecks.checkTrue(isValid() || snoopEntry != null);
@@ -123,8 +119,8 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public void writeEntry(final A address, final BitVector newEntry) {
-    // Entry should be allocated.
-    InvariantChecks.checkNotNull(isHit(address));
+    // Entry should be allocated but not necessarily valid.
+    InvariantChecks.checkTrue(isHit(address));
 
     final Struct<?> snoopEntry = cache.sendSnoopWrite(address, newEntry, isValid());
     InvariantChecks.checkTrue(isValid() || snoopEntry != null);
@@ -136,10 +132,14 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     // TODO: Implement partial assignment.
     entry.asBitVector().assign(newEntry);
     state = protocol.onWrite(state);
+    dirty = true;
   }
 
   @Override
   public void allocEntry(final A address) {
+    // Entry should not be allocated.
+    InvariantChecks.checkFalse(isHit(address));
+
     this.entry = cache.newEntry(address);
     this.address = address;
 
@@ -149,7 +149,7 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   @Override
   public void evictEntry(final A address) {
     // Entry should be allocated and valid.
-    InvariantChecks.checkNotNull(isHit(address) && isValid());
+    InvariantChecks.checkTrue(isHit(address) && isValid());
 
     cache.sendSnoopEvict(address, entry.asBitVector(), dirty);
     entry = null;

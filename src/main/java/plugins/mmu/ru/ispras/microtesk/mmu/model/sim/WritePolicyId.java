@@ -32,13 +32,13 @@ public enum WritePolicyId {
     /** Write-Back, Data Allocation. */
     WB(true, false, true);
 
-    public final boolean wa;
-    public final boolean wt;
-    public final boolean wb;
+    public final boolean alloc;
+    public final boolean through;
+    public final boolean back;
 
-    WritePolicyId(final boolean wa, final boolean wt, final boolean wb) {
-      this.wa = wa;
-      this.wt = wt;
-      this.wb = wb;
+    WritePolicyId(final boolean alloc, final boolean through, final boolean back) {
+      this.alloc = alloc;
+      this.through = through;
+      this.back = back;
     }
 }

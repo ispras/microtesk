@@ -17,7 +17,7 @@ package ru.ispras.microtesk.mmu.model.sim;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 
 /**
- * {@link Buffer} represents a buffer, i.e. a component that stores addressable entries.
+ * {@link Buffer} represents a buffer that stores addressable entries.
  *
  * @param <E> the entry type.
  * @param <A> the address type.
@@ -35,7 +35,7 @@ public interface Buffer<E, A> {
   boolean isHit(A address);
 
   /**
-   * Loads the entry associated with the given address.
+   * Reads the entry associated with the given address.
    *
    * @param address the address.
    * @return the entry associated with the address or {@code null}.
@@ -43,7 +43,7 @@ public interface Buffer<E, A> {
   E readEntry(A address);
 
   /**
-   * Stores the entry associated with the given address.
+   * Writes the entry associated with the given address.
    *
    * <p>
    * Note that an incoming entry is not necessarily of the specified {@code E} type.
@@ -57,7 +57,7 @@ public interface Buffer<E, A> {
   void writeEntry(A address, BitVector newEntry);
 
   /**
-   * Allocates the entry associated with the given address.
+   * Allocates the entry associated with the given address in the buffer.
    *
    * @param address the address.
    */
@@ -71,7 +71,7 @@ public interface Buffer<E, A> {
   void evictEntry(A address);
 
   /**
-   * Resets the buffer state.
+   * Resets the state of the buffer.
    */
   void resetState();
 }

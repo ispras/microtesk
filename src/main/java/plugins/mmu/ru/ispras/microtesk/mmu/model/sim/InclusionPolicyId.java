@@ -21,11 +21,21 @@ package ru.ispras.microtesk.mmu.model.sim;
  */
 public enum InclusionPolicyId {
     /** Inclusive policy. */
-    INCLUSIVE,
+    INCLUSIVE(true, false, false),
 
     /** Exclusive policy. */
-    EXCLUSIVE,
+    EXCLUSIVE(false, true, false),
 
     /** Non-Inclusive Non-Exclusive. */
-    NINE
+    NINE(false, false, true);
+
+    public final boolean yes;
+    public final boolean no;
+    public final boolean dontCare;
+
+    InclusionPolicyId(final boolean yes, final boolean no, final boolean dontCare) {
+      this.yes = yes;
+      this.no = no;
+      this.dontCare = dontCare;
+    }
 }

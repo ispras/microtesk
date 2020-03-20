@@ -27,22 +27,13 @@ import java.util.Collection;
 /**
  * {@link CacheUnit} represents an abstract way-associative cache memory.
  *
- * A cache unit is characterized by the following parameters (except the entry and address types):
- * <ul>
- * <li>{@code length} - the number of sets in the cache,
- * <li>{@code associativity} - the number of lines in each set,
- * <li>{@code policy} - the cache policy,
- * <li>{@code indexer} - the set indexer, and
- * <li>{@code matcher} - the line matcher.
- * </ul>
- *
  * @param <E> the entry type.
  * @param <A> the address type.
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
-    implements Buffer<E, A>, Snoopable<E, A>, BufferObserver, ModelStateManager {
+    implements Buffer<E, A>, SnoopController<E, A>, BufferObserver, ModelStateManager {
 
   private final Struct<E> entryCreator;
   private final Address<A> addressCreator;
@@ -59,7 +50,13 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   private SparseArray<CacheSet<E, A>> savedSets;
 
   /**
-   * Proxy class is used to ease code generation for assignments.
+   * If not {@code null}, holds an entry to be returned by a send-snoop operation, namely
+   * {@link #sendSnoopRead} or {@link #sendSnoopWrite}.
+   */
+  private Struct<?> snoopEntry = null;
+
+  /**
+   * {@link Proxy} eases code generation for assignment statements.
    */
   public final class Proxy {
     private final A address;
@@ -78,7 +75,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   /**
-   * Constructs a buffer of the given length and associativity.
+   * Constructs a cache unit of the given length and associativity.
    *
    * @param entryCreator the entry creator.
    * @param addressCreator the address creator.
@@ -117,6 +114,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     this.next = next;
 
     // The next buffer is allowed to be the main memory.
+    // If it is a cache unit, add a backward link to this one.
     if (next != null && next instanceof CacheUnit) {
       final CacheUnit<? extends Struct<?>, A> nextCache = (CacheUnit<? extends Struct<?>, A>) next;
       nextCache.previous.add(this);
@@ -131,6 +129,17 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
    */
   final E newEntry(final BitVector entry) {
     return entryCreator.newStruct(entry);
+  }
+
+  /**
+   * Constructs an empty entry w/ tag.
+   *
+   * @param address the address (used to assign the tag).
+   * @return the constructed entry w/o data.
+   */
+  final E newEntry(final A address) {
+    final int bitSize = entryCreator.asBitVector().getBitSize();
+    return newEntry(address, BitVector.newEmpty(bitSize));
   }
 
   /**
@@ -150,20 +159,9 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   /**
-   * Constructs an empty entry w/ tag.
-   *
-   * @param address the address (used to assign the tag).
-   * @return the constructed entry w/o data.
-   */
-  final E newEntry(final A address) {
-    final int bitSize = entryCreator.asBitVector().getBitSize();
-    return newEntry(address, BitVector.newEmpty(bitSize));
-  }
-
-  /**
    * Constructs an address.
    *
-   * @param value the address value (other fields are ignored).
+   * @param value the address value (other fields of the address struct are ignored).
    * @return the constructed address.
    */
   final A newAddress(final BitVector value) {
@@ -219,9 +217,9 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   final Struct<?> sendSnoopRead(final A address, final boolean hasValid) {
-    Struct<?> result = null;
+    Struct<?> result = snoopEntry;
 
-    // Send snoops to the same-level caches.
+    // Broadcast snoop requests to the same-level caches.
     for (final CacheUnit<?, A> other : neighbor) {
       InvariantChecks.checkTrue(other != this);
       final Struct<?> snoop = other.snoopRead(address);
@@ -231,13 +229,14 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       }
     }
 
-    return result != null || hasValid ? result : sendReadNext(address);
+    // If no data are available at this level, access the next one.
+    return (result != null || hasValid) ? result : sendReadNext(address);
   }
 
   final Struct<?> sendSnoopWrite(final A address, final BitVector newEntry, final boolean hasValid) {
-    Struct<?> result = null;
+    Struct<?> result = snoopEntry;
 
-    // Send snoops to the same-level caches.
+    // Broadcast snoop requests to the same-level caches.
     for (final CacheUnit<?, A> other : neighbor) {
       InvariantChecks.checkTrue(other != this);
       final Struct<?> snoop = other.snoopWrite(address, newEntry);
@@ -247,39 +246,53 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       }
     }
 
-    // TODO: Write-Through & Allocate
+    // Calling this method implies that write-allocate is enabled.
+    // If no data are available at this level, access the next one.
     return result != null || hasValid ? result : sendReadNext(address);
   }
 
   final void sendSnoopEvict(final A address, final BitVector oldEntry, final boolean dirty) {
-    // Send snoops to the same-level caches.
+    // Broadcast snoop requests to the same-level caches.
     for (final CacheUnit<?, A> other : neighbor) {
       InvariantChecks.checkTrue(other != this);
       other.snoopEvict(address, oldEntry);
     }
 
-    // Backward invalidation of the previous caches.
+    // Invalidate the previous caches (backward invalidation).
     for (final CacheUnit<?, A> other : previous) {
-      if (other.isHit(address) && other.policy.inclusion == InclusionPolicyId.INCLUSIVE) {
+      if (other.isHit(address) && other.policy.inclusion.yes) {
         other.evictEntry(address);
       }
     }
 
-    // Reallocate the entry to the next cache.
-    if (policy.write.wb && dirty) {
+    // Do write-back if required.
+    if (policy.write.back && dirty) {
       InvariantChecks.checkNotNull(next);
       next.writeEntry(address, oldEntry);
       return;
     }
 
-    if (policy.inclusion == InclusionPolicyId.EXCLUSIVE) {
+    // Reallocate the entry to the next cache.
+    if (policy.inclusion.no) {
       if (next != null && next instanceof CacheUnit) {
+        InvariantChecks.checkFalse(next.isHit(address));
+
         final CacheUnit<?, A> other = (CacheUnit<?, A>) next;
         other.allocEntry(address);
 
-        final CacheLine<?, A> line = other.getLine(address);
-        line.setDirty(dirty);
-        // TODO: Update protocol state.
+        // This makes a snoop operation returns the reallocated entry
+        // while executing the read or write operation.
+        other.snoopEntry = other.newEntry(address, oldEntry);
+
+        // Update the protocol state by executing the read or write operation.
+        if (dirty) {
+          other.writeEntry(address, oldEntry);
+        } else {
+          other.readEntry(address);
+        }
+
+        // Disable that snooping hack.
+        other.snoopEntry = null;
       }
     }
   }
@@ -290,22 +303,22 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     }
 
     // Inclusive cache.
-    if (policy.inclusion != InclusionPolicyId.EXCLUSIVE) {
+    if (policy.inclusion.yes || policy.inclusion.dontCare) {
       return next.readEntry(address);
     }
 
     // Exclusive cache.
     Buffer<? extends Struct<?>, A> other = next;
     while (other != null && !other.isHit(address)) {
-      other = other instanceof CacheUnit ? ((CacheUnit) other).next : null;
+      other = other instanceof CacheUnit ? ((CacheUnit<?, A>) other).next : null;
     }
 
-    if (other == null) {
-      return null;
-    }
-
+    InvariantChecks.checkNotNull(other);
     final Struct<?> result = other.readEntry(address);
-    other.evictEntry(address);
+
+    if (other instanceof CacheUnit) {
+      other.evictEntry(address);
+    }
 
     return result;
   }

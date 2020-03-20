@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ import java.util.List;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class CacheSet<E extends Struct<?>, A extends Address<?>>
-    implements Buffer<E, A>, Snoopable<E, A> {
+    implements Buffer<E, A>, SnoopController<E, A> {
 
   /** Cache policy. */
   private final CachePolicy policy;
@@ -93,7 +92,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   public final E readEntry(final A address) {
     final int way = getWay(address);
 
-    // If there is a cache hit, return the entry.
+    // If there is a hit, return the local entry.
     if (way != -1) {
       final CacheLine<E, A> line = lines.get(way);
 
@@ -101,23 +100,41 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
       return line.readEntry(address);
     }
 
-    allocEntry(address);
-    return readEntry(address);
+    // Otherwise, there are two possibilities.
+    if (next != null) {
+      // Allocate an entry and re-run the read operation.
+      allocEntry(address);
+      // The entry should be valid after snooping.
+      return readEntry(address);
+    }
+
+    // If automation is disabled, return null.
+    return null;
   }
 
   @Override
   public final void writeEntry(final A address, final BitVector newEntry) {
-     final int way = getWay(address);
+    final int way = getWay(address);
 
+    // If there is a hit, write into the local entry.
     if (way != -1) {
       final CacheLine<E, A> line = lines.get(way);
 
       evictionPolicy.onAccess(way);
       line.writeEntry(address, newEntry);
-      line.setDirty(true);
-    } else if (policy.write.wa) {
+      return;
+    }
+
+    // If the write policy implies allocation.
+    if (policy.write.alloc) {
+      // Allocate an entry and re-run the write operation.
       allocEntry(address);
       writeEntry(address, newEntry);
+    }
+
+    // Do write-through if required.
+    if (next != null && policy.write.through) {
+      next.writeEntry(address, newEntry);
     }
   }
 
@@ -128,7 +145,12 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
     final int way = evictionPolicy.getVictim();
     final CacheLine<E, A> line = lines.get(way);
 
-    line.evictEntry(address);
+    if (line.isValid()) {
+      // Evict the chosen old entry.
+      line.evictEntry(line.getAddress());
+    }
+
+    // Allocate a new one.
     line.allocEntry(address);
   }
 
@@ -139,7 +161,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
     final int way = getWay(address);
     final CacheLine<E, A> line = lines.get(way);
 
-    // Evict the line from this cache.
+    // Evict the line from the cache.
     evictionPolicy.onEvict(way);
     line.evictEntry(address);
   }
