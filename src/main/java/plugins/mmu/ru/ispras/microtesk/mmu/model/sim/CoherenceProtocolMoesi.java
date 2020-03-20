@@ -51,6 +51,13 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class CoherenceProtocolMoesi extends CoherenceProtocolBase {
+  private static final CoherenceProtocol instance = new CoherenceProtocolMoesi();
+
+  public static CoherenceProtocol get() {
+    return instance;
+  }
+
+  private CoherenceProtocolMoesi() {}
 
   @Override
   public Enum<?> onRead(final Enum<?> state, final boolean exclusive) {

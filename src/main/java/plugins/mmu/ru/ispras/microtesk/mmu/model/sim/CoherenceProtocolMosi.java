@@ -45,6 +45,13 @@ package ru.ispras.microtesk.mmu.model.sim;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 final class CoherenceProtocolMosi extends CoherenceProtocolBase {
+  private static final CoherenceProtocol instance = new CoherenceProtocolMosi();
+
+  public static CoherenceProtocol get() {
+    return instance;
+  }
+
+  private CoherenceProtocolMosi() {}
 
   @Override
   public Enum<?> onRead(final Enum<?> state, final boolean exclusive) {

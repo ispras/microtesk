@@ -20,6 +20,13 @@ package ru.ispras.microtesk.mmu.model.sim;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class CoherenceProtocolNone implements CoherenceProtocol {
+  private static final CoherenceProtocol instance = new CoherenceProtocolNone();
+
+  public static CoherenceProtocol get() {
+    return instance;
+  }
+
+  private CoherenceProtocolNone() {}
 
   public enum State {
     VALID,
@@ -58,6 +65,6 @@ public final class CoherenceProtocolNone implements CoherenceProtocol {
 
   @Override
   public boolean isCoherent(final Enum<?>[] states) {
-    return false;
+    return true;
   }
 }

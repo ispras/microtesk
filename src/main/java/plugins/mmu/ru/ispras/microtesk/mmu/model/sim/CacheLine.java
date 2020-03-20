@@ -114,6 +114,8 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     }
 
     state = protocol.onRead(state, cache.isExclusive(address));
+    InvariantChecks.checkTrue(cache.isCoherent(address));
+
     return entry;
   }
 
@@ -131,8 +133,10 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
     // TODO: Implement partial assignment.
     entry.asBitVector().assign(newEntry);
-    state = protocol.onWrite(state);
     dirty = true;
+
+    state = protocol.onWrite(state);
+    InvariantChecks.checkTrue(cache.isCoherent(address));
   }
 
   @Override
@@ -144,6 +148,7 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     this.address = address;
 
     state = protocol.onReset();
+    InvariantChecks.checkTrue(cache.isCoherent(address));
   }
 
   @Override
@@ -155,6 +160,7 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     entry = null;
 
     state = protocol.onReset();
+    InvariantChecks.checkTrue(cache.isCoherent(address));
   }
 
   @Override

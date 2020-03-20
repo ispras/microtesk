@@ -23,6 +23,7 @@ import ru.ispras.microtesk.utils.SparseArray;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * {@link CacheUnit} represents an abstract way-associative cache memory.
@@ -228,6 +229,30 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     set.snoopEvict(address, oldEntry);
   }
 
+  final CacheLine<E, A> getLine(final A address) {
+    final CacheSet<E, A> set = getSet(address);
+    return set.getLine(address);
+  }
+
+  final boolean isCoherent(final A address) {
+    final ArrayList<Enum<?>> states = new ArrayList<>();
+
+    final CacheLine<?, A> thisLine = getLine(address);
+    if (thisLine != null) {
+      states.add(thisLine.getState());
+    }
+
+    for (final CacheUnit<?, A> other : neighbor) {
+      final CacheLine<?, A> otherLine = other.getLine(address);
+      if (otherLine != null) {
+        states.add(otherLine.getState());
+      }
+    }
+
+    final CoherenceProtocol protocol = policy.coherence.newProtocol();
+    return protocol.isCoherent(states.toArray(new Enum<?>[]{}));
+  }
+
   final boolean isExclusive(final A address) {
     for (final CacheUnit<?, A> other : neighbor) {
       InvariantChecks.checkTrue(other != this);
@@ -347,11 +372,6 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
   public final Proxy writeEntry(final A address) {
     return new Proxy(address);
-  }
-
-  public final CacheLine<E, A> getLine(final A address) {
-    final CacheSet<E, A> set = getSet(address);
-    return set.getLine(address);
   }
 
   protected final CacheSet<E, A> getSet(final BitVector index) {
