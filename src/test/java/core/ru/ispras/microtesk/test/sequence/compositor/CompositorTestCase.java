@@ -66,7 +66,7 @@ public final class CompositorTestCase {
       ArrayList<Integer> list = new ArrayList<Integer>();
 
       for (int j = 0; j < L + i; j++) {
-        final Integer integer = new Integer(10 * i + j);
+        final Integer integer = Integer.valueOf(10 * i + j);
 
         list.add(integer);
         set1.add(integer);

@@ -185,19 +185,22 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   @Override
   public final E snoopRead(final A address, final BitVector oldEntry) {
     final CacheLine<E, A> line = getLine(address);
-    return line.snoopRead(address, oldEntry);
+    return line != null ? line.snoopRead(address, oldEntry) : null;
   }
 
   @Override
   public final E snoopWrite(final A address, final BitVector newEntry) {
     final CacheLine<E, A> line = getLine(address);
-    return line.snoopWrite(address, newEntry);
+    return line != null ? line.snoopWrite(address, newEntry) : null;
   }
 
   @Override
   public final void snoopEvict(final A address, final BitVector oldEntry) {
     final CacheLine<E, A> line = getLine(address);
-    line.snoopEvict(address, oldEntry);
+
+    if (line != null) {
+      line.snoopEvict(address, oldEntry);
+    }
   }
 
   final CacheLine<E, A> getLine(final A address) {
@@ -206,8 +209,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   final CacheLine<E, A> getLine(final int way) {
-    InvariantChecks.checkBounds(way, lines.size());
-    return lines.get(way);
+    return way != -1 ? lines.get(way) : null;
   }
 
   final int getWay(final A address) {

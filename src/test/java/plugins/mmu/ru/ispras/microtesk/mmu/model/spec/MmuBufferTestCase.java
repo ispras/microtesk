@@ -37,7 +37,7 @@ import java.util.List;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class MmuBufferTestCase {
+public final class MmuBufferTestCase {
   private static MmuAddressInstance newAddress(final String name, int width) {
     final Type type = new Type(name, Collections.singletonMap("value", new Type(width)));
 
