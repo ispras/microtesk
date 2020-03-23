@@ -27,7 +27,7 @@ package ru.ispras.microtesk.mmu.model.sim;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class MmuTestCase {
+public class EvictionPolicyTestCase {
   public static final int ASSOCIATIVITY = 10;
 
   private void testPolicy(final EvictionPolicyId evictionPolicyId) {
