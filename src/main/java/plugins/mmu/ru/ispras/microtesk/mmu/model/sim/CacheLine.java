@@ -106,11 +106,12 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     // Entry should be allocated but not necessarily valid.
     InvariantChecks.checkTrue(isHit(address));
 
-    final Struct<?> snoopEntry = cache.sendSnoopRead(address, isValid());
-    InvariantChecks.checkTrue(isValid() || snoopEntry != null);
+    final BitVector oldEntry = isValid() ? entry.asBitVector() : null;
+    final Struct<?> snoopedEntry = cache.sendSnoopRead(address, oldEntry);
+    InvariantChecks.checkTrue(isValid() || snoopedEntry != null);
 
     if (!isValid()) {
-      entry.asBitVector().assign(snoopEntry.asBitVector());
+      cache.assignEntry(entry, address, snoopedEntry.asBitVector());
     }
 
     state = protocol.onRead(state, cache.isExclusive(address));
@@ -121,18 +122,30 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public void writeEntry(final A address, final BitVector newEntry) {
+    writeEntry(address, 0, cache.getEntryBitSize() - 1, newEntry);
+  }
+
+  @Override
+  public void writeEntry(final A address, final int lower, final int upper, final BitVector data) {
     // Entry should be allocated but not necessarily valid.
     InvariantChecks.checkTrue(isHit(address));
 
-    final Struct<?> snoopEntry = cache.sendSnoopWrite(address, newEntry, isValid());
-    InvariantChecks.checkTrue(isValid() || snoopEntry != null);
-
-    if (!isValid()) {
-      entry.asBitVector().assign(snoopEntry.asBitVector());
+    if (isValid()) {
+      // Update the required field of the entry.
+      cache.assignEntry(entry, address, lower, upper, data);
     }
 
-    // TODO: Implement partial assignment.
-    entry.asBitVector().assign(newEntry);
+    final BitVector newEntry = isValid() ? entry.asBitVector() : null;
+    final Struct<?> snoopedEntry = cache.sendSnoopWrite(address, newEntry);
+    InvariantChecks.checkTrue(isValid() || snoopedEntry != null);
+
+    if (!isValid()) {
+      // Place a snooped entry into the line.
+      cache.assignEntry(entry, address, snoopedEntry.asBitVector());
+      // Update the required field of the entry.
+      cache.assignEntry(entry, address, lower, upper, data);
+    }
+
     dirty = true;
 
     state = protocol.onWrite(state);
@@ -172,7 +185,7 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final E snoopRead(final A address) {
+  public final E snoopRead(final A address, final BitVector oldEntry) {
     final E result = isHit(address) ? entry : null;
     state = protocol.onSnoopRead(state);
     return result;

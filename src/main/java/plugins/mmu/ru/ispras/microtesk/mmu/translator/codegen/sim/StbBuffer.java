@@ -401,7 +401,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       buildIndexer(st, group);
       buildMatcher(st, group);
       buildConstructor(st, group);
-      buildGetDataSize(st, group);
     }
 
     private void buildHeader(final ST st) {

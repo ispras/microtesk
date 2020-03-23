@@ -22,8 +22,15 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public interface Struct<T> {
+
   /**
-   * Returns the data struct initialized by the given bit vector.
+   * Returns the bit size of the struct.
+   * @return
+   */
+  int getBitSize();
+
+  /**
+   * Returns the struct initialized by the given bit vector.
    *
    * @param value the bit vector representing all fields of the struct.
    * @return the data struct.
@@ -31,9 +38,9 @@ public interface Struct<T> {
   T newStruct(BitVector value);
 
   /**
-   * Converts the data struct to the bit vector.
+   * Converts the struct to the bit vector.
    *
-   * @return the bit vector representing all fields of the data struct.
+   * @return the bit vector representing all fields of the struct.
    */
   BitVector asBitVector();
 }

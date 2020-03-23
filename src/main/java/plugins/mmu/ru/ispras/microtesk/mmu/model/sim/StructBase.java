@@ -26,6 +26,11 @@ public abstract class StructBase<T> implements Struct<T> {
   private BitVector entry = null;
 
   @Override
+  public int getBitSize() {
+    return entry.getBitSize();
+  }
+
+  @Override
   public abstract T newStruct(BitVector value);
 
   @Override

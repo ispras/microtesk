@@ -99,17 +99,17 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
   }
 
   @Override
-  public final void writeEntry(final A address, final BitVector entry) {
-    InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
+  public final void writeEntry(final A address, final BitVector newEntry) {
+    InvariantChecks.checkNotNull(storage, "Storage device is uninitialized");
 
-    final int dataBitSize = entry.getBitSize();
+    final int dataBitSize = newEntry.getBitSize();
 
     BigInteger index = addressToIndex(address.getValue(), dataBitSize);
 
     int bitsWritten = 0;
     while (bitsWritten < dataBitSize) {
       final BitVector mapping =
-          BitVector.newMapping(entry, bitsWritten, storage.getDataBitSize());
+          BitVector.newMapping(newEntry, bitsWritten, storage.getDataBitSize());
 
       storage.store(
           BitVector.valueOf(index, storage.getAddressBitSize()),
@@ -121,7 +121,14 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
     }
   }
 
-  public final Proxy writeEntry(final A address) {
+  @Override
+  public final void writeEntry(
+      final A address, final int lower, final int upper, final BitVector data) {
+    // FIXME
+    throw new UnsupportedOperationException();
+  }
+
+    public final Proxy writeEntry(final A address) {
     return new Proxy(address);
   }
 

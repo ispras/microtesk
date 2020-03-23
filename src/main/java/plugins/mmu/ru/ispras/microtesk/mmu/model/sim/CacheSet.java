@@ -114,6 +114,13 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public final void writeEntry(final A address, final BitVector newEntry) {
+    writeEntry(address, 0, cache.getEntryBitSize() - 1, newEntry);
+  }
+
+  @Override
+  public final void writeEntry(
+      final A address, final int lower, final int upper, final BitVector data) {
+
     final int way = getWay(address);
 
     // If there is a hit, write into the local entry.
@@ -121,7 +128,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
       final CacheLine<E, A> line = lines.get(way);
 
       evictionPolicy.onAccess(way);
-      line.writeEntry(address, newEntry);
+      line.writeEntry(address, lower, upper, data);
       return;
     }
 
@@ -129,12 +136,12 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
     if (policy.write.alloc) {
       // Allocate an entry and re-run the write operation.
       allocEntry(address);
-      writeEntry(address, newEntry);
+      writeEntry(address, lower, upper, data);
     }
 
     // Do write-through if required.
     if (policy.write.through) {
-      cache.writeThrough(address, newEntry);
+      cache.writeThrough(address, lower, upper, data);
     }
   }
 
@@ -176,9 +183,9 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final E snoopRead(final A address) {
+  public final E snoopRead(final A address, final BitVector oldEntry) {
     final CacheLine<E, A> line = getLine(address);
-    return line.snoopRead(address);
+    return line.snoopRead(address, oldEntry);
   }
 
   @Override

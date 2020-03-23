@@ -27,15 +27,15 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 public interface Buffer<E, A> {
 
   /**
-   * Checks whether the given address causes a hit.
+   * Checks whether the given address hits the buffer.
    *
    * @param address the address.
-   * @return {@code true} iff the address causes a hit.
+   * @return {@code true} iff the address hits the buffer.
    */
   boolean isHit(A address);
 
   /**
-   * Reads the entry associated with the given address.
+   * Reads the entry associated with the given address from the buffer.
    *
    * @param address the address.
    * @return the entry associated with the address or {@code null}.
@@ -43,18 +43,28 @@ public interface Buffer<E, A> {
   E readEntry(A address);
 
   /**
-   * Writes the entry associated with the given address.
+   * Writes the entry associated with the given address into the buffer.
    *
    * <p>
-   * Note that an incoming entry is not necessarily of the specified {@code E} type.
-   * It may be returned from the previous- or next-level cache unit (thus, be a bit different).
-   * It is the method's responsibility to convert the entry to the specified type.
+   * Note that an incoming entry is not necessarily of the {@code E} type. It may be returned from
+   * the previous- or next-level cache unit (thus, be different). It is the method's responsibility
+   * to convert the entry to the specified type.
    * </p>
    *
    * @param address the address.
    * @param newEntry the new entry.
    */
   void writeEntry(A address, BitVector newEntry);
+
+  /**
+   * Writes the data associated with the given address into the given field of the entry.
+   *
+   * @param address the address.
+   * @param lower the lower bit.
+   * @param upper the upper bit.
+   * @param data the data.
+   */
+  void writeEntry(A address, int lower, int upper, BitVector data);
 
   /**
    * Allocates the entry associated with the given address in the buffer.

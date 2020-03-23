@@ -30,15 +30,16 @@ public interface SnoopController<E, A>  {
    * Snoops a read transaction from another cache unit.
    *
    * @param address the address used in the transaction.
+   * @param oldEntry the entry being read or {@code null}.
    * @return the local entry if it is valid.
    */
-  E snoopRead(A address);
+  E snoopRead(A address, BitVector oldEntry);
 
   /**
    * Snoops a write transaction from another cache unit.
    *
    * @param address the address used in the transaction.
-   * @param newEntry the entry being written.
+   * @param newEntry the entry being written or {@code null}.
    * @return the local entry if it is valid.
    */
   E snoopWrite(A address, BitVector newEntry);

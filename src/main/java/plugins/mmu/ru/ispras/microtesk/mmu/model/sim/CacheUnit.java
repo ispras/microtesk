@@ -53,7 +53,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
    * If not {@code null}, holds an entry to be returned by a send-snoop operation, namely
    * {@link #sendSnoopRead} or {@link #sendSnoopWrite}.
    */
-  private Struct<?> snoopEntry = null;
+  private Struct<?> snoopedEntry = null;
 
   /**
    * {@link Proxy} eases code generation for assignment statements.
@@ -122,6 +122,15 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   /**
+   * Returns the entry bit size.
+   *
+   * @return the entry bit size.
+   */
+  final int getEntryBitSize() {
+    return entryCreator.getBitSize();
+  }
+
+  /**
    * Constructs a filled entry w/o tag.
    *
    * @param entry the entry data.
@@ -138,7 +147,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
    * @return the constructed entry w/o data.
    */
   final E newEntry(final A address) {
-    final int bitSize = entryCreator.asBitVector().getBitSize();
+    final int bitSize = getEntryBitSize();
     return newEntry(address, BitVector.newEmpty(bitSize));
   }
 
@@ -156,6 +165,35 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     InvariantChecks.checkTrue(matcher.areMatching(result, address));
 
     return result;
+  }
+
+  /**
+   * Assigns the source entry to the target one and fills the tag.
+   *
+   * @param target the target entry.
+   * @param address the address.
+   * @param source the source entry.
+   */
+  final void assignEntry(final E target, final A address, final BitVector source) {
+    target.asBitVector().assign(source);
+    matcher.assignTag(target, address);
+    InvariantChecks.checkTrue(matcher.areMatching(target, address));
+  }
+
+  /**
+   * Assigns the source data into the given field of the target entry and fills the tag.
+   *
+   * @param target the target entry.
+   * @param address the address.
+   * @param lower the lower bit.
+   * @param upper the upper bit.
+   * @param source the source data.
+   */
+  final void assignEntry(
+        final E target, final A address, final int lower, final int upper, final BitVector source) {
+    target.asBitVector().field(lower, upper).assign(source);
+    matcher.assignTag(target, address);
+    InvariantChecks.checkTrue(matcher.areMatching(target, address));
   }
 
   /**
@@ -199,6 +237,13 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
+  public final void writeEntry(
+      final A address, final int lower, final int upper, final BitVector data) {
+    final CacheSet<E, A> set = getSet(address);
+    set.writeEntry(address, lower, upper, data);
+  }
+
+  @Override
   public final void allocEntry(final A address) {
     final CacheSet<E, A> set = getSet(address);
     set.allocEntry(address);
@@ -211,9 +256,9 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final E snoopRead(final A address) {
+  public final E snoopRead(final A address, final BitVector oldEntry) {
     final CacheSet<E, A> set = getSet(address);
-    return set.snoopRead(address);
+    return set.snoopRead(address, oldEntry);
   }
 
   @Override
@@ -262,13 +307,13 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     return true;
   }
 
-  final Struct<?> sendSnoopRead(final A address, final boolean hasValid) {
-    Struct<?> result = snoopEntry;
+  final Struct<?> sendSnoopRead(final A address, final BitVector oldEntry) {
+    Struct<?> result = snoopedEntry;
 
     // Broadcast snoop requests to the same-level caches.
     for (final CacheUnit<?, A> other : neighbor) {
       InvariantChecks.checkTrue(other != this);
-      final Struct<?> snoop = other.snoopRead(address);
+      final Struct<?> snoop = other.snoopRead(address, oldEntry);
 
       if (snoop != null && result == null) {
         result = snoop;
@@ -276,11 +321,11 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     }
 
     // If no data are available at this level, access the next one.
-    return (result != null || hasValid) ? result : readThrough(address);
+    return (result != null || oldEntry != null) ? result : readThrough(address);
   }
 
-  final Struct<?> sendSnoopWrite(final A address, final BitVector newEntry, final boolean hasValid) {
-    Struct<?> result = snoopEntry;
+  final Struct<?> sendSnoopWrite(final A address, final BitVector newEntry) {
+    Struct<?> result = snoopedEntry;
 
     // Broadcast snoop requests to the same-level caches.
     for (final CacheUnit<?, A> other : neighbor) {
@@ -294,7 +339,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
     // Calling this method implies that write-allocate is enabled.
     // If no data are available at this level, access the next one.
-    return result != null || hasValid ? result : readThrough(address);
+    return result != null || newEntry != null ? result : readThrough(address);
   }
 
   final void sendSnoopEvict(final A address, final BitVector oldEntry, final boolean dirty) {
@@ -328,7 +373,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
         // This makes a snoop operation returns the reallocated entry
         // while executing the read or write operation.
-        other.snoopEntry = other.newEntry(address, oldEntry);
+        other.snoopedEntry = other.newEntry(address, oldEntry);
 
         // Update the protocol state by executing the read or write operation.
         if (dirty) {
@@ -338,7 +383,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
         }
 
         // Disable that snooping hack.
-        other.snoopEntry = null;
+        other.snoopedEntry = null;
       }
     }
   }
@@ -371,7 +416,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     return result;
   }
 
-  final void writeThrough(final A address, final BitVector newEntry) {
+  final void writeThrough(final A address, final int lower, final int upper, final BitVector data) {
     // No forward link.
     if (next == null) {
       return;
@@ -379,7 +424,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
     // Inclusive cache.
     if (policy.inclusion.yes || policy.inclusion.dontCare) {
-      next.writeEntry(address, newEntry);
+      next.writeEntry(address, lower, upper, data);
       return;
     }
 
@@ -397,12 +442,12 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
             cache.evictEntry(address);
           } else if (cache.policy.write.alloc) {
             // Write the entry into the cache.
-            cache.writeEntry(address, newEntry);
+            cache.writeEntry(address, lower, upper, data);
             allocated = true;
           }
         } else {
           // Write the entry into the main memory.
-          other.writeEntry(address, newEntry);
+          other.writeEntry(address, lower, upper, data);
         }
       }
 

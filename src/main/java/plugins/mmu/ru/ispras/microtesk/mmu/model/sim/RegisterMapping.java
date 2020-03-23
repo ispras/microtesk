@@ -101,6 +101,11 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     }
 
     @Override
+    public void writeEntry(final A address, final int lower, final int upper, final BitVector data) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void allocEntry(final A address) {
       throw new UnsupportedOperationException();
     }
@@ -172,8 +177,6 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
   private MemoryDevice getRegisterDevice() {
     return TestEngine.getInstance().getModel().getPE().getMemoryDevice(name);
   }
-
-  protected abstract int getEntryBitSize();
 
   @Override
   public void setUseTempState(final boolean value) {

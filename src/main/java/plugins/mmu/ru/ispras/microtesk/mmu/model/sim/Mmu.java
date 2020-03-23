@@ -63,6 +63,12 @@ public abstract class Mmu<A extends Address<?>>  implements Buffer<BitVector, A>
   }
 
   @Override
+  public final void writeEntry(
+      final A address, final int lower, final int upper, final BitVector data) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public final void allocEntry(final A address) {
     throw new UnsupportedOperationException();
   }

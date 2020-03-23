@@ -100,6 +100,11 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
+  public void writeEntry(final A address, final int lower, final int upper, final BitVector data) {
+    getMmu().writeEntry(address, lower, upper, data);
+  }
+
+  @Override
   public final void allocEntry(final A address) {
     getMmu().allocEntry(address);
   }
