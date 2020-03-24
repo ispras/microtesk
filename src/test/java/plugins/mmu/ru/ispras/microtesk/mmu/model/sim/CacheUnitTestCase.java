@@ -28,7 +28,10 @@ public final class CacheUnitTestCase {
       )
   );
 
-  private void test(final Model model) {
+  private void test(final Model model, final int start, final int end) {
+    // Initialize the main memory.
+    model.memset(start, end, 0);
+
     final int word = 0x12345678;
     model.sw(0, 0, word);
     Assert.assertTrue(model.lw(0, 0) == word);
@@ -36,6 +39,6 @@ public final class CacheUnitTestCase {
 
   @Test
   public void test() {
-    test(model);
+    test(model, 0x0000, 0x8000);
   }
 }

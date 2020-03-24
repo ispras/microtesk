@@ -30,13 +30,13 @@ public class Model {
 
     @Override
     public BitVector load(final BitVector address) {
-      System.out.format("store: %s %s\n", address, storage.get(address));
+      System.out.format("load: %s %s\n", address.toHexString(), storage.get(address).toHexString());
       return storage.get(address);
     }
 
     @Override
     public void store(final BitVector address, final BitVector data) {
-      System.out.format("store: %s %s\n", address, data);
+      System.out.format("store: %s %s\n", address.toHexString(), data.toHexString());
       storage.put(address, data);
     }
 
@@ -90,6 +90,13 @@ public class Model {
 
   private int getUpperBit(final int address) {
     return getLowerBit(address) + 31;
+  }
+
+  public void memset(final int start, final int end, final int fill) {
+    for (int address = (start & ~0x1f); address <= end; address += 32) {
+      final BitVector line = BitVector.valueOf(fill, 32).repeat(8);
+      storage.put(BitVector.valueOf(address, 32), line);
+    }
   }
 
   public int lw(final int core, final int address) {

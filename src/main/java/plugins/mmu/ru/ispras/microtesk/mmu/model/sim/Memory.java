@@ -16,7 +16,6 @@ package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
 
 import java.math.BigInteger;
@@ -74,21 +73,20 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
 
   @Override
   public final E readEntry(final A address) {
-    InvariantChecks.checkNotNull(storage, "Storage device is not initialized.");
+    InvariantChecks.checkNotNull(storage, "Storage device is uninitialized");
 
     final int entryBitSize = getEntryBitSize();
+    final int addressBitSize = storage.getAddressBitSize();
     final BitVector entry = BitVector.newEmpty(entryBitSize);
 
     BigInteger index = addressToIndex(address.getValue(), entryBitSize);
 
     int bitsRead = 0;
     while (bitsRead < entryBitSize) {
-      final BitVector regionData =
-          storage.load(BitVector.valueOf(index, storage.getAddressBitSize()));
+      final BitVector regionData = storage.load(BitVector.valueOf(index, addressBitSize));
+      InvariantChecks.checkNotNull(regionData, "Uninitialized memory");
 
-      final BitVector mapping =
-          BitVector.newMapping(entry, bitsRead, regionData.getBitSize());
-
+      final BitVector mapping = BitVector.newMapping(entry, bitsRead, regionData.getBitSize());
       mapping.assign(regionData);
 
       index = index.add(BigInteger.ONE);
@@ -149,7 +147,7 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
 
   protected abstract int getEntryBitSize();
 
-  private BigInteger addressToIndex(final BitVector address, int blockBitSize) {
+  private BigInteger addressToIndex(final BitVector address, final int blockBitSize) {
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkTrue(blockBitSize >= 8);
     InvariantChecks.checkTrue(((blockBitSize - 1) & blockBitSize) == 0);
