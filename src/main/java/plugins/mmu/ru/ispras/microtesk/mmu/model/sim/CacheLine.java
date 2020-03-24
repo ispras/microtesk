@@ -186,21 +186,47 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public final E snoopRead(final A address, final BitVector oldEntry) {
-    final E result = isHit(address) ? entry : null;
-    state = protocol.onSnoopRead(state);
+    InvariantChecks.checkTrue(isHit(address));
+
+    final E result = entry;
+    final Enum<?> newState = protocol.onSnoopRead(state);
+
+    if (isValid() && newState == protocol.onReset()) {
+      evictEntry(address);
+    }
+
+    state = newState;
     return result;
   }
 
   @Override
   public final E snoopWrite(final A address, final BitVector newEntry) {
-    final E result = isHit(address) ? entry : null;
-    state = protocol.onSnoopWrite(state);
+    InvariantChecks.checkTrue(isHit(address));
+
+    final E result = entry;
+    final Enum<?> newState = protocol.onSnoopWrite(state);
+
+    if (isValid() && newState == protocol.onReset()) {
+      evictEntry(address);
+    }
+
+    state = newState;
     return result;
   }
 
   @Override
-  public final void snoopEvict(final A address, final BitVector oldEntry) {
-    state = protocol.onSnoopEvict(state);
+  public final E snoopEvict(final A address, final BitVector oldEntry) {
+    InvariantChecks.checkTrue(isHit(address));
+
+    final E result = entry;
+    final Enum<?> newState = protocol.onSnoopEvict(state);
+
+    if (isValid() && newState == protocol.onReset()) {
+      evictEntry(address);
+    }
+
+    state = newState;
+    return result;
   }
 
   @Override

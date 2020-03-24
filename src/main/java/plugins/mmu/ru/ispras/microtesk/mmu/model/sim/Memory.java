@@ -75,7 +75,8 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
   public final E readEntry(final A address) {
     InvariantChecks.checkNotNull(storage, "Storage device is uninitialized");
 
-    final int entryBitSize = getEntryBitSize();
+    final int entryBitSize = entryCreator.getBitSize();
+    final int storageBitSize = storage.getDataBitSize();
     final int addressBitSize = storage.getAddressBitSize();
     final BitVector entry = BitVector.newEmpty(entryBitSize);
 
@@ -90,7 +91,7 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
       mapping.assign(regionData);
 
       index = index.add(BigInteger.ONE);
-      bitsRead += storage.getDataBitSize();
+      bitsRead += storageBitSize;
     }
 
     return entryCreator.newStruct(entry);
@@ -100,22 +101,19 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
   public final void writeEntry(final A address, final BitVector newEntry) {
     InvariantChecks.checkNotNull(storage, "Storage device is uninitialized");
 
-    final int dataBitSize = newEntry.getBitSize();
-
-    BigInteger index = addressToIndex(address.getValue(), dataBitSize);
+    // Note that the input entry may be of different size.
+    final int entryBitSize = entryCreator.getBitSize();
+    final int storageBitSize = storage.getDataBitSize();
+    final int addressBitSize = storage.getAddressBitSize();
+    BigInteger index = addressToIndex(address.getValue(), entryBitSize);
 
     int bitsWritten = 0;
-    while (bitsWritten < dataBitSize) {
-      final BitVector mapping =
-          BitVector.newMapping(newEntry, bitsWritten, storage.getDataBitSize());
-
-      storage.store(
-          BitVector.valueOf(index, storage.getAddressBitSize()),
-          mapping
-      );
+    while (bitsWritten < entryBitSize) {
+      final BitVector mapping = BitVector.newMapping(newEntry, bitsWritten, storageBitSize);
+      storage.store(BitVector.valueOf(index, addressBitSize), mapping);
 
       index = index.add(BigInteger.ONE);
-      bitsWritten += storage.getDataBitSize();
+      bitsWritten += storageBitSize;
     }
   }
 
@@ -145,8 +143,6 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
     // Do nothing.
   }
 
-  protected abstract int getEntryBitSize();
-
   private BigInteger addressToIndex(final BitVector address, final int blockBitSize) {
     InvariantChecks.checkNotNull(address);
     InvariantChecks.checkTrue(blockBitSize >= 8);
@@ -156,9 +152,7 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
     final BigInteger blockMask = BigInteger.valueOf(blockBitSize / 8 - 1);
     final BigInteger blockAddress = addressInBytes.andNot(blockMask);
 
-    final BigInteger bytesInRegion =
-        BigInteger.valueOf(storage.getDataBitSize() / 8);
-
+    final BigInteger bytesInRegion = BigInteger.valueOf(storage.getDataBitSize() / 8);
     return blockAddress.divide(bytesInRegion);
   }
 }

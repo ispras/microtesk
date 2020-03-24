@@ -49,6 +49,7 @@ public interface SnoopController<E, A>  {
    *
    * @param address the address used in the transaction.
    * @param oldEntry the entry being evicted.
+   * @return the local entry if it is valid.
    */
-  void snoopEvict(A address, BitVector oldEntry);
+  E snoopEvict(A address, BitVector oldEntry);
 }

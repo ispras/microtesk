@@ -116,7 +116,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     // The next buffer is allowed to be the main memory.
     // If it is a cache unit, add a backward link to this one.
     if (next != null && next instanceof CacheUnit) {
-      final CacheUnit<? extends Struct<?>, A> nextCache = (CacheUnit<? extends Struct<?>, A>) next;
+      final CacheUnit<? extends Struct<?>, A> nextCache = (CacheUnit<?, A>) next;
       nextCache.previous.add(this);
     }
   }
@@ -268,9 +268,9 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final void snoopEvict(final A address, final BitVector oldEntry) {
+  public final E snoopEvict(final A address, final BitVector oldEntry) {
     final CacheSet<E, A> set = getSet(address);
-    set.snoopEvict(address, oldEntry);
+    return set.snoopEvict(address, oldEntry);
   }
 
   final CacheLine<E, A> getLine(final A address) {

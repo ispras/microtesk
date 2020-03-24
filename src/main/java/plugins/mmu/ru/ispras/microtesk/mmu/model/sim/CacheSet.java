@@ -195,12 +195,9 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final void snoopEvict(final A address, final BitVector oldEntry) {
+  public final E snoopEvict(final A address, final BitVector oldEntry) {
     final CacheLine<E, A> line = getLine(address);
-
-    if (line != null) {
-      line.snoopEvict(address, oldEntry);
-    }
+    return line != null ? line.snoopEvict(address, oldEntry) : null;
   }
 
   final CacheLine<E, A> getLine(final A address) {
