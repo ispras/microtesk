@@ -53,16 +53,6 @@ public abstract class Segment<PA extends Address<?>, VA extends Address<?>>
   }
 
   @Override
-  public void allocEntry(final VA address) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void evictEntry(final VA address) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void resetState() {
     // Do nothing.
   }

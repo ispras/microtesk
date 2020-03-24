@@ -129,16 +129,6 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
   }
 
   @Override
-  public final void allocEntry(final A address) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public final void evictEntry(final A address) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void resetState() {
     // Do nothing.
   }

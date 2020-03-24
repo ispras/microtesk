@@ -89,13 +89,13 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>>
   @Override
   public E readEntry(final A address) {
     final BitVector value = getMmu().readEntry(address);
-    InvariantChecks.checkTrue(value.getBitSize() == getEntryBitSize());
+    InvariantChecks.checkTrue(value.getBitSize() == entryCreator.getBitSize());
     return entryCreator.newStruct(value);
   }
 
   @Override
   public void writeEntry(final A address, final BitVector data) {
-    InvariantChecks.checkTrue(data.getBitSize() == getEntryBitSize());
+    InvariantChecks.checkTrue(data.getBitSize() == entryCreator.getBitSize());
     getMmu().writeEntry(address, data);
   }
 
@@ -104,19 +104,7 @@ public abstract class MmuMapping<E extends Struct<?>, A extends Address<?>>
     getMmu().writeEntry(address, lower, upper, data);
   }
 
-  @Override
-  public final void allocEntry(final A address) {
-    getMmu().allocEntry(address);
-  }
-
-  @Override
-  public void evictEntry(final A address) {
-    getMmu().evictEntry(address);
-  }
-
   protected abstract Mmu<A> getMmu();
-
-  protected abstract int getEntryBitSize();
 
   @Override
   public void resetState() {

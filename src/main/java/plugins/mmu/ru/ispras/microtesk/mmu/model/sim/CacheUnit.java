@@ -33,7 +33,7 @@ import java.util.Collection;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
-    implements Buffer<E, A>, SnoopController<E, A>, BufferObserver, ModelStateManager {
+    implements ReplaceableBuffer<E, A>, SnoopController<E, A>, BufferObserver, ModelStateManager {
 
   private final Struct<E> entryCreator;
   private final Address<A> addressCreator;
@@ -410,7 +410,8 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     final Struct<?> result = other.readEntry(address);
 
     if (other instanceof CacheUnit) {
-      other.evictEntry(address);
+      final CacheUnit<?, A> cache = (CacheUnit<?, A>) other;
+      cache.evictEntry(address);
     }
 
     return result;

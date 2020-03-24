@@ -188,13 +188,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     st.add("members", stConstructor);
   }
 
-  private void buildGetDataSize(ST st, STGroup group) {
-    buildNewLine(st);
-    final ST stMethod = group.getInstanceOf("get_data_size");
-    stMethod.add("size", buffer.getDataArg().getBitSize());
-    st.add("members", stMethod);
-  }
-
   private String indexToString(final Node expr) {
     InvariantChecks.checkNotNull(expr);
 
@@ -301,7 +294,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       buildHeader(st);
       buildEntry(st, group);
       buildMemoryConstructor(st, group);
-      buildGetDataSize(st, group);
     }
 
     private void buildHeader(final ST st) {
@@ -364,7 +356,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       buildMatcher(st, group);
       buildConstructor(st, group);
       buildGetMmu(st, group);
-      buildGetDataSize(st, group);
     }
 
     private void buildHeader(final ST st) {

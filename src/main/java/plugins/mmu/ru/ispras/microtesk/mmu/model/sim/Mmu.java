@@ -69,16 +69,6 @@ public abstract class Mmu<A extends Address<?>>  implements Buffer<BitVector, A>
   }
 
   @Override
-  public final void allocEntry(final A address) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void evictEntry(final A address) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void resetState() {
     // Do nothing.
   }

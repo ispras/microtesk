@@ -29,7 +29,7 @@ import java.util.List;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class CacheSet<E extends Struct<?>, A extends Address<?>>
-    implements Buffer<E, A>, SnoopController<E, A> {
+    implements ReplaceableBuffer<E, A>, SnoopController<E, A> {
 
   /** Cache policy. */
   private final CachePolicy policy;

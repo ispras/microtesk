@@ -26,7 +26,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
 public class CacheLine<E extends Struct<?>, A extends Address<?>>
-    implements Buffer<E, A>, SnoopController<E, A> {
+    implements ReplaceableBuffer<E, A>, SnoopController<E, A> {
 
   /** Coherence protocol. */
   private final CoherenceProtocol protocol;

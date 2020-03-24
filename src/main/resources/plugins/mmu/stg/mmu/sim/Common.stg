@@ -244,13 +244,6 @@ public int getDataBitSize() {
 }
 >>
 
-get_data_size(size) ::= <<
-@Override
-protected int getEntryBitSize() {
-  return <size>;
-}
->>
-
 get_data(addr_type, addr_name, data_type, stmts) ::= <<
 @Override
 public <data_type> readEntry(final <addr_type> <addr_name>) {
