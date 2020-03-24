@@ -264,8 +264,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
                   ExprPrinter.get().toString(lhs),
                   ExprPrinter.get().toString(rhs)));
         }
-
-        setStatus(Status.SKIP);
       }
     }
 

@@ -79,6 +79,7 @@ public final class L1 extends CacheUnit<Entry, PA> {
     @Override
     public L1.Entry assignTag(final L1.Entry data, final PA pa) {
       data.V.assign(BitVector.valueOf(0x1, 1));
+      data.TAG.assign(pa.value.field(31, 12));
       return data;
     }
   };
