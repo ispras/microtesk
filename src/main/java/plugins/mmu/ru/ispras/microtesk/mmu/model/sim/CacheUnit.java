@@ -175,6 +175,9 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
    * @param source the source entry.
    */
   final void assignEntry(final E target, final A address, final BitVector source) {
+    InvariantChecks.checkNotNull(target);
+    InvariantChecks.checkNotNull(source);
+
     target.asBitVector().assign(source);
     matcher.assignTag(target, address);
     InvariantChecks.checkTrue(matcher.areMatching(target, address));
@@ -190,7 +193,14 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
    * @param source the source data.
    */
   final void assignEntry(
-        final E target, final A address, final int lower, final int upper, final BitVector source) {
+      final E target,
+      final A address,
+      final int lower,
+      final int upper,
+      final BitVector source) {
+    InvariantChecks.checkNotNull(target);
+    InvariantChecks.checkNotNull(source);
+
     target.asBitVector().field(lower, upper).assign(source);
     matcher.assignTag(target, address);
     InvariantChecks.checkTrue(matcher.areMatching(target, address));
@@ -238,7 +248,10 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public final void writeEntry(
-      final A address, final int lower, final int upper, final BitVector data) {
+      final A address,
+      final int lower,
+      final int upper,
+      final BitVector data) {
     final CacheSet<E, A> set = getSet(address);
     set.writeEntry(address, lower, upper, data);
   }
@@ -250,9 +263,11 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final void evictEntry(final A address) {
+  public final boolean evictEntry(final ReplaceableBuffer<?, A> initiator, final A address) {
+    InvariantChecks.checkNotNull(initiator);
+
     final CacheSet<E, A> set = getSet(address);
-    set.evictEntry(address);
+    return set.evictEntry(initiator, address);
   }
 
   @Override
@@ -271,6 +286,11 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   public final E snoopEvict(final A address, final BitVector oldEntry) {
     final CacheSet<E, A> set = getSet(address);
     return set.snoopEvict(address, oldEntry);
+  }
+
+  @Override
+  public final Buffer<?, A> getNext() {
+    return next;
   }
 
   final CacheLine<E, A> getLine(final A address) {
@@ -342,7 +362,12 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     return result != null || newEntry != null ? result : readThrough(address);
   }
 
-  final void sendSnoopEvict(final A address, final BitVector oldEntry, final boolean dirty) {
+  final boolean sendSnoopEvict(
+      final ReplaceableBuffer<?, A> initiator,
+      final A address,
+      final BitVector oldEntry,
+      final boolean dirty) {
+
     // Broadcast snoop requests to the same-level caches.
     for (final CacheUnit<?, A> other : neighbor) {
       InvariantChecks.checkTrue(other != this);
@@ -350,17 +375,24 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     }
 
     // Invalidate the previous caches (backward invalidation).
+    boolean clean = !dirty;
     for (final CacheUnit<?, A> other : previous) {
       if (other.isHit(address) && other.policy.inclusion.yes) {
-        other.evictEntry(address);
+        if (other.evictEntry(initiator, address)) {
+          clean = true;
+        }
       }
     }
 
     // Do write-back if required.
-    if (policy.write.back && dirty) {
-      InvariantChecks.checkNotNull(next);
-      next.writeEntry(address, oldEntry);
-      return;
+    if (policy.write.back && !clean) {
+      InvariantChecks.checkNotNull(initiator);
+      InvariantChecks.checkNotNull(initiator.getNext());
+
+      // If the initiator does backward invalidation and we are at the previous level,
+      // it makes sense to write back to the initiator's next cache.
+      initiator.getNext().writeEntry(address, oldEntry);
+      return true;
     }
 
     // Reallocate the entry to the next cache.
@@ -384,8 +416,12 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
         // Disable that snooping hack.
         other.snoopedEntry = null;
+
+        return true;
       }
     }
+
+    return !dirty;
   }
 
   final Struct<?> readThrough(final A address) {
@@ -411,7 +447,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
     if (other instanceof CacheUnit) {
       final CacheUnit<?, A> cache = (CacheUnit<?, A>) other;
-      cache.evictEntry(address);
+      cache.evictEntry(this, address);
     }
 
     return result;
@@ -440,7 +476,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
         if (cache != null) {
           if (allocated) {
             // Evict the entry to maintain exclusiveness.
-            cache.evictEntry(address);
+            cache.evictEntry(this, address);
           } else if (cache.policy.write.alloc) {
             // Write the entry into the cache.
             cache.writeEntry(address, lower, upper, data);

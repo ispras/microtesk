@@ -60,9 +60,4 @@ public final class M extends Memory<Entry, PA> {
         new BigInteger("100000000", 16)
     );
   }
-
-  @Override
-  protected int getEntryBitSize() {
-    return 256;
-  }
 }

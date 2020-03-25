@@ -119,7 +119,10 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public final void writeEntry(
-      final A address, final int lower, final int upper, final BitVector data) {
+      final A address,
+      final int lower,
+      final int upper,
+      final BitVector data) {
 
     final int way = getWay(address);
 
@@ -154,7 +157,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
     if (line.isValid()) {
       // Evict the chosen old entry.
-      line.evictEntry(line.getAddress());
+      line.evictEntry(cache, line.getAddress());
     }
 
     // Allocate a new one.
@@ -162,7 +165,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final void evictEntry(final A address) {
+  public final boolean evictEntry(final ReplaceableBuffer<?, A> initiator, final A address) {
     InvariantChecks.checkTrue(isHit(address));
 
     final int way = getWay(address);
@@ -170,7 +173,12 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
     // Evict the line from the cache.
     evictionPolicy.onEvict(way);
-    line.evictEntry(address);
+    return line.evictEntry(initiator, address);
+  }
+
+  @Override
+  public final Buffer<?, A> getNext() {
+    return cache.getNext();
   }
 
   @Override

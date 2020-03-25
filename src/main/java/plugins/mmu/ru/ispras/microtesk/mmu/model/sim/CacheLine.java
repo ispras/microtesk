@@ -103,7 +103,7 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public E readEntry(final A address) {
-    // Entry should be allocated but not necessarily valid.
+    // The entry should be allocated but not necessarily valid.
     InvariantChecks.checkTrue(isHit(address));
 
     final BitVector oldEntry = isValid() ? entry.asBitVector() : null;
@@ -126,8 +126,13 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public void writeEntry(final A address, final int lower, final int upper, final BitVector data) {
-    // Entry should be allocated but not necessarily valid.
+  public void writeEntry(
+      final A address,
+      final int lower,
+      final int upper,
+      final BitVector data) {
+
+    // The entry should be allocated but not necessarily valid.
     InvariantChecks.checkTrue(isHit(address));
 
     if (isValid()) {
@@ -154,7 +159,7 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public void allocEntry(final A address) {
-    // Entry should not be allocated.
+    // The entry should be unallocated.
     InvariantChecks.checkFalse(isHit(address));
 
     this.entry = cache.newEntry(address);
@@ -165,23 +170,20 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public void evictEntry(final A address) {
-    // Entry should be allocated and valid.
-    InvariantChecks.checkTrue(isHit(address) && isValid());
+  public boolean evictEntry(final ReplaceableBuffer<?, A> initiator, final A address) {
+    // The entry should be allocated but not necessarily valid.
+    InvariantChecks.checkTrue(isHit(address));
 
-    cache.sendSnoopEvict(address, entry.asBitVector(), dirty);
-    entry = null;
+    // Do nothing if the entry is allocated but invalid (not written yet).
+    if (isValid()) {
+      final boolean result = cache.sendSnoopEvict(initiator, address, entry.asBitVector(), dirty);
+      resetState();
 
-    state = protocol.onReset();
-    InvariantChecks.checkTrue(cache.isCoherent(address));
-  }
+      InvariantChecks.checkTrue(cache.isCoherent(address));
+      return result;
+    }
 
-  @Override
-  public void resetState() {
-    entry = null;
-    address = null;
-    dirty = false;
-    state = protocol.onReset();
+    return true;
   }
 
   @Override
@@ -192,7 +194,8 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     final Enum<?> newState = protocol.onSnoopRead(state);
 
     if (isValid() && newState == protocol.onReset()) {
-      evictEntry(address);
+      // If eviction is caused by a snoop, the snoop receiver serves as an initiator.
+      evictEntry(cache, address);
     }
 
     state = newState;
@@ -207,7 +210,8 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     final Enum<?> newState = protocol.onSnoopWrite(state);
 
     if (isValid() && newState == protocol.onReset()) {
-      evictEntry(address);
+      // If eviction is caused by a snoop, the snoop receiver serves as an initiator.
+      evictEntry(cache, address);
     }
 
     state = newState;
@@ -222,11 +226,25 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     final Enum<?> newState = protocol.onSnoopEvict(state);
 
     if (isValid() && newState == protocol.onReset()) {
-      evictEntry(address);
+      // If eviction is caused by a snoop, the snoop receiver serves as an initiator.
+      evictEntry(cache, address);
     }
 
     state = newState;
     return result;
+  }
+
+  @Override
+  public final Buffer<?, A> getNext() {
+    return cache.getNext();
+  }
+
+  @Override
+  public void resetState() {
+    entry = null;
+    address = null;
+    dirty = false;
+    state = protocol.onReset();
   }
 
   @Override

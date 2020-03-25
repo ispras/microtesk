@@ -22,10 +22,10 @@ package ru.ispras.microtesk.mmu.model.sim;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface ReplaceableBuffer<E, A> extends Buffer<E, A> {
+public interface ReplaceableBuffer<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
 
   /**
-   * Allocates the entry associated with the given address in the buffer.
+   * Allocates an invalid entry in the buffer and associates it with the given address.
    *
    * @param address the address.
    */
@@ -34,7 +34,16 @@ public interface ReplaceableBuffer<E, A> extends Buffer<E, A> {
   /**
    * Evicts the entry associated with the given address from the buffer.
    *
+   * @param initiator the buffer that initiates the operation.
    * @param address the address.
+   * @return {@code true} iff the entry is not dirty or it has been synchronized with the storage.
    */
-  void evictEntry(A address);
+  boolean evictEntry(ReplaceableBuffer<?, A> initiator, A address);
+
+  /**
+   * Returns the next-level buffer.
+   *
+   * @return the next-level buffer.
+   */
+  Buffer<?, A> getNext();
 }
