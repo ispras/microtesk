@@ -21,15 +21,6 @@ import ru.ispras.microtesk.mmu.model.sim.model.Model;
 
 public final class CacheUnitTestCase {
 
-  public static Model model = new Model(
-      CachePolicy.create(
-          EvictionPolicyId.FIFO,
-          WritePolicyId.WB,
-          InclusionPolicyId.INCLUSIVE,
-          CoherenceProtocolId.MOESI
-      )
-  );
-
   private int nextCore() {
     return Randomizer.get().nextIntRange(0, Model.N1 - 1);
   }
@@ -46,7 +37,9 @@ public final class CacheUnitTestCase {
     return Randomizer.get().nextInt();
   }
 
-  private void test(final Model model, final int start, final int end) {
+  private void test(final Model model) {
+    final int start = 0x0000;
+    final int end = 0xffff;
     // Initialize the main memory.
     model.memset(start, end, 0xdeadbeef);
 
@@ -78,7 +71,58 @@ public final class CacheUnitTestCase {
   }
 
   @Test
-  public void test() {
-    test(model, 0x0000, 0xffff);
+  public void testWriteBackInclusive() {
+    final Model model = new Model(
+        CachePolicy.create(
+            EvictionPolicyId.FIFO,
+            WritePolicyId.WB,
+            InclusionPolicyId.INCLUSIVE,
+            CoherenceProtocolId.MOESI
+        )
+    );
+
+    test(model);
+  }
+
+  @Test
+  public void testWriteBackExclusive() {
+    final Model model = new Model(
+        CachePolicy.create(
+            EvictionPolicyId.FIFO,
+            WritePolicyId.WB,
+            InclusionPolicyId.EXCLUSIVE,
+            CoherenceProtocolId.MOESI
+        )
+    );
+
+    test(model);
+  }
+
+  @Test
+  public void testWriteThroughInclusive() {
+    final Model model = new Model(
+        CachePolicy.create(
+            EvictionPolicyId.FIFO,
+            WritePolicyId.WT,
+            InclusionPolicyId.INCLUSIVE,
+            CoherenceProtocolId.MOESI
+        )
+    );
+
+    test(model);
+  }
+
+  @Test
+  public void testWriteTroughExclusive() {
+    final Model model = new Model(
+        CachePolicy.create(
+            EvictionPolicyId.FIFO,
+            WritePolicyId.WT,
+            InclusionPolicyId.EXCLUSIVE,
+            CoherenceProtocolId.MOESI
+        )
+    );
+
+    test(model);
   }
 }
