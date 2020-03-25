@@ -119,9 +119,13 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
 
   @Override
   public final void writeEntry(
-      final A address, final int lower, final int upper, final BitVector data) {
-    // FIXME
-    throw new UnsupportedOperationException();
+      final A address,
+      final int lower,
+      final int upper,
+      final BitVector data) {
+    final BitVector entry = readEntry(address).asBitVector();
+    entry.field(lower, upper).assign(data);
+    writeEntry(address, entry);
   }
 
     public final Proxy writeEntry(final A address) {

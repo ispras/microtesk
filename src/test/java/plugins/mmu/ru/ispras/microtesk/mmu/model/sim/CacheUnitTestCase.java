@@ -125,4 +125,32 @@ public final class CacheUnitTestCase {
 
     test(model);
   }
+
+  @Test
+  public void testWriteThroughAllocationInclusive() {
+    final Model model = new Model(
+        CachePolicy.create(
+            EvictionPolicyId.FIFO,
+            WritePolicyId.WTA,
+            InclusionPolicyId.INCLUSIVE,
+            CoherenceProtocolId.MOESI
+        )
+    );
+
+    test(model);
+  }
+
+  @Test
+  public void testWriteTroughAllocationExclusive() {
+    final Model model = new Model(
+        CachePolicy.create(
+            EvictionPolicyId.FIFO,
+            WritePolicyId.WTA,
+            InclusionPolicyId.EXCLUSIVE,
+            CoherenceProtocolId.MOESI
+        )
+    );
+
+    test(model);
+  }
 }
