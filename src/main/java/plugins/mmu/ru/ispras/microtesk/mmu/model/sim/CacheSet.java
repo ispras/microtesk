@@ -92,19 +92,18 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   public final E readEntry(final A address) {
     final int way = getWay(address);
 
-    // If there is a hit, return the local entry.
     if (way != -1) {
+      // If there is a hit, return the local entry.
       final CacheLine<E, A> line = lines.get(way);
 
       evictionPolicy.onAccess(way);
       return line.readEntry(address);
     }
 
-    // Otherwise, there are two possibilities.
     if (next != null) {
-      // Allocate an entry and re-run the read operation.
+      // If there is a link to the next level, allocate an entry.
       allocEntry(address);
-      // The entry should be valid after snooping.
+      // Re-run the read operation (the entry should be valid after snooping).
       return readEntry(address);
     }
 
@@ -122,30 +121,29 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
       final A address,
       final int lower,
       final int upper,
-      final BitVector data) {
+      final BitVector newData) {
 
     final int way = getWay(address);
 
-    // If there is a hit, write into the local entry.
     if (way != -1) {
+      // If there is a hit, write into the local entry.
       final CacheLine<E, A> line = lines.get(way);
 
       evictionPolicy.onAccess(way);
-      line.writeEntry(address, lower, upper, data);
+      line.writeEntry(address, lower, upper, newData);
       return;
     }
 
-    // If the write policy implies allocation.
     if (policy.write.alloc) {
-      // Allocate an entry and re-run the write operation.
+      // If the write policy implies allocation, allocate an entry.
       allocEntry(address);
-      writeEntry(address, lower, upper, data);
+      // Re-run the write operation to fill the allocated entry.
+      writeEntry(address, lower, upper, newData);
+      return;
     }
 
-    // Do write-through if required.
-    if (policy.write.through) {
-      cache.writeThrough(address, lower, upper, data);
-    }
+    // If allocation is disabled, send snoops w/o writing.
+    cache.sendSnoopWrite(address, null, lower, upper, newData);
   }
 
   @Override

@@ -123,9 +123,16 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
       final int lower,
       final int upper,
       final BitVector data) {
-    final BitVector entry = readEntry(address).asBitVector();
-    entry.field(lower, upper).assign(data);
-    writeEntry(address, entry);
+    InvariantChecks.checkBounds(lower, entryCreator.getBitSize());
+
+    final int min = lower;
+    final int max = upper >= entryCreator.getBitSize() ? entryCreator.getBitSize() - 1 : upper;
+
+    final BitVector memoryEntry = readEntry(address).asBitVector();
+    final BitVector coercedData = data.resize((max - min) + 1, false);
+
+    memoryEntry.field(min, max).assign(coercedData);
+    writeEntry(address, memoryEntry);
   }
 
     public final Proxy writeEntry(final A address) {

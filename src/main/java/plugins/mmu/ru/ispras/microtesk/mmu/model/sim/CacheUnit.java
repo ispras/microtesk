@@ -251,9 +251,9 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       final A address,
       final int lower,
       final int upper,
-      final BitVector data) {
+      final BitVector newData) {
     final CacheSet<E, A> set = getSet(address);
-    set.writeEntry(address, lower, upper, data);
+    set.writeEntry(address, lower, upper, newData);
   }
 
   @Override
@@ -344,7 +344,20 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     return (result != null || oldEntry != null) ? result : readThrough(address);
   }
 
-  final Struct<?> sendSnoopWrite(final A address, final BitVector newEntry) {
+  final Struct<?> sendSnoopWrite(
+      final A address,
+      final BitVector oldEntry,
+      final int lower,
+      final int upper,
+      final BitVector newData) {
+
+    final BitVector newEntry = oldEntry;
+
+    // If there is a hit, update the existing entry.
+    if (newEntry != null) {
+      newEntry.field(lower, upper).assign(newData);
+    }
+
     Struct<?> result = snoopedEntry;
 
     // Broadcast snoop requests to the same-level caches.
@@ -357,9 +370,18 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       }
     }
 
-    // Calling this method implies that write-allocate is enabled.
-    // If no data are available at this level, access the next one.
-    return result != null || newEntry != null ? result : readThrough(address);
+    // If write-allocate is enabled.
+    if (result == null && newEntry == null && policy.write.alloc) {
+      // If no data are available at this level, access the next one.
+      result = readThrough(address);
+    }
+
+    // Do write-through if required.
+    if (policy.write.through) {
+      writeThrough(address, lower, upper, newData);
+    }
+
+    return result;
   }
 
   final boolean sendSnoopEvict(
@@ -453,7 +475,12 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     return result;
   }
 
-  final void writeThrough(final A address, final int lower, final int upper, final BitVector data) {
+  final void writeThrough(
+      final A address,
+      final int lower,
+      final int upper,
+      final BitVector newData) {
+
     // No forward link.
     if (next == null) {
       return;
@@ -461,7 +488,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
     // Inclusive cache.
     if (policy.inclusion.yes || policy.inclusion.dontCare) {
-      next.writeEntry(address, lower, upper, data);
+      next.writeEntry(address, lower, upper, newData);
       return;
     }
 
@@ -479,12 +506,12 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
             cache.evictEntry(this, address);
           } else if (cache.policy.write.alloc) {
             // Write the entry into the cache.
-            cache.writeEntry(address, lower, upper, data);
+            cache.writeEntry(address, lower, upper, newData);
             allocated = true;
           }
         } else {
           // Write the entry into the main memory.
-          other.writeEntry(address, lower, upper, data);
+          other.writeEntry(address, lower, upper, newData);
         }
       }
 

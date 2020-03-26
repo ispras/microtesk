@@ -62,9 +62,9 @@ public interface Buffer<E, A> {
    * @param address the address.
    * @param lower the lower bit.
    * @param upper the upper bit.
-   * @param data the data.
+   * @param newData the new data.
    */
-  void writeEntry(A address, int lower, int upper, BitVector data);
+  void writeEntry(A address, int lower, int upper, BitVector newData);
 
   /**
    * Resets the state of the buffer.

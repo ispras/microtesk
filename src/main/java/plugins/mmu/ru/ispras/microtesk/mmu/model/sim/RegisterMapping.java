@@ -102,7 +102,10 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
 
     @Override
     public void writeEntry(
-        final A address, final int lower, final int upper, final BitVector data) {
+        final A address,
+        final int lower,
+        final int upper,
+        final BitVector newData) {
       throw new UnsupportedOperationException();
     }
 

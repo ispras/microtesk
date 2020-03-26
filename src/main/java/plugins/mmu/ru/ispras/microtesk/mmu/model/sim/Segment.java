@@ -48,7 +48,11 @@ public abstract class Segment<PA extends Address<?>, VA extends Address<?>>
   }
 
   @Override
-  public void writeEntry(final VA address, final int lower, final int upper, final BitVector entry) {
+  public void writeEntry(
+      final VA address,
+      final int lower,
+      final int upper,
+      final BitVector newData) {
     throw new UnsupportedOperationException();
   }
 

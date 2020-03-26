@@ -130,27 +130,21 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
       final A address,
       final int lower,
       final int upper,
-      final BitVector data) {
-
+      final BitVector newData) {
     // The entry should be allocated but not necessarily valid.
     InvariantChecks.checkTrue(isHit(address));
 
-    if (isValid()) {
-      // Update the required field of the entry.
-      cache.assignEntry(entry, address, lower, upper, data);
-    }
-
-    final BitVector newEntry = isValid() ? entry.asBitVector() : null;
-    final Struct<?> snoopedEntry = cache.sendSnoopWrite(address, newEntry);
+    final BitVector oldEntry = isValid() ? entry.asBitVector() : null;
+    final Struct<?> snoopedEntry = cache.sendSnoopWrite(address, oldEntry, lower, upper, newData);
     InvariantChecks.checkTrue(isValid() || snoopedEntry != null);
 
     if (!isValid()) {
       // Place a snooped entry into the line.
       cache.assignEntry(entry, address, snoopedEntry.asBitVector());
-      // Update the required field of the entry.
-      cache.assignEntry(entry, address, lower, upper, data);
     }
 
+    // Update the required field of the entry.
+    cache.assignEntry(entry, address, lower, upper, newData);
     dirty = true;
 
     state = protocol.onWrite(state);
