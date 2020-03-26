@@ -390,10 +390,16 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       final BitVector oldEntry,
       final boolean dirty) {
 
+    Struct<?> result = snoopedEntry;
+
     // Broadcast snoop requests to the same-level caches.
     for (final CacheUnit<?, A> other : neighbor) {
       InvariantChecks.checkTrue(other != this);
-      other.snoopEvict(address, oldEntry);
+      final Struct<?> snoop = other.snoopEvict(address, oldEntry);
+
+      if (snoop != null && result == null) {
+        result = snoop;
+      }
     }
 
     // Invalidate the previous caches (backward invalidation).
@@ -417,10 +423,11 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       return true;
     }
 
-    // Reallocate the entry to the next cache.
-    if (policy.inclusion.no) {
+    // Reallocate the entry to the next cache if no copies are left.
+    if (result == null && policy.inclusion.no) {
       if (next != null && next instanceof CacheUnit) {
-        InvariantChecks.checkFalse(next.isHit(address));
+        InvariantChecks.checkFalse(next.isHit(address),
+            String.format("Exclusiveness violation: %s", address.getValue().toHexString()));
 
         final CacheUnit<?, A> other = (CacheUnit<?, A>) next;
         other.allocEntry(address);
