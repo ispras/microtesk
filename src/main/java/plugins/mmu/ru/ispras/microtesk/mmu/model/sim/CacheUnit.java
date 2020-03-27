@@ -241,6 +241,12 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
+  public final E invalidateEntry(final A address) {
+    final CacheSet<E, A> set = getSet(address);
+    return set.invalidateEntry(address);
+  }
+
+  @Override
   public final void writeEntry(final A address, final BitVector newEntry) {
     final CacheSet<E, A> set = getSet(address);
     set.writeEntry(address, newEntry);
@@ -274,6 +280,12 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   public final E snoopRead(final A address, final BitVector oldEntry) {
     final CacheSet<E, A> set = getSet(address);
     return set.snoopRead(address, oldEntry);
+  }
+
+  @Override
+  public final E snoopInvalidate(final A address, final BitVector oldEntry) {
+    final CacheSet<E, A> set = getSet(address);
+    return set.snoopInvalidate(address, oldEntry);
   }
 
   @Override
@@ -334,6 +346,23 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     for (final CacheUnit<?, A> other : neighbor) {
       InvariantChecks.checkTrue(other != this);
       final Struct<?> snoop = other.snoopRead(address, oldEntry);
+
+      if (snoop != null && result == null) {
+        result = snoop;
+      }
+    }
+
+    // If no data are available at this level, access the next one.
+    return (result != null || oldEntry != null) ? result : readThrough(address);
+  }
+
+  final Struct<?> sendSnoopInvalidate(final A address, final BitVector oldEntry) {
+    Struct<?> result = snoopedEntry;
+
+    // Broadcast snoop requests to the same-level caches.
+    for (final CacheUnit<?, A> other : neighbor) {
+      InvariantChecks.checkTrue(other != this);
+      final Struct<?> snoop = other.snoopInvalidate(address, oldEntry);
 
       if (snoop != null && result == null) {
         result = snoop;
@@ -459,27 +488,14 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       return null;
     }
 
-    // Inclusive cache.
-    if (policy.inclusion.yes || policy.inclusion.dontCare) {
-      return next.readEntry(address);
-    }
-
     // Exclusive cache.
-    Buffer<? extends Struct<?>, A> other = next;
-    while (other != null && !other.isHit(address)) {
-      final CacheUnit<?, A> cache = other instanceof CacheUnit ? (CacheUnit<?, A>) other : null;
-      other = cache != null ? cache.next : null;
+    if (policy.inclusion.no && next instanceof CacheUnit) {
+      final CacheUnit<?, A> cache = (CacheUnit<?, A>) next;
+      return cache.invalidateEntry(address);
     }
 
-    InvariantChecks.checkNotNull(other);
-    final Struct<?> result = other.readEntry(address);
-
-    if (other instanceof CacheUnit) {
-      final CacheUnit<?, A> cache = (CacheUnit<?, A>) other;
-      cache.evictEntry(this, address);
-    }
-
-    return result;
+    // Inclusive cache or memory.
+    return next.readEntry(address);
   }
 
   final void writeThrough(

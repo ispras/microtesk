@@ -121,6 +121,23 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
+  public E invalidateEntry(final A address) {
+    // The entry should be allocated but not necessarily valid.
+    InvariantChecks.checkTrue(isHit(address));
+
+    final BitVector oldEntry = isValid() ? entry.asBitVector() : null;
+    final Struct<?> snoopedEntry = cache.sendSnoopInvalidate(address, oldEntry);
+    InvariantChecks.checkTrue(isValid() || snoopedEntry != null);
+
+    final E result = isValid() ? entry : cache.newEntry(address, snoopedEntry.asBitVector());
+
+    resetState();
+    InvariantChecks.checkTrue(cache.isCoherent(address));
+
+    return result;
+  }
+
+  @Override
   public void writeEntry(final A address, final BitVector newEntry) {
     writeEntry(address, 0, cache.getEntryBitSize() - 1, newEntry);
   }
@@ -193,6 +210,16 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     }
 
     state = newState;
+    return result;
+  }
+
+  @Override
+  public final E snoopInvalidate(final A address, final BitVector oldEntry) {
+    InvariantChecks.checkTrue(isHit(address));
+
+    final E result = entry;
+    resetState();
+
     return result;
   }
 

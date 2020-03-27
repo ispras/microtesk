@@ -112,6 +112,23 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
+  public final E invalidateEntry(final A address) {
+    final int way = getWay(address);
+
+    if (way != -1) {
+      // If there is a hit, return the local entry.
+      final CacheLine<E, A> line = lines.get(way);
+
+      evictionPolicy.onEvict(way);
+      return line.invalidateEntry(address);
+    }
+
+    // If there is a miss, send snoops w/o evicting the entry.
+    final Struct<?> snoopedEntry = cache.sendSnoopInvalidate(address, null);
+    return cache.newEntry(address, snoopedEntry.asBitVector());
+  }
+
+  @Override
   public final void writeEntry(final A address, final BitVector newEntry) {
     writeEntry(address, 0, cache.getEntryBitSize() - 1, newEntry);
   }
@@ -175,23 +192,15 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final Buffer<?, A> getNext() {
-    return cache.getNext();
-  }
-
-  @Override
-  public void resetState() {
-    for (final Buffer<E, A> line : lines) {
-      line.resetState();
-    }
-
-    evictionPolicy.resetState();
-  }
-
-  @Override
   public final E snoopRead(final A address, final BitVector oldEntry) {
     final CacheLine<E, A> line = getLine(address);
     return line != null ? line.snoopRead(address, oldEntry) : null;
+  }
+
+  @Override
+  public final E snoopInvalidate(final A address, final BitVector oldEntry) {
+    final CacheLine<E, A> line = getLine(address);
+    return line != null ? line.snoopInvalidate(address, oldEntry) : null;
   }
 
   @Override
@@ -204,6 +213,11 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   public final E snoopEvict(final A address, final BitVector oldEntry) {
     final CacheLine<E, A> line = getLine(address);
     return line != null ? line.snoopEvict(address, oldEntry) : null;
+  }
+
+  @Override
+  public final Buffer<?, A> getNext() {
+    return cache.getNext();
   }
 
   final CacheLine<E, A> getLine(final A address) {
@@ -233,6 +247,15 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
     }
 
     return way;
+  }
+
+  @Override
+  public void resetState() {
+    for (final Buffer<E, A> line : lines) {
+      line.resetState();
+    }
+
+    evictionPolicy.resetState();
   }
 
   @Override
