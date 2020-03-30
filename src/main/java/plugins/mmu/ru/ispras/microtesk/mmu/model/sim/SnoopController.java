@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.util.Pair;
 
 /**
  * {@link SnoopController} is an interface of a snoopy cache unit.
@@ -31,34 +32,34 @@ public interface SnoopController<E, A>  {
    *
    * @param address the address used in the transaction.
    * @param oldEntry the entry in the cache or {@code null}.
-   * @return the local entry if it is valid.
+   * @return the local entry with the dirty bit or {@code null}.
    */
-  E snoopRead(A address, BitVector oldEntry);
+  Pair<E, Boolean> snoopRead(A address, BitVector oldEntry);
 
   /**
    * Snoops a read-invalidate transaction from another cache unit.
    *
    * @param address the address used in the transaction.
    * @param oldEntry the entry in the cache or {@code null}.
-   * @return the local entry if it is valid.
+   * @return the local entry with the dirty bit or {@code null}.
    */
-  E snoopInvalidate(A address, BitVector oldEntry);
+  Pair<E, Boolean> snoopInvalidate(A address, BitVector oldEntry);
 
   /**
    * Snoops a write transaction from another cache unit.
    *
    * @param address the address used in the transaction.
    * @param newEntry the updated entry or {@code null}.
-   * @return the local entry if it is valid.
+   * @return the local entry with the dirty bit or {@code null}.
    */
-  E snoopWrite(A address, BitVector newEntry);
+  Pair<E, Boolean> snoopWrite(A address, BitVector newEntry);
 
   /**
    * Snoops an evict transaction from another cache unit.
    *
    * @param address the address used in the transaction.
    * @param oldEntry the entry being evicted.
-   * @return the local entry if it is valid.
+   * @return the local entry with the dirty bit or {@code null}.
    */
-  E snoopEvict(A address, BitVector oldEntry);
+  Pair<E, Boolean> snoopEvict(A address, BitVector oldEntry);
 }

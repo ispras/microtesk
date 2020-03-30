@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
+import ru.ispras.fortress.util.Pair;
+
 /**
  * {@link ReplaceableBuffer} represents a replaceable buffer.
  *
@@ -41,12 +43,20 @@ public interface ReplaceableBuffer<E extends Struct<?>, A extends Address<?>> ex
   boolean evictEntry(ReplaceableBuffer<?, A> initiator, A address);
 
   /**
+   * Reads the entry associated with the given address.
+   *
+   * @param address the address.
+   * @return the entry associated with the address with the dirty bit or {@code null}.
+   */
+  Pair<E, Boolean> readEntryEx(A address);
+
+  /**
    * Reads the entry associated with the given address and invalidates it.
    *
    * @param address the address.
-   * @return the entry associated with the address or {@code null}.
+   * @return the entry associated with the address with the dirty bit or {@code null}.
    */
-  E invalidateEntry(A address);
+  Pair<E, Boolean> invalidateEntry(A address);
 
   /**
    * Returns the next-level buffer.

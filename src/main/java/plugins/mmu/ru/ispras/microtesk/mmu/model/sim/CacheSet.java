@@ -19,6 +19,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import java.util.ArrayList;
 import java.util.List;
+import ru.ispras.fortress.util.Pair;
 
 /**
  * {@link CacheSet} implements a cache set, i.e. a fully associative buffer of cache lines.
@@ -90,6 +91,12 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public final E readEntry(final A address) {
+    final Pair<E, Boolean> result = readEntryEx(address);
+    return result != null ? result.first : null;
+  }
+
+  @Override
+  public final Pair<E, Boolean> readEntryEx(final A address) {
     final int way = getWay(address);
 
     if (way != -1) {
@@ -97,14 +104,14 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
       final CacheLine<E, A> line = lines.get(way);
 
       evictionPolicy.onAccess(way);
-      return line.readEntry(address);
+      return line.readEntryEx(address);
     }
 
     if (next != null) {
       // If there is a link to the next level, allocate an entry.
       allocEntry(address);
       // Re-run the read operation (the entry should be valid after snooping).
-      return readEntry(address);
+      return readEntryEx(address);
     }
 
     // If automation is disabled, return null.
@@ -112,7 +119,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final E invalidateEntry(final A address) {
+  public final Pair<E, Boolean> invalidateEntry(final A address) {
     final int way = getWay(address);
 
     if (way != -1) {
@@ -124,8 +131,8 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
     }
 
     // If there is a miss, send snoops w/o evicting the entry.
-    final Struct<?> snoopedEntry = cache.sendSnoopInvalidate(address, null);
-    return cache.newEntry(address, snoopedEntry.asBitVector());
+    final var snooped = cache.sendSnoopInvalidate(address, null);
+    return new Pair<>(cache.newEntry(address, snooped.first.asBitVector()), snooped.second);
   }
 
   @Override
@@ -192,25 +199,25 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final E snoopRead(final A address, final BitVector oldEntry) {
+  public final Pair<E, Boolean> snoopRead(final A address, final BitVector oldEntry) {
     final CacheLine<E, A> line = getLine(address);
     return line != null ? line.snoopRead(address, oldEntry) : null;
   }
 
   @Override
-  public final E snoopInvalidate(final A address, final BitVector oldEntry) {
+  public final Pair<E, Boolean> snoopInvalidate(final A address, final BitVector oldEntry) {
     final CacheLine<E, A> line = getLine(address);
     return line != null ? line.snoopInvalidate(address, oldEntry) : null;
   }
 
   @Override
-  public final E snoopWrite(final A address, final BitVector newEntry) {
+  public final Pair<E, Boolean> snoopWrite(final A address, final BitVector newEntry) {
     final CacheLine<E, A> line = getLine(address);
     return line != null ? line.snoopWrite(address, newEntry) : null;
   }
 
   @Override
-  public final E snoopEvict(final A address, final BitVector oldEntry) {
+  public final Pair<E, Boolean> snoopEvict(final A address, final BitVector oldEntry) {
     final CacheLine<E, A> line = getLine(address);
     return line != null ? line.snoopEvict(address, oldEntry) : null;
   }

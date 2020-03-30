@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 
 /**
  * {@link CacheLine} represents an abstract cache line.
@@ -103,33 +104,45 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public E readEntry(final A address) {
-    // The entry should be allocated but not necessarily valid.
-    InvariantChecks.checkTrue(isHit(address));
-
-    final BitVector oldEntry = isValid() ? entry.asBitVector() : null;
-    final Struct<?> snoopedEntry = cache.sendSnoopRead(address, oldEntry);
-    InvariantChecks.checkTrue(isValid() || snoopedEntry != null);
-
-    if (!isValid()) {
-      cache.assignEntry(entry, address, snoopedEntry.asBitVector());
-    }
-
-    state = protocol.onRead(state, cache.isExclusive(address));
-    InvariantChecks.checkTrue(cache.isCoherent(address));
-
-    return entry;
+    final Pair<E, Boolean> result = readEntryEx(address);
+    return result != null ? result.first : null;
   }
 
   @Override
-  public E invalidateEntry(final A address) {
+  public Pair<E, Boolean> readEntryEx(final A address) {
     // The entry should be allocated but not necessarily valid.
     InvariantChecks.checkTrue(isHit(address));
 
-    final BitVector oldEntry = isValid() ? entry.asBitVector() : null;
-    final Struct<?> snoopedEntry = cache.sendSnoopInvalidate(address, oldEntry);
-    InvariantChecks.checkTrue(isValid() || snoopedEntry != null);
+    final var oldEntry = isValid() ? entry.asBitVector() : null;
+    final var snooped = cache.sendSnoopRead(address, oldEntry);
+    InvariantChecks.checkTrue(isValid() || snooped != null);
 
-    final E result = isValid() ? entry : cache.newEntry(address, snoopedEntry.asBitVector());
+    if (!isValid()) {
+      cache.assignEntry(entry, address, snooped.first.asBitVector());
+      dirty = snooped.second != null ? snooped.second : dirty;
+    }
+
+    state = !isValid() && snooped.second
+        ? protocol.onWrite(state)
+        : protocol.onRead(state, cache.isExclusive(address));
+    InvariantChecks.checkTrue(cache.isCoherent(address));
+
+    return new Pair<>(entry, dirty);
+  }
+
+  @Override
+  public Pair<E, Boolean> invalidateEntry(final A address) {
+    // The entry should be allocated but not necessarily valid.
+    InvariantChecks.checkTrue(isHit(address));
+
+    final var oldEntry = isValid() ? entry.asBitVector() : null;
+    final var snooped = cache.sendSnoopInvalidate(address, oldEntry);
+    InvariantChecks.checkTrue(isValid() || snooped != null);
+
+    final Pair<E, Boolean> result = new Pair<>(
+        isValid() ? entry : cache.newEntry(address, snooped.first.asBitVector()),
+        isValid() ? dirty : snooped.second
+    );
 
     resetState();
     InvariantChecks.checkTrue(cache.isCoherent(address));
@@ -151,13 +164,13 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     // The entry should be allocated but not necessarily valid.
     InvariantChecks.checkTrue(isHit(address));
 
-    final BitVector oldEntry = isValid() ? entry.asBitVector() : null;
-    final Struct<?> snoopedEntry = cache.sendSnoopWrite(address, oldEntry, lower, upper, newData);
-    InvariantChecks.checkTrue(isValid() || snoopedEntry != null);
+    final var oldEntry = isValid() ? entry.asBitVector() : null;
+    final var snooped = cache.sendSnoopWrite(address, oldEntry, lower, upper, newData);
+    InvariantChecks.checkTrue(isValid() || snooped != null);
 
     if (!isValid()) {
       // Place a snooped entry into the line.
-      cache.assignEntry(entry, address, snoopedEntry.asBitVector());
+      cache.assignEntry(entry, address, snooped.first.asBitVector());
     }
 
     // Update the required field of the entry.
@@ -198,10 +211,10 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final E snoopRead(final A address, final BitVector oldEntry) {
+  public final Pair<E, Boolean> snoopRead(final A address, final BitVector oldEntry) {
     InvariantChecks.checkTrue(isHit(address));
 
-    final E result = entry;
+    final Pair<E, Boolean> result = new Pair<>(entry, dirty);
     final Enum<?> newState = protocol.onSnoopRead(state);
 
     if (isValid() && newState == protocol.onReset()) {
@@ -214,20 +227,20 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final E snoopInvalidate(final A address, final BitVector oldEntry) {
+  public final Pair<E, Boolean> snoopInvalidate(final A address, final BitVector oldEntry) {
     InvariantChecks.checkTrue(isHit(address));
 
-    final E result = entry;
+    final Pair<E, Boolean> result = new Pair<>(entry, dirty);
     resetState();
 
     return result;
   }
 
   @Override
-  public final E snoopWrite(final A address, final BitVector newEntry) {
+  public final Pair<E, Boolean> snoopWrite(final A address, final BitVector newEntry) {
     InvariantChecks.checkTrue(isHit(address));
 
-    final E result = entry;
+    final Pair<E, Boolean> result = new Pair<>(entry, dirty);
     final Enum<?> newState = protocol.onSnoopWrite(state);
 
     if (isValid() && newState == protocol.onReset()) {
@@ -242,10 +255,10 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final E snoopEvict(final A address, final BitVector oldEntry) {
+  public final Pair<E, Boolean> snoopEvict(final A address, final BitVector oldEntry) {
     InvariantChecks.checkTrue(isHit(address));
 
-    final E result = entry;
+    final Pair<E, Boolean> result = new Pair<>(entry, dirty);
     final Enum<?> newState = protocol.onSnoopEvict(state);
 
     if (isValid() && newState == protocol.onReset()) {
