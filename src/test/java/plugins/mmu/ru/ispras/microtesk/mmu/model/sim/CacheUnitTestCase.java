@@ -27,7 +27,7 @@ public final class CacheUnitTestCase {
 
   private int nextAddress(final int start, final int end) {
     final int l1tag = Randomizer.get().nextIntRange(start >>> 12, end >>> 12);
-    final int l1idx = Randomizer.get().nextIntRange(0, 2);
+    final int l1idx = Randomizer.get().nextIntRange(0, 1);
     final int l1pos = Randomizer.get().nextIntRange(0, 7);
 
     return (l1tag << 12) | (l1idx << 5) | (l1pos << 2);
@@ -43,8 +43,8 @@ public final class CacheUnitTestCase {
     // Initialize the main memory.
     model.memset(start, end, 0xdeadbeef);
 
-    final int numberOfTests = 100;
-    final int numberOfLoadsPerStore = 10;
+    final int numberOfTests = 256;
+    final int numberOfLoadsPerStore = 16;
 
     for (int i = 0; i < numberOfTests; i++) {
       final int storeCore = nextCore();

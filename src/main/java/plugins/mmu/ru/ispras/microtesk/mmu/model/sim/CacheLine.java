@@ -231,6 +231,8 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     final Enum<?> newState = protocol.onSnoopWrite(state);
 
     if (isValid() && newState == protocol.onReset()) {
+      // Write-back is not required, because a neighbor contains the updated line.
+      dirty = false;
       // If eviction is caused by a snoop, the snoop receiver serves as an initiator.
       evictEntry(cache, address);
     }

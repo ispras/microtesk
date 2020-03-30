@@ -390,16 +390,18 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     Struct<?> result = snoopedEntry;
 
     // Broadcast snoop requests to the same-level caches.
+    final boolean invalidate = newEntry == null && !policy.write.alloc;
     for (final CacheUnit<?, A> other : neighbor) {
       InvariantChecks.checkTrue(other != this);
-      final Struct<?> snoop = other.snoopWrite(address, newEntry);
+      final Struct<?> snoop = !invalidate
+          ? other.snoopWrite(address, newEntry)
+          : other.snoopInvalidate(address, null);
 
-      if (snoop != null && result == null) {
+      if (!invalidate && snoop != null && result == null) {
         result = snoop;
       }
     }
 
-    // If write-allocate is enabled.
     if (result == null && newEntry == null && policy.write.alloc) {
       // If no data are available at this level, access the next one.
       result = readThrough(address);
@@ -422,9 +424,12 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     Struct<?> result = snoopedEntry;
 
     // Broadcast snoop requests to the same-level caches.
+    final boolean invalidate = dirty && policy.write.back && policy.inclusion.no;
     for (final CacheUnit<?, A> other : neighbor) {
       InvariantChecks.checkTrue(other != this);
-      final Struct<?> snoop = other.snoopEvict(address, oldEntry);
+      final Struct<?> snoop = !invalidate
+          ? other.snoopEvict(address, oldEntry)
+          : other.snoopInvalidate(address, oldEntry);
 
       if (snoop != null && result == null) {
         result = snoop;
@@ -474,7 +479,6 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
         // Disable that snooping hack.
         other.snoopedEntry = null;
-
         return true;
       }
     }
@@ -516,26 +520,24 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     }
 
     // Exclusive cache.
-    boolean allocated = policy.write.alloc;
+    boolean allocated = policy.write.alloc || isHit(address);
     Buffer<? extends Struct<?>, A> other = next;
 
     while (other != null) {
       final CacheUnit<?, A> cache = other instanceof CacheUnit ? (CacheUnit<?, A>) other : null;
 
-      if (other.isHit(address)) {
-        if (cache != null) {
-          if (allocated) {
-            // Evict the entry to maintain exclusiveness.
-            cache.evictEntry(this, address);
-          } else if (cache.policy.write.alloc) {
-            // Write the entry into the cache.
-            cache.writeEntry(address, lower, upper, newData);
-            allocated = true;
-          }
+      if (cache != null) {
+        if (cache.policy.write.alloc && !allocated) {
+          // Write the entry into the cache.
+          cache.writeEntry(address, lower, upper, newData);
+          allocated = true;
         } else {
-          // Write the entry into the main memory.
-          other.writeEntry(address, lower, upper, newData);
+          // Invalidate the entry to maintain exclusiveness.
+          cache.invalidateEntry(address);
         }
+      } else {
+        // Write the entry into the main memory.
+        other.writeEntry(address, lower, upper, newData);
       }
 
       other = cache != null ? cache.next : null;
