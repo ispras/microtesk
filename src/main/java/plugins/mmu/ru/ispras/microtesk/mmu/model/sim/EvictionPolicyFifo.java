@@ -51,7 +51,6 @@ final class EvictionPolicyFifo extends EvictionPolicy {
     for (int i = 0; i < fifo.size(); i++) {
       if (fifo.get(i) == index) {
         fifo.remove(i);
-        fifo.add(index);
         return true;
       }
     }

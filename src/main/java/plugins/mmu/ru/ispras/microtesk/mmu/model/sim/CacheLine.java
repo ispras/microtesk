@@ -216,7 +216,6 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     }
 
     state = newState;
-
     return result;
   }
 
