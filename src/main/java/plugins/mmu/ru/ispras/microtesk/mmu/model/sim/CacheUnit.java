@@ -241,15 +241,9 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final Pair<E, Boolean> readEntryEx(final A address) {
+  public final Pair<E, Boolean> readEntry(final A address, final boolean invalidate) {
     final CacheSet<E, A> set = getSet(address);
-    return set.readEntryEx(address);
-  }
-
-  @Override
-  public final Pair<E, Boolean> invalidateEntry(final A address) {
-    final CacheSet<E, A> set = getSet(address);
-    return set.invalidateEntry(address);
+    return set.readEntry(address, invalidate);
   }
 
   @Override
@@ -283,15 +277,10 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final Pair<E, Boolean> snoopRead(final A address, final BitVector oldEntry) {
+  public final Pair<E, Boolean> snoopRead(
+      final A address, final BitVector oldEntry, final boolean invalidate) {
     final CacheSet<E, A> set = getSet(address);
-    return set.snoopRead(address, oldEntry);
-  }
-
-  @Override
-  public final Pair<E, Boolean> snoopInvalidate(final A address, final BitVector oldEntry) {
-    final CacheSet<E, A> set = getSet(address);
-    return set.snoopInvalidate(address, oldEntry);
+    return set.snoopRead(address, oldEntry, invalidate);
   }
 
   @Override
@@ -347,34 +336,15 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
   final Pair<? extends Struct<?>, Boolean> sendSnoopRead(
       final A address,
-      final BitVector oldEntry) {
+      final BitVector oldEntry,
+      final boolean invalidate) {
 
     var result = snoopedEntry;
 
     // Broadcast snoop requests to the same-level caches.
     for (final CacheUnit<?, A> other : neighbor) {
       InvariantChecks.checkTrue(other != this);
-      final var snooped = other.snoopRead(address, oldEntry);
-
-      if (snooped != null && (result == null || snooped.second)) {
-        result = snooped;
-      }
-    }
-
-    // If no data are available at this level, access the next one.
-    return (result != null || oldEntry != null) ? result : readThrough(address);
-  }
-
-  final Pair<? extends Struct<?>, Boolean> sendSnoopInvalidate(
-      final A address,
-      final BitVector oldEntry) {
-
-    var result = snoopedEntry;
-
-    // Broadcast snoop requests to the same-level caches.
-    for (final CacheUnit<?, A> other : neighbor) {
-      InvariantChecks.checkTrue(other != this);
-      final var snooped = other.snoopInvalidate(address, oldEntry);
+      final var snooped = other.snoopRead(address, oldEntry, invalidate);
 
       if (snooped != null && (result == null || snooped.second)) {
         result = snooped;
@@ -407,7 +377,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       InvariantChecks.checkTrue(other != this);
       final var snooped = !invalidate
           ? other.snoopWrite(address, newEntry)
-          : other.snoopInvalidate(address, null);
+          : other.snoopRead(address, null, true);
 
       if (!invalidate && snooped != null && (result == null || snooped.second)) {
         result = snooped;
@@ -441,7 +411,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       InvariantChecks.checkTrue(other != this);
       final var snooped = !invalidate
           ? other.snoopEvict(address, oldEntry)
-          : other.snoopInvalidate(address, oldEntry);
+          : other.snoopRead(address, oldEntry, true);
 
       if (snooped != null && (result == null || snooped.second)) {
         result = snooped;
@@ -501,12 +471,9 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     }
 
     if (next instanceof CacheUnit) {
-      final var cache = (CacheUnit<? extends Struct<?>, A>) next;
-
       // Exclusive or inclusive cache.
-      return policy.inclusion.no
-          ? cache.invalidateEntry(address)
-          : cache.readEntryEx(address);
+      final var cache = (CacheUnit<? extends Struct<?>, A>) next;
+      return cache.readEntry(address, policy.inclusion.no);
     }
 
     // Main memory.
@@ -544,7 +511,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
           allocated = true;
         } else {
           // Invalidate the entry to maintain exclusiveness.
-          cache.invalidateEntry(address);
+          cache.readEntry(address, true);
         }
       } else {
         // Write the entry into the main memory.

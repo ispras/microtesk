@@ -32,18 +32,10 @@ public interface SnoopController<E, A>  {
    *
    * @param address the address used in the transaction.
    * @param oldEntry the entry in the cache or {@code null}.
+   * @param invalidate the invalidation flag.
    * @return the local entry with the dirty bit or {@code null}.
    */
-  Pair<E, Boolean> snoopRead(A address, BitVector oldEntry);
-
-  /**
-   * Snoops a read-invalidate transaction from another cache unit.
-   *
-   * @param address the address used in the transaction.
-   * @param oldEntry the entry in the cache or {@code null}.
-   * @return the local entry with the dirty bit or {@code null}.
-   */
-  Pair<E, Boolean> snoopInvalidate(A address, BitVector oldEntry);
+  Pair<E, Boolean> snoopRead(A address, BitVector oldEntry, boolean invalidate);
 
   /**
    * Snoops a write transaction from another cache unit.

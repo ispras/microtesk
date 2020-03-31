@@ -43,20 +43,13 @@ public interface ReplaceableBuffer<E extends Struct<?>, A extends Address<?>> ex
   boolean evictEntry(ReplaceableBuffer<?, A> initiator, A address);
 
   /**
-   * Reads the entry associated with the given address.
+   * Reads the entry associated with the given address and, if required, invalidates it.
    *
    * @param address the address.
+   * @param invalidate the invalidation flag.
    * @return the entry associated with the address with the dirty bit or {@code null}.
    */
-  Pair<E, Boolean> readEntryEx(A address);
-
-  /**
-   * Reads the entry associated with the given address and invalidates it.
-   *
-   * @param address the address.
-   * @return the entry associated with the address with the dirty bit or {@code null}.
-   */
-  Pair<E, Boolean> invalidateEntry(A address);
+  Pair<E, Boolean> readEntry(A address, boolean invalidate);
 
   /**
    * Returns the next-level buffer.

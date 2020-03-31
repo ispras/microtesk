@@ -91,48 +91,42 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public final E readEntry(final A address) {
-    final Pair<E, Boolean> result = readEntryEx(address);
+    final Pair<E, Boolean> result = readEntry(address, false);
     return result != null ? result.first : null;
   }
 
   @Override
-  public final Pair<E, Boolean> readEntryEx(final A address) {
+  public final Pair<E, Boolean> readEntry(final A address, final boolean invalidate) {
     final int way = getWay(address);
 
     if (way != -1) {
       // If there is a hit, return the local entry.
       final CacheLine<E, A> line = lines.get(way);
 
-      evictionPolicy.onAccess(way);
-      return line.readEntryEx(address);
+      if (invalidate) {
+        evictionPolicy.onEvict(way);
+      } else {
+        evictionPolicy.onAccess(way);
+      }
+
+      return line.readEntry(address, invalidate);
     }
 
-    if (next != null) {
+    if (!invalidate && next != null) {
       // If there is a link to the next level, allocate an entry.
       allocEntry(address);
       // Re-run the read operation (the entry should be valid after snooping).
-      return readEntryEx(address);
+      return readEntry(address, false);
+    }
+
+    if (invalidate) {
+      // Send snoops w/o evicting the entry (there is nothing to evict).
+      final var snooped = cache.sendSnoopRead(address, null, true);
+      return new Pair<>(cache.newEntry(address, snooped.first.asBitVector()), snooped.second);
     }
 
     // If automation is disabled, return null.
     return null;
-  }
-
-  @Override
-  public final Pair<E, Boolean> invalidateEntry(final A address) {
-    final int way = getWay(address);
-
-    if (way != -1) {
-      // If there is a hit, return the local entry.
-      final CacheLine<E, A> line = lines.get(way);
-
-      evictionPolicy.onEvict(way);
-      return line.invalidateEntry(address);
-    }
-
-    // If there is a miss, send snoops w/o evicting the entry.
-    final var snooped = cache.sendSnoopInvalidate(address, null);
-    return new Pair<>(cache.newEntry(address, snooped.first.asBitVector()), snooped.second);
   }
 
   @Override
@@ -199,15 +193,10 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   }
 
   @Override
-  public final Pair<E, Boolean> snoopRead(final A address, final BitVector oldEntry) {
+  public final Pair<E, Boolean> snoopRead(
+      final A address, final BitVector oldEntry, final boolean invalidate) {
     final CacheLine<E, A> line = getLine(address);
-    return line != null ? line.snoopRead(address, oldEntry) : null;
-  }
-
-  @Override
-  public final Pair<E, Boolean> snoopInvalidate(final A address, final BitVector oldEntry) {
-    final CacheLine<E, A> line = getLine(address);
-    return line != null ? line.snoopInvalidate(address, oldEntry) : null;
+    return line != null ? line.snoopRead(address, oldEntry, invalidate) : null;
   }
 
   @Override
