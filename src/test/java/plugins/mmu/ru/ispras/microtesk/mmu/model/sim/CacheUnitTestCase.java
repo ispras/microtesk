@@ -15,47 +15,49 @@
 package ru.ispras.microtesk.mmu.model.sim;
 
 import org.junit.Assert;
-import org.junit.Test;
 import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.microtesk.mmu.model.sim.model.Model;
 
-public final class CacheUnitTestCase {
+public abstract class CacheUnitTestCase {
 
-  private int nextCore() {
+  protected final int nextCore() {
     return Randomizer.get().nextIntRange(0, Model.N1 - 1);
   }
 
-  private int nextAddress(final int start, final int end) {
-    final int l1tag = Randomizer.get().nextIntRange(start >>> 12, end >>> 12);
+  protected final int nextAddress(final int startAddress, final int endAddress) {
+    final int l1tag = Randomizer.get().nextIntRange(startAddress >>> 12, endAddress >>> 12);
     final int l1idx = Randomizer.get().nextIntRange(0, 1);
     final int l1pos = Randomizer.get().nextIntRange(0, 7);
 
     return (l1tag << 12) | (l1idx << 5) | (l1pos << 2);
   }
 
-  private int nextWord() {
+  protected final int nextWord() {
     return Randomizer.get().nextInt();
   }
 
-  private void test(final Model model) {
-    final int start = 0x0000;
-    final int end = 0xffff;
-    // Initialize the main memory.
-    model.memset(start, end, 0xdeadbeef);
+  protected final void test(
+      final Model model,
+      final int startAddress,
+      final int endAddress,
+      final boolean initMemory,
+      final int numberOfTests,
+      final int numberOfLoadsPerStore) {
 
-    final int numberOfTests = 256;
-    final int numberOfLoadsPerStore = 16;
+    if (initMemory) {
+      model.memset(startAddress, endAddress, 0xdeadbeef);
+    }
 
     for (int i = 0; i < numberOfTests; i++) {
       final int storeCore = nextCore();
-      final int storeAddress = nextAddress(start, end);
+      final int storeAddress = nextAddress(startAddress, endAddress);
       final int storeWord = nextWord();
 
       model.sw(storeCore, storeAddress, storeWord);
 
       for (int j = 0; j < numberOfLoadsPerStore; j++) {
         final int loadCore = nextCore();
-        final int loadAddress = nextAddress(start, end);
+        final int loadAddress = nextAddress(startAddress, endAddress);
 
         final int loadReceived = model.lw(loadCore, loadAddress);
         final int loadExpected = model.lookup(loadAddress);
@@ -68,89 +70,5 @@ public final class CacheUnitTestCase {
         );
       }
     }
-  }
-
-  @Test
-  public void testWriteBackInclusive() {
-    final Model model = new Model(
-        CachePolicy.create(
-            EvictionPolicyId.FIFO,
-            WritePolicyId.WB,
-            InclusionPolicyId.INCLUSIVE,
-            CoherenceProtocolId.MOESI
-        )
-    );
-
-    test(model);
-  }
-
-  @Test
-  public void testWriteBackExclusive() {
-    final Model model = new Model(
-        CachePolicy.create(
-            EvictionPolicyId.FIFO,
-            WritePolicyId.WB,
-            InclusionPolicyId.EXCLUSIVE,
-            CoherenceProtocolId.MOESI
-        )
-    );
-
-    test(model);
-  }
-
-  @Test
-  public void testWriteThroughInclusive() {
-    final Model model = new Model(
-        CachePolicy.create(
-            EvictionPolicyId.FIFO,
-            WritePolicyId.WT,
-            InclusionPolicyId.INCLUSIVE,
-            CoherenceProtocolId.MOESI
-        )
-    );
-
-    test(model);
-  }
-
-  @Test
-  public void testWriteTroughExclusive() {
-    final Model model = new Model(
-        CachePolicy.create(
-            EvictionPolicyId.FIFO,
-            WritePolicyId.WT,
-            InclusionPolicyId.EXCLUSIVE,
-            CoherenceProtocolId.MOESI
-        )
-    );
-
-    test(model);
-  }
-
-  @Test
-  public void testWriteThroughAllocationInclusive() {
-    final Model model = new Model(
-        CachePolicy.create(
-            EvictionPolicyId.FIFO,
-            WritePolicyId.WTA,
-            InclusionPolicyId.INCLUSIVE,
-            CoherenceProtocolId.MOESI
-        )
-    );
-
-    test(model);
-  }
-
-  @Test
-  public void testWriteTroughAllocationExclusive() {
-    final Model model = new Model(
-        CachePolicy.create(
-            EvictionPolicyId.FIFO,
-            WritePolicyId.WTA,
-            InclusionPolicyId.EXCLUSIVE,
-            CoherenceProtocolId.MOESI
-        )
-    );
-
-    test(model);
   }
 }
