@@ -757,21 +757,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
       }
     }
 
-    private void checkRedefined(
-        final CommonTree attrId, final boolean isRedefined) throws SemanticException {
-      if (isRedefined) {
-        raiseError(where(attrId),
-            String.format("The %s attribute is redefined.", attrId.getText()));
-      }
-    }
-
-    private void checkUndefined(
-        final String attrId, final boolean isUndefined) throws SemanticException {
-      if (isUndefined) {
-        raiseError(where(id), String.format("The %s attribute is undefined.", attrId));
-      }
-    }
-
     public void setWays(final CommonTree attrId, final Node attr) throws SemanticException {
       checkNotNull(attrId, attr);
       checkRedefined(attrId, !ways.equals(BigInteger.ZERO));
@@ -815,11 +800,23 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
 
     public void setPolicyId(
         final CommonTree attrId, final CommonTree attr) throws SemanticException {
-      checkRedefined(attrId, evictionPolicy != null);
-      try {
-        final EvictionPolicyId value = EvictionPolicyId.valueOf(attr.getText());
-        evictionPolicy = value;
-      } catch (Exception e) {
+      final EvictionPolicyId eviction = getEvictionPolicy(attr.getText());
+      checkRedefined(attrId, eviction != null && evictionPolicy != null);
+      evictionPolicy = eviction;
+
+      final WritePolicyId write = getWritePolicy(attr.getText());
+      checkRedefined(attrId, write != null && writePolicy != null);
+      writePolicy = write;
+
+      final InclusionPolicyId inclusion = getInclusionPolicy(attr.getText());
+      checkRedefined(attrId, inclusion != null && inclusionPolicy != null);
+      inclusionPolicy = inclusion;
+
+      final CoherenceProtocolId coherence = getCoherenceProtocol(attr.getText());
+      checkRedefined(attrId, coherence != null && coherenceProtocol != null);
+      coherenceProtocol = coherence;
+
+      if (eviction == null && write == null && inclusion == null && coherence == null) {
         raiseError(where(attr), "Unknown policy: " + attr.getText());
       }
     }
@@ -831,6 +828,53 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
         next = getBuffer(attr);
       } catch (Exception e) {
         raiseError(where(attr), "Unknown next buffer: " + attr.getText());
+      }
+    }
+
+    private EvictionPolicyId getEvictionPolicy(final String id) {
+      try {
+        return EvictionPolicyId.valueOf(id);
+      } catch (Exception e) {
+        return null;
+      }
+    }
+
+    private WritePolicyId getWritePolicy(final String id) {
+      try {
+        return WritePolicyId.valueOf(id);
+      } catch (Exception e) {
+        return null;
+      }
+    }
+
+    private InclusionPolicyId getInclusionPolicy(final String id) {
+      try {
+        return InclusionPolicyId.valueOf(id);
+      } catch (Exception e) {
+        return null;
+      }
+    }
+
+    private CoherenceProtocolId getCoherenceProtocol(final String id) {
+      try {
+        return CoherenceProtocolId.valueOf(id);
+      } catch (Exception e) {
+        return null;
+      }
+    }
+
+    private void checkRedefined(
+        final CommonTree attrId, final boolean isRedefined) throws SemanticException {
+      if (isRedefined) {
+        raiseError(where(attrId),
+            String.format("The %s attribute is redefined.", attrId.getText()));
+      }
+    }
+
+    private void checkUndefined(
+        final String attrId, final boolean isUndefined) throws SemanticException {
+      if (isUndefined) {
+        raiseError(where(id), String.format("The %s attribute is undefined.", attrId));
       }
     }
 
