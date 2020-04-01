@@ -30,7 +30,7 @@ import java.util.Collection;
  * @param <E> the entry type.
  * @param <A> the address type.
  *
- * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     implements ReplaceableBuffer<E, A>, SnoopController<E, A>, BufferObserver, ModelStateManager {
@@ -51,9 +51,9 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
 
   /**
    * If not {@code null}, holds an entry to be returned by a send-snoop operation, namely
-   * {@link #sendSnoopRead} or {@link #sendSnoopWrite}.
+   * {@link #sendSnoopRead}, {@link #sendSnoopWrite}, or {@link #sendSnoopEvict}.
    */
-  private Pair<? extends Struct<?>, Boolean> snoopedEntry = null;
+  private Pair<? extends Struct<?>, Boolean> snooped = null;
 
   /**
    * {@link Proxy} eases code generation for assignment statements.
@@ -339,7 +339,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       final BitVector oldEntry,
       final boolean invalidate) {
 
-    var result = snoopedEntry;
+    var result = snooped;
 
     // Broadcast snoop requests to the same-level caches.
     for (final CacheUnit<?, A> other : neighbor) {
@@ -369,7 +369,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       newEntry.field(lower, upper).assign(newData);
     }
 
-    var result = snoopedEntry;
+    var result = snooped;
 
     // Broadcast snoop requests to the same-level caches.
     final boolean invalidate = newEntry == null && !policy.write.alloc;
@@ -403,7 +403,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
       final BitVector oldEntry,
       final boolean dirty) {
 
-    var result = snoopedEntry;
+    var result = snooped;
 
     // Broadcast snoop requests to the same-level caches.
     final boolean invalidate = dirty && policy.write.back && policy.inclusion.no;
@@ -448,15 +448,13 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
         final var other = (CacheUnit<?, A>) next;
         other.allocEntry(address);
 
-        // This makes a snoop operation returns the reallocated entry
-        // while executing the read or write operation.
-        other.snoopedEntry = new Pair<>(other.newEntry(address, oldEntry), dirty);
-
+        // This makes a snoop operation returns the reallocated entry.
+        other.snooped = new Pair<>(other.newEntry(address, oldEntry), dirty);
         // Update the protocol state by executing the read or write operation.
         other.readEntry(address);
-
         // Disable that snooping hack.
-        other.snoopedEntry = null;
+        other.snooped = null;
+
         return true;
       }
     }

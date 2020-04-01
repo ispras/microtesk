@@ -27,27 +27,27 @@ import ru.ispras.fortress.util.Pair;
 public interface ReplaceableBuffer<E extends Struct<?>, A extends Address<?>> extends Buffer<E, A> {
 
   /**
-   * Allocates an invalid entry in the buffer and associates it with the given address.
+   * Allocates an invalid entry in the buffer and associates it w/ the given address.
    *
    * @param address the address.
    */
   void allocEntry(A address);
 
   /**
-   * Evicts the entry associated with the given address from the buffer.
+   * Evicts the entry associated w/ the given address from the buffer.
    *
    * @param initiator the buffer that initiates the operation.
    * @param address the address.
-   * @return {@code true} iff the entry is not dirty or it has been synchronized with the storage.
+   * @return {@code true} iff the entry is not dirty or it has been synchronized w/ the storage.
    */
   boolean evictEntry(ReplaceableBuffer<?, A> initiator, A address);
 
   /**
-   * Reads the entry associated with the given address and, if required, invalidates it.
+   * Reads the entry associated w/ the given address and, if required, invalidates it.
    *
    * @param address the address.
    * @param invalidate the invalidation flag.
-   * @return the entry associated with the address with the dirty bit or {@code null}.
+   * @return the entry associated w/ the address w/ the dirty bit or {@code null}.
    */
   Pair<E, Boolean> readEntry(A address, boolean invalidate);
 

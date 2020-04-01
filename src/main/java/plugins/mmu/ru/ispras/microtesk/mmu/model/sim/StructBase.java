@@ -23,6 +23,8 @@ import ru.ispras.fortress.util.InvariantChecks;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public abstract class StructBase<T> implements Struct<T> {
+
+  /** Struct value represented as a bit vector. */
   private BitVector entry = null;
 
   @Override

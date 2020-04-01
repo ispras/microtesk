@@ -38,7 +38,7 @@ public interface Matcher<E extends Struct<?>, A extends Address<?>> {
    *
    * @param entry the entry.
    * @param address the address.
-   * @return the input data with the assigned tag.
+   * @return the input data w/ the assigned tag.
    */
   E assignTag(E entry, A address);
 }

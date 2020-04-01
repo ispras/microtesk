@@ -33,7 +33,7 @@ public interface SnoopController<E, A>  {
    * @param address the address used in the transaction.
    * @param oldEntry the entry in the cache or {@code null}.
    * @param invalidate the invalidation flag.
-   * @return the local entry with the dirty bit or {@code null}.
+   * @return the local entry w/ the dirty bit or {@code null}.
    */
   Pair<E, Boolean> snoopRead(A address, BitVector oldEntry, boolean invalidate);
 
@@ -42,7 +42,7 @@ public interface SnoopController<E, A>  {
    *
    * @param address the address used in the transaction.
    * @param newEntry the updated entry or {@code null}.
-   * @return the local entry with the dirty bit or {@code null}.
+   * @return the local entry w/ the dirty bit or {@code null}.
    */
   Pair<E, Boolean> snoopWrite(A address, BitVector newEntry);
 
@@ -51,7 +51,7 @@ public interface SnoopController<E, A>  {
    *
    * @param address the address used in the transaction.
    * @param oldEntry the entry being evicted.
-   * @return the local entry with the dirty bit or {@code null}.
+   * @return the local entry w/ the dirty bit or {@code null}.
    */
   Pair<E, Boolean> snoopEvict(A address, BitVector oldEntry);
 }

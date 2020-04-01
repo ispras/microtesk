@@ -43,7 +43,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
   /** Array of cache lines. */
   private final List<CacheLine<E, A>> lines = new ArrayList<>();
-  /** Eviction policy with inner state. */
+  /** Eviction policy w/ inner state. */
   private final EvictionPolicy evictionPolicy;
 
   /**
@@ -71,7 +71,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
     this.cache = cache;
     this.next = next;
 
-    // Fill the set with the default (invalid) lines.
+    // Fill the set w/ the default (invalid) lines.
     for (int i = 0; i < associativity; i++) {
       final CacheLine<E, A> line = newLine();
       lines.add(line);

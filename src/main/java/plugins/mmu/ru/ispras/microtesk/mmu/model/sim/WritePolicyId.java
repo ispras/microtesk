@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * {@link WritePolicyId} contains the cache write policies.
  *
@@ -37,6 +39,8 @@ public enum WritePolicyId {
     public final boolean back;
 
     WritePolicyId(final boolean alloc, final boolean through, final boolean back) {
+      InvariantChecks.checkFalse(through && back);
+
       this.alloc = alloc;
       this.through = through;
       this.back = back;

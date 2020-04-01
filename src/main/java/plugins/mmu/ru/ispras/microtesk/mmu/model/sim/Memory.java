@@ -135,7 +135,7 @@ public abstract class Memory<E extends Struct<?>, A extends Address> implements 
     writeEntry(address, memoryEntry);
   }
 
-    public final Proxy writeEntry(final A address) {
+  public final Proxy writeEntry(final A address) {
     return new Proxy(address);
   }
 

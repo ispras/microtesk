@@ -35,15 +35,15 @@ public interface Buffer<E, A> {
   boolean isHit(A address);
 
   /**
-   * Reads the entry associated with the given address from the buffer.
+   * Reads the entry associated w/ the given address from the buffer.
    *
    * @param address the address.
-   * @return the entry associated with the address or {@code null}.
+   * @return the entry associated w/ the address or {@code null}.
    */
   E readEntry(A address);
 
   /**
-   * Writes the entry associated with the given address into the buffer.
+   * Writes the entry associated w/ the given address into the buffer.
    *
    * <p>
    * Note that an incoming entry is not necessarily of the {@code E} type. It may be returned from
@@ -57,7 +57,7 @@ public interface Buffer<E, A> {
   void writeEntry(A address, BitVector newEntry);
 
   /**
-   * Writes the data associated with the given address into the given field of the entry.
+   * Writes the data associated w/ the given address into the given field of the entry.
    *
    * @param address the address.
    * @param lower the lower bit.

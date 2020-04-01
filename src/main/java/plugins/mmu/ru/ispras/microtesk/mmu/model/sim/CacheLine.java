@@ -19,12 +19,12 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
 /**
- * {@link CacheLine} represents an abstract cache line.
+ * {@link CacheLine} represents a cache line.
  *
  * @param <E> the entry type.
  * @param <A> the address type.
  *
- * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
+ * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public class CacheLine<E extends Struct<?>, A extends Address<?>>
     implements ReplaceableBuffer<E, A>, SnoopController<E, A> {
@@ -198,7 +198,9 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
   @Override
   public final Pair<E, Boolean> snoopRead(
-      final A address, final BitVector oldEntry, final boolean invalidate) {
+      final A address,
+      final BitVector oldEntry,
+      final boolean invalidate) {
     InvariantChecks.checkTrue(isHit(address));
 
     final Pair<E, Boolean> result = new Pair<>(entry, dirty);
