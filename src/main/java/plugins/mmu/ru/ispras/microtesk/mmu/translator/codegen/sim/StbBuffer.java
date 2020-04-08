@@ -129,7 +129,8 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     final String poolName = "instancePool";
     accessor.add("name", poolName);
     accessor.add("type", buffer.getId());
-    accessor.add("init", String.format("%s = Collections.singletonList(new %s());", poolName, buffer.getId()));
+    accessor.add("init", String.format("%s = Collections.singletonList(new %s());",
+        poolName, buffer.getId()));
 
     st.add("imps", "java.util.Collections");
     st.add("imps", "java.util.List");

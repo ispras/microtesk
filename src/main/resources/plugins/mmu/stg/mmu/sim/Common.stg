@@ -158,13 +158,13 @@ private <name>() {
 
 buffer_access_point(name, type, init) ::= <<
 public static <type> get(int id) {
+  if (null == <name>) {
+    <init>
+  }
   return <name>.get(id);
 }
 
-private static final List\<<type>\> <name>;
-static {
-  <init; separator="\n">
-}<\n>
+private static List\<<type>\> <name>;
 >>
 
 buffer_entry(members) ::= <<
