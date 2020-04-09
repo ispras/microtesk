@@ -157,14 +157,14 @@ private <name>() {
 // Buffer-related templates
 
 buffer_access_point(name, type, init) ::= <<
+private static List\<<type>\> <name>;
+
 public static <type> get(int id) {
   if (null == <name>) {
     <init>
   }
   return <name>.get(id);
 }
-
-private static List\<<type>\> <name>;
 >>
 
 buffer_entry(members) ::= <<

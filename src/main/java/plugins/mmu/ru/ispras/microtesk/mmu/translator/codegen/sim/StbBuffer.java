@@ -115,6 +115,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       return;
     }
 
+    buildNewLine(st);
     final ST stEntry = group.getInstanceOf("buffer_entry");
 
     final Type type = buffer.getEntry();

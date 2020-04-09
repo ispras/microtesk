@@ -143,6 +143,7 @@ public final class MmuPlugin implements Plugin {
       mmuModel = getMmuModel();
     } catch (final Exception e) {
       Logger.warning("Failed to load the MMU model. The memory will be accessed directly.");
+      e.printStackTrace();
       return;
     }
 
