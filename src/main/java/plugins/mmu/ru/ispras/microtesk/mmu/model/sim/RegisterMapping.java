@@ -63,8 +63,8 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
 
     private RegisterMappedLine() {
       super(
-          null,
-          null,
+          policy,
+          matcher,
           RegisterMapping.this);
 
       final MemoryDevice storage = getRegisterDevice();
