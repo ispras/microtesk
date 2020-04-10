@@ -110,12 +110,11 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
 
     @Override
     public void allocEntry(final A address) {
-      throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean evictEntry(final ReplaceableBuffer<?, A> initiator, final A address) {
-      throw new UnsupportedOperationException();
+      return true;
     }
 
     @Override
