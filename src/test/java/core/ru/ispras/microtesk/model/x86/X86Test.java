@@ -224,8 +224,8 @@ public abstract class X86Test extends TemplateTest {
     final File qemuLog = new File(qemuLogName);
     final String qemuLogPath = qemuLog.getAbsolutePath();
 
-    Assert.assertTrue(String.format("Can't find QEMU trace: %s", qemuLogPath), qemuLog.exists());
-    Assert.assertFalse(String.format("QEMU trace is empty: %s", qemuLogPath), isEmpty(qemuLog));
+    Assert.assertTrue(String.format("Can't find QEMU4V trace: %s", qemuLogPath), qemuLog.exists());
+    Assert.assertFalse(String.format("QEMU4V trace is empty: %s", qemuLogPath), isEmpty(qemuLog));
 
     Logger.message("done.");
   }

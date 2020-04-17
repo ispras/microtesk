@@ -233,7 +233,7 @@ public class MiniMipsTest extends TemplateTest {
     final File qemuLogFile = new File(qemuLog);
     if (!qemuLogFile.exists() || qemuLogFile.isDirectory()) {
       Assert.fail(
-          String.format("Can't find QEMU trace file: %s", qemuLogFile.getAbsolutePath()));
+          String.format("Can't find QEMU4V trace file: %s", qemuLogFile.getAbsolutePath()));
     }
 
     Logger.message("done.");
