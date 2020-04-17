@@ -101,7 +101,7 @@ public class MiniMipsTest extends TemplateTest {
   /**
    * The specification model name.
    */
-  private static String MODEL_NAME = "minimips";
+  private static final String MODEL_NAME = "minimips";
 
   public MiniMipsTest() {
     super(
