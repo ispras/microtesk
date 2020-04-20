@@ -24,7 +24,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  *  <li>a write policy;</li>
  *  <li>an inclusion policy;</li>
  *  <li>a coherence policy.</li>
- * <ul/>
+ * </ul>
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */

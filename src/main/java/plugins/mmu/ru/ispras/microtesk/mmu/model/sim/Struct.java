@@ -25,7 +25,7 @@ public interface Struct<T> {
 
   /**
    * Returns the bit size of the struct.
-   * @return
+   * @return the bit size as an integer value
    */
   int getBitSize();
 
