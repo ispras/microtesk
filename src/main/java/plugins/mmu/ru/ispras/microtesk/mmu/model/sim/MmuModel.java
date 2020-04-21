@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.ModelStateManager;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
@@ -42,6 +43,8 @@ public class MmuModel implements ModelStateManager {
     InvariantChecks.checkNotNull(device);
     InvariantChecks.checkNotNull(targetId);
     InvariantChecks.checkNotNull(target);
+
+    Logger.debug("Creating MMU model...");
 
     this.buffers = new HashMap<>();
     this.stateManagers = new ArrayList<>();

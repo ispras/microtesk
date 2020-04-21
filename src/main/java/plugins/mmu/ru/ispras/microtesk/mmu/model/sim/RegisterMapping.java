@@ -94,9 +94,9 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     }
 
     @Override
-    public void writeEntry(final A address, final BitVector data) {
+    public void writeEntry(final A address, final BitVector newEntry) {
       final MemoryDevice storage = getRegisterDevice();
-      storage.store(registerIndex, data);
+      storage.store(registerIndex, newEntry);
     }
 
     @Override
@@ -105,11 +105,14 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
         final int lower,
         final int upper,
         final BitVector newData) {
-      throw new UnsupportedOperationException();
+      writeEntry(address, newData);
     }
 
     @Override
     public void allocEntry(final A address) {
+      final MemoryDevice storage = getRegisterDevice();
+      final E entry = RegisterMapping.this.newEntry(address);
+      storage.store(registerIndex, entry.asBitVector());
     }
 
     @Override

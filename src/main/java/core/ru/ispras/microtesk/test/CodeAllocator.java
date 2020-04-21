@@ -191,10 +191,10 @@ public final class CodeAllocator {
       BigInteger nextPa = currentPa;
       BigInteger nextVa = currentVa;
 
-      // Process directives (if any): alignment, data and labels.
+      // Process the directives (if any): alignment, data, and labels.
       boolean isOrigin = false;
       for (final Directive directive : call.getDirectives()) {
-        // Register labels.
+        // Register the labels.
         if (directive.getKind() == Directive.Kind.LABEL) {
           final DirectiveLabel labelDirective = (DirectiveLabel) directive;
 
@@ -208,25 +208,26 @@ public final class CodeAllocator {
             labelManager.addLabel(label, nextVa.longValue(), sequenceIndex);
           }
         } else if (directive.getKind() == Directive.Kind.ORIGIN) {
-          // See the comment below.
+          // To distinguish origins from alignments (see the comment below).
           isOrigin = true;
         }
 
         nextPa = directive.apply(nextPa, allocator);
         nextVa = section.physicalToVirtual(nextPa);
 
-        Logger.debug("Directive: %s", directive.getText());
+        Logger.debug("Code allocator: directive: %s", directive.getText());
       }
 
+      // If there is a space before the instruction call.
       if (!nextPa.equals(currentPa)) {
-        if (startIndex != currentIndex) {
-          // Code representation uses virtual addresses, not physical ones.
+        if (startIndex != currentIndex && !startVa.equals(currentVa)) {
+          // Code representation is based on virtual addresses, not physical ones.
           final CodeBlock block = new CodeBlock(
               calls.subList(startIndex, currentIndex),
               startVa.longValue(),
               currentVa.longValue());
 
-          Logger.debug("Register the block: %s%n", block);
+          Logger.debug("Code allocator: register the block: %s%n", block);
           getCode().registerBlock(block);
           startIndex = currentIndex;
         }
@@ -273,13 +274,23 @@ public final class CodeAllocator {
     } // for calls
     numericLabelTracker.restore();
 
-    final CodeBlock block = new CodeBlock(
-        startIndex == 0 ? calls : calls.subList(startIndex, currentIndex),
-        startVa.longValue(),
-        currentVa.longValue());
+    if (!startVa.equals(currentVa)) {
+      final ConcreteCall call = calls.get(currentIndex - 1);
 
-    Logger.debug("Register the remaining block: %s%n", block);
-    getCode().registerBlock(block);
+      // If the sequence ends with .org, do not include the directive to the block.
+      if (!call.isExecutable()) {
+        currentIndex--;
+      }
+
+      final CodeBlock block = new CodeBlock(
+          calls.subList(startIndex, currentIndex),
+          startVa.longValue(),
+          currentVa.longValue());
+
+      Logger.debug("Code allocator: register the remaining block: %s%n", block);
+      getCode().registerBlock(block);
+    }
+
     addresses.put(section.getName(), currentVa);
   }
 

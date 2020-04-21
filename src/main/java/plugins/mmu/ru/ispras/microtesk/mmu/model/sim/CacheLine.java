@@ -152,9 +152,10 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
     final var oldEntry = isValid() ? entry.asBitVector() : null;
     final var snooped = cache.sendSnoopWrite(address, oldEntry, lower, upper, newData);
-    InvariantChecks.checkTrue(isValid() || snooped != null);
+    final var wholeEntry = lower == 0 && upper == cache.getEntryBitSize() - 1;
+    InvariantChecks.checkTrue(wholeEntry || isValid() || snooped != null);
 
-    if (!isValid()) {
+    if (!isValid() && !wholeEntry) {
       // Place a snooped entry into the line.
       cache.assignEntry(entry, address, snooped.first.asBitVector());
     }

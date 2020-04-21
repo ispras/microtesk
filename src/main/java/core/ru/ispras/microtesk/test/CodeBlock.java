@@ -79,6 +79,6 @@ final class CodeBlock {
   @Override
   public String toString() {
     return String.format(
-        "[0x%016x..0x%016x] (%d calls)", startAddress, endAddress, calls.size());
+        "[0x%016x..0x%016x) (%d calls)", startAddress, endAddress, calls.size());
   }
 }
