@@ -275,15 +275,8 @@ public final class CodeAllocator {
     numericLabelTracker.restore();
 
     if (!startVa.equals(currentVa)) {
-      final ConcreteCall call = calls.get(currentIndex - 1);
-
-      // If the sequence ends with .org, do not include the directive to the block.
-      if (!call.isExecutable()) {
-        currentIndex--;
-      }
-
       final CodeBlock block = new CodeBlock(
-          calls.subList(startIndex, currentIndex),
+          startIndex == 0 ? calls : calls.subList(startIndex, currentIndex),
           startVa.longValue(),
           currentVa.longValue());
 
