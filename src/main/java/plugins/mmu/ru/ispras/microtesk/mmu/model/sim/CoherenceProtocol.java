@@ -33,5 +33,7 @@ public interface CoherenceProtocol {
 
   Enum<?> onSnoopEvict(Enum<?> state);
 
+  boolean isValid(Enum<?> state);
+
   boolean isCoherent(Enum<?>[] states);
 }

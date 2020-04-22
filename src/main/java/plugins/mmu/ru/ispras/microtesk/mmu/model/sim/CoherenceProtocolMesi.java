@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.mmu.model.sim;
 
-import ru.ispras.fortress.util.InvariantChecks;
-
 /**
  * {@link CoherenceProtocolMesi} describes the MESI cache coherence protocol.
  *

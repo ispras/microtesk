@@ -63,6 +63,11 @@ abstract class CoherenceProtocolBase implements CoherenceProtocol {
   }
 
   @Override
+  public boolean isValid(final Enum<?> state) {
+    return state != State.INVALID;
+  }
+
+  @Override
   public boolean isCoherent(final Enum<?>[] states) {
     boolean isModified = false;
     boolean isOwned = false;

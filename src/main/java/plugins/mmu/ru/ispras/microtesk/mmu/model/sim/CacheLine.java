@@ -63,17 +63,13 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
     this.matcher = matcher;
     this.cache = cache;
-
     this.protocol = policy.coherence.newProtocol();
-    this.state = this.protocol.onReset();
 
-    this.entry = null;
-    this.address = null;
-    this.dirty = false;
+    resetState();
   }
 
   public final boolean isValid() {
-    return entry != null && state != protocol.onReset();
+    return entry != null && protocol.isValid(state);
   }
 
   public final E getEntry() {
@@ -213,7 +209,7 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
 
     final Enum<?> newState = protocol.onSnoopRead(state);
 
-    if (isValid() && newState == protocol.onReset()) {
+    if (isValid() && !protocol.isValid(newState)) {
       // If eviction is caused by a snoop, the snoop receiver serves as an initiator.
       evictEntry(cache, address);
     }
@@ -229,7 +225,7 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     final Pair<E, Boolean> result = new Pair<>(entry, dirty);
     final Enum<?> newState = protocol.onSnoopWrite(state);
 
-    if (isValid() && newState == protocol.onReset()) {
+    if (isValid() && !protocol.isValid(newState)) {
       // Write-back is not required, because a neighbor contains the updated line.
       dirty = false;
       // If eviction is caused by a snoop, the snoop receiver serves as an initiator.
@@ -247,7 +243,7 @@ public class CacheLine<E extends Struct<?>, A extends Address<?>>
     final Pair<E, Boolean> result = new Pair<>(entry, dirty);
     final Enum<?> newState = protocol.onSnoopEvict(state);
 
-    if (isValid() && newState == protocol.onReset()) {
+    if (isValid() && !protocol.isValid(newState)) {
       // If eviction is caused by a snoop, the snoop receiver serves as an initiator.
       evictEntry(cache, address);
     }

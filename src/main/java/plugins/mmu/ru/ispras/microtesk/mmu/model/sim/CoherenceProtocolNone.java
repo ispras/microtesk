@@ -29,18 +29,22 @@ public final class CoherenceProtocolNone implements CoherenceProtocol {
   private CoherenceProtocolNone() {}
 
   public enum State {
-    VALID,
-    INVALID
+    VOID,
+  }
+
+  @Override
+  public Enum<?> onReset() {
+    return State.VOID;
   }
 
   @Override
   public Enum<?> onRead(final Enum<?> state, final boolean exclusive) {
-    return State.VALID;
+    return state;
   }
 
   @Override
   public Enum<?> onWrite(final Enum<?> state) {
-    return State.VALID;
+    return state;
   }
 
   @Override
@@ -59,8 +63,8 @@ public final class CoherenceProtocolNone implements CoherenceProtocol {
   }
 
   @Override
-  public Enum<?> onReset() {
-    return State.INVALID;
+  public boolean isValid(final Enum<?> state) {
+    return true;
   }
 
   @Override
