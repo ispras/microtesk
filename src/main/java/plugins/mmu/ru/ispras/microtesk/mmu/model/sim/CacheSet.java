@@ -73,14 +73,13 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
 
     // Fill the set w/ the default (invalid) lines.
     for (int i = 0; i < associativity; i++) {
-      final CacheLine<E, A> line = newLine();
-      lines.add(line);
+      lines.add(newLine(i));
     }
 
     this.evictionPolicy = policy.eviction.newPolicy(associativity);
   }
 
-  protected CacheLine<E, A> newLine() {
+  protected CacheLine<E, A> newLine(final int way) {
     return new CacheLine<>(policy, matcher, cache);
   }
 

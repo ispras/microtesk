@@ -33,25 +33,25 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     extends CacheUnit<E, A> {
 
   private final String name;
-  private BigInteger currentRegisterIndex;
 
   /**
    * {@link RegisterMappedSet} is an extension of {@link CacheSet} for register-mapped buffers.
    */
   private final class RegisterMappedSet extends CacheSet<E, A> {
-    public RegisterMappedSet() {
-      super(
-          associativity,
-          policy,
-          matcher,
-          RegisterMapping.this,
-          null
-      );
+    private final BitVector index;
+
+    public RegisterMappedSet(final BitVector index) {
+      super(associativity, policy, matcher, RegisterMapping.this, null);
+      this.index = index;
     }
 
     @Override
-    protected CacheLine<E, A> newLine() {
-      return new RegisterMappedLine();
+    protected CacheLine<E, A> newLine(final int way) {
+      final BigInteger i = index.bigIntegerValue();
+      final BigInteger j = BigInteger.valueOf(way);
+      final BigInteger n = BigInteger.valueOf(associativity);
+
+      return new RegisterMappedLine(i.multiply(n).add(j));
     }
   }
 
@@ -61,15 +61,11 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
   private final class RegisterMappedLine extends CacheLine<E, A> {
     private final BitVector registerIndex;
 
-    private RegisterMappedLine() {
-      super(
-          policy,
-          matcher,
-          RegisterMapping.this);
+    private RegisterMappedLine(final BigInteger number) {
+      super(policy, matcher,RegisterMapping.this);
 
       final MemoryDevice storage = getRegisterDevice();
-      this.registerIndex = BitVector.valueOf(currentRegisterIndex, storage.getAddressBitSize());
-      currentRegisterIndex = currentRegisterIndex.add(BigInteger.ONE);
+      this.registerIndex = BitVector.valueOf(number, storage.getAddressBitSize());
     }
 
     @Override
@@ -169,14 +165,11 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
 
     final MemoryDevice storage = getRegisterDevice();
     InvariantChecks.checkTrue(getEntryBitSize() == storage.getDataBitSize());
+  }
 
-    this.currentRegisterIndex = BigInteger.ZERO;
-
-    for (BigInteger index = BigInteger.ZERO;
-         index.compareTo(length) < 0;
-         index = index.add(BigInteger.ONE)) {
-      setSet(BitVector.valueOf(index, storage.getAddressBitSize()), new RegisterMappedSet());
-    }
+  @Override
+  protected CacheSet<E, A> newSet(final BitVector index) {
+    return new RegisterMappedSet(index);
   }
 
   private MemoryDevice getRegisterDevice() {

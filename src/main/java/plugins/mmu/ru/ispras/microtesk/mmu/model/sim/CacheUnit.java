@@ -121,6 +121,10 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     }
   }
 
+  protected CacheSet<E, A> newSet(final BitVector index) {
+    return new CacheSet<>(associativity, policy, matcher,this, next);
+  }
+
   /**
    * Returns the entry bit size.
    *
@@ -524,22 +528,18 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     return new Proxy(address);
   }
 
-  protected final CacheSet<E, A> getSet(final BitVector index) {
+  private final CacheSet<E, A> getSet(final BitVector index) {
     CacheSet<E, A> set = sets.get(index);
 
     if (set == null) {
-      set = new CacheSet<>(associativity, policy, matcher,this, next);
+      set = newSet(index);
       sets.set(index, set);
     }
 
     return set;
   }
 
-  protected final void setSet(final BitVector index, final CacheSet<E, A> set) {
-    sets.set(index, set);
-  }
-
-  protected final CacheSet<E, A> getSet(final A address) {
+  private final CacheSet<E, A> getSet(final A address) {
     final BitVector index = indexer.getIndex(address);
     return getSet(index);
   }
