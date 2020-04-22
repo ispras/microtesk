@@ -38,11 +38,8 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
    * {@link RegisterMappedSet} is an extension of {@link CacheSet} for register-mapped buffers.
    */
   private final class RegisterMappedSet extends CacheSet<E, A> {
-    private final BitVector index;
-
     public RegisterMappedSet(final BitVector index) {
-      super(associativity, policy, matcher, RegisterMapping.this, null);
-      this.index = index;
+      super(index, associativity, policy, matcher, RegisterMapping.this, null);
     }
 
     @Override

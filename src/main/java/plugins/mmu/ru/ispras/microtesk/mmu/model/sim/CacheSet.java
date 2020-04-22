@@ -32,6 +32,9 @@ import ru.ispras.fortress.util.Pair;
 public class CacheSet<E extends Struct<?>, A extends Address<?>>
     implements ReplaceableBuffer<E, A>, SnoopController<E, A> {
 
+  /** Index of this set. */
+  protected final BitVector index;
+
   /** Cache policy. */
   private final CachePolicy policy;
   /** Entry-address matcher. */
@@ -49,6 +52,7 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
   /**
    * Constructs a cache set of the given associativity.
    *
+   * @param index the index of the set.
    * @param associativity the number of lines in the set.
    * @param policy the cache policy.
    * @param matcher the entry-address matcher.
@@ -56,16 +60,19 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
    * @param next the next-level buffer.
    */
   public CacheSet(
+      final BitVector index,
       final int associativity,
       final CachePolicy policy,
       final Matcher<E, A> matcher,
       final CacheUnit<E, A> cache,
       final Buffer<? extends Struct<?>, A> next) {
+    InvariantChecks.checkNotNull(index);
     InvariantChecks.checkGreaterThanZero(associativity);
     InvariantChecks.checkNotNull(policy);
     InvariantChecks.checkNotNull(matcher);
     InvariantChecks.checkNotNull(cache);
 
+    this.index = index;
     this.policy = policy;
     this.matcher = matcher;
     this.cache = cache;

@@ -122,7 +122,7 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
   }
 
   protected CacheSet<E, A> newSet(final BitVector index) {
-    return new CacheSet<>(associativity, policy, matcher,this, next);
+    return new CacheSet<>(index, associativity, policy, matcher,this, next);
   }
 
   /**
