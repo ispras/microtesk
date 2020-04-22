@@ -75,21 +75,19 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     @Override
     public boolean isHit(final A address) {
       final MemoryDevice storage = getRegisterDevice();
-      if (!storage.isInitialized(registerIndex)) {
-        return false;
+      final BitVector data = storage.load(registerIndex);
+
+      if (data != null) {
+        final E entry = newEntry(data);
+        return matcher.areMatching(entry, address);
       }
 
-      final BitVector data = storage.load(registerIndex);
-      final E entry = newEntry(data);
-
-      return matcher.areMatching(entry, address);
+      return false;
     }
 
     @Override
     public E readEntry(final A address) {
       final MemoryDevice storage = getRegisterDevice();
-      InvariantChecks.checkTrue(storage.isInitialized(registerIndex));
-
       final BitVector data = storage.load(registerIndex);
       return newEntry(data);
     }
@@ -113,9 +111,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     public void allocEntry(final A address) {
       final MemoryDevice storage = getRegisterDevice();
       final E entry = RegisterMapping.this.newEntry(address);
-
       storage.store(registerIndex, entry.asBitVector());
-      InvariantChecks.checkTrue(isHit(address));
     }
 
     @Override

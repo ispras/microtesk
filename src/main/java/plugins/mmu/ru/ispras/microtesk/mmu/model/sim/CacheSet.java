@@ -115,6 +115,8 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
     if (!invalidate && next != null) {
       // If there is a link to the next level, allocate an entry.
       allocEntry(address);
+      InvariantChecks.checkTrue(isHit(address));
+
       // Re-run the read operation (the entry should be valid after snooping).
       return readEntry(address, false);
     }
@@ -155,6 +157,8 @@ public class CacheSet<E extends Struct<?>, A extends Address<?>>
     if (policy.write.alloc) {
       // If the write policy implies allocation, allocate an entry.
       allocEntry(address);
+      InvariantChecks.checkTrue(isHit(address));
+
       // Re-run the write operation to fill the allocated entry.
       writeEntry(address, lower, upper, newData);
       return;
