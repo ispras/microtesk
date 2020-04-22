@@ -26,6 +26,7 @@ import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
 
 import java.math.BigInteger;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 public final class MemoryObjectBuilder {
   private final LabelManager memoryMap;
@@ -95,7 +96,7 @@ public final class MemoryObjectBuilder {
           String.format("The %s label is not defined.", labelName));
     }
 
-    this.va = BigInteger.valueOf(target.getAddress());
+    this.va = BigIntegerUtils.asUnsigned(target.getAddress());
     this.isVaLabel = true;
   }
 

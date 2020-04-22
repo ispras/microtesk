@@ -29,7 +29,7 @@ public final class BigIntegerUtils {
 
   private static final BigInteger TWO_POWER_64 = BigInteger.ONE.shiftLeft(64);
 
-  public static BigInteger valueOfUnsignedLong(final long value) {
+  public static BigInteger asUnsigned(final long value) {
     if (value >= 0) {
       return BigInteger.valueOf(value);
     }
@@ -37,19 +37,19 @@ public final class BigIntegerUtils {
     return BigInteger.valueOf(value).add(TWO_POWER_64);
   }
 
-  public static Collection<BigInteger> valuesOfUnsignedLongs(final Collection<Long> values) {
+  public static Collection<BigInteger> asUnsigned(final Collection<Long> values) {
     InvariantChecks.checkNotNull(values);
 
     final Collection<BigInteger> result = new ArrayList<>(values.size());
 
     for (final long value : values) {
-      result.add(BigIntegerUtils.valueOfUnsignedLong(value));
+      result.add(BigIntegerUtils.asUnsigned(value));
     }
 
     return result;
   }
 
-  public static Collection<Integer> toIntegerCollection(final Collection<BigInteger> values) {
+  public static Collection<Integer> toIntCollection(final Collection<BigInteger> values) {
     InvariantChecks.checkNotNull(values);
 
     final Collection<Integer> result = new ArrayList<>(values.size());
@@ -61,12 +61,12 @@ public final class BigIntegerUtils {
     return result;
   }
 
-  public static List<Integer> toIntegerList(final Collection<BigInteger> values) {
-    return new ArrayList<>(toIntegerCollection(values));
+  public static List<Integer> toIntList(final Collection<BigInteger> values) {
+    return new ArrayList<>(toIntCollection(values));
   }
 
-  public static Set<Integer> toIntegerSet(final Collection<BigInteger> values) {
-    return new LinkedHashSet<>(toIntegerCollection(values));
+  public static Set<Integer> toIntSet(final Collection<BigInteger> values) {
+    return new LinkedHashSet<>(toIntCollection(values));
   }
 
   public static Collection<Long> toLongCollection(final Collection<BigInteger> values) {
@@ -89,7 +89,7 @@ public final class BigIntegerUtils {
     return new LinkedHashSet<>(toLongCollection(values));
   }
 
-  public static Collection<BitVector> toBitVectorCollection(
+  public static Collection<BitVector> toBvCollection(
       final Collection<BigInteger> values, final int bitSize) {
     InvariantChecks.checkNotNull(values);
 
@@ -102,13 +102,12 @@ public final class BigIntegerUtils {
     return result;
   }
 
-  public static List<BitVector> toBitVectorList(
-      final Collection<BigInteger> values, final int bitSize) {
-    return new ArrayList<>(toBitVectorCollection(values, bitSize));
+  public static List<BitVector> toBvList(final Collection<BigInteger> values, final int bitSize) {
+    return new ArrayList<>(toBvCollection(values, bitSize));
   }
 
-  public static Set<BitVector> toBitVectorSet(
+  public static Set<BitVector> toBvSet(
       final Collection<BigInteger> values, final int bitSize) {
-    return new LinkedHashSet<>(toBitVectorCollection(values, bitSize));
+    return new LinkedHashSet<>(toBvCollection(values, bitSize));
   }
 }

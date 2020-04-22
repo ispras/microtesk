@@ -181,7 +181,7 @@ public final class AccessConstraints {
         generalConstraints.add(
             BitVectorConstraint.domain(
                 variable,
-                BigIntegerUtils.toBitVectorSet(values, FortressUtils.getBitSize(variable)))
+                BigIntegerUtils.toBvSet(values, FortressUtils.getBitSize(variable)))
         );
       }
     }

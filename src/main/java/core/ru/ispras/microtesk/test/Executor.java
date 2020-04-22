@@ -32,6 +32,7 @@ import ru.ispras.microtesk.test.template.Output;
 import ru.ispras.microtesk.test.template.directive.Directive;
 
 import java.math.BigInteger;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 /**
  * The role of the {@link Executor} class is to execute (simulate) instruction calls
@@ -326,7 +327,7 @@ public final class Executor {
           target = labelManager.resolve(label);
           if (null != target) {
             reference.setTarget(target);
-            reference.getPatcher().setValue(BigInteger.valueOf(target.getAddress()));
+            reference.getPatcher().setValue(BigIntegerUtils.asUnsigned(target.getAddress()));
           }
         }
 
@@ -413,7 +414,7 @@ public final class Executor {
   }
 
   private void setPC(final long address) throws ConfigurationException {
-    getPCLocation().setValue(BigInteger.valueOf(address));
+    getPCLocation().setValue(BigIntegerUtils.asUnsigned(address));
   }
 
   private Long getExceptionHandlerAddress(

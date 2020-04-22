@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 public final class CodeAllocator {
   private final Model model;
@@ -316,7 +317,7 @@ public final class CodeAllocator {
         if (null != target) { // Label is found
           labelRef.setTarget(target);
           final long address = target.getAddress();
-          labelRef.getPatcher().setValue(BigInteger.valueOf(address));
+          labelRef.getPatcher().setValue(BigIntegerUtils.asUnsigned(address));
         } else { // Label is not found
           // References to undefined labels are not assigned sequence index as
           // they presumably refer to some global labels.

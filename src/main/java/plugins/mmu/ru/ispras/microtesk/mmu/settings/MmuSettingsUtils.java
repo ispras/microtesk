@@ -118,9 +118,9 @@ public final class MmuSettingsUtils {
         : include;
 
     final Set<BitVector> bvDomain =
-        BigIntegerUtils.toBitVectorSet(domain, variable.getDataType().getSize());
+        BigIntegerUtils.toBvSet(domain, variable.getDataType().getSize());
     final Set<BitVector> bvValues =
-        BigIntegerUtils.toBitVectorSet(values, variable.getDataType().getSize());
+        BigIntegerUtils.toBvSet(values, variable.getDataType().getSize());
 
     return BitVectorConstraint.domain(kind, variable, bvDomain, bvValues);
   }

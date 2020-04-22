@@ -41,6 +41,7 @@ import ru.ispras.microtesk.test.template.DataSection;
 import ru.ispras.microtesk.test.template.Primitive;
 import ru.ispras.microtesk.test.template.Situation;
 import ru.ispras.microtesk.test.template.Stream;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
 import java.math.BigInteger;
@@ -215,7 +216,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
         engineContext.getModel(), labelManager, numericLabelTracker);
 
     codeAllocator.init();
-    codeAllocator.setAddress(concreteSequence.getSection(), BigInteger.valueOf(allocationAddress));
+    codeAllocator.setAddress(
+        concreteSequence.getSection(), BigIntegerUtils.asUnsigned(allocationAddress));
     codeAllocator.allocateSequence(concreteSequence, sequenceIndex);
 
     final ConcreteCall first = sequence.get(0);

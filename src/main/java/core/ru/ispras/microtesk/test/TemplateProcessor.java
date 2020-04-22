@@ -38,7 +38,6 @@ import ru.ispras.microtesk.test.template.ExceptionHandler;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.Template;
 import ru.ispras.microtesk.test.template.Template.SectionKind;
-import ru.ispras.microtesk.translator.nml.ir.primitive.Attribute;
 import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
 
@@ -637,7 +636,7 @@ final class TemplateProcessor implements Template.Processor {
     final Section section = sequence.getSection();
 
     if (null != previous && previous.isAllocated()) {
-      allocationAddress = BigIntegerUtils.valueOfUnsignedLong(previous.getEndAddress());
+      allocationAddress = BigIntegerUtils.asUnsigned(previous.getEndAddress());
     } else {
       allocationAddress = section.physicalToVirtual(section.getPa());
     }
