@@ -69,14 +69,15 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     @Override
     public boolean isHit(final A address) {
       final MemoryDevice storage = getRegisterDevice();
-      final BitVector data = storage.load(registerIndex);
 
-      if (data != null) {
-        final E entry = newEntry(data);
-        return matcher.areMatching(entry, address);
+      if (storage.isInitialized(registerIndex)) {
+        return false;
       }
 
-      return false;
+      final BitVector data = storage.load(registerIndex);
+      final E entry = newEntry(data);
+
+      return matcher.areMatching(entry, address);
     }
 
     @Override
