@@ -70,7 +70,7 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     public boolean isHit(final A address) {
       final MemoryDevice storage = getRegisterDevice();
 
-      if (storage.isInitialized(registerIndex)) {
+      if (!storage.isInitialized(registerIndex)) {
         return false;
       }
 
