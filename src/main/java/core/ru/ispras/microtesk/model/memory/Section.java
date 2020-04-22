@@ -179,7 +179,7 @@ public final class Section {
   }
 
   public BigInteger virtualToOrigin(final BigInteger va) {
-    InvariantChecks.checkNotNull(va);
+    InvariantChecks.checkTrue(va != null && va.compareTo(baseVa) >= 0);
     return va.subtract(baseVa);
   }
 
@@ -189,7 +189,7 @@ public final class Section {
   }
 
   public BigInteger physicalToOrigin(final BigInteger pa) {
-    InvariantChecks.checkNotNull(pa);
+    InvariantChecks.checkTrue(pa != null && pa.compareTo(basePa) >= 0);
     return pa.subtract(basePa);
   }
 
