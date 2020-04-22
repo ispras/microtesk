@@ -121,10 +121,6 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
     }
   }
 
-  protected CacheSet<E, A> newSet(final BitVector index) {
-    return new CacheSet<>(index, associativity, policy, matcher,this, next);
-  }
-
   /**
    * Returns the entry bit size.
    *
@@ -218,6 +214,16 @@ public abstract class CacheUnit<E extends Struct<?>, A extends Address<?>>
    */
   final A newAddress(final BitVector value) {
     return addressCreator.setValue(value);
+  }
+
+  /**
+   * Creates a new set (can be overridden in a subclass).
+   *
+   * @param index the index of the set.
+   * @return the created set.
+   */
+  protected CacheSet<E, A> newSet(final BitVector index) {
+    return new CacheSet<>(index, associativity, policy, matcher,this, next);
   }
 
   /**

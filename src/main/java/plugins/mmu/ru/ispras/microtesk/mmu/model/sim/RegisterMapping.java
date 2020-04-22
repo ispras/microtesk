@@ -16,6 +16,7 @@ package ru.ispras.microtesk.mmu.model.sim;
 
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.memory.MemoryDevice;
 import ru.ispras.microtesk.test.TestEngine;
 
@@ -79,10 +80,10 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     }
 
     @Override
-    public E readEntry(final A address) {
+    public Pair<E, Boolean> readEntry(final A address, final boolean invalidate) {
       final MemoryDevice storage = getRegisterDevice();
       final BitVector data = storage.load(registerIndex);
-      return newEntry(data);
+      return new Pair<>(newEntry(data), false);
     }
 
     @Override
