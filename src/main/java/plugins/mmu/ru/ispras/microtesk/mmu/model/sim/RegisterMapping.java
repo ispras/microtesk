@@ -88,8 +88,9 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     @Override
     public E readEntry(final A address) {
       final MemoryDevice storage = getRegisterDevice();
-      final BitVector data = storage.load(registerIndex);
+      InvariantChecks.checkTrue(storage.isInitialized(registerIndex));
 
+      final BitVector data = storage.load(registerIndex);
       return newEntry(data);
     }
 
@@ -112,11 +113,14 @@ public abstract class RegisterMapping<E extends Struct<?>, A extends Address<?>>
     public void allocEntry(final A address) {
       final MemoryDevice storage = getRegisterDevice();
       final E entry = RegisterMapping.this.newEntry(address);
+
       storage.store(registerIndex, entry.asBitVector());
+      InvariantChecks.checkTrue(isHit(address));
     }
 
     @Override
     public boolean evictEntry(final ReplaceableBuffer<?, A> initiator, final A address) {
+      // Do nothing.
       return true;
     }
 
