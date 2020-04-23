@@ -266,16 +266,7 @@ public final class SymbolicExecutor {
       final Collection<? extends Node> formulas) {
     final Cvc4Solver solver = new Cvc4Solver();
 
-    try {
-      SmtTextBuilder.saveToFile(
-          fileName,
-          Collections.<String>emptyList(),
-          formulas,
-          solver.getOperations()
-      );
-    } catch (final java.io.IOException e) {
-      Logger.error(e.getMessage());
-    }
+    SmtTextBuilder.saveToFile(fileName, Collections.emptyList(), formulas, solver.getOperations());
   }
 
   private static void inspectControlFlow(final Model model, final BodyInfo info) {
