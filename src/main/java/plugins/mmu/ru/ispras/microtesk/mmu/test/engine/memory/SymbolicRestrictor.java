@@ -50,8 +50,7 @@ public final class SymbolicRestrictor {
     this.region = region;
   }
 
-  public Collection<Node> getConstraints(
-      final MmuBufferAccess bufferAccess) {
+  public Collection<Node> getConstraints(final MmuBufferAccess bufferAccess) {
     final MmuAddressInstance physAddrType = memory.getPhysicalAddress();
     final MmuAddressInstance addrType = bufferAccess.getAddress();
     final MmuBuffer buffer = bufferAccess.getBuffer();

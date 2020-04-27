@@ -913,7 +913,7 @@ public final class SymbolicExecutor {
       }
     } else {
       final NodeOperation rhsExpr = getConcatOperation(rhs);
-      InvariantChecks.checkTrue(rhsExpr.getOperandCount() == rhsExpr.getOperandCount());
+      InvariantChecks.checkTrue(lhsExpr.getOperandCount() == rhsExpr.getOperandCount());
 
       for (int i = 0; i < lhsExpr.getOperandCount(); i++) {
         final Node lhsTerm = lhsExpr.getOperand(i);
