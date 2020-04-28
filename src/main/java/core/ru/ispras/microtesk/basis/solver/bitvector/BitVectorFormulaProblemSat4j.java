@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import java.util.function.IntSupplier;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -73,6 +74,13 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
     return builder.build();
   }
 
+  private final IntSupplier newIndex = new IntSupplier() {
+    @Override
+    public int getAsInt() {
+      return index++;
+    }
+  };
+
   @Override
   public void addFormula(final Node formula) {
     Logger.debug("Add formula: %s", formula);
@@ -107,11 +115,15 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
                 setUsedBits(variable);
 
                 // Generate n unit clauses (c[i] ? x[i] : ~x[i]).
+                final int size = FortressUtils.getBitSize(nodeVariable);
+                final int lower = FortressUtils.getLowerBit(nodeVariable);
+
                 builder.addAllClauses(
-                    Sat4jEncoder.encodeVarEqualConst(
-                        nodeVariable,
-                        x,
-                        FortressUtils.getInteger(variable.getData())));
+                    CnfEncoder.EQ_CONST.encode(
+                        new CnfEncoder.Operand[] {
+                            new CnfEncoder.Operand(x + lower, true, size),
+                            new CnfEncoder.Operand(FortressUtils.getInteger(variable.getData()))
+                        }, newIndex));
               }
             }
           }
@@ -131,8 +143,9 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
     Logger.debug("Handle equation: %s", equation);
 
-    final int n = FortressUtils.getBitSize(lhs);
     final int x = getVarIndex(lhs);
+    final int xSize = FortressUtils.getBitSize(lhs);
+    final int xLower = FortressUtils.getLowerBit(lhs);
 
     setUsedBits(lhs);
     setUsedBits(rhs);
@@ -143,13 +156,22 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
         // Equality x == c.
         builder.addAllClauses(
-            Sat4jEncoder.encodeVarEqualConst(lhs, x, FortressUtils.getInteger(value)));
+            CnfEncoder.EQ_CONST.encode(
+                new CnfEncoder.Operand[] {
+                    new CnfEncoder.Operand(x + xLower, true, xSize),
+                    new CnfEncoder.Operand(FortressUtils.getInteger(value))
+                }, newIndex));
       } else {
         final int y = getVarIndex(rhs);
+        final int ySize = FortressUtils.getBitSize(rhs);
+        final int yLower = FortressUtils.getLowerBit(rhs);
 
         // Equality x == y.
         builder.addAllClauses(
-            Sat4jEncoder.encodeVarEqualVar(lhs, x, rhs, y));
+            CnfEncoder.EQ.encode(new CnfEncoder.Operand[] {
+                new CnfEncoder.Operand(x + xLower, true, xSize),
+                new CnfEncoder.Operand(y + yLower, true, ySize)
+            }, newIndex));
       }
     } else {
       if (rhs.getKind() == Node.Kind.VALUE) {
@@ -157,15 +179,21 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
         // Inequality x != c.
         builder.addAllClauses(
-            Sat4jEncoder.encodeVarNotEqualConst(lhs, x, FortressUtils.getInteger(value)));
+            CnfEncoder.NEQ_CONST.encode(new CnfEncoder.Operand[] {
+                new CnfEncoder.Operand(x + xLower, true, xSize),
+                new CnfEncoder.Operand(FortressUtils.getInteger(value))
+            }, newIndex));
       } else {
         final int y = getVarIndex(rhs);
+        final int ySize = FortressUtils.getBitSize(rhs);
+        final int yLower = FortressUtils.getLowerBit(rhs);
 
         // Inequality x != y.
         builder.addAllClauses(
-            Sat4jEncoder.encodeVarNotEqualVar(lhs, x, rhs, y, index));
-
-        index += 2 * n;
+            CnfEncoder.NEQ.encode(new CnfEncoder.Operand[] {
+                new CnfEncoder.Operand(x + xLower, true, xSize),
+                new CnfEncoder.Operand(y + yLower, true, ySize)
+            }, newIndex));
       }
     }
   }
@@ -189,8 +217,7 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
   private void handleOr(final NodeOperation operation) {
     int ej = index;
 
-    builder.addClause(Sat4jEncoder.newClause(index, operation.getOperandCount()));
-    index += operation.getOperandCount();
+    builder.addClause(CnfEncoder.newClause(operation.getOperandCount(), newIndex));
 
     for (final Node operand : operation.getOperands()) {
       final NodeOperation equation = (NodeOperation) operand;
@@ -207,8 +234,9 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
           ? equation.getOperand(1)
           : equation.getOperand(0);
 
-      final int n = FortressUtils.getBitSize(lhs);
       final int x = getVarIndex(lhs);
+      final int xSize = FortressUtils.getBitSize(lhs);
+      final int xLower = FortressUtils.getLowerBit(lhs);
 
       setUsedBits(lhs);
       setUsedBits(rhs);
@@ -219,15 +247,21 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
           // Equality x == c.
           builder.addAllClauses(
-              Sat4jEncoder.encodeVarEqualConst(ej, lhs, x, FortressUtils.getInteger(value)));
+              CnfEncoder.EQ_CONST.encode(new CnfEncoder.Operand[] {
+                  new CnfEncoder.Operand(x + xLower, true, xSize),
+                  new CnfEncoder.Operand(FortressUtils.getInteger(value))
+              }, ej, newIndex));
         } else {
           final int y = getVarIndex(rhs);
+          final int ySize = FortressUtils.getBitSize(rhs);
+          final int yLower = FortressUtils.getLowerBit(rhs);
 
           // Equality x == y.
           builder.addAllClauses(
-              Sat4jEncoder.encodeVarEqualVar(ej, lhs, x, rhs, y, index));
-
-          index += 2 * n;
+              CnfEncoder.EQ.encode(new CnfEncoder.Operand[] {
+                  new CnfEncoder.Operand(x + xLower, true, xSize),
+                  new CnfEncoder.Operand(y + yLower, true, ySize)
+              }, ej, newIndex));
         }
       } else {
         if (rhs.getKind() == Node.Kind.VALUE) {
@@ -235,15 +269,21 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
           // Inequality x != c.
           builder.addAllClauses(
-              Sat4jEncoder.encodeVarNotEqualConst(ej, lhs, x, FortressUtils.getInteger(value)));
+              CnfEncoder.NEQ_CONST.encode(new CnfEncoder.Operand[] {
+                  new CnfEncoder.Operand(x + xLower, true, xSize),
+                  new CnfEncoder.Operand(FortressUtils.getInteger(value))
+              }, ej, newIndex));
         } else {
           final int y = getVarIndex(rhs);
+          final int ySize = FortressUtils.getBitSize(rhs);
+          final int yLower = FortressUtils.getLowerBit(rhs);
 
           // Inequality x != y.
           builder.addAllClauses(
-              Sat4jEncoder.encodeVarNotEqualVar(ej, lhs, x, rhs, y, index));
-
-          index += 2 * n;
+              CnfEncoder.NEQ.encode(new CnfEncoder.Operand[] {
+                  new CnfEncoder.Operand(x + xLower, true, xSize),
+                  new CnfEncoder.Operand(y + yLower, true, ySize)
+              }, ej, newIndex));
         }
       }
 

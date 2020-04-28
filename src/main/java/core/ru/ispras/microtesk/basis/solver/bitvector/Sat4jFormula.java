@@ -14,6 +14,8 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import org.sat4j.core.Vec;
+import org.sat4j.core.VecInt;
 import org.sat4j.specs.IVecInt;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -33,7 +35,7 @@ public final class Sat4jFormula {
    */
   public static final class Builder {
     /** Collection of vectors of clauses. */
-    private final Collection<IVecInt> clauses = new ArrayList<>();
+    private final Collection<ArrayList<Integer>> clauses = new ArrayList<>();
 
     public Builder() {}
 
@@ -41,17 +43,22 @@ public final class Sat4jFormula {
       clauses.addAll(rhs.clauses);
     }
 
-    public final void addClause(final IVecInt clause) {
+    public final void addClause(final ArrayList<Integer> clause) {
       InvariantChecks.checkNotNull(clause);
       this.clauses.add(clause);
     }
 
-    public final void addAllClauses(final Collection<IVecInt> clauses) {
+    public final void addAllClauses(final Collection<ArrayList<Integer>> clauses) {
       InvariantChecks.checkNotNull(clauses);
       this.clauses.addAll(clauses);
     }
 
     public Sat4jFormula build() {
+      final Collection<IVecInt> clauses = new ArrayList<>(this.clauses.size());
+      for (final ArrayList<Integer> clause : this.clauses) {
+        // FIXME: Converting ArrayList<Integer> to int[] is slow.
+        clauses.add(new VecInt(clause.stream().mapToInt(Integer::intValue).toArray()));
+      }
       return new Sat4jFormula(clauses);
     }
   }

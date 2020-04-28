@@ -14,8 +14,10 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import java.util.LinkedHashMap;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
@@ -137,8 +139,7 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
     }
 
     // Assign the variables with values.
-    final Map<Variable, BitVector> solution =
-        Sat4jDecoder.decode(solver, problem.getIndices());
+    final Map<Variable, BitVector> solution = decode(solver, problem.getIndices());
 
     // Track unused fields of the variables.
     final Map<Variable, BitVector> masks = problem.getMasks();
@@ -176,5 +177,26 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
     }
 
     return new SolverResult<>(solution);
+  }
+
+  private Map<Variable, BitVector> decode(
+      final IProblem problem,
+      final Map<Variable, Integer> indices) {
+    final Map<Variable, BitVector> solution = new LinkedHashMap<>();
+
+    for (final Map.Entry<Variable, Integer> entry : indices.entrySet()) {
+      final Variable variable = entry.getKey();
+      final int x = entry.getValue();
+
+      final BitVector value = BitVector.newEmpty(variable.getType().getSize());
+      for (int i = 0; i < variable.getType().getSize(); i++) {
+        final int xi = x + i;
+        value.setBit(i, problem.model(xi));
+      }
+
+      solution.put(variable, value);
+    }
+
+    return solution;
   }
 }
