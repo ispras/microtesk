@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
-import org.sat4j.core.Vec;
-import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 
 import ru.ispras.fortress.util.InvariantChecks;
@@ -35,7 +33,7 @@ public final class Sat4jFormula {
    */
   public static final class Builder {
     /** Collection of vectors of clauses. */
-    private final Collection<IVec<IVecInt>> clauses = new ArrayList<>();
+    private final Collection<IVecInt> clauses = new ArrayList<>();
 
     public Builder() {}
 
@@ -45,17 +43,10 @@ public final class Sat4jFormula {
 
     public final void addClause(final IVecInt clause) {
       InvariantChecks.checkNotNull(clause);
-
-      final IVec<IVecInt> vector = new Vec<>(new IVecInt[] { clause });
-      this.clauses.add(vector);
+      this.clauses.add(clause);
     }
 
-    public final void addAllClauses(final IVec<IVecInt> clauses) {
-      InvariantChecks.checkNotNull(clauses);
-      this.clauses.add(clauses);
-    }
-
-    public final void addAllClauses(final Collection<IVec<IVecInt>> clauses) {
+    public final void addAllClauses(final Collection<IVecInt> clauses) {
       InvariantChecks.checkNotNull(clauses);
       this.clauses.addAll(clauses);
     }
@@ -65,10 +56,10 @@ public final class Sat4jFormula {
     }
   }
 
-  /** Collection of vectors of clauses. */
-  private final Collection<IVec<IVecInt>> clauses;
+  /** Collection of clauses. */
+  private final Collection<IVecInt> clauses;
 
-  public Sat4jFormula(final Collection<IVec<IVecInt>> clauses) {
+  public Sat4jFormula(final Collection<IVecInt> clauses) {
     InvariantChecks.checkNotNull(clauses);
     this.clauses = Collections.unmodifiableCollection(clauses);
   }
@@ -85,28 +76,8 @@ public final class Sat4jFormula {
     return clauses.size();
   }
 
-  public Collection<IVec<IVecInt>> getClauses() {
+  public Collection<IVecInt> getClauses() {
     return clauses;
-  }
-
-  @Override
-  public boolean equals(final Object o) {
-    if (o == this) {
-      return true;
-    }
-
-    if (o == null || !(o instanceof Sat4jFormula)) {
-      return false;
-    }
-
-    final Sat4jFormula r = (Sat4jFormula) o;
-
-    return clauses.equals(r.clauses);
-  }
-
-  @Override
-  public int hashCode() {
-    return clauses.hashCode();
   }
 
   @Override
@@ -114,20 +85,16 @@ public final class Sat4jFormula {
     final StringBuilder builder = new StringBuilder();
 
     boolean delimiter = false;
-    for (final IVec<IVecInt> vector : clauses) {
-      for (int i = 0; i < vector.size(); i++) {
-        final IVecInt clause = vector.get(i);
-
-        if (delimiter) {
-          builder.append(" & ");
-        }
-
-        delimiter = true;
-
-        builder.append("(");
-        builder.append(clause);
-        builder.append(")");
+    for (final IVecInt clause : clauses) {
+      if (delimiter) {
+        builder.append(" & ");
       }
+
+      delimiter = true;
+
+      builder.append("(");
+      builder.append(clause);
+      builder.append(")");
     }
 
     return builder.toString();

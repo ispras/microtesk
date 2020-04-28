@@ -108,8 +108,8 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
 
     // Construct the problem.
     try {
-      for (final IVec<IVecInt> clauses : formula.getClauses()) {
-        solver.addAllClauses(clauses);
+      for (final IVecInt clause : formula.getClauses()) {
+        solver.addClause(clause);
       }
     } catch (final ContradictionException e) {
       return new SolverResult<>(

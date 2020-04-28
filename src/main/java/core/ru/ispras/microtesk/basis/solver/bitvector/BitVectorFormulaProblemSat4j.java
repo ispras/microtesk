@@ -189,7 +189,7 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
   private void handleOr(final NodeOperation operation) {
     int ej = index;
 
-    builder.addClause(Sat4jEncoder.createClause(index, operation.getOperandCount()));
+    builder.addClause(Sat4jEncoder.newClause(index, operation.getOperandCount()));
     index += operation.getOperandCount();
 
     for (final Node operand : operation.getOperands()) {

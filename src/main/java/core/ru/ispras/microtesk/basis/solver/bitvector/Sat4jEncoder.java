@@ -14,13 +14,15 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 import java.math.BigInteger;
@@ -34,341 +36,441 @@ public final class Sat4jEncoder {
 
   private Sat4jEncoder() {}
 
-  public static IVecInt createClause(final int newIndex, final int size) {
-    InvariantChecks.checkGreaterThanZero(size);
-
-    // Generate 1 clause OR[j](e[j]).
+  /**
+   * Creates a clause of the form {@code OR[j=s..t]{x[j]} = (x[s] | ... | x[t])},
+   * i.e. a clause consisting of consecutive boolean variables w/o negations.
+   *
+   * @param newIndex the index of the first boolean variable.
+   * @param size the size of the clause.
+   * @return the created clause.
+   */
+  public static IVecInt newClause(final int newIndex, final int size) {
+    // Generate 1 clause OR[i]{x[i]}.
     final int[] literals = new int[size];
 
-    for (int j = 0; j < size; j++) {
-      literals[j] = newIndex + j;
+    for (int i = 0; i < size; i++) {
+      literals[i] = newIndex + i;
     }
 
     return new VecInt(literals);
   }
 
-  public static IVec<IVecInt> encodeVarEqualConst(
+  /**
+   * Encodes a word-level constraint of the form {@code x == c}.
+   *
+   * @param lhs the variable ({@code x}).
+   * @param lhsIndex the corresponding boolean variable index.
+   * @param rhs the constant ({@code c}).
+   * @return the CNF.
+   */
+  public static Collection<IVecInt> encodeVarEqualConst(
       final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = FortressUtils.getBitSize(lhs);
+    final int size = FortressUtils.getBitSize(lhs);
 
-    // Generate n clauses (c[i] ? x[i] : ~x[i]).
-    final IVecInt[] clauses = new IVecInt[n];
+    // Generate n unit clauses (c[i] ? x[i] : ~x[i]), i.e. for all i: x[i] == c[i].
+    final Collection<IVecInt> clauses = new ArrayList<>(size);
 
-    for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+    for (int i = 0; i < size; i++) {
+      final int index = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      final int[] literals = new int[] { rhs.testBit(i) ? index : -index };
 
-      final int[] literals = new int[] { rhs.testBit(i) ? xi : -xi };
-      clauses[i] = new VecInt(literals);
+      clauses.add(new VecInt(literals));
     }
 
-    return new Vec<>(clauses);
+    return clauses;
   }
 
-  public static IVec<IVecInt> encodeVarEqualConst(
-      final int linkToIndex,
+  /**
+   * Encodes a word-level constraint of the form {@code flag <=> (x == c)}.
+   * @param flagIndex the flag index.
+   * @param lhs the variable ({@code x}).
+   * @param lhsIndex the corresponding boolean variable index.
+   * @param rhs the constant ({@code c}).
+   * @return the CNF.
+   */
+  public static Collection<IVecInt> encodeVarEqualConst(
+      final int flagIndex,
       final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = FortressUtils.getBitSize(lhs);
+    final int size = FortressUtils.getBitSize(lhs);
 
-    // Generate n+1 clauses e[j] <=> AND[i](c[i] ? x[i] : ~x[i]) ==
-    // (OR[i](c[i] ? ~x[i] : x[i]) | e[j]) & AND[i]((c[i] ? x[i] : ~x[i]) | ~e[j]).
-    final IVecInt[] clauses = new IVecInt[n + 1];
+    // Generate n+1 clauses (f <=> AND[i]{c[i] ? x[i] : ~x[i]}) ==
+    // (OR[i]{c[i] ? ~x[i] : x[i]} | f) & AND[i]{(c[i] ? x[i] : ~x[i]) | ~f}.
+    final Collection<IVecInt> clauses = new ArrayList<>(size + 1);
+    final int[] literals1 = new int[size + 1];
 
-    final int[] literals1 = new int[n + 1];
+    for (int i = 0; i < size; i++) {
+      final int index = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      literals1[i] = rhs.testBit(i) ? -index : index;
 
-    for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
-      literals1[i] = rhs.testBit(i) ? -xi : xi;
-
-      final int[] literals2 = new int[] { (rhs.testBit(i) ? xi : -xi), -linkToIndex };
-      clauses[i] = new VecInt(literals2);
+      final int[] literals2 = new int[] { (rhs.testBit(i) ? index : -index), -flagIndex };
+      clauses.add(new VecInt(literals2));
     }
 
-    literals1[n] = linkToIndex;
-    clauses[n] = new VecInt(literals1);
+    literals1[size] = flagIndex;
+    clauses.add(new VecInt(literals1));
 
-    return new Vec<>(clauses);
+    return clauses;
   }
 
-  public static IVec<IVecInt> encodeVarNotEqualConst(
+  /**
+   * Encodes a word-level constraint of the form {@code x != c}.
+   *
+   * @param lhs the variable ({@code x}).
+   * @param lhsIndex the corresponding boolean variable index.
+   * @param rhs the constant ({@code c}).
+   * @return the CNF.
+   */
+  public static Collection<IVecInt> encodeVarNotEqualConst(
       final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = FortressUtils.getBitSize(lhs);
+    final int size = FortressUtils.getBitSize(lhs);
 
-    // Generate 1 clause OR[i](c[i] ? ~x[i] : x[i]).
-    final int[] literals = new int[n];
+    // Generate 1 clause OR[i]{c[i] ? ~x[i] : x[i]}, i.e. exists i: x[i] != c[i].
+    final int[] literals = new int[size];
 
-    for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
-      literals[i] = rhs.testBit(i) ? -xi : xi;
+    for (int i = 0; i < size; i++) {
+      final int index = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      literals[i] = rhs.testBit(i) ? -index : index;
     }
 
-    final IVecInt[] clauses = new IVecInt[] { new VecInt(literals) };
-    return new Vec<>(clauses);
+    return Collections.singleton(new VecInt(literals));
   }
 
-  public static IVec<IVecInt> encodeVarNotEqualConst(
-      final int linkToIndex,
+  /**
+   * Encodes a word-level constraint of the form {@code flag <=> (x != c)}.
+   *
+   * @param flagIndex the flag index.
+   * @param lhs the variable ({@code x}).
+   * @param lhsIndex the corresponding boolean variable index.
+   * @param rhs the constant ({@code c}).
+   * @return the CNF.
+   */
+  public static Collection<IVecInt> encodeVarNotEqualConst(
+      final int flagIndex,
       final Node lhs,
       final int lhsIndex,
       final BigInteger rhs) {
-    final int n = FortressUtils.getBitSize(lhs);
+    final int size = FortressUtils.getBitSize(lhs);
 
-    // Generate n+1 clauses e[j] <=> OR[i](c[i] ? ~x[i] : x[i]) ==
-    // (OR[i](c[i] ? ~x[i] : x[i]) | ~e[j]) & AND[i]((c[i] ? x[i] : ~x[i]) | e[j]).
-    final IVecInt[] clauses = new IVecInt[n + 1];
+    // Generate n+1 clauses (f <=> OR[i]{c[i] ? ~x[i] : x[i]}) ==
+    // (OR[i]{c[i] ? ~x[i] : x[i]} | ~f) & AND[i]{(c[i] ? x[i] : ~x[i]) | f}.
+    final Collection<IVecInt> clauses = new ArrayList<>(size + 1);
+    final int[] literals1 = new int[size + 1];
 
-    final int[] literals1 = new int[n + 1];
+    for (int i = 0; i < size; i++) {
+      final int index = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      literals1[i] = rhs.testBit(i) ? -index : index;
 
-    for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
-
-      literals1[i] = rhs.testBit(i) ? -xi : xi;
-
-      final int[] literals2 = new int[] { (rhs.testBit(i) ? xi : -xi), linkToIndex };
-      clauses[i] = new VecInt(literals2);
+      final int[] literals2 = new int[] { (rhs.testBit(i) ? index : -index), flagIndex };
+      clauses.add(new VecInt(literals2));
     }
 
-    literals1[n] = -linkToIndex;
-    clauses[n] = new VecInt(literals1);
+    literals1[size] = -flagIndex;
+    clauses.add(new VecInt(literals1));
 
-    return new Vec<>(clauses);
+    return clauses;
   }
 
-  public static IVec<IVecInt> encodeVarEqualVar(
+  /**
+   * Encodes a word-level constraint of the form {@code x == y}.
+   *
+   * @param lhs the LHS variable ({@code x}).
+   * @param lhsIndex the LHS boolean variable index.
+   * @param rhs the RHS variable ({@code y}).
+   * @param rhsIndex the RHS boolean variable index.
+   * @return the CNF.
+   */
+  public static Collection<IVecInt> encodeVarEqualVar(
       final Node lhs,
       final int lhsIndex,
       final Node rhs,
       final int rhsIndex) {
-    final int n = FortressUtils.getBitSize(lhs);
+    final int size = FortressUtils.getBitSize(lhs);
 
-    // Generate 2*n clauses (x[i] & y[i]) | (~x[i] & ~y[i]) ==
-    // (~x[i] | y[i]) & (x[i] | ~y[i]).
-    final IVecInt[] clauses = new IVecInt[2 * n];
+    // Generate 2*n clauses AND[i]{(x[i] & y[i]) | (~x[i] & ~y[i])} ==
+    // AND[i]{(~x[i] | y[i]) & (x[i] | ~y[i])}.
+    final Collection<IVecInt> clauses = new ArrayList<>(2 * size);
 
-    int k = 0;
-    for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
+    for (int i = 0; i < size; i++) {
+      final int xIndex = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      final int yIndex = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
 
-      final int[] literals1 = new int[] { xi, -yi };
-      clauses[k++] = new VecInt(literals1);
+      final int[] literals1 = new int[] { xIndex, -yIndex };
+      clauses.add(new VecInt(literals1));
 
-      final int[] literals2 = new int[] { -xi, yi };
-      clauses[k++] = new VecInt(literals2);
+      final int[] literals2 = new int[] { -xIndex, yIndex };
+      clauses.add(new VecInt(literals2));
     }
 
-    return new Vec<>(clauses);
+    return clauses;
   }
 
-  public static IVec<IVecInt> encodeVarEqualVar(
-      final int linkToIndex,
+  /**
+   * Encodes a word-level constraint of the form {@code flag <=> (x == y)}.
+   *
+   * @param flagIndex the flag index.
+   * @param lhs the LHS variable ({@code x}).
+   * @param lhsIndex the LHS boolean variable index.
+   * @param rhs the RHS variable ({@code y}).
+   * @param rhsIndex the RHS boolean variable index.
+   * @param newIndex the starting index of new boolean variables to be introduced.
+   * @return the CNF.
+   */
+  public static Collection<IVecInt> encodeVarEqualVar(
+      final int flagIndex,
       final Node lhs,
       final int lhsIndex,
       final Node rhs,
       final int rhsIndex,
       final int newIndex) {
-    final int n = FortressUtils.getBitSize(lhs);
+    final int size = FortressUtils.getBitSize(lhs);
+
+    // Generate 8*n+1 clauses (see below).
+    final Collection<IVecInt> clauses = new ArrayList<>(8 * size + 1);
+
+    // Generate 2*n+1 clauses (f <=> AND[i]{(x[i] & y[i]) | (~x[i] & ~y[i])}) ==
+    // (f <=> AND[i]{(~x[i] | y[i]) & (x[i] | ~y[i])}) ==
+    // (f <=> AND[i]{u[i] & v[i]}) ==
+    // (OR[i]{~u[i] | ~v[i]} | f) & AND[i]{u[i] | f} & AND[i]{v[i] | ~f}.
+    final int[] literals1 = new int[2 * size + 1];
+
+    for (int i = 0; i < size; i++) {
+      final int uIndex = newIndex + i;
+      final int vIndex = newIndex + size + i;
+
+      literals1[2 * i]     = -uIndex;
+      literals1[2 * i + 1] = -vIndex;
+
+      final int[] literals2 = new int[] { uIndex, -flagIndex };
+      clauses.add(new VecInt(literals2));
+
+      final int[] literals3 = new int[] { vIndex, -flagIndex };
+      clauses.add(new VecInt(literals3));
+    }
+
+    literals1[2 * size] = flagIndex;
+    clauses.add(new VecInt(literals1));
+
+    // Generate 3*n clauses AND[i]{u[i] <=> (~x[i] | y[i])} ==
+    // AND[i]{(~x[i] | y[i] | ~u[i]) & (x[i] | u[i]) & (~y[i] | u[i])}.
+    clauses.addAll(encodeVarEqualBitwiseOr(
+        lhs, false, lhsIndex, rhs, true,  rhsIndex, newIndex
+    ));
+
+    // Generate 3*n clauses AND[i]{v[i] <=> (x[i] | ~y[i])} ==
+    // AND[i]{(x[i] | ~y[i] | ~v[i]) & (~x[i] | v[i]) & (y[i] | v[i])}.
+    clauses.addAll(encodeVarEqualBitwiseOr(
+        lhs, true, lhsIndex, rhs, false, rhsIndex, newIndex + size
+    ));
+
+    return clauses;
+  }
+
+  /**
+   * Encodes a word-level constraint of the form {@code x != y}.
+   *
+   * @param lhs the LHS variable ({@code x}).
+   * @param lhsIndex the LHS boolean variable index.
+   * @param rhs the RHS variable ({@code y}).
+   * @param rhsIndex the RHS boolean variable index.
+   * @param newIndex the starting index of new boolean variables to be introduced.
+   * @return the CNF.
+   */
+  public static Collection<IVecInt> encodeVarNotEqualVar(
+      final Node lhs,
+      final int lhsIndex,
+      final Node rhs,
+      final int rhsIndex,
+      final int newIndex) {
+    final int size = FortressUtils.getBitSize(lhs);
+
+    // Generate 6*n+1 clauses (see below).
+    final Collection<IVecInt> clauses = new ArrayList<IVecInt>(6 * size + 1);
+
+    // Generate 1 clause OR[i]{x[i] & ~y[i] | ~x[i] & y[i]} == OR[i]{u[i] | v[i]}.
+    final int[] literals1 = new int[2 * size];
+
+    for (int i = 0; i < size; i++) {
+      final int uIndex = newIndex + i;
+      final int vIndex = newIndex + size + i;
+
+      literals1[2 * i]     = uIndex;
+      literals1[2 * i + 1] = vIndex;
+    }
+
+    clauses.add(new VecInt(literals1));
+
+    // Generate 3*n clauses AND[i]{u[i] <=> (x[i] & ~y[i])} ==
+    // AND[i]{(~x[i] | y[i] | u[i]) & (x[i] | ~u[i]) & (~y[i] | ~u[i])}.
+    clauses.addAll(encodeVarEqualBitwiseAnd(
+        lhs, true, lhsIndex, rhs, false, rhsIndex, newIndex
+    ));
+
+    // Generate 3*n clauses AND[i]{v[i] <=> (~x[i] & y[i])} ==
+    // AND[i]{(x[i] | ~y[i] | v[i]) & (~x[i] | ~v[i]) & (y[i] | ~v[i])}.
+    clauses.addAll(encodeVarEqualBitwiseAnd(
+        lhs, false, lhsIndex, rhs, true, rhsIndex, newIndex + size
+    ));
+
+    return clauses;
+  }
+
+  /**
+   * Encodes a word-level constraint of the form {@code flag <=> (x != y)}.
+   *
+   * @param flagIndex the flag index.
+   * @param lhs the LHS variable ({@code x}).
+   * @param lhsIndex the LHS boolean variable index.
+   * @param rhs the RHS variable ({@code y}).
+   * @param rhsIndex the RHS boolean variable index.
+   * @param newIndex the starting index of new boolean variables to be introduced.
+   * @return the CNF.
+   */
+  public static Collection<IVecInt> encodeVarNotEqualVar(
+      final int flagIndex,
+      final Node lhs,
+      final int lhsIndex,
+      final Node rhs,
+      final int rhsIndex,
+      final int newIndex) {
+    final int size = FortressUtils.getBitSize(lhs);
 
     // Generate 8*n+1 clauses.
-    final IVecInt[] clauses = new IVecInt[8 * n + 1];
+    final Collection<IVecInt> clauses = new ArrayList<>(8 * size + 1);
 
-    // Generate 2*n+1 clauses e[j] <=> AND[i](x[i] & y[i] | ~x[i] & ~y[i]) ==
-    // e[j] <=> AND[i]((~x[i] | y[i]) & (x[i] | ~y[i])) ==
-    // e[j] <=> AND[i](u[i] & v[i]) ==
-    // (OR[i](~u[i] | ~v[i]) | e[j]) & AND[i](u[i] | ~e[j]) & AND[i](v[i] | ~e[j]).
-    final int[] literals11 = new int[2 * n + 1];
+    // Generate 2*n+1 clauses (f <=> OR[i]{(x[i] & ~y[i]) | (~x[i] & y[i])}) ==
+    // (f <=> OR[i]{u[i] | v[i]}) ==
+    // (OR[i]{u[i] | v[i]} | ~f) & AND[i]{~u[i] | f} & AND[i]{~v[i] | f}.
+    final int[] literals1 = new int[2 * size + 1];
 
-    int k = 0;
-    for (int i = 0; i < n; i++) {
-      final int ui = newIndex + i;
-      final int vi = newIndex + n + i;
+    for (int i = 0; i < size; i++) {
+      final int uIndex = newIndex + i;
+      final int vIndex = newIndex + size + i;
 
-      literals11[2 * i]     = -ui;
-      literals11[2 * i + 1] = -vi;
+      literals1[2 * i]     = uIndex;
+      literals1[2 * i + 1] = vIndex;
 
-      final int[] literals12 = new int[] { ui, -linkToIndex };
-      clauses[k++] = new VecInt(literals12);
+      final int[] literals2 = new int[] { -uIndex, flagIndex };
+      clauses.add(new VecInt(literals2));
 
-      final int[] literals13 = new int[] { vi, -linkToIndex };
-      clauses[k++] = new VecInt(literals13);
+      final int[] literals3 = new int[] { -vIndex, flagIndex };
+      clauses.add(new VecInt(literals3));
     }
 
-    literals11[2 * n] = linkToIndex;
-    clauses[k++] = new VecInt(literals11);
+    literals1[2 * size] = -flagIndex;
+    clauses.add(new VecInt(literals1));
 
-    // Generate 3*n clauses u[i] <=> (~x[i] | y[i]) ==
-    // (~x[i] | y[i] | ~u[i]) & (x[i] | u[i]) & (~y[i] | u[i]).
-    for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
-      final int ui = newIndex + i;
+    // Generate 3*n clauses AND[i]{u[i] <=> (x[i] & ~y[i])} ==
+    // AND[i]{(~x[i] | y[i] | u[i]) & (x[i] | ~u[i]) & (~y[i] | ~u[i])}.
+    clauses.addAll(encodeVarEqualBitwiseAnd(
+        lhs, true, lhsIndex, rhs, false, rhsIndex, newIndex
+    ));
 
-      final int[] literals21 = new int[] { -xi, yi, -ui };
-      clauses[k++] = new VecInt(literals21);
+    // Generate 3*n clauses AND[i]{v[i] <=> (~x[i] & y[i])} ==
+    // AND[i]{(x[i] | ~y[i] | v[i]) & (~x[i] | ~v[i]) & (y[i] | ~v[i])}.
+    clauses.addAll(encodeVarEqualBitwiseAnd(
+      lhs, false, lhsIndex, rhs, true, rhsIndex, newIndex
+    ));
 
-      final int[] literals22 = new int[] { xi, ui };
-      clauses[k++] = new VecInt(literals22);
-
-      final int[] literals23 = new int[] { -yi, ui };
-      clauses[k++] = new VecInt(literals23);
-    }
-
-    // Generate 3*n clauses v[i] <=> (x[i] | ~y[i]) ==
-    // (x[i] | ~y[i] | ~v[i]) & (~x[i] | v[i]) & (y[i] | v[i]).
-    for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
-      final int vi = newIndex + n + i;
-
-      final int[] literals31 = new int[] { xi, -yi, -vi };
-      clauses[k++] = new VecInt(literals31);
-
-      final int[] literals32 = new int[] { -xi, vi };
-      clauses[k++] = new VecInt(literals32);
-
-      final int[] literals33 = new int[] { yi, vi };
-      clauses[k++] = new VecInt(literals33);
-    }
-
-    return new Vec<>(clauses);
+    return clauses;
   }
 
-  public static IVec<IVecInt> encodeVarNotEqualVar(
+  /**
+   * Encodes a word-level constraint of the form {@code u == [~]x & [~]y}.
+   *
+   * @param lhs the LHS variable ({@code x}).
+   * @param lhsSign the LHS sign ({@code false} iff {@code x} is negated).
+   * @param lhsIndex the LHS boolean variable index.
+   * @param rhs the RHS variable ({@code} y).
+   * @param rhsSign the RHS sign ({@code false} iff {@code y} is negated).
+   * @param rhsIndex the RHS boolean variable index.
+   * @param newIndex newIndex the starting index of new boolean variables to be introduced.
+   * @return the CNF.
+   */
+  public static Collection<IVecInt> encodeVarEqualBitwiseAnd(
       final Node lhs,
+      final boolean lhsSign,
       final int lhsIndex,
       final Node rhs,
+      final boolean rhsSign,
       final int rhsIndex,
       final int newIndex) {
-    final int n = FortressUtils.getBitSize(lhs);
+    final int size = FortressUtils.getBitSize(lhs);
 
-    // Generate 6*n+1 clauses.
-    final IVecInt[] clauses = new IVecInt[6 * n + 1];
+    // Generate 3*n clauses AND[i]{u[i] <=> ([~]x[i] & [~]y[i])} ==
+    // AND[i]{(~[~]x[i] | ~[~]y[i] | u[i]) & ([~]x[i] | ~u[i]) & ([~]y[i] | ~u[i])}.
+    final Collection<IVecInt> clauses = new ArrayList<>(3 * size);
 
-    // Generate 1 clause OR[i](x[i] & ~y[i] | ~x[i] & y[i]) == OR[i](u[i] | v[i]).
-    final int[] literals1 = new int[2 * n];
+    for (int i = 0; i < size; i++) {
+      final int xIndex = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      final int yIndex = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
+      final int uIndex = newIndex + i;
 
-    for (int i = 0; i < n; i++) {
-      final int ui = newIndex + i;
-      final int vi = newIndex + n + i;
+      final int xSignedIndex = lhsSign ? xIndex : -xIndex;
+      final int ySignedIndex = rhsSign ? yIndex : -yIndex;
 
-      literals1[2 * i]     = ui;
-      literals1[2 * i + 1] = vi;
+      final int[] literals1 = new int[]{-xSignedIndex, -ySignedIndex, uIndex};
+      clauses.add(new VecInt(literals1));
+
+      final int[] literals2 = new int[]{xSignedIndex, -uIndex};
+      clauses.add(new VecInt(literals2));
+
+      final int[] literals3 = new int[]{ySignedIndex, -uIndex};
+      clauses.add(new VecInt(literals3));
     }
 
-    int k = 0;
-    clauses[k++] = new VecInt(literals1);
-
-    // Generate 3*n clauses u[i] <=> (x[i] & ~y[i]) ==
-    // (~x[i] | y[i] | u[i]) & (x[i] | ~u[i]) & (~y[i] | ~u[i]).
-    for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
-      final int ui = newIndex + i;
-
-      final int[] literals21 = new int[] { -xi, yi, ui };
-      clauses[k++] = new VecInt(literals21);
-
-      final int[] literals22 = new int[] { xi, -ui };
-      clauses[k++] = new VecInt(literals22);
-
-      final int[] literals23 = new int[] { -yi, -ui };
-      clauses[k++] = new VecInt(literals23);
-    }
-
-    // Generate 3*n clauses v[i] <=> (~x[i] & y[i]) ==
-    // (x[i] | ~y[i] | v[i]) & (~x[i] | ~v[i]) & (y[i] | ~v[i]).
-    for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
-      final int vi = newIndex + n + i;
-
-      final int[] literals31 = new int[] { xi, -yi, vi };
-      clauses[k++] = new VecInt(literals31);
-
-      final int[] literals32 = new int[] { -xi, -vi };
-      clauses[k++] = new VecInt(literals32);
-
-      final int[] literals33 = new int[] { yi, -vi };
-      clauses[k++] = new VecInt(literals33);
-    }
-
-    return new Vec<>(clauses);
+    return clauses;
   }
 
-  public static IVec<IVecInt> encodeVarNotEqualVar(
-      final int linkToIndex,
+  /**
+   * Encodes a word-level constraint of the form {@code u == [~]x | [~]y}.
+   *
+   * @param lhs the LHS variable ({@code x}).
+   * @param lhsSign the LHS sign ({@code false} iff {@code x} is negated).
+   * @param lhsIndex the LHS boolean variable index.
+   * @param rhs the RHS variable ({@code} y).
+   * @param rhsSign the RHS sign ({@code false} iff {@code y} is negated).
+   * @param rhsIndex the RHS boolean variable index.
+   * @param newIndex newIndex the starting index of new boolean variables to be introduced.
+   * @return the CNF.
+   */
+  public static Collection<IVecInt> encodeVarEqualBitwiseOr(
       final Node lhs,
+      final boolean lhsSign,
       final int lhsIndex,
       final Node rhs,
+      final boolean rhsSign,
       final int rhsIndex,
       final int newIndex) {
-    final int n = FortressUtils.getBitSize(lhs);
+    final int size = FortressUtils.getBitSize(lhs);
 
-    // Generate 8*n+1 clauses.
-    final IVecInt[] clauses = new IVecInt[8 * n + 1];
+    // Generate 3*n clauses AND[i]{u[i] <=> ([~]x[i] | [~]y[i])} ==
+    // AND[i]{([~]x[i] | [~]y[i] | ~u[i]) & (~[~]x[i] | u[i]) & (~[~]y[i] | u[i])}.
+    final Collection<IVecInt> clauses = new ArrayList<>(3 * size);
 
-    // Generate 2*n+1 clauses e[j] <=> OR[i](x[i] & ~y[i] | ~x[i] & y[i]) ==
-    // e[j] <=> OR[i](u[i] | v[i]) ==
-    // (OR[i](u[i] | v[i]) | ~e[j]) & AND[i](~u[i] | e[j]) & AND(~v[i] | e[j]).
-    final int[] literals11 = new int[2 * n + 1];
+    for (int i = 0; i < size; i++) {
+      final int xIndex = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
+      final int yIndex = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
+      final int uIndex = newIndex + size + i;
 
-    int k = 0;
-    for (int i = 0; i < n; i++) {
-      final int ui = newIndex + i;
-      final int vi = newIndex + n + i;
+      final int xSignedIndex = lhsSign ? xIndex : -xIndex;
+      final int ySignedIndex = rhsSign ? yIndex : -yIndex;
 
-      literals11[2 * i]     = ui;
-      literals11[2 * i + 1] = vi;
+      final int[] literals1 = new int[] { xSignedIndex, ySignedIndex, -uIndex };
+      clauses.add(new VecInt(literals1));
 
-      final int[] literals12 = new int[] { -ui, linkToIndex };
-      clauses[k++] = new VecInt(literals12);
+      final int[] literals2 = new int[] { -xSignedIndex, uIndex };
+      clauses.add(new VecInt(literals2));
 
-      final int[] literals13 = new int[] { -vi, linkToIndex };
-      clauses[k++] = new VecInt(literals13);
+      final int[] literals3 = new int[] { -ySignedIndex, uIndex };
+      clauses.add(new VecInt(literals3));
     }
 
-    literals11[2 * n] = -linkToIndex;
-    clauses[k++] = new VecInt(literals11);
-
-    // Generate 3*n clauses u[i] <=> (x[i] & ~y[i]) ==
-    // (~x[i] | y[i] | u[i]) & (x[i] | ~u[i]) & (~y[i] | ~u[i]).
-    for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
-      final int ui = newIndex + i;
-
-      final int[] literals21 = new int[] { -xi, yi, ui };
-      clauses[k++] = new VecInt(literals21);
-
-      final int[] literals22 = new int[] { xi, -ui };
-      clauses[k++] = new VecInt(literals22);
-
-      final int[] literals23 = new int[] { -yi, -ui };
-      clauses[k++] = new VecInt(literals23);
-    }
-
-    // Generate 3*n clauses v[i] <=> (~x[i] & y[i]) ==
-    // (x[i] | ~y[i] | v[i]) & (~x[i] | ~v[i]) & (y[i] | ~v[i]).
-    for (int i = 0; i < n; i++) {
-      final int xi = lhsIndex + FortressUtils.getLowerBit(lhs) + i;
-      final int yi = rhsIndex + FortressUtils.getLowerBit(rhs) + i;
-      final int vi = newIndex + n + i;
-
-      final int[] literals31 = new int[] { xi, -yi, vi };
-      clauses[k++] = new VecInt(literals31);
-
-      final int[] literals32 = new int[] { -xi, -vi };
-      clauses[k++] = new VecInt(literals32);
-
-      final int[] literals33 = new int[] { yi, -vi };
-      clauses[k++] = new VecInt(literals33);
-    }
-
-    return new Vec<>(clauses);
+    return clauses;
   }
 }
