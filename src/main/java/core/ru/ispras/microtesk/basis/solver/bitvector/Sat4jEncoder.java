@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,34 +16,23 @@ package ru.ispras.microtesk.basis.solver.bitvector;
 
 import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
-import org.sat4j.minisat.SolverFactory;
-import org.sat4j.specs.IProblem;
-import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 
-import ru.ispras.fortress.data.Variable;
-import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 import java.math.BigInteger;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
- * {@link Sat4jUtils} contains a number of utilities to deal with SAT4J.
+ * {@link Sat4jEncoder} implements an encoder of Fortress nodes to SAT4J CNFs.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class Sat4jUtils {
+public final class Sat4jEncoder {
 
-  private Sat4jUtils() {}
-
-  public static ISolver getSolver() {
-    return SolverFactory.newDefault();
-  }
+  private Sat4jEncoder() {}
 
   public static IVecInt createClause(final int newIndex, final int size) {
     InvariantChecks.checkGreaterThanZero(size);
@@ -381,26 +370,5 @@ public final class Sat4jUtils {
     }
 
     return new Vec<>(clauses);
-  }
-
-  public static Map<Variable, BitVector> decodeSolution(
-      final IProblem problem,
-      final Map<Variable, Integer> indices) {
-    final Map<Variable, BitVector> solution = new LinkedHashMap<>();
-
-    for (final Map.Entry<Variable, Integer> entry : indices.entrySet()) {
-      final Variable variable = entry.getKey();
-      final int x = entry.getValue();
-
-      final BitVector value = BitVector.newEmpty(variable.getType().getSize());
-      for (int i = 0; i < variable.getType().getSize(); i++) {
-        final int xi = x + i;
-        value.setBit(i, problem.model(xi));
-      }
-
-      solution.put(variable, value);
-    }
-
-    return solution;
   }
 }

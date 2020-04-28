@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVec;
@@ -102,7 +103,7 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
   public SolverResult<Map<Variable, BitVector>> solve(final Mode mode) {
     InvariantChecks.checkNotNull(mode);
 
-    final ISolver solver = Sat4jUtils.getSolver();
+    final ISolver solver = SolverFactory.newDefault();
     final Sat4jFormula formula = problem.getFormula();
 
     // Construct the problem.
@@ -137,7 +138,7 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
 
     // Assign the variables with values.
     final Map<Variable, BitVector> solution =
-        Sat4jUtils.decodeSolution(solver, problem.getIndices());
+        Sat4jDecoder.decode(solver, problem.getIndices());
 
     // Track unused fields of the variables.
     final Map<Variable, BitVector> masks = problem.getMasks();

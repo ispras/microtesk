@@ -108,7 +108,7 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
                 // Generate n unit clauses (c[i] ? x[i] : ~x[i]).
                 builder.addAllClauses(
-                    Sat4jUtils.encodeVarEqualConst(
+                    Sat4jEncoder.encodeVarEqualConst(
                         nodeVariable,
                         x,
                         FortressUtils.getInteger(variable.getData())));
@@ -143,13 +143,13 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
         // Equality x == c.
         builder.addAllClauses(
-            Sat4jUtils.encodeVarEqualConst(lhs, x, FortressUtils.getInteger(value)));
+            Sat4jEncoder.encodeVarEqualConst(lhs, x, FortressUtils.getInteger(value)));
       } else {
         final int y = getVarIndex(rhs);
 
         // Equality x == y.
         builder.addAllClauses(
-            Sat4jUtils.encodeVarEqualVar(lhs, x, rhs, y));
+            Sat4jEncoder.encodeVarEqualVar(lhs, x, rhs, y));
       }
     } else {
       if (rhs.getKind() == Node.Kind.VALUE) {
@@ -157,13 +157,13 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
         // Inequality x != c.
         builder.addAllClauses(
-            Sat4jUtils.encodeVarNotEqualConst(lhs, x, FortressUtils.getInteger(value)));
+            Sat4jEncoder.encodeVarNotEqualConst(lhs, x, FortressUtils.getInteger(value)));
       } else {
         final int y = getVarIndex(rhs);
 
         // Inequality x != y.
         builder.addAllClauses(
-            Sat4jUtils.encodeVarNotEqualVar(lhs, x, rhs, y, index));
+            Sat4jEncoder.encodeVarNotEqualVar(lhs, x, rhs, y, index));
 
         index += 2 * n;
       }
@@ -189,7 +189,7 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
   private void handleOr(final NodeOperation operation) {
     int ej = index;
 
-    builder.addClause(Sat4jUtils.createClause(index, operation.getOperandCount()));
+    builder.addClause(Sat4jEncoder.createClause(index, operation.getOperandCount()));
     index += operation.getOperandCount();
 
     for (final Node operand : operation.getOperands()) {
@@ -219,13 +219,13 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
           // Equality x == c.
           builder.addAllClauses(
-              Sat4jUtils.encodeVarEqualConst(ej, lhs, x, FortressUtils.getInteger(value)));
+              Sat4jEncoder.encodeVarEqualConst(ej, lhs, x, FortressUtils.getInteger(value)));
         } else {
           final int y = getVarIndex(rhs);
 
           // Equality x == y.
           builder.addAllClauses(
-              Sat4jUtils.encodeVarEqualVar(ej, lhs, x, rhs, y, index));
+              Sat4jEncoder.encodeVarEqualVar(ej, lhs, x, rhs, y, index));
 
           index += 2 * n;
         }
@@ -235,13 +235,13 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
 
           // Inequality x != c.
           builder.addAllClauses(
-              Sat4jUtils.encodeVarNotEqualConst(ej, lhs, x, FortressUtils.getInteger(value)));
+              Sat4jEncoder.encodeVarNotEqualConst(ej, lhs, x, FortressUtils.getInteger(value)));
         } else {
           final int y = getVarIndex(rhs);
 
           // Inequality x != y.
           builder.addAllClauses(
-              Sat4jUtils.encodeVarNotEqualVar(ej, lhs, x, rhs, y, index));
+              Sat4jEncoder.encodeVarNotEqualVar(ej, lhs, x, rhs, y, index));
 
           index += 2 * n;
         }
