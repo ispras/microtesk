@@ -23,11 +23,11 @@ import ru.ispras.fortress.util.InvariantChecks;
 import java.math.BigInteger;
 
 /**
- * {@link CnfEncoder} implements an encoder of Fortress nodes to SAT4J CNFs.
+ * {@link BitBlaster} implements an encoder of Fortress nodes to SAT4J CNFs.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public enum CnfEncoder {
+public enum BitBlaster {
   /**
    * Encodes a word-level constraint of the form {@code [~]x == c}.
    */

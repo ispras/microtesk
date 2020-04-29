@@ -28,18 +28,18 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
 import java.util.Map;
 
 /**
- * Test for {@link BitVectorConstraint}.
+ * Test for {@link Constraint}.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BitVectorConstraintTestCase {
+public final class ConstraintTestCase {
   private void runTest(final Variable x, final BitVector a, final BitVector b) {
     System.out.format("Range: [%s, %s]\n", a.toHexString(), b.toHexString());
 
-    final Node constraint = BitVectorConstraint.range(x, a, b);
+    final Node constraint = Constraint.range(x, a, b);
 
-    final BitVectorFormulaSolverSat4j solver = new BitVectorFormulaSolverSat4j(
-        constraint, BitVectorVariableInitializer.RANDOM);
+    final Sat4jSolver solver = new Sat4jSolver(
+        constraint, VariableInitializer.RANDOM);
 
     final SolverResult<Map<Variable, BitVector>> result = solver.solve(Solver.Mode.MAP);
     Assert.assertTrue(result.getErrors().toString(),

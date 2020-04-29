@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,39 +14,40 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.Nodes;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * {@link BitVectorFormulaBuilderSimple} implements a simple formula builder.
+ * {@link NodeEncoderTrivial} implements a simple formula builder.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BitVectorFormulaBuilderSimple extends BitVectorFormulaBuilder {
-  private final List<Node> nodes;
+public final class NodeEncoderTrivial implements NodeEncoder<Node> {
+  private final Collection<Node> nodes;
 
-  public BitVectorFormulaBuilderSimple() {
+  public NodeEncoderTrivial() {
     this.nodes = new ArrayList<>();
   }
 
-  public BitVectorFormulaBuilderSimple(final BitVectorFormulaBuilderSimple r) {
+  public NodeEncoderTrivial(final NodeEncoderTrivial r) {
     this.nodes = new ArrayList<>(r.nodes);
   }
 
-  public Node build() {
+  @Override
+  public Node getEncodedForm() {
     return Nodes.and(nodes);
   }
 
   @Override
-  public void addFormula(final Node formula) {
-    nodes.add(formula);
+  public void addNode(final Node node) {
+    nodes.add(node);
   }
 
   @Override
-  public BitVectorFormulaBuilderSimple clone() {
-    return new BitVectorFormulaBuilderSimple(this);
+  public NodeEncoderTrivial clone() {
+    return new NodeEncoderTrivial(this);
   }
 }

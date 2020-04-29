@@ -19,7 +19,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
+import ru.ispras.microtesk.basis.solver.bitvector.Constraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.model.spec.MmuAddressInstance;
@@ -97,7 +97,7 @@ public final class SymbolicRestrictor {
     Logger.debug("Constraint: %s in [%s, %s]", addrType, min.toHexString(), max.toHexString());
 
     return Collections.<Node>singleton(
-        BitVectorConstraint.range(addrType.getVariable().getVariable(), min, max));
+        Constraint.range(addrType.getVariable().getVariable(), min, max));
   }
 
   public Collection<Node> getConstraints(

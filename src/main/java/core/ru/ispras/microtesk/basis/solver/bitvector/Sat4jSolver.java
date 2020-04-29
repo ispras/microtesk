@@ -34,16 +34,16 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * {@link BitVectorFormulaSolverSat4j} is a SAT-based bit-vector constraint solver.
+ * {@link Sat4jSolver} is a SAT-based bit-vector constraint solver.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, BitVector>> {
+public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
   /** Problem to be solved. */
-  private final BitVectorFormulaProblemSat4j problem;
+  private final NodeEncoderSat4j problem;
 
   /** Initializer used to fill the unused fields of the variables. */
-  private final BitVectorVariableInitializer initializer;
+  private final VariableInitializer initializer;
 
   /**
    * Constructs a solver.
@@ -51,14 +51,14 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
    * @param builder the builder of the problem to be solved.
    * @param initializer the initializer to be used to fill the unused fields.
    */
-  public BitVectorFormulaSolverSat4j(
-      final BitVectorFormulaBuilder builder,
-      final BitVectorVariableInitializer initializer) {
+  public Sat4jSolver(
+      final NodeEncoder builder,
+      final VariableInitializer initializer) {
     InvariantChecks.checkNotNull(builder);
-    InvariantChecks.checkTrue(builder instanceof BitVectorFormulaProblemSat4j);
+    InvariantChecks.checkTrue(builder instanceof NodeEncoderSat4j);
     InvariantChecks.checkNotNull(initializer);
 
-    this.problem = (BitVectorFormulaProblemSat4j) builder;
+    this.problem = (NodeEncoderSat4j) builder;
     this.initializer = initializer;
   }
 
@@ -68,15 +68,15 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
    * @param formulae the constraints to be solved.
    * @param initializer the initializer to be used to fill the unused fields.
    */
-  public BitVectorFormulaSolverSat4j(
+  public Sat4jSolver(
       final Collection<Node> formulae,
-      final BitVectorVariableInitializer initializer) {
+      final VariableInitializer initializer) {
     InvariantChecks.checkNotNull(formulae);
     InvariantChecks.checkNotNull(initializer);
 
-    this.problem = new BitVectorFormulaProblemSat4j();
+    this.problem = new NodeEncoderSat4j();
     for (final Node formula : formulae) {
-      problem.addFormula(formula);
+      problem.addNode(formula);
     }
 
     this.initializer = initializer;
@@ -88,14 +88,14 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
    * @param formula the constraint to be solved.
    * @param initializer the initializer to be used to fill the unused fields.
    */
-  public BitVectorFormulaSolverSat4j(
+  public Sat4jSolver(
       final Node formula,
-      final BitVectorVariableInitializer initializer) {
+      final VariableInitializer initializer) {
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(initializer);
 
-    this.problem = new BitVectorFormulaProblemSat4j();
-    problem.addFormula(formula);
+    this.problem = new NodeEncoderSat4j();
+    problem.addNode(formula);
 
     this.initializer = initializer;
   }
@@ -105,7 +105,7 @@ public final class BitVectorFormulaSolverSat4j implements Solver<Map<Variable, B
     InvariantChecks.checkNotNull(mode);
 
     final ISolver solver = SolverFactory.newDefault();
-    final Sat4jFormula formula = problem.getFormula();
+    final Sat4jFormula formula = problem.getEncodedForm();
 
     // Construct the problem.
     try {

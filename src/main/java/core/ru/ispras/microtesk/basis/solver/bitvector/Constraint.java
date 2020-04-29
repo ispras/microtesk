@@ -30,12 +30,12 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * {@link BitVectorConstraint} is generic interface of a bit-vector constraint.
+ * {@link Constraint} is generic interface of a bit-vector constraint.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class BitVectorConstraint {
-  private BitVectorConstraint() {}
+public class Constraint {
+  private Constraint() {}
 
   private static final String NEW_VARIABLE_PREFIX = "new$";
   private static int newVariableId = 0;

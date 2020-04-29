@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,11 +19,11 @@ import ru.ispras.fortress.randomizer.Randomizer;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link BitVectorVariableInitializer} defines strategies for initializing bit-vector variables.
+ * {@link VariableInitializer} defines strategies for initializing bit-vector variables.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public enum BitVectorVariableInitializer {
+public enum VariableInitializer {
   ZEROS() {
     @Override
     public BitVector getValue(final int width) {

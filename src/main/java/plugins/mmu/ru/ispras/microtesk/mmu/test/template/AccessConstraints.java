@@ -20,7 +20,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
+import ru.ispras.microtesk.basis.solver.bitvector.Constraint;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -179,7 +179,7 @@ public final class AccessConstraints {
 
       if ((1 << FortressUtils.getBitSize(variable)) != values.size()) {
         generalConstraints.add(
-            BitVectorConstraint.domain(
+            Constraint.domain(
                 variable,
                 BigIntegerUtils.toBvSet(values, FortressUtils.getBitSize(variable)))
         );

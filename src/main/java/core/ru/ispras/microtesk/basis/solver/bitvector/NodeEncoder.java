@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,20 +17,32 @@ package ru.ispras.microtesk.basis.solver.bitvector;
 import ru.ispras.fortress.expression.Node;
 
 /**
- * {@link BitVectorFormulaBuilder} represents an abstract formula builder.
+ * {@link NodeEncoder} represents an abstract formula encoder.
+ *
+ * @param <F> the encoded form.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class BitVectorFormulaBuilder {
+public interface NodeEncoder<F> {
 
   /**
-   * Adds the sub-formula to the formula.
+   * Encodes the sub-formula (node) and adds it to the formula.
    *
-   * @param formula the sub-formula to be added.
-   * @throws IllegalArgumentException if {@code formula} is null.
+   * @param node the node to be added.
    */
-  public abstract void addFormula(final Node formula);
+  void addNode(Node node);
 
-  @Override
-  public abstract BitVectorFormulaBuilder clone();
+  /**
+   * Returns the encoded representation of the formula.
+   *
+   * @return the encoded representation.
+   */
+  F getEncodedForm();
+
+  /**
+   * Clones the encoder.
+   *
+   * @return an encoder copy.
+   */
+  NodeEncoder clone();
 }

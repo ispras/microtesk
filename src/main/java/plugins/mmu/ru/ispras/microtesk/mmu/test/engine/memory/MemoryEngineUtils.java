@@ -22,10 +22,10 @@ import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaBuilder;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaProblemSat4j;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorFormulaSolverSat4j;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorVariableInitializer;
+import ru.ispras.microtesk.basis.solver.bitvector.NodeEncoder;
+import ru.ispras.microtesk.basis.solver.bitvector.NodeEncoderSat4j;
+import ru.ispras.microtesk.basis.solver.bitvector.Sat4jSolver;
+import ru.ispras.microtesk.basis.solver.bitvector.VariableInitializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
@@ -188,7 +188,7 @@ public final class MemoryEngineUtils {
     // latest assignments and latest buffer accesses.
 
     final SolverResult<Map<Variable, BitVector>> result =
-        solve(partialResult, BitVectorVariableInitializer.ZEROS, Solver.Mode.SAT);
+        solve(partialResult, VariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
@@ -207,7 +207,7 @@ public final class MemoryEngineUtils {
             access,
             Collections.<Node>emptyList(),
             constraints.getGeneralConstraints(),
-            BitVectorVariableInitializer.ZEROS,
+            VariableInitializer.ZEROS,
             Solver.Mode.SAT
         );
 
@@ -218,7 +218,7 @@ public final class MemoryEngineUtils {
       final Access access,
       final Collection<Node> conditions,
       final Collection<Node> constraints,
-      final BitVectorVariableInitializer initializer) {
+      final VariableInitializer initializer) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(initializer);
@@ -238,14 +238,14 @@ public final class MemoryEngineUtils {
     InvariantChecks.checkNotNull(structure);
 
     final SolverResult<Map<Variable, BitVector>> result =
-        solve(structure, BitVectorVariableInitializer.ZEROS, Solver.Mode.SAT);
+        solve(structure, VariableInitializer.ZEROS, Solver.Mode.SAT);
 
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
   private static SolverResult<Map<Variable, BitVector>> solve(
       final SymbolicResult symbolicResult /* INOUT */,
-      final BitVectorVariableInitializer initializer,
+      final VariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(initializer);
     InvariantChecks.checkNotNull(mode);
@@ -254,7 +254,7 @@ public final class MemoryEngineUtils {
       return new SolverResult<Map<Variable, BitVector>>("Conflict in symbolic execution");
     }
 
-    final BitVectorFormulaBuilder builder = symbolicResult.getBuilder();
+    final NodeEncoder builder = symbolicResult.getBuilder();
 
     final Solver<Map<Variable, BitVector>> solver = newSolver(builder, initializer);
     final SolverResult<Map<Variable, BitVector>> result = solver.solve(mode);
@@ -272,7 +272,7 @@ public final class MemoryEngineUtils {
       final Access access,
       final Collection<Node> conditions,
       final Collection<Node> constraints,
-      final BitVectorVariableInitializer initializer,
+      final VariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(conditions);
@@ -303,11 +303,11 @@ public final class MemoryEngineUtils {
       return new SolverResult<Map<Variable, BitVector>>("Conflict in symbolic execution");
     }
 
-    final BitVectorFormulaBuilder builder = symbolicResult.getBuilder().clone();
+    final NodeEncoder builder = symbolicResult.getBuilder().clone();
 
     // Supplement the formula with the constraints.
     for (final Node constraint : constraints) {
-      builder.addFormula(constraint);
+      builder.addNode(constraint);
     }
 
     final Solver<Map<Variable, BitVector>> solver = newSolver(builder, initializer);
@@ -326,7 +326,7 @@ public final class MemoryEngineUtils {
 
   private static SolverResult<Map<Variable, BitVector>> solve(
       final List<Access> structure,
-      final BitVectorVariableInitializer initializer,
+      final VariableInitializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(structure);
     InvariantChecks.checkNotNull(initializer);
@@ -336,14 +336,14 @@ public final class MemoryEngineUtils {
     symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
 
     final SymbolicResult symbolicResult = symbolicExecutor.getResult();
-    final BitVectorFormulaBuilder builder = symbolicResult.getBuilder();
+    final NodeEncoder builder = symbolicResult.getBuilder();
     final Solver<Map<Variable, BitVector>> solver = newSolver(builder, initializer);
 
     return solver.solve(mode);
   }
 
-  public static BitVectorFormulaBuilder newFormulaBuilder() {
-    return new BitVectorFormulaProblemSat4j();
+  public static NodeEncoder newFormulaBuilder() {
+    return new NodeEncoderSat4j();
   }
 
   public static SymbolicResult newSymbolicResult() {
@@ -368,11 +368,11 @@ public final class MemoryEngineUtils {
   }
 
   public static Solver<Map<Variable, BitVector>> newSolver(
-      final BitVectorFormulaBuilder builder,
-      final BitVectorVariableInitializer initializer) {
+      final NodeEncoder builder,
+      final VariableInitializer initializer) {
     InvariantChecks.checkNotNull(builder);
     InvariantChecks.checkNotNull(initializer);
 
-    return new BitVectorFormulaSolverSat4j(builder, initializer);
+    return new Sat4jSolver(builder, initializer);
   }
 }

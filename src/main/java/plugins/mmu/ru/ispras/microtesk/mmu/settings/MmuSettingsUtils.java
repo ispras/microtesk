@@ -18,7 +18,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.bitvector.BitVectorConstraint;
+import ru.ispras.microtesk.basis.solver.bitvector.Constraint;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.test.template.BufferEventConstraint;
@@ -109,9 +109,9 @@ public final class MmuSettingsUtils {
       return null /* TRUE */;
     }
 
-    final BitVectorConstraint.Kind kind = include.isEmpty()
-        ? BitVectorConstraint.Kind.EXCLUDE
-        : BitVectorConstraint.Kind.RETAIN;
+    final Constraint.Kind kind = include.isEmpty()
+        ? Constraint.Kind.EXCLUDE
+        : Constraint.Kind.RETAIN;
 
     final Set<BigInteger> values = include.isEmpty()
         ? exclude
@@ -122,7 +122,7 @@ public final class MmuSettingsUtils {
     final Set<BitVector> bvValues =
         BigIntegerUtils.toBvSet(values, variable.getDataType().getSize());
 
-    return BitVectorConstraint.domain(kind, variable, bvDomain, bvValues);
+    return Constraint.domain(kind, variable, bvDomain, bvValues);
   }
 
   /**
@@ -156,7 +156,7 @@ public final class MmuSettingsUtils {
       values.add(value ? BitVector.valueOf(1, 1) : BitVector.valueOf(0, 1));
     }
 
-    return BitVectorConstraint.domain(BitVectorConstraint.Kind.RETAIN, variable, null, values);
+    return Constraint.domain(Constraint.Kind.RETAIN, variable, null, values);
   }
 
   public static  List<BufferEventConstraint> getBufferConstraints() {
