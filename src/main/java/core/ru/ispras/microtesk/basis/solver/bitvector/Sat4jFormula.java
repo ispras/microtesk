@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
-import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
 import org.sat4j.specs.IVecInt;
 

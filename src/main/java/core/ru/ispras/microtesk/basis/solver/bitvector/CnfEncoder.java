@@ -35,6 +35,9 @@ public enum CnfEncoder {
     @Override
     public Collection<ArrayList<Integer>> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isValue());
+
       final int size = operands[0].size;
 
       // Generate n unit clauses (c[i] ? x[i] : ~x[i]), i.e. for all i: x[i] == c[i].
@@ -60,42 +63,15 @@ public enum CnfEncoder {
   },
 
   /**
-   * Encodes a word-level constraint of the form {@code [~]x != c}.
-   */
-  NEQ_CONST {
-    @Override
-    public Collection<ArrayList<Integer>> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      final int size = operands[0].size;
-
-      // Generate 1 clause OR[i]{c[i] ? ~x[i] : x[i]}, i.e. exists i: x[i] != c[i].
-      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(1);
-
-      final ArrayList<Integer> literals = new ArrayList<>(size);
-      for (int i = 0; i < size; i++) {
-        final int index = operands[0].sign ? +(operands[0].index + i) : -(operands[0].index + i);
-        literals.add(operands[1].value.testBit(i) ? -index : +index);
-      }
-
-      // Do not return an unmodifiable singleton (the clauses are subject to change).
-      clauses.add(literals);
-      return clauses;
-    }
-
-    @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return EQ_CONST.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
    * Encodes a word-level constraint of the form {@code [~]x == [~]y}.
    */
-  EQ {
+  EQ_VAR {
     @Override
     public Collection<ArrayList<Integer>> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+
       final int size = operands[0].size;
 
       // Generate 2*n clauses AND[i]{(x[i] & y[i]) | (~x[i] & ~y[i])} ==
@@ -123,17 +99,76 @@ public enum CnfEncoder {
     @Override
     public Collection<ArrayList<Integer>> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
+      return NEQ_VAR.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x == c} or {@code [~]x == [~]y}.
+   */
+  EQ {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+
+      if (operands[1].isValue()) {
+        return EQ_CONST.encodePositive(operands, newIndex);
+      }
+
+      return EQ_VAR.encodePositive(operands, newIndex);
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
       return NEQ.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x != c}.
+   */
+  NEQ_CONST {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isValue());
+
+      final int size = operands[0].size;
+
+      // Generate 1 clause OR[i]{c[i] ? ~x[i] : x[i]}, i.e. exists i: x[i] != c[i].
+      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(1);
+
+      final ArrayList<Integer> literals = new ArrayList<>(size);
+      for (int i = 0; i < size; i++) {
+        final int index = operands[0].sign ? +(operands[0].index + i) : -(operands[0].index + i);
+        literals.add(operands[1].value.testBit(i) ? -index : +index);
+      }
+
+      // Do not return an unmodifiable singleton (the clauses are subject to change).
+      clauses.add(literals);
+      return clauses;
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return EQ_CONST.encodePositive(operands, newIndex);
     }
   },
 
   /**
    * Encodes a word-level constraint of the form {@code [~]x != [~]y}.
    */
-  NEQ {
+  NEQ_VAR {
     @Override
     public Collection<ArrayList<Integer>> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+
       final int size = operands[0].size;
 
       // Generate 6*n+1 clauses (see below).
@@ -168,6 +203,29 @@ public enum CnfEncoder {
     @Override
     public Collection<ArrayList<Integer>> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
+      return EQ_VAR.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x != c} or {@code [~]x != [~]y}.
+   */
+  NEQ {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+
+      if (operands[1].isValue()) {
+        return NEQ_CONST.encodePositive(operands, newIndex);
+      }
+
+      return NEQ_VAR.encodePositive(operands, newIndex);
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
       return EQ.encodePositive(operands, newIndex);
     }
   },
@@ -179,6 +237,9 @@ public enum CnfEncoder {
     @Override
     public Collection<ArrayList<Integer>> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+
       final int size = operands[0].size;
 
       // Generate 3*n clauses AND[i]{u[i] <=> ([~]x[i] & [~]y[i])} ==
@@ -224,6 +285,9 @@ public enum CnfEncoder {
     @Override
     public Collection<ArrayList<Integer>> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+
       final int size = operands[0].size;
 
       // Generate 3*n clauses AND[i]{u[i] <=> ([~]x[i] | [~]y[i])} ==
@@ -289,6 +353,10 @@ public enum CnfEncoder {
 
     public boolean isValue() {
       return value != null;
+    }
+
+    public boolean isVariable() {
+      return value == null;
     }
   }
 
