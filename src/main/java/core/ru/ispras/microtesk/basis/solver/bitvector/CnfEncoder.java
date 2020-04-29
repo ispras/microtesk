@@ -451,6 +451,110 @@ public enum CnfEncoder {
   },
 
   /**
+   * Encodes a word-level constraint of the form {@code [~]x <= c} or {@code [~]x <= [~]y}.
+   */
+  BVULE {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = new Operand[] {
+          operands[0].isVariable() ? operands[0] : operands[1],
+          operands[0].isVariable() ? operands[1] : operands[0]
+      };
+
+      if (newOperands[1].isValue()) {
+        return BVULE_CONST.encodePositive(newOperands, newIndex);
+      }
+
+      return BVULE_VAR.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVUGT.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x < c} or {@code [~]x < [~]y}.
+   */
+  BVULT {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = new Operand[] {
+          operands[0].isVariable() ? operands[0] : operands[1],
+          operands[0].isVariable() ? operands[1] : operands[0]
+      };
+
+      if (newOperands[1].isValue()) {
+        return BVULT_CONST.encodePositive(newOperands, newIndex);
+      }
+
+      return BVULT_VAR.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVUGE.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x >= c} or {@code [~]x >= [~]y}.
+   */
+  BVUGE {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = new Operand[] {
+          operands[0].isVariable() ? operands[0] : operands[1],
+          operands[0].isVariable() ? operands[1] : operands[0]
+      };
+
+      if (newOperands[1].isValue()) {
+        return BVUGE_CONST.encodePositive(newOperands, newIndex);
+      }
+
+      return BVUGE_VAR.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVULT.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x > c} or {@code [~]x > [~]y}.
+   */
+  BVUGT {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = new Operand[] {
+          operands[0].isVariable() ? operands[0] : operands[1],
+          operands[0].isVariable() ? operands[1] : operands[0]
+      };
+
+      if (newOperands[1].isValue()) {
+        return BVUGT_CONST.encodePositive(newOperands, newIndex);
+      }
+
+      return BVUGT_VAR.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVULE.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
    * Encodes a word-level constraint of the form {@code u == [~]x & [~]y}.
    */
   BVAND {
