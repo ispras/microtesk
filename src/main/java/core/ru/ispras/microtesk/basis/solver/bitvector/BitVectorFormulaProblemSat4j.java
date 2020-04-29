@@ -21,6 +21,7 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.ExprTreeVisitorDefault;
 import ru.ispras.fortress.expression.ExprTreeWalker;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
@@ -91,11 +92,11 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
     final Enum<?> operationId = operation.getOperationId();
 
     if (operationId == StandardOperation.EQ || operationId == StandardOperation.NOTEQ) {
-      handleEq(operation);
+      handleEquation(operation);
     } else if (operationId == StandardOperation.AND) {
-      handleAnd(operation);
+      handleConjunction(operation);
     } else if (operationId == StandardOperation.OR) {
-      handleOr(operation);
+      handleDisjunction(operation);
     }
   }
 
@@ -161,73 +162,61 @@ public final class BitVectorFormulaProblemSat4j extends BitVectorFormulaBuilder 
     walker.visit(node);
   }
 
-  private void handleEq(final NodeOperation equation) {
-    final Node lhs = FortressUtils.getVariable(equation.getOperand(0)) != null
-        ? equation.getOperand(0)
-        : equation.getOperand(1);
+  private void handleEquation(final NodeOperation node, final int flagIndex) {
+    InvariantChecks.checkTrue(
+        ExprUtils.isOperation(node, StandardOperation.EQ, StandardOperation.NOTEQ));
 
-    final Node rhs = FortressUtils.getVariable(equation.getOperand(0)) != null
-        ? equation.getOperand(1)
-        : equation.getOperand(0);
-
-    Logger.debug("Handle equation: %s", equation);
+    final Node lhs = node.getOperand(0);
+    final Node rhs = node.getOperand(1);
 
     setUsedBits(lhs);
     setUsedBits(rhs);
 
-    if (equation.getOperationId() == StandardOperation.EQ) {
-      builder.addAllClauses(CnfEncoder.EQ.encode(getOperands(lhs, rhs), newIndex));
+    if (node.getOperationId() == StandardOperation.EQ) {
+      builder.addAllClauses(CnfEncoder.EQ.encode(getOperands(lhs, rhs), flagIndex, newIndex));
     } else {
-      builder.addAllClauses(CnfEncoder.NEQ.encode(getOperands(lhs, rhs), newIndex));
+      builder.addAllClauses(CnfEncoder.NOTEQ.encode(getOperands(lhs, rhs), flagIndex, newIndex));
     }
   }
 
-  private void handleAnd(final NodeOperation operation) {
-    for (final Node operand : operation.getOperands()) {
+  private void handleEquation(final NodeOperation node) {
+    handleEquation(node, 0);
+  }
+
+  private void handleConjunction(final NodeOperation node) {
+   InvariantChecks.checkTrue(ExprUtils.isOperation(node, StandardOperation.AND));
+
+    for (final Node operand : node.getOperands()) {
+      InvariantChecks.checkTrue(ExprUtils.isOperation(operand));
       final NodeOperation clause = (NodeOperation) operand;
-      final Enum<?> clauseId = clause.getOperationId();
 
-      if (clauseId == StandardOperation.EQ || clauseId == StandardOperation.NOTEQ) {
-        handleEq(clause);
-      } else if (clauseId == StandardOperation.AND) {
-        handleAnd(clause);
-      } else if (clauseId == StandardOperation.OR) {
-        handleOr(clause);
+      switch ((StandardOperation) clause.getOperationId()) {
+        case EQ:
+        case NOTEQ:
+          handleEquation(clause);
+          break;
+        case AND:
+          handleConjunction(clause);
+          break;
+        case OR:
+          handleDisjunction(clause);
+          break;
+        default:
+          InvariantChecks.checkTrue(false, "Cannot encode the node");
       }
     }
   }
 
-  private void handleOr(final NodeOperation operation) {
-    int ej = index;
+  private void handleDisjunction(final NodeOperation node) {
+    InvariantChecks.checkTrue(ExprUtils.isOperation(node, StandardOperation.OR));
 
-    builder.addClause(CnfEncoder.newClause(operation.getOperandCount(), newIndex));
+    int flagIndex = index;
+    builder.addClause(CnfEncoder.newClause(node.getOperandCount(), newIndex));
 
-    for (final Node operand : operation.getOperands()) {
-      final NodeOperation equation = (NodeOperation) operand;
-
-      InvariantChecks.checkTrue(
-          equation.getOperationId() == StandardOperation.EQ
-          || equation.getOperationId() == StandardOperation.NOTEQ);
-
-      final Node lhs = FortressUtils.getVariable(equation.getOperand(0)) != null
-          ? equation.getOperand(0)
-          : equation.getOperand(1);
-
-      final Node rhs = FortressUtils.getVariable(equation.getOperand(0)) != null
-          ? equation.getOperand(1)
-          : equation.getOperand(0);
-
-      setUsedBits(lhs);
-      setUsedBits(rhs);
-
-      if (equation.getOperationId() == StandardOperation.EQ) {
-        builder.addAllClauses(CnfEncoder.EQ.encode(getOperands(lhs, rhs), ej, newIndex));
-      } else {
-        builder.addAllClauses(CnfEncoder.NEQ.encode(getOperands(lhs, rhs), ej, newIndex));
-      }
-
-      ej++;
-    } // for equation.
+    for (final Node operand : node.getOperands()) {
+      handleEquation((NodeOperation) operand, flagIndex);
+      flagIndex++;
+    }
   }
 
   private int getVarIndex(final Node node) {

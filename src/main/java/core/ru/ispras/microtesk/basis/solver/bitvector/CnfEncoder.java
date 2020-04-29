@@ -58,7 +58,7 @@ public enum CnfEncoder {
     @Override
     public Collection<ArrayList<Integer>> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
-      return NEQ_CONST.encodePositive(operands, newIndex);
+      return NOTEQ_CONST.encodePositive(operands, newIndex);
     }
   },
 
@@ -99,7 +99,7 @@ public enum CnfEncoder {
     @Override
     public Collection<ArrayList<Integer>> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
-      return NEQ_VAR.encodePositive(operands, newIndex);
+      return NOTEQ_VAR.encodePositive(operands, newIndex);
     }
   },
 
@@ -110,26 +110,29 @@ public enum CnfEncoder {
     @Override
     public Collection<ArrayList<Integer>> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      InvariantChecks.checkTrue(operands[0].isVariable());
+      final Operand[] newOperands = new Operand[] {
+          operands[0].isVariable() ? operands[0] : operands[1],
+          operands[0].isVariable() ? operands[1] : operands[0]
+      };
 
-      if (operands[1].isValue()) {
-        return EQ_CONST.encodePositive(operands, newIndex);
+      if (newOperands[1].isValue()) {
+        return EQ_CONST.encodePositive(newOperands, newIndex);
       }
 
-      return EQ_VAR.encodePositive(operands, newIndex);
+      return EQ_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
     public Collection<ArrayList<Integer>> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
-      return NEQ.encodePositive(operands, newIndex);
+      return NOTEQ.encodePositive(operands, newIndex);
     }
   },
 
   /**
    * Encodes a word-level constraint of the form {@code [~]x != c}.
    */
-  NEQ_CONST {
+  NOTEQ_CONST {
     @Override
     public Collection<ArrayList<Integer>> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
@@ -162,7 +165,7 @@ public enum CnfEncoder {
   /**
    * Encodes a word-level constraint of the form {@code [~]x != [~]y}.
    */
-  NEQ_VAR {
+  NOTEQ_VAR {
     @Override
     public Collection<ArrayList<Integer>> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
@@ -210,17 +213,20 @@ public enum CnfEncoder {
   /**
    * Encodes a word-level constraint of the form {@code [~]x != c} or {@code [~]x != [~]y}.
    */
-  NEQ {
+  NOTEQ {
     @Override
     public Collection<ArrayList<Integer>> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      InvariantChecks.checkTrue(operands[0].isVariable());
+      final Operand[] newOperands = new Operand[] {
+          operands[0].isVariable() ? operands[0] : operands[1],
+          operands[0].isVariable() ? operands[1] : operands[0]
+      };
 
-      if (operands[1].isValue()) {
-        return NEQ_CONST.encodePositive(operands, newIndex);
+      if (newOperands[1].isValue()) {
+        return NOTEQ_CONST.encodePositive(newOperands, newIndex);
       }
 
-      return NEQ_VAR.encodePositive(operands, newIndex);
+      return NOTEQ_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -414,14 +420,18 @@ public enum CnfEncoder {
   /**
    * Encodes a word-level constraint linked to a flag, i.e. {@code f <=> C}.
    *
+   * <p>If the flag is zero, encodes the constraints w/o linking it to the flag, i.e. {@code C}.</p>
+   *
    * @param operands the operands of the constraint.
-   * @param flagIndex the flag index.
+   * @param flagIndex the flag index (if zero, .
    * @param newIndex the supplier of a new boolean variable index.
    * @return the CNF.
    */
   public final Collection<ArrayList<Integer>> encode(
       final Operand[] operands, final int flagIndex, final IntSupplier newIndex) {
-    InvariantChecks.checkTrue(flagIndex != 0);
+    if (flagIndex == 0) {
+      return encodePositive(operands, newIndex);
+    }
 
     // Transformation: (f <=> C) == (C | ~f) & (~C | f) ==
     // (encode-positive(C) | ~f) & (encode-negative(C) | f).
