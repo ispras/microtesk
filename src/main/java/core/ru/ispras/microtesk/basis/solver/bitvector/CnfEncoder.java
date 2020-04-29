@@ -237,6 +237,152 @@ public enum CnfEncoder {
   },
 
   /**
+   * Encodes a word-level constraint of the form {@code [~]x <= c} (unsigned).
+   */
+  BVULE_CONST {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isValue());
+
+      final int size = operands[0].size;
+
+      // Generate at most n clauses (see below).
+      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(size);
+
+      // x[n-1]x[x-2]...x[0] <= c[n-1]c[x-2]...c[0].
+      for (int i = size - 1; i >= 0; i--) {
+        final int index = operands[0].sign ? +(operands[0].index + i) : -(operands[0].index + i);
+
+        if (!operands[1].value.testBit(i)) {
+          // ...x[i]x[i-1]...x[0] <= ...0c[i-0]...c[0].
+          // Add the unit clause ~x[i].
+          final ArrayList<Integer> literals = new ArrayList<>(1);
+          literals.add(-index);
+
+          clauses.add(literals);
+        } else {
+          // ...x[i]x[i-1]...x[0] <= ...1c[i-0]...c[0].
+          // Add the clauses (~x[i] | encode(x[i-1]...x[0], c[i-1]...c[0])).
+          operands[0].size = i;
+          final Collection<ArrayList<Integer>> tailClauses = encodePositive(operands, newIndex);
+          operands[0].size = size;
+
+          for (final ArrayList<Integer> clause : tailClauses) {
+            clause.add(-index);
+          }
+
+          clauses.addAll(tailClauses);
+          break;
+        }
+      }
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVUGT_CONST.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x < c} (unsigned).
+   */
+  BVULT_CONST {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      // Encode x <= c.
+      final Collection<ArrayList<Integer>> clauses = BVULE_CONST.encodePositive(operands, newIndex);
+      // Encode x != c.
+      clauses.addAll(NOTEQ_CONST.encodePositive(operands, newIndex));
+      return clauses;
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVUGE_CONST.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x >= c} (unsigned).
+   */
+  BVUGE_CONST {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isValue());
+
+      final int size = operands[0].size;
+
+      // Generate at most n clauses (see below).
+      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(size);
+
+      // x[n-1]x[x-2]...x[0] >= c[n-1]c[x-2]...c[0].
+      for (int i = size - 1; i >= 0; i--) {
+        final int index = operands[0].sign ? +(operands[0].index + i) : -(operands[0].index + i);
+
+        if (operands[1].value.testBit(i)) {
+          // ...x[i]x[i-1]...x[0] >= ...1c[i-0]...c[0].
+          // Add the unit clause x[i].
+          final ArrayList<Integer> literals = new ArrayList<>(1);
+          literals.add(index);
+
+          clauses.add(literals);
+        } else {
+          // ...x[i]x[i-1]...x[0] >= ...0c[i-0]...c[0].
+          // Add the clauses (x[i] | encode(x[i-1]...x[0], c[i-1]...c[0])).
+          operands[0].size = i;
+          final Collection<ArrayList<Integer>> tailClauses = encodePositive(operands, newIndex);
+          operands[0].size = size;
+
+          for (final ArrayList<Integer> clause : tailClauses) {
+            clause.add(index);
+          }
+
+          clauses.addAll(tailClauses);
+          break;
+        }
+      }
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVULT_CONST.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x > c} (unsigned).
+   */
+  BVUGT_CONST {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      // Encode x >= c.
+      final Collection<ArrayList<Integer>> clauses = BVUGE_CONST.encodePositive(operands, newIndex);
+      // Encode x != c.
+      clauses.addAll(NOTEQ_CONST.encodePositive(operands, newIndex));
+      return clauses;
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVULE_CONST.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
    * Encodes a word-level constraint of the form {@code u == [~]x & [~]y}.
    */
   BVAND {
