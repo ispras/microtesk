@@ -383,6 +383,74 @@ public enum CnfEncoder {
   },
 
   /**
+   * Encodes a word-level constraint of the form {@code [~]x <= [~]y} (unsigned).
+   */
+  BVULE_VAR {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return encodeUnsignedLessThan(operands, newIndex, false);
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVUGT_VAR.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x < [~]y} (unsigned).
+   */
+  BVULT_VAR {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return encodeUnsignedLessThan(operands, newIndex, true);
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVUGE_VAR.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x >= [~]y} (unsigned).
+   */
+  BVUGE_VAR {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVULE_VAR.encodePositive(new Operand[] { operands[1], operands[0] }, newIndex);
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVULT_VAR.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x > [~]y} (unsigned).
+   */
+  BVUGT_VAR {
+    @Override
+    public Collection<ArrayList<Integer>> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVULT_VAR.encodePositive(new Operand[] { operands[1], operands[0]}, newIndex);
+    }
+
+    @Override
+    public Collection<ArrayList<Integer>> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVULE_VAR.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
    * Encodes a word-level constraint of the form {@code u == [~]x & [~]y}.
    */
   BVAND {
@@ -596,6 +664,94 @@ public enum CnfEncoder {
 
     clauses.addAll(clauses1);
     clauses.addAll(clauses2);
+
+    return clauses;
+  }
+
+  /**
+   * Encodes a word-level constraint of the form {@code [~]x <= [~]y} or {@code [~]x < [~]y}.
+   *
+   * @param operands the operands of the constraint.
+   * @param newIndex the supplier of a new boolean variable index.
+   * @param strict the flag indicating whether the inequality is strict or not.
+   * @return the CNF.
+   */
+  public Collection<ArrayList<Integer>> encodeUnsignedLessThan(
+      final Operand[] operands, final IntSupplier newIndex, final boolean strict) {
+    InvariantChecks.checkTrue(operands[0].isVariable());
+    InvariantChecks.checkTrue(operands[1].isVariable());
+
+    final int size = operands[0].size;
+
+    // Generate 5*(n-1)+3 or 5*(n-1)+1 clauses (see below).
+    final Collection<ArrayList<Integer>> clauses = new ArrayList<>(5 * size - 2);
+
+    if (size == 1) {
+      final int xIndex = operands[0].sign ? +operands[0].index : -operands[0].index;
+      final int yIndex = operands[1].sign ? +operands[1].index : -operands[1].index;
+
+      // (x[0] <= y[0]) == (~x[0] | y[0]).
+      final ArrayList<Integer> literals1 = new ArrayList<>(2);
+      literals1.add(-xIndex);
+      literals1.add(+yIndex);
+      clauses.add(literals1);
+
+      if (strict) {
+        // (x[0] != y[0]) == (x[0] | y[0]) & (~x[0] | ~y[0]).
+        final ArrayList<Integer> literals2 = new ArrayList<>(2);
+        literals2.add(+xIndex);
+        literals2.add(+yIndex);
+        clauses.add(literals2);
+
+        final ArrayList<Integer> literals3 = new ArrayList<>(2);
+        literals3.add(+xIndex);
+        literals3.add(+yIndex);
+        clauses.add(literals3);
+      }
+
+      return clauses;
+    }
+
+    // x[n-1]x[x-2]...x[0] <= y[n-1]y[x-2]...y[0] ==
+    // (~x[i] & y[i]) | (x[i] == y[i]) & encode(x[i-1]...x[0], y[i-1]...y[0]) ==
+    // (u[i] == (~x[i] & y[i])) & (u[i] | x[i] == y[i]) & (u[i] | encode(...)).
+    final int i = size - 1;
+    final int uIndex = newIndex.getAsInt();
+
+    // Handle the upper bits.
+    operands[0].size = 1;
+    operands[1].size = 1;
+    operands[0].index += i;
+    operands[1].index += i;
+
+    // u[i] == (~x[i] & y[i]).
+    operands[0].sign = !operands[0].sign;
+    final Collection<ArrayList<Integer>> clauses1 = BVAND.encode(
+        new Operand[] { new Operand(uIndex, 1), operands[0], operands[1] }, newIndex);
+    operands[0].sign = !operands[0].sign;
+
+    // u[i] | (x[i] == y[i])
+    final Collection<ArrayList<Integer>> clauses2 = EQ_VAR.encode(operands, newIndex);
+    for (final ArrayList<Integer> clause : clauses2) {
+      clause.add(uIndex);
+    }
+
+    operands[0].index -= i;
+    operands[1].index -= i;
+
+    // u[i] | encode(x[i-1]...x[0], y[i-1]...y[0])
+    operands[0].size = i;
+    operands[1].size = i;
+    final Collection<ArrayList<Integer>> clauses3 = encodePositive(operands, newIndex);
+    for (final ArrayList<Integer> clause : clauses3) {
+      clause.add(uIndex);
+    }
+    operands[0].size = size;
+    operands[1].size = size;
+
+    clauses.addAll(clauses1);
+    clauses.addAll(clauses2);
+    clauses.addAll(clauses3);
 
     return clauses;
   }
