@@ -24,8 +24,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.bitvector.Coder;
-import ru.ispras.microtesk.basis.solver.bitvector.Encoder;
-import ru.ispras.microtesk.basis.solver.bitvector.CoderSat4J;
+import ru.ispras.microtesk.basis.solver.bitvector.CoderSat4j;
 import ru.ispras.microtesk.basis.solver.bitvector.Sat4jFormula;
 import ru.ispras.microtesk.basis.solver.bitvector.Sat4jSolver;
 import ru.ispras.microtesk.basis.solver.bitvector.VariableInitializer;
@@ -343,7 +342,7 @@ public final class MemoryEngineUtils {
 
   public static Coder<Sat4jFormula, IProblem> newFormulaBuilder(
       final VariableInitializer initializer) {
-    return new CoderSat4J(initializer);
+    return new CoderSat4j(initializer);
   }
 
   public static SymbolicResult newSymbolicResult() {

@@ -42,12 +42,12 @@ public final class Sat4jFormula {
       clauses.addAll(rhs.clauses);
     }
 
-    public final void addClause(final IntArray clause) {
+    public final void add(final IntArray clause) {
       InvariantChecks.checkNotNull(clause);
       this.clauses.add(clause);
     }
 
-    public final void addAllClauses(final Collection<IntArray> clauses) {
+    public final void addAll(final Collection<IntArray> clauses) {
       InvariantChecks.checkNotNull(clauses);
       this.clauses.addAll(clauses);
     }

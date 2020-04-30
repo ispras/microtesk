@@ -34,4 +34,11 @@ public interface Decoder<S> {
    * @return the decoded representation.
    */
   Map<Variable, BitVector> decode(S encoded);
+
+  /**
+   * Clones the decoder.
+   *
+   * @return an decoder copy.
+   */
+  Decoder<S> clone();
 }

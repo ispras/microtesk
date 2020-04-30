@@ -65,7 +65,7 @@ public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
     InvariantChecks.checkNotNull(formulae);
     InvariantChecks.checkNotNull(initializer);
 
-    final CoderSat4J coder = new CoderSat4J(initializer); // FIXME:
+    final CoderSat4j coder = new CoderSat4j(initializer); // FIXME:
     this.encoder = coder;
     this.decoder = coder;
 
@@ -86,7 +86,7 @@ public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(initializer);
 
-    final CoderSat4J coder = new CoderSat4J(initializer); // FIXME:
+    final CoderSat4j coder = new CoderSat4j(initializer); // FIXME:
     this.encoder = coder;
     this.decoder = coder;
 

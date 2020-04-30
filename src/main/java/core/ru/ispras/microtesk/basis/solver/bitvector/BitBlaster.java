@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.IntSupplier;
 
+import java.util.stream.IntStream;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import java.math.BigInteger;
@@ -28,6 +29,130 @@ import java.math.BigInteger;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public enum BitBlaster {
+  /**
+   * Encodes the true constraint.
+   */
+  TRUE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      // The returned collection should be modifiable.
+      return new ArrayList<>();
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return FALSE.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes the false constraint.
+   */
+  FALSE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Collection<IntArray> clauses = new ArrayList<>(1);
+
+      // The returned collection should be modifiable.
+      clauses.add(new IntArray(0));
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return TRUE.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a conjunction.
+   */
+  AND {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      // Generate n unit clauses: AND[i]{x[i]}.
+      final Collection<IntArray> clauses = new ArrayList<>(operands.length);
+
+      for (final Operand operand : operands) {
+        final int index = operand.sign ? +operand.index : -operand.index;
+        final IntArray literals = new IntArray(new int[]{index});
+
+        clauses.add(literals);
+      }
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      // De Morgan's law: ~(x[0] & ... & x[n-1]) == (~x[0] | ... | ~x[n-1]).
+      for (final Operand operand : operands) {
+        operand.sign ^= true;
+      }
+
+      final Collection<IntArray> clauses = OR.encodePositive(operands, newIndex);
+
+      for (final Operand operand : operands) {
+        operand.sign ^= true;
+      }
+
+      return clauses;
+    }
+  },
+
+  /**
+   * Encodes the disjunction of consecutive boolean variables w/o negations, i.e. {@code
+   * OR[j=s..t]{x[j]} = (x[s] | ... | x[t])},
+   *
+   * @param size the number of variables.
+   * @param newIndex the supplier of a new boolean variable index.
+   * @return the CNF.
+   */
+
+  /**
+   * Encodes a disjunction.
+   */
+  OR {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      // Generate 1 clause OR[i]{x[i]}.
+      final Collection<IntArray> clauses = new ArrayList<>(1);
+      final IntArray literals = new IntArray(operands.length);
+
+      for (final Operand operand : operands) {
+        final int index = operand.sign ? +operand.index : -operand.index;
+        literals.add(index);
+      }
+
+      clauses.add(literals);
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      // De Morgan's law: ~(x[0] | ... | x[n-1]) == (~x[0] & ... & ~x[n-1]).
+      for (final Operand operand : operands) {
+        operand.sign ^= true;
+      }
+
+      final Collection<IntArray> clauses = AND.encodePositive(operands, newIndex);
+
+      for (final Operand operand : operands) {
+        operand.sign ^= true;
+      }
+
+      return clauses;
+    }
+  },
+
   /**
    * Encodes a word-level constraint of the form {@code [~]x == c}.
    */
@@ -145,7 +270,7 @@ public enum BitBlaster {
         literals.add(operands[1].value.testBit(i) ? -index : +index);
       }
 
-      // Do not return an unmodifiable singleton (the clauses are subject to change).
+      // The returned collection should be modifiable.
       clauses.add(literals);
       return clauses;
     }
@@ -173,27 +298,28 @@ public enum BitBlaster {
       final Collection<IntArray> clauses = new ArrayList<>(6 * size + 1);
 
       // Generate 1 clause OR[i]{[~]x[i] & ~[~]y[i] | ~[~]x[i] & [~]y[i]} == OR[i]{u[i] | v[i]}.
-      final IntArray literals1 = newClause(2 * size, newIndex);
-      clauses.add(literals1);
+      final Operand[] uv = IntStream.range(0, 2 * size).mapToObj(
+          i -> new Operand(newIndex.getAsInt(), 1)).toArray(Operand[]::new);
+      clauses.addAll(OR.encode(operands, newIndex));
 
-      final int uIndex = literals1.get(0);
+      final int uIndex = uv[0].index;
       final int vIndex = uIndex + size;
 
       // Generate 3*n clauses AND[i]{u[i] <=> ([~]x[i] & ~[~]y[i])} ==
       // AND[i]{(~[~]x[i] | [~]y[i] | u[i]) & ([~]x[i] | ~u[i]) & (~[~]y[i] | ~u[i])}.
-      operands[1].sign = !operands[1].sign;
+      operands[1].sign ^= true;
       clauses.addAll(BVAND.encode(
           new Operand[] { new Operand(uIndex, size), operands[0], operands[1] }, newIndex
       ));
-      operands[1].sign = !operands[1].sign;
+      operands[1].sign ^= true;
 
       // Generate 3*n clauses AND[i]{v[i] <=> (~[~]x[i] & [~]y[i])} ==
       // AND[i]{([~]x[i] | ~[~]y[i] | v[i]) & (~[~]x[i] | ~v[i]) & ([~]y[i] | ~v[i])}.
-      operands[0].sign = !operands[0].sign;
+      operands[0].sign ^= true;
       clauses.addAll(BVAND.encode(
           new Operand[] { new Operand(vIndex, size), operands[0], operands[1] }, newIndex
       ));
-      operands[0].sign = !operands[0].sign;
+      operands[0].sign ^= true;
 
       return clauses;
     }
@@ -664,22 +790,54 @@ public enum BitBlaster {
   }
 
   /**
-   * Creates a clause of the form {@code OR[j=s..t]{x[j]} = (x[s] | ... | x[t])},
-   * i.e. a clause consisting of consecutive boolean variables w/o negations.
+   * Encodes the constraint of the form {@code f <=> C}.
    *
-   * @param size the size of the clause.
-   * @param newIndex the supplier of a new boolean variable index.
-   * @return the created clause.
+   * @param flagIndex the flag index (@{code f}).
+   * @param positiveClauses the positive clauses (@{code C}).
+   * @param negativeClauses the negative clauses (@{code ~C}).
+   * @return the CNF.
    */
-  public static IntArray newClause(final int size, final IntSupplier newIndex) {
-    // Generate 1 clause OR[i]{x[i]}.
-    final IntArray literals = new IntArray(size);
-
-    for (int i = 0; i < size; i++) {
-      literals.add(newIndex.getAsInt());
+  public static Collection<IntArray> linkToFlag(
+      final int flagIndex,
+      final Collection<IntArray> positiveClauses,
+      final Collection<IntArray> negativeClauses) {
+    // Transformation: (f <=> C) == (C | ~f) & (~C | f) ==
+    // (encode-positive(C) | ~f) & (encode-negative(C) | f).
+    for (final IntArray clause : positiveClauses) {
+      clause.add(-flagIndex);
     }
 
-    return literals;
+    for (final IntArray clause : negativeClauses) {
+      clause.add(+flagIndex);
+    }
+
+    final int size = positiveClauses.size() + negativeClauses.size();
+    final Collection<IntArray> clauses = new ArrayList<>(size);
+
+    clauses.addAll(positiveClauses);
+    clauses.addAll(negativeClauses);
+
+    return clauses;
+  }
+
+  /**
+   * Encodes the constraint of the form {@code f <=> C}.
+   *
+   * @param flagIndex the flag index (@{code f}).
+   * @param positiveClauses the positive clauses (@{code C}).
+   * @param negativeClauses the negative clauses (@{code ~C}).
+   * @param negation the negation flag.
+   * @return the CNF.
+   */
+  public static Collection<IntArray> linkToFlag(
+      final int flagIndex,
+      final Collection<IntArray> positiveClauses,
+      final Collection<IntArray> negativeClauses,
+      final boolean negation) {
+    return linkToFlag(
+        flagIndex,
+        negation ? negativeClauses : positiveClauses,
+        negation ? positiveClauses : negativeClauses);
   }
 
   /**
@@ -689,8 +847,7 @@ public enum BitBlaster {
    * @param newIndex the supplier of a new boolean variable index.
    * @return the CNF.
    */
-  public abstract Collection<IntArray> encodePositive(
-      Operand[] operands, IntSupplier newIndex);
+  public abstract Collection<IntArray> encodePositive(Operand[] operands, IntSupplier newIndex);
 
   /**
    * Encodes the negation of a word-level constraint to the bit-level CNF.
@@ -699,8 +856,7 @@ public enum BitBlaster {
    * @param newIndex the supplier of a new boolean variable index.
    * @return the CNF.
    */
-  public abstract Collection<IntArray> encodeNegative(
-      Operand[] operands, IntSupplier newIndex);
+  public abstract Collection<IntArray> encodeNegative(Operand[] operands, IntSupplier newIndex);
 
   /**
    * Encodes a word-level constraint to the bit-level CNF.
@@ -709,9 +865,49 @@ public enum BitBlaster {
    * @param newIndex the supplier of a new boolean variable index.
    * @return the CNF.
    */
-  public final Collection<IntArray> encode(
-      final Operand[] operands, final IntSupplier newIndex) {
+  public final Collection<IntArray> encode(final Operand[] operands, final IntSupplier newIndex) {
     return encodePositive(operands, newIndex);
+  }
+
+  /**
+   * Encodes a word-level constraint to the bit-level CNF.
+   *
+   * @param operands the operands of the constraint.
+   * @param newIndex the supplier of a new boolean variable index.
+   * @param negation the negation flag.
+   * @return the CNF.
+   */
+  public final Collection<IntArray> encode(
+      final Operand[] operands,
+      final IntSupplier newIndex,
+      final boolean negation) {
+    return negation ? encodeNegative(operands, newIndex) : encodePositive(operands, newIndex);
+  }
+
+  /**
+   * Encodes a word-level constraint linked to a flag, i.e. {@code f <=> C}.
+   *
+   * <p>If the flag is zero, encodes the constraints w/o linking it to the flag, i.e. {@code C}.</p>
+   *
+   * @param operands the operands of the constraint.
+   * @param flagIndex the flag index (if zero, .
+   * @param newIndex the supplier of a new boolean variable index.
+   * @param negation the negation flag.
+   * @return the CNF.
+   */
+  public final Collection<IntArray> encode(
+      final Operand[] operands,
+      final int flagIndex,
+      final IntSupplier newIndex,
+      final boolean negation) {
+    if (flagIndex == 0) {
+      return negation ? encodeNegative(operands, newIndex) : encodePositive(operands, newIndex);
+    }
+
+    final Collection<IntArray> positiveClauses = encodePositive(operands, newIndex);
+    final Collection<IntArray> negativeClauses = encodeNegative(operands, newIndex);
+
+    return linkToFlag(flagIndex, positiveClauses, negativeClauses, negation);
   }
 
   /**
@@ -725,30 +921,10 @@ public enum BitBlaster {
    * @return the CNF.
    */
   public final Collection<IntArray> encode(
-      final Operand[] operands, final int flagIndex, final IntSupplier newIndex) {
-    if (flagIndex == 0) {
-      return encodePositive(operands, newIndex);
-    }
-
-    // Transformation: (f <=> C) == (C | ~f) & (~C | f) ==
-    // (encode-positive(C) | ~f) & (encode-negative(C) | f).
-    final Collection<IntArray> clauses1 = encodePositive(operands, newIndex);
-    for (final IntArray clause : clauses1) {
-      clause.add(-flagIndex);
-    }
-
-    final Collection<IntArray> clauses2 = encodeNegative(operands, newIndex);
-    for (final IntArray clause : clauses2) {
-      clause.add(+flagIndex);
-    }
-
-    final int size = clauses1.size() + clauses2.size();
-    final Collection<IntArray> clauses = new ArrayList<>(size);
-
-    clauses.addAll(clauses1);
-    clauses.addAll(clauses2);
-
-    return clauses;
+      final Operand[] operands,
+      final int flagIndex,
+      final IntSupplier newIndex) {
+    return encode(operands, flagIndex, newIndex, false);
   }
 
   /**
@@ -802,10 +978,10 @@ public enum BitBlaster {
     operands[1].index += i;
 
     // u[i] == (~x[i] & y[i]).
-    operands[0].sign = !operands[0].sign;
+    operands[0].sign ^= true;
     final Collection<IntArray> clauses1 = BVAND.encode(
         new Operand[] { new Operand(uIndex, 1), operands[0], operands[1] }, newIndex);
-    operands[0].sign = !operands[0].sign;
+    operands[0].sign ^= true;
 
     // u[i] | (x[i] == y[i])
     final Collection<IntArray> clauses2 = EQ_VAR.encode(operands, newIndex);
