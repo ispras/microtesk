@@ -33,15 +33,15 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * {@link Sat4jSolver} is a SAT-based bit-vector constraint solver.
+ * {@link SolverSat4j} is a SAT-based bit-vector constraint solver.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
-  private final Encoder<Sat4jFormula> encoder;
+public final class SolverSat4j implements Solver<Map<Variable, BitVector>> {
+  private final Encoder<FormulaSat4j> encoder;
   private final Decoder<IProblem> decoder;
 
-  public Sat4jSolver(final Encoder<Sat4jFormula> encoder, final Decoder<IProblem> decoder) {
+  public SolverSat4j(final Encoder<FormulaSat4j> encoder, final Decoder<IProblem> decoder) {
     InvariantChecks.checkNotNull(encoder);
     InvariantChecks.checkNotNull(decoder);
 
@@ -49,7 +49,7 @@ public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
     this.decoder = decoder;
   }
 
-  public Sat4jSolver(final Coder<Sat4jFormula, IProblem> coder) {
+  public SolverSat4j(final Coder<FormulaSat4j, IProblem> coder) {
     this(coder, coder);
   }
 
@@ -59,9 +59,9 @@ public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
    * @param formulae the constraints to be solved.
    * @param initializer the initializer to be used to fill the unused fields.
    */
-  public Sat4jSolver(
+  public SolverSat4j(
       final Collection<Node> formulae,
-      final VariableInitializer initializer) {
+      final Initializer initializer) {
     InvariantChecks.checkNotNull(formulae);
     InvariantChecks.checkNotNull(initializer);
 
@@ -80,9 +80,9 @@ public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
    * @param formula the constraint to be solved.
    * @param initializer the initializer to be used to fill the unused fields.
    */
-  public Sat4jSolver(
+  public SolverSat4j(
       final Node formula,
-      final VariableInitializer initializer) {
+      final Initializer initializer) {
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(initializer);
 
@@ -98,7 +98,7 @@ public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
     InvariantChecks.checkNotNull(mode);
 
     final ISolver solver = SolverFactory.newDefault();
-    final Sat4jFormula formula = encoder.encode();
+    final FormulaSat4j formula = encoder.encode();
 
     // Construct the problem.
     try {

@@ -30,7 +30,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.basis.solver.bitvector.Constraint;
-import ru.ispras.microtesk.basis.solver.bitvector.VariableInitializer;
+import ru.ispras.microtesk.basis.solver.bitvector.Initializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
@@ -637,7 +637,7 @@ public final class MemoryDataGenerator implements DataGenerator {
             addressObject.getAccess(),
             conditions,
             allConstraints,
-            VariableInitializer.RANDOM
+            Initializer.RANDOM
         );
 
     // Cannot correct the address values.

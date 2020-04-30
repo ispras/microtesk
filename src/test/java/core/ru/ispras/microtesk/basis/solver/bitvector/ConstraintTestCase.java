@@ -38,8 +38,8 @@ public final class ConstraintTestCase {
 
     final Node constraint = Constraint.range(x, a, b);
 
-    final Sat4jSolver solver = new Sat4jSolver(
-        constraint, VariableInitializer.RANDOM);
+    final SolverSat4j solver = new SolverSat4j(
+        constraint, Initializer.RANDOM);
 
     final SolverResult<Map<Variable, BitVector>> result = solver.solve(Solver.Mode.MAP);
     Assert.assertTrue(result.getErrors().toString(),

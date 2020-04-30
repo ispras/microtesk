@@ -25,9 +25,9 @@ import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.bitvector.Coder;
 import ru.ispras.microtesk.basis.solver.bitvector.CoderSat4j;
-import ru.ispras.microtesk.basis.solver.bitvector.Sat4jFormula;
-import ru.ispras.microtesk.basis.solver.bitvector.Sat4jSolver;
-import ru.ispras.microtesk.basis.solver.bitvector.VariableInitializer;
+import ru.ispras.microtesk.basis.solver.bitvector.FormulaSat4j;
+import ru.ispras.microtesk.basis.solver.bitvector.SolverSat4j;
+import ru.ispras.microtesk.basis.solver.bitvector.Initializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
@@ -209,7 +209,7 @@ public final class MemoryEngineUtils {
             access,
             Collections.<Node>emptyList(),
             constraints.getGeneralConstraints(),
-            VariableInitializer.ZEROS,
+            Initializer.ZEROS,
             Solver.Mode.SAT
         );
 
@@ -220,7 +220,7 @@ public final class MemoryEngineUtils {
       final Access access,
       final Collection<Node> conditions,
       final Collection<Node> constraints,
-      final VariableInitializer initializer) {
+      final Initializer initializer) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(initializer);
@@ -272,7 +272,7 @@ public final class MemoryEngineUtils {
       final Access access,
       final Collection<Node> conditions,
       final Collection<Node> constraints,
-      final VariableInitializer initializer,
+      final Initializer initializer,
       final Solver.Mode mode) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(conditions);
@@ -340,13 +340,13 @@ public final class MemoryEngineUtils {
     return solver.solve(mode);
   }
 
-  public static Coder<Sat4jFormula, IProblem> newFormulaBuilder(
-      final VariableInitializer initializer) {
+  public static Coder<FormulaSat4j, IProblem> newFormulaBuilder(
+      final Initializer initializer) {
     return new CoderSat4j(initializer);
   }
 
   public static SymbolicResult newSymbolicResult() {
-    return new SymbolicResult(newFormulaBuilder(VariableInitializer.RANDOM)); // TODO: Always random???
+    return new SymbolicResult(newFormulaBuilder(Initializer.RANDOM)); // TODO: Always random???
   }
 
   public static SymbolicRestrictor newSymbolicRestrictor(final RegionSettings region) {
@@ -369,6 +369,6 @@ public final class MemoryEngineUtils {
   public static Solver<Map<Variable, BitVector>> newSolver(
       final Coder builder) {
     InvariantChecks.checkNotNull(builder);
-    return new Sat4jSolver(builder);
+    return new SolverSat4j(builder);
   }
 }

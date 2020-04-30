@@ -48,9 +48,9 @@ import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.NOTEQ_CONST;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class CoderSat4j implements Coder<Sat4jFormula, IProblem> {
+public final class CoderSat4j implements Coder<FormulaSat4j, IProblem> {
   /** Using directly ISolver instead of Sat4jFormula.Builder slows down performance. */
-  private final Sat4jFormula.Builder builder;
+  private final FormulaSat4j.Builder builder;
 
   /** Maps variables to their lower bit indices. */
   private final Map<Variable, Integer> indices;
@@ -69,12 +69,12 @@ public final class CoderSat4j implements Coder<Sat4jFormula, IProblem> {
   };
 
   /** Used to fill unused variable fields. */
-  private final VariableInitializer initializer;
+  private final Initializer initializer;
 
-  public CoderSat4j(final VariableInitializer initializer) {
+  public CoderSat4j(final Initializer initializer) {
     InvariantChecks.checkNotNull(initializer);
 
-    this.builder = new Sat4jFormula.Builder();
+    this.builder = new FormulaSat4j.Builder();
     this.indices = new LinkedHashMap<>();
     this.masks = new LinkedHashMap<>();
     // In SAT4J, a boolean variable index should be positive:
@@ -86,7 +86,7 @@ public final class CoderSat4j implements Coder<Sat4jFormula, IProblem> {
   public CoderSat4j(final CoderSat4j other) {
     InvariantChecks.checkNotNull(other);
 
-    this.builder = new Sat4jFormula.Builder(other.builder);
+    this.builder = new FormulaSat4j.Builder(other.builder);
     this.indices = new LinkedHashMap<>(other.indices);
     this.masks = new LinkedHashMap<>(other.masks);
     this.index = other.index;
@@ -100,7 +100,7 @@ public final class CoderSat4j implements Coder<Sat4jFormula, IProblem> {
   }
 
   @Override
-  public Sat4jFormula encode() {
+  public FormulaSat4j encode() {
     return builder.build();
   }
 

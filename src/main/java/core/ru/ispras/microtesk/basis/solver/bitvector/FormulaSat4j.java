@@ -24,13 +24,13 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * {@link Sat4jFormula} represents a SAT4J formula, which is a set of clauses.
+ * {@link FormulaSat4j} represents a SAT4J formula, which is a set of clauses.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class Sat4jFormula {
+public final class FormulaSat4j {
   /**
-   * {@link Builder} is a {@link Sat4jFormula} builder.
+   * {@link Builder} is a {@link FormulaSat4j} builder.
    */
   public static final class Builder {
     /** Collection of vectors of clauses. */
@@ -52,7 +52,7 @@ public final class Sat4jFormula {
       this.clauses.addAll(clauses);
     }
 
-    public Sat4jFormula build() {
+    public FormulaSat4j build() {
       final Collection<IVecInt> sat4jClauses = new ArrayList<>(clauses.size());
 
       for (final IntArray clause : clauses) {
@@ -61,19 +61,19 @@ public final class Sat4jFormula {
         sat4jClause.shrinkTo(clause.length());
         sat4jClauses.add(sat4jClause);
       }
-      return new Sat4jFormula(sat4jClauses);
+      return new FormulaSat4j(sat4jClauses);
     }
   }
 
   /** Collection of clauses. */
   private final Collection<IVecInt> clauses;
 
-  public Sat4jFormula(final Collection<IVecInt> clauses) {
+  public FormulaSat4j(final Collection<IVecInt> clauses) {
     InvariantChecks.checkNotNull(clauses);
     this.clauses = Collections.unmodifiableCollection(clauses);
   }
 
-  public Sat4jFormula(final Sat4jFormula rhs) {
+  public FormulaSat4j(final FormulaSat4j rhs) {
     this(rhs.clauses);
   }
 
