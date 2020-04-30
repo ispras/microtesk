@@ -33,7 +33,7 @@ public enum BitBlaster {
    */
   EQ_CONST {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       InvariantChecks.checkTrue(operands[0].isVariable());
       InvariantChecks.checkTrue(operands[1].isValue());
@@ -41,13 +41,12 @@ public enum BitBlaster {
       final int size = operands[0].size;
 
       // Generate n unit clauses (c[i] ? x[i] : ~x[i]), i.e. for all i: x[i] == c[i].
-      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(size);
+      final Collection<IntArray> clauses = new ArrayList<>(size);
 
       for (int i = 0; i < size; i++) {
         final int index = operands[0].sign ? +(operands[0].index + i) : -(operands[0].index + i);
-
-        final ArrayList<Integer> literals = new ArrayList<>(1);
-        literals.add(operands[1].value.testBit(i) ? +index : -index);
+        final IntArray literals = new IntArray(
+            new int[] { operands[1].value.testBit(i) ? +index : -index });
 
         clauses.add(literals);
       }
@@ -56,7 +55,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return NOTEQ_CONST.encodePositive(operands, newIndex);
     }
@@ -67,7 +66,7 @@ public enum BitBlaster {
    */
   EQ_VAR {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       InvariantChecks.checkTrue(operands[0].isVariable());
       InvariantChecks.checkTrue(operands[1].isVariable());
@@ -76,20 +75,16 @@ public enum BitBlaster {
 
       // Generate 2*n clauses AND[i]{(x[i] & y[i]) | (~x[i] & ~y[i])} ==
       // AND[i]{(~x[i] | y[i]) & (x[i] | ~y[i])}.
-      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(2 * size);
+      final Collection<IntArray> clauses = new ArrayList<>(2 * size);
 
       for (int i = 0; i < size; i++) {
         final int xIndex = operands[0].sign ? +(operands[0].index + i) : -(operands[0].index + i);
         final int yIndex = operands[1].sign ? +(operands[1].index + i) : -(operands[1].index + i);
 
-        final ArrayList<Integer> literals1 = new ArrayList<>(2);
-        literals1.add(+xIndex);
-        literals1.add(-yIndex);
+        final IntArray literals1 = new IntArray(new int[] { +xIndex, -yIndex });
         clauses.add(literals1);
 
-        final ArrayList<Integer> literals2 = new ArrayList<>(2);
-        literals2.add(-xIndex);
-        literals2.add(+yIndex);
+        final IntArray literals2 = new IntArray(new int[] { -xIndex, +yIndex });
         clauses.add(literals2);
       }
 
@@ -97,7 +92,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return NOTEQ_VAR.encodePositive(operands, newIndex);
     }
@@ -108,7 +103,7 @@ public enum BitBlaster {
    */
   EQ {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       final Operand[] newOperands = new Operand[] {
           operands[0].isVariable() ? operands[0] : operands[1],
@@ -123,7 +118,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return NOTEQ.encodePositive(operands, newIndex);
     }
@@ -134,7 +129,7 @@ public enum BitBlaster {
    */
   NOTEQ_CONST {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       InvariantChecks.checkTrue(operands[0].isVariable());
       InvariantChecks.checkTrue(operands[1].isValue());
@@ -142,9 +137,9 @@ public enum BitBlaster {
       final int size = operands[0].size;
 
       // Generate 1 clause OR[i]{c[i] ? ~x[i] : x[i]}, i.e. exists i: x[i] != c[i].
-      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(1);
+      final Collection<IntArray> clauses = new ArrayList<>(1);
 
-      final ArrayList<Integer> literals = new ArrayList<>(size);
+      final IntArray literals = new IntArray(size);
       for (int i = 0; i < size; i++) {
         final int index = operands[0].sign ? +(operands[0].index + i) : -(operands[0].index + i);
         literals.add(operands[1].value.testBit(i) ? -index : +index);
@@ -156,7 +151,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return EQ_CONST.encodePositive(operands, newIndex);
     }
@@ -167,7 +162,7 @@ public enum BitBlaster {
    */
   NOTEQ_VAR {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       InvariantChecks.checkTrue(operands[0].isVariable());
       InvariantChecks.checkTrue(operands[1].isVariable());
@@ -175,10 +170,10 @@ public enum BitBlaster {
       final int size = operands[0].size;
 
       // Generate 6*n+1 clauses (see below).
-      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(6 * size + 1);
+      final Collection<IntArray> clauses = new ArrayList<>(6 * size + 1);
 
       // Generate 1 clause OR[i]{[~]x[i] & ~[~]y[i] | ~[~]x[i] & [~]y[i]} == OR[i]{u[i] | v[i]}.
-      final ArrayList<Integer> literals1 = newClause(2 * size, newIndex);
+      final IntArray literals1 = newClause(2 * size, newIndex);
       clauses.add(literals1);
 
       final int uIndex = literals1.get(0);
@@ -204,7 +199,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return EQ_VAR.encodePositive(operands, newIndex);
     }
@@ -215,7 +210,7 @@ public enum BitBlaster {
    */
   NOTEQ {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       final Operand[] newOperands = new Operand[] {
           operands[0].isVariable() ? operands[0] : operands[1],
@@ -230,7 +225,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return EQ.encodePositive(operands, newIndex);
     }
@@ -241,7 +236,7 @@ public enum BitBlaster {
    */
   BVULE_CONST {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       InvariantChecks.checkTrue(operands[0].isVariable());
       InvariantChecks.checkTrue(operands[1].isValue());
@@ -249,7 +244,7 @@ public enum BitBlaster {
       final int size = operands[0].size;
 
       // Generate at most n clauses (see below).
-      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(size);
+      final Collection<IntArray> clauses = new ArrayList<>(size);
 
       // x[n-1]x[x-2]...x[0] <= c[n-1]c[x-2]...c[0].
       for (int i = size - 1; i >= 0; i--) {
@@ -258,18 +253,16 @@ public enum BitBlaster {
         if (!operands[1].value.testBit(i)) {
           // ...x[i]x[i-1]...x[0] <= ...0c[i-0]...c[0].
           // Add the unit clause ~x[i].
-          final ArrayList<Integer> literals = new ArrayList<>(1);
-          literals.add(-index);
-
+          final IntArray literals = new IntArray(new int[] { -index });
           clauses.add(literals);
         } else {
           // ...x[i]x[i-1]...x[0] <= ...1c[i-0]...c[0].
           // Add the clauses (~x[i] | encode(x[i-1]...x[0], c[i-1]...c[0])).
           operands[0].size = i;
-          final Collection<ArrayList<Integer>> tailClauses = encodePositive(operands, newIndex);
+          final Collection<IntArray> tailClauses = encodePositive(operands, newIndex);
           operands[0].size = size;
 
-          for (final ArrayList<Integer> clause : tailClauses) {
+          for (final IntArray clause : tailClauses) {
             clause.add(-index);
           }
 
@@ -282,7 +275,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVUGT_CONST.encodePositive(operands, newIndex);
     }
@@ -293,17 +286,17 @@ public enum BitBlaster {
    */
   BVULT_CONST {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       // Encode x <= c.
-      final Collection<ArrayList<Integer>> clauses = BVULE_CONST.encodePositive(operands, newIndex);
+      final Collection<IntArray> clauses = BVULE_CONST.encodePositive(operands, newIndex);
       // Encode x != c.
       clauses.addAll(NOTEQ_CONST.encodePositive(operands, newIndex));
       return clauses;
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVUGE_CONST.encodePositive(operands, newIndex);
     }
@@ -314,7 +307,7 @@ public enum BitBlaster {
    */
   BVUGE_CONST {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       InvariantChecks.checkTrue(operands[0].isVariable());
       InvariantChecks.checkTrue(operands[1].isValue());
@@ -322,7 +315,7 @@ public enum BitBlaster {
       final int size = operands[0].size;
 
       // Generate at most n clauses (see below).
-      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(size);
+      final Collection<IntArray> clauses = new ArrayList<>(size);
 
       // x[n-1]x[x-2]...x[0] >= c[n-1]c[x-2]...c[0].
       for (int i = size - 1; i >= 0; i--) {
@@ -331,7 +324,7 @@ public enum BitBlaster {
         if (operands[1].value.testBit(i)) {
           // ...x[i]x[i-1]...x[0] >= ...1c[i-0]...c[0].
           // Add the unit clause x[i].
-          final ArrayList<Integer> literals = new ArrayList<>(1);
+          final IntArray literals = new IntArray(new int[] { index });
           literals.add(index);
 
           clauses.add(literals);
@@ -339,10 +332,10 @@ public enum BitBlaster {
           // ...x[i]x[i-1]...x[0] >= ...0c[i-0]...c[0].
           // Add the clauses (x[i] | encode(x[i-1]...x[0], c[i-1]...c[0])).
           operands[0].size = i;
-          final Collection<ArrayList<Integer>> tailClauses = encodePositive(operands, newIndex);
+          final Collection<IntArray> tailClauses = encodePositive(operands, newIndex);
           operands[0].size = size;
 
-          for (final ArrayList<Integer> clause : tailClauses) {
+          for (final IntArray clause : tailClauses) {
             clause.add(index);
           }
 
@@ -355,7 +348,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVULT_CONST.encodePositive(operands, newIndex);
     }
@@ -366,17 +359,17 @@ public enum BitBlaster {
    */
   BVUGT_CONST {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       // Encode x >= c.
-      final Collection<ArrayList<Integer>> clauses = BVUGE_CONST.encodePositive(operands, newIndex);
+      final Collection<IntArray> clauses = BVUGE_CONST.encodePositive(operands, newIndex);
       // Encode x != c.
       clauses.addAll(NOTEQ_CONST.encodePositive(operands, newIndex));
       return clauses;
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVULE_CONST.encodePositive(operands, newIndex);
     }
@@ -387,13 +380,13 @@ public enum BitBlaster {
    */
   BVULE_VAR {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       return encodeUnsignedLessThan(operands, newIndex, false);
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVUGT_VAR.encodePositive(operands, newIndex);
     }
@@ -404,13 +397,13 @@ public enum BitBlaster {
    */
   BVULT_VAR {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       return encodeUnsignedLessThan(operands, newIndex, true);
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVUGE_VAR.encodePositive(operands, newIndex);
     }
@@ -421,13 +414,13 @@ public enum BitBlaster {
    */
   BVUGE_VAR {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVULE_VAR.encodePositive(new Operand[] { operands[1], operands[0] }, newIndex);
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVULT_VAR.encodePositive(operands, newIndex);
     }
@@ -438,13 +431,13 @@ public enum BitBlaster {
    */
   BVUGT_VAR {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVULT_VAR.encodePositive(new Operand[] { operands[1], operands[0]}, newIndex);
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVULE_VAR.encodePositive(operands, newIndex);
     }
@@ -455,7 +448,7 @@ public enum BitBlaster {
    */
   BVULE {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       final Operand[] newOperands = new Operand[] {
           operands[0].isVariable() ? operands[0] : operands[1],
@@ -470,7 +463,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVUGT.encodePositive(operands, newIndex);
     }
@@ -481,7 +474,7 @@ public enum BitBlaster {
    */
   BVULT {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       final Operand[] newOperands = new Operand[] {
           operands[0].isVariable() ? operands[0] : operands[1],
@@ -496,7 +489,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVUGE.encodePositive(operands, newIndex);
     }
@@ -507,7 +500,7 @@ public enum BitBlaster {
    */
   BVUGE {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       final Operand[] newOperands = new Operand[] {
           operands[0].isVariable() ? operands[0] : operands[1],
@@ -522,7 +515,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVULT.encodePositive(operands, newIndex);
     }
@@ -533,7 +526,7 @@ public enum BitBlaster {
    */
   BVUGT {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       final Operand[] newOperands = new Operand[] {
           operands[0].isVariable() ? operands[0] : operands[1],
@@ -548,7 +541,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVULE.encodePositive(operands, newIndex);
     }
@@ -559,7 +552,7 @@ public enum BitBlaster {
    */
   BVAND {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       InvariantChecks.checkTrue(operands[0].isVariable());
       InvariantChecks.checkTrue(operands[1].isVariable());
@@ -568,27 +561,20 @@ public enum BitBlaster {
 
       // Generate 3*n clauses AND[i]{u[i] <=> ([~]x[i] & [~]y[i])} ==
       // AND[i]{(~[~]x[i] | ~[~]y[i] | u[i]) & ([~]x[i] | ~u[i]) & ([~]y[i] | ~u[i])}.
-      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(3 * size);
+      final Collection<IntArray> clauses = new ArrayList<>(3 * size);
 
       for (int i = 0; i < size; i++) {
         final int uIndex = operands[0].sign ? +(operands[0].index + i) : -(operands[0].index + i);
         final int xIndex = operands[1].sign ? +(operands[1].index + i) : -(operands[1].index + i);
         final int yIndex = operands[2].sign ? +(operands[2].index + i) : -(operands[2].index + i);
 
-        final ArrayList<Integer> literals1 = new ArrayList<>(3);
-        literals1.add(-xIndex);
-        literals1.add(-yIndex);
-        literals1.add(+uIndex);
+        final IntArray literals1 = new IntArray(new int[] { -xIndex, -yIndex, +uIndex });
         clauses.add(literals1);
 
-        final ArrayList<Integer> literals2 = new ArrayList<>(2);
-        literals2.add(+xIndex);
-        literals2.add(-uIndex);
+        final IntArray literals2 = new IntArray(new int[] { +xIndex, -uIndex });
         clauses.add(literals2);
 
-        final ArrayList<Integer> literals3 = new ArrayList<>(2);
-        literals3.add(+yIndex);
-        literals3.add(-uIndex);
+        final IntArray literals3 = new IntArray(new int[] { +yIndex, -uIndex });
         clauses.add(literals3);
       }
 
@@ -596,7 +582,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       throw new UnsupportedOperationException();
     }
@@ -607,7 +593,7 @@ public enum BitBlaster {
    */
   BVOR {
     @Override
-    public Collection<ArrayList<Integer>> encodePositive(
+    public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       InvariantChecks.checkTrue(operands[0].isVariable());
       InvariantChecks.checkTrue(operands[1].isVariable());
@@ -616,27 +602,20 @@ public enum BitBlaster {
 
       // Generate 3*n clauses AND[i]{u[i] <=> ([~]x[i] | [~]y[i])} ==
       // AND[i]{([~]x[i] | [~]y[i] | ~u[i]) & (~[~]x[i] | u[i]) & (~[~]y[i] | u[i])}.
-      final Collection<ArrayList<Integer>> clauses = new ArrayList<>(3 * size);
+      final Collection<IntArray> clauses = new ArrayList<>(3 * size);
 
       for (int i = 0; i < size; i++) {
         final int uIndex = operands[0].sign ? +(operands[0].index + i) : -(operands[0].index + i);
         final int xIndex = operands[1].sign ? +(operands[1].index + i) : -(operands[1].index + i);
         final int yIndex = operands[2].sign ? +(operands[2].index + i) : -(operands[2].index + i);
 
-        final ArrayList<Integer> literals1 = new ArrayList<>(3);
-        literals1.add(+xIndex);
-        literals1.add(+yIndex);
-        literals1.add(-uIndex);
+        final IntArray literals1 = new IntArray(new int[] { +xIndex, +yIndex, -uIndex });
         clauses.add(literals1);
 
-        final ArrayList<Integer> literals2 = new ArrayList<>(2);
-        literals2.add(-xIndex);
-        literals2.add(+uIndex);
+        final IntArray literals2 = new IntArray(new int[] { -xIndex, +uIndex });
         clauses.add(literals2);
 
-        final ArrayList<Integer> literals3 = new ArrayList<>(2);
-        literals3.add(-yIndex);
-        literals3.add(+uIndex);
+        final IntArray literals3 = new IntArray(new int[] { -yIndex, +uIndex });
         clauses.add(literals3);
       }
 
@@ -644,7 +623,7 @@ public enum BitBlaster {
     }
 
     @Override
-    public Collection<ArrayList<Integer>> encodeNegative(
+    public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       throw new UnsupportedOperationException();
     }
@@ -692,9 +671,9 @@ public enum BitBlaster {
    * @param newIndex the supplier of a new boolean variable index.
    * @return the created clause.
    */
-  public static ArrayList<Integer> newClause(final int size, final IntSupplier newIndex) {
+  public static IntArray newClause(final int size, final IntSupplier newIndex) {
     // Generate 1 clause OR[i]{x[i]}.
-    final ArrayList<Integer> literals = new ArrayList<>(size);
+    final IntArray literals = new IntArray(size);
 
     for (int i = 0; i < size; i++) {
       literals.add(newIndex.getAsInt());
@@ -710,7 +689,7 @@ public enum BitBlaster {
    * @param newIndex the supplier of a new boolean variable index.
    * @return the CNF.
    */
-  public abstract Collection<ArrayList<Integer>> encodePositive(
+  public abstract Collection<IntArray> encodePositive(
       Operand[] operands, IntSupplier newIndex);
 
   /**
@@ -720,7 +699,7 @@ public enum BitBlaster {
    * @param newIndex the supplier of a new boolean variable index.
    * @return the CNF.
    */
-  public abstract Collection<ArrayList<Integer>> encodeNegative(
+  public abstract Collection<IntArray> encodeNegative(
       Operand[] operands, IntSupplier newIndex);
 
   /**
@@ -730,7 +709,7 @@ public enum BitBlaster {
    * @param newIndex the supplier of a new boolean variable index.
    * @return the CNF.
    */
-  public final Collection<ArrayList<Integer>> encode(
+  public final Collection<IntArray> encode(
       final Operand[] operands, final IntSupplier newIndex) {
     return encodePositive(operands, newIndex);
   }
@@ -745,7 +724,7 @@ public enum BitBlaster {
    * @param newIndex the supplier of a new boolean variable index.
    * @return the CNF.
    */
-  public final Collection<ArrayList<Integer>> encode(
+  public final Collection<IntArray> encode(
       final Operand[] operands, final int flagIndex, final IntSupplier newIndex) {
     if (flagIndex == 0) {
       return encodePositive(operands, newIndex);
@@ -753,18 +732,18 @@ public enum BitBlaster {
 
     // Transformation: (f <=> C) == (C | ~f) & (~C | f) ==
     // (encode-positive(C) | ~f) & (encode-negative(C) | f).
-    final Collection<ArrayList<Integer>> clauses1 = encodePositive(operands, newIndex);
-    for (final ArrayList<Integer> clause : clauses1) {
+    final Collection<IntArray> clauses1 = encodePositive(operands, newIndex);
+    for (final IntArray clause : clauses1) {
       clause.add(-flagIndex);
     }
 
-    final Collection<ArrayList<Integer>> clauses2 = encodeNegative(operands, newIndex);
-    for (final ArrayList<Integer> clause : clauses2) {
+    final Collection<IntArray> clauses2 = encodeNegative(operands, newIndex);
+    for (final IntArray clause : clauses2) {
       clause.add(+flagIndex);
     }
 
     final int size = clauses1.size() + clauses2.size();
-    final Collection<ArrayList<Integer>> clauses = new ArrayList<>(size);
+    final Collection<IntArray> clauses = new ArrayList<>(size);
 
     clauses.addAll(clauses1);
     clauses.addAll(clauses2);
@@ -780,7 +759,7 @@ public enum BitBlaster {
    * @param strict the flag indicating whether the inequality is strict or not.
    * @return the CNF.
    */
-  public Collection<ArrayList<Integer>> encodeUnsignedLessThan(
+  private static Collection<IntArray> encodeUnsignedLessThan(
       final Operand[] operands, final IntSupplier newIndex, final boolean strict) {
     InvariantChecks.checkTrue(operands[0].isVariable());
     InvariantChecks.checkTrue(operands[1].isVariable());
@@ -788,28 +767,22 @@ public enum BitBlaster {
     final int size = operands[0].size;
 
     // Generate 5*(n-1)+3 or 5*(n-1)+1 clauses (see below).
-    final Collection<ArrayList<Integer>> clauses = new ArrayList<>(5 * size - 2);
+    final Collection<IntArray> clauses = new ArrayList<>(5 * size - 2);
 
     if (size == 1) {
       final int xIndex = operands[0].sign ? +operands[0].index : -operands[0].index;
       final int yIndex = operands[1].sign ? +operands[1].index : -operands[1].index;
 
       // (x[0] <= y[0]) == (~x[0] | y[0]).
-      final ArrayList<Integer> literals1 = new ArrayList<>(2);
-      literals1.add(-xIndex);
-      literals1.add(+yIndex);
+      final IntArray literals1 = new IntArray(new int[] { -xIndex, +yIndex });
       clauses.add(literals1);
 
       if (strict) {
         // (x[0] != y[0]) == (x[0] | y[0]) & (~x[0] | ~y[0]).
-        final ArrayList<Integer> literals2 = new ArrayList<>(2);
-        literals2.add(+xIndex);
-        literals2.add(+yIndex);
+        final IntArray literals2 = new IntArray(new int[] { +xIndex, +yIndex });
         clauses.add(literals2);
 
-        final ArrayList<Integer> literals3 = new ArrayList<>(2);
-        literals3.add(+xIndex);
-        literals3.add(+yIndex);
+        final IntArray literals3 = new IntArray(new int[] { -xIndex, -yIndex });
         clauses.add(literals3);
       }
 
@@ -830,13 +803,13 @@ public enum BitBlaster {
 
     // u[i] == (~x[i] & y[i]).
     operands[0].sign = !operands[0].sign;
-    final Collection<ArrayList<Integer>> clauses1 = BVAND.encode(
+    final Collection<IntArray> clauses1 = BVAND.encode(
         new Operand[] { new Operand(uIndex, 1), operands[0], operands[1] }, newIndex);
     operands[0].sign = !operands[0].sign;
 
     // u[i] | (x[i] == y[i])
-    final Collection<ArrayList<Integer>> clauses2 = EQ_VAR.encode(operands, newIndex);
-    for (final ArrayList<Integer> clause : clauses2) {
+    final Collection<IntArray> clauses2 = EQ_VAR.encode(operands, newIndex);
+    for (final IntArray clause : clauses2) {
       clause.add(uIndex);
     }
 
@@ -846,8 +819,8 @@ public enum BitBlaster {
     // u[i] | encode(x[i-1]...x[0], y[i-1]...y[0])
     operands[0].size = i;
     operands[1].size = i;
-    final Collection<ArrayList<Integer>> clauses3 = encodePositive(operands, newIndex);
-    for (final ArrayList<Integer> clause : clauses3) {
+    final Collection<IntArray> clauses3 = encodeUnsignedLessThan(operands, newIndex, strict);
+    for (final IntArray clause : clauses3) {
       clause.add(uIndex);
     }
     operands[0].size = size;

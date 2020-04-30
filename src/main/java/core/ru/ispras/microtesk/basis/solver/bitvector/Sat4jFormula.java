@@ -34,7 +34,7 @@ public final class Sat4jFormula {
    */
   public static final class Builder {
     /** Collection of vectors of clauses. */
-    private final Collection<ArrayList<Integer>> clauses = new ArrayList<>();
+    private final Collection<IntArray> clauses = new ArrayList<>();
 
     public Builder() {}
 
@@ -42,23 +42,26 @@ public final class Sat4jFormula {
       clauses.addAll(rhs.clauses);
     }
 
-    public final void addClause(final ArrayList<Integer> clause) {
+    public final void addClause(final IntArray clause) {
       InvariantChecks.checkNotNull(clause);
       this.clauses.add(clause);
     }
 
-    public final void addAllClauses(final Collection<ArrayList<Integer>> clauses) {
+    public final void addAllClauses(final Collection<IntArray> clauses) {
       InvariantChecks.checkNotNull(clauses);
       this.clauses.addAll(clauses);
     }
 
     public Sat4jFormula build() {
-      final Collection<IVecInt> clauses = new ArrayList<>(this.clauses.size());
-      for (final ArrayList<Integer> clause : this.clauses) {
-        // FIXME: Converting ArrayList<Integer> to int[] is slow.
-        clauses.add(new VecInt(clause.stream().mapToInt(Integer::intValue).toArray()));
+      final Collection<IVecInt> sat4jClauses = new ArrayList<>(clauses.size());
+
+      for (final IntArray clause : clauses) {
+        final VecInt sat4jClause = new VecInt(clause.toArray());
+
+        sat4jClause.shrinkTo(clause.length());
+        sat4jClauses.add(sat4jClause);
       }
-      return new Sat4jFormula(clauses);
+      return new Sat4jFormula(sat4jClauses);
     }
   }
 
