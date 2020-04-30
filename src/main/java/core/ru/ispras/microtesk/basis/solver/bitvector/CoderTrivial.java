@@ -16,19 +16,19 @@ package ru.ispras.microtesk.basis.solver.bitvector;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
 import java.util.Map;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.Nodes;
+import ru.ispras.microtesk.basis.solver.Coder;
 
 /**
  * {@link CoderTrivial} implements a trivial constraint/solution encoder/decoder.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class CoderTrivial implements Coder<Node, Map<Variable, BitVector>> {
+public final class CoderTrivial implements Coder<Map<Variable, BitVector>> {
 
   private final Collection<Node> nodes;
 
@@ -51,8 +51,9 @@ public final class CoderTrivial implements Coder<Node, Map<Variable, BitVector>>
   }
 
   @Override
-  public Map<Variable, BitVector> decode(final Map<Variable, BitVector> encoded) {
-    return encoded;
+  @SuppressWarnings("unchecked")
+  public Map<Variable, BitVector> decode(final Object encoded) {
+    return (Map<Variable, BitVector>) encoded;
   }
 
   @Override

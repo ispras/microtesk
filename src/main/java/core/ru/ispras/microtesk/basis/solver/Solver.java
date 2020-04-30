@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,12 +14,14 @@
 
 package ru.ispras.microtesk.basis.solver;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 /**
  * {@link Solver} defines an interface of solvers.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Solver<T> {
+public abstract class Solver<T> {
   /**
    * {@link Mode} represents a solver mode.
    */
@@ -30,11 +32,47 @@ public interface Solver<T> {
     MAP
   }
 
+  /** Constraint encoder. */
+  protected final Encoder encoder;
+  /** Solution decoder. */
+  protected final Decoder<T> decoder;
+
+  protected Solver(final Encoder encoder, final Decoder<T> decoder) {
+    InvariantChecks.checkNotNull(encoder);
+    InvariantChecks.checkNotNull(decoder);
+
+    this.encoder = encoder;
+    this.decoder = decoder;
+  }
+
+  protected Solver(final Coder<T> coder) {
+    this(coder, coder);
+  }
+
   /**
-   * Checks whether the equation clause is satisfiable and returns a solution (if required).
+   * Checks whether the constraint is satisfiable and returns a solution (if required).
+   *
+   * @param problem the encoded constraint (problem) to be solved.
+   * @param mode the solver mode.
+   * @return {@code SAT} if the constraint is satisfiable; {@code UNSAT} otherwise.
+   */
+  protected abstract SolverResult<Object> solve(Object problem, Mode mode);
+
+  /**
+   * Checks whether the constraint is satisfiable and returns a solution (if required).
    *
    * @param mode the solver mode.
-   * @return {@code SAT} if the equation clause is satisfiable; {@code UNSAT} otherwise.
+   * @return {@code SAT} if the constraint is satisfiable; {@code UNSAT} otherwise.
    */
-  SolverResult<T> solve(Mode mode);
+  public final SolverResult<T> solve(final Mode mode) {
+    final Object problem = encoder.encode();
+    final SolverResult<Object> result = solve(problem, mode);
+
+    if (result.getResult() == null) {
+      return new SolverResult<>(result.getStatus(), null, result.getErrors());
+    }
+
+    final T solution = decoder.decode(result.getResult());
+    return new SolverResult<>(result.getStatus(), solution, result.getErrors());
+  }
 }

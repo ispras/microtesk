@@ -14,14 +14,12 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
-import org.sat4j.core.VecInt;
-import org.sat4j.specs.IVecInt;
-
-import ru.ispras.fortress.util.InvariantChecks;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.IVecInt;
+import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link FormulaSat4j} represents a SAT4J formula, which is a set of clauses.

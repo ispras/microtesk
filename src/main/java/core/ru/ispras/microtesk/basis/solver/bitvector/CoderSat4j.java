@@ -14,6 +14,16 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVUGE;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVUGT;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVULE;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVULT;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.EQ;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.EQ_CONST;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.FALSE;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.NOTEQ;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.NOTEQ_CONST;
+
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,25 +40,16 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.Coder;
 import ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.Operand;
 import ru.ispras.microtesk.utils.FortressUtils;
-
-import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVUGE;
-import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVUGT;
-import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVULE;
-import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVULT;
-import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.EQ;
-import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.EQ_CONST;
-import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.FALSE;
-import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.NOTEQ;
-import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.NOTEQ_CONST;
 
 /**
  * {@link CoderSat4j} implements a SAT4J constraint/solution encoder/decoder.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class CoderSat4j implements Coder<FormulaSat4j, IProblem> {
+public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
   /** Using directly ISolver instead of Sat4jFormula.Builder slows down performance. */
   private final FormulaSat4j.Builder builder;
 
@@ -83,6 +84,10 @@ public final class CoderSat4j implements Coder<FormulaSat4j, IProblem> {
     this.initializer = initializer;
   }
 
+  public CoderSat4j() {
+    this(Initializer.RANDOM);
+  }
+
   public CoderSat4j(final CoderSat4j other) {
     InvariantChecks.checkNotNull(other);
 
@@ -105,7 +110,10 @@ public final class CoderSat4j implements Coder<FormulaSat4j, IProblem> {
   }
 
   @Override
-  public Map<Variable, BitVector> decode(final IProblem encoded) {
+  public Map<Variable, BitVector> decode(final Object encoded) {
+    InvariantChecks.checkTrue(encoded instanceof IProblem);
+
+    final IProblem problem = (IProblem) encoded;
     final Map<Variable, BitVector> decoded = new LinkedHashMap<>();
 
     for (final Map.Entry<Variable, Integer> entry : indices.entrySet()) {
@@ -119,7 +127,7 @@ public final class CoderSat4j implements Coder<FormulaSat4j, IProblem> {
       // Reassign the bits used in the constraint.
       for (int i = 0; i < variable.getType().getSize(); i++) {
         if (mask.getBit(i)) {
-          value.setBit(i, encoded.model(index + i));
+          value.setBit(i, problem.model(index + i));
         }
       }
 

@@ -35,6 +35,7 @@ public enum Initializer {
       return value;
     }
   },
+
   UNITS() {
     @Override
     public BitVector getValue(final int width) {
@@ -46,6 +47,7 @@ public enum Initializer {
       return value;
     }
   },
+
   RANDOM() {
     @Override
     public BitVector getValue(final int width) {

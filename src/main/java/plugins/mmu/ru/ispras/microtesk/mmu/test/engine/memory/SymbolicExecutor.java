@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -287,9 +287,9 @@ public final class SymbolicExecutor {
       }
 
       if (condition.getOperationId() == StandardOperation.AND) {
-        result.addFormula(Nodes.and(clauseBuilder));
+        result.addNode(Nodes.and(clauseBuilder));
       } else {
-        result.addFormula(Nodes.or(clauseBuilder));
+        result.addNode(Nodes.or(clauseBuilder));
       }
     }
 
@@ -301,7 +301,7 @@ public final class SymbolicExecutor {
       final Set<Variable> defines,
       final Node formula,
       final int pathIndex) {
-    result.addFormula(result.getVersion(formula, pathIndex));
+    result.addNode(result.getVersion(formula, pathIndex));
     return result.hasConflict() ? Boolean.FALSE : null;
   }
 
@@ -549,7 +549,7 @@ public final class SymbolicExecutor {
           caseResult.setVersionNumber(originalVariable, maxVersionNumber);
           final Variable newVersion = caseResult.getVersion(originalVariable);
 
-          caseResult.addFormula(
+          caseResult.addNode(
               Nodes.eq(
                   new NodeVariable(newVersion),
                   new NodeVariable(oldVersion)
@@ -565,10 +565,10 @@ public final class SymbolicExecutor {
       // There is only one control flow.
       final SymbolicResult caseResult = switchResults.get(0);
       final CoderTrivial caseBuilder =
-          (CoderTrivial) caseResult.getBuilder();
+          (CoderTrivial) caseResult.getCoder();
       final Node caseFormula = caseBuilder.encode();
 
-      result.addFormula(caseFormula);
+      result.addNode(caseFormula);
 
       // Constant propagation.
       final HierarchicalMap<Variable, BitVector> constants =
@@ -588,17 +588,17 @@ public final class SymbolicExecutor {
         switchBuilder.add(Nodes.eq(phi, NodeValue.newBitVector(BitVector.valueOf(i, width))));
       }
 
-      result.addFormula(Nodes.or(switchBuilder));
+      result.addNode(Nodes.or(switchBuilder));
 
       for (int i = 0; i < switchResults.size(); i++) {
         final SymbolicResult caseResult = switchResults.get(i);
         final CoderTrivial caseBuilder =
-            (CoderTrivial) caseResult.getBuilder();
+            (CoderTrivial) caseResult.getCoder();
         final Node caseFormula = caseBuilder.encode();
 
         // Case: (PHI == i) -> CASE(i).
         final Node ifThenFormula = getIfThenFormula(phi, width, i, caseFormula);
-        result.addFormula(ifThenFormula);
+        result.addNode(ifThenFormula);
       }
     }
 
@@ -824,9 +824,9 @@ public final class SymbolicExecutor {
 
     if (!clauseBuilder.isEmpty()) {
       if (clauseBuilderId == StandardOperation.AND) {
-        result.addFormula(Nodes.and(clauseBuilder));
+        result.addNode(Nodes.and(clauseBuilder));
       } else {
-        result.addFormula(Nodes.or(clauseBuilder));
+        result.addNode(Nodes.or(clauseBuilder));
       }
     }
 
@@ -1076,7 +1076,7 @@ public final class SymbolicExecutor {
     } // For each binding.
 
     if (!clauseBuilder.isEmpty()) {
-      result.addFormula(Nodes.and(clauseBuilder));
+      result.addNode(Nodes.and(clauseBuilder));
     }
 
     return Boolean.TRUE;

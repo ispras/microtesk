@@ -14,14 +14,12 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.IntSupplier;
-
 import java.util.stream.IntStream;
 import ru.ispras.fortress.util.InvariantChecks;
-
-import java.math.BigInteger;
 
 /**
  * {@link BitBlaster} implements an encoder of Fortress nodes to SAT4J CNFs.

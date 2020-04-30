@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis.solver.bitvector;
+package ru.ispras.microtesk.basis.solver;
 
 import java.util.Map;
 import ru.ispras.fortress.data.Variable;
@@ -21,11 +21,11 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 /**
  * {@link Decoder} represents a solution decoder.
  *
- * @param <S> the encoded solution.
+ * @param <T> the decoded solution.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Decoder<S> {
+public interface Decoder<T> {
 
   /**
    * Decodes the solution.
@@ -33,12 +33,12 @@ public interface Decoder<S> {
    * @param encoded the encoded solution.
    * @return the decoded representation.
    */
-  Map<Variable, BitVector> decode(S encoded);
+  T decode(Object encoded);
 
   /**
    * Clones the decoder.
    *
    * @return an decoder copy.
    */
-  Decoder<S> clone();
+  Decoder<T> clone();
 }

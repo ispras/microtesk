@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,9 @@
 
 package ru.ispras.microtesk.basis.solver;
 
-import ru.ispras.fortress.util.Result;
-
 import java.util.Collections;
 import java.util.List;
+import ru.ispras.fortress.util.Result;
 
 /**
  * {@link SolverResult} defines result of an {@link Solver}.
@@ -25,9 +24,35 @@ import java.util.List;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class SolverResult<T> extends Result<SolverResult.Status, T> {
-  public static enum Status {
+
+  public enum Status {
     SAT,
-    UNSAT
+    UNSAT,
+    UNDEF
+  }
+
+  public static <T> SolverResult<T> newSat() {
+    return new SolverResult<>(Status.SAT, null, Collections.emptyList());
+  }
+
+  public static <T> SolverResult<T> newSat(final T result) {
+    return new SolverResult<>(Status.SAT, result, Collections.emptyList());
+  }
+
+  public static <T> SolverResult<T> newUnsat() {
+    return new SolverResult<>(Status.UNSAT, null, Collections.emptyList());
+  }
+
+  public static <T> SolverResult<T> newUnsat(final String error) {
+    return new SolverResult<>(Status.UNSAT, null, Collections.singletonList(error));
+  }
+
+  public static <T> SolverResult<T> newUndef() {
+    return new SolverResult<>(Status.UNDEF, null, Collections.emptyList());
+  }
+
+  public static <T> SolverResult<T> newUndef(final String error) {
+    return new SolverResult<>(Status.UNDEF, null, Collections.singletonList(error));
   }
 
   public SolverResult(
@@ -35,13 +60,5 @@ public final class SolverResult<T> extends Result<SolverResult.Status, T> {
       final T result,
       final List<String> errors) {
     super(status, result, errors);
-  }
-
-  public SolverResult(final T result) {
-    super(Status.SAT, result, Collections.<String>emptyList());
-  }
-
-  public SolverResult(final String error) {
-    super(Status.UNSAT, null, Collections.singletonList(error));
   }
 }

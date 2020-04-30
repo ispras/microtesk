@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -24,8 +24,7 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.bitvector.Coder;
-import ru.ispras.microtesk.basis.solver.bitvector.Encoder;
+import ru.ispras.microtesk.basis.solver.Coder;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.model.spec.MmuAction;
@@ -54,7 +53,7 @@ public final class SymbolicResult {
   private boolean hasConflict = false;
 
   /** Allows updating the formula, i.e. performing symbolic execution. */
-  private final Coder builder;
+  private final Coder<Map<Variable, BitVector>> coder;
 
   /** Enables recursive memory calls. */
   private final Map<Integer, MemoryAccessContext> contexts;
@@ -76,20 +75,20 @@ public final class SymbolicResult {
   private final Map<Variable, BitVector> constants;
 
   private SymbolicResult(
-      final Coder builder,
+      final Coder<Map<Variable, BitVector>> coder,
       final Map<Integer, MemoryAccessContext> contexts,
       final Collection<Variable> originals,
       final Map<String, Integer> versions,
       final Map<String, Variable> cache,
       final Map<Variable, BitVector> constants) {
-    InvariantChecks.checkNotNull(builder);
+    InvariantChecks.checkNotNull(coder);
     InvariantChecks.checkNotNull(contexts);
     InvariantChecks.checkNotNull(originals);
     InvariantChecks.checkNotNull(versions);
     InvariantChecks.checkNotNull(cache);
     InvariantChecks.checkNotNull(constants);
 
-    this.builder = builder;
+    this.coder = coder;
     this.contexts = contexts;
     this.originals = originals;
     this.versions = versions;
@@ -97,25 +96,25 @@ public final class SymbolicResult {
     this.constants = constants;
   }
 
-  public SymbolicResult(final Coder builder) {
+  public SymbolicResult(final Coder<Map<Variable, BitVector>> coder) {
     this(
-        builder,
-        new HashMap<Integer, MemoryAccessContext>(),
-        new LinkedHashSet<Variable>(),
-        new HashMap<String, Integer>(),
-        new HashMap<String, Variable>(),
-        new HashMap<Variable, BitVector>()
+        coder,
+        new HashMap<>(),
+        new LinkedHashSet<>(),
+        new HashMap<>(),
+        new HashMap<>(),
+        new HashMap<>()
     );
   }
 
-  public SymbolicResult(final Coder builder, final SymbolicResult other) {
+  public SymbolicResult(final Coder<Map<Variable, BitVector>> coder, final SymbolicResult other) {
     this(
-        builder,
-        new HashMap<Integer, MemoryAccessContext>(other.contexts.size()),
+        coder,
+        new HashMap<>(other.contexts.size()),
         new LinkedHashSet<>(other.originals),
-        new HierarchicalMap<>(other.versions, new HashMap<String, Integer>()),
-        new HierarchicalMap<>(other.cache, new HashMap<String, Variable>()),
-        new HierarchicalMap<>(other.constants, new HashMap<Variable, BitVector>())
+        new HierarchicalMap<>(other.versions, new HashMap<>()),
+        new HierarchicalMap<>(other.cache, new HashMap<>()),
+        new HierarchicalMap<>(other.constants, new HashMap<>())
     );
 
     // Clone the memory access contexts.
@@ -125,7 +124,7 @@ public final class SymbolicResult {
   }
 
   public SymbolicResult(final SymbolicResult other) {
-    this(other.builder.clone(), other);
+    this(other.coder.clone(), other);
   }
 
   public boolean hasConflict() {
@@ -136,8 +135,8 @@ public final class SymbolicResult {
     this.hasConflict = hasConflict;
   }
 
-  public Coder getBuilder() {
-    return builder;
+  public Coder<Map<Variable, BitVector>> getCoder() {
+    return coder;
   }
 
   public Map<Integer, MemoryAccessContext> getContexts() {
@@ -172,8 +171,8 @@ public final class SymbolicResult {
     constants.put(var, constant);
   }
 
-  public void addFormula(final Node formula) {
-    builder.addNode(formula);
+  public void addNode(final Node formula) {
+    coder.addNode(formula);
   }
 
   public MemoryAccessContext getContext() {
@@ -239,7 +238,7 @@ public final class SymbolicResult {
       InvariantChecks.checkNotNull(version,
           String.format("Version of %s has not been found", original.getName()));
 
-      addFormula(Nodes.eq(
+      addNode(Nodes.eq(
           new NodeVariable(original),
           new NodeVariable(version)));
 

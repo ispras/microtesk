@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
+ * Copyright 2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,37 +12,20 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis.solver.bitvector;
-
-import ru.ispras.fortress.expression.Node;
+package ru.ispras.microtesk.basis.solver;
 
 /**
- * {@link Encoder} represents an incremental constraint encoder.
+ * {@link Coder} represents a constraint/solution encoder/decoder.
  *
- * @param <C> the encoded constraint.
+ * @param <T> the decoded solution.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface Encoder<C> {
-
+public interface Coder<T> extends Encoder, Decoder<T> {
   /**
-   * Encodes the sub-constraint (node) and adds it to the constraint.
+   * Clones the coder.
    *
-   * @param node the node to be added.
+   * @return an coder copy.
    */
-  void addNode(Node node);
-
-  /**
-   * Encodes the overall constraint.
-   *
-   * @return the encoded constraint.
-   */
-  C encode();
-
-  /**
-   * Clones the encoder.
-   *
-   * @return an encoder copy.
-   */
-  Encoder<C> clone();
+  Coder<T> clone();
 }

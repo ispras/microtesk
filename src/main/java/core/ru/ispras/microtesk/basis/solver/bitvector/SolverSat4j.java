@@ -14,91 +14,44 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import java.util.Map;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.TimeoutException;
-
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.Coder;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * {@link SolverSat4j} is a SAT-based bit-vector constraint solver.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class SolverSat4j implements Solver<Map<Variable, BitVector>> {
-  private final Encoder<FormulaSat4j> encoder;
-  private final Decoder<IProblem> decoder;
+public final class SolverSat4j extends Solver<Map<Variable, BitVector>> {
 
-  public SolverSat4j(final Encoder<FormulaSat4j> encoder, final Decoder<IProblem> decoder) {
-    InvariantChecks.checkNotNull(encoder);
-    InvariantChecks.checkNotNull(decoder);
-
-    this.encoder = encoder;
-    this.decoder = decoder;
+  private static Coder<Map<Variable, BitVector>> newDefaultCoder() {
+    return new CoderSat4j();
   }
 
-  public SolverSat4j(final Coder<FormulaSat4j, IProblem> coder) {
-    this(coder, coder);
+  public SolverSat4j(final Coder<Map<Variable, BitVector>> coder) {
+    super(coder, coder);
   }
 
-  /**
-   * Constructs a solver.
-   *
-   * @param formulae the constraints to be solved.
-   * @param initializer the initializer to be used to fill the unused fields.
-   */
-  public SolverSat4j(
-      final Collection<Node> formulae,
-      final Initializer initializer) {
-    InvariantChecks.checkNotNull(formulae);
-    InvariantChecks.checkNotNull(initializer);
-
-    final CoderSat4j coder = new CoderSat4j(initializer); // FIXME:
-    this.encoder = coder;
-    this.decoder = coder;
-
-    for (final Node formula : formulae) {
-      encoder.addNode(formula);
-    }
-  }
-
-  /**
-   * Constructs a solver.
-   *
-   * @param formula the constraint to be solved.
-   * @param initializer the initializer to be used to fill the unused fields.
-   */
-  public SolverSat4j(
-      final Node formula,
-      final Initializer initializer) {
-    InvariantChecks.checkNotNull(formula);
-    InvariantChecks.checkNotNull(initializer);
-
-    final CoderSat4j coder = new CoderSat4j(initializer); // FIXME:
-    this.encoder = coder;
-    this.decoder = coder;
-
-    encoder.addNode(formula);
+  public SolverSat4j() {
+    this(newDefaultCoder());
   }
 
   @Override
-  public SolverResult<Map<Variable, BitVector>> solve(final Mode mode) {
-    InvariantChecks.checkNotNull(mode);
+  protected SolverResult<Object> solve(final Object problem, final Mode mode) {
+    InvariantChecks.checkNotNull(problem instanceof FormulaSat4j);
 
+    final FormulaSat4j formula = (FormulaSat4j) problem;
     final ISolver solver = SolverFactory.newDefault();
-    final FormulaSat4j formula = encoder.encode();
 
     // Construct the problem.
     try {
@@ -106,32 +59,23 @@ public final class SolverSat4j implements Solver<Map<Variable, BitVector>> {
         solver.addClause(clause);
       }
     } catch (final ContradictionException e) {
-      return new SolverResult<>(
-          SolverResult.Status.UNSAT,
-          Collections.<Variable, BitVector>emptyMap(),
-          Collections.<String>singletonList(
-              String.format("Contradiction: %s", e.getMessage())));
+      return SolverResult.newUnsat("Contradiction: " + e.getMessage());
     }
 
     // Solve the problem.
     try {
       if (!solver.isSatisfiable()) {
-        return new SolverResult<>("UNSAT");
+        return SolverResult.newUnsat();
       }
     } catch (final TimeoutException e) {
-      return new SolverResult<>(
-          SolverResult.Status.UNSAT,
-          Collections.<Variable, BitVector>emptyMap(),
-          Collections.<String>singletonList(
-              String.format("Timeout: %s", e.getMessage())));
+      return SolverResult.newUndef("Timeout: " + e.getMessage());
     }
 
     if (mode == Solver.Mode.SAT) {
-      return new SolverResult<>(Collections.<Variable, BitVector>emptyMap());
+      return SolverResult.newSat();
     }
 
-    // Assign the variables with values.
-    final Map<Variable, BitVector> solution = decoder.decode(solver);
-    return new SolverResult<>(solution);
+    // Return the solution.
+    return SolverResult.newSat(solver);
   }
 }
