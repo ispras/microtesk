@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
+ * Copyright 2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,35 +14,19 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
-import ru.ispras.fortress.expression.Node;
-
 /**
- * {@link NodeEncoder} represents an abstract formula encoder.
+ * {@link Coder} represents a constraint/solution encoder/decoder.
  *
- * @param <F> the encoded form.
+ * @param <C> the encoded constraint.
+ * @param <S> the encoded solution.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public interface NodeEncoder<F> {
-
+public interface Coder<C, S> extends Encoder<C>, Decoder<S> {
   /**
-   * Encodes the sub-formula (node) and adds it to the formula.
+   * Clones the coder.
    *
-   * @param node the node to be added.
+   * @return an coder copy.
    */
-  void addNode(Node node);
-
-  /**
-   * Returns the encoded representation of the formula.
-   *
-   * @return the encoded representation.
-   */
-  F getEncodedForm();
-
-  /**
-   * Clones the encoder.
-   *
-   * @return an encoder copy.
-   */
-  NodeEncoder clone();
+  Coder<C, S> clone();
 }

@@ -24,7 +24,8 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.bitvector.NodeEncoder;
+import ru.ispras.microtesk.basis.solver.bitvector.Coder;
+import ru.ispras.microtesk.basis.solver.bitvector.Encoder;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.model.spec.MmuAction;
@@ -53,7 +54,7 @@ public final class SymbolicResult {
   private boolean hasConflict = false;
 
   /** Allows updating the formula, i.e. performing symbolic execution. */
-  private final NodeEncoder builder;
+  private final Coder builder;
 
   /** Enables recursive memory calls. */
   private final Map<Integer, MemoryAccessContext> contexts;
@@ -75,7 +76,7 @@ public final class SymbolicResult {
   private final Map<Variable, BitVector> constants;
 
   private SymbolicResult(
-      final NodeEncoder builder,
+      final Coder builder,
       final Map<Integer, MemoryAccessContext> contexts,
       final Collection<Variable> originals,
       final Map<String, Integer> versions,
@@ -96,7 +97,7 @@ public final class SymbolicResult {
     this.constants = constants;
   }
 
-  public SymbolicResult(final NodeEncoder builder) {
+  public SymbolicResult(final Coder builder) {
     this(
         builder,
         new HashMap<Integer, MemoryAccessContext>(),
@@ -107,7 +108,7 @@ public final class SymbolicResult {
     );
   }
 
-  public SymbolicResult(final NodeEncoder builder, final SymbolicResult other) {
+  public SymbolicResult(final Coder builder, final SymbolicResult other) {
     this(
         builder,
         new HashMap<Integer, MemoryAccessContext>(other.contexts.size()),
@@ -135,7 +136,7 @@ public final class SymbolicResult {
     this.hasConflict = hasConflict;
   }
 
-  public NodeEncoder getBuilder() {
+  public Coder getBuilder() {
     return builder;
   }
 

@@ -27,7 +27,7 @@ import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.bitvector.Constraint;
-import ru.ispras.microtesk.basis.solver.bitvector.NodeEncoderTrivial;
+import ru.ispras.microtesk.basis.solver.bitvector.CoderTrivial;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -492,7 +492,7 @@ public final class SymbolicExecutor {
     final List<Set<Variable>> switchDefines = new ArrayList<>(statement.size());
 
     for (final MmuProgram program : statement) {
-      final NodeEncoderTrivial caseBuilder = new NodeEncoderTrivial();
+      final CoderTrivial caseBuilder = new CoderTrivial();
       final SymbolicResult caseResult = new SymbolicResult(caseBuilder, result);
       final Set<Variable> caseDefines = new LinkedHashSet<>();
 
@@ -564,9 +564,9 @@ public final class SymbolicExecutor {
     if (switchResults.size() == 1) {
       // There is only one control flow.
       final SymbolicResult caseResult = switchResults.get(0);
-      final NodeEncoderTrivial caseBuilder =
-          (NodeEncoderTrivial) caseResult.getBuilder();
-      final Node caseFormula = caseBuilder.getEncodedForm();
+      final CoderTrivial caseBuilder =
+          (CoderTrivial) caseResult.getBuilder();
+      final Node caseFormula = caseBuilder.encode();
 
       result.addFormula(caseFormula);
 
@@ -592,9 +592,9 @@ public final class SymbolicExecutor {
 
       for (int i = 0; i < switchResults.size(); i++) {
         final SymbolicResult caseResult = switchResults.get(i);
-        final NodeEncoderTrivial caseBuilder =
-            (NodeEncoderTrivial) caseResult.getBuilder();
-        final Node caseFormula = caseBuilder.getEncodedForm();
+        final CoderTrivial caseBuilder =
+            (CoderTrivial) caseResult.getBuilder();
+        final Node caseFormula = caseBuilder.encode();
 
         // Case: (PHI == i) -> CASE(i).
         final Node ifThenFormula = getIfThenFormula(phi, width, i, caseFormula);

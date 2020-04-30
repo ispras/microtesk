@@ -17,28 +17,27 @@ package ru.ispras.microtesk.basis.solver.bitvector;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import java.util.Map;
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.Nodes;
 
 /**
- * {@link NodeEncoderTrivial} implements a simple formula builder.
+ * {@link CoderTrivial} implements a trivial constraint/solution encoder/decoder.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class NodeEncoderTrivial implements NodeEncoder<Node> {
+public final class CoderTrivial implements Coder<Node, Map<Variable, BitVector>> {
+
   private final Collection<Node> nodes;
 
-  public NodeEncoderTrivial() {
+  public CoderTrivial() {
     this.nodes = new ArrayList<>();
   }
 
-  public NodeEncoderTrivial(final NodeEncoderTrivial r) {
+  public CoderTrivial(final CoderTrivial r) {
     this.nodes = new ArrayList<>(r.nodes);
-  }
-
-  @Override
-  public Node getEncodedForm() {
-    return Nodes.and(nodes);
   }
 
   @Override
@@ -47,7 +46,17 @@ public final class NodeEncoderTrivial implements NodeEncoder<Node> {
   }
 
   @Override
-  public NodeEncoderTrivial clone() {
-    return new NodeEncoderTrivial(this);
+  public Node encode() {
+    return Nodes.and(nodes);
+  }
+
+  @Override
+  public Map<Variable, BitVector> decode(final Map<Variable, BitVector> encoded) {
+    return encoded;
+  }
+
+  @Override
+  public CoderTrivial clone() {
+    return new CoderTrivial(this);
   }
 }

@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.basis.solver.bitvector;
 
 import java.util.function.IntSupplier;
+import org.sat4j.specs.IProblem;
 import ru.ispras.fortress.data.Data;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -26,50 +27,30 @@ import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
+import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * {@link NodeEncoderSat4j} represents a bit-vector problem.
+ * {@link CoderSat4J} implements a SAT4J constraint/solution encoder/decoder.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class NodeEncoderSat4j implements NodeEncoder<Sat4jFormula> {
+public final class CoderSat4J implements Coder<Sat4jFormula, IProblem> {
   /** Using directly ISolver instead of Sat4jFormula.Builder slows down performance. */
   private final Sat4jFormula.Builder builder;
 
-  /** Contains the indices of the variables. */
+  /** Maps variables to their lower bit indices. */
   private final Map<Variable, Integer> indices;
-  private int index;
-
-  /** Contains the used/unused bits of the variables. */
+  /** Maps variables to their bit-usage masks. */
   private final Map<Variable, BitVector> masks;
 
-  public NodeEncoderSat4j() {
-    this.builder = new Sat4jFormula.Builder();
-    this.indices = new LinkedHashMap<>();
-    // Variable identifier should be positive.
-    this.index = 1;
-    this.masks = new LinkedHashMap<>();
-  }
+  /** Index of a boolean variable to be allocated next. */
+  private int index;
 
-  public NodeEncoderSat4j(final NodeEncoderSat4j r) {
-    this.builder = new Sat4jFormula.Builder(r.builder);
-    this.indices = new LinkedHashMap<>(r.indices);
-    this.index = r.index;
-    this.masks = new LinkedHashMap<>(r.masks);
-  }
-
-  public Map<Variable, Integer> getIndices() {
-    return indices;
-  }
-
-  public Map<Variable, BitVector> getMasks() {
-    return masks;
-  }
-
+  /** Returns the index of a new boolean variable. */
   private final IntSupplier newIndex = new IntSupplier() {
     @Override
     public int getAsInt() {
@@ -77,15 +58,97 @@ public final class NodeEncoderSat4j implements NodeEncoder<Sat4jFormula> {
     }
   };
 
-  @Override
-  public void addNode(final Node node) {
-    handleConstants(node);
-    handleOperation((NodeOperation) node);
+  /** Used to fill unused variable fields. */
+  private final VariableInitializer initializer;
+
+  public CoderSat4J(final VariableInitializer initializer) {
+    InvariantChecks.checkNotNull(initializer);
+
+    this.builder = new Sat4jFormula.Builder();
+    this.indices = new LinkedHashMap<>();
+    this.masks = new LinkedHashMap<>();
+    // In SAT4J, a variable index should be positive:
+    // x and ~x are mapped to +index and -index respectively.
+    this.index = 1;
+    this.initializer = initializer;
+  }
+
+  public CoderSat4J(final CoderSat4J other) {
+    InvariantChecks.checkNotNull(other);
+
+    this.builder = new Sat4jFormula.Builder(other.builder);
+    this.indices = new LinkedHashMap<>(other.indices);
+    this.masks = new LinkedHashMap<>(other.masks);
+    this.index = other.index;
+    this.initializer = other.initializer;
   }
 
   @Override
-  public Sat4jFormula getEncodedForm() {
+  public void addNode(final Node node) {
+    encodeConstants(node);
+    encodeOperation((NodeOperation) node);
+  }
+
+  @Override
+  public Sat4jFormula encode() {
     return builder.build();
+  }
+
+  @Override
+  public Map<Variable, BitVector> decode(final IProblem encoded) {
+    final Map<Variable, BitVector> decoded = new LinkedHashMap<>();
+
+    // Decode the solution.
+    for (final Map.Entry<Variable, Integer> entry : indices.entrySet()) {
+      final Variable variable = entry.getKey();
+      final int baseIndex = entry.getValue();
+
+      final BitVector value = BitVector.newEmpty(variable.getType().getSize());
+      for (int i = 0; i < variable.getType().getSize(); i++) {
+        value.setBit(i, encoded.model(baseIndex + i));
+      }
+
+      decoded.put(variable, value);
+    }
+
+    // Initialize unused fields of the variables.
+    for (final Map.Entry<Variable, BitVector> entry : decoded.entrySet()) {
+      final Variable variable = entry.getKey();
+      final BitVector mask = masks.get(variable);
+
+      BitVector value = entry.getValue();
+
+      int lowUnusedFieldIndex = -1;
+
+      for (int i = 0; i < mask.getBitSize(); i++) {
+        if (!mask.getBit(i)) {
+          if (lowUnusedFieldIndex == -1) {
+            lowUnusedFieldIndex = i;
+          }
+        } else {
+          if (lowUnusedFieldIndex != -1) {
+            final BitVector fieldValue = initializer.getValue(i - lowUnusedFieldIndex);
+
+            value.field(lowUnusedFieldIndex, i - 1).assign(fieldValue);
+            lowUnusedFieldIndex = -1;
+          }
+        }
+      }
+
+      if (lowUnusedFieldIndex != -1) {
+        final BitVector fieldValue = initializer.getValue(mask.getBitSize() - lowUnusedFieldIndex);
+        value.field(lowUnusedFieldIndex, mask.getBitSize() - 1).assign(fieldValue);
+      }
+
+      decoded.put(variable, value);
+    }
+
+    return decoded;
+  }
+
+  @Override
+  public CoderSat4J clone() {
+    return new CoderSat4J(this);
   }
 
   private BitBlaster.Operand getOperand(final Data data) {
@@ -120,7 +183,7 @@ public final class NodeEncoderSat4j implements NodeEncoder<Sat4jFormula> {
     return operands;
   }
 
-  private void handleConstants(final Node node) {
+  private void encodeConstants(final Node node) {
     final ExprTreeWalker walker = new ExprTreeWalker(
         new ExprTreeVisitorDefault() {
           @Override
@@ -150,24 +213,24 @@ public final class NodeEncoderSat4j implements NodeEncoder<Sat4jFormula> {
     walker.visit(node);
   }
 
-  private void handleOperation(final NodeOperation node) {
+  private void encodeOperation(final NodeOperation node) {
     switch ((StandardOperation) node.getOperationId()) {
       case EQ:
       case NOTEQ:
-        handleRelation(node);
+        encodeRelation(node);
         break;
       case AND:
-        handleConjunction(node);
+        encodeConjunction(node);
         break;
       case OR:
-        handleDisjunction(node);
+        encodeDisjunction(node);
         break;
       default:
         InvariantChecks.checkTrue(false, "Cannot encode the node");
     }
   }
 
-  private void handleRelation(final NodeOperation node, final int flagIndex) {
+  private void encodeRelation(final NodeOperation node, final int flagIndex) {
     InvariantChecks.checkTrue(
         ExprUtils.isOperation(node, StandardOperation.EQ, StandardOperation.NOTEQ));
 
@@ -184,27 +247,27 @@ public final class NodeEncoderSat4j implements NodeEncoder<Sat4jFormula> {
     }
   }
 
-  private void handleRelation(final NodeOperation node) {
-    handleRelation(node, 0);
+  private void encodeRelation(final NodeOperation node) {
+    encodeRelation(node, 0);
   }
 
-  private void handleConjunction(final NodeOperation node) {
+  private void encodeConjunction(final NodeOperation node) {
    InvariantChecks.checkTrue(ExprUtils.isOperation(node, StandardOperation.AND));
 
     for (final Node operand : node.getOperands()) {
       InvariantChecks.checkTrue(ExprUtils.isOperation(operand));
-      handleOperation((NodeOperation) operand);
+      encodeOperation((NodeOperation) operand);
     }
   }
 
-  private void handleDisjunction(final NodeOperation node) {
+  private void encodeDisjunction(final NodeOperation node) {
     InvariantChecks.checkTrue(ExprUtils.isOperation(node, StandardOperation.OR));
 
     int flagIndex = index;
     builder.addClause(BitBlaster.newClause(node.getOperandCount(), newIndex));
 
     for (final Node operand : node.getOperands()) {
-      handleRelation((NodeOperation) operand, flagIndex);
+      encodeRelation((NodeOperation) operand, flagIndex);
       flagIndex++;
     }
   }
@@ -252,10 +315,5 @@ public final class NodeEncoderSat4j implements NodeEncoder<Sat4jFormula> {
   private void setUsedBits(final Variable variable) {
     final BitVector mask = getVariableMask(variable);
     mask.setAll();
-  }
-
-  @Override
-  public NodeEncoderSat4j clone() {
-    return new NodeEncoderSat4j(this);
   }
 }

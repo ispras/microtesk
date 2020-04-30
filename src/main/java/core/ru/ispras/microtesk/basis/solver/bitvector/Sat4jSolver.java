@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
-import java.util.LinkedHashMap;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IProblem;
@@ -39,27 +38,19 @@ import java.util.Map;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
-  /** Problem to be solved. */
-  private final NodeEncoderSat4j problem;
+  private final Encoder<Sat4jFormula> encoder;
+  private final Decoder<IProblem> decoder;
 
-  /** Initializer used to fill the unused fields of the variables. */
-  private final VariableInitializer initializer;
+  public Sat4jSolver(final Encoder<Sat4jFormula> encoder, final Decoder<IProblem> decoder) {
+    InvariantChecks.checkNotNull(encoder);
+    InvariantChecks.checkNotNull(decoder);
 
-  /**
-   * Constructs a solver.
-   *
-   * @param builder the builder of the problem to be solved.
-   * @param initializer the initializer to be used to fill the unused fields.
-   */
-  public Sat4jSolver(
-      final NodeEncoder builder,
-      final VariableInitializer initializer) {
-    InvariantChecks.checkNotNull(builder);
-    InvariantChecks.checkTrue(builder instanceof NodeEncoderSat4j);
-    InvariantChecks.checkNotNull(initializer);
+    this.encoder = encoder;
+    this.decoder = decoder;
+  }
 
-    this.problem = (NodeEncoderSat4j) builder;
-    this.initializer = initializer;
+  public Sat4jSolver(final Coder<Sat4jFormula, IProblem> coder) {
+    this(coder, coder);
   }
 
   /**
@@ -74,12 +65,13 @@ public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
     InvariantChecks.checkNotNull(formulae);
     InvariantChecks.checkNotNull(initializer);
 
-    this.problem = new NodeEncoderSat4j();
-    for (final Node formula : formulae) {
-      problem.addNode(formula);
-    }
+    final CoderSat4J coder = new CoderSat4J(initializer); // FIXME:
+    this.encoder = coder;
+    this.decoder = coder;
 
-    this.initializer = initializer;
+    for (final Node formula : formulae) {
+      encoder.addNode(formula);
+    }
   }
 
   /**
@@ -94,10 +86,11 @@ public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
     InvariantChecks.checkNotNull(formula);
     InvariantChecks.checkNotNull(initializer);
 
-    this.problem = new NodeEncoderSat4j();
-    problem.addNode(formula);
+    final CoderSat4J coder = new CoderSat4J(initializer); // FIXME:
+    this.encoder = coder;
+    this.decoder = coder;
 
-    this.initializer = initializer;
+    encoder.addNode(formula);
   }
 
   @Override
@@ -105,7 +98,7 @@ public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
     InvariantChecks.checkNotNull(mode);
 
     final ISolver solver = SolverFactory.newDefault();
-    final Sat4jFormula formula = problem.getEncodedForm();
+    final Sat4jFormula formula = encoder.encode();
 
     // Construct the problem.
     try {
@@ -138,64 +131,7 @@ public final class Sat4jSolver implements Solver<Map<Variable, BitVector>> {
     }
 
     // Assign the variables with values.
-    final Map<Variable, BitVector> solution = decode(solver, problem.getIndices());
-
-    // Track unused fields of the variables.
-    final Map<Variable, BitVector> masks = problem.getMasks();
-
-    // Initialize unused fields of the variables.
-    for (final Map.Entry<Variable, BitVector> entry : solution.entrySet()) {
-      final Variable variable = entry.getKey();
-      final BitVector mask = masks.get(variable);
-
-      BitVector value = entry.getValue();
-
-      int lowUnusedFieldIndex = -1;
-
-      for (int i = 0; i < mask.getBitSize(); i++) {
-        if (!mask.getBit(i)) {
-          if (lowUnusedFieldIndex == -1) {
-            lowUnusedFieldIndex = i;
-          }
-        } else {
-          if (lowUnusedFieldIndex != -1) {
-            final BitVector fieldValue = initializer.getValue(i - lowUnusedFieldIndex);
-
-            value.field(lowUnusedFieldIndex, i - 1).assign(fieldValue);
-            lowUnusedFieldIndex = -1;
-          }
-        }
-      }
-
-      if (lowUnusedFieldIndex != -1) {
-        final BitVector fieldValue = initializer.getValue(mask.getBitSize() - lowUnusedFieldIndex);
-        value.field(lowUnusedFieldIndex, mask.getBitSize() - 1).assign(fieldValue);
-      }
-
-      solution.put(variable, value);
-    }
-
+    final Map<Variable, BitVector> solution = decoder.decode(solver);
     return new SolverResult<>(solution);
-  }
-
-  private Map<Variable, BitVector> decode(
-      final IProblem problem,
-      final Map<Variable, Integer> indices) {
-    final Map<Variable, BitVector> solution = new LinkedHashMap<>();
-
-    for (final Map.Entry<Variable, Integer> entry : indices.entrySet()) {
-      final Variable variable = entry.getKey();
-      final int x = entry.getValue();
-
-      final BitVector value = BitVector.newEmpty(variable.getType().getSize());
-      for (int i = 0; i < variable.getType().getSize(); i++) {
-        final int xi = x + i;
-        value.setBit(i, problem.model(xi));
-      }
-
-      solution.put(variable, value);
-    }
-
-    return solution;
   }
 }
