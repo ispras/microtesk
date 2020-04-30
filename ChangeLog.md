@@ -2,6 +2,11 @@
 
 ## MicroTESK 2.5
 
+### 2020/XX/XX - MicroTESK 2.5.2 beta
+
+ * Used the QEMU4V 0.3.6 simulator for running tests
+   (see https://forge.ispras.ru/projects/qemu4v)
+
 ### 2020/01/27 - MicroTESK 2.5.1 beta
 
  * Fixed the `TokenSourceStack` class and moved it to the Castle 0.1.4 library
