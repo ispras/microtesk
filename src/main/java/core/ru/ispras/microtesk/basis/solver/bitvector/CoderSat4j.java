@@ -214,6 +214,8 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
       encodeConjunction(node, flag, negation, false);
     } else if (ExprUtils.isOperation(node, StandardOperation.OR)) {
       encodeDisjunction(node, flag, negation, false);
+    } else if (ExprUtils.isOperation(node, StandardOperation.IMPL)) {
+      encodeImplication(node, flag, negation);
     } else {
       reportUnknownNode(node);
     }
@@ -234,20 +236,19 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
       return;
     }
 
-    int flagIndex = index;
+    int flagIndex = flag != 0 ? index : 0;
+    int flagDelta = flag != 0 ? 1 : 0;
 
     // f <=> (f[0] & ... & f[n-1]).
     if (flag != 0) {
-      final Operand[] operands = IntStream.range(0, node.getOperandCount()).mapToObj(
-          i -> new Operand(newIndex.getAsInt(), 1)).toArray(Operand[]::new);
-      builder.addAll(BitBlaster.AND.encode(operands, flag, newIndex));
+      builder.addAll(BitBlaster.AND.encode(getOperands(node.getOperandCount()), flag, newIndex));
     }
 
     // f[i] <=> encode(operand[i])
     for (final Node operand : node.getOperands()) {
       // Another option: operand, -flagIndex, !internalNegation.
-      encode(operand, (flag != 0 ? flagIndex : 0), internalNegation);
-      flagIndex++;
+      encode(operand, flagIndex, internalNegation);
+      flagIndex += flagDelta;
     }
   }
 
@@ -265,13 +266,25 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
     int flagIndex = index;
 
     // f <=> (f[0] | ... | f[n-1]).
-    final Operand[] operands = IntStream.range(0, node.getOperandCount()).mapToObj(
-        i -> new Operand(newIndex.getAsInt(), 1)).toArray(Operand[]::new);
-    builder.addAll(BitBlaster.OR.encode(operands, flag, newIndex));
+    builder.addAll(BitBlaster.OR.encode(getOperands(node.getOperandCount()), flag, newIndex));
 
     // f[i] <=> encode(operand[i])
     for (final Node operand : node.getOperands()) {
       encode(operand, flagIndex, internalNegation);
+      flagIndex++;
+    }
+  }
+
+  private void encodeImplication(final NodeOperation node, final int flag, final boolean negation) {
+    int flagIndex = index;
+
+    // f <=> (f[0] -> f[1]).
+    InvariantChecks.checkTrue(node.getOperandCount() == 2);
+    builder.addAll(BitBlaster.IMPL.encode(getOperands(2), flag, newIndex, negation));
+
+    // f[i] <=> encode(operand[i])
+    for (final Node operand : node.getOperands()) {
+      encode(operand, flagIndex, false);
       flagIndex++;
     }
   }
@@ -347,6 +360,11 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
     }
 
     return operands;
+  }
+
+  private Operand[] getOperands(int count) {
+    return IntStream.range(0, count).mapToObj(
+        i -> new Operand(newIndex.getAsInt(), 1)).toArray(Operand[]::new);
   }
 
   private void reportUnknownNode(final Node node) {

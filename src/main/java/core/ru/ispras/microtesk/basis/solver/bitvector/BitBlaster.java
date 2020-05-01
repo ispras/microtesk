@@ -67,7 +67,7 @@ public enum BitBlaster {
   },
 
   /**
-   * Encodes a conjunction.
+   * Encodes a conjunction of n boolean variables, i.e. {@code x[0] & ... & x[n-1]}.
    */
   AND {
     @Override
@@ -105,16 +105,7 @@ public enum BitBlaster {
   },
 
   /**
-   * Encodes the disjunction of consecutive boolean variables w/o negations, i.e. {@code
-   * OR[j=s..t]{x[j]} = (x[s] | ... | x[t])},
-   *
-   * @param size the number of variables.
-   * @param newIndex the supplier of a new boolean variable index.
-   * @return the CNF.
-   */
-
-  /**
-   * Encodes a disjunction.
+   * Encodes a disjunction of n boolean variables, i.e. {@code x[0] | ... | x[n-1]}.
    */
   OR {
     @Override
@@ -146,6 +137,33 @@ public enum BitBlaster {
       for (final Operand operand : operands) {
         operand.sign ^= true;
       }
+
+      return clauses;
+    }
+  },
+
+  /**
+   * Encodes an implication of 2 boolean variables, i.e. {@code x -> y}.
+   */
+  IMPL {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      // (x -> y) == (~x | y).
+      operands[0].sign ^= true;
+      final Collection<IntArray> clauses = OR.encodePositive(operands, newIndex);
+      operands[0].sign ^= true;
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      // ~(x -> y) == (x & ~y).
+      operands[1].sign ^= true;
+      final Collection<IntArray> clauses = AND.encodePositive(operands, newIndex);
+      operands[1].sign ^= true;
 
       return clauses;
     }
