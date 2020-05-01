@@ -200,7 +200,7 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
       builder.addAll(BVULT.encode(operands, flag, newIndex, negation));
     } else if (ExprUtils.isOperation(node, StandardOperation.BVUGE, StandardOperation.GREATEREQ)) {
       builder.addAll(BVUGE.encode(operands, flag, newIndex, negation));
-    } if (ExprUtils.isOperation(node, StandardOperation.BVUGT, StandardOperation.GREATER)) {
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVUGT, StandardOperation.GREATER)) {
       builder.addAll(BVUGT.encode(operands, flag, newIndex, negation));
     } else {
       reportUnknownNode(node);
