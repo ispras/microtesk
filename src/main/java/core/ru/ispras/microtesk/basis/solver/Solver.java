@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.basis.solver;
 
+import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -50,6 +51,15 @@ public abstract class Solver<T> {
   }
 
   /**
+   * Adds the node to the current constraint.
+   *
+   * @param node the node to be added.
+   */
+  public final void addNode(final Node node) {
+    encoder.addNode(node);
+  }
+
+  /**
    * Checks whether the constraint is satisfiable and returns a solution (if required).
    *
    * @param problem the encoded constraint (problem) to be solved.
@@ -59,7 +69,7 @@ public abstract class Solver<T> {
   protected abstract SolverResult<Object> solve(Object problem, Mode mode);
 
   /**
-   * Checks whether the constraint is satisfiable and returns a solution (if required).
+   * Checks whether the encoded constraint is satisfiable and returns a solution (if required).
    *
    * @param mode the solver mode.
    * @return {@code SAT} if the constraint is satisfiable; {@code UNSAT} otherwise.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -38,8 +38,8 @@ public final class ConstraintTestCase {
 
     final Node constraint = Constraint.range(x, a, b);
 
-    final SolverSat4j solver = new SolverSat4j(
-        constraint, Initializer.RANDOM);
+    final SolverSat4j solver = new SolverSat4j();
+    solver.addNode(constraint);
 
     final SolverResult<Map<Variable, BitVector>> result = solver.solve(Solver.Mode.MAP);
     Assert.assertTrue(result.getErrors().toString(),
