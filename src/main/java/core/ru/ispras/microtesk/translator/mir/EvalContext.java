@@ -85,7 +85,7 @@ public final class EvalContext extends InsnVisitor {
     }
   }
 
-  private Lvalue rebaseLocal(final Lvalue lval) {
+  private Local rebaseLocal(final Local lval) {
     return new Local(indexOf(lval), lval.getType());
   }
 
@@ -218,7 +218,7 @@ public final class EvalContext extends InsnVisitor {
       }
       return new Closure(closure.callee, upvalues);
     } else if (opnd instanceof Local) {
-      final int index = indexOf(opnd);
+      final int index = indexOf((Local) opnd);
       final Operand value = getLocal(index);
       if (value.equals(VoidTy.VALUE)) {
         return new Local(index, opnd.getType());
@@ -241,7 +241,7 @@ public final class EvalContext extends InsnVisitor {
     return opnd;
   }
 
-  private int indexOf(final Operand opnd) {
+  private int indexOf(final Local opnd) {
     return ((Local) opnd).id + this.origin;
   }
 

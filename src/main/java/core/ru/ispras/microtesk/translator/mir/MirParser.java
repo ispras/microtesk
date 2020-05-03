@@ -412,7 +412,7 @@ public class MirParser {
     private Instruction nextConcat(final String id, final Scanner s) {
       TokenKind.IDENT.next(s);
       final MirTy lhsty = nextType(s);
-      final Lvalue lhs = newLocal(id, lhsty);
+      final Local lhs = newLocal(id, lhsty);
 
       final List<Operand> args = new java.util.ArrayList<>();
       while (s.hasNext()) {
@@ -426,7 +426,7 @@ public class MirParser {
     private Instruction nextExtract(final String id, final Scanner s) {
       TokenKind.IDENT.next(s);
       final MirTy lhsty = nextType(s);
-      final Lvalue lhs = newLocal(id, lhsty);
+      final Local lhs = newLocal(id, lhsty);
 
       TokenKind.IDENT.next(s); // of
       final MirTy rhsty = nextType(s);

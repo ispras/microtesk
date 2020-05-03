@@ -13,12 +13,12 @@ public interface Instruction {
   void accept(InsnVisitor visitor);
 
 static final class Assignment implements Instruction {
-  public final Lvalue lhs;
-  public final BinOpcode opc;
-  public final Operand op1;
-  public final Operand op2;
+  public Local lhs;
+  public BinOpcode opc;
+  public Operand op1;
+  public Operand op2;
 
-  public Assignment(final Lvalue lhs, final Rvalue rhs) {
+  public Assignment(final Local lhs, final Rvalue rhs) {
     this.lhs = lhs;
     this.opc = rhs.opc;
     this.op1 = rhs.op1;
@@ -32,12 +32,12 @@ static final class Assignment implements Instruction {
 }
 
 static class Extract implements Instruction {
-  public final Lvalue lhs;
-  public final Operand rhs;
-  public final Operand lo;
-  public final Operand hi;
+  public Local lhs;
+  public Operand rhs;
+  public Operand lo;
+  public Operand hi;
 
-  public Extract(final Lvalue lhs, final Operand rhs, final Operand lo, final Operand hi) {
+  public Extract(final Local lhs, final Operand rhs, final Operand lo, final Operand hi) {
     this.lhs = lhs;
     this.rhs = rhs;
     this.lo = lo;
@@ -51,10 +51,10 @@ static class Extract implements Instruction {
 }
 
 static class Concat implements Instruction {
-  public final Lvalue lhs;
-  public final List<Operand> rhs;
+  public Local lhs;
+  public List<Operand> rhs;
 
-  public Concat(final Lvalue lhs, final List<Operand> rhs) {
+  public Concat(final Local lhs, final List<Operand> rhs) {
     this.lhs = lhs;
     this.rhs = rhs;
   }
@@ -66,10 +66,10 @@ static class Concat implements Instruction {
 }
 
 static final class Call implements Instruction {
-  public final Operand callee;
-  public final String method;
-  public final List<Operand> args;
-  public final Local ret;
+  public Operand callee;
+  public String method;
+  public List<Operand> args;
+  public Local ret;
 
   public Call(final Operand callee, final String method, final List<Operand> args, final Local ret) {
     this.callee = callee;
@@ -85,8 +85,8 @@ static final class Call implements Instruction {
 }
 
 static final class Load implements Instruction {
-  public final Lvalue source;
-  public final Local target;
+  public Lvalue source;
+  public Local target;
 
   public Load(final Lvalue source, final Local target) {
     this.source = source;
@@ -100,8 +100,8 @@ static final class Load implements Instruction {
 }
 
 static final class Store implements Instruction {
-  public final Lvalue target;
-  public final Operand source;
+  public Lvalue target;
+  public Operand source;
 
   public Store(final Lvalue target, final Operand source) {
     this.target = target;
@@ -115,9 +115,9 @@ static final class Store implements Instruction {
 }
 
 static final class Disclose implements Instruction {
-  public final Local target;
-  public final Operand source;
-  public final List<Constant> indices;
+  public Local target;
+  public Operand source;
+  public List<Constant> indices;
 
   public Disclose(final Local target, final Operand source, final List<Constant> indices) {
     this.target = target;
@@ -159,9 +159,9 @@ static class Invoke extends Terminator {
 }
 
 static final class Branch extends Terminator {
-  public final Operand guard;
-  public final Map<Integer, BasicBlock> target;
-  public final BasicBlock other;
+  public Operand guard;
+  public Map<Integer, BasicBlock> target;
+  public BasicBlock other;
 
   public Branch(final BasicBlock next) {
     super(Collections.singletonList(next));
@@ -184,7 +184,7 @@ static final class Branch extends Terminator {
 }
 
 static final class Return extends Terminator {
-  public final Operand value;
+  public Operand value;
 
   public Return(final Operand value) {
     this.value = value;
@@ -210,10 +210,10 @@ static final class Exception extends Terminator {
 }
 
 static class Sext implements Instruction {
-  public final Lvalue lhs;
-  public final Operand rhs;
+  public Local lhs;
+  public Operand rhs;
 
-  Sext(final Lvalue lhs, final Operand rhs) {
+  Sext(final Local lhs, final Operand rhs) {
     this.lhs = lhs;
     this.rhs = rhs;
   }
@@ -225,10 +225,10 @@ static class Sext implements Instruction {
 }
 
 static class Zext implements Instruction {
-  public final Lvalue lhs;
-  public final Operand rhs;
+  public Local lhs;
+  public Operand rhs;
 
-  Zext(final Lvalue lhs, final Operand rhs) {
+  Zext(final Local lhs, final Operand rhs) {
     this.lhs = lhs;
     this.rhs = rhs;
   }
@@ -240,10 +240,10 @@ static class Zext implements Instruction {
 }
 
   static class Conditional implements Instruction {
-    public final Local lhs;
-    public final Operand guard;
-    public final Operand taken;
-    public final Operand other;
+    public Local lhs;
+    public Operand guard;
+    public Operand taken;
+    public Operand other;
 
     Conditional(Local lhs, Operand guard, Operand taken, Operand other) {
       this.lhs = lhs;
@@ -259,7 +259,7 @@ static class Zext implements Instruction {
   }
 }
 
-class Local extends Lvalue {
+class Local implements Operand {
   public final int id;
   private final MirTy type;
 
@@ -271,11 +271,6 @@ class Local extends Lvalue {
   @Override
   public MirTy getType() {
     return type;
-  }
-
-  @Override
-  public MirTy getContainerType() {
-    return getType();
   }
 
   @Override

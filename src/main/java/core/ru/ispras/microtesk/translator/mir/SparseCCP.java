@@ -19,10 +19,10 @@ public class SparseCCP extends InsnVisitor {
 
   static class ImmBranch {
     final CmpOpcode opc;
-    final Lvalue lvalue;
+    final Local lvalue;
     final Operand rvalue;
 
-    ImmBranch(CmpOpcode opc, Lvalue lvalue, Operand rvalue) {
+    ImmBranch(CmpOpcode opc, Local lvalue, Operand rvalue) {
       this.opc = opc;
       this.lvalue = lvalue;
       this.rvalue = rvalue;
@@ -33,12 +33,7 @@ public class SparseCCP extends InsnVisitor {
     }
 
     public boolean substitutes(final Operand opnd) {
-      if (opnd instanceof Static && lvalue instanceof Static) {
-        return lvalue.equals(opnd);
-      } else if (opnd instanceof Local && lvalue instanceof Local) {
-        return ((Local) lvalue).id == ((Local) opnd).id;
-      }
-      return false;
+      return opnd instanceof Local && lvalue.id == ((Local) opnd).id;
     }
   }
 
@@ -57,16 +52,16 @@ public class SparseCCP extends InsnVisitor {
  @Override
   public void visit(final Assignment insn) {
     if (insn.opc.equals(CmpOpcode.Eq) || insn.opc.equals(CmpOpcode.Ne)) {
-      final int condId = ((Local) insn.lhs).id;
+      final int condId = insn.lhs.id;
       final CmpOpcode opc = (CmpOpcode) insn.opc;
 
-      final Lvalue lvalue;
+      final Local lvalue;
       final Operand rvalue;
       if (orderLessThan(insn.op1, insn.op2)) {
-        lvalue = (Lvalue) insn.op2;
+        lvalue = (Local) insn.op2;
         rvalue = insn.op1;
       } else {
-        lvalue = (Lvalue) insn.op1;
+        lvalue = (Local) insn.op1;
         rvalue = insn.op2;
       }
       mapping.put(condId, new ImmBranch(opc, lvalue, rvalue));
@@ -121,6 +116,7 @@ public class SparseCCP extends InsnVisitor {
   }
 
   private Ite inlineIte(final Ite origin) {
+    // TODO does it even triggers?
     final ImmBranch br = branchOnImm(origin.guard);
     if (br != null && phiJoins.containsKey(br.lvalue)) {
       final Ite guardIte = phiJoins.get(br.lvalue).value;
@@ -295,6 +291,10 @@ abstract class DirectRewriter extends InsnVisitor {
     return values;
   }
 
+  private Local visitLhs(final Local opnd) {
+    return (Local) visitor.visitLhs(opnd);
+  }
+
   private Lvalue visitLvalue(final Lvalue opnd) {
     return (Lvalue) visitor.visitLvalue(opnd);
   }
@@ -302,13 +302,13 @@ abstract class DirectRewriter extends InsnVisitor {
   public void visit(final Assignment insn) {
     final Operand op1 = dispatch(insn.op1);
     final Operand op2 = dispatch(insn.op2);
-    final Lvalue lhs = visitLvalue(insn.lhs);
+    final var lhs = visitLhs(insn.lhs);
     notifyRewrite(insn, new Assignment(lhs, insn.opc.make(op1, op2)));
   }
 
   public void visit(final Concat insn) {
     final List<Operand> args = dispatchAll(insn.rhs);
-    final Lvalue lhs = visitLvalue(insn.lhs);
+    final var lhs = visitLhs(insn.lhs);
     notifyRewrite(insn, new Concat(lhs, args));
   }
 
@@ -316,19 +316,19 @@ abstract class DirectRewriter extends InsnVisitor {
     final Operand rhs = dispatch(insn.rhs);
     final Operand lo = dispatch(insn.lo);
     final Operand hi = dispatch(insn.hi);
-    final Lvalue lhs = visitLvalue(insn.lhs);
+    final var lhs = visitLhs(insn.lhs);
     notifyRewrite(insn, new Extract(lhs, rhs, lo, hi));
   }
 
   public void visit(final Sext insn) {
     final Operand rhs = dispatch(insn.rhs);
-    final Lvalue lhs = visitLvalue(insn.lhs);
+    final var lhs = visitLhs(insn.lhs);
     notifyRewrite(insn, new Sext(lhs, rhs));
   }
 
   public void visit(final Zext insn) {
     final Operand rhs = dispatch(insn.rhs);
-    final Lvalue lhs = visitLvalue(insn.lhs);
+    final var lhs = visitLhs(insn.lhs);
     notifyRewrite(insn, new Zext(lhs, rhs));
   }
 
@@ -359,13 +359,13 @@ abstract class DirectRewriter extends InsnVisitor {
   private Call rewriteCall(final Call insn) {
     final List<Operand> args = dispatchAll(insn.args);
     final Operand callee = dispatch(insn.callee);
-    final Lvalue lhs = (insn.ret != null) ? visitLvalue(insn.ret) : null;
+    final var lhs = (insn.ret != null) ? visitLhs(insn.ret) : null;
     return new Call(callee, insn.method, args, (Local) lhs);
   }
 
   public void visit(final Load insn) {
     final Lvalue src = (Lvalue) dispatch(insn.source);
-    final Local lhs = (Local) visitLvalue(insn.target);
+    final Local lhs = visitLhs(insn.target);
     notifyRewrite(insn, new Load(src, lhs));
   }
 
@@ -377,7 +377,7 @@ abstract class DirectRewriter extends InsnVisitor {
 
   public void visit(final Disclose insn) {
     final Operand source = dispatch(insn.source);
-    final Local lhs = (Local) visitLvalue(insn.target);
+    final Local lhs = visitLhs(insn.target);
     notifyRewrite(insn, new Disclose(lhs, source, insn.indices));
   }
 
@@ -385,7 +385,7 @@ abstract class DirectRewriter extends InsnVisitor {
     final Operand guard = dispatch(insn.guard);
     final Operand taken = dispatch(insn.taken);
     final Operand other = dispatch(insn.other);
-    final Local lhs = (Local) visitLvalue(insn.lhs);
+    final Local lhs = visitLhs(insn.lhs);
 
     notifyRewrite(insn, new Conditional(lhs, guard, taken, other));
   }
@@ -403,8 +403,8 @@ abstract class DirectRewriter extends InsnVisitor {
   public void visit(final SsaStore store) {
     final Store insn = store.origin;
     final Operand value = dispatch(insn.source);
-    final Lvalue src = (Lvalue) visitLvalue(insn.target);
-    final Static lhs = (Static) visitLvalue(store.target);
+    final var src = visitLvalue(insn.target);
+    final var lhs = (Static) visitLvalue(store.target);
     notifyRewrite(insn, new SsaStore(lhs, new Store(src, value)));
   }
 }

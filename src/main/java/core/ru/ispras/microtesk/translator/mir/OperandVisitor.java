@@ -8,6 +8,7 @@ import static ru.ispras.microtesk.translator.mir.Instruction.*;
 
 abstract class OperandVisitor<T> {
   public T visitConst(Constant opnd) { return visitOperand(opnd); }
+  public T visitLhs(Local opnd) { return visitOperand(opnd); }
   public T visitLvalue(Lvalue opnd) { return visitOperand(opnd); }
   public T visitLocal(Local opnd) { return visitOperand(opnd); }
   public T visitField(Field opnd, T base) { return visitOperand(opnd); }
@@ -69,35 +70,35 @@ class OperandWalker<T> extends InsnVisitor {
     dispatch(insn.guard);
     dispatch(insn.taken);
     dispatch(insn.other);
-    visitor.visitLvalue(insn.lhs);
+    visitor.visitLhs(insn.lhs);
   }
 
   public void visit(final Assignment insn) {
     dispatch(insn.op1);
     dispatch(insn.op2);
-    visitor.visitLvalue((Lvalue) insn.lhs);
+    visitor.visitLhs(insn.lhs);
   }
 
   public void visit(final Concat insn) {
     dispatchAll(insn.rhs);
-    visitor.visitLvalue((Lvalue) insn.lhs);
+    visitor.visitLhs(insn.lhs);
   }
 
   public void visit(final Extract insn) {
     dispatch(insn.rhs);
     dispatch(insn.lo);
     dispatch(insn.hi);
-    visitor.visitLvalue((Lvalue) insn.lhs);
+    visitor.visitLhs(insn.lhs);
   }
 
   public void visit(final Sext insn) {
     dispatch(insn.rhs);
-    visitor.visitLvalue((Lvalue) insn.lhs);
+    visitor.visitLhs(insn.lhs);
   }
 
   public void visit(final Zext insn) {
     dispatch(insn.rhs);
-    visitor.visitLvalue((Lvalue) insn.lhs);
+    visitor.visitLhs(insn.lhs);
   }
 
   public void visit(final Branch insn) {
@@ -113,7 +114,7 @@ class OperandWalker<T> extends InsnVisitor {
   public void visit(final Call insn) {
     dispatchAll(insn.args);
     dispatch(insn.callee);
-    visitor.visitLvalue((Lvalue) insn.ret);
+    visitor.visitLhs(insn.ret);
   }
 
   public void visit(final Invoke insn) {
@@ -122,7 +123,7 @@ class OperandWalker<T> extends InsnVisitor {
 
   public void visit(final Load insn) {
     dispatch(insn.source);
-    visitor.visitLvalue((Lvalue) insn.target);
+    visitor.visitLhs(insn.target);
   }
 
   public void visit(final Store insn) {
@@ -132,7 +133,7 @@ class OperandWalker<T> extends InsnVisitor {
 
   public void visit(final Disclose insn) {
     dispatch(insn.source);
-    visitor.visitLvalue((Lvalue) insn.target);
+    visitor.visitLhs(insn.target);
   }
 
   public void visit(final Phi insn) {

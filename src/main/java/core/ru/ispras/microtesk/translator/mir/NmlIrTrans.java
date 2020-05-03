@@ -264,7 +264,7 @@ public final class NmlIrTrans {
         if (param.getKind().equals(Primitive.Kind.IMM)) {
           final Location loc =
             Location.createPrimitiveBased(arg.getName(), arg.getPrimitive());
-          final Operand value = translateAccess(block, loc, new ReadAccess(block));
+          final Operand value = translateRead(block, loc);
           upvalues.add(value);
         } else {
           upvalues.add(block.getNamedLocal(arg.getName()));
@@ -300,7 +300,7 @@ public final class NmlIrTrans {
     final Rvalue rhs = rvalueOf(operand);
 
     if (ExprUtils.isVariable(node)) {
-      translateAccess(ctx, locationOf(node), new WriteAccess(ctx, rhs));
+      translateWrite(ctx, locationOf(node), rhs);
     } else if (ExprUtils.isOperation(node, StandardOperation.BVCONCAT)) {
       final int size = sizeOf(node);
       final List<Node> operands = operandsOf(node);
@@ -317,7 +317,7 @@ public final class NmlIrTrans {
             fieldSize,
             new Constant(size, 0),
             new Constant(size, fieldSize - 1));
-        translateAccess(ctx, locationOf(lhs), new WriteAccess(ctx, rvalueOf(field)));
+        translateWrite(ctx, locationOf(lhs), rvalueOf(field));
       }
     }
   }
@@ -336,7 +336,7 @@ public final class NmlIrTrans {
 
       return visitor.getResult();
     } else if (ExprUtils.isVariable(node)) {
-      return translateAccess(ctx, locationOf(node), new ReadAccess(ctx));
+      return translateRead(ctx, locationOf(node));
     } else if (ExprUtils.isValue(node)) {
       return newConstant(node);
     }
@@ -399,7 +399,7 @@ public final class NmlIrTrans {
           case BVSIGNEXT: {
             final int diff = ((NodeValue) node.getOperand(0)).getInteger().intValue();
             final Operand rhs = lookUp(node.getOperand(1));
-            final Lvalue lhs = ctx.newLocal(rhs.getType().getSize() + diff);
+            final Local lhs = ctx.newLocal(rhs.getType().getSize() + diff);
             ctx.append(new Sext(lhs, rhs));
 
             local = lhs;
@@ -409,7 +409,7 @@ public final class NmlIrTrans {
           case BVZEROEXT: {
             final int diff = ((NodeValue) node.getOperand(0)).getInteger().intValue();
             final Operand rhs = lookUp(node.getOperand(1));
-            final Lvalue lhs = ctx.newLocal(rhs.getType().getSize() + diff);
+            final Local lhs = ctx.newLocal(rhs.getType().getSize() + diff);
             ctx.append(new Zext(lhs, rhs));
 
             local = lhs;
@@ -454,14 +454,14 @@ public final class NmlIrTrans {
       }
     }
 
-    private Lvalue translateNeg(final NodeOperation node) {
+    private Local translateNeg(final NodeOperation node) {
       final Operand rhs = lookUp(node.getOperand(0));
       final Local not =
         ctx.assignLocal(BvOpcode.Xor.make(rhs, valueAssignable(-1, rhs)));
       return ctx.assignLocal(BvOpcode.Add.make(not, valueAssignable(1, not)));
     }
 
-    private Lvalue translateRepeat(final NodeOperation node) {
+    private Local translateRepeat(final NodeOperation node) {
       final Node ntimes = node.getOperand(0);
       final Local lhs = ctx.newLocal(node.getDataType().getSize());
       if (ntimes.getKind() == Node.Kind.VALUE) {
@@ -477,24 +477,24 @@ public final class NmlIrTrans {
       return lhs;
     }
 
-    private Lvalue translateShift(final NodeOperation node) {
+    private Local translateShift(final NodeOperation node) {
       // TODO actually verify it is the same (NML rotations has inverse arg order)
       return translateRot(node);
     }
 
-    private Lvalue translateRot(final NodeOperation node) {
+    private Local translateRot(final NodeOperation node) {
       final Operand value = lookUp(node.getOperand(0));
       final Operand amount = lookUp(node.getOperand(1));
 
-      final Lvalue tmp = ctx.newLocal(value.getType());
-      final Lvalue lhs = ctx.newLocal(value.getType());
+      final Local tmp = ctx.newLocal(value.getType());
+      final Local lhs = ctx.newLocal(value.getType());
       ctx.append(new Zext(tmp, amount));
       ctx.assign(lhs, mapOpcode(node).make(value, tmp));
 
       return lhs;
     }
 
-    private Lvalue translateIte(final NodeOperation node) {
+    private Local translateIte(final NodeOperation node) {
       final Operand guard = lookUp(node.getOperand(0));
       final Operand taken = lookUp(node.getOperand(1));
       final Operand other = lookUp(node.getOperand(2));
@@ -609,7 +609,7 @@ public final class NmlIrTrans {
         return mapped.get(node);
 
       case VARIABLE:
-        return translateAccess(ctx, locationOf(node), new ReadAccess(ctx));
+        return translateRead(ctx, locationOf(node));
       }
       throw new UnsupportedOperationException();
     }
@@ -639,7 +639,15 @@ public final class NmlIrTrans {
     return type.getSize();
   }
 
-  private Lvalue translateAccess(
+  private Local translateRead(final MirBlock ctx, final Location l) {
+    return translateAccess(ctx, l, new ReadAccess(ctx));
+  }
+
+  private void translateWrite(final MirBlock ctx, final Location l, final Rvalue value) {
+    translateAccess(ctx, l, new WriteAccess(ctx, value));
+  }
+
+  private Local translateAccess(
       final MirBlock ctx,
       final Location l,
       final Accessor client) {
@@ -722,9 +730,9 @@ public final class NmlIrTrans {
       this.ctx = ctx;
     }
 
-    abstract Lvalue accessMode(Local source, Access access, Primitive p);
-    abstract Lvalue accessLocal(Local source, Access access);
-    abstract Lvalue accessMemory(Lvalue source, Access access);
+    abstract Local accessMode(Local source, Access access, Primitive p);
+    abstract Local accessLocal(Local source, Access access);
+    abstract Local accessMemory(Lvalue source, Access access);
 
     protected Lvalue index(final Lvalue src, final Access access) {
       if (access.index != null) {
@@ -733,7 +741,7 @@ public final class NmlIrTrans {
       return src;
     }
 
-    protected Lvalue extract(final Lvalue src, final Access access) {
+    protected Local extract(final Local src, final Access access) {
       if (access.lo != null) {
         return ctx.extract(src, access.size, access.lo, access.hi);
       }
@@ -778,12 +786,12 @@ public final class NmlIrTrans {
     }
 
     @Override
-    public Lvalue accessLocal(final Local source, final Access access) {
-      return extract(index(source, access), access);
+    public Local accessLocal(final Local source, final Access access) {
+      return extract(source, access);
     }
 
     @Override
-    public Lvalue accessMode(final Local source, final Access access, final Primitive p) {
+    public Local accessMode(final Local source, final Access access, final Primitive p) {
       final Local value = ctx.newLocal(p.getReturnType().getBitSize());
       final String method = String.format("%s.read", p.getName());;
       ctx.append(new Call(source, method, Collections.<Operand>emptyList(), value));
@@ -792,7 +800,7 @@ public final class NmlIrTrans {
     }
 
     @Override
-    public Lvalue accessMemory(final Lvalue mem, final Access access) {
+    public Local accessMemory(final Lvalue mem, final Access access) {
       final Lvalue source = index(mem, access);
       final Local target = ctx.newLocal(source.getType());
       ctx.append(new Load(source, target));
@@ -810,13 +818,13 @@ public final class NmlIrTrans {
     }
 
     @Override
-    public Lvalue accessLocal(final Local target, final Access access) {
+    public Local accessLocal(final Local target, final Access access) {
       /* NOTE write access to local is FORBIDDEN, skip */
       return target;
     }
 
     @Override
-    public Lvalue accessMode(final Local target, final Access access, final Primitive p) {
+    public Local accessMode(final Local target, final Access access, final Primitive p) {
       final Local newval = ctx.newLocal(p.getReturnType().getBitSize());
       if (access.lo != null) {
         final Local oldval = ctx.newLocal(newval.getType());
@@ -836,7 +844,7 @@ public final class NmlIrTrans {
     }
 
     @Override
-    public Lvalue accessMemory(final Lvalue mem, final Access access) {
+    public Local accessMemory(final Lvalue mem, final Access access) {
       final Lvalue target = index(mem, access);
       final Local newval = ctx.newLocal(target.getType());;
       if (access.lo != null) {
@@ -848,10 +856,10 @@ public final class NmlIrTrans {
       }
       ctx.append(new Store(target, newval));
 
-      return target;
+      return null; // memory store, return nothing
     }
 
-    private void write(final Lvalue target, final Operand oldval, final Access access) {
+    private void write(final Local target, final Operand oldval, final Access access) {
       if (access.lo != null) {
         final Local zext = ctx.newLocal(target.getType());
         ctx.append(new Zext(zext, ctx.assignLocal(value)));
@@ -881,7 +889,7 @@ public final class NmlIrTrans {
       return BvOpcode.Shl.make(value, n);
     }
 
-    private Operand createMask(final Lvalue source, final Access access) {
+    private Operand createMask(final Local source, final Access access) {
       final int nbits = source.getType().getSize();
       final Constant ones = new Constant(nbits, -1);
       final BigInteger maskBase =

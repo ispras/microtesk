@@ -38,11 +38,11 @@ public final class MirBlock {
     return null;
   }
 
-  public Assignment assign(final Lvalue lhs, final Operand rhs) {
+  public Assignment assign(final Local lhs, final Operand rhs) {
     return assign(lhs, UnOpcode.Use.make(rhs));
   }
 
-  public Assignment assign(final Lvalue lhs, final Rvalue rhs) {
+  public Assignment assign(final Local lhs, final Rvalue rhs) {
     return append(new Assignment(lhs, rhs));
   }
 
