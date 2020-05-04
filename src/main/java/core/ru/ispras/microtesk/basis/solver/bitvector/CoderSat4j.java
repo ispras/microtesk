@@ -14,6 +14,10 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVSGE;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVSGT;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVSLE;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVSLT;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVUGE;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVUGT;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVULE;
@@ -202,6 +206,14 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
       builder.addAll(BVUGE.encode(operands, flag, newIndex, negation));
     } else if (ExprUtils.isOperation(node, StandardOperation.BVUGT, StandardOperation.GREATER)) {
       builder.addAll(BVUGT.encode(operands, flag, newIndex, negation));
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVSLE)) {
+      builder.addAll(BVSLE.encode(operands, flag, newIndex, negation));
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVSLT)) {
+      builder.addAll(BVSLT.encode(operands, flag, newIndex, negation));
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVSGE)) {
+      builder.addAll(BVSGE.encode(operands, flag, newIndex, negation));
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVSGT)) {
+      builder.addAll(BVSGT.encode(operands, flag, newIndex, negation));
     } else {
       reportUnknownNode(node);
     }
