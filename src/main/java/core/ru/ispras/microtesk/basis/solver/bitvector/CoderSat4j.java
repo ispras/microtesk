@@ -214,6 +214,8 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
       encodeConjunction(node, flag, negation, false);
     } else if (ExprUtils.isOperation(node, StandardOperation.OR)) {
       encodeDisjunction(node, flag, negation, false);
+    } else if (ExprUtils.isOperation(node, StandardOperation.XOR)) {
+      encodeExclusiveDisjunction(node, flag, negation);
     } else if (ExprUtils.isOperation(node, StandardOperation.IMPL)) {
       encodeImplication(node, flag, negation);
     } else {
@@ -275,7 +277,27 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
     }
   }
 
-  private void encodeImplication(final NodeOperation node, final int flag, final boolean negation) {
+  private void encodeExclusiveDisjunction(
+      final NodeOperation node,
+      final int flag,
+      final boolean negation) {
+    int flagIndex = index;
+
+    // f <=> (f[0] ^ f[1]).
+    InvariantChecks.checkTrue(node.getOperandCount() == 2);
+    builder.addAll(BitBlaster.XOR.encode(getOperands(2), flag, newIndex, negation));
+
+    // f[i] <=> encode(operand[i])
+    for (final Node operand : node.getOperands()) {
+      encode(operand, flagIndex, false);
+      flagIndex++;
+    }
+  }
+
+  private void encodeImplication(
+      final NodeOperation node,
+      final int flag,
+      final boolean negation) {
     int flagIndex = index;
 
     // f <=> (f[0] -> f[1]).

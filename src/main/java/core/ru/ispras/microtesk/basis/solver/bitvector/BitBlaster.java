@@ -143,6 +143,51 @@ public enum BitBlaster {
   },
 
   /**
+   * Encodes an exclusive disjunction of 2 boolean variables, i.e. {@code x ^ y}.
+   */
+  XOR {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands.length == 2);
+
+      // (x ^ y) == (x | y) & (~x | ~y).
+      final Collection<IntArray> clauses = new ArrayList<>(2);
+
+      final int xIndex = operands[0].sign ? +operands[0].index : -operands[0].index;
+      final int yIndex = operands[1].sign ? +operands[1].index : -operands[1].index;
+
+      final IntArray literals1 = new IntArray(new int[] { +xIndex, +yIndex });
+      clauses.add(literals1);
+
+      final IntArray literals2 = new IntArray(new int[] { -xIndex, -yIndex });
+      clauses.add(literals2);
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands.length == 2);
+
+      // ~(x ^ y) == (~x | y) & (x | ~y).
+      final Collection<IntArray> clauses = new ArrayList<>(2);
+
+      final int xIndex = operands[0].sign ? +operands[0].index : -operands[0].index;
+      final int yIndex = operands[1].sign ? +operands[1].index : -operands[1].index;
+
+      final IntArray literals1 = new IntArray(new int[] { -xIndex, +yIndex });
+      clauses.add(literals1);
+
+      final IntArray literals2 = new IntArray(new int[] { +xIndex, -yIndex });
+      clauses.add(literals2);
+
+      return clauses;
+    }
+  },
+
+  /**
    * Encodes an implication of 2 boolean variables, i.e. {@code x -> y}.
    */
   IMPL {
