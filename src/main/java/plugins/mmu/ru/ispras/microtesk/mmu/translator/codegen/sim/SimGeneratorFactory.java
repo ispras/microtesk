@@ -29,8 +29,11 @@ import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
+import ru.ispras.microtesk.options.Option;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 
+import java.nio.file.Paths;
 import java.util.Map;
 
 final class SimGeneratorFactory {
@@ -50,13 +53,20 @@ final class SimGeneratorFactory {
 
   private final String outDir;
   private final String packageName;
+  private final BufferConfig bufferCfg;
 
-  public SimGeneratorFactory(final String outDir, final String modelName) {
+  public SimGeneratorFactory(
+      final String outDir, final String modelName, final Options opts) {
     InvariantChecks.checkNotNull(outDir);
     InvariantChecks.checkNotNull(modelName);
 
     this.outDir = String.format("%s/%s/mmu/sim", PackageInfo.getModelOutDir(outDir), modelName);
     this.packageName = String.format("%s.%s.mmu.sim", PackageInfo.MODEL_PACKAGE, modelName);
+
+    final var pathLine = opts.getValueAsString(Option.MMU_BUFFER_CONFIG);
+    this.bufferCfg = pathLine.isBlank()
+      ? BufferConfig.emptyConfig()
+      : BufferConfig.fromPath(Paths.get(pathLine));
   }
 
   private String getOutputFileName(final String name) {
@@ -126,7 +136,8 @@ final class SimGeneratorFactory {
     InvariantChecks.checkNotNull(buffer);
 
     final String outputFileName = getOutputFileName(buffer.getId());
-    final StringTemplateBuilder builder = new StbBuffer(packageName, ir, buffer, isTargetBuffer);
+    final StringTemplateBuilder builder =
+        new StbBuffer(packageName, ir, buffer, isTargetBuffer, bufferCfg);
 
     return new FileGeneratorStringTemplate(outputFileName, COMMON_STGS, builder);
   }

@@ -157,11 +157,15 @@ private <name>() {
 // Buffer-related templates
 
 buffer_access_point(name, type, init) ::= <<
+public static <type> get() {
+  return get(0);
+}
+
 private static List\<<type>\> <name>;
 
 public static <type> get(int id) {
   if (null == <name>) {
-    <init>
+    <init; separator="\n">
   }
   return <name>.get(id);
 }
@@ -200,7 +204,7 @@ private static final Matcher\<<entry_type>, <addr_type>\> MATCHER = new Matcher\
 >>
 
 buffer_constructor(name, is_reg, is_mem, entry_type, addr_type, ways, sets, policy, next) ::= <<
-private <name>() {
+private <name>(Buffer\<? extends Struct\<?>, <addr_type>\> next) {
   super(
     new <entry_type>(),
     new <addr_type>(),
@@ -210,13 +214,13 @@ private <name>() {
     <policy>,
     INDEXER,
     MATCHER<if(!is_reg && !is_mem)>,
-    <next><endif>
+    next<endif>
   );
 }
 >>
 
 memory_constructor(entry_type, addr_type, size) ::= <<
-private <name>() {
+private <name>(Object unusedObjectRef) {
   super(
     new <entry_type>(),
     new <addr_type>(),

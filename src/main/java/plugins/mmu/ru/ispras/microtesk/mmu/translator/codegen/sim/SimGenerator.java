@@ -28,6 +28,7 @@ import ru.ispras.microtesk.mmu.translator.ir.Operation;
 import ru.ispras.microtesk.mmu.translator.ir.Segment;
 import ru.ispras.microtesk.mmu.translator.ir.Type;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
+import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.translator.Translator;
 import ru.ispras.microtesk.translator.TranslatorHandler;
 
@@ -48,10 +49,15 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
 
   @Override
   public void processIr(final Ir ir) {
+    processIr(ir, new Options());
+  }
+
+  @Override
+  public void processIr(final Ir ir, final Options opts) {
     InvariantChecks.checkNotNull(ir);
 
     final SimGeneratorFactory factory =
-        new SimGeneratorFactory(getOutDir(), ir.getModelName());
+        new SimGeneratorFactory(getOutDir(), ir.getModelName(), opts);
 
     try {
       final Map<String, Memory> memories = ir.getMemories();

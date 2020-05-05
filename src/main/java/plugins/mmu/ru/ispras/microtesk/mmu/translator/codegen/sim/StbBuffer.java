@@ -28,7 +28,10 @@ import ru.ispras.microtesk.mmu.model.spec.MmuBuffer.Kind;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 final class StbBuffer extends StbCommon implements StringTemplateBuilder {
   private static final String DATA_NAME = "data";
@@ -36,6 +39,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
   private final Ir ir;
   private final Buffer buffer;
   private final Buffer next;
+  private final BufferConfig config;
 
   private final BuildStrategy strategy;
 
@@ -43,15 +47,18 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       final String packageName,
       final Ir ir,
       final Buffer buffer,
-      final boolean isTargetBuffer) {
+      final boolean isTargetBuffer,
+      final BufferConfig config) {
 
     super(packageName);
     InvariantChecks.checkNotNull(ir);
     InvariantChecks.checkNotNull(buffer);
+    InvariantChecks.checkNotNull(config);
 
     this.ir = ir;
     this.buffer = buffer;
     this.next = getNext(buffer);
+    this.config = config;
 
     switch (buffer.getKind()) {
       case MEMORY:
@@ -101,7 +108,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
         buffer.getDataArg(), DATA_NAME);
 
     final ST st = group.getInstanceOf("source_file");
-    st.add("instance", "instance");
 
     buildAccessor(st, group);
     strategy.build(st, group);
@@ -130,12 +136,51 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     final String poolName = "instancePool";
     accessor.add("name", poolName);
     accessor.add("type", buffer.getId());
-    accessor.add("init", String.format("%s = Collections.singletonList(new %s());",
-        poolName, buffer.getId()));
 
-    st.add("imps", "java.util.Collections");
+    final List<String> names = buildInstanceInit(accessor);
+    accessor.add("init", String.format("%s = Arrays.asList(%s);",
+        poolName, String.join(", ", names)));
+
+    st.add("imps", "java.util.Arrays");
     st.add("imps", "java.util.List");
     st.add("members", accessor);
+  }
+
+  private List<String> buildInstanceInit(final ST st) {
+    final var nameList =
+        new ArrayList<String>(Collections.nCopies(config.nunits, ""));
+    final var pinList = config.instanceMap.getOrDefault(
+        buffer.getId(), Collections.emptyList());
+
+    // fill pinned caches
+    for (final BitSet pin : pinList) {
+      int index = pin.nextSetBit(0);
+      final String name = initInstance(st, index);
+      while (index >= 0 && index < config.nunits) {
+        nameList.set(index, name);
+        index = pin.nextSetBit(index + 1);
+      }
+    }
+    // fill the rest
+    for (int i = 0; i < nameList.size(); ++i) {
+      if (nameList.get(i).isBlank()) {
+        nameList.set(i, initInstance(st, i));
+      }
+    }
+    return nameList;
+  }
+
+  private String initInstance(final ST st, int index) {
+    final var name = String.format("buffer%d", index);
+    final var next = buffer.getNext();
+    if (next != null) {
+      st.add("init", String.format("final %s %s = new %s(%s.get(%d));",
+          buffer.getId(), name, buffer.getId(), next.getId(), index));
+    } else {
+      st.add("init", String.format("final %s %s = new %s(null);",
+          buffer.getId(), name, buffer.getId()));
+    }
+    return name;
   }
 
   private void buildIndexer(final ST st, final STGroup group) {
@@ -176,9 +221,6 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     stConstructor.add("addr_type", buffer.getAddress().getId());
     stConstructor.add("ways", buffer.getWays());
     stConstructor.add("sets", buffer.getSets());
-    stConstructor.add("next", buffer.getNext() != null && !buffer.isView()
-        ? String.format("%s.get()", buffer.getNext().getId())
-        : "null");
 
     stConstructor.add("policy", String.format("%s.create(%s.%s, %s.%s, %s.%s, %s.%s)",
         POLICY_CLASS.getSimpleName(),
