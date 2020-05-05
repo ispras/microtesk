@@ -23,10 +23,10 @@ import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVUGT;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVULE;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVULT;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.EQ;
-import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.EQ_CONST;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.EQ_CONSTANT;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.FALSE;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.NOTEQ;
-import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.NOTEQ_CONST;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.NOTEQ_CONSTANT;
 
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
@@ -158,7 +158,7 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
         final BigInteger value = FortressUtils.getInteger(lhs.getVariable().getData());
         final NodeValue rhs = NodeValue.newInteger(value);
 
-        builder.addAll(EQ_CONST.encode(getOperands(lhs, rhs), newIndex));
+        builder.addAll(EQ_CONSTANT.encode(getOperands(lhs, rhs), newIndex));
       }
     }
   }
@@ -182,7 +182,7 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
   }
 
   private void encodeVariable(final NodeVariable node, final int flag, final boolean negation) {
-    NOTEQ_CONST.encode(getOperands(node, NodeValue.newInteger(0)), flag, newIndex, negation);
+    NOTEQ_CONSTANT.encode(getOperands(node, NodeValue.newInteger(0)), flag, newIndex, negation);
   }
 
   private void encodePredicate(final NodeOperation node, final int flag, final boolean negation) {
@@ -255,7 +255,9 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
 
     // f <=> (f[0] & ... & f[n-1]).
     if (flag != 0) {
-      builder.addAll(BitBlaster.AND.encode(getOperands(node.getOperandCount()), flag, newIndex));
+      builder.addAll(
+          BitBlaster.AND.encode(getOperands(node.getOperandCount()), flag, newIndex)
+      );
     }
 
     // f[i] <=> encode(operand[i])
@@ -280,7 +282,9 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
     int flagIndex = index;
 
     // f <=> (f[0] | ... | f[n-1]).
-    builder.addAll(BitBlaster.OR.encode(getOperands(node.getOperandCount()), flag, newIndex));
+    builder.addAll(
+        BitBlaster.OR.encode(getOperands(node.getOperandCount()), flag, newIndex)
+    );
 
     // f[i] <=> encode(operand[i])
     for (final Node operand : node.getOperands()) {
@@ -295,9 +299,10 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
       final boolean negation) {
     int flagIndex = index;
 
-    // f <=> (f[0] ^ f[1]).
-    InvariantChecks.checkTrue(node.getOperandCount() == 2);
-    builder.addAll(BitBlaster.XOR.encode(getOperands(2), flag, newIndex, negation));
+    // f <=> (f[0] ^ ... ^ f[n-1]).
+    builder.addAll(
+        BitBlaster.XOR.encode(getOperands(node.getOperandCount()), flag, newIndex, negation)
+    );
 
     // f[i] <=> encode(operand[i])
     for (final Node operand : node.getOperands()) {
