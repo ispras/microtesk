@@ -141,11 +141,8 @@ public enum BitBlaster {
         final int xIndex = operands[0].getSignedIndex();
         final int yIndex = operands[1].getSignedIndex();
 
-        final IntArray literals1 = new IntArray(new int[] { +xIndex, +yIndex });
-        clauses.add(literals1);
-
-        final IntArray literals2 = new IntArray(new int[] { -xIndex, -yIndex });
-        clauses.add(literals2);
+        clauses.add(new IntArray(new int[] { +xIndex, +yIndex }));
+        clauses.add(new IntArray(new int[] { -xIndex, -yIndex }));
 
         return clauses;
       }
@@ -216,11 +213,8 @@ public enum BitBlaster {
       final int xIndex = operands[0].getSignedIndex();
       final int yIndex = operands[1].getSignedIndex();
 
-      final IntArray literals1 = new IntArray(new int[] { -xIndex, +yIndex });
-      clauses.add(literals1);
-
-      final IntArray literals2 = new IntArray(new int[] { +xIndex, -yIndex });
-      clauses.add(literals2);
+      clauses.add(new IntArray(new int[] { -xIndex, +yIndex }));
+      clauses.add(new IntArray(new int[] { +xIndex, -yIndex }));
 
       return clauses;
     }
@@ -232,6 +226,44 @@ public enum BitBlaster {
       operands[0].sign ^= true;
       final Collection<IntArray> clauses = EQUIV.encodePositive(operands, newIndex);
       operands[0].sign ^= true;
+
+      return clauses;
+    }
+  },
+
+  /**
+   * Encodes an if-then-else operation, i.e. {@code x ? y : z}.
+   */
+  ITE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands.length == 3);
+
+      // (x ? y : z) == (~x | y) & (x | z).
+      final Collection<IntArray> clauses = new ArrayList<>(2);
+
+      final int xIndex = operands[0].getSignedIndex();
+      final int yIndex = operands[1].getSignedIndex();
+      final int zIndex = operands[2].getSignedIndex();
+
+      clauses.add(new IntArray(new int [] { -xIndex, yIndex }));
+      clauses.add(new IntArray(new int [] { +xIndex, zIndex }));
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands.length == 3);
+
+      // ~(x ? y : z) == (x ? ~y : ~z).
+      operands[1].sign ^= true;
+      operands[2].sign ^= true;
+      final Collection<IntArray> clauses = ITE.encodePositive(operands, newIndex);
+      operands[1].sign ^= true;
+      operands[2].sign ^= true;
 
       return clauses;
     }
@@ -251,17 +283,10 @@ public enum BitBlaster {
       final int yIndex = operands[1].getSignedIndex();
       final int zIndex = operands[2].getSignedIndex();
 
-      final IntArray literals1 = new IntArray(new int[] { xIndex, yIndex, zIndex });
-      clauses.add(literals1);
-
-      final IntArray literals2 = new IntArray(new int[] { xIndex, yIndex });
-      clauses.add(literals2);
-
-      final IntArray literals3 = new IntArray(new int[] { xIndex, zIndex });
-      clauses.add(literals3);
-
-      final IntArray literals4 = new IntArray(new int[] { yIndex, zIndex });
-      clauses.add(literals4);
+      clauses.add(new IntArray(new int[] { +xIndex, +yIndex, +zIndex }));
+      clauses.add(new IntArray(new int[] { +xIndex, +yIndex }));
+      clauses.add(new IntArray(new int[] { +xIndex, +zIndex }));
+      clauses.add(new IntArray(new int[] { +yIndex, +zIndex }));
 
       return clauses;
     }
@@ -276,14 +301,9 @@ public enum BitBlaster {
       final int yIndex = operands[1].getSignedIndex();
       final int zIndex = operands[2].getSignedIndex();
 
-      final IntArray literals1 = new IntArray(new int[] { -xIndex, -yIndex });
-      clauses.add(literals1);
-
-      final IntArray literals2 = new IntArray(new int[] { -xIndex, -zIndex });
-      clauses.add(literals2);
-
-      final IntArray literals3 = new IntArray(new int[] { -yIndex, -zIndex });
-      clauses.add(literals3);
+      clauses.add(new IntArray(new int[] { -xIndex, -yIndex }));
+      clauses.add(new IntArray(new int[] { -xIndex, -zIndex }));
+      clauses.add(new IntArray(new int[] { -yIndex, -zIndex }));
 
       return clauses;
     }
@@ -307,9 +327,8 @@ public enum BitBlaster {
       for (int i = 0; i < size; i++) {
         final boolean value = operands[1].value.testBit(i);
         final int index = operands[0].getSignedIndex(i);
-        final IntArray literals = new IntArray(new int[] { value ? +index : -index });
 
-        clauses.add(literals);
+        clauses.add(new IntArray(new int[] { value ? +index : -index }));
       }
 
       return clauses;
@@ -342,11 +361,8 @@ public enum BitBlaster {
         final int xIndex = operands[0].getSignedIndex(i);
         final int yIndex = operands[1].getSignedIndex(i);
 
-        final IntArray literals1 = new IntArray(new int[] { +xIndex, -yIndex });
-        clauses.add(literals1);
-
-        final IntArray literals2 = new IntArray(new int[] { -xIndex, +yIndex });
-        clauses.add(literals2);
+        clauses.add(new IntArray(new int[] { +xIndex, -yIndex }));
+        clauses.add(new IntArray(new int[] { -xIndex, +yIndex }));
       }
 
       return clauses;
@@ -399,6 +415,7 @@ public enum BitBlaster {
       for (int i = 0; i < size; i++) {
         final boolean value = operands[1].value.testBit(i);
         final int index = operands[0].getSignedIndex(i);
+
         literals.add(value ? -index : +index);
       }
 
@@ -507,8 +524,7 @@ public enum BitBlaster {
         if (!value) {
           // ...x[i]x[i-1]...x[0] <= ...0c[i-0]...c[0].
           // Add the unit clause ~x[i].
-          final IntArray literals = new IntArray(new int[] { -index });
-          clauses.add(literals);
+          clauses.add(new IntArray(new int[] { -index }));
         } else {
           // ...x[i]x[i-1]...x[0] <= ...1c[i-0]...c[0].
           // Add the clauses (~x[i] | encode(x[i-1]...x[0], c[i-1]...c[0])).
@@ -516,11 +532,9 @@ public enum BitBlaster {
           final Collection<IntArray> tailClauses = encodePositive(operands, newIndex);
           operands[0].size = size;
 
-          for (final IntArray clause : tailClauses) {
-            clause.add(-index);
-          }
-
+          tailClauses.stream().forEach(clause -> clause.add(-index));
           clauses.addAll(tailClauses);
+
           break;
         }
       }
@@ -579,10 +593,7 @@ public enum BitBlaster {
         if (value) {
           // ...x[i]x[i-1]...x[0] >= ...1c[i-0]...c[0].
           // Add the unit clause x[i].
-          final IntArray literals = new IntArray(new int[] { index });
-          literals.add(index);
-
-          clauses.add(literals);
+          clauses.add(new IntArray(new int[] { index }));
         } else {
           // ...x[i]x[i-1]...x[0] >= ...0c[i-0]...c[0].
           // Add the clauses (x[i] | encode(x[i-1]...x[0], c[i-1]...c[0])).
@@ -590,11 +601,9 @@ public enum BitBlaster {
           final Collection<IntArray> tailClauses = encodePositive(operands, newIndex);
           operands[0].size = size;
 
-          for (final IntArray clause : tailClauses) {
-            clause.add(index);
-          }
-
+          tailClauses.stream().forEach(clause -> clause.add(index));
           clauses.addAll(tailClauses);
+
           break;
         }
       }
@@ -812,8 +821,7 @@ public enum BitBlaster {
       final int index = operands[0].getSignedIndex(i);
 
       // (x[n-1] == c[n-1]) & ...
-      final IntArray literals1 = new IntArray(new int[] { value ? +index : -index });
-      clauses.add(literals1);
+      clauses.add(new IntArray(new int[] { value ? +index : -index }));
 
       // ... | (~c[n-1] -> x[n-1]).
       if (!value) {
@@ -881,8 +889,7 @@ public enum BitBlaster {
       final int index = operands[0].getSignedIndex(i);
 
       // (x[n-1] == c[n-1]) & ...
-      final IntArray literals1 = new IntArray(new int[] { value ? +index : -index });
-      clauses.add(literals1);
+      clauses.add(new IntArray(new int[] { value ? +index : -index }));
 
       // ... | (!c[n-1] -> ~x[n-1]).
       if (value) {
@@ -1094,14 +1101,9 @@ public enum BitBlaster {
         final int xIndex = operands[1].getSignedIndex(i);
         final int yIndex = operands[2].getSignedIndex(i);
 
-        final IntArray literals1 = new IntArray(new int[] { -xIndex, -yIndex, +uIndex });
-        clauses.add(literals1);
-
-        final IntArray literals2 = new IntArray(new int[] { +xIndex, -uIndex });
-        clauses.add(literals2);
-
-        final IntArray literals3 = new IntArray(new int[] { +yIndex, -uIndex });
-        clauses.add(literals3);
+        clauses.add(new IntArray(new int[] { -xIndex, -yIndex, +uIndex }));
+        clauses.add(new IntArray(new int[] { +xIndex, -uIndex }));
+        clauses.add(new IntArray(new int[] { +yIndex, -uIndex }));
       }
 
       return clauses;
@@ -1136,14 +1138,9 @@ public enum BitBlaster {
         final int xIndex = operands[1].getSignedIndex(i);
         final int yIndex = operands[2].getSignedIndex(i);
 
-        final IntArray literals1 = new IntArray(new int[] { +xIndex, +yIndex, -uIndex });
-        clauses.add(literals1);
-
-        final IntArray literals2 = new IntArray(new int[] { -xIndex, +uIndex });
-        clauses.add(literals2);
-
-        final IntArray literals3 = new IntArray(new int[] { -yIndex, +uIndex });
-        clauses.add(literals3);
+        clauses.add(new IntArray(new int[] { +xIndex, +yIndex, -uIndex }));
+        clauses.add(new IntArray(new int[] { -xIndex, +uIndex }));
+        clauses.add(new IntArray(new int[] { -yIndex, +uIndex }));
       }
 
       return clauses;
@@ -1317,6 +1314,13 @@ public enum BitBlaster {
       throw new UnsupportedOperationException();
     }
   };
+
+//  BVLSHL_CONSTANT {},
+//  BVLSHR_CONSTANT {},
+//  BVLSHL_VARIABLE {},
+//  BVLSHR_VARIABLE {},
+//  BVLSHL {},
+//  BVLSHR {};
 
   public static final class Operand {
     public int index;
@@ -1520,70 +1524,57 @@ public enum BitBlaster {
     InvariantChecks.checkTrue(operands[1].isVariable());
 
     final int size = operands[0].size;
+    final int i = size - 1;
 
-    // Generate 5*(n-1)+3 or 5*(n-1)+1 clauses (see below).
-    final Collection<IntArray> clauses = new ArrayList<>(5 * size - 2);
+    // x[n-1]x[n-2]...x[0] <= y[n-1]y[n-2]...y[0] ==
+    // (x[n-1] == y[n-1]) & encode(x[n-2-1]...x[0], y[n-1]...y[0]) | (~x[n-1] & y[n-1]) ==
+    // (u | x[n-1] == y[n-1]) & (u | encode(...)) & (u == (~x[n-1] & y[n-1])).
+    final Collection<IntArray> clauses;
 
     if (size == 1) {
+      clauses = new ArrayList<>(3);
+
       final int xIndex = operands[0].getSignedIndex();
       final int yIndex = operands[1].getSignedIndex();
 
       // (x[0] <= y[0]) == (~x[0] | y[0]).
-      final IntArray literals1 = new IntArray(new int[] { -xIndex, +yIndex });
-      clauses.add(literals1);
+      clauses.add(new IntArray(new int[] { -xIndex, +yIndex }));
 
       if (strict) {
         // (x[0] != y[0]) == (x[0] | y[0]) & (~x[0] | ~y[0]).
-        final IntArray literals2 = new IntArray(new int[] { +xIndex, +yIndex });
-        clauses.add(literals2);
-
-        final IntArray literals3 = new IntArray(new int[] { -xIndex, -yIndex });
-        clauses.add(literals3);
+        clauses.add(new IntArray(new int[] { +xIndex, +yIndex }));
+        clauses.add(new IntArray(new int[] { -xIndex, -yIndex }));
       }
 
       return clauses;
+    } else {
+      // x[n-2]...x[0] <= y[n-2]...y[0].
+      operands[0].size = operands[1].size = i;
+      clauses = encodeUnsignedLessThan(operands, newIndex, strict);
+      operands[0].size = operands[1].size = size;
     }
 
-    // x[n-1]x[x-2]...x[0] <= y[n-1]y[x-2]...y[0] ==
-    // (~x[i] & y[i]) | (x[i] == y[i]) & encode(x[i-1]...x[0], y[i-1]...y[0]) ==
-    // (u[i] == (~x[i] & y[i])) & (u[i] | x[i] == y[i]) & (u[i] | encode(...)).
-    final int i = size - 1;
     final int uIndex = newIndex.getAsInt();
 
     // Handle the upper bits.
-    operands[0].size = 1;
-    operands[1].size = 1;
     operands[0].index += i;
     operands[1].index += i;
 
+    // (x[n-1] == y[n-1]) & encode(...).
+    clauses.addAll(EQUIV.encode(operands, newIndex));
+
+    // (u | x[n-1] == y[n-1]) & (u | encode(...)).
+    clauses.stream().forEach(clause -> clause.add(uIndex));
+
     // u[i] == (~x[i] & y[i]).
     operands[0].sign ^= true;
-    final Collection<IntArray> clauses1 = BVAND.encode(
-        new Operand[] { new Operand(uIndex, 1), operands[0], operands[1] }, newIndex);
+    clauses.addAll(AND.encode(
+        new Operand[] { new Operand(uIndex, 1), operands[0], operands[1] }, newIndex)
+    );
     operands[0].sign ^= true;
-
-    // u[i] | (x[i] == y[i])
-    final Collection<IntArray> clauses2 = EQ_VARIABLE.encode(operands, newIndex);
-    for (final IntArray clause : clauses2) {
-      clause.add(uIndex);
-    }
 
     operands[0].index -= i;
     operands[1].index -= i;
-
-    // u[i] | encode(x[i-1]...x[0], y[i-1]...y[0])
-    operands[0].size = i;
-    operands[1].size = i;
-    final Collection<IntArray> clauses3 = encodeUnsignedLessThan(operands, newIndex, strict);
-    for (final IntArray clause : clauses3) {
-      clause.add(uIndex);
-    }
-    operands[0].size = size;
-    operands[1].size = size;
-
-    clauses.addAll(clauses1);
-    clauses.addAll(clauses2);
-    clauses.addAll(clauses3);
 
     return clauses;
   }
@@ -1603,7 +1594,6 @@ public enum BitBlaster {
 
     final int size = operands[0].size;
     final int i = size - 1;
-    final int uIndex = newIndex.getAsInt();
 
     // x[n-1]x[n-2]...x[0] <=(s) y[n-1]y[n-2]...y[0] ==
     // (x[n-1] == y[n-1]) & (x[n-2]...x[0] <=(u) y[n-2]...y[0]) | (x[n-1] & ~y[n-1]) ==
@@ -1620,38 +1610,35 @@ public enum BitBlaster {
         final int xIndex = operands[0].getSignedIndex();
         final int yIndex = operands[1].getSignedIndex();
 
-        final IntArray literals = new IntArray(new int[] { +xIndex, -yIndex });
-        clauses.add(literals);
+        clauses.add(new IntArray(new int[] { +xIndex, -yIndex }));
 
         return clauses;
       }
     } else {
       // x[n-2]...x[0] <=(u) y[n-2]...y[0].
-      operands[0].size = i;
-      operands[1].size = i;
+      operands[0].size = operands[1].size = i;
       clauses = encodeUnsignedLessThan(operands, newIndex, strict);
+      operands[0].size = operands[1].size = size;
     }
 
-    operands[0].size = 1;
-    operands[1].size = 1;
+    final int uIndex = newIndex.getAsInt();
+
     operands[0].index += i;
     operands[1].index += i;
 
     // (x[n-1] == y[n-1]) & (x[n-2]...x[0] <=(u) y[n-2]...y[0]).
-    clauses.addAll(EQ_VARIABLE.encode(operands, newIndex));
+    clauses.addAll(EQUIV.encode(operands, newIndex));
     // (u | x[n-1] == y[n-1]) & (u | x[n-2]...x[0] <=(u) y[n-2]...y[0]).
     clauses.stream().forEach(clause -> clause.add(uIndex));
 
     // (u | x[n-1] == y[n-1]) & (u | x[n-2]...x[0] <=(u) y[n-2]...y[0]) & (u == ~x[n-1] & y[n-1]).
     operands[1].sign ^= true;
-    clauses.addAll(BVAND.encode(
+    clauses.addAll(AND.encode(
         new Operand[] { new Operand(uIndex, 1), operands[0], operands[1] }, newIndex));
     operands[1].sign ^= true;
 
     operands[0].index -= i;
     operands[1].index -= i;
-    operands[0].size = size;
-    operands[1].size = size;
 
     return clauses;
   }
