@@ -52,6 +52,7 @@ public enum Option implements Property {
   MODEL_NAME("Name of the constructed microprocessor model", "", TRANSLATE),
 
   ENABLE_ISA_MIR("Enables MIR output for current model ISA", false, TRANSLATE),
+  MMU_BUFFER_CONFIG("Path to MMU buffer instance configuration file", "", TRANSLATE),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Test Program Generation Options
