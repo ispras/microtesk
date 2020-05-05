@@ -16,6 +16,7 @@ package ru.ispras.microtesk.basis.solver.bitvector;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.IntSupplier;
 import java.util.stream.IntStream;
@@ -88,15 +89,9 @@ public enum BitBlaster {
     public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       // De Morgan's law: ~(x[0] & ... & x[n-1]) == (~x[0] | ... | ~x[n-1]).
-      for (final Operand operand : operands) {
-        operand.sign ^= true;
-      }
-
+      Arrays.stream(operands).forEach(operand -> operand.sign ^= true);
       final Collection<IntArray> clauses = OR.encodePositive(operands, newIndex);
-
-      for (final Operand operand : operands) {
-        operand.sign ^= true;
-      }
+      Arrays.stream(operands).forEach(operand -> operand.sign ^= true);
 
       return clauses;
     }
@@ -113,11 +108,9 @@ public enum BitBlaster {
       final Collection<IntArray> clauses = new ArrayList<>(1);
       final IntArray literals = new IntArray(operands.length);
 
-      for (final Operand operand : operands) {
-        literals.add(operand.getSignedIndex());
-      }
-
+      Arrays.stream(operands).forEach(operand -> literals.add(operand.getSignedIndex()));
       clauses.add(literals);
+
       return clauses;
     }
 
@@ -125,15 +118,9 @@ public enum BitBlaster {
     public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       // De Morgan's law: ~(x[0] | ... | x[n-1]) == (~x[0] & ... & ~x[n-1]).
-      for (final Operand operand : operands) {
-        operand.sign ^= true;
-      }
-
+      Arrays.stream(operands).forEach(operand -> operand.sign ^= true);
       final Collection<IntArray> clauses = AND.encodePositive(operands, newIndex);
-
-      for (final Operand operand : operands) {
-        operand.sign ^= true;
-      }
+      Arrays.stream(operands).forEach(operand -> operand.sign ^= true);
 
       return clauses;
     }
@@ -288,16 +275,11 @@ public enum BitBlaster {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = new Operand[] {
-          operands[0].isVariable() ? operands[0] : operands[1],
-          operands[0].isVariable() ? operands[1] : operands[0]
-      };
+      final Operand[] newOperands = reorderOperands(operands);
 
-      if (newOperands[1].isValue()) {
-        return EQ_CONST.encodePositive(newOperands, newIndex);
-      }
-
-      return EQ_VAR.encodePositive(newOperands, newIndex);
+      return newOperands[1].isValue()
+          ? EQ_CONST.encodePositive(newOperands, newIndex)
+          : EQ_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -396,16 +378,11 @@ public enum BitBlaster {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = new Operand[] {
-          operands[0].isVariable() ? operands[0] : operands[1],
-          operands[0].isVariable() ? operands[1] : operands[0]
-      };
+      final Operand[] newOperands = reorderOperands(operands);
 
-      if (newOperands[1].isValue()) {
-        return NOTEQ_CONST.encodePositive(newOperands, newIndex);
-      }
-
-      return NOTEQ_VAR.encodePositive(newOperands, newIndex);
+      return newOperands[1].isValue()
+          ? NOTEQ_CONST.encodePositive(newOperands, newIndex)
+          : NOTEQ_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -634,16 +611,11 @@ public enum BitBlaster {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = new Operand[] {
-          operands[0].isVariable() ? operands[0] : operands[1],
-          operands[0].isVariable() ? operands[1] : operands[0]
-      };
+      final Operand[] newOperands = reorderOperands(operands);
 
-      if (newOperands[1].isValue()) {
-        return BVULE_CONST.encodePositive(newOperands, newIndex);
-      }
-
-      return BVULE_VAR.encodePositive(newOperands, newIndex);
+      return newOperands[1].isValue()
+          ? BVULE_CONST.encodePositive(newOperands, newIndex)
+          : BVULE_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -660,16 +632,11 @@ public enum BitBlaster {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = new Operand[] {
-          operands[0].isVariable() ? operands[0] : operands[1],
-          operands[0].isVariable() ? operands[1] : operands[0]
-      };
+      final Operand[] newOperands = reorderOperands(operands);
 
-      if (newOperands[1].isValue()) {
-        return BVULT_CONST.encodePositive(newOperands, newIndex);
-      }
-
-      return BVULT_VAR.encodePositive(newOperands, newIndex);
+      return newOperands[1].isValue()
+          ? BVULT_CONST.encodePositive(newOperands, newIndex)
+          : BVULT_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -686,16 +653,11 @@ public enum BitBlaster {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = new Operand[] {
-          operands[0].isVariable() ? operands[0] : operands[1],
-          operands[0].isVariable() ? operands[1] : operands[0]
-      };
+      final Operand[] newOperands = reorderOperands(operands);
 
-      if (newOperands[1].isValue()) {
-        return BVUGE_CONST.encodePositive(newOperands, newIndex);
-      }
-
-      return BVUGE_VAR.encodePositive(newOperands, newIndex);
+      return newOperands[1].isValue()
+          ? BVUGE_CONST.encodePositive(newOperands, newIndex)
+          : BVUGE_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -712,16 +674,11 @@ public enum BitBlaster {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = new Operand[] {
-          operands[0].isVariable() ? operands[0] : operands[1],
-          operands[0].isVariable() ? operands[1] : operands[0]
-      };
+      final Operand[] newOperands = reorderOperands(operands);
 
-      if (newOperands[1].isValue()) {
-        return BVUGT_CONST.encodePositive(newOperands, newIndex);
-      }
-
-      return BVUGT_VAR.encodePositive(newOperands, newIndex);
+      return newOperands[1].isValue()
+          ? BVUGT_CONST.encodePositive(newOperands, newIndex)
+          : BVUGT_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -752,9 +709,9 @@ public enum BitBlaster {
       if (size == 1) {
         clauses = new ArrayList<>(1);
       } else {
-        operands[0].size--;
+        operands[0].size = i;
         clauses = BVULE_CONST.encodePositive(operands, newIndex);
-        operands[0].size++;
+        operands[0].size = size;
       }
 
       final boolean value = operands[1].value.testBit(i);
@@ -821,9 +778,9 @@ public enum BitBlaster {
       if (size == 1) {
         clauses = new ArrayList<>(1);
       } else {
-        operands[0].size--;
+        operands[0].size = i;
         clauses = BVUGE_CONST.encodePositive(operands, newIndex);
-        operands[0].size++;
+        operands[0].size = size;
       }
 
       final boolean value = operands[1].value.testBit(i);
@@ -944,16 +901,11 @@ public enum BitBlaster {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = new Operand[] {
-          operands[0].isVariable() ? operands[0] : operands[1],
-          operands[0].isVariable() ? operands[1] : operands[0]
-      };
+      final Operand[] newOperands = reorderOperands(operands);
 
-      if (newOperands[1].isValue()) {
-        return BVSLE_CONST.encodePositive(newOperands, newIndex);
-      }
-
-      return BVSLE_VAR.encodePositive(newOperands, newIndex);
+      return newOperands[1].isValue()
+          ? BVSLE_CONST.encodePositive(newOperands, newIndex)
+          : BVSLE_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -970,16 +922,11 @@ public enum BitBlaster {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = new Operand[] {
-          operands[0].isVariable() ? operands[0] : operands[1],
-          operands[0].isVariable() ? operands[1] : operands[0]
-      };
+      final Operand[] newOperands = reorderOperands(operands);
 
-      if (newOperands[1].isValue()) {
-        return BVSLT_CONST.encodePositive(newOperands, newIndex);
-      }
-
-      return BVSLT_VAR.encodePositive(newOperands, newIndex);
+      return newOperands[1].isValue()
+          ? BVSLT_CONST.encodePositive(newOperands, newIndex)
+          : BVSLT_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -996,16 +943,11 @@ public enum BitBlaster {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = new Operand[] {
-          operands[0].isVariable() ? operands[0] : operands[1],
-          operands[0].isVariable() ? operands[1] : operands[0]
-      };
+      final Operand[] newOperands = reorderOperands(operands);
 
-      if (newOperands[1].isValue()) {
-        return BVSGE_CONST.encodePositive(newOperands, newIndex);
-      }
-
-      return BVSGE_VAR.encodePositive(newOperands, newIndex);
+      return newOperands[1].isValue()
+          ? BVSGE_CONST.encodePositive(newOperands, newIndex)
+          : BVSGE_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -1022,16 +964,11 @@ public enum BitBlaster {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = new Operand[] {
-          operands[0].isVariable() ? operands[0] : operands[1],
-          operands[0].isVariable() ? operands[1] : operands[0]
-      };
+      final Operand[] newOperands = reorderOperands(operands);
 
-      if (newOperands[1].isValue()) {
-        return BVSGT_CONST.encodePositive(newOperands, newIndex);
-      }
-
-      return BVSGT_VAR.encodePositive(newOperands, newIndex);
+      return newOperands[1].isValue()
+          ? BVSGT_CONST.encodePositive(newOperands, newIndex)
+          : BVSGT_VAR.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -1179,13 +1116,8 @@ public enum BitBlaster {
       final Collection<IntArray> negativeClauses) {
     // Transformation: (f <=> C) == (C | ~f) & (~C | f) ==
     // (encode-positive(C) | ~f) & (encode-negative(C) | f).
-    for (final IntArray clause : positiveClauses) {
-      clause.add(-flagIndex);
-    }
-
-    for (final IntArray clause : negativeClauses) {
-      clause.add(+flagIndex);
-    }
+    positiveClauses.stream().forEach(clause -> clause.add(-flagIndex));
+    negativeClauses.stream().forEach(clause -> clause.add(+flagIndex));
 
     final int size = positiveClauses.size() + negativeClauses.size();
     final Collection<IntArray> clauses = new ArrayList<>(size);
@@ -1301,6 +1233,19 @@ public enum BitBlaster {
       final int flagIndex,
       final IntSupplier newIndex) {
     return encode(operands, flagIndex, newIndex, false);
+  }
+
+  /**
+   * Reorders two operands to put a variable into the first place.
+   *
+   * @param operands the operands to be reordered.
+   * @return the reordered operands.
+   */
+  private static Operand[] reorderOperands(final Operand[] operands) {
+    return new Operand[] {
+        operands[0].isVariable() ? operands[0] : operands[1],
+        operands[0].isVariable() ? operands[1] : operands[0]
+    };
   }
 
   /**
