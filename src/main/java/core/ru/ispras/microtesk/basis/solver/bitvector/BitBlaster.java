@@ -457,7 +457,7 @@ public enum BitBlaster {
       // Generate 3*n clauses AND[i]{u[i] <=> ([~]x[i] & ~[~]y[i])} ==
       // AND[i]{(~[~]x[i] | [~]y[i] | u[i]) & ([~]x[i] | ~u[i]) & (~[~]y[i] | ~u[i])}.
       operands[1].sign ^= true;
-      clauses.addAll(BVAND.encode(
+      clauses.addAll(BVAND_VARIABLE.encode(
           new Operand[] { new Operand(uIndex, size), operands[0], operands[1] }, newIndex
       ));
       operands[1].sign ^= true;
@@ -465,7 +465,7 @@ public enum BitBlaster {
       // Generate 3*n clauses AND[i]{v[i] <=> (~[~]x[i] & [~]y[i])} ==
       // AND[i]{([~]x[i] | ~[~]y[i] | v[i]) & (~[~]x[i] | ~v[i]) & ([~]y[i] | ~v[i])}.
       operands[0].sign ^= true;
-      clauses.addAll(BVAND.encode(
+      clauses.addAll(BVAND_VARIABLE.encode(
           new Operand[] { new Operand(vIndex, size), operands[0], operands[1] }, newIndex
       ));
       operands[0].sign ^= true;
@@ -1080,15 +1080,120 @@ public enum BitBlaster {
   },
 
   /**
-   * Encodes a word-level constraint of the form {@code u == x & y}.
+   * Encodes a word-level constraint of the form {@code u == ~x} or {@code u == ~const}.
    */
-  BVAND {
+  BVNEG {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+
+      operands[0].sign ^= true;
+      final Collection<IntArray> clauses = EQ.encodePositive(operands, newIndex);
+      operands[0].sign ^= true;
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x :: y}.
+   */
+  BVCONCAT {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
       InvariantChecks.checkTrue(operands[0].isVariable());
       InvariantChecks.checkTrue(operands[1].isVariable());
-      InvariantChecks.checkTrue(operands[3].isVariable());
+      InvariantChecks.checkTrue(operands[2].isVariable());
+      InvariantChecks.checkTrue(operands[0].size == operands[1].size + operands[2].size);
+
+      final int size = operands[0].size;
+      final Collection<IntArray> clauses = new ArrayList<>(2 * size);
+
+      operands[0].size = operands[1].size;
+
+      clauses.addAll(
+          EQ_VARIABLE.encodePositive(new Operand[] { operands[0], operands[1] }, newIndex)
+      );
+
+      operands[0].index += operands[1].size;
+      operands[0].size = operands[2].size;
+
+      clauses.addAll(
+          EQ_VARIABLE.encodePositive(new Operand[] { operands[0], operands[2] }, newIndex)
+      );
+
+      operands[0].index -= operands[1].size;
+      operands[0].size = size;
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x & const}.
+   */
+  BVAND_CONSTANT {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isValue());
+
+      final int size = operands[0].size;
+
+      // Generate maximum 2*n clauses.
+      final Collection<IntArray> clauses = new ArrayList<>(2 * size);
+
+      for (int i = 0; i < size; i++) {
+        final int uIndex = operands[0].getSignedIndex(i);
+        final int xIndex = operands[1].getSignedIndex(i);
+        final boolean value = operands[2].value.testBit(i);
+
+        if (value) {
+          // (u[i] == x[i]) == (u[i] | ~x[i]) & (~u[i] | x[i]).
+          clauses.add(new IntArray(new int[] { +uIndex, -xIndex }));
+          clauses.add(new IntArray(new int[] { -uIndex, +xIndex }));
+        } else {
+          // u[i] == 0.
+          clauses.add(new IntArray(new int[] { -uIndex }));
+        }
+      }
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x & y}.
+   */
+  BVAND_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isVariable());
 
       final int size = operands[0].size;
 
@@ -1117,9 +1222,71 @@ public enum BitBlaster {
   },
 
   /**
+   * Encodes a word-level constraint of the form {@code u == x & const} or {@code u == x & y}.
+   */
+  BVAND {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = reorderOperands(operands);
+
+      return newOperands[2].isValue()
+          ? BVAND_CONSTANT.encodePositive(newOperands, newIndex)
+          : BVAND_VARIABLE.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x | const}.
+   */
+  BVOR_CONSTANT {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isValue());
+
+      final int size = operands[0].size;
+
+      // Generate maximum 2*n clauses.
+      final Collection<IntArray> clauses = new ArrayList<>(2 * size);
+
+      for (int i = 0; i < size; i++) {
+        final int uIndex = operands[0].getSignedIndex(i);
+        final int xIndex = operands[1].getSignedIndex(i);
+        final boolean value = operands[2].value.testBit(i);
+
+        if (!value) {
+          // (u[i] == x[i]) == (u[i] | ~x[i]) & (~u[i] | x[i]).
+          clauses.add(new IntArray(new int[] { +uIndex, -xIndex }));
+          clauses.add(new IntArray(new int[] { -uIndex, +xIndex }));
+        } else {
+          // u[i] == 1.
+          clauses.add(new IntArray(new int[] { +uIndex }));
+        }
+      }
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
    * Encodes a word-level constraint of the form {@code u == x | y}.
    */
-  BVOR {
+  BVOR_VARIABLE {
     @Override
     public Collection<IntArray> encodePositive(
         final Operand[] operands, final IntSupplier newIndex) {
@@ -1144,6 +1311,27 @@ public enum BitBlaster {
       }
 
       return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x | const} or {@code u == x | y}.
+   */
+  BVOR {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = reorderOperands(operands);
+
+      return newOperands[2].isValue()
+          ? BVOR_CONSTANT.encodePositive(newOperands, newIndex)
+          : BVOR_VARIABLE.encodePositive(newOperands, newIndex);
     }
 
     @Override
@@ -1498,16 +1686,27 @@ public enum BitBlaster {
   }
 
   /**
-   * Reorders two operands to put a variable into the first place.
+   * Reorders operands to put a value into the last place.
    *
    * @param operands the operands to be reordered.
    * @return the reordered operands.
    */
   private static Operand[] reorderOperands(final Operand[] operands) {
-    return new Operand[] {
-        operands[0].isVariable() ? operands[0] : operands[1],
-        operands[0].isVariable() ? operands[1] : operands[0]
-    };
+    for (int i = 0; i < operands.length; i++) {
+      if (operands[i].isValue()) {
+        final int j = operands.length - 1;
+
+        final Operand operand1 = operands[i];
+        final Operand operand2 = operands[j];
+
+        operands[i] = operand2;
+        operands[j] = operand1;
+
+        break;
+      }
+    }
+
+    return operands;
   }
 
   /**

@@ -14,6 +14,12 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.AND;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVADD;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVAND;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVCONCAT;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVNEG;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVOR;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVSGE;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVSGT;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVSLE;
@@ -25,11 +31,17 @@ import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVULT;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.EQ;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.EQ_CONSTANT;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.FALSE;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.IMPL;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.ITE;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.NOTEQ;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.NOTEQ_CONSTANT;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.OR;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.XOR;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.IntSupplier;
 import java.util.stream.IntStream;
@@ -158,41 +170,35 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
         final BigInteger value = FortressUtils.getInteger(lhs.getVariable().getData());
         final NodeValue rhs = NodeValue.newInteger(value);
 
-        builder.addAll(EQ_CONSTANT.encode(getOperands(lhs, rhs), newIndex));
+        builder.addAll(EQ_CONSTANT.encode(encodeOperands(lhs, rhs), newIndex));
       }
     }
   }
 
   private void encode(final Node node, int flag, final boolean negation) {
-    if (ExprUtils.isValue(node)) {
-      encodeValue((NodeValue) node, flag, negation);
-    } else if (ExprUtils.isVariable(node)) {
-      encodeVariable((NodeVariable) node, flag, negation);
+    if (!ExprUtils.isCondition(node)) {
+      encodeTermAsBool(node, flag, negation);
     } else if (ExprUtils.isAtomicCondition(node)) {
       encodePredicate((NodeOperation) node, flag, negation);
-    } else if (ExprUtils.isCondition(node)) {
-      encodeFormula((NodeOperation) node, flag, negation);
     } else {
-      encodeTerm((NodeOperation) node, flag, negation);
+      encodeConnective((NodeOperation) node, flag, negation);
     }
   }
 
-  private void encodeValue(final NodeValue node, final int flag, final boolean negation) {
-    FALSE.encode(getOperands(), flag, newIndex, FortressUtils.getBoolean(node) ^ negation);
-  }
+  private void encodeTermAsBool(final Node node, final int flag, final boolean negation) {
+    final Operand operand = encodeTerm(node);
 
-  private void encodeVariable(final NodeVariable node, final int flag, final boolean negation) {
-    NOTEQ_CONSTANT.encode(getOperands(node, NodeValue.newInteger(0)), flag, newIndex, negation);
+    if (operand.isValue()) {
+      final Operand operands[] = new Operand[] {};
+      FALSE.encode(operands, flag, newIndex, (operand.value.intValue() != 0) ^ negation);
+    } else {
+      final Operand operands[] = new Operand[] { operand, new Operand(BigInteger.valueOf(0)) };
+      NOTEQ_CONSTANT.encode(operands, flag, newIndex, negation);
+    }
   }
 
   private void encodePredicate(final NodeOperation node, final int flag, final boolean negation) {
-    final Node lhs = node.getOperand(0);
-    final Node rhs = node.getOperand(1);
-
-    setUsedBits(lhs);
-    setUsedBits(rhs);
-
-    final Operand[] operands = getOperands(lhs, rhs);
+    final Operand[] operands = encodeOperands(node.getOperands());
 
     if (ExprUtils.isOperation(node, StandardOperation.EQ)) {
       builder.addAll(EQ.encode(operands, flag, newIndex, negation));
@@ -219,7 +225,7 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
     }
   }
 
-  private void encodeFormula(final NodeOperation node, final int flag, final boolean negation) {
+  private void encodeConnective(final NodeOperation node, final int flag, final boolean negation) {
     if (ExprUtils.isOperation(node, StandardOperation.NOT)) {
       encode(node.getOperand(0), flag, !negation);
     } else if (ExprUtils.isOperation(node, StandardOperation.AND)) {
@@ -230,13 +236,73 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
       encodeExclusiveDisjunction(node, flag, negation);
     } else if (ExprUtils.isOperation(node, StandardOperation.IMPL)) {
       encodeImplication(node, flag, negation);
+    } else if (ExprUtils.isOperation(node, StandardOperation.ITE)) {
+      encodeIfThenElse(node, flag, negation);
     } else {
       reportUnknownNode(node);
     }
   }
 
-  private void encodeTerm(final NodeOperation node, final int flag, final boolean negation) {
-    reportUnknownNode(node);
+  private Operand encodeTerm(final Node node) {
+    InvariantChecks.checkFalse(ExprUtils.isCondition(node));
+
+    // Node is a constant.
+    if (ExprUtils.isValue(node)) {
+      return new Operand(FortressUtils.getInteger(node));
+    }
+
+    // Node is a variable or an extract, i.e. x[h:l].
+    if (FortressUtils.getVariable(node) != null) {
+      final int index = getVariableIndex(node);
+      final int size  = FortressUtils.getBitSize(node);
+      final int lower = FortressUtils.getLowerBit(node);
+
+      setUsedBits(node);
+
+      return new Operand(index + lower, true, size);
+    }
+
+    // Node is an operation, i.e. x + y.
+    final NodeOperation operation = (NodeOperation) node;
+    final Operand[] operands = encodeOperands(1, operation.getOperands());
+
+    // Introduce a new variable, i.e. u = x + y.
+    final int size  = FortressUtils.getBitSize(node);
+    final int index = getVariableIndex(size);
+    operands[0] = new Operand(index, true, size);
+
+    if (ExprUtils.isOperation(node, StandardOperation.BVNEG, StandardOperation.BVNOT)) {
+      BVNEG.encode(operands, newIndex);
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVCONCAT)) {
+      BVCONCAT.encode(operands, newIndex);
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVAND)) {
+      BVAND.encode(operands, newIndex);
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVOR)) {
+      BVOR.encode(operands, newIndex);
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVXOR)) {
+      // FIXME:
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVNAND)) {
+      // FIXME:
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVNOR)) {
+      // FIXME:
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVLSHL)) {
+      // FIXME:
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVLSHL)) {
+      // FIXME:
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVASHL)) {
+      // FIXME:
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVASHR)) {
+      // FIXME:
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVROL)) {
+      // FIXME:
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVROR)) {
+      // FIXME:
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVADD, StandardOperation.ADD)) {
+      BVADD.encode(operands, newIndex);
+    } else {
+      reportUnknownNode(node);
+    }
+    return null;
   }
 
   private void encodeConjunction(
@@ -255,9 +321,7 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
 
     // f <=> (f[0] & ... & f[n-1]).
     if (flag != 0) {
-      builder.addAll(
-          BitBlaster.AND.encode(getOperands(node.getOperandCount()), flag, newIndex)
-      );
+      builder.addAll(AND.encode(newBoolOperands(node.getOperandCount()), flag, newIndex));
     }
 
     // f[i] <=> encode(operand[i])
@@ -282,9 +346,7 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
     int flagIndex = index;
 
     // f <=> (f[0] | ... | f[n-1]).
-    builder.addAll(
-        BitBlaster.OR.encode(getOperands(node.getOperandCount()), flag, newIndex)
-    );
+    builder.addAll(OR.encode(newBoolOperands(node.getOperandCount()), flag, newIndex));
 
     // f[i] <=> encode(operand[i])
     for (final Node operand : node.getOperands()) {
@@ -300,9 +362,7 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
     int flagIndex = index;
 
     // f <=> (f[0] ^ ... ^ f[n-1]).
-    builder.addAll(
-        BitBlaster.XOR.encode(getOperands(node.getOperandCount()), flag, newIndex, negation)
-    );
+    builder.addAll(XOR.encode(newBoolOperands(node.getOperandCount()), flag, newIndex, negation));
 
     // f[i] <=> encode(operand[i])
     for (final Node operand : node.getOperands()) {
@@ -319,13 +379,49 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
 
     // f <=> (f[0] -> f[1]).
     InvariantChecks.checkTrue(node.getOperandCount() == 2);
-    builder.addAll(BitBlaster.IMPL.encode(getOperands(2), flag, newIndex, negation));
+    builder.addAll(IMPL.encode(newBoolOperands(2), flag, newIndex, negation));
 
     // f[i] <=> encode(operand[i])
     for (final Node operand : node.getOperands()) {
       encode(operand, flagIndex, false);
       flagIndex++;
     }
+  }
+
+  private void encodeIfThenElse(
+      final NodeOperation node,
+      final int flag,
+      final boolean negation) {
+    int flagIndex = index;
+
+    // f <=> (f[0] ? f[1] : f[2]).
+    InvariantChecks.checkTrue(node.getOperandCount() == 3);
+    builder.addAll(ITE.encode(newBoolOperands(3), flag, newIndex, negation));
+
+    // f[i] <=> encode(operand[i])
+    for (final Node operand : node.getOperands()) {
+      encode(operand, flagIndex, false);
+      flagIndex++;
+    }
+  }
+
+  private Operand[] encodeOperands(final int extra, final List<Node> nodes) {
+    final Operand[] operands = new Operand[nodes.size() + extra];
+    IntStream.range(0, nodes.size()).forEach(i -> operands[i + extra] = encodeTerm(nodes.get(i)));
+    return operands;
+  }
+
+  private Operand[] encodeOperands(final List<Node> nodes) {
+    return encodeOperands(0, nodes);
+  }
+
+  private Operand[] encodeOperands(final Node... nodes) {
+    return encodeOperands(0, Arrays.asList(nodes));
+  }
+
+  private Operand[] newBoolOperands(final int count) {
+    return IntStream.range(0, count).mapToObj(
+        i -> new Operand(newIndex.getAsInt(), 1)).toArray(Operand[]::new);
   }
 
   private int getVariableIndex(final Node node) {
@@ -338,11 +434,15 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
       return oldIndex;
     }
 
-    final int newIndex = index;
-
+    final int newIndex = getVariableIndex(variable.getType().getSize());
     indices.put(variable, newIndex);
-    index += variable.getType().getSize();
 
+    return newIndex;
+  }
+
+  private int getVariableIndex(final int size) {
+    final int newIndex = index;
+    index += size;
     return newIndex;
   }
 
@@ -371,39 +471,6 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
   private void setUsedBits(final Variable variable) {
     final BitVector mask = getVariableMask(variable);
     mask.setAll();
-  }
-
-  private Operand getOperand(final Node node) {
-    // A bit-vector variable or an extract.
-    if (FortressUtils.getVariable(node) != null) {
-      final int index = getVariableIndex(node);
-      final int size = FortressUtils.getBitSize(node);
-      final int lower = FortressUtils.getLowerBit(node);
-
-      return new Operand(index + lower, true, size);
-    }
-
-    // A bit-vector or integer value.
-    if (node.getKind() == Node.Kind.VALUE) {
-      return new Operand(FortressUtils.getInteger(node));
-    }
-
-    reportUnknownNode(node);
-    return null;
-  }
-
-  private Operand[] getOperands(final Node... nodes) {
-    final Operand[] operands = new Operand[nodes.length];
-    for (int i = 0; i < nodes.length; i++) {
-      operands[i] = getOperand(nodes[i]);
-    }
-
-    return operands;
-  }
-
-  private Operand[] getOperands(int count) {
-    return IntStream.range(0, count).mapToObj(
-        i -> new Operand(newIndex.getAsInt(), 1)).toArray(Operand[]::new);
   }
 
   private void reportUnknownNode(final Node node) {
