@@ -122,7 +122,6 @@ public final class SymbolicExecutor {
 
   private static void writeMir(final String name, final BodyInfo info) {
     final MirContext mir = composeMir(name, info);
-    MirContext unrolledSsa = buildSsaWithUnrolledLoops(mir);
 
     try (final java.io.BufferedWriter writer =
                   Files.newBufferedWriter(Paths.get(name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
@@ -130,7 +129,6 @@ public final class SymbolicExecutor {
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
     }
-    writeMirs(name, unrolledSsa);
   }
 
   private static MirContext composeMir(final String name, final BodyInfo info) {
@@ -203,11 +201,13 @@ public final class SymbolicExecutor {
     final BodyInfo info = new BodyInfo(insnList, archive);
 
     int index = 0;
+    var unroller = new LoopUnroller(2);
     for (final IsaPrimitive insn : insnList) {
       final String name = String.format("insn_%d.action", index++);
       final MirContext mir =
         FormulaBuilder.buildMir(name, model, archive, Collections.singletonList(insn));
-      final MirContext opt = driver.apply(mir);
+      final MirContext opt = driver.apply(unroller.unroll(mir));
+
       info.bodyMir.add(opt);
       info.storage.put(opt.name, opt);
     }
