@@ -40,6 +40,7 @@ final class BufferConfig {
       final var line = lines.get(lineNo).replaceAll("#.*", "");
       final var args = Arrays.asList(line.split(",")).stream()
         .filter(Predicate.not(String::isBlank))
+        .map(String::strip)
         .collect(Collectors.toList());
       if (args.size() > 1) {
         parseBufferInstance(path, lineNo, args, instanceMap);
