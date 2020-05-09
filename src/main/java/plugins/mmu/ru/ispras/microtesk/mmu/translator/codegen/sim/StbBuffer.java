@@ -172,14 +172,8 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
 
   private String initInstance(final ST st, int index) {
     final var name = String.format("buffer%d", index);
-    final var next = buffer.getNext();
-    if (next != null) {
-      st.add("init", String.format("final %s %s = new %s(%s.get(%d));",
-          buffer.getId(), name, buffer.getId(), next.getId(), index));
-    } else {
-      st.add("init", String.format("final %s %s = new %s(null);",
-          buffer.getId(), name, buffer.getId()));
-    }
+    st.add("init", String.format("final %s %s = new %s(%s);",
+        buffer.getId(), name, buffer.getId(), strategy.buildConstructorArgs(index)));
     return name;
   }
 
@@ -328,16 +322,35 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     return visitor.getAssigns();
   }
 
-  private interface BuildStrategy {
-    void build(ST st, STGroup group);
+  private abstract class BuildStrategy {
+    abstract void build(ST st, STGroup group);
+
+    String buildConstructorArgs(int index) {
+      final var next = buffer.getNext();
+      return (next != null) ? String.format("%s.get(%d)", next.getId(), index) : "null";
+    }
+
+    boolean levelConnected() {
+      return true;
+    }
   }
 
-  private final class TargetStrategy implements BuildStrategy {
+  private final class TargetStrategy extends BuildStrategy {
     @Override
     public void build(final ST st, final STGroup group) {
       buildHeader(st);
       buildEntry(st, group);
       buildMemoryConstructor(st, group);
+    }
+
+    @Override
+    public String buildConstructorArgs(int index) {
+      return "";
+    }
+
+    @Override
+    public boolean levelConnected() {
+      return false;
     }
 
     private void buildHeader(final ST st) {
@@ -370,7 +383,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     }
   }
 
-  private final class UnmappedStrategy implements BuildStrategy {
+  private final class UnmappedStrategy extends BuildStrategy {
     @Override
     public void build(final ST st, final STGroup group) {
       buildHeader(st);
@@ -391,7 +404,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     }
   }
 
-  private final class MemoryStrategy implements BuildStrategy {
+  private final class MemoryStrategy extends BuildStrategy {
     @Override
     public void build(final ST st, final STGroup group) {
       buildHeader(st);
@@ -400,6 +413,11 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
       buildMatcher(st, group);
       buildConstructor(st, group);
       buildGetMmu(st, group);
+    }
+
+    @Override
+    public boolean levelConnected() {
+      return false;
     }
 
     private void buildHeader(final ST st) {
@@ -426,7 +444,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     }
   }
 
-  private final class RegisterStrategy implements BuildStrategy {
+  private final class RegisterStrategy extends BuildStrategy {
     @Override
     public void build(final ST st, final STGroup group) {
       buildHeader(st);

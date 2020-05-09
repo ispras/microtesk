@@ -220,7 +220,7 @@ private <name>(Buffer\<? extends Struct\<?>, <addr_type>\> next) {
 >>
 
 memory_constructor(entry_type, addr_type, size) ::= <<
-private <name>(Object unusedObjectRef) {
+private <name>() {
   super(
     new <entry_type>(),
     new <addr_type>(),
