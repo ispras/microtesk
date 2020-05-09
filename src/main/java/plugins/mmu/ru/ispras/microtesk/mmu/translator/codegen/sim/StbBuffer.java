@@ -142,8 +142,8 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
         poolName, String.join(", ", names)));
     accessor.add("conn", names.size() > 1 && strategy.levelConnected());
 
-    st.add("imps", "java.util.Arrays");
-    st.add("imps", "java.util.List");
+    st.add("imps", java.util.Arrays.class.getName());
+    st.add("imps", java.util.List.class.getName());
     st.add("members", accessor);
   }
 
