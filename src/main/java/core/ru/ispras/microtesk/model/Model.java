@@ -152,7 +152,7 @@ public final class Model implements ModelStateManager {
   }
 
   public void setActivePE(final int index) {
-    InvariantChecks.checkBounds(0, getPENumber());
+    InvariantChecks.checkBounds(index, getPENumber());
     activeProcElemIndex = index;
     activeProcElem = procElems.get(index);
     activeProcElemTemp = null;
