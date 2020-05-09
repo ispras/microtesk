@@ -156,7 +156,7 @@ private <name>() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Buffer-related templates
 
-buffer_access_point(name, type, init) ::= <<
+buffer_access_point(name, type, init, conn) ::= <<
 public static <type> get() {
   return get(0);
 }
@@ -166,6 +166,15 @@ private static List\<<type>\> <name>;
 public static <type> get(int id) {
   if (null == <name>) {
     <init; separator="\n">
+<if(conn)>
+    for (final <type> outer : <name>) {
+      for (final <type> inner : <name>) {
+        if (outer != inner) {
+          outer.addNeighbor(inner);
+        }
+      }
+    }
+<endif>
   }
   return <name>.get(id);
 }

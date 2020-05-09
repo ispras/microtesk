@@ -140,6 +140,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
     final List<String> names = buildInstanceInit(accessor);
     accessor.add("init", String.format("%s = Arrays.asList(%s);",
         poolName, String.join(", ", names)));
+    accessor.add("conn", names.size() > 1 && strategy.levelConnected());
 
     st.add("imps", "java.util.Arrays");
     st.add("imps", "java.util.List");
