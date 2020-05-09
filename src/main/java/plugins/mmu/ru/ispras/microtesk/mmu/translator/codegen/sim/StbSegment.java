@@ -111,5 +111,7 @@ final class StbSegment extends StbCommon implements StringTemplateBuilder {
 
     st.add("members", "");
     st.add("members", stMethod);
+
+    st.add("imps", ru.ispras.microtesk.test.TestEngine.class.getName());
   }
 }

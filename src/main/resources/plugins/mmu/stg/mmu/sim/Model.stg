@@ -14,10 +14,11 @@
 
 group Model;
 
-body(name, buffers, memories, target, ops) ::= <<
+body(name, buffers, segments, memories, target, ops) ::= <<
 public <name>() {
-  super(<memories>.get(), "<target>", <target>.get());
-  <if(buffers)><\n><buffers : {b | addBuffer("<b>", <b>.get());}; separator="\n"><endif>
+  super(<memories>.get(), "<target>", <target>.get(0));
+  <if(buffers)><\n><buffers : {b | addBuffer("<b>", BufferInstanceProxy.of(<b>.getAll()));}; separator="\n"><endif>
+  <if(segments)><\n><segments : {b | addBuffer("<b>", <b>.get());}; separator="\n"><endif>
   <if(ops)><\n><ops : {op | <op>.register();}; separator="\n"><endif>
 }
 >>

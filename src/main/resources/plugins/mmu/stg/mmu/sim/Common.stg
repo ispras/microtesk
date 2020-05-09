@@ -157,13 +157,13 @@ private <name>() {
 // Buffer-related templates
 
 buffer_access_point(name, type, init, conn) ::= <<
-public static <type> get() {
-  return get(0);
-}
-
 private static List\<<type>\> <name>;
 
 public static <type> get(int id) {
+  return getAll().get(id);
+}
+
+public static List\<<type>\> getAll() {
   if (null == <name>) {
     <init; separator="\n">
 <if(conn)>
@@ -176,7 +176,7 @@ public static <type> get(int id) {
     }
 <endif>
   }
-  return <name>.get(id);
+  return <name>;
 }
 >>
 
@@ -260,6 +260,7 @@ public int getDataBitSize() {
 get_data(addr_type, addr_name, data_type, stmts) ::= <<
 @Override
 public <data_type> readEntry(final <addr_type> <addr_name>) {
+  final int _PEid = TestEngine.getInstance().getModel().getActivePE();
   <stmts; separator="\n">
 }
 >>
@@ -267,6 +268,7 @@ public <data_type> readEntry(final <addr_type> <addr_name>) {
 set_data(addr_type, addr_name, data_type, data_name, stmts) ::= <<
 @Override
 public void writeEntry(final <addr_type> <addr_name>, final <data_type> <data_name>) {
+  final int _PEid = TestEngine.getInstance().getModel().getActivePE();
   <stmts; separator="\n">
 }
 >>

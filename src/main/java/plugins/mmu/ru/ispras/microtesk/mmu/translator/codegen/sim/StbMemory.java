@@ -51,6 +51,7 @@ final class StbMemory extends StbCommon implements StringTemplateBuilder {
 
     final ST st = group.getInstanceOf("source_file");
     st.add("instance", "instance");
+    st.add("imps", ru.ispras.microtesk.test.TestEngine.class.getName());
 
     buildHeader(st);
     buildConstructor(st, group);

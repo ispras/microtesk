@@ -99,7 +99,7 @@ final class StbBuffer extends StbCommon implements StringTemplateBuilder {
 
   @Override
   public ST build(final STGroup group) {
-    ExprPrinter.get().addVariableMapping(buffer.getId(), buffer.getId() + ".get()");
+    ExprPrinter.get().addVariableMapping(buffer.getId(), buffer.getId() + ".get(_PEid)");
     ExprPrinter.get().pushVariableScope();
 
     ExprPrinter.get().addVariableMappings(

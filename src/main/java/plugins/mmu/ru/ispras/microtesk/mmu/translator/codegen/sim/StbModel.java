@@ -59,6 +59,8 @@ final class StbModel implements StringTemplateBuilder {
     st.add("pack", packageName);
 
     st.add("imps", MODEL_CLASS.getName());
+    st.add("imps",
+        ru.ispras.microtesk.mmu.model.sim.BufferInstanceProxy.class.getName());
   }
 
   private void buildBody(final ST st, final STGroup group) {
@@ -75,7 +77,7 @@ final class StbModel implements StringTemplateBuilder {
     }
 
     for (final Segment segment : ir.getSegments().values()) {
-      stBody.add("buffers", segment.getId());
+      stBody.add("segments", segment.getId());
     }
 
     InvariantChecks.checkTrue(ir.getMemories().size() == 1);

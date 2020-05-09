@@ -41,6 +41,7 @@ import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public final class ExprPrinter extends MapBasedPrinter {
@@ -204,18 +205,21 @@ public final class ExprPrinter extends MapBasedPrinter {
     }
   }
 
-  public String getVariableMapping(final String variableName) {
-    InvariantChecks.checkNotNull(variableName);
+  public String getVariableMapping(final String name) {
+    InvariantChecks.checkNotNull(name);
+    return searchVarMapping(name)
+        .orElseThrow(() -> new IllegalStateException(
+            "No mapping for variable " + name));
+  }
 
+  private Optional<String> searchVarMapping(final String name) {
     for (final Map<String, String> scope : variableMappings) {
-      final String mapping = scope.get(variableName);
+      final String mapping = scope.get(name);
       if (mapping != null) {
-        return mapping;
+        return Optional.of(mapping);
       }
     }
-
-    throw new IllegalStateException(
-        "No mapping for variable " + variableName);
+    return Optional.empty();
   }
 
   public static String bitVectorToString(final BitVector value) {
@@ -273,10 +277,11 @@ public final class ExprPrinter extends MapBasedPrinter {
     public void onVariable(final NodeVariable variable) {
       if (variable.getUserData() instanceof AttributeRef) {
         final AttributeRef attrRef = (AttributeRef) variable.getUserData();
+        final String selfName = attrRef.getTarget().getId();
+        final String access =
+            searchVarMapping(selfName).orElse(selfName + ".get()");
 
-        appendText(attrRef.getTarget().getId());
-        appendText(".get().");
-
+        appendText(access + ".");
         appendText(attrMap.get(attrRef.getAttribute().getId()));
         appendText("(");
 
