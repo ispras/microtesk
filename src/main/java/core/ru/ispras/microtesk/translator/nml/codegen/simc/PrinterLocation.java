@@ -23,8 +23,8 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 public final class PrinterLocation {
-  private static final String ACCESS_FORMAT = ".access(%s)";
-  private static final String BITFIELD_FORMAT = ".bitField(%s, %s)";
+  private static final String ACCESS_FORMAT = ".access(%s, %s)";
+  private static final String BITFIELD_FORMAT = ".bitField(%s, %s, %s)";
 
   private PrinterLocation() {}
 
@@ -51,11 +51,14 @@ public final class PrinterLocation {
       indexText = ExprPrinter.toString(location.getIndex());
     }
 
-    sb.append(String.format(ACCESS_FORMAT, indexText));
+    String data_string = String.format(ACCESS_FORMAT, sb.toString(), indexText);
+    sb.append(data_string);
+    data_string = sb.toString();
 
     if (null != location.getBitfield()) {
       final Location.Bitfield bitfield = location.getBitfield();
       sb.append(String.format(BITFIELD_FORMAT,
+          data_string,
           ExprPrinter.toString(bitfield.getFrom()),
           ExprPrinter.toString(bitfield.getTo()))
       );

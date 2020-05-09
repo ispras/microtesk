@@ -14,55 +14,50 @@
 
 group Operation;
 
+
+op_attribute(primitive_name, name, rettype, stmts, override, usePE) ::= <<
+<rettype> <primitive_name>_<name>(IsaPrimitive* isa, <if(usePE)>PE* procElem, <endif>TempVars* tempVars) {
+  PE* pe__ = <if(usePE)> procElem<else>NULL<endif>;
+  TempVars vars__ = tempVars;
+  <stmts; separator="\n">
+}
+>>
+
 op(
   name, file, imps,
-  arg_names, arg_types, arg_checks, arg_tnames, isa_type, arg_count
+  arg_names, arg_types, arg_checks, arg_tnames, isa_type, arg_count, attrs, modifier, shortcuts, shortcut_defs, pack, simps, base
 ) ::= <<
 <header(file)>
 
-<op_build(name, arg_names, arg_types, isa_type, arg_count)>
+<constructor_build(name, arg_names, arg_types, isa_type, arg_count)>
+<attrs; separator="\n\n">
 >>
 
-op_action(name) ::= <<
-void <name>_action(IsaPrimitive *self) {
-}<\n>
->>
-
-op_build(name, arg_names, arg_types, isa_type, arg_count) ::= <<
+constructor_build(name, arg_names, arg_types, isa_type, arg_count) ::= <<
 
 
-IsaPrimitive <name>_args[<arg_count>];
-
-void <name>_action(IsaPrimitive *self) {
-
-}
-
-char* <name>_image() {
-  return 0;
-}
-
-int <name>_syntax() {
-  return 0;
-}
+IsaPrimitive* <name>_args[<arg_count>];
 
 IsaPrimitive <name>(<get_func_param(arg_names, arg_types)>) {
   IsaPrimitive obj = {
     .type = <isa_type>_<name>,
-    .action = (*<name>_action)(&obj),
-    .image = (*<name>_image)(),
-    .syntax = (*<name>_syntax)(),
+    .action = <name>_action,
+    .image = <name>_image,
+    .syntax = <name>_syntax,
     .args = &<name>_args,
     .argc = <arg_count>
   };
+
+  <get_args(arg_names)>
 
   return obj;
 }
 >>
 
 get_func_param(arg_names, arg_types) ::= <<
-<arg_names, arg_types:{n, t | IsaPrimitive <n>}; separator=", ">
+<arg_names, arg_types:{n, t | IsaPrimitive* <n> <t>}; separator=", ">
 >>
 
 get_args(arg_names) ::= <<
-<arg_names:{n | <n>}; separator=", ">
+<arg_names:{n | obj.args[<i0>] = <n>;}; separator="\n">
 >>

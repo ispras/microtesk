@@ -39,8 +39,8 @@ final class GeneratorFactory {
         "%s/%s/%s.h", PackageInfo.getModelOutDir(outDir), modelName, StbModel.CLASS_NAME);
 
     final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommonC.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "IsaPrimitive.stg"
+        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
+        PackageInfo.NML_TEMPLATE_DIR + "Model.stg"
     };
 
     final StringTemplateBuilder modelBuilder = new StbModel(ir);
@@ -52,8 +52,8 @@ final class GeneratorFactory {
         "%s/%s/%s.h", PackageInfo.getModelOutDir(outDir), modelName, StbTypes.CLASS_NAME);
 
     final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommonC.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "SharedC.stg"
+        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
+        PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
     };
 
     final StringTemplateBuilder builder = new StbTypes(ir);
@@ -61,12 +61,12 @@ final class GeneratorFactory {
   }
 
   public FileGenerator createPEGenerator(final Ir ir) {
-    final String outputFileName = String.format("%s/%s/%s.c",
+    final String outputFileName = String.format("%s/%s/%s.h",
         PackageInfo.getModelOutDir(outDir), modelName, StbProcessingElement.CLASS_NAME);
 
     final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommonC.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "SharedC.stg"
+        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
+        PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
     };
 
     final StringTemplateBuilder builder = new StbProcessingElement(ir);
@@ -74,12 +74,12 @@ final class GeneratorFactory {
   }
 
   public FileGenerator createTempVarGenerator(final Ir ir) {
-    final String outputFileName = String.format("%s/%s/%s.c",
+    final String outputFileName = String.format("%s/%s/%s.h",
         PackageInfo.getModelOutDir(outDir), modelName, StbTemporaryVariables.CLASS_NAME);
 
     final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommonC.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "SharedC.stg"
+        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
+        PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
     };
 
     final StringTemplateBuilder builder = new StbTemporaryVariables(ir);
@@ -91,7 +91,7 @@ final class GeneratorFactory {
         String.format(PackageInfo.getModeFileFormat(outDir, HEADER_EXT), modelName, mode.getName());
 
     final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommonC.stg",
+        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
         PackageInfo.NML_TEMPLATE_DIR + "AddressingModeOr.stg"
     };
 
@@ -104,8 +104,8 @@ final class GeneratorFactory {
         String.format(PackageInfo.getModeFileFormat(outDir, HEADER_EXT), modelName, mode.getName());
 
     final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommonC.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "AddressingModeC.stg"
+        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
+        PackageInfo.NML_TEMPLATE_DIR + "AddressingMode.stg"
     };
 
     final StringTemplateBuilder builder = new StbAddressingMode(modelName, mode);
@@ -114,10 +114,10 @@ final class GeneratorFactory {
 
   public FileGenerator createOperationOr(PrimitiveOr op) {
     final String outputFileName =
-        String.format(PackageInfo.getOpFileFormat(outDir, HEADER_EXT), modelName, op.getName());
+        String.format(PackageInfo.getOpFileFormat(outDir, FILE_EXT), modelName, op.getName());
 
     final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommonC.stg",
+        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
         PackageInfo.NML_TEMPLATE_DIR + "OperationOr.stg"
     };
 
@@ -127,24 +127,11 @@ final class GeneratorFactory {
 
   public FileGenerator createOperation(PrimitiveAnd op) {
     final String outputFileName = String.format(
-        PackageInfo.getOpFileFormat(outDir, HEADER_EXT), modelName, op.getName());
+        PackageInfo.getOpFileFormat(outDir, FILE_EXT), modelName, op.getName());
 
     final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommonC.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "OperationC.stg"
-    };
-
-    final StringTemplateBuilder builder = new StbOperation(modelName, op);
-    return new FileGeneratorStringTemplate(outputFileName, templateGroups, builder);
-  }
-
-  public FileGenerator createIsaPrimitiveStruct(PrimitiveAnd op) {
-    final String outputFileName = String.format(
-        PackageInfo.getOpFileFormat(outDir, HEADER_EXT), modelName, op.getName());
-
-    final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommonC.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "OperationC.stg"
+        PackageInfo.COMMON_TEMPLATE_DIR_C + "JavaCommonC.stg",
+        PackageInfo.NML_TEMPLATE_DIR_C + "OperationC.stg"
     };
 
     final StringTemplateBuilder builder = new StbOperation(modelName, op);

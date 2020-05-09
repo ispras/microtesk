@@ -67,8 +67,7 @@ public final class StbOperation extends StbPrimitiveBase {
 
   private void buildHeader(final ST t) {
     t.add("name", op.getName());
-    //t.add("pack", String.format(PackageInfo.OP_PACKAGE_FORMAT, modelName));
-
+    t.add("pack", String.format(PackageInfo.OP_PACKAGE_FORMAT, modelName));
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());
     t.add("imps", ru.ispras.microtesk.model.Execution.class.getName());
@@ -78,18 +77,21 @@ public final class StbOperation extends StbPrimitiveBase {
     t.add("imps", String.format("%s.*", IsaPrimitive.class.getPackage().getName()));
     t.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".PE", modelName));
     t.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TempVars", modelName));
-    //t.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
+    t.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
+    t.add("simps", "ru.ispras.microtesk.translator.nml.ir.primitive.Primitive.Modifier");
 
-    //t.add("base", IsaPrimitive.class.getSimpleName());
-
+    t.add("base", IsaPrimitive.class.getSimpleName());
     if (op.getModifier() == Primitive.Modifier.PSEUDO) {
       importModeDependencies(t);
     }
   }
 
   private void buildArguments(final STGroup group, final ST t) {
+    t.add("modifier",op.getModifier());
+
     final int arg_count = op.getArguments().size();
     t.add("arg_count", String.valueOf(arg_count));
+
     for (final Map.Entry<String, Primitive> e : op.getArguments().entrySet()) {
       final String argName = e.getKey();
       final Primitive argType = e.getValue();
@@ -130,6 +132,7 @@ public final class StbOperation extends StbPrimitiveBase {
     for (final Attribute attr : op.getAttributes().values()) {
       final ST attrST = group.getInstanceOf("op_attribute");
 
+      attrST.add("primitive_name", op.getName());
       attrST.add("name", attr.getName());
       attrST.add("rettype", getRetTypeName(attr.getKind()));
       attrST.add("usePE",
@@ -142,7 +145,6 @@ public final class StbOperation extends StbPrimitiveBase {
           if (isModeInstanceUsed(stmt)) {
             importModeDependencies(t);
           }
-
           addStatement(attrST, stmt, false);
         }
       } else if (Attribute.Kind.EXPRESSION == attr.getKind()) {
@@ -250,10 +252,10 @@ public final class StbOperation extends StbPrimitiveBase {
         }
       }
 
-      //shortcutST.add("op_tree",
-      //    createOperationTreeST(group, shortcut.getEntry(), shortcut.getArguments()));
+      shortcutST.add("op_tree",
+          createOperationTreeST(group, shortcut.getEntry(), shortcut.getArguments()));
 
-      /*t.add("shortcuts", shortcutST);
+      t.add("shortcuts", shortcutST);
 
       final ST shortcutDefST = group.getInstanceOf("shortcut_def");
       shortcutDefST.add("entry", shortcut.getEntry().getName());
@@ -262,7 +264,7 @@ public final class StbOperation extends StbPrimitiveBase {
         shortcutDefST.add("contexts", context);
       }
 
-      t.add("shortcut_defs", shortcutDefST);*/
+      t.add("shortcut_defs", shortcutDefST);
     }
   }
 
@@ -354,7 +356,7 @@ public final class StbOperation extends StbPrimitiveBase {
     t.add("isa_type", "OP");
     buildHeader(t);
     buildArguments(group, t);
-    //buildAttributes(group, t);
+    buildAttributes(group, t);
     //buildShortcuts(group, t);
 
     return t;

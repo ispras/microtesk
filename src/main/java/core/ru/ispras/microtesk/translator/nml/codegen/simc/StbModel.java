@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class StbModel implements StringTemplateBuilder {
-  public static final String CLASS_NAME = "IsaPrimitive";
+  public static final String CLASS_NAME = "Model";
   private final Ir ir;
 
   public StbModel(final Ir ir) {
@@ -40,10 +40,10 @@ public final class StbModel implements StringTemplateBuilder {
 
   @Override
   public ST build(final STGroup group) {
-    final ST st = group.getInstanceOf("Isa");
+    final ST st = group.getInstanceOf("source_file");
 
-    //buildHeader(st);
-    //buildBody(st, group);
+    buildHeader(st);
+    buildBody(st, group);
 
     return st;
   }

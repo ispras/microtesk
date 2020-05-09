@@ -1,0 +1,41 @@
+/*
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+group AddressingModeOr;
+
+modeor(name, file, pack, imps, base, modes) ::= <<
+<header(file)>
+<package(pack)>
+<if(imps)><imports(imps)><endif>
+<class(["public"],
+       name,
+       base,
+       false,
+       body(name, modes))> 
+>>
+
+body(name, modes) ::= <<
+private <name>() {}
+static {new <name>();}<\n>
+<class_string_const("String", "NAME", name)><\n>
+<class_const("IsaPrimitiveInfoOr", "INFO", new_mode_list(modes))> 
+>>
+
+new_mode_list(modes) ::= <<
+new IsaPrimitiveInfoOr(
+    IsaPrimitiveKind.MODE,
+    NAME,
+    <modes; separator=".INFO,\n">.INFO
+)
+>>

@@ -48,9 +48,9 @@ public final class GeneratorC implements TranslatorHandler<Ir> {
 
   private void generate() {
     try {
-      //generateTypes();
-      //generateProcessingElement();
-      //generateTemporaryVariables();
+      generateTypes();
+      generateProcessingElement();
+      generateTemporaryVariables();
       generateModes();
       generateOps();
       generateModel();
@@ -85,9 +85,7 @@ public final class GeneratorC implements TranslatorHandler<Ir> {
           ? factory.createAddressingModeOr((PrimitiveOr) m)
           : factory.createAddressingMode((PrimitiveAnd) m);
 
-      if (!m.isOrRule()) {
-        mode.generate();
-      }
+      mode.generate();
     }
   }
 
@@ -97,9 +95,7 @@ public final class GeneratorC implements TranslatorHandler<Ir> {
           ? factory.createOperationOr((PrimitiveOr) o)
           : factory.createOperation((PrimitiveAnd) o);
 
-      if (!o.isOrRule()) {
-        op.generate();
-      }
+      op.generate();
     }
   }
 }

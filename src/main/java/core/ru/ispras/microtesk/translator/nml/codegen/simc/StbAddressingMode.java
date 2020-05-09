@@ -49,8 +49,8 @@ public final class StbAddressingMode extends StbPrimitiveBase {
 
   private void buildHeader(final STGroup group, final ST t) {
     t.add("name", mode.getName());
-    t.add("mode_type", null != mode.getReturnType() ? mode.getReturnType().getJavaText() : "null");
-    //t.add("pack", String.format(PackageInfo.MODE_PACKAGE_FORMAT, modelName));
+    t.add("type", null != mode.getReturnType() ? mode.getReturnType().getJavaText() : "null");
+    t.add("pack", String.format(PackageInfo.MODE_PACKAGE_FORMAT, modelName));
 
     t.add("imps", Map.class.getName());
     t.add("imps", BigInteger.class.getName());
@@ -61,13 +61,11 @@ public final class StbAddressingMode extends StbPrimitiveBase {
     t.add("imps", ru.ispras.microtesk.model.memory.Location.class.getName());
     t.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".PE", modelName));
     t.add("imps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TempVars", modelName));
-    //t.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
-    //t.add("base",  IsaPrimitive.class.getSimpleName());
+    t.add("simps", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".TypeDefs", modelName));
+    t.add("base",  IsaPrimitive.class.getSimpleName());
   }
 
   private void buildArguments(final STGroup group, final ST t) {
-    final int arg_count = mode.getArguments().size();
-    t.add("arg_count", String.valueOf(arg_count));
     for (final Map.Entry<String, Primitive> e : mode.getArguments().entrySet()) {
       final String argName = e.getKey();
       final Primitive argType = e.getValue();
@@ -129,11 +127,11 @@ public final class StbAddressingMode extends StbPrimitiveBase {
   @Override
   public ST build(final STGroup group) {
     final ST t = group.getInstanceOf("mode");
-    t.add("isa_type", "MODE");
+
     buildHeader(group, t);
     buildArguments(group, t);
-   // buildAttributes(group, t);
-    //buildReturnExpession(t);
+    buildAttributes(group, t);
+    buildReturnExpession(t);
 
     return t;
   }

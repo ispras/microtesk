@@ -1,0 +1,177 @@
+/*
+ * Copyright 2012-2015 ISP RAS (http://www.ispras.ru)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+group Operation;
+
+op(
+  name, file, pack, imps, simps, base, modifier,
+  arg_names, arg_types, arg_checks, arg_tnames,
+  attrs,
+  shortcuts, shortcut_defs
+) ::= <<
+<header(file)>
+<package(pack)>
+<if(imps)><imports(imps)><endif>
+<if(simps)><static_imports(simps)><endif>
+<class(["public", "final"],
+       name,
+       base,
+       false,
+       body(name, modifier, arg_names, arg_types, 
+         arg_checks, arg_tnames, attrs, shortcuts, shortcut_defs))>
+>>
+
+body(
+  name,
+  modifier,
+  arg_names,
+  arg_types,
+  arg_checks,
+  arg_tnames,
+  attrs,
+  shortcuts,
+  shortcut_defs
+) ::= <<
+<info(name, arg_names, arg_types, arg_tnames, shortcut_defs)>
+<shortcuts>
+<class_const("IsaPrimitiveInfoAnd", "INFO", "new Info()")><\n>
+<op_constructor(name, modifier, arg_names, arg_types, arg_checks)><\n>
+<attrs; separator="\n\n">
+>>
+
+///////////////////////////////////////////////////////////////////////////////
+
+info(
+  name,
+  arg_names,
+  arg_types,
+  arg_tnames,
+  shortcut_defs
+) ::= <<
+<class(["private", "static", "final"],
+       "Info",
+       "IsaPrimitiveInfoAnd",
+       false,
+       info_body(name, arg_names, arg_types, arg_tnames))
+>
+>>
+
+info_body(name, arg_names, arg_types, arg_tnames) ::= <<
+Info() {
+  super(
+      IsaPrimitiveKind.OP,
+      "<name>",
+      <name>.class,
+      null
+      );
+  <new_op_decls(arg_names, arg_tnames)><if(shortcut_defs)>
+  <shortcut_defs; separator="\n">
+  <endif>
+}<\n>
+@Override
+public IsaPrimitive create(final Map\<String, IsaPrimitive> args) {
+  <if(arg_names)><arg_names, arg_types:{n, t | final <t> <n> = (<t>) getArgument("<n>", args);}; separator="\n"><\n><endif>
+  return new <name>(<arg_names :{n | <n>}; separator=", ">);
+}
+>>
+
+new_op_decls(arg_names, arg_tnames) ::= <<
+<arg_names, arg_tnames:{n, t | addArgument("<n>", <t>);}; separator="\n">
+>>
+
+///////////////////////////////////////////////////////////////////////////////
+
+shortcut(
+  name,
+  entry,
+  arg_names,
+  arg_tnames,
+  arg_types,
+  op_tree
+) ::= <<
+<class(["private", "static", "final"],
+       shortcut_class(entry),
+       "IsaPrimitiveInfoAnd",
+       false,
+       shortcut_body(name, entry, arg_names, arg_tnames, arg_types, op_tree))
+>
+>>
+
+shortcut_def(entry, contexts) ::= <<
+addShortcut(new <shortcut_class(entry)>(), <contexts :{c | "<c>"}; separator=", ">);
+>>
+
+shortcut_class(entry) ::= <<
+Info_<entry>
+>>
+
+shortcut_name(entry) ::= <<
+INFO_<entry>
+>>
+
+shortcut_body(name, entry, arg_names, arg_tnames, arg_types, op_tree) ::= <<
+<shortcut_class(entry)>() {
+  super(
+      IsaPrimitiveKind.OP,
+      "<name>",
+      <entry>.class,
+      null
+      );
+  <new_op_decls(arg_names, arg_tnames)>
+}<\n>
+@Override
+public IsaPrimitive create(final Map\<String, IsaPrimitive> args) {
+  <if(arg_names)><arg_names, arg_types:{n, t | final <t> <n> = (<t>) getArgument("<n>", args);}; separator="\n"><\n><endif>
+  return <op_param(op_tree)>;
+}
+>>
+
+op_tree_node(name, params) ::= <<
+new <name>(<if(params)><\n><params:op_param(); separator=",\n"><\n><endif>)
+>>
+
+op_param(p) ::= <<
+  <p>
+>>
+
+///////////////////////////////////////////////////////////////////////////////
+
+op_constructor(name, modifier, arg_names, arg_types, arg_checks) ::= <<
+<if(arg_names)><arg_names, arg_types:{n, t | <op_arg_def(n, t)>}; separator="\n"><\n><endif>
+public <name>(<arg_names, arg_types:{n, t | final <t> <n>}; separator=", ">) {
+  this.modifier = <modifier>;
+  <if(arg_checks)><arg_checks; separator="\n"><\n><endif>
+  <arg_names:op_arg_init(); separator="\n">
+  <if(arg_names)><\n><arg_names:{ n | addArgument("<n>", <n>);}; separator="\n"><endif>
+}
+>>
+
+op_arg_def(name, type) ::= <<
+public final <type> <name>;
+>>
+
+op_arg_init(name) ::= <<
+this.<name> = <name>;
+>>
+
+///////////////////////////////////////////////////////////////////////////////
+
+op_attribute(name, rettype, stmts, override, usePE) ::= <<
+<if(override)>@Override
+<endif>public <rettype> <name>(<if(usePE)>final ProcessingElement procElem, <endif>final TemporaryVariables tempVars) {
+  final PE pe__ = <if(usePE)>(PE) procElem<else>null<endif>;
+  final TempVars vars__ = (TempVars) tempVars;
+  <stmts; separator="\n">
+}
+>>

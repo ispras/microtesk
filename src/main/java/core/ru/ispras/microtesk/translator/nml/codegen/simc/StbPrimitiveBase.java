@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2012-2018 ISP RAS (http://www.iStateas.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -29,7 +29,7 @@ public abstract class StbPrimitiveBase implements StringTemplateBuilder {
 
   static {
     RET_TYPE_MAP.put(Attribute.Kind.ACTION, "void");
-    RET_TYPE_MAP.put(Attribute.Kind.EXPRESSION, "String");
+    RET_TYPE_MAP.put(Attribute.Kind.EXPRESSION, "char*");
   }
 
   protected final String getRetTypeName(final Attribute.Kind kind) {

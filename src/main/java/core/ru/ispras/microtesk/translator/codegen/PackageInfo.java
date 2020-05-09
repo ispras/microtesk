@@ -30,13 +30,16 @@ public final class PackageInfo {
    * Path to the folder that stores common templates (building blocks) to be reused in other
    * templates.
    */
-  public static final String COMMON_TEMPLATE_DIR = "stg/";
+  public static final String COMMON_TEMPLATE_DIR = "stg/java/";
+  public static final String COMMON_TEMPLATE_DIR_C = "stg/c/";
 
   /**
    * Path to the folder that stores string templates (building blocks) for generating
    * model classes based on nML specifications.
    */
-  public static final String NML_TEMPLATE_DIR = "stg/nml/";
+  public static final String NML_TEMPLATE_DIR = "stg/java/nml/";
+
+  public static final String NML_TEMPLATE_DIR_C = "stg/c/nml/";
 
   /**
    * The root folder for generated models.
