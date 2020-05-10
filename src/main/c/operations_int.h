@@ -3,36 +3,36 @@
 
 BIT_ARRAY* DST_ARRAY;
 
-Data negate(Data l) {
+Data negate_op(Data l) {
     return Data_constructor(l.val);
 }
 
-Data add(Data l, Data r) {
+Data add_op(Data l, Data r) {
     bit_array_add(DST_ARRAY, l.val, r.val);
     return Data_constructor(DST_ARRAY);
 }
 
-Data subtract(Data l, Data r) {
+Data subtract_op(Data l, Data r) {
     bit_array_subtract(DST_ARRAY, l.val, r.val);
     return Data_constructor(DST_ARRAY);
 }
 
-Data multiply(Data l, Data r) {
+Data multiply_op(Data l, Data r) {
     bit_array_subtract(DST_ARRAY, l.val, r.val);
     return Data_constructor(DST_ARRAY);
 }
 
-Data divide(Data l, Data r) {
+Data divide_op(Data l, Data r) {
     bit_array_add(l.val, DST_ARRAY, r.val);
     return Data_constructor(l.val);
 }
 
-Data mod(Data l, Data r) {
+Data mod_op(Data l, Data r) {
     bit_array_add(l.val, DST_ARRAY, r.val);
     return Data_constructor(DST_ARRAY);
 }
 
-Data pow(Data l, Data r) {
+Data pow_op(Data l, Data r) {
     int32_t val = bit_array_get_wordn(l.val, 0, l.val->num_of_bits);
     int32_t exp = bit_array_get_wordn(r.val, 0, r.val->num_of_bits);
 
@@ -65,35 +65,35 @@ Data xor_op(Data l, Data r) {
     return Data_constructor(DST_ARRAY);
 }
 
-Data shiftLeft(Data l, Data amount) {
+Data shiftLeft_op(Data l, Data amount) {
     bit_array_copy(DST_ARRAY, 0 ,l.val, 0, l.val->num_of_bits);
     bit_array_shift_left(DST_ARRAY, bit_array_get_wordn(amount.val, 0, amount.val->num_of_bits), 0);
     return Data_constructor(DST_ARRAY);
 }
 
-Data shiftRight(Data l, Data amount) {
+Data shiftRight_op(Data l, Data amount) {
     bit_array_copy(DST_ARRAY, 0 ,l.val, 0, l.val->num_of_bits);
     bit_array_shift_right(DST_ARRAY, bit_array_get_wordn(amount.val, 0, amount.val->num_of_bits), 0);
     return Data_constructor(DST_ARRAY);
 }
 
-Data rotateLeft(Data l, Data amount) {
+Data rotateLeft_op(Data l, Data amount) {
     bit_array_copy(DST_ARRAY, 0 ,l.val, 0, l.val->num_of_bits);
     bit_array_cycle_left(DST_ARRAY, bit_array_get_wordn(amount.val, 0, amount.val->num_of_bits));
     return Data_constructor(DST_ARRAY);
 }
 
-Data rotateRight(Data l, Data amount) {
+Data rotateRight_op(Data l, Data amount) {
     bit_array_copy(DST_ARRAY, 0 ,l.val, 0, l.val->num_of_bits);
     bit_array_cycle_right(DST_ARRAY, bit_array_get_wordn(amount.val, 0, amount.val->num_of_bits));
     return Data_constructor(DST_ARRAY);
 }
 
-bool equals(Data l, Data r) {
+bool equals_op(Data l, Data r) {
     return bit_array_get_wordn(l.val, 0, l.val->num_of_bits) == bit_array_get_wordn(r.val, 0, r.val->num_of_bits);
 }
 
-int32_t compare(Data l, Data r) {
+int32_t compare_op(Data l, Data r) {
     if (equals(l, r)) {
         return 0;
     }

@@ -31,43 +31,33 @@ memory(name, kind, type, size, alias) ::= <<
 >>
 
 new_memory(kind, name, type, size, alias) ::= <<
-Memory.def(Memory.Kind.<kind>, "<name>", <type>, <size><if(alias)>, <alias><endif>)
+Memory_constructor("<name>",  <size>)
 >>
 
 new_label(name, memory, index) ::= <<
 new Label("<name>", <memory>, <index>)
 >>
 
-processing_element(class, names, defs, copies, labels) ::= <<
-<names:{n | public final Memory <n>;}; separator="\n"><\n>
-private <class>() {
-  super();
-  <names, defs:{n, d | this.<n> = <d>;}; separator="\n"><\n>
-  registerAll();
+processing_element(struct, names, defs, copies, labels) ::= <<
+PE <struct>_constructor() {
+  PE pe__ = {
+    <set_fields(names, defs)>
+  };
+
+  return pe__;
 }<\n>
-private <class>(final <class> other, final boolean shared) {
-  super(other);
-  <names, copies:{n, c | this.<n> = <c>;}; separator="\n"><\n>
-  registerAll();
-}<\n>
-private void registerAll() {
-  <names:{n | addStorage(<n>);}; separator="\n">
-  <if(labels)><\n><labels:{l | addLabel(<l>);}; separator="\n"><endif>
-}<\n>
-@Override
-public ProcessingElement copy(final boolean shared) {
-  return new <class>(this, shared);
-}<\n>
-<factory()>
+
 >>
 
-temporary_variables(class, names, defs) ::= <<
-<names:{n | public final Memory <n>;}; separator="\n"><\n>
-private <class>() {
-  <names, defs:{n, d | this.<n> = <d>;}; separator="\n"><\n>
-  <names:{n | addVariable(<n>);}; separator="\n">
+temporary_variables(struct, names, defs) ::= <<
+PE <struct>_constructor() {
+  PE pe__ = {
+    <set_fields(names, defs)>
+  };
+
+  return pe__;
 }<\n>
-<factory()>
+
 >>
 
 factory() ::= <<
@@ -80,4 +70,26 @@ private static final class <name>Factory implements Factory {
 public static Factory newFactory() {
   return new <name>Factory();
 }
+>>
+
+set_fields(arg_names, defs) ::= <<
+<arg_names, defs:{n, d| .<n> = <d>;}; separator="\n">
+>>
+
+pe_constructor(file, pack, name, ext, impls, imps, simps, members, instance, names) ::= <<
+<header(file)>
+typedef struct PE {
+   <names:{n | Memory* <n>;}; separator="\n"><\n>
+} PE;
+<\n>
+<members; separator="\n">
+>>
+
+temp_constructor(file, pack, name, ext, impls, imps, simps, members, instance, names) ::= <<
+<header(file)>
+typedef struct TEMP {
+   <names:{n | Memory* <n>;}; separator="\n"><\n>
+} TEMP;
+<\n>
+<members; separator="\n">
 >>

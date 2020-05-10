@@ -46,44 +46,28 @@ import java.util.Map;
 
 public final class ExprPrinter extends MapBasedPrinter {
 
-  public static String toString(final Expr expr, final boolean asLocation, final Integer tempCount) {
+  public static String toString(final Expr expr, final boolean asLocation) {
     if (null == expr) {
       return "";
     }
 
-    return new ExprPrinter(asLocation, tempCount).toString(expr.getNode());
+    return new ExprPrinter(asLocation).toString(expr.getNode());
   }
 
   public static String toString(final Expr expr) {
-    return toString(expr, false, 0);
-  }
-
-  public static String toString(final Expr expr, final Integer tempCount) {
-    return toString(expr, false, tempCount);
-  }
-
-  public static String toString(final Expr expr, final boolean asLocation) {
-    return toString(expr, asLocation, 0);
+    return toString(expr, false);
   }
 
   private final boolean asLocation;
   private final Map<Operator, OperationDescription> operatorMap;
   private final Map<Enum<?>, String> castOperatorMap;
   private final Deque<Enum<?>> operatorStack;
-  private String tempVarsAnalogs;
-  private String tempName;
-  private Integer tempCount;
-  private String lastTempName;
 
-  protected ExprPrinter(final boolean asLocation, final Integer tempCount) {
+  protected ExprPrinter(final boolean asLocation) {
     this.asLocation = asLocation;
     this.operatorMap = new EnumMap<>(Operator.class);
     this.castOperatorMap = new HashMap<>();
     this.operatorStack = new ArrayDeque<>();
-    this.tempVarsAnalogs = "";
-    this.tempName = "ValueTemp";
-    this.tempCount = tempCount;
-    this.lastTempName = "";
 
 
     addMapping(StandardOperation.EQ,     "equals_op(", ", ", ")");
@@ -146,7 +130,7 @@ public final class ExprPrinter extends MapBasedPrinter {
         "", new String[] {".repeat("}, ")", new int[] {1, 0});
 
     addMapping(StandardOperation.BVEXTRACT,
-        "", new String[] {".bitField(", ", "}, ")", new int[] {2, 0, 1});
+        "bitField(", new String[] {", ", ", "}, ")", new int[] {2, 0, 1});
 
     addMapping(StandardOperation.BVCONCAT,
     "Location_concat(", ", ", ")");
@@ -162,16 +146,16 @@ public final class ExprPrinter extends MapBasedPrinter {
     addMappingForCast(Operator.FLOAT_TO_INT, "floatToInt");
     addMappingForCast(Operator.FLOAT_TO_FLOAT, "floatToFloat");
     // addMappingForCast(Operator.COERCE, "coerce"); // TODO: Redundant
-    addMappingForCast(Operator.CAST, "cast");
+    addMappingForCast(Operator.CAST, "Data_cast");
 
     setVisitor(new Visitor());
   }
 
   protected final void addMapping(
-      final Operator op,
-      final String prefix,
-      final String infix,
-      final String suffix) {
+          final Operator op,
+          final String prefix,
+          final String infix,
+          final String suffix) {
     operatorMap.put(op, new OperationDescription(prefix, infix, suffix));
   }
 
@@ -190,14 +174,13 @@ public final class ExprPrinter extends MapBasedPrinter {
       final Type type = nodeInfo.getType();
       InvariantChecks.checkNotNull(type);
 
-      final String operationText = String.format("%s.%s(%s, ", // TEMP: Data.smth
-          Data.class.getSimpleName(), castOperatorMap.get(opId), type.getJavaText());
+      final String operationText = String.format("%s(%s, ", castOperatorMap.get(opId), type.getJavaText());
 
       return new OperationDescription(operationText, "", ")");
     }
 
     return opId instanceof Operator
-        ? operatorMap.get(opId) : super.getOperationDescription(expr);
+            ? operatorMap.get(opId) : super.getOperationDescription(expr);
   }
 
   public static String bigIntegerToString(final BigInteger value, final int radix) {
@@ -205,14 +188,14 @@ public final class ExprPrinter extends MapBasedPrinter {
 
     final String result;
     if (value.compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0
-        && value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0) {
+            && value.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0) {
       result = (radix == 10) ? value.toString(radix) : "0x" + value.toString(radix);
     } else if (value.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) >= 0
-        && value.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) <= 0) {
+            && value.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) <= 0) {
       result = ((radix == 10) ? value.toString(radix) : "0x" + value.toString(radix)) + "L";
     } else {
       result = String.format("new %s(\"%s\", %d)",
-          BigInteger.class.getSimpleName(), value.toString(radix), radix);
+              BigInteger.class.getSimpleName(), value.toString(radix), radix);
     }
 
     return result;
@@ -224,64 +207,57 @@ public final class ExprPrinter extends MapBasedPrinter {
     }
 
     return String.format(
-        "%s.valueOf(%s, %s)",
-        Data.class.getSimpleName(),
-        type.getJavaText(),
-        bigIntegerToString(value, 16)
-        );
+            "Data_valueOf(\"%s\", %s)",  //STUBBED
+            type.getJavaText(),
+            bigIntegerToString(value, 16)
+    );
   }
 
   private static String valueToString(final Type type, final BitVector value) {
     return valueToString(type, value.bigIntegerValue(false));
   }
 
-  private String exprToTemp(final String str) {
-    //return tempName + Integer.toString(tempCount) + " = " + str + ";\n";
-    String res = tempName + Integer.toString(tempCount);
-    tempCount++;
-    return res;
-  }
-
   private final class Visitor extends ExprTreeVisitor {
     private final Deque<Integer> coercionStack = new ArrayDeque<>();
 
     @Override
-    public void onOperationBegin(final NodeOperation expr) {  // TEMP: CHECKED
+    public void onOperationBegin(final NodeOperation expr) {
+      int coercionCount = 0;
       if (expr.getUserData() instanceof NodeInfo) {
         final NodeInfo nodeInfo = (NodeInfo) expr.getUserData();
 
-        final int coercionCount = appendCoercions(nodeInfo);
+        coercionCount = appendCoercions(nodeInfo);
         coercionStack.push(coercionCount);
         operatorStack.push(expr.getOperationId());
       }
 
       super.onOperationBegin(expr);
+      if (coercionCount > 0 && ExprUtils.isOperation(expr, StandardOperation.BVCONCAT)) { // EXPERIMENTAL
+        appendText("load(");
+      }
     }
 
     @Override
-    public void onOperationEnd(final NodeOperation expr) { // TEMP: CHECKED
+    public void onOperationEnd(final NodeOperation expr) {
       super.onOperationEnd(expr);
 
       if (expr.getUserData() instanceof NodeInfo) {
         final int coercionCount = coercionStack.pop();
 
-        if (coercionCount > 0 && ExprUtils.isOperation(expr, StandardOperation.BVCONCAT)) {
-          appendText(".load(" + lastTempName + ")");
+        if (coercionCount > 0 && ExprUtils.isOperation(expr, StandardOperation.BVCONCAT)) { // EXPERIMENTAL
+          appendText(")");
         }
 
         appendCloseBrackets(coercionCount);
         operatorStack.pop();
       }
-      if (operatorStack.isEmpty() && tempVarsAnalogs != "") {
-        appendText("|||"+tempVarsAnalogs);
-      }
     }
 
     @Override
     public void onOperandBegin(
-        final NodeOperation operation,
-        final Node operand,
-        final int index) {
+            final NodeOperation operation,
+            final Node operand,
+            final int index) {
       if (operation.getUserData() instanceof NodeInfo) {
         final NodeInfo nodeInfo = (NodeInfo) operation.getUserData();
 
@@ -290,20 +266,26 @@ public final class ExprPrinter extends MapBasedPrinter {
         final boolean isLast = (operation.getOperandCount() - 1) == index;
 
         if ((castOperatorMap.containsKey(opId)
-            || castOperatorMap.containsKey(innerOpId)) && !isLast) {
+                || castOperatorMap.containsKey(innerOpId)) && !isLast) {
           // Skips all operands but the last
           setStatus(Status.SKIP);
         }
       }
 
+
+
       super.onOperandBegin(operation, operand, index);
+      if (ExprUtils.isOperation(operand, StandardOperation.BVCONCAT)
+              && !((NodeInfo) operand.getUserData()).isCoersionApplied()) {
+        appendText("load(");
+      }
     }
 
     @Override
     public void onOperandEnd(
-        final NodeOperation operation,
-        final Node operand,
-        final int index) {
+            final NodeOperation operation,
+            final Node operand,
+            final int index) {
       if (operation.getUserData() instanceof NodeInfo) {
         final NodeInfo nodeInfo = (NodeInfo) operation.getUserData();
 
@@ -312,7 +294,7 @@ public final class ExprPrinter extends MapBasedPrinter {
         final boolean isLast = (operation.getOperandCount() - 1) == index;
 
         if ((castOperatorMap.containsKey(opId)
-            || castOperatorMap.containsKey(innerOpId)) && !isLast) {
+                || castOperatorMap.containsKey(innerOpId)) && !isLast) {
           // Restores status
           setStatus(Status.OK);
         }
@@ -321,30 +303,27 @@ public final class ExprPrinter extends MapBasedPrinter {
       super.onOperandEnd(operation, operand, index);
 
       if (ExprUtils.isOperation(operand, StandardOperation.BVCONCAT)
-          && !((NodeInfo) operand.getUserData()).isCoersionApplied()) {
-        appendText("WTFISTHIS.load(" + lastTempName + ")");
+              && !((NodeInfo) operand.getUserData()).isCoersionApplied()) {
+        appendText(")");
       }
     }
 
     @Override
-    public void onValue(final NodeValue value) { // TEMP: CHECKED
+    public void onValue(final NodeValue value) {
       if (value.isType(DataTypeId.LOGIC_STRING)) {
         // Hack to deal with internal variables described by string constants
         final Expr expr = new Expr(value);
-        if (expr.isInternalVariable()) { // TEMP: UNREACHABLE !!!!!!!!!!!!!!!
+        if (expr.isInternalVariable()) {
           final int coercionCount = appendCoercions(expr.getNodeInfo());
+          String text = Execution.class.getSimpleName() + "." + value.getValue().toString();
 
-          appendText(Execution.class.getSimpleName() + "." + value.getValue().toString());
           if (!asLocation) {
-            appendText(".load()");
+            text = "load(" + text + ")";
           }
+          appendText(text);
+
 
           appendCloseBrackets(coercionCount);
-
-          if (operatorStack.isEmpty() && tempVarsAnalogs != "") {
-            appendText("|||"+tempVarsAnalogs);
-          }
-
           return;
         }
 
@@ -373,15 +352,12 @@ public final class ExprPrinter extends MapBasedPrinter {
 
         default:
           throw new IllegalArgumentException(
-              "Unsupported type: " + value.getDataTypeId());
+                  "Unsupported type: " + value.getDataTypeId());
       }
 
       final int coercionCount = appendCoercions(nodeInfo);
       appendText(text);
       appendCloseBrackets(coercionCount);
-      if (operatorStack.isEmpty() && tempVarsAnalogs != "") {
-        appendText("|||"+tempVarsAnalogs);
-      }
     }
 
     @Override
@@ -391,27 +367,19 @@ public final class ExprPrinter extends MapBasedPrinter {
         final StatementAttributeCall callInfo = (StatementAttributeCall) variable.getUserData();
 
         final StringBuilder sb = new StringBuilder();
-        String firstParam = "";
-        String temp = "";
+        String text = "";
         if (null != callInfo.getCalleeName()) {
-          firstParam = callInfo.getCalleeName();
-          temp = exprToTemp(firstParam);
-          sb.append(String.format("%s.", temp));
+          text = callInfo.getCalleeName();
+          //sb.append(String.format("%s.", callInfo.getCalleeName()));
         } else if (null != callInfo.getCalleeInstance()) {
-          firstParam = PrinterInstance.toString(callInfo.getCalleeInstance());
-          temp = exprToTemp(firstParam);
-          sb.append(String.format("%s.", temp));
-        }
-
-        if (temp != "") {
-          tempVarsAnalogs += temp + " = " + firstParam + ";\n";
-          lastTempName = temp;
+          text = PrinterInstance.toString(callInfo.getCalleeInstance());
+          //sb.append(String.format("%s.", PrinterInstance.toString(callInfo.getCalleeInstance())));
         }
 
         final String attrName = callInfo.getAttributeName();
         final boolean isSyntax = Attribute.SYNTAX_NAME.equals(attrName);
 
-        sb.append(String.format("%s(%s, vars__)", isSyntax ? "text" : attrName, temp));
+        sb.append(String.format("%s(%s, vars__)", isSyntax ? "text" : attrName, text));
         appendText(sb.toString());
 
         return;
@@ -425,17 +393,12 @@ public final class ExprPrinter extends MapBasedPrinter {
 
       final int coercionCount = appendCoercions(nodeInfo);
       final String text = PrinterLocation.toString(source);
-      String temp = exprToTemp(text);
-      tempVarsAnalogs += temp + " = " + text + ";\n";
-      lastTempName = temp;
-      final boolean isConcatOperand =
-          operatorStack.peek() == StandardOperation.BVCONCAT;
 
-      appendText(asLocation || isConcatOperand ? temp : temp + ".load(" + temp + ")");
+      final boolean isConcatOperand =
+              operatorStack.peek() == StandardOperation.BVCONCAT;
+
+      appendText(asLocation || isConcatOperand ? text : "load(" + text + ")");
       appendCloseBrackets(coercionCount);
-      if (operatorStack.isEmpty() && tempVarsAnalogs != "") {
-        appendText("|||"+tempVarsAnalogs);
-      }
     }
 
     private int appendCoercions(final NodeInfo nodeInfo) {
@@ -455,13 +418,13 @@ public final class ExprPrinter extends MapBasedPrinter {
 
         final String methodName = coercion.getMethodName();
         final String text = String.format(
-              "%s.%s(%s, ",
-              Data.class.getSimpleName(),
-              methodName,
-              target.getJavaText()
-              );
+                "%s_%s(\"%s\", ",     //STUBBED
+                Data.class.getSimpleName(),
+                methodName,
+                target.getJavaText()
+        );
 
-        appendText(text); // TEMP: Data.ValueOf
+        appendText(text);
       }
 
       return coercionIndex;

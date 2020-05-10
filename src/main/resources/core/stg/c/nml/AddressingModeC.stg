@@ -14,54 +14,59 @@
 
 group AddressingMode;
 
+
+mode_attribute(primitive_name, name, rettype, stmts, override, usePE, arg_names, arg_types) ::= <<
+<rettype> <primitive_name>_<name>(IsaPrimitive* isa, <if(usePE)>PE* procElem, <endif>TempVars* tempVars) {
+  PE* pe__ = <if(usePE)> procElem<else>NULL<endif>;
+  TempVars* vars__ = tempVars;
+  <init_args(arg_names)>
+
+  <stmts; separator="\n">
+}
+>>
+
 mode(
   name, file, imps,
-  param_names, param_types, isa_type, mode_type, arg_count
+  arg_names, arg_types, arg_checks, arg_tnames, isa_type, arg_count, attrs, pack, simps, base, ret
 ) ::= <<
 <header(file)>
 
-<mode_build(name, param_names, param_types, isa_type, mode_type, arg_count)>
+<attrs; separator="\n\n">
+<constructor_build(name, arg_names, arg_types, isa_type, arg_count, ret)>
+
+<if(ret)><\n><mode_attribute(name, "access", "Location", ret:{e|return <e>;}, true, true, arg_names, arg_types)><endif>
 >>
 
-
-mode_build(name, param_names, param_types, isa_type, mode_type, arg_count) ::= <<
-
-IsaPrimitive <name>_args[<arg_count>];
-
-void <name>_action(IsaPrimitive *self) {
-
-}
-
-char* <name>_image() {
-  return 0;
-}
-
-int <name>_syntax() {
-  return 0;
-}
+constructor_build(name, arg_names, arg_types, isa_type, arg_count, ret) ::= <<
 
 
-IsaPrimitive <name>(<get_func_param(param_names, param_types)>) {
-  <name>_arg = {<get_args(param_names)>};
+IsaPrimitive* <name>_args[<arg_count>];
+
+IsaPrimitive <name>(<get_func_param(arg_names, arg_types)>) {
   IsaPrimitive obj = {
-    .type = <isa_type>_<name>,
-    .action = (*<name>_action)(&obj),
-    .image = (*<name>_image)(),
-    .syntax = (*<name>_syntax)(),
+    //.type = <isa_type>_<name>,
+    .action = <name>_action,
+    .image = <name>_image,
+    .syntax = <name>_syntax,
     .args = &<name>_args,
-    .argc = <arg_count>
+    .argc = <arg_count>,
+    <if(ret)>.action = <name>_action,<endif>
   };
+
+  <get_args(arg_names)>
 
   return obj;
 }
 >>
 
-
-get_func_param(param_names, param_types) ::= <<
-<param_names, param_types:{n, t | IsaPrimitive <n>}; separator=", ">
+get_func_param(arg_names, arg_types) ::= <<
+<arg_names, arg_types:{n, t | IsaPrimitive* <n>}; separator=", ">
 >>
 
-get_args(param_names) ::= <<
-<param_names:{n | <n>}; separator=", ">
+get_args(arg_names) ::= <<
+<arg_names:{n | obj.args[<i0>] = <n>;}; separator="\n">
 >>
 
+init_args(arg_names) ::= <<
+<arg_names:{n | IsaPrimitive* <n> = isa->args[<i0>];}; separator="\n">
+>>

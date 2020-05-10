@@ -3193,7 +3193,7 @@ BIT_ARRAY* bit_array_concat(BIT_ARRAY* l, BIT_ARRAY* r)
 
   int32_t size_l = l->num_of_bits;
   int32_t size_r = r->num_of_bits;
-  BIT_ARRAY* res = bit_array_create(size_l + size_r);
+  res = bit_array_create(size_l + size_r);
   memcpy(res->words, l->words, l->num_of_words);
   memcpy(res->words + (word_t) l->num_of_words, r->words, r->num_of_words);
 

@@ -90,10 +90,10 @@ struct(name, members) ::= <<
 >>
 
 struct_ext(name, members, instance) ::= <<
-struct <name> {
+typedef struct <name> {
   <if(instance)><singleton(name, instance)><endif>
   <members; separator="\n">
-}
+} <name>;
 >>
 
 /** 
@@ -147,10 +147,8 @@ source_file(file, pack, name, ext, impls, imps, simps, members, instance) ::= <<
 <if(simps)><static_imports(simps)><endif>
 <if(imps)><imports(imps)><endif>
 <class_javadoc(name)>
-<class_ext(["public", "final"],
+<struct_ext(
        name,
-       ext,
-       impls,
        members,
        instance)><\n>
 >>

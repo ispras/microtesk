@@ -49,7 +49,7 @@ public final class StbAddressingMode extends StbPrimitiveBase {
 
   private void buildHeader(final STGroup group, final ST t) {
     t.add("name", mode.getName());
-    t.add("type", null != mode.getReturnType() ? mode.getReturnType().getJavaText() : "null");
+    //t.add("type", null != mode.getReturnType() ? mode.getReturnType().getJavaText() : "null");
     t.add("pack", String.format(PackageInfo.MODE_PACKAGE_FORMAT, modelName));
 
     t.add("imps", Map.class.getName());
@@ -66,12 +66,16 @@ public final class StbAddressingMode extends StbPrimitiveBase {
   }
 
   private void buildArguments(final STGroup group, final ST t) {
+
+    final int arg_count = mode.getArguments().size();
+    t.add("arg_count", String.valueOf(arg_count));
+
     for (final Map.Entry<String, Primitive> e : mode.getArguments().entrySet()) {
       final String argName = e.getKey();
       final Primitive argType = e.getValue();
 
-      t.add("param_names", argName);
-      t.add("param_types", argType.getName());
+      t.add("arg_names", argName);
+      t.add("arg_types", argType.getName());
     }
   }
 
@@ -79,12 +83,21 @@ public final class StbAddressingMode extends StbPrimitiveBase {
     for (final Attribute attr : mode.getAttributes().values()) {
       final ST attrST = group.getInstanceOf("mode_attribute");
 
+      attrST.add("primitive_name", mode.getName());
       attrST.add("name", attr.getName());
       attrST.add("rettype", getRetTypeName(attr.getKind()));
       attrST.add("usePE",
           Attribute.Kind.ACTION == attr.getKind()
               && !attr.getName().equals(Attribute.INIT_NAME)
               && !attr.getName().equals(Attribute.DECODE_NAME));
+
+      for (final Map.Entry<String, Primitive> e : mode.getArguments().entrySet()) {
+        final String argName = e.getKey();
+        final Primitive argType = e.getValue();
+
+        attrST.add("arg_names", argName);
+        attrST.add("arg_types", argType.getName());
+      }
 
       if (Attribute.Kind.ACTION == attr.getKind()) {
         for (final Statement stmt : attr.getStatements()) {
@@ -120,14 +133,14 @@ public final class StbAddressingMode extends StbPrimitiveBase {
     } else if (ExprUtils.isOperation(returnExpr.getNode(), StandardOperation.BVCONCAT)) {
       t.add("ret", ExprPrinter.toString(returnExpr));
     } else {
-      t.add("ret", String.format("new Location(%s)", ExprPrinter.toString(returnExpr)));
+      t.add("ret", String.format("Location_constructor(%s)", ExprPrinter.toString(returnExpr)));
     }
   }
 
   @Override
   public ST build(final STGroup group) {
     final ST t = group.getInstanceOf("mode");
-
+    t.add("isa_type", "MODE");
     buildHeader(group, t);
     buildArguments(group, t);
     buildAttributes(group, t);

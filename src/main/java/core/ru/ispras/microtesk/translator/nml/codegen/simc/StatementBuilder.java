@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.translator.nml.codegen.simc;
 
-import org.jruby.RubyProcess;
 import org.stringtemplate.v4.ST;
 
 import ru.ispras.fortress.data.DataTypeId;
@@ -33,7 +32,6 @@ import ru.ispras.microtesk.translator.nml.ir.primitive.StatementFunctionCall;
 import ru.ispras.microtesk.utils.FormatMarker;
 
 import java.util.List;
-import java.util.ArrayList;
 
 public final class StatementBuilder {
   private static final String SINDENT = "  ";
@@ -41,15 +39,13 @@ public final class StatementBuilder {
   private final ST sequenceST;
   private final boolean isReturn;
   private int indent;
-  private Integer tempCount;
-  private List<String> blocks;
+  private Boolean isPrint;
 
   public StatementBuilder(final ST sequenceST, final boolean isReturn) {
     this.sequenceST = sequenceST;
     this.isReturn = isReturn;
     this.indent = 0;
-    this.tempCount = 0;
-    this.blocks = new ArrayList<String>();
+    this.isPrint = false;
   }
 
   private void increaseIndent() {
@@ -107,6 +103,12 @@ public final class StatementBuilder {
   private void addStatement(final String stmt) {
     final StringBuilder sb = new StringBuilder();
 
+    if (isReturn && isPrint) {
+      sb.append(stmt + "return str_tmp;" );
+      sequenceST.add("stmts", sb.toString());
+      return;
+    }
+
     if (isReturn) {
       sb.append("return ");
     }
@@ -120,50 +122,26 @@ public final class StatementBuilder {
   }
 
   private void addStatement(final StatementAssignment stmt) {
-    String left = ExprPrinter.toString(stmt.getLeft(), true, tempCount);
-    String[] dataLeft = left.split("\\|\\|\\|");
-    if (dataLeft.length > 1) {
-      tempCount += dataLeft[1].split(";\n").length;
-    }
-    String right = ExprPrinter.toString(stmt.getLeft(), false, tempCount);
-    String[] dataRight = right.split("\\|\\|\\|");
-    if (dataRight.length > 1) {
-      tempCount += dataRight[1].split(";\n").length;
-    }
-
-    addStatement(dataLeft[1] + dataRight[1]);
     addStatement(
-        String.format("%s.store(%s, %s);",
-            dataLeft[0], dataLeft[0], dataRight[0])
+            String.format("store(%s, %s);",
+                    ExprPrinter.toString(stmt.getLeft(), true),
+                    ExprPrinter.toString(stmt.getRight()))
     );
   }
 
   private void addStatement(final StatementCondition stmt) {
     final int FIRST = 0;
     final int LAST = stmt.getBlockCount() - 1;
-    List<String> blocks = new ArrayList<String>();
 
     for (int index = FIRST; index <= LAST; ++index) {
       final Pair<Expr, List<Statement>> block = stmt.getBlock(index);
 
       if (FIRST == index) {
-        String text = ExprPrinter.toString(block.first, false, tempCount);
-        String[] dataText = text.split("\\|\\|\\|");
-        if (dataText.length > 1) {
-          tempCount += dataText[1].split(";\n").length;
-        }
-        addStatement(dataText[1]);
-        blocks.add(String.format("if (%s) {", dataText[0]));
+        addStatement(String.format("if (%s) {", ExprPrinter.toString(block.first)));
       } else if (LAST == index && null == block.first) {
         addStatement("} else {");
       } else {
-        String text = ExprPrinter.toString(block.first, false, tempCount);
-        String[] dataText = text.split("\\|\\|\\|");
-        if (dataText.length > 1) {
-          tempCount += dataText[1].split(";\n").length;
-        }
-        addStatement(dataText[1]);
-        blocks.add(String.format("} else if (%s) {", dataText[0]));
+        addStatement(String.format("} else if (%s) {", ExprPrinter.toString(block.first)));
       }
 
       increaseIndent();
@@ -179,29 +157,28 @@ public final class StatementBuilder {
   private void addStatement(final StatementAttributeCall stmt) {
     final String attrName = stmt.getAttributeName();
     final boolean usePE = !attrName.equals(Attribute.INIT_NAME)
-        && !attrName.equals(Attribute.IMAGE_NAME)
-        && !attrName.equals(Attribute.SYNTAX_NAME);
+            && !attrName.equals(Attribute.IMAGE_NAME)
+            && !attrName.equals(Attribute.SYNTAX_NAME);
 
     final boolean isAction = attrName.equals(Attribute.ACTION_NAME);
     final boolean isSyntax = attrName.equals(Attribute.SYNTAX_NAME);
 
     final String methodName;
     if (null != stmt.getCalleeName()) {
-      methodName = String.format("%s.%s(%s",
-          stmt.getCalleeName(),
-          isAction ? "execute" : (isSyntax ? "text" : attrName),
-          stmt.getCalleeName());
+      methodName = String.format("%s(%s",
+              isAction ? "execute" : (isSyntax ? "text" : attrName),
+              stmt.getCalleeName());
     } else if (null != stmt.getCalleeInstance()) {
-      methodName = String.format("%s.%s(%s",
-          PrinterInstance.toString(stmt.getCalleeInstance()),
-          isAction ? "execute" : (isSyntax ? "text" : attrName),
-          PrinterInstance.toString(stmt.getCalleeInstance()));
+      methodName = String.format("%s(%s",
+              isAction ? "execute" : (isSyntax ? "text" : attrName),
+              PrinterInstance.toString(stmt.getCalleeInstance())
+              );
     } else {
       methodName = attrName;
     }
 
     final String arguments = usePE ? "pe__, vars__" : "vars__";
-    addStatement(String.format("%s, %s);", methodName, arguments));
+    addStatement(String.format(methodName + (methodName.indexOf("(") == -1 ? "(%s);" : ", %s);"), arguments));
   }
 
   private void addStatement(final StatementFormat stmt) {
@@ -228,10 +205,12 @@ public final class StatementBuilder {
     }
 
     if (null == stmt.getFunction()) {
-      addStatement(String.format("sprintf(\"%s\"%s);", stmt.getFormat(), sb.toString()));
+      isPrint = true;
+      String text = "char* str_tmp = (char*) malloc(64);\n" + String.format("sprintf(%s,\"%s\"%s);\n", "str_tmp", stmt.getFormat(), sb.toString());
+      addStatement(text);
     } else {
       addStatement(String.format("//Execution.%s(\"%s\"%s);",
-          stmt.getFunction(), stmt.getFormat(), sb.toString()));
+              stmt.getFunction(), stmt.getFormat(), sb.toString()));
     }
   }
 
@@ -255,7 +234,7 @@ public final class StatementBuilder {
     }
 
     addStatement(String.format(
-        "//Execution.%s(%s);", stmt.getName(), sb.toString()));
+            "//Execution.%s(%s);", stmt.getName(), sb.toString()));
   }
 
   private static String convertTo(final Node argument, final FormatMarker marker) {
@@ -265,7 +244,7 @@ public final class StatementBuilder {
 
     if (argument.isType(DataTypeId.LOGIC_STRING)) {
       InvariantChecks.checkTrue(marker.isKind(FormatMarker.Kind.STR)
-          || marker.isKind(FormatMarker.Kind.BIN));
+              || marker.isKind(FormatMarker.Kind.BIN));
       return ExprPrinter.toString(new Expr(argument));
     }
 
@@ -273,21 +252,21 @@ public final class StatementBuilder {
     final String methodName;
     switch (marker.getKind()) {
       case BIN:
-        methodName = "toBinString()";
+        methodName = "toBinString(%s)";
         break;
       case STR:
-        methodName = "toString()";
+        methodName = "toString(%s)";
         break;
       case HEX:
-        methodName = "bigIntegerValue(false)";
+        methodName = "bigIntegerValue(%s, false)";
         break;
       case DEC:
-        methodName = "bigIntegerValue()";
+        methodName = "bigIntegerValue(%s)";
         break;
       default:
         throw new IllegalArgumentException("Unsupported marker kind: " + marker.getKind());
     }
 
-    return String.format("%s.%s", ExprPrinter.toString(new Expr(argument)), methodName);
+    return String.format(methodName, ExprPrinter.toString(new Expr(argument)));
   }
 }

@@ -140,6 +140,25 @@ public final class StbOperation extends StbPrimitiveBase {
               && !attr.getName().equals(Attribute.INIT_NAME)
               && !attr.getName().equals(Attribute.DECODE_NAME));
 
+      for (final Map.Entry<String, Primitive> e : op.getArguments().entrySet()) {
+        final String argName = e.getKey();
+        final Primitive argType = e.getValue();
+
+        attrST.add("arg_names", argName);
+
+        if (Primitive.Kind.MODE == argType.getKind()) {
+          importModeDependencies(t);
+          attrST.add("arg_types",
+                  argType.isOrRule() ? IsaPrimitive.class.getSimpleName() : argType.getName());
+        } else if (Primitive.Kind.OP == argType.getKind()) {
+          attrST.add( "arg_types",
+                  argType.isOrRule() ? IsaPrimitive.class.getSimpleName() : argType.getName());
+        } else { // if Primitive.Kind.IMM == oa.getKind()
+          importImmDependencies(t);
+          attrST.add("arg_types", Immediate.class.getSimpleName());
+        }
+      }
+
       if (Attribute.Kind.ACTION == attr.getKind()) {
         for (final Statement stmt : attr.getStatements()) {
           if (isModeInstanceUsed(stmt)) {

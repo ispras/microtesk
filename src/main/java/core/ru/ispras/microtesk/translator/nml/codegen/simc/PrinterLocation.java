@@ -23,9 +23,8 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 public final class PrinterLocation {
-  private static final String ACCESS_FORMAT = ".access(%s, %s)";
-  private static final String BITFIELD_FORMAT = ".bitField(%s, %s, %s)";
-
+  private static final String ACCESS_FORMAT = "access(%s%s)";
+  private static final String BITFIELD_FORMAT = "bitField(%s, %s, %s)";
   private PrinterLocation() {}
 
   public static boolean addPE = true;
@@ -33,35 +32,35 @@ public final class PrinterLocation {
   public static String toString(final Location location) {
     InvariantChecks.checkNotNull(location);
     final StringBuilder sb = new StringBuilder();
-
+    String text = "";
     if (addPE && location.getSource().getSymbolKind() == NmlSymbolKind.MEMORY) {
       final boolean isVar =
-          ((LocationSourceMemory) location.getSource()).getKind() == Memory.Kind.VAR;
-      sb.append(isVar ? "vars__." : "pe__.");
+              ((LocationSourceMemory) location.getSource()).getKind() == Memory.Kind.VAR;
+      text += isVar ? "vars__->" : "pe__->";
     }
 
-    sb.append(location.getName());
+    text += location.getName();
 
     final String indexText;
     if (location.getSource().getSymbolKind() == NmlSymbolKind.ARGUMENT) {
       final boolean isImm =
-          ((LocationSourcePrimitive) location.getSource()).getKind() == Primitive.Kind.IMM;
+              ((LocationSourcePrimitive) location.getSource()).getKind() == Primitive.Kind.IMM;
       indexText = isImm ? "" : "pe__, vars__" ;
     } else {
       indexText = ExprPrinter.toString(location.getIndex());
     }
 
-    String data_string = String.format(ACCESS_FORMAT, sb.toString(), indexText);
-    sb.append(data_string);
-    data_string = sb.toString();
+    text = String.format(ACCESS_FORMAT, text, indexText.equals("") ? "" : (", " + indexText));
 
     if (null != location.getBitfield()) {
       final Location.Bitfield bitfield = location.getBitfield();
       sb.append(String.format(BITFIELD_FORMAT,
-          data_string,
-          ExprPrinter.toString(bitfield.getFrom()),
-          ExprPrinter.toString(bitfield.getTo()))
+              text,
+              ExprPrinter.toString(bitfield.getFrom()),
+              ExprPrinter.toString(bitfield.getTo()))
       );
+    } else {
+      sb.append(text);
     }
 
     addPE = true;

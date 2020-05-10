@@ -46,7 +46,7 @@ public final class PrinterInstance {
         case EXPR: {
           final boolean isLocation = instanceArgument.getExpr().getNodeInfo().isLocation();
           final String text = ExprPrinter.toString(instanceArgument.getExpr(), isLocation);
-          sb.append(String.format("%s(%s)", Immediate.class.getSimpleName(), text));  // removed new
+          sb.append(String.format("%s(%s)", Immediate.class.getSimpleName(), text));  //IMMEDIATE
           break;
         }
 
@@ -60,11 +60,11 @@ public final class PrinterInstance {
           final Primitive argument = primitive.getArguments(). get(argumentName);
 
           if (Primitive.Kind.IMM == argument.getKind() &&
-              Primitive.Kind.MODE == instanceArgument.getPrimitive().getKind()) {
-            sb.append(String.format("%s(%s.access(%s, pe__, vars__))", // TEMP: unreachable case??? removed new
-                Immediate.class.getSimpleName(), instanceArgument.getName(), instanceArgument.getName()));
+                  Primitive.Kind.MODE == instanceArgument.getPrimitive().getKind()) {
+            sb.append(String.format("%s(access(%s, pe__, vars__))",
+                    Immediate.class.getSimpleName(), instanceArgument.getName()));
           } else {
-            sb.append(instanceArgument.getName()); // TEMP: args only in la op microtesk map with args
+            sb.append(instanceArgument.getName());
           }
 
           break;

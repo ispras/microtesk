@@ -46,7 +46,7 @@ public final class StbTemporaryVariables implements StringTemplateBuilder {
 
   private void buildBody(final STGroup group, final ST st) {
     final ST tCore = group.getInstanceOf("temporary_variables");
-    tCore.add("class", CLASS_NAME);
+    tCore.add("struct", CLASS_NAME);
 
     for (final MemoryResource memory : ir.getMemory().values()) {
       if (memory.getKind() != Memory.Kind.VAR) {
@@ -64,8 +64,14 @@ public final class StbTemporaryVariables implements StringTemplateBuilder {
 
   @Override
   public ST build(final STGroup group) {
-    final ST st = group.getInstanceOf("source_file");
+    final ST st = group.getInstanceOf("temp_constructor");
+    for (final MemoryResource memory : ir.getMemory().values()) {
+      if (memory.getKind() != Memory.Kind.VAR) {
+        continue;
+      }
 
+      st.add("names", memory.getName());
+    }
     buildHeader(st);
     buildBody(group, st);
 

@@ -65,8 +65,8 @@ final class GeneratorFactory {
         PackageInfo.getModelOutDir(outDir), modelName, StbProcessingElement.CLASS_NAME);
 
     final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
+        PackageInfo.COMMON_TEMPLATE_DIR_C + "JavaCommonC.stg",
+        PackageInfo.NML_TEMPLATE_DIR_C + "SharedC.stg"
     };
 
     final StringTemplateBuilder builder = new StbProcessingElement(ir);
@@ -78,8 +78,8 @@ final class GeneratorFactory {
         PackageInfo.getModelOutDir(outDir), modelName, StbTemporaryVariables.CLASS_NAME);
 
     final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "Shared.stg"
+        PackageInfo.COMMON_TEMPLATE_DIR_C + "JavaCommonC.stg",
+        PackageInfo.NML_TEMPLATE_DIR_C + "SharedC.stg"
     };
 
     final StringTemplateBuilder builder = new StbTemporaryVariables(ir);
@@ -104,8 +104,8 @@ final class GeneratorFactory {
         String.format(PackageInfo.getModeFileFormat(outDir, HEADER_EXT), modelName, mode.getName());
 
     final String[] templateGroups = new String[] {
-        PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
-        PackageInfo.NML_TEMPLATE_DIR + "AddressingMode.stg"
+        PackageInfo.COMMON_TEMPLATE_DIR_C + "JavaCommonC.stg",
+        PackageInfo.NML_TEMPLATE_DIR_C + "AddressingModeC.stg"
     };
 
     final StringTemplateBuilder builder = new StbAddressingMode(modelName, mode);
