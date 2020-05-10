@@ -67,13 +67,15 @@ public final class SimGenerator implements TranslatorHandler<Ir> {
       final MemoryControlFlowExplorer flowExplorer = new MemoryControlFlowExplorer(memory);
       final Buffer targetBuffer = flowExplorer.getTargetBuffer();
 
+      // TODO refine declaration visibility and process in the order
+      // e.g. access to buffers before processing misses var mapping
       processExterns(ir, factory);
       processConstants(ir, factory);
       processStructs(ir, factory);
       processAddresses(ir, factory);
       processOperations(ir, factory);
-      processFunctions(ir, factory);
       processBuffers(ir, targetBuffer, factory);
+      processFunctions(ir, factory);
       processSegments(ir, factory);
       processMemories(ir, factory);
       processModel(ir, targetBuffer, factory);
