@@ -39,6 +39,8 @@
   <target name="build">
     <mkdir dir="${bin}"/>
     <javac
+      target="11"
+      source="11"
       srcdir="${src}"
       destdir="${bin}"
       classpath="${models.classpath}"
