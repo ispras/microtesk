@@ -58,6 +58,7 @@ final class StbFunction extends StbCommon implements StringTemplateBuilder {
     st.add("imps", BigInteger.class.getName());
     st.add("imps", String.format("%s.*", BIT_VECTOR_CLASS.getPackage().getName()));
     st.add("imps", StbCommon.EXECUTION_CLASS.getName());
+    st.add("imps", ru.ispras.microtesk.test.TestEngine.class.getName());
   }
 
   private void buildBody(final ST st, final STGroup group) {
@@ -83,6 +84,9 @@ final class StbFunction extends StbCommon implements StringTemplateBuilder {
     }
 
     buildVariableDecls(stBody, function.getLocals().values());
+
+    stBody.add("stmts",
+        "final int _PEid = TestEngine.getInstance().getModel().getActivePE();");
     buildStmts(stBody, group, function.getBody());
 
     st.add("members", stBody);
