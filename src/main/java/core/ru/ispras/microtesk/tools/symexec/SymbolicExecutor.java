@@ -89,8 +89,11 @@ public final class SymbolicExecutor {
     compileBasicBlocks(fileName, info);
     writeControlFlow(fileName + ".json", info);
     writeBasicBlockSmt(fileName, info);
-    writeMir(fileName, info);
-
+    final MirContext mir = composeMir(fileName, info);
+    writeMir(fileName, mir);
+    var unroller = new LoopUnroller(2);
+    var unrolledMir = unroller.unroll(mir);
+    writeMir(fileName + "_unrolled", unrolledMir);
     return true;
   }
 
@@ -120,9 +123,7 @@ public final class SymbolicExecutor {
     }
   }
 
-  private static void writeMir(final String name, final BodyInfo info) {
-    final MirContext mir = composeMir(name, info);
-
+  private static void writeMir(final String name, final MirContext mir) {
     try (final java.io.BufferedWriter writer =
                   Files.newBufferedWriter(Paths.get(name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
       writer.write(MirText.toString(mir));
@@ -206,7 +207,7 @@ public final class SymbolicExecutor {
       final String name = String.format("insn_%d.action", index++);
       final MirContext mir =
         FormulaBuilder.buildMir(name, model, archive, Collections.singletonList(insn));
-      final MirContext opt = driver.apply(unroller.unroll(mir));
+      final MirContext opt = unroller.unroll(driver.apply(mir));
 
       info.bodyMir.add(opt);
       info.storage.put(opt.name, opt);
@@ -230,7 +231,7 @@ public final class SymbolicExecutor {
     return info;
   }
 
-  static class BodyInfo {
+  public static class BodyInfo {
     final List<IsaPrimitive> body;
     final MirArchive archive;
     final Map<String, MirContext> storage;
@@ -238,12 +239,12 @@ public final class SymbolicExecutor {
     final List<Operand> branchCond = new java.util.ArrayList<>();
     final List<Collection<Operand>> offsets = new java.util.ArrayList<>();
 
-    final List<Range> bbRange = new java.util.ArrayList<>();
-    final List<MirContext> bbMir = new java.util.ArrayList<>();
-    final List<Operand> bbCond = new java.util.ArrayList<>();
+    final public List<Range> bbRange = new java.util.ArrayList<>();
+    final public List<MirContext> bbMir = new java.util.ArrayList<>();
+    final public List<Operand> bbCond = new java.util.ArrayList<>();
     final List<Map<String, Static>> bbModified = new java.util.ArrayList<>();
     final List<Map<String, Static>> bbIndexed = new java.util.ArrayList<>();
-    final List<Map<String, Pair<Static, Static>>> bbInOut = new java.util.ArrayList<>();
+    final public List<Map<String, Pair<Static, Static>>> bbInOut = new java.util.ArrayList<>();
     final Map<String, Integer> modBase = new java.util.HashMap<>();
 
     public BodyInfo(final List<IsaPrimitive> body, final MirArchive archive) {
