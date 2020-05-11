@@ -20,6 +20,23 @@ package ru.ispras.microtesk.basis.solver.bitvector;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public final class IntArray {
+
+  public static IntArray empty() {
+    return new IntArray(0);
+  }
+
+  public static IntArray singleton(final int x) {
+    return new IntArray(new int[] { x });
+  }
+
+  public static IntArray doubleton(final int x, final int y) {
+    return new IntArray(new int[] { x, y });
+  }
+
+  public static IntArray tripleton(final int x, final int y, final int z) {
+    return new IntArray(new int[] { x, y, z });
+  }
+
   private static final int DEFAULT_SIZE = 64;
   private static final float GROWTH_FACTOR = 1.25f;
 
