@@ -50,12 +50,12 @@ PE <struct>_constructor() {
 >>
 
 temporary_variables(struct, names, defs) ::= <<
-PE <struct>_constructor() {
-  PE pe__ = {
+TempVars <struct>_constructor() {
+  TempVars vars__ = {
     <set_fields(names, defs)>
   };
 
-  return pe__;
+  return vars__;
 }<\n>
 
 >>
@@ -73,23 +73,32 @@ public static Factory newFactory() {
 >>
 
 set_fields(arg_names, defs) ::= <<
-<arg_names, defs:{n, d| .<n> = <d>;}; separator="\n">
+<arg_names, defs:{n, d| .<n> = <d>,}; separator="\n">
 >>
 
 pe_constructor(file, pack, name, ext, impls, imps, simps, members, instance, names) ::= <<
+#ifndef PE_H_INCLUDED
+#define PE_H_INCLUDED
+
 <header(file)>
 typedef struct PE {
    <names:{n | Memory* <n>;}; separator="\n"><\n>
 } PE;
 <\n>
 <members; separator="\n">
+
+#endif
 >>
 
 temp_constructor(file, pack, name, ext, impls, imps, simps, members, instance, names) ::= <<
+#ifndef TEMPVARS_H_INCLUDED
+#define TEMPVARS_H_INCLUDED
 <header(file)>
-typedef struct TEMP {
+typedef struct TempVars {
    <names:{n | Memory* <n>;}; separator="\n"><\n>
-} TEMP;
+} TempVars;
 <\n>
 <members; separator="\n">
+
+#endif
 >>

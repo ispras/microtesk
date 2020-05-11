@@ -61,7 +61,7 @@ public final class PrinterInstance {
 
           if (Primitive.Kind.IMM == argument.getKind() &&
                   Primitive.Kind.MODE == instanceArgument.getPrimitive().getKind()) {
-            sb.append(String.format("%s(access(%s, pe__, vars__))",
+            sb.append(String.format("%s(ACCESS(%s, pe__, vars__))",
                     Immediate.class.getSimpleName(), instanceArgument.getName()));
           } else {
             sb.append(instanceArgument.getName());

@@ -135,7 +135,7 @@ public final class StbProcessingElement implements StringTemplateBuilder {
         continue;
       }
 
-      st.add("names", memory.getName() + "LOL");
+      st.add("names", memory.getName());
     }
 
     buildHeader(st);

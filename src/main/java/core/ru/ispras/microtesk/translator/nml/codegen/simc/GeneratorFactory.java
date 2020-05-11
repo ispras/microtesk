@@ -114,7 +114,7 @@ final class GeneratorFactory {
 
   public FileGenerator createOperationOr(PrimitiveOr op) {
     final String outputFileName =
-        String.format(PackageInfo.getOpFileFormat(outDir, FILE_EXT), modelName, op.getName());
+        String.format(PackageInfo.getOpFileFormat(outDir, HEADER_EXT), modelName, op.getName());
 
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR + "JavaCommon.stg",
@@ -127,7 +127,7 @@ final class GeneratorFactory {
 
   public FileGenerator createOperation(PrimitiveAnd op) {
     final String outputFileName = String.format(
-        PackageInfo.getOpFileFormat(outDir, FILE_EXT), modelName, op.getName());
+        PackageInfo.getOpFileFormat(outDir, HEADER_EXT), modelName, op.getName());
 
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR_C + "JavaCommonC.stg",

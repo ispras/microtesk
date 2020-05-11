@@ -32,6 +32,7 @@ import ru.ispras.microtesk.translator.antlrex.ReservedKeywords;
 import ru.ispras.microtesk.translator.antlrex.symbols.Symbol;
 import ru.ispras.microtesk.translator.antlrex.symbols.Where;
 import ru.ispras.microtesk.translator.nml.codegen.decoder.DecoderGenerator;
+import ru.ispras.microtesk.translator.nml.codegen.decoderc.DecoderGeneratorC;
 import ru.ispras.microtesk.translator.nml.codegen.metadata.MetaDataGenerator;
 import ru.ispras.microtesk.translator.nml.codegen.sim.Generator;
 import ru.ispras.microtesk.translator.nml.codegen.simc.GeneratorC;
@@ -83,6 +84,10 @@ public final class NmlTranslator extends Translator<Ir> {
     addHandler(new MetaDataGenerator(this));
     addHandler(new DecoderGenerator(this));
     addHandler(new Generator(this));
+
+
+    // Generate C code of the ISA model
+    addHandler(new DecoderGeneratorC(this));
     addHandler(new GeneratorC(this));
 
 

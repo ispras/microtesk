@@ -23,7 +23,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.LocationSourcePrimitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 
 public final class PrinterLocation {
-  private static final String ACCESS_FORMAT = "access(%s%s)";
+  private static final String ACCESS_FORMAT = "ACCESS(%s%s)";
   private static final String BITFIELD_FORMAT = "bitField(%s, %s, %s)";
   private PrinterLocation() {}
 

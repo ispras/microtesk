@@ -556,6 +556,10 @@ char* bit_array_word2str(const void *ptr, size_t num_of_bits, char *str);
 // Same as above but in reverse
 char* bit_array_word2str_rev(const void *ptr, size_t num_of_bits, char *str);
 
+BIT_ARRAY* bit_array_concat(BIT_ARRAY* l, BIT_ARRAY* r);
+
+BIT_ARRAY* bit_array_field(BIT_ARRAY* l, int start, int end);
+
 #ifdef __cplusplus
 }
 #endif

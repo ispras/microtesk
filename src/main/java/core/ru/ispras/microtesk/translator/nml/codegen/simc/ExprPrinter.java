@@ -84,7 +84,7 @@ public final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.GREATER,   "(compare_op(", ", ", ") > 0)");
     addMapping(StandardOperation.GREATEREQ, "(compare_op(", ", ", ") >= 0)");
 
-    addMapping(StandardOperation.MINUS,  "", "", ".negate()");
+    addMapping(StandardOperation.MINUS,  "negate_op(", "", ")");
     addMapping(StandardOperation.PLUS,   "", "", "");
 
     addMapping(StandardOperation.ADD,    "add_op(", ", ", ")");
@@ -97,9 +97,9 @@ public final class ExprPrinter extends MapBasedPrinter {
     addMapping(StandardOperation.BVNOT,  "not_op(", "", ")");
     addMapping(StandardOperation.BVNEG,  "negate_op(", "", ")");
 
-    addMapping(StandardOperation.BVOR,   "or_op(", "", ")");
-    addMapping(StandardOperation.BVXOR,  "xor_op(", "", ")");
-    addMapping(StandardOperation.BVAND,  "and_op(", "", ")");
+    addMapping(StandardOperation.BVOR,   "or_op(", ", ", ")");
+    addMapping(StandardOperation.BVXOR,  "xor_op(", ", ", ")");
+    addMapping(StandardOperation.BVAND,  "and_op(", ", ", ")");
 
     addMapping(StandardOperation.BVADD,  "add_op(", ", ", ")");
     addMapping(StandardOperation.BVSUB,  "subtract_op(", ", ", ")");
@@ -376,8 +376,11 @@ public final class ExprPrinter extends MapBasedPrinter {
           //sb.append(String.format("%s.", PrinterInstance.toString(callInfo.getCalleeInstance())));
         }
 
-        final String attrName = callInfo.getAttributeName();
+        String attrName = callInfo.getAttributeName();
         final boolean isSyntax = Attribute.SYNTAX_NAME.equals(attrName);
+        if (attrName.equals(Attribute.INIT_NAME)) {
+          attrName = "INIT";
+        }
 
         sb.append(String.format("%s(%s, vars__)", isSyntax ? "text" : attrName, text));
         appendText(sb.toString());

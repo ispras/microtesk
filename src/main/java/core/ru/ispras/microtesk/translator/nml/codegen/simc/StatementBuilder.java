@@ -155,14 +155,16 @@ public final class StatementBuilder {
   }
 
   private void addStatement(final StatementAttributeCall stmt) {
-    final String attrName = stmt.getAttributeName();
+    String attrName = stmt.getAttributeName();
     final boolean usePE = !attrName.equals(Attribute.INIT_NAME)
             && !attrName.equals(Attribute.IMAGE_NAME)
             && !attrName.equals(Attribute.SYNTAX_NAME);
 
     final boolean isAction = attrName.equals(Attribute.ACTION_NAME);
     final boolean isSyntax = attrName.equals(Attribute.SYNTAX_NAME);
-
+    if (attrName.equals(Attribute.INIT_NAME)) {
+      attrName = "INIT";
+    }
     final String methodName;
     if (null != stmt.getCalleeName()) {
       methodName = String.format("%s(%s",

@@ -16,9 +16,9 @@ group Operation;
 
 
 op_attribute(primitive_name, name, rettype, stmts, override, usePE, arg_names, arg_types) ::= <<
-<rettype> <primitive_name>_<name>(IsaPrimitive* isa, <if(usePE)>PE* procElem, <endif>TempVars* tempVars) {
-  PE* pe__ = <if(usePE)> procElem<else>NULL<endif>;
-  TempVars* vars__ = tempVars;
+<rettype> <primitive_name>_<name>(IsaPrimitive* isa, <if(usePE)>void* procElem, <endif>void* tempVars) {
+  PE* pe__ = <if(usePE)> (PE*) procElem<else>NULL<endif>;
+  TempVars* vars__ = (TempVars*) tempVars;
   <init_args(arg_names)>
 
   <stmts; separator="\n">
@@ -29,11 +29,20 @@ op(
   name, file, imps,
   arg_names, arg_types, arg_checks, arg_tnames, isa_type, arg_count, attrs, modifier, shortcuts, pack, simps, base
 ) ::= <<
+#ifndef <name>_H_INCLUDED
+#define <name>_H_INCLUDED
+
+#include "../PE.h"
+#include "../TempVars.h"
+#include "../../Location.h"
+#include "../../operations_int.h"
+
 <header(file)>
 
 <attrs; separator="\n\n">
 <constructor_build(name, arg_names, arg_types, isa_type, arg_count)>
 
+#endif
 >>
 
 constructor_build(name, arg_names, arg_types, isa_type, arg_count) ::= <<

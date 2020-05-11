@@ -16,9 +16,9 @@ group AddressingMode;
 
 
 mode_attribute(primitive_name, name, rettype, stmts, override, usePE, arg_names, arg_types) ::= <<
-<rettype> <primitive_name>_<name>(IsaPrimitive* isa, <if(usePE)>PE* procElem, <endif>TempVars* tempVars) {
-  PE* pe__ = <if(usePE)> procElem<else>NULL<endif>;
-  TempVars* vars__ = tempVars;
+<rettype> <primitive_name>_<name>(IsaPrimitive* isa, <if(usePE)>void* procElem, <endif>void* tempVars) {
+  PE* pe__ = <if(usePE)> (PE*) procElem<else>NULL<endif>;
+  TempVars* vars__ = (TempVars*) tempVars;
   <init_args(arg_names)>
 
   <stmts; separator="\n">
@@ -29,12 +29,20 @@ mode(
   name, file, imps,
   arg_names, arg_types, arg_checks, arg_tnames, isa_type, arg_count, attrs, pack, simps, base, ret
 ) ::= <<
+#ifndef <name>_H_INCLUDED
+#define <name>_H_INCLUDED
+
+#include "../PE.h"
+#include "../TempVars.h"
+#include "../../Location.h"
+#include "../../operations_int.h"
+
 <header(file)>
 
 <attrs; separator="\n\n">
+<if(ret)><\n><mode_attribute(name, "access", "Location*", ret:{e|return <e>;}, true, true, arg_names, arg_types)><endif>
 <constructor_build(name, arg_names, arg_types, isa_type, arg_count, ret)>
-
-<if(ret)><\n><mode_attribute(name, "access", "Location", ret:{e|return <e>;}, true, true, arg_names, arg_types)><endif>
+#endif
 >>
 
 constructor_build(name, arg_names, arg_types, isa_type, arg_count, ret) ::= <<
@@ -50,7 +58,7 @@ IsaPrimitive <name>(<get_func_param(arg_names, arg_types)>) {
     .syntax = <name>_syntax,
     .args = &<name>_args,
     .argc = <arg_count>,
-    <if(ret)>.action = <name>_action,<endif>
+    <if(ret)>.access = <name>_access,<endif>
   };
 
   <get_args(arg_names)>

@@ -3195,7 +3195,35 @@ BIT_ARRAY* bit_array_concat(BIT_ARRAY* l, BIT_ARRAY* r)
   int32_t size_r = r->num_of_bits;
   res = bit_array_create(size_l + size_r);
   memcpy(res->words, l->words, l->num_of_words);
-  memcpy(res->words + (word_t) l->num_of_words, r->words, r->num_of_words);
+  
+  for (bit_index_t i = 0; i < size_r; i++) {
+    res->words[(i + size_l) / 64] = res->words[(i + size_l) / 64] | ((((r->words[i / 64]) >> (63 - i % 64)) & 1) << (63 - (i + size_l) % 64));
+  }
+
+  return res;
+}
+
+BIT_ARRAY* bit_array_field(BIT_ARRAY* l, int start, int end)
+{
+  if (l == NULL) {
+    return NULL;
+  }
+
+  bit_index_t size = l->num_of_bits;
+  if (start < 0) {
+    start = 0;
+  }
+
+  if (end >= size) {
+    end = size - 1;
+  }
+
+  bit_index_t new_size = end - start + 1;
+  BIT_ARRAY* res = bit_array_create(new_size);
+
+  for (bit_index_t i = start; i <= end; i++) {
+    res->words[(i - start) / 64] = res->words[(i - start) / 64] | ((((l->words[i / 64]) >> (63 - i % 64)) & 1) << (63 - (i - start) % 64));
+  }
 
   return res;
 }
