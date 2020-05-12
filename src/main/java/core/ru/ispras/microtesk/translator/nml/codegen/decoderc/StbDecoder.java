@@ -47,6 +47,8 @@ final class StbDecoder implements StringTemplateBuilder {
   private final PrimitiveAnd item;
   private final Set<String> imported;
   private final Set<String> undecoded;
+  private final String tempStrName;
+  private int tempVectorCount;
 
   public StbDecoder(final String modelName, final PrimitiveAnd item) {
     InvariantChecks.checkNotNull(modelName);
@@ -59,13 +61,15 @@ final class StbDecoder implements StringTemplateBuilder {
     this.item = item;
     this.imported = new HashSet<>();
     this.undecoded = new LinkedHashSet<>();
+    this.tempStrName = "temp_str";
+    this.tempVectorCount = 0;
   }
 
   @Override
   public ST build(final STGroup group) {
-    final ST st = group.getInstanceOf("source_file");
+    final ST st = group.getInstanceOf("decoder_build");
 
-    buildHeader(st);
+    //buildHeader(st);
     buildBody(st, group);
 
     return st;
@@ -128,26 +132,26 @@ final class StbDecoder implements StringTemplateBuilder {
   }
 
   private void buildBody(final ST st, final STGroup group) {
-    final ST stConstructor = group.getInstanceOf("decoder_constructor");
+    //final ST stConstructor = group.getInstanceOf("decoder_constructor");
 
-    stConstructor.add("name", name);
-    stConstructor.add("size", imageInfo.getMaxImageSize());
-    stConstructor.add("is_fixed", Boolean.toString(imageInfo.isImageSizeFixed()));
+    st.add("name", name);
+    st.add("size", imageInfo.getMaxImageSize());
+    st.add("is_fixed", Boolean.toString(imageInfo.isImageSizeFixed()));
 
     final BitVector opc = imageInfo.getOpc();
     final BitVector opcMask = imageInfo.getOpcMask();
 
-    stConstructor.add("opc", null != opc ? "\"" + opc.toBinString() + "\"" : "null");
-    stConstructor.add("opc_mask", null != opcMask ? "\"" + opcMask.toBinString() + "\"" : "null");
+    st.add("opc", null != opc ? "\"" + opc.toBinString() + "\"" : "NULL");
+    st.add("opc_mask", null != opcMask ? "\"" + opcMask.toBinString() + "\"" : "NULL");
 
     final List<String> argumentNames = new ArrayList<>();
     final Set<String> variableNames = new LinkedHashSet<>();
 
     // Temporal variables used in the image.
     final String tempVars = StbTemporaryVariables.CLASS_NAME;
-    stConstructor.add("stmts", String.format("final %s vars__ = (%s) %s.newFactory().create();",
+    st.add("stmts", String.format("%s* vars__ = (%s*) %s_constructor();",
         tempVars, tempVars, tempVars));
-    stConstructor.add("stmts", "");
+    st.add("stmts", "");
 
     // Primitive's arguments.
     for (final Map.Entry<String, Primitive> entry : item.getArguments().entrySet()) {
@@ -158,11 +162,12 @@ final class StbDecoder implements StringTemplateBuilder {
       variableNames.add(name);
 
       importPrimitive(st, getPrimitiveClassName(primitive));
-      stConstructor.add("stmts", String.format("%s %s = null;", getPrimitiveName(primitive), name));
+      //st.add("stmts", String.format("%s %s = null;", getPrimitiveName(primitive), name));
+      st.add("stmts", String.format("IsaPrimitive* %s = NULL;", name));
     }
 
     if (!item.getArguments().isEmpty()) {
-      stConstructor.add("stmts", "");
+      st.add("stmts", "");
     }
 
     undecoded.addAll(variableNames);
@@ -177,25 +182,25 @@ final class StbDecoder implements StringTemplateBuilder {
 
       if (ExprUtils.isValue(field)) {
         // Constant (treated as an OPC).
-        buildOpcCheck(stConstructor, group, field);
+        buildOpcCheck(st, group, field);
       } else if (isVariable(field) && !isExtract(field) && isArgument(field)) {
         // Argument.
-        buildArgument(stConstructor, group, field);
+        buildArgument(st, group, field);
       } else if (isVariable(field) && isExtract(field) && isArgument(field)) {
         // Argument's bits extraction.
-        buildArgumentExtract(stConstructor, group, field);
+        buildArgumentExtract(st, group, field);
       } else if (isArgumentImage(field)) {
         // Image of an argument.
-        buildArgumentImage(stConstructor, group, field);
+        buildArgumentImage(st, group, field);
       } else if (isInstanceImage(field)) {
         // Image of an instance.
-        buildInstanceImage(st, stConstructor, group, field);
+        buildInstanceImage(st, st, group, field);
       } else if (isVariable(field) && !isExtract(field) && !isArgument(field)) {
         // Temporal variable.
-        buildTemporalVariable(stConstructor, group, field);
+        buildTemporalVariable(st, group, field);
       } else if (isVariable(field) && isExtract(field) && !isArgument(field)) {
         // Temporal variable's field.
-        buildTemporalVariableExtract(stConstructor, group, field);
+        buildTemporalVariableExtract(st, group, field);
       } else {
         // Unknown.
         reportError("Unrecognized field: %s", field);
@@ -213,7 +218,7 @@ final class StbDecoder implements StringTemplateBuilder {
         final String name = location.getName();
 
         if (!nonImmediateArguments.contains(name)) {
-          buildArgumentFromImmediate(stConstructor, group, field);
+          buildArgumentFromImmediate(st, group, field);
           nonImmediateArguments.add(name);
         }
       }
@@ -235,7 +240,7 @@ final class StbDecoder implements StringTemplateBuilder {
       final Type returnType = primitive.getReturnType();
 
       if (returnType != null) {
-        stConstructor.add("stmts",
+        st.add("stmts",
             String.format("%s = new %s(%s);",
                 name,
                 Immediate.class.getSimpleName(),
@@ -248,7 +253,7 @@ final class StbDecoder implements StringTemplateBuilder {
     }
 
     // Insert the decode logic.
-    final StatementBuilder statementBuilder = new StatementBuilder(stConstructor, false);
+    final StatementBuilder statementBuilder = new StatementBuilder(st, false);
 
     for (final Statement statement : decode.getStatements()) {
       statementBuilder.build(statement);
@@ -261,9 +266,9 @@ final class StbDecoder implements StringTemplateBuilder {
     final ST stResult = group.getInstanceOf("decoder_result");
     stResult.add("name", item.getName());
     stResult.add("args", argumentNames);
-    stConstructor.add("stmts", stResult);
+    st.add("stmts", stResult);
 
-    st.add("members", stConstructor);
+    //st.add("members", stConstructor);
   }
 
   private void buildOpcCheck(final ST st, final STGroup group, final Node field) {
@@ -277,6 +282,9 @@ final class StbDecoder implements StringTemplateBuilder {
 
     stOpcCheck.add("value", field.toString());
     stOpcCheck.add("size", size);
+    stOpcCheck.add("name", tempStrName);
+    stOpcCheck.add("count", tempVectorCount);
+    tempVectorCount++;
 
     st.add("stmts", stOpcCheck);
   }
@@ -352,7 +360,8 @@ final class StbDecoder implements StringTemplateBuilder {
     final Primitive primitive = item.getArguments().get(name);
 
     stPrimitive.add("name", name);
-    stPrimitive.add("type", getPrimitiveName(primitive));
+    //stPrimitive.add("type", getPrimitiveName(primitive));
+    stPrimitive.add("type", "IsaPrimitive*");
     stPrimitive.add("decoder", DecoderGeneratorC.getDecoderName(primitive.getName()));
 
     st.add("stmts", stPrimitive);

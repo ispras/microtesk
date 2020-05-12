@@ -180,7 +180,7 @@ public final class StatementBuilder {
     }
 
     final String arguments = usePE ? "pe__, vars__" : "vars__";
-    addStatement(String.format(methodName + (methodName.indexOf("(") == -1 ? "(%s);" : ", %s);"), arguments));
+    addStatement(String.format(methodName + (methodName.indexOf("(") == -1 ? "(isa, %s);" : ", %s);"), arguments));
   }
 
   private void addStatement(final StatementFormat stmt) {

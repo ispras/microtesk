@@ -5,9 +5,10 @@ typedef struct Decoder Decoder;
 struct Decoder {
   int maxImageSize;
   int imageSizeFixed;
-  BIT_ARRAY* opc;
-  BIT_ARRAY* opcMask;
+  char* opcMask;
+  char* opc;
 };
+
 
 Decoder Decoder_constructor(int maxImageSize,
                             int imageSizeFixed,
@@ -58,4 +59,8 @@ BIT_ARRAY* applyOrcMask(Decoder* dec, BIT_ARRAY* image) {
   BIT_ARRAY* andResult = bit_array_create(dec->opcMask->num_of_bits);
   bit_array_and(andResult, croppedImage, dec->opcMask);
   return andResult;
+}
+
+Decoder DecoderItem() {
+
 }

@@ -81,10 +81,14 @@ public final class StbAddressingMode extends StbPrimitiveBase {
 
   private void buildAttributes(final STGroup group, final ST t) {
     for (final Attribute attr : mode.getAttributes().values()) {
+      boolean has_init = false;
       final ST attrST = group.getInstanceOf("mode_attribute");
 
       attrST.add("primitive_name", mode.getName());
       attrST.add("name", attr.getName());
+      if (attr.getName().equals("init")) {
+       has_init = true;
+      }
       attrST.add("rettype", getRetTypeName(attr.getKind()));
       attrST.add("usePE",
           Attribute.Kind.ACTION == attr.getKind()
@@ -116,6 +120,9 @@ public final class StbAddressingMode extends StbPrimitiveBase {
 
       attrST.add("override", attr.isStandard());
       t.add("attrs", attrST);
+      if (has_init) {
+        t.add("has_init", true);
+      }
     }
   }
 

@@ -27,7 +27,7 @@ mode_attribute(primitive_name, name, rettype, stmts, override, usePE, arg_names,
 
 mode(
   name, file, imps,
-  arg_names, arg_types, arg_checks, arg_tnames, isa_type, arg_count, attrs, pack, simps, base, ret
+  arg_names, arg_types, arg_checks, arg_tnames, isa_type, arg_count, attrs, pack, simps, base, ret, has_init
 ) ::= <<
 #ifndef <name>_H_INCLUDED
 #define <name>_H_INCLUDED
@@ -41,30 +41,30 @@ mode(
 
 <attrs; separator="\n\n">
 <if(ret)><\n><mode_attribute(name, "access", "Location*", ret:{e|return <e>;}, true, true, arg_names, arg_types)><endif>
-<constructor_build(name, arg_names, arg_types, isa_type, arg_count, ret)>
+<constructor_build(name, arg_names, arg_types, isa_type, arg_count, ret, has_init)>
 #endif
 >>
 
-constructor_build(name, arg_names, arg_types, isa_type, arg_count, ret) ::= <<
+constructor_build(name, arg_names, arg_types, isa_type, arg_count, ret, has_init) ::= <<
 
+IsaPrimitive* <name>(<get_func_param(arg_names, arg_types)>) {
+  IsaPrimitive** <name>_args = (IsaPrimitive**) malloc(sizeof(IsaPrimitive*) * <arg_count>);
+  IsaPrimitive* obj = (IsaPrimitive*) malloc(sizeof(IsaPrimitive));
 
-IsaPrimitive* <name>_args[<arg_count>];
-
-IsaPrimitive <name>(<get_func_param(arg_names, arg_types)>) {
-  IsaPrimitive obj = {
-    //.type = <isa_type>_<name>,
-    .action = <name>_action,
-    .image = <name>_image,
-    .syntax = <name>_syntax,
-    .args = &<name>_args,
-    .argc = <arg_count>,
-    <if(ret)>.access = <name>_access,<endif>
-  };
+  //obj->type = <isa_type>_<name>;
+  obj->action = <name>_action;
+  obj->image = <name>_image;
+  obj->syntax = <name>_syntax;
+  obj->args = <name>_args;
+  obj->argc = <arg_count>;
+  obj->decode = <name>_decode;
+  <if(ret)>obj->access = <name>_access;<endif>
+  <if(has_init)>obj->init = <name>_init;<endif>
 
   <get_args(arg_names)>
 
   return obj;
-}
+};
 >>
 
 get_func_param(arg_names, arg_types) ::= <<
@@ -72,7 +72,7 @@ get_func_param(arg_names, arg_types) ::= <<
 >>
 
 get_args(arg_names) ::= <<
-<arg_names:{n | obj.args[<i0>] = <n>;}; separator="\n">
+<arg_names:{n | obj->args[<i0>] = <n>;}; separator="\n">
 >>
 
 init_args(arg_names) ::= <<

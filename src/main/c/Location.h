@@ -93,6 +93,7 @@ struct IsaPrimitive {
     char* (*syntax)(IsaPrimitive*, void*);
     char* (*image)(IsaPrimitive*, void*);
     Location* (*access)(IsaPrimitive*, void*, void*);
+    void* (*decode)(IsaPrimitive*, void*);
     IsaPrimitive **args; //REG
     int argc;
     int size;

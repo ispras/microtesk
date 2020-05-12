@@ -75,9 +75,9 @@ final class StbDecoderGroup implements StringTemplateBuilder {
 
   @Override
   public ST build(final STGroup group) {
-    final ST st = group.getInstanceOf("source_file");
+    final ST st = group.getInstanceOf("group_build");
 
-    buildHeader(st);
+    //buildHeader(st);
     buildBody(st, group);
 
     return st;
@@ -85,22 +85,22 @@ final class StbDecoderGroup implements StringTemplateBuilder {
 
   private void buildHeader(final ST st) {
     st.add("name", name);
-    st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".decoder", modelName));
-    st.add("ext", DecoderGroup.class.getSimpleName());
-    st.add("imps", DecoderGroup.class.getName());
-    st.add("instance", "instance");
+    //st.add("pack", String.format(PackageInfo.MODEL_PACKAGE_FORMAT + ".decoder", modelName));
+    //st.add("ext", DecoderGroup.class.getSimpleName());
+    //st.add("imps", DecoderGroup.class.getName());
+    //st.add("instance", "instance");
   }
 
   private void buildBody(final ST st, final STGroup group) {
-    final ST stConstructor = group.getInstanceOf("group_constructor");
+    //final ST stConstructor = group.getInstanceOf("group_constructor");
     final BitVector opcMask = imageInfo.getOpcMask();
 
-    stConstructor.add("name", name);
-    stConstructor.add("size", imageInfo.getMaxImageSize());
-    stConstructor.add("is_fixed", Boolean.toString(imageInfo.isImageSizeFixed()));
-    stConstructor.add("opc_mask", opcMask != null ? "\"" + opcMask.toBinString() + "\"" : "null");
-    stConstructor.add("items", items);
+    st.add("name", name);
+    st.add("size", imageInfo.getMaxImageSize());
+    st.add("is_fixed", Boolean.toString(imageInfo.isImageSizeFixed()));
+    st.add("opc_mask", opcMask != null ? "\"" + opcMask.toBinString() + "\"" : "NULL");
+    st.add("items", items);
 
-    st.add("members", stConstructor);
+    //st.add("members", stConstructor);
   }
 }

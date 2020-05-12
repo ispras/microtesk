@@ -98,7 +98,7 @@ public final class DecoderGeneratorC implements TranslatorHandler<Ir> {
       final StringTemplateBuilder templateBuilder) {
     final String[] templateGroups = new String[] {
         PackageInfo.COMMON_TEMPLATE_DIR_C + "JavaCommonC.stg",
-        PackageInfo.NML_TEMPLATE_DIR_C + "Decoder.stg"
+        PackageInfo.NML_TEMPLATE_DIR_C + "DecoderC.stg"
         };
 
     final FileGenerator generator = new FileGeneratorStringTemplate(
