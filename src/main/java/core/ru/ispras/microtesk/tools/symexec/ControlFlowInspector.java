@@ -1,16 +1,15 @@
 package ru.ispras.microtesk.tools.symexec;
 
+import ru.ispras.microtesk.model.IsaPrimitive;
+import ru.ispras.microtesk.model.Model;
+import ru.ispras.microtesk.translator.mir.Constant;
+import ru.ispras.microtesk.translator.mir.Operand;
+
 import java.math.BigInteger;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-
-import ru.ispras.castle.util.Logger;
-import ru.ispras.microtesk.model.IsaPrimitive;
-import ru.ispras.microtesk.model.Model;
-import ru.ispras.microtesk.translator.mir.Constant;
-import ru.ispras.microtesk.translator.mir.Operand;
 
 import static ru.ispras.microtesk.tools.symexec.SymbolicExecutor.BodyInfo;
 
@@ -133,7 +132,9 @@ public class ControlFlowInspector {
     public int start;
     public int end;
     public int nextTaken;
+    public int secondaryTaken;
     public int nextOther;
+    public int secondaryOther;
 
     public BigInteger addrTaken;
 
@@ -142,6 +143,8 @@ public class ControlFlowInspector {
       this.end = end;
       this.nextTaken = end;
       this.nextOther = end;
+      this.secondaryOther = -1;
+      this.secondaryTaken = -1;
     }
 
     public int compareTo(final Range that) {
@@ -167,5 +170,14 @@ public class ControlFlowInspector {
 
       return tail;
     }
+
+    public Range copy() {
+      var r = new Range(this.start, this.end);
+      r.nextOther = this.nextOther;
+      r.nextTaken = this.nextTaken;
+      return r;
+    }
   }
+
+
 }
