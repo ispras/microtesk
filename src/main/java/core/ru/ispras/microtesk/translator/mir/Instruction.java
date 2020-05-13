@@ -165,7 +165,7 @@ static final class Branch extends Terminator {
 
   public Branch(final BasicBlock next) {
     super(Collections.singletonList(next));
-    this.guard = new Constant(1, BigInteger.ONE);
+    this.guard = Constant.bitOf(1);
     this.target = Collections.emptyMap();
     this.other = next;
   }
@@ -534,18 +534,18 @@ enum BvOpcode implements BinOpcode, ConstEvaluated {
 
   @Override
   public Constant evalConst(final Constant lhs, final Constant rhs) {
-    return toConstant(evalBitVector(toBitVector(lhs), toBitVector(rhs)));
+    return constantOf(evalBitVector(bitVectorOf(lhs), bitVectorOf(rhs)));
   }
 
-  abstract BitVector evalBitVector(BitVector lhs, BitVector rhs);
+  public static Constant constantOf(BitVector value) {
+    return Constant.valueOf(value.getBitSize(), value.bigIntegerValue());
+  }
 
-  public static BitVector toBitVector(final Constant value) {
+  public static BitVector bitVectorOf(Constant value) {
     return BitVector.valueOf(value.getValue(), value.getType().getSize());
   }
 
-  public static Constant toConstant(final BitVector value) {
-    return new Constant(value.getBitSize(), value.bigIntegerValue());
-  }
+  abstract BitVector evalBitVector(BitVector lhs, BitVector rhs);
 }
 
 enum CmpOpcode implements BinOpcode, ConstEvaluated {
@@ -628,16 +628,16 @@ enum CmpOpcode implements BinOpcode, ConstEvaluated {
 
   @Override
   public Constant evalConst(final Constant lhs, final Constant rhs) {
-    return toConstant(BitVector.valueOf(compare(toBitVector(lhs), toBitVector(rhs))));
+    return constantOf(BitVector.valueOf(compare(bitVectorOf(lhs), bitVectorOf(rhs))));
   }
 
-  abstract boolean compare(BitVector lhs, BitVector rhs);
+  public static Constant constantOf(BitVector value) {
+    return Constant.valueOf(value.getBitSize(), value.bigIntegerValue());
+  }
 
-  public static BitVector toBitVector(final Constant value) {
+  public static BitVector bitVectorOf(Constant value) {
     return BitVector.valueOf(value.getValue(), value.getType().getSize());
   }
 
-  public static Constant toConstant(final BitVector value) {
-    return new Constant(value.getBitSize(), value.bigIntegerValue());
-  }
+  abstract boolean compare(BitVector lhs, BitVector rhs);
 }

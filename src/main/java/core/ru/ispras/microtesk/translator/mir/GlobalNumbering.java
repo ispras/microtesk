@@ -27,7 +27,7 @@ public class GlobalNumbering extends Pass {
         if (value instanceof Ite) {
           phi.value = (Ite) value;
         } else {
-          phi.value = new Ite(new Constant(1, 1), value, value);
+          phi.value = new Ite(Constant.bitOf(1), value, value);
         }
       }
     }

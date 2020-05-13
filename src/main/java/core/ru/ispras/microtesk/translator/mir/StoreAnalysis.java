@@ -58,7 +58,7 @@ public class StoreAnalysis extends Pass {
     if (value instanceof Ite) {
       return ((Ite) value).guard;
     }
-    return new Constant(1, 1);
+    return Constant.bitOf(1);
   }
 
   private static final class VersionVisitor extends OperandVisitor<Void> {

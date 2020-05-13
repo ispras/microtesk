@@ -87,7 +87,7 @@ public final class MirBlock {
   }
 
   public Disclose disclose(final Local lhs, final Operand src, int index) {
-    return append(new Disclose(lhs, src, Collections.singletonList(new Constant(32, index))));
+    return append(new Disclose(lhs, src, Collections.singletonList(Constant.valueOf(32, index))));
   }
 
   public Call thiscall(final String method, final List<Operand> args, final Local ret) {

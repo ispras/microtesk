@@ -77,7 +77,7 @@ public class MirBuilder {
   }
 
   public void addValue(final int size, final BigInteger value) {
-    operands.add(new Constant(size, value));
+    operands.add(Constant.valueOf(size, value));
   }
 
   public void makeClosure(final String name, final int nargs) {

@@ -262,13 +262,14 @@ public class MirParser {
       }
       try {
         return nextConst(type, s);
-      } catch (final java.util.InputMismatchException e) { // FIXME
-        return new Constant(type.getSize(), 0);
+      } catch (final java.util.InputMismatchException e) {
+        // FIXME report at least
+        return Constant.zero(type.getSize());
       }
     }
 
     public static Constant nextConst(final MirTy type, final Scanner s) {
-      return new Constant(type.getSize(), s.nextBigInteger());
+      return Constant.valueOf(type.getSize(), s.nextBigInteger());
     }
 
     public Closure nextClosure(final Scanner s) {

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static ru.ispras.microtesk.translator.mir.BvOpcode.bitVectorOf;
+import static ru.ispras.microtesk.translator.mir.BvOpcode.constantOf;
 import static ru.ispras.microtesk.translator.mir.Instruction.*;
 
 public final class EvalContext extends InsnVisitor {
@@ -24,8 +26,9 @@ public final class EvalContext extends InsnVisitor {
   public static EvalContext eval(final MirContext mir, final Map<String, BigInteger> presets) {
     final Map<String, List<Operand>> globals = new java.util.HashMap<>();
     final EvalContext ctx = new EvalContext(globals);
-    for (final Map.Entry<String, BigInteger> entry : presets.entrySet()) {
-      ctx.frame.set(entry.getKey(), 1, new Constant(128, entry.getValue())); // FIXME
+    for (final var entry : presets.entrySet()) {
+      // FIXME 128-bit default value may break
+      ctx.frame.set(entry.getKey(), 1, Constant.valueOf(128, entry.getValue()));
     }
 
     return ctx.evalInternal(mir);
@@ -130,7 +133,7 @@ public final class EvalContext extends InsnVisitor {
   }
 
   private static Constant newBoolean(final boolean value) {
-    return new Constant(1, value ? 1 : 0);
+    return Constant.bitOf(value ? 1 : 0);
   }
 
   @Override
@@ -154,7 +157,7 @@ public final class EvalContext extends InsnVisitor {
       final Operand stored = frame.get(mem.name, mem.version);
       if (stored instanceof Constant) {
         final int size = insn.target.getType().getSize();
-        value = BvOpcode.toConstant(BvOpcode.toBitVector((Constant) stored).resize(size, false));
+        value = constantOf(bitVectorOf((Constant) stored).resize(size, false));
       } else if (!stored.equals(VoidTy.VALUE)) {
         value = stored;
       } else {
@@ -194,7 +197,7 @@ public final class EvalContext extends InsnVisitor {
     if (insn.rhs instanceof Constant) {
       final int size = insn.lhs.getType().getSize();
       final Constant value =
-        BvOpcode.toConstant(BvOpcode.toBitVector((Constant) insn.rhs).resize(size, true));
+        constantOf(bitVectorOf((Constant) insn.rhs).resize(size, true));
       setLocal(indexOf(insn.lhs), value);
     }
   }
@@ -204,7 +207,7 @@ public final class EvalContext extends InsnVisitor {
     if (insn.rhs instanceof Constant) {
       final int size = insn.lhs.getType().getSize();
       final Constant value =
-        BvOpcode.toConstant(BvOpcode.toBitVector((Constant) insn.rhs).resize(size, false));
+        constantOf(bitVectorOf((Constant) insn.rhs).resize(size, false));
       setLocal(indexOf(insn.lhs), value);
     }
   }

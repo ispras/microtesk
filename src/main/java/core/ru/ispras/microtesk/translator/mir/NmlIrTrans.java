@@ -315,8 +315,8 @@ public final class NmlIrTrans {
         final Local field = ctx.extract(
             ctx.assignLocal(shr),
             fieldSize,
-            new Constant(size, 0),
-            new Constant(size, fieldSize - 1));
+            Constant.zero(size),
+            Constant.valueOf(size, fieldSize - 1));
         translateWrite(ctx, locationOf(lhs), rvalueOf(field));
       }
     }
@@ -347,13 +347,13 @@ public final class NmlIrTrans {
     final NodeValue value = (NodeValue) node;
     if (node.isType(DataType.INTEGER)) {
       // FIXME unsound int -> bv64 conversion
-      return new Constant(64, value.getInteger());
+      return Constant.valueOf(64, value.getInteger());
     } else if (node.isType(DataType.BOOLEAN)) {
       // FIXME should be fixed on higher level
-      return new Constant(1, Boolean.compare(value.getBoolean(), false));
+      return Constant.bitOf(value.getBoolean() ? 1 : 0);
     }
     final BitVector bv = value.getBitVector();
-    return new Constant(bv.getBitSize(), bv.bigIntegerValue());
+    return Constant.valueOf(bv.getBitSize(), bv.bigIntegerValue());
   }
 
   static BinOpcode mapOpcode(final NodeOperation node) {
@@ -624,7 +624,7 @@ public final class NmlIrTrans {
   }
 
   private static Constant valueOf(final long value, final int size) {
-    return new Constant(size, BigInteger.valueOf(value));
+    return Constant.valueOf(size, BigInteger.valueOf(value));
   }
 
   private static int sizeOf(final Node node) {
@@ -689,7 +689,8 @@ public final class NmlIrTrans {
     while (it.hasNext()) {
       final String s = it.next();
       final PrimitiveAnd parent = (PrimitiveAnd) p;
-      indices.add(new Constant(32, argumentIndex(s, parent)));
+      // FIXME why 32 bits?
+      indices.add(Constant.valueOf(32, argumentIndex(s, parent)));
 
       p = parent.getArguments().get(s);
     }
@@ -891,12 +892,10 @@ public final class NmlIrTrans {
 
     private Operand createMask(final Local source, final Access access) {
       final int nbits = source.getType().getSize();
-      final Constant ones = new Constant(nbits, -1);
-      final BigInteger maskBase =
-        BigInteger.valueOf(2).pow(access.size).subtract(BigInteger.ONE);
-      final Rvalue nmask =
-        shiftLeft(new Constant(nbits, maskBase), access.lo);
-      final Rvalue mask = BvOpcode.Xor.make(ctx.assignLocal(nmask), ones);
+      final Constant background = Constant.ones(nbits);
+      final Constant region = Constant.ones(nbits, access.size);
+      final Rvalue nmask = shiftLeft(region, access.lo);
+      final Rvalue mask = BvOpcode.Xor.make(ctx.assignLocal(nmask), background);
 
       return ctx.assignLocal(mask);
     }
@@ -958,7 +957,7 @@ public final class NmlIrTrans {
     OPCODE_MAPPING.put(StandardOperation.NOT, new BinOpcode() {
       @Override
       public Rvalue make(final Operand lhs, final Operand rhs) {
-        return BvOpcode.Xor.make(lhs, new Constant(1, 1));
+        return BvOpcode.Xor.make(lhs, Constant.bitOf(1));
       }
 
       @Override

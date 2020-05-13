@@ -123,7 +123,7 @@ public class ControlFlowInspector {
   }
 
   public boolean isConditional(final IsaPrimitive insn) {
-    final Constant bitOne = new Constant(1, 1);
+    final Constant bitOne = Constant.bitOf(1);
     final int index = body.indexOf(insn);
 
     return !info.branchCond.get(index).equals(bitOne);
