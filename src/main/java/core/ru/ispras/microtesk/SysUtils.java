@@ -14,12 +14,13 @@
 
 package ru.ispras.microtesk;
 
+import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.ModelBuilder;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 
-import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -116,18 +117,20 @@ public final class SysUtils {
    */
   public static Object loadFromModel(final String className) {
     InvariantChecks.checkNotNull(className);
-    try {
-      final URL url = getModelsJarPath().toUri().toURL();
-      final ClassLoader cl = new URLClassLoader(new URL[] { url });
-      return cl.loadClass(className).newInstance();
-    } catch (final MalformedURLException
-        | ClassNotFoundException
-        | InstantiationException
-        | IllegalAccessException e) {
-      throw new IllegalArgumentException(
-          String.format("Invalid class name '%s': %s", className, e.getMessage()),
-          e);
+
+    Object payload = null;
+    try (var cl = new URLClassLoader(new URL[] { getModelsJarPath().toUri().toURL() })) {
+      payload = cl.loadClass(className).getDeclaredConstructor().newInstance();
+    } catch (MalformedURLException | ReflectiveOperationException e) {
+      throw new TypeNotPresentException(className, e);
+    } catch (IOException e) { // from cl.close()
+      Logger.warning("SysUtils.loadFromModel: " + e.toString());
+      if (payload == null) { // Literally impossible?
+        throw new IllegalStateException(
+            "Lost reference to loaded class " + className, e);
+      }
     }
+    return payload;
   }
 
   /**
@@ -145,10 +148,9 @@ public final class SysUtils {
     final ClassLoader loader = Plugin.class.getClassLoader();
     try {
       final Class<?> pluginClass = loader.loadClass(className);
-      return (Plugin) pluginClass.newInstance();
-    } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-      throw new IllegalArgumentException(
-          String.format("Failed to load %s. Reason: %s", className, e.getMessage()));
+      return (Plugin) pluginClass.getDeclaredConstructor().newInstance();
+    } catch (ReflectiveOperationException e) {
+      throw new TypeNotPresentException(className, e);
     }
   }
 

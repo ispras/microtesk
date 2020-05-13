@@ -176,9 +176,9 @@ public final class GeneratorConfig<T> {
    */
   private static <I> I createInstance(final Class<I> type) {
     try {
-      return type.newInstance();
-    } catch (final Exception e) {
-      throw new IllegalArgumentException("Cannot instantiate " + type.getName());
+      return type.getDeclaredConstructor().newInstance();
+    } catch (final ReflectiveOperationException e) {
+      throw new IllegalArgumentException("Cannot instantiate " + type.getName(), e);
     }
   }
 }
