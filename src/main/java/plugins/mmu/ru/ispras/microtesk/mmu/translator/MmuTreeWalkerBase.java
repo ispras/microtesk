@@ -671,9 +671,6 @@ public abstract class MmuTreeWalkerBase extends TreeParserBase {
     }
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  // TODO: Review + comments are needed
-
   /**
    * Builder for {@link Buffer} objects. Helps create a Buffer from attributes.
    */

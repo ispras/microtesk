@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -105,11 +105,8 @@ public final class StbOperation implements StringTemplateBuilder {
     final Atom lhs = AtomExtractor.extract(assignment.getLeft());
     final Atom rhs = AtomExtractor.extract(assignment.getRight());
 
-    if (Atom.Kind.VARIABLE != lhs.getKind()
-        && Atom.Kind.FIELD != lhs.getKind()) {
-      throw new IllegalArgumentException(
-          assignment.getLeft() + " cannot be used as left side of assignment.");
-    }
+    InvariantChecks.checkTrue(lhs.isAssignable(),
+        String.format("%s cannot be used as left side of assignment", assignment.getLeft()));
 
     final String left = toString(lhs);
     final String right = toString(rhs);

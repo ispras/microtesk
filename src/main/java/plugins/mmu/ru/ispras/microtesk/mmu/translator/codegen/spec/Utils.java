@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -87,13 +87,10 @@ public final class Utils {
       case VARIABLE:
         return getVariableName(ir, context, (Variable) object);
 
-      case FIELD:
-        return toString(ir, context, (Node) object);
-
       case GROUP:
         return getVariableName(context, ((Var) object).getName());
 
-      case CONCAT:
+      case EXPRESSION:
         return toString(ir, context, (Node) object);
 
       default:

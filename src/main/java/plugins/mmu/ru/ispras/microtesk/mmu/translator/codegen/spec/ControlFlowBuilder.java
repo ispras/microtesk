@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -300,11 +300,8 @@ final class ControlFlowBuilder {
     final Atom lhs = AtomExtractor.extract(left);
     final Atom rhs = AtomExtractor.extract(value);
 
-    if (Atom.Kind.VARIABLE != lhs.getKind()
-        && Atom.Kind.GROUP != lhs.getKind()
-        && Atom.Kind.FIELD != lhs.getKind()) {
-      throw new IllegalArgumentException(left + " cannot be used as left side of assignment.");
-    }
+    InvariantChecks.checkTrue(lhs.isAssignable(),
+        String.format("%s cannot be used as left side of assignment", left));
 
     final String address = value.getUserData() instanceof AttributeRef
         ? getVariableName(((AttributeRef) value.getUserData()).getAddressArgValue().toString())

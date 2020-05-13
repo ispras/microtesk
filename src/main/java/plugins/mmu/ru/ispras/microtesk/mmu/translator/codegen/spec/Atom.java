@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,19 +15,20 @@
 package ru.ispras.microtesk.mmu.translator.codegen.spec;
 
 import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.mmu.translator.ir.Var;
 
 import java.math.BigInteger;
 
 public final class Atom {
-  public static enum Kind {
-    VALUE    (BigInteger.class, false),
-    VARIABLE (Variable.class, false),
-    FIELD    (Node.class, false),
-    GROUP    (Var.class, true),
-    CONCAT   (Node.class, false);
+  public enum Kind {
+    VALUE(BigInteger.class, false),
+    VARIABLE(Variable.class, false),
+    GROUP(Var.class, true),
+    EXPRESSION(Node.class, false);
 
     private final Class<?> objectClass;
     private final boolean isStruct;
@@ -58,12 +59,12 @@ public final class Atom {
     return new Atom(Kind.GROUP, group);
   }
 
-  public static Atom newField(final Node extract) {
-    return new Atom(Kind.FIELD, extract);
-  }
+  //public static Atom newField(final Node extract) {
+  //  return new Atom(Kind.FIELD, extract);
+  //}
 
-  public static Atom newConcat(final Node concat) {
-    return new Atom(Kind.CONCAT, concat);
+  public static Atom newExpression(final Node concat) {
+    return new Atom(Kind.EXPRESSION, concat);
   }
 
   private final Kind kind;
@@ -89,6 +90,18 @@ public final class Atom {
 
   public Object getObject() {
     return object;
+  }
+
+  public boolean isAssignable() {
+    if (kind == Kind.VALUE) {
+      return false;
+    }
+
+    if (kind == Kind.EXPRESSION) {
+      return ExprUtils.isOperation((Node) object, StandardOperation.BVEXTRACT);
+    }
+
+    return true;
   }
 
   @Override

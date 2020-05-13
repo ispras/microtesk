@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.mmu.translator.codegen.spec;
 
 import ru.ispras.fortress.data.DataTypeId;
+import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.Nodes;
@@ -26,8 +27,9 @@ import java.util.Collections;
 import java.util.List;
 
 public final class Condition {
-  public static enum Type {
-    AND, OR;
+  public enum Type {
+    AND,
+    OR;
 
     public static Type not(final Type type) {
       InvariantChecks.checkNotNull(type);
@@ -81,13 +83,12 @@ public final class Condition {
     final StringBuilder sb = new StringBuilder("Condition [");
     sb.append(String.format("type=%s, size=%d, atoms={", type, atoms.size()));
 
-    boolean isFirst = true;
+    boolean comma = false;
     for (final Node atom : atoms) {
-      if (isFirst) {
-        isFirst = false;
-      } else {
+      if (comma) {
         sb.append(", ");
       }
+      comma = true;
       sb.append(atom.toString());
     }
 
@@ -110,25 +111,24 @@ public final class Condition {
 
   private static Condition extract(final NodeOperation expr) {
     InvariantChecks.checkNotNull(expr);
-    final Enum<?> op = expr.getOperationId();
 
-    if (op == StandardOperation.EQ || op == StandardOperation.NOTEQ) {
+    if (ExprUtils.isOperation(expr, StandardOperation.EQ, StandardOperation.NOTEQ)) {
       return new Condition(expr);
     }
 
-    if (op == StandardOperation.NOT) {
+    if (ExprUtils.isOperation(expr, StandardOperation.NOT)) {
       final Condition condition = extract(expr.getOperand(0));
       return condition.not();
     }
 
-    if (op == StandardOperation.AND || op == StandardOperation.OR) {
-      final Condition left = extract(expr.getOperand(0));
-      final Condition right = extract(expr.getOperand(1));
-      return op == StandardOperation.AND ? left.and(right) : left.or(right);
+    if (ExprUtils.isOperation(expr, StandardOperation.AND, StandardOperation.OR)) {
+      final Condition lhs = extract(expr.getOperand(0));
+      final Condition rhs = extract(expr.getOperand(1));
+      return ExprUtils.isOperation(expr, StandardOperation.AND) ? lhs.and(rhs) : lhs.or(rhs);
     }
 
-    throw new IllegalStateException(String.format(
-        "Unsupported operatior %s in a condition expression: %s", op, expr));
+    throw new IllegalStateException(
+        String.format("Unsupported operatior in a condition expression: %s", expr));
   }
 
   public Condition not() {
@@ -147,34 +147,35 @@ public final class Condition {
   private static Node not(final Node expr) {
     InvariantChecks.checkNotNull(expr);
 
-    if (Node.Kind.VARIABLE == expr.getKind()) {
+    if (ExprUtils.isVariable(expr)) {
       return Nodes.not(expr);
-    } else if (Node.Kind.OPERATION == expr.getKind()) {
-      return not((NodeOperation) expr);
-    } else {
-      throw new IllegalArgumentException(String.format(
-          "%s is illegal node type for conditions: %s", expr.getKind(), expr));
     }
+
+    if (ExprUtils.isOperation(expr)) {
+      return not((NodeOperation) expr);
+    }
+
+    throw new IllegalArgumentException(
+        String.format("%s is illegal node type for conditions: %s", expr.getKind(), expr));
   }
 
   private static Node not(final NodeOperation expr) {
     InvariantChecks.checkNotNull(expr);
-    final Enum<?> op = expr.getOperationId();
 
-    if (op == StandardOperation.NOT) {
+    if (ExprUtils.isOperation(expr, StandardOperation.NOT)) {
       return expr.getOperand(0);
     }
 
-    if (op == StandardOperation.EQ) {
+    if (ExprUtils.isOperation(expr, StandardOperation.EQ)) {
       return Nodes.noteq(expr.getOperand(0), expr.getOperand(1));
     }
 
-    if (op == StandardOperation.NOTEQ) {
+    if (ExprUtils.isOperation(expr, StandardOperation.NOTEQ)) {
       return Nodes.eq(expr.getOperand(0), expr.getOperand(1));
     }
 
-    throw new IllegalStateException(String.format(
-        "Unsupported operatior %s in a condition expression: %s", op, expr));
+    throw new IllegalStateException(
+        String.format("Unsupported operatior in a condition expression: %s", expr));
   }
 
   public Condition and(final Condition other) {
@@ -195,6 +196,7 @@ public final class Condition {
         || (this.type == mergeType && other.isSingle())
         || (other.type == mergeType && this.isSingle())) {
       final List<Node> newAtoms = new ArrayList<Node>(this.atoms);
+
       newAtoms.addAll(other.atoms);
       return new Condition(mergeType, newAtoms);
     }

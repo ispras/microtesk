@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2020 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,7 +22,6 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeOperation;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
-import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.mmu.translator.ir.AbstractStorage;
@@ -92,14 +91,7 @@ public final class AtomExtractor {
   }
 
   static Atom extract(final NodeOperation expr) {
-    final Enum<?> op = expr.getOperationId();
-    if (StandardOperation.BVEXTRACT == op) {
-      return Atom.newField(expr);
-    } else if (StandardOperation.BVCONCAT == op) {
-      return Atom.newConcat(expr);
-    } else {
-      throw new IllegalArgumentException(String.format("Unsupported operator %s in %s", op, expr));
-    }
+    return Atom.newExpression(expr);
   }
 
   static Atom extractFromVariable(final Var var) {
