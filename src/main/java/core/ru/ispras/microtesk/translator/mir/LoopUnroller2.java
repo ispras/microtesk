@@ -1,12 +1,12 @@
 package ru.ispras.microtesk.translator.mir;
 
-import ru.ispras.fortress.util.Pair;
-import ru.ispras.microtesk.tools.symexec.ControlFlowInspector;
-import ru.ispras.microtesk.tools.symexec.SymbolicExecutor;
-
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static ru.ispras.microtesk.tools.symexec.ControlFlowInspector.Range;
+import static ru.ispras.microtesk.tools.symexec.SymbolicExecutor.BodyInfo;
 
 public class LoopUnroller2 {
     public Integer unrollFactor;
@@ -14,61 +14,93 @@ public class LoopUnroller2 {
         this.unrollFactor = unrollFactor;
     }
 
-    private MirContext composeMir(final String name, final SymbolicExecutor.BodyInfo info) {
-        final MirContext mir = new MirContext(name, MirBuilder.VOID_TO_VOID_TYPE);
+    public void unroll(BodyInfo info) {
 
-        final int nblocks = info.bbMir.size();
-        final List<MirBlock> intros = new java.util.ArrayList<>(nblocks);
-        final List<MirBlock> outros = new java.util.ArrayList<>(nblocks);
-
-        int bbIndex = 0;
-        for (final MirContext body : info.bbMir) {
-            final var inoutMap = info.bbInOut.get(bbIndex);
-            final var linkPair = wrapInline(body, mir, inoutMap.values());
-            intros.add(linkPair.first);
-            outros.add(linkPair.second);
-        }
-        final var ranges = info.bbRange;
-        for (int i = 0; i < nblocks; ++i) {
-            final var range = ranges.get(i);
-            final int taken = getLinkIndex(range, range.nextTaken, ranges);
-            final int other = getLinkIndex(range, range.nextOther, ranges);
-
-            final var outro = outros.get(i);
-            if (taken >= 0 && taken == other) {
-                outro.jump(intros.get(taken).bb);
-            } else if (taken >= 0) {
-                final Operand guard = outro.getLocal(evalGuardId(i, info));
-                outro.append(new Instruction.Branch(guard, intros.get(taken).bb, intros.get(other).bb));
-            } else {
-                outro.append(new Instruction.Return(null));
+        for (int i = 0; i < info.bbRange.size(); i++) {
+            Range range = info.bbRange.get(i);
+            var otherI = getLinkIndex(range, range.nextOther, info.bbRange);
+            if (otherI <= i && otherI != -1) {
+                unroll(info, otherI, i + 1, range.nextOther);
+                i += (i + 1 - otherI) * unrollFactor;
+            }
+            var takenI = getLinkIndex(range, range.nextTaken, info.bbRange);
+            if (takenI <= i && takenI != -1) {
+                unroll(info, takenI, i + 1, range.nextTaken);
+                i += (i + 1 - takenI) * unrollFactor;
             }
         }
-        return mir;
+        for (int i = 0; i < info.bbRange.size(); i++) {
+           Range r = info.bbRange.get(i);
+           System.out.printf("From %d to %d taken %d other %d secondaryTaken %d secondaryOther %d\n", r.start, r.end, r.nextTaken, r.nextOther, r.secondaryTaken, r.secondaryOther);
+        }
     }
 
-    private int getLinkIndex(
-            final ControlFlowInspector.Range src,
-            final int target,
-            final List<ControlFlowInspector.Range> ranges
-    ) {
-        final List<ControlFlowInspector.Range> candidates = selectRanges(target, ranges);
+    private void unroll(BodyInfo info, int from, int to, int fromInstruction) {
+        System.out.printf("Unrolling from %d to %d\n", from, to);
+        var copiedBBMir = new ArrayList<MirContext>();
+        var copiedRanges = new ArrayList<Range>();
+        for (int i = 1; i < unrollFactor; i++){
+            copiedBBMir.addAll(info.bbMir.subList(from, to).stream().map(Pass::copyOf).collect(Collectors.toList()));
 
-        if (candidates.size() == 1) {
-            return ranges.indexOf(candidates.get(0));
-        } else if (candidates.size() > 1) {
-            for (final ControlFlowInspector.Range dst : candidates) {
-                if (src.isEmpty() != dst.isEmpty()) {
-                    return ranges.indexOf(dst);
-                }
-            }
+            List<Range> copy = info.bbRange
+                    .subList(from, to)
+                    .stream()
+                    .map(Range::copy)
+                    .collect(Collectors.toList());
+            pointToLoopUnroll(copy, i+1, fromInstruction);
+            copiedRanges.addAll(copy);
+        }
+        pointToLoopUnroll(info.bbRange.subList(from, to), 1, fromInstruction);
+        var lastIteration = copiedRanges.get(copiedRanges.size() - 1);
+        if (lastIteration.nextTaken == fromInstruction) {
+            lastIteration.nextTaken = lastIteration.nextOther;
+        } else if (lastIteration.nextOther == fromInstruction) {
+            lastIteration.nextOther = lastIteration.nextTaken;
+        } else {
             throw new IllegalStateException();
+        }
+        info.bbMir.addAll(to, copiedBBMir);
+        info.bbRange.addAll(to, copiedRanges);
+//        System.out.println("bbMir size after unrolling " + info.bbMir.size());
+//        var loopingBB = info.bbRange.get(to - 1);
+//        if (getLinkIndex(loopingBB, loopingBB.nextOther, info.bbRange) == from) {
+//            loopingBB.nextOther = to + 1;
+//        } else if (getLinkIndex(loopingBB, loopingBB.nextTaken, info.bbRange) == from) {
+//            loopingBB.nextTaken = to + 1;
+//        } else {
+//            throw new IllegalStateException();
+//        }
+//        var endOfUnrolledPart = to + (to - from) * unrollFactor;
+//        for (Range r : info.bbRange.subList(endOfUnrolledPart + 1, info.bbRange.size())) {
+//            if (r.nextTaken > endOfUnrolledPart)
+//                r.nextTaken += (to - from) * unrollFactor;
+//            if (r.nextOther > endOfUnrolledPart)
+//                r.nextOther += (to - from) * unrollFactor;
+//        }
+    }
+
+    private void pointToLoopUnroll(List<Range> ranges, int unrollNum, int loopAddress) {
+        var lastRange = ranges.get(ranges.size() - 1);
+        if (lastRange.nextTaken == loopAddress) {
+            lastRange.secondaryTaken = unrollNum;
+        } else if (lastRange.nextOther == loopAddress) {
+            lastRange.secondaryOther = unrollNum;
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    private int getLinkIndex(final Range src, final int target, final List<Range> ranges) {
+        final List<Range> candidates = selectRanges(target, ranges);
+
+        if (candidates.size() >= 1) {
+            return ranges.indexOf(candidates.get(0));
         } else {
             return -1;
         }
     }
 
-    private List<ControlFlowInspector.Range> selectRanges(final int start, final List<ControlFlowInspector.Range> ranges) {
+    private List<Range> selectRanges(final int start, final List<Range> ranges) {
         int from = -1, to = -1;
         for (int i = 0; i < ranges.size(); ++i) {
             if (ranges.get(i).start == start) {
@@ -82,44 +114,5 @@ public class LoopUnroller2 {
             return ranges.subList(from, to + 1);
         }
         return Collections.emptyList();
-    }
-
-    private int evalGuardId(final int index, final SymbolicExecutor.BodyInfo info) {
-        final Operand guard = info.bbCond.get(index);
-        // TODO enfoce guards to be Local instance
-        int version = Integer.valueOf(guard.toString().substring(1));
-        for (int i = 0; i < index; ++i) {
-            version += info.bbMir.get(i).locals.size() - 1;
-        }
-        return version;
-    }
-
-    private Pair<MirBlock, MirBlock> wrapInline(
-            final MirContext callee,
-            final MirContext mir,
-            final Collection<Pair<Static, Static>> inout) {
-        final MirBlock inbb = mir.newBlock();
-        final int start = mir.blocks.size();
-        final int end = start + callee.blocks.size();
-        Pass.inlineContext(mir, callee);
-        final MirBlock outbb = mir.newBlock();
-
-
-        for (final var pair : inout) {
-          inbb.assign(pair.first, pair.first.newVersion(0));
-          outbb.assign(pair.second.newVersion(0), pair.second);
-        }
-
-        final BasicBlock entry = mir.blocks.get(start);
-        inbb.jump(entry);
-        for (final BasicBlock bb : mir.blocks.subList(start, end)) {
-            final int index = bb.insns.size() - 1;
-            final Instruction insn = bb.insns.get(index);
-
-            if (insn instanceof Instruction.Return) {
-                bb.insns.set(index, new Instruction.Branch(outbb.bb));
-            }
-        }
-        return new Pair<>(inbb, outbb);
     }
 }

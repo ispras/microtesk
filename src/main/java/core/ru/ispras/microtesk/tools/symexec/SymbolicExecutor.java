@@ -32,6 +32,7 @@ import ru.ispras.microtesk.translator.mir.BasicBlock;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.Instruction;
 import ru.ispras.microtesk.translator.mir.LoopUnroller;
+import ru.ispras.microtesk.translator.mir.LoopUnroller2;
 import ru.ispras.microtesk.translator.mir.Mir2Node;
 import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirBlock;
@@ -87,13 +88,13 @@ public final class SymbolicExecutor {
     final BodyInfo info = writeMir(outputFactory.getModel(), instructions);
     inspectControlFlow(model, info);
     compileBasicBlocks(fileName, info);
-    writeControlFlow(fileName + ".json", info);
     writeBasicBlockSmt(fileName, info);
+    writeControlFlow(fileName + ".json", info);
+    var unroller = new LoopUnroller2(2);
+    unroller.unroll(info);
     final MirContext mir = composeMir(fileName, info);
     writeMir(fileName, mir);
-    var unroller = new LoopUnroller(2);
-    var unrolledMir = unroller.unroll(mir);
-    writeMir(fileName + "_unrolled", unrolledMir);
+    writeMirSmt(fileName, mir);
     return true;
   }
 
@@ -149,8 +150,8 @@ public final class SymbolicExecutor {
     final var ranges = info.bbRange;
     for (int i = 0; i < nblocks; ++i) {
       final var range = ranges.get(i);
-      final int taken = getLinkIndex(range, range.nextTaken, ranges);
-      final int other = getLinkIndex(range, range.nextOther, ranges);
+      final int taken = getLinkIndex(range.secondaryTaken, range.nextTaken, ranges);
+      final int other = getLinkIndex(range.secondaryOther, range.nextOther, ranges);
 
       final var outro = outros.get(i);
       if (taken >= 0 && taken == other) {
@@ -202,12 +203,11 @@ public final class SymbolicExecutor {
     final BodyInfo info = new BodyInfo(insnList, archive);
 
     int index = 0;
-    var unroller = new LoopUnroller(2);
     for (final IsaPrimitive insn : insnList) {
       final String name = String.format("insn_%d.action", index++);
       final MirContext mir =
         FormulaBuilder.buildMir(name, model, archive, Collections.singletonList(insn));
-      final MirContext opt = unroller.unroll(driver.apply(mir));
+      final MirContext opt = driver.apply(mir);
 
       info.bodyMir.add(opt);
       info.storage.put(opt.name, opt);
@@ -264,6 +264,15 @@ public final class SymbolicExecutor {
     }
   }
 
+  private static void writeMirSmt(final String fileName, final MirContext mir) {
+    final Mir2Node smtOutput = new Mir2Node();
+
+    smtOutput.apply(mir);
+
+    final String path = String.format("%s.%s.smt2", fileName, mir.name);
+    writeSmt(path, smtOutput.getFormulae());
+  }
+
   private static void writeSmt(
       final String fileName,
       final Collection<? extends Node> formulas) {
@@ -289,8 +298,8 @@ public final class SymbolicExecutor {
     for (final Range range : ranges) {
       final JsonObjectBuilder builder = factory.createObjectBuilder()
         .add("range", factory.createArrayBuilder().add(range.start).add(range.end))
-        .add("target_taken", getLinkIndex(range, range.nextTaken, ranges))
-        .add("target_other", getLinkIndex(range, range.nextOther, ranges));
+        .add("target_taken", getLinkIndex(range.secondaryTaken, range.nextTaken, ranges))
+        .add("target_other", getLinkIndex(range.secondaryOther, range.nextOther, ranges));
       if (range.isEmpty()) {
         builder.add("link_addr", range.addrTaken);
       }
@@ -313,18 +322,13 @@ public final class SymbolicExecutor {
   }
 
   private static int getLinkIndex(
-      final Range src, final int target, final List<Range> ranges) {
+      final int secondaryTarget, final int target, final List<Range> ranges) {
     final List<Range> candidates = selectRanges(target, ranges);
 
     if (candidates.size() == 1) {
       return ranges.indexOf(candidates.get(0));
     } else if (candidates.size() > 1) {
-      for (final Range dst : candidates) {
-        if (src.isEmpty() != dst.isEmpty()) {
-          return ranges.indexOf(dst);
-        }
-      }
-      throw new IllegalStateException();
+      return ranges.indexOf(candidates.get(secondaryTarget == -1 ? 0 : secondaryTarget));
     } else {
       return -1;
     }
