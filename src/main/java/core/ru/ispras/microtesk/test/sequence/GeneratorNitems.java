@@ -63,6 +63,7 @@ public final class GeneratorNitems<T> implements Generator<T> {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public List<T> value() {
     if (!hasValue()) {
       throw new NoSuchElementException();
