@@ -17,9 +17,17 @@ package ru.ispras.microtesk.basis.solver.bitvector;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.AND;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVADD;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVAND;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVASHL;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVASHR;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVCONCAT;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVLSHL;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVLSHR;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVNAND;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVNEG;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVNOR;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVOR;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVROL;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVROR;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVSGE;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVSGT;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVSLE;
@@ -28,6 +36,7 @@ import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVUGE;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVUGT;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVULE;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVULT;
+import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.BVXOR;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.EQ;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.EQ_CONSTANT;
 import static ru.ispras.microtesk.basis.solver.bitvector.BitBlaster.FALSE;
@@ -280,23 +289,23 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
     } else if (ExprUtils.isOperation(node, StandardOperation.BVOR)) {
       BVOR.encode(operands, newIndex);
     } else if (ExprUtils.isOperation(node, StandardOperation.BVXOR)) {
-      // FIXME:
+      BVXOR.encode(operands, newIndex);
     } else if (ExprUtils.isOperation(node, StandardOperation.BVNAND)) {
-      // FIXME:
+      BVNAND.encode(operands, newIndex);
     } else if (ExprUtils.isOperation(node, StandardOperation.BVNOR)) {
-      // FIXME:
+      BVNOR.encode(operands, newIndex);
     } else if (ExprUtils.isOperation(node, StandardOperation.BVLSHL)) {
-      // FIXME:
-    } else if (ExprUtils.isOperation(node, StandardOperation.BVLSHL)) {
-      // FIXME:
+      BVLSHL.encode(operands, newIndex);
+    } else if (ExprUtils.isOperation(node, StandardOperation.BVLSHR)) {
+      BVLSHR.encode(operands, newIndex);
     } else if (ExprUtils.isOperation(node, StandardOperation.BVASHL)) {
-      // FIXME:
+      BVASHL.encode(operands, newIndex);
     } else if (ExprUtils.isOperation(node, StandardOperation.BVASHR)) {
-      // FIXME:
+      BVASHR.encode(operands, newIndex);
     } else if (ExprUtils.isOperation(node, StandardOperation.BVROL)) {
-      // FIXME:
+      BVROL.encode(operands, newIndex);
     } else if (ExprUtils.isOperation(node, StandardOperation.BVROR)) {
-      // FIXME:
+      BVROR.encode(operands, newIndex);
     } else if (ExprUtils.isOperation(node, StandardOperation.BVADD, StandardOperation.ADD)) {
       BVADD.encode(operands, newIndex);
     } else {

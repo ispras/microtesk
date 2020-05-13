@@ -29,6 +29,10 @@ import ru.ispras.fortress.util.InvariantChecks;
  */
 public enum BitBlaster {
 
+  //================================================================================================
+  // Logical Constants
+  //================================================================================================
+
   /**
    * Encodes the true constant.
    */
@@ -67,6 +71,10 @@ public enum BitBlaster {
       return TRUE.encodePositive(operands, newIndex);
     }
   },
+
+  //================================================================================================
+  // Logical Connectives
+  //================================================================================================
 
   /**
    * Encodes a conjunction of n boolean variables, i.e. {@code x[0] & ... & x[n-1]}.
@@ -308,6 +316,10 @@ public enum BitBlaster {
     }
   },
 
+  //================================================================================================
+  // Equality / Inequality
+  //================================================================================================
+
   /**
    * Encodes a word-level constraint of the form {@code x == const}.
    */
@@ -500,6 +512,10 @@ public enum BitBlaster {
     }
   },
 
+  //================================================================================================
+  // Unsigned Comparison
+  //================================================================================================
+
   /**
    * Encodes a word-level constraint of the form {@code x <= const} (unsigned).
    */
@@ -549,6 +565,44 @@ public enum BitBlaster {
   },
 
   /**
+   * Encodes a word-level constraint of the form {@code x <= y} (unsigned).
+   */
+  BVULE_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return encodeUnsignedLessThan(operands, newIndex, false);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVUGT_VARIABLE.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code x <= const} or {@code x <= y}.
+   */
+  BVULE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = reorderOperands(operands);
+
+      return newOperands[newOperands.length - 1].isValue()
+          ? BVULE_CONSTANT.encodePositive(newOperands, newIndex)
+          : BVULE_VARIABLE.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVUGT.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
    * Encodes a word-level constraint of the form {@code x < const} (unsigned).
    */
   BVULT_CONSTANT {
@@ -566,6 +620,44 @@ public enum BitBlaster {
     public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVUGE_CONSTANT.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code x < y} (unsigned).
+   */
+  BVULT_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return encodeUnsignedLessThan(operands, newIndex, true);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVUGE_VARIABLE.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code x < const} or {@code x < y} (unsigned).
+   */
+  BVULT {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = reorderOperands(operands);
+
+      return newOperands[newOperands.length - 1].isValue()
+          ? BVULT_CONSTANT.encodePositive(newOperands, newIndex)
+          : BVULT_VARIABLE.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVUGE.encodePositive(operands, newIndex);
     }
   },
 
@@ -618,61 +710,6 @@ public enum BitBlaster {
   },
 
   /**
-   * Encodes a word-level constraint of the form {@code x > const} (unsigned).
-   */
-  BVUGT_CONSTANT {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      // Encode x >= c.
-      final Collection<IntArray> clauses = BVUGE_CONSTANT.encodePositive(operands, newIndex);
-      // Encode x != c.
-      clauses.addAll(NOTEQ_CONSTANT.encodePositive(operands, newIndex));
-      return clauses;
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVULE_CONSTANT.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
-   * Encodes a word-level constraint of the form {@code x <= y} (unsigned).
-   */
-  BVULE_VARIABLE {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return encodeUnsignedLessThan(operands, newIndex, false);
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVUGT_VARIABLE.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
-   * Encodes a word-level constraint of the form {@code x < y} (unsigned).
-   */
-  BVULT_VARIABLE {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return encodeUnsignedLessThan(operands, newIndex, true);
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVUGE_VARIABLE.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
    * Encodes a word-level constraint of the form {@code x >= y} (unsigned).
    */
   BVUGE_VARIABLE {
@@ -686,65 +723,6 @@ public enum BitBlaster {
     public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVULT_VARIABLE.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
-   * Encodes a word-level constraint of the form {@code x > y} (unsigned).
-   */
-  BVUGT_VARIABLE {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVULT_VARIABLE.encodePositive(new Operand[] { operands[1], operands[0]}, newIndex);
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVULE_VARIABLE.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
-   * Encodes a word-level constraint of the form {@code x <= const} or {@code x <= y}.
-   */
-  BVULE {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = reorderOperands(operands);
-
-      return newOperands[newOperands.length - 1].isValue()
-          ? BVULE_CONSTANT.encodePositive(newOperands, newIndex)
-          : BVULE_VARIABLE.encodePositive(newOperands, newIndex);
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVUGT.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
-   * Encodes a word-level constraint of the form {@code x < const} or {@code x < y} (unsigned).
-   */
-  BVULT {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = reorderOperands(operands);
-
-      return newOperands[newOperands.length - 1].isValue()
-          ? BVULT_CONSTANT.encodePositive(newOperands, newIndex)
-          : BVULT_VARIABLE.encodePositive(newOperands, newIndex);
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVUGE.encodePositive(operands, newIndex);
     }
   },
 
@@ -770,6 +748,44 @@ public enum BitBlaster {
   },
 
   /**
+   * Encodes a word-level constraint of the form {@code x > const} (unsigned).
+   */
+  BVUGT_CONSTANT {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      // Encode x >= c.
+      final Collection<IntArray> clauses = BVUGE_CONSTANT.encodePositive(operands, newIndex);
+      // Encode x != c.
+      clauses.addAll(NOTEQ_CONSTANT.encodePositive(operands, newIndex));
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVULE_CONSTANT.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code x > y} (unsigned).
+   */
+  BVUGT_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVULT_VARIABLE.encodePositive(new Operand[] { operands[1], operands[0]}, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVULE_VARIABLE.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
    * Encodes a word-level constraint of the form {@code x > const} or {@code x > y} (unsigned).
    */
   BVUGT {
@@ -789,6 +805,10 @@ public enum BitBlaster {
       return BVULE.encodePositive(operands, newIndex);
     }
   },
+
+  //================================================================================================
+  // Signed Comparison
+  //================================================================================================
 
   /**
    * Encodes a word-level constraint of the form {@code x <= const} (signed).
@@ -838,6 +858,44 @@ public enum BitBlaster {
   },
 
   /**
+   * Encodes a word-level constraint of the form {@code x <= y} (signed).
+   */
+  BVSLE_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return encodeSignedLessThan(operands, newIndex, false);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVSGT_VARIABLE.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code x <= const} or {@code x <= y} (signed).
+   */
+  BVSLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = reorderOperands(operands);
+
+      return newOperands[newOperands.length - 1].isValue()
+          ? BVSLE_CONSTANT.encodePositive(newOperands, newIndex)
+          : BVSLE_VARIABLE.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVSGT.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
    * Encodes a word-level constraint of the form {@code x < const} (signed).
    */
   BVSLT_CONSTANT {
@@ -855,6 +913,44 @@ public enum BitBlaster {
     public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVSGE_CONSTANT.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code x < y} (signed).
+   */
+  BVSLT_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return encodeSignedLessThan(operands, newIndex, true);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVSGE_VARIABLE.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code x < const} or {@code x < y} (signed).
+   */
+  BVSLT {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = reorderOperands(operands);
+
+      return newOperands[newOperands.length - 1].isValue()
+          ? BVSLT_CONSTANT.encodePositive(newOperands, newIndex)
+          : BVSLT_VARIABLE.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVSGE.encodePositive(operands, newIndex);
     }
   },
 
@@ -906,61 +1002,6 @@ public enum BitBlaster {
   },
 
   /**
-   * Encodes a word-level constraint of the form {@code x > const} (signed).
-   */
-  BVSGT_CONSTANT {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      // Encode x >= c.
-      final Collection<IntArray> clauses = BVSGE_CONSTANT.encodePositive(operands, newIndex);
-      // Encode x != c.
-      clauses.addAll(NOTEQ_CONSTANT.encodePositive(operands, newIndex));
-      return clauses;
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVSLE_CONSTANT.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
-   * Encodes a word-level constraint of the form {@code x <= y} (signed).
-   */
-  BVSLE_VARIABLE {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return encodeSignedLessThan(operands, newIndex, false);
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVSGT_VARIABLE.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
-   * Encodes a word-level constraint of the form {@code x < y} (signed).
-   */
-  BVSLT_VARIABLE {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return encodeSignedLessThan(operands, newIndex, true);
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVSGE_VARIABLE.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
    * Encodes a word-level constraint of the form {@code x >= y} (signed).
    */
   BVSGE_VARIABLE {
@@ -974,65 +1015,6 @@ public enum BitBlaster {
     public Collection<IntArray> encodeNegative(
         final Operand[] operands, final IntSupplier newIndex) {
       return BVSLT_VARIABLE.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
-   * Encodes a word-level constraint of the form {@code x > y} (signed).
-   */
-  BVSGT_VARIABLE {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVSLT_VARIABLE.encodePositive(new Operand[] { operands[1], operands[0] }, newIndex);
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVSLE_VARIABLE.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
-   * Encodes a word-level constraint of the form {@code x <= const} or {@code x <= y} (signed).
-   */
-  BVSLE {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = reorderOperands(operands);
-
-      return newOperands[newOperands.length - 1].isValue()
-          ? BVSLE_CONSTANT.encodePositive(newOperands, newIndex)
-          : BVSLE_VARIABLE.encodePositive(newOperands, newIndex);
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVSGT.encodePositive(operands, newIndex);
-    }
-  },
-
-  /**
-   * Encodes a word-level constraint of the form {@code x < const} or {@code x < y} (signed).
-   */
-  BVSLT {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      final Operand[] newOperands = reorderOperands(operands);
-
-      return newOperands[newOperands.length - 1].isValue()
-          ? BVSLT_CONSTANT.encodePositive(newOperands, newIndex)
-          : BVSLT_VARIABLE.encodePositive(newOperands, newIndex);
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      return BVSGE.encodePositive(operands, newIndex);
     }
   },
 
@@ -1058,6 +1040,44 @@ public enum BitBlaster {
   },
 
   /**
+   * Encodes a word-level constraint of the form {@code x > const} (signed).
+   */
+  BVSGT_CONSTANT {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      // Encode x >= c.
+      final Collection<IntArray> clauses = BVSGE_CONSTANT.encodePositive(operands, newIndex);
+      // Encode x != c.
+      clauses.addAll(NOTEQ_CONSTANT.encodePositive(operands, newIndex));
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVSLE_CONSTANT.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code x > y} (signed).
+   */
+  BVSGT_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVSLT_VARIABLE.encodePositive(new Operand[] { operands[1], operands[0] }, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVSLE_VARIABLE.encodePositive(operands, newIndex);
+    }
+  },
+
+  /**
    * Encodes a word-level constraint of the form {@code x > const} or {@code x > y} (signed).
    */
   BVSGT {
@@ -1078,28 +1098,9 @@ public enum BitBlaster {
     }
   },
 
-  /**
-   * Encodes a word-level constraint of the form {@code u == ~x} or {@code u == ~const}.
-   */
-  BVNEG {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      InvariantChecks.checkTrue(operands[0].isVariable());
-
-      operands[0].sign ^= true;
-      final Collection<IntArray> clauses = EQ.encodePositive(operands, newIndex);
-      operands[0].sign ^= true;
-
-      return clauses;
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      throw new UnsupportedOperationException();
-    }
-  },
+  //================================================================================================
+  // Concatenation
+  //================================================================================================
 
   /**
    * Encodes a word-level constraint of the form {@code u == x :: y}.
@@ -1131,6 +1132,33 @@ public enum BitBlaster {
 
       operands[0].index -= operands[1].size;
       operands[0].size = size;
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  //================================================================================================
+  // Bitwise Operations
+  //================================================================================================
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == ~x} or {@code u == ~const}.
+   */
+  BVNEG {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+
+      operands[0].sign ^= true;
+      final Collection<IntArray> clauses = EQ.encodePositive(operands, newIndex);
+      operands[0].sign ^= true;
 
       return clauses;
     }
@@ -1196,8 +1224,8 @@ public enum BitBlaster {
 
       final int size = operands[0].size;
 
-      // Generate 3*n clauses AND[i]{u[i] <=> ([~]x[i] & [~]y[i])} ==
-      // AND[i]{(~[~]x[i] | ~[~]y[i] | u[i]) & ([~]x[i] | ~u[i]) & ([~]y[i] | ~u[i])}.
+      // Generate 3*n clauses AND[i]{u[i] <=> (x[i] & y[i])} ==
+      // AND[i]{(~x[i] | ~y[i] | u[i]) & (x[i] | ~u[i]) & (y[i] | ~u[i])}.
       final Collection<IntArray> clauses = new ArrayList<>(3 * size);
 
       for (int i = 0; i < size; i++) {
@@ -1295,8 +1323,8 @@ public enum BitBlaster {
 
       final int size = operands[0].size;
 
-      // Generate 3*n clauses AND[i]{u[i] <=> ([~]x[i] | [~]y[i])} ==
-      // AND[i]{([~]x[i] | [~]y[i] | ~u[i]) & (~[~]x[i] | u[i]) & (~[~]y[i] | u[i])}.
+      // Generate 3*n clauses AND[i]{u[i] <=> (x[i] | y[i])} ==
+      // AND[i]{(x[i] | y[i] | ~u[i]) & (~x[i] | u[i]) & (~y[i] | u[i])}.
       final Collection<IntArray> clauses = new ArrayList<>(3 * size);
 
       for (int i = 0; i < size; i++) {
@@ -1339,6 +1367,149 @@ public enum BitBlaster {
       throw new UnsupportedOperationException();
     }
   },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x ^ const}.
+   */
+  BVXOR_CONSTANT {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isValue());
+
+      final int size = operands[0].size;
+
+      // Generate maximum 2*n clauses.
+      final Collection<IntArray> clauses = new ArrayList<>(2 * size);
+
+      for (int i = 0; i < size; i++) {
+        final boolean value = operands[2].value.testBit(i);
+
+        final int uIndex = operands[0].getSignedIndex(i);
+        final int xIndex = operands[1].getSignedIndex(i);
+        final int vIndex = value ? -xIndex : +xIndex;
+
+        // (u[i] == v[i]) == (u[i] | ~v[i]) & (~u[i] | v[i]), where v[i] == x[i] or ~x[i].
+        clauses.add(IntArray.doubleton(+uIndex, -vIndex));
+        clauses.add(IntArray.doubleton(-uIndex, +vIndex));
+      }
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x ^ y}.
+   */
+  BVXOR_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isVariable());
+
+      final int size = operands[0].size;
+
+      // Generate 4*n clauses:
+      // (~x[i]|~y[i]|~u[i]) & (~x[i]|y[i]|u[i]) & (x[i]|~y[i]|u[i]) & (x[i]|y[i]|~u[i]).
+      final Collection<IntArray> clauses = new ArrayList<>(3 * size);
+
+      for (int i = 0; i < size; i++) {
+        final int uIndex = operands[0].getSignedIndex(i);
+        final int xIndex = operands[1].getSignedIndex(i);
+        final int yIndex = operands[2].getSignedIndex(i);
+
+        clauses.add(IntArray.tripleton(-xIndex, -yIndex, -uIndex));
+        clauses.add(IntArray.tripleton(-xIndex, +yIndex, +uIndex));
+        clauses.add(IntArray.tripleton(+xIndex, -yIndex, +uIndex));
+        clauses.add(IntArray.tripleton(+xIndex, +yIndex, -uIndex));
+      }
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x ^ const} or {@code u == x ^ y}.
+   */
+  BVXOR {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = reorderOperands(operands);
+
+      return newOperands[newOperands.length - 1].isValue()
+          ? BVXOR_CONSTANT.encodePositive(newOperands, newIndex)
+          : BVXOR_VARIABLE.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == ~(x & const)} or {@code u == ~(x & y)}.
+   */
+  BVNAND {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      operands[0].sign ^= true;
+      final Collection<IntArray> clauses = BVAND.encodePositive(operands, newIndex);
+      operands[0].sign ^= true;
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == ~(x | const)} or {@code u == ~(x | y)}.
+   */
+  BVNOR {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      operands[0].sign ^= true;
+      final Collection<IntArray> clauses = BVOR.encodePositive(operands, newIndex);
+      operands[0].sign ^= true;
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  //================================================================================================
+  // Arithmetic Operations
+  //================================================================================================
 
   /**
    * Encodes a word-level constraint of the form {@code u == x + const}.
@@ -1502,6 +1673,10 @@ public enum BitBlaster {
     }
   },
 
+  //================================================================================================
+  // Shift Operations
+  //================================================================================================
+
   /**
    * Encodes a word-level constraint of the form {@code u == x << const}.
    */
@@ -1530,8 +1705,7 @@ public enum BitBlaster {
       }
 
       if (size > shift) {
-        operands[0].size -= shift;
-        operands[1].size -= shift;
+        operands[0].size = operands[1].size = (size - shift);
         operands[0].index += shift;
 
         clauses.addAll(EQ_VARIABLE.encodePositive(
@@ -1539,61 +1713,7 @@ public enum BitBlaster {
         );
 
         operands[0].index -= shift;
-        operands[0].size += shift;
-        operands[1].size += shift;
-      }
-
-      return clauses;
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      throw new UnsupportedOperationException();
-    }
-  },
-
-  /**
-   * Encodes a word-level constraint of the form {@code u == x >> const}.
-   */
-  BVLSHR_CONSTANT {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      InvariantChecks.checkTrue(operands[0].isVariable());
-      InvariantChecks.checkTrue(operands[1].isVariable());
-      InvariantChecks.checkTrue(operands[2].isValue());
-
-      final int size = operands[0].size;
-      final int shift = Math.min(operands[2].value.intValue(), size);
-      InvariantChecks.checkGreaterOrEqZero(shift);
-
-      final Collection<IntArray> clauses = new ArrayList<>();
-
-      if (size > shift) {
-        operands[0].size -= shift;
-        operands[1].size -= shift;
-        operands[1].index += shift;
-
-        clauses.addAll(EQ_VARIABLE.encodePositive(
-            new Operand[] { operands[0], operands[1] }, newIndex)
-        );
-
-        operands[1].index -= shift;
-        operands[0].size += shift;
-        operands[1].size += shift;
-      }
-
-      if (shift > 0) {
-        operands[0].size = shift;
-        operands[0].index += (size - shift);
-
-        clauses.addAll(EQ_CONSTANT.encodePositive(
-            new Operand[] { operands[0], new Operand(BigInteger.ZERO) }, newIndex)
-        );
-
-        operands[0].index -= (size - shift);
-        operands[0].size = size;
+        operands[0].size = operands[1].size = size;
       }
 
       return clauses;
@@ -1628,27 +1748,6 @@ public enum BitBlaster {
   },
 
   /**
-   * Encodes a word-level constraint of the form {@code u == x >> y}.
-   */
-  BVLSHR_VARIABLE {
-    @Override
-    public Collection<IntArray> encodePositive(
-        final Operand[] operands, final IntSupplier newIndex) {
-      InvariantChecks.checkTrue(operands[0].isVariable());
-      InvariantChecks.checkTrue(operands[1].isVariable());
-      InvariantChecks.checkTrue(operands[2].isVariable());
-
-      return encodeExpand2(operands, newIndex, BVLSHR_CONSTANT, 0, (1 << operands[2].size) - 1);
-    }
-
-    @Override
-    public Collection<IntArray> encodeNegative(
-        final Operand[] operands, final IntSupplier newIndex) {
-      throw new UnsupportedOperationException();
-    }
-  },
-
-  /**
    * Encodes a word-level constraint of the form {@code u == x << const} or {@code u == x << y}.
    */
   BVLSHL {
@@ -1670,7 +1769,79 @@ public enum BitBlaster {
   },
 
   /**
-   * Encodes a word-level constraint of the form {@code u == x >> const} or {@code u == x >> y}.
+   * Encodes a word-level constraint of the form {@code u == x >>> const}.
+   */
+  BVLSHR_CONSTANT {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isValue());
+
+      final int size = operands[0].size;
+      final int shift = Math.min(operands[2].value.intValue(), size);
+      InvariantChecks.checkGreaterOrEqZero(shift);
+
+      final Collection<IntArray> clauses = new ArrayList<>();
+
+      if (size > shift) {
+        operands[0].size = operands[1].size = (size - shift);
+        operands[1].index += shift;
+
+        clauses.addAll(EQ_VARIABLE.encodePositive(
+            new Operand[] { operands[0], operands[1] }, newIndex)
+        );
+
+        operands[1].index -= shift;
+        operands[0].size = operands[1].size = size;
+      }
+
+      if (shift > 0) {
+        operands[0].size = shift;
+        operands[0].index += (size - shift);
+
+        clauses.addAll(EQ_CONSTANT.encodePositive(
+            new Operand[] { operands[0], new Operand(BigInteger.ZERO) }, newIndex)
+        );
+
+        operands[0].index -= (size - shift);
+        operands[0].size = size;
+      }
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x >>> y}.
+   */
+  BVLSHR_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isVariable());
+
+      return encodeExpand2(operands, newIndex, BVLSHR_CONSTANT, 0, (1 << operands[2].size) - 1);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x >>> const} or {@code u == x >>> y}.
    */
   BVLSHR {
     @Override
@@ -1688,8 +1859,324 @@ public enum BitBlaster {
         final Operand[] operands, final IntSupplier newIndex) {
       throw new UnsupportedOperationException();
     }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x << const} or {@code u == x << y}.
+   */
+  BVASHL {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      return BVLSHL.encodePositive(operands, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x >> const}.
+   */
+  BVASHR_CONSTANT {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isValue());
+
+      final int size = operands[0].size;
+      final int shift = Math.min(operands[2].value.intValue(), size);
+      InvariantChecks.checkGreaterOrEqZero(shift);
+
+      final Collection<IntArray> clauses = new ArrayList<>();
+
+      if (size > shift) {
+        operands[0].size = operands[1].size = (size - shift);
+        operands[1].index += shift;
+
+        clauses.addAll(EQ_VARIABLE.encodePositive(
+            new Operand[] { operands[0], operands[1] }, newIndex)
+        );
+
+        operands[1].index -= shift;
+        operands[0].size = operands[1].size = size;
+      }
+
+      if (shift > 0) {
+        operands[0].size = shift;
+        operands[0].index += (size - shift);
+
+        final int xIndex = operands[1].getSignedIndex(size - 1);
+
+        final BigInteger zeros = BigInteger.ZERO;
+        final BigInteger units = BigInteger.ONE.shiftLeft(shift).subtract(BigInteger.ONE);
+
+        // If x[n-1] == 0:
+        final Collection<IntArray> zClauses = EQ_CONSTANT.encodePositive(
+            new Operand[] { operands[0], new Operand(zeros) }, newIndex
+        );
+        // x[n-1] | zero extension.
+        zClauses.stream().forEach(clause -> clause.add(+xIndex));
+        clauses.addAll(zClauses);
+
+        // If x[n-1] == 1:
+        final Collection<IntArray> uClauses = EQ_CONSTANT.encodePositive(
+            new Operand[] { operands[0], new Operand(units) }, newIndex
+        );
+        // ~x[n-1] | sign extension.
+        uClauses.stream().forEach(clause -> clause.add(-xIndex));
+        clauses.addAll(uClauses);
+
+        operands[0].index -= (size - shift);
+        operands[0].size = size;
+      }
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x >> y}.
+   */
+  BVASHR_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isVariable());
+
+      return encodeExpand2(operands, newIndex, BVASHR_CONSTANT, 0, (1 << operands[2].size) - 1);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x >> const} or {@code u == x >> y}.
+   */
+  BVASHR {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = reorderOperands(operands);
+
+      return newOperands[newOperands.length - 1].isValue()
+          ? BVASHR_CONSTANT.encodePositive(newOperands, newIndex)
+          : BVASHR_VARIABLE.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x rol const}.
+   */
+  BVROL_CONSTANT {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isValue());
+
+      final int size = operands[0].size;
+      final int shift = operands[2].value.intValue() % size;
+      InvariantChecks.checkGreaterOrEqZero(shift);
+
+      final Collection<IntArray> clauses = new ArrayList<>();
+
+      if (shift > 0) {
+        operands[0].size = operands[1].size = shift;
+        operands[1].index += (size - shift);
+
+        clauses.addAll(EQ_VARIABLE.encodePositive(
+            new Operand[] { operands[0], operands[1] }, newIndex)
+        );
+
+        operands[1].index -= (size - shift);
+        operands[0].size = operands[1].size = size;
+      }
+
+      if (size > shift) {
+        operands[0].size = operands[1].size = (size - shift);
+        operands[0].index += shift;
+
+        clauses.addAll(EQ_VARIABLE.encodePositive(
+            new Operand[] { operands[0], operands[1] }, newIndex)
+        );
+
+        operands[0].index -= shift;
+        operands[0].size = operands[1].size = size;
+      }
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x rol y}.
+   */
+  BVROL_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isVariable());
+
+      return encodeExpand2(operands, newIndex, BVROL_CONSTANT, 0, (1 << operands[2].size) - 1);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x rol const} or {@code u == x rol y}.
+   */
+  BVROL {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = reorderOperands(operands);
+
+      return newOperands[newOperands.length - 1].isValue()
+          ? BVROL_CONSTANT.encodePositive(newOperands, newIndex)
+          : BVROL_VARIABLE.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x ror const}.
+   */
+  BVROR_CONSTANT {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isValue());
+
+      final int size = operands[0].size;
+      final int shift = operands[2].value.intValue() % size;
+      InvariantChecks.checkGreaterOrEqZero(shift);
+
+      final Collection<IntArray> clauses = new ArrayList<>();
+
+      if (shift > 0) {
+        operands[0].size = operands[1].size = (size - shift);
+        operands[1].index += shift;
+
+        clauses.addAll(EQ_VARIABLE.encodePositive(
+            new Operand[] { operands[0], operands[1] }, newIndex)
+        );
+
+        operands[1].index -= shift;
+        operands[0].size = operands[1].size = size;
+      }
+
+      if (size > shift) {
+        operands[0].size = operands[1].size = shift;
+        operands[0].index += (size - shift);
+
+        clauses.addAll(EQ_VARIABLE.encodePositive(
+            new Operand[] { operands[0], operands[1] }, newIndex)
+        );
+
+        operands[0].index -= (size - shift);
+        operands[0].size = operands[1].size = size;
+      }
+
+      return clauses;
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x ror y}.
+   */
+  BVROR_VARIABLE {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      InvariantChecks.checkTrue(operands[0].isVariable());
+      InvariantChecks.checkTrue(operands[1].isVariable());
+      InvariantChecks.checkTrue(operands[2].isVariable());
+
+      return encodeExpand2(operands, newIndex, BVROR_CONSTANT, 0, (1 << operands[2].size) - 1);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
+  },
+
+  /**
+   * Encodes a word-level constraint of the form {@code u == x ror const} or {@code u == x ror y}.
+   */
+  BVROR {
+    @Override
+    public Collection<IntArray> encodePositive(
+        final Operand[] operands, final IntSupplier newIndex) {
+      final Operand[] newOperands = reorderOperands(operands);
+
+      return newOperands[newOperands.length - 1].isValue()
+          ? BVROR_CONSTANT.encodePositive(newOperands, newIndex)
+          : BVROR_VARIABLE.encodePositive(newOperands, newIndex);
+    }
+
+    @Override
+    public Collection<IntArray> encodeNegative(
+        final Operand[] operands, final IntSupplier newIndex) {
+      throw new UnsupportedOperationException();
+    }
   };
 
+  /**
+   * Represents a bit-vector operand.
+   */
   public static final class Operand {
     public int index;
     public boolean sign;
