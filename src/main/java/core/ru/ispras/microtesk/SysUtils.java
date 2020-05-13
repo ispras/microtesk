@@ -117,21 +117,20 @@ public final class SysUtils {
    */
   public static Object loadFromModel(final String className) {
     InvariantChecks.checkNotNull(className);
-
-    Object payload = null;
-    try (var cl = new URLClassLoader(new URL[] { getModelsJarPath().toUri().toURL() })) {
-      payload = cl.loadClass(className).getDeclaredConstructor().newInstance();
-    } catch (MalformedURLException | ReflectiveOperationException e) {
-      throw new TypeNotPresentException(className, e);
-    } catch (IOException e) { // from cl.close()
-      Logger.warning("SysUtils.loadFromModel: " + e.toString());
-      if (payload == null) { // Literally impossible?
-        throw new IllegalStateException(
-            "Lost reference to loaded class " + className, e);
-      }
+    if (MODEL_LOADER == null) try {
+      var url = getModelsJarPath().toUri().toURL();
+      MODEL_LOADER = new URLClassLoader(new URL[] { url });
+    } catch (MalformedURLException e) {
+      throw new IllegalStateException("Invalid path configuration", e);
     }
-    return payload;
+    try {
+      return MODEL_LOADER.loadClass(className).getDeclaredConstructor().newInstance();
+    } catch (ReflectiveOperationException e) {
+      throw new TypeNotPresentException(className, e);
+    }
   }
+
+  private static URLClassLoader MODEL_LOADER = null;
 
   /**
    * Loads a plug-in implemented by the specified class from {@code microtesk.jar}.
