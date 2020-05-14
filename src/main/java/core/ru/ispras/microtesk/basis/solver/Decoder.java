@@ -14,9 +14,7 @@
 
 package ru.ispras.microtesk.basis.solver;
 
-import java.util.Map;
-import ru.ispras.fortress.data.Variable;
-import ru.ispras.fortress.data.types.bitvector.BitVector;
+import ru.ispras.fortress.solver.constraint.Constraint;
 
 /**
  * {@link Decoder} represents a solution decoder.

@@ -24,9 +24,10 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
+import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.bitvector.Constraint;
+import ru.ispras.microtesk.basis.solver.bitvector.Restriction;
 import ru.ispras.microtesk.basis.solver.bitvector.CoderTrivial;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
@@ -566,9 +567,10 @@ public final class SymbolicExecutor {
       final SymbolicResult caseResult = switchResults.get(0);
       final CoderTrivial caseBuilder =
           (CoderTrivial) caseResult.getCoder();
-      final Node caseFormula = caseBuilder.encode();
+      final Constraint caseFormula = caseBuilder.encode();
+      final Node caseNode = (Node) caseFormula.getInnerRep();
 
-      result.addNode(caseFormula);
+      result.addNode(caseNode);
 
       // Constant propagation.
       final HierarchicalMap<Variable, BitVector> constants =
@@ -594,10 +596,11 @@ public final class SymbolicExecutor {
         final SymbolicResult caseResult = switchResults.get(i);
         final CoderTrivial caseBuilder =
             (CoderTrivial) caseResult.getCoder();
-        final Node caseFormula = caseBuilder.encode();
+        final Constraint caseFormula = caseBuilder.encode();
+        final Node caseNode = (Node) caseFormula.getInnerRep();
 
         // Case: (PHI == i) -> CASE(i).
-        final Node ifThenFormula = getIfThenFormula(phi, width, i, caseFormula);
+        final Node ifThenFormula = getIfThenFormula(phi, width, i, caseNode);
         result.addNode(ifThenFormula);
       }
     }
@@ -682,7 +685,7 @@ public final class SymbolicExecutor {
       if (guard.isHit()) {
         final MmuAddressInstance address = segment.getVaType().getInstance(null, context);
 
-        final Node constraint = Constraint.range(
+        final Node constraint = Restriction.range(
             address.getVariable().getVariable(),
             segment.getMin(),
             segment.getMax());

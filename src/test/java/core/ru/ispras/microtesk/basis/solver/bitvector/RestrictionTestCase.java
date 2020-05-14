@@ -28,15 +28,15 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
 import java.util.Map;
 
 /**
- * Test for {@link Constraint}.
+ * Test for {@link Restriction}.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class ConstraintTestCase {
+public final class RestrictionTestCase {
   private void runTest(final Variable x, final BitVector a, final BitVector b) {
     System.out.format("Range: [%s, %s]\n", a.toHexString(), b.toHexString());
 
-    final Node constraint = Constraint.range(x, a, b);
+    final Node constraint = Restriction.range(x, a, b);
 
     final SolverSat4j solver = new SolverSat4j();
     solver.addNode(constraint);

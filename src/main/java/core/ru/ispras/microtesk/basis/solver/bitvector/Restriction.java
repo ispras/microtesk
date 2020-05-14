@@ -27,12 +27,12 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
- * {@link Constraint} is generic interface of a bit-vector constraint.
+ * {@link Restriction} is generic interface of a bit-vector constraint.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public class Constraint {
-  private Constraint() {}
+public class Restriction {
+  private Restriction() {}
 
   public enum Kind {
     RETAIN,

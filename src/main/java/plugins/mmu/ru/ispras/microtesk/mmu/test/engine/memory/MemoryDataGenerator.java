@@ -29,7 +29,7 @@ import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
-import ru.ispras.microtesk.basis.solver.bitvector.Constraint;
+import ru.ispras.microtesk.basis.solver.bitvector.Restriction;
 import ru.ispras.microtesk.basis.solver.bitvector.Initializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -561,7 +561,7 @@ public final class MemoryDataGenerator implements DataGenerator {
 
     // Range constraint.
     constraints.add(
-        Constraint.range(
+        Restriction.range(
           addressVariable,
           BitVector.valueOf(region.getMin(), addressType.getBitSize()),
           BitVector.valueOf(region.getMax(), addressType.getBitSize()))

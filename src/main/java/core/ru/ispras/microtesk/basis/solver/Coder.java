@@ -22,6 +22,7 @@ package ru.ispras.microtesk.basis.solver;
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
 public interface Coder<T> extends Encoder, Decoder<T> {
+
   /**
    * Clones the coder.
    *

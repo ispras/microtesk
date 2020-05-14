@@ -21,6 +21,8 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.Nodes;
+import ru.ispras.fortress.solver.constraint.Constraint;
+import ru.ispras.fortress.solver.constraint.ConstraintUtils;
 import ru.ispras.microtesk.basis.solver.Coder;
 
 /**
@@ -46,8 +48,8 @@ public final class CoderTrivial implements Coder<Map<Variable, BitVector>> {
   }
 
   @Override
-  public Node encode() {
-    return Nodes.and(nodes);
+  public Constraint encode() {
+    return ConstraintUtils.newConstraint(Nodes.and(nodes));
   }
 
   @Override

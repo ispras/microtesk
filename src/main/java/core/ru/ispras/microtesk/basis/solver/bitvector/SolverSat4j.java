@@ -14,7 +14,6 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
-import java.util.Collection;
 import java.util.Map;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -23,7 +22,7 @@ import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.TimeoutException;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
-import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Coder;
 import ru.ispras.microtesk.basis.solver.Solver;
@@ -49,10 +48,10 @@ public final class SolverSat4j extends Solver<Map<Variable, BitVector>> {
   }
 
   @Override
-  protected SolverResult<Object> solve(final Object problem, final Mode mode) {
-    InvariantChecks.checkNotNull(problem instanceof FormulaSat4j);
+  protected SolverResult<Object> solve(final Constraint constraint, final Mode mode) {
+    InvariantChecks.checkNotNull(constraint.getInnerRep() instanceof FormulaSat4j);
 
-    final FormulaSat4j formula = (FormulaSat4j) problem;
+    final FormulaSat4j formula = (FormulaSat4j) constraint.getInnerRep();
     final ISolver solver = SolverFactory.newDefault();
 
     // Construct the problem.

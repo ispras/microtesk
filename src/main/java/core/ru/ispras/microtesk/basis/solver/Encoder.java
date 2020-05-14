@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.basis.solver;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.solver.constraint.Constraint;
 
 /**
  * {@link Encoder} represents an incremental constraint encoder.
@@ -35,7 +36,7 @@ public interface Encoder {
    *
    * @return the encoded constraint.
    */
-  Object encode();
+  Constraint encode();
 
   /**
    * Clones the encoder.

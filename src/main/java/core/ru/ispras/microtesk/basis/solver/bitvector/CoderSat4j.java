@@ -65,6 +65,8 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.logic.BitBlaster.Operand;
+import ru.ispras.fortress.solver.constraint.Constraint;
+import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Coder;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -130,8 +132,13 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
   }
 
   @Override
-  public FormulaSat4j encode() {
-    return builder.build();
+  public Constraint encode() {
+    final ConstraintBuilder constraintBuilder = new ConstraintBuilder();
+
+    constraintBuilder.addVariables(indices.keySet());
+    constraintBuilder.setInnerRep(builder.build());
+
+    return constraintBuilder.build();
   }
 
   @Override

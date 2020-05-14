@@ -15,6 +15,7 @@
 package ru.ispras.microtesk.basis.solver;
 
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
@@ -62,11 +63,11 @@ public abstract class Solver<T> {
   /**
    * Checks whether the constraint is satisfiable and returns a solution (if required).
    *
-   * @param problem the encoded constraint (problem) to be solved.
+   * @param constraint the encoded constraint to be solved.
    * @param mode the solver mode.
    * @return {@code SAT} if the constraint is satisfiable; {@code UNSAT} otherwise.
    */
-  protected abstract SolverResult<Object> solve(Object problem, Mode mode);
+  protected abstract SolverResult<Object> solve(Constraint constraint, Mode mode);
 
   /**
    * Checks whether the encoded constraint is satisfiable and returns a solution (if required).
@@ -75,8 +76,8 @@ public abstract class Solver<T> {
    * @return {@code SAT} if the constraint is satisfiable; {@code UNSAT} otherwise.
    */
   public final SolverResult<T> solve(final Mode mode) {
-    final Object problem = encoder.encode();
-    final SolverResult<Object> result = solve(problem, mode);
+    final Constraint constraint = encoder.encode();
+    final SolverResult<Object> result = solve(constraint, mode);
 
     if (result.getResult() == null) {
       return new SolverResult<>(result.getStatus(), null, result.getErrors());
