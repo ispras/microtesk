@@ -149,8 +149,6 @@ public final class FortressUtils {
   public static int getLowerBit(final Node node) {
     switch (node.getKind()) {
       case VALUE:
-        return 0;
-
       case VARIABLE:
         return 0;
 

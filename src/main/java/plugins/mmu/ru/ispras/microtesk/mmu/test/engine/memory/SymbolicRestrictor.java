@@ -19,7 +19,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.basis.solver.bitvector.Restriction;
+import ru.ispras.microtesk.basis.solver.Restriction;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.model.spec.MmuAddressInstance;

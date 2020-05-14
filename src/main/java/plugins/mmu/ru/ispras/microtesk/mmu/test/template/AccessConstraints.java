@@ -20,7 +20,7 @@ import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.basis.solver.bitvector.Restriction;
+import ru.ispras.microtesk.basis.solver.Restriction;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.utils.BigIntegerUtils;
 import ru.ispras.microtesk.utils.FortressUtils;

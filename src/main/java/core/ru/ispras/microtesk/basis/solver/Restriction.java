@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.basis.solver.bitvector;
+package ru.ispras.microtesk.basis.solver;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

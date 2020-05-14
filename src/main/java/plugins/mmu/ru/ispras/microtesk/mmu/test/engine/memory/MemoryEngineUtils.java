@@ -23,12 +23,12 @@ import ru.ispras.fortress.solver.Solver;
 import ru.ispras.fortress.solver.SolverResult;
 import ru.ispras.fortress.solver.SolverResult.Status;
 import ru.ispras.fortress.solver.SolverResultBuilder;
+import ru.ispras.fortress.solver.constraint.ConstraintEncoder;
+import ru.ispras.fortress.solver.constraint.Sat4jFormulaEncoder;
 import ru.ispras.fortress.solver.engine.sat.Initializer;
 import ru.ispras.fortress.solver.engine.sat.Sat4jSolver;
 import ru.ispras.fortress.util.InvariantChecks;
 
-import ru.ispras.microtesk.basis.solver.Encoder;
-import ru.ispras.microtesk.basis.solver.bitvector.EncoderSat4j;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
@@ -254,7 +254,7 @@ public final class MemoryEngineUtils {
       return resultBuilder.build();
     }
 
-    final Encoder encoder = symbolicResult.getEncoder();
+    final ConstraintEncoder encoder = symbolicResult.getEncoder();
     final Solver solver = newSolver();
     final SolverResult result = solver.solve(encoder.encode()); // FIXME: mode
 
@@ -304,7 +304,7 @@ public final class MemoryEngineUtils {
       return resultBuilder.build();
     }
 
-    final Encoder encoder = symbolicResult.getEncoder().clone();
+    final ConstraintEncoder encoder = symbolicResult.getEncoder().clone();
 
     // Supplement the formula with the constraints.
     for (final Node constraint : constraints) {
@@ -335,14 +335,14 @@ public final class MemoryEngineUtils {
     symbolicExecutor.execute(structure, finalize);
 
     final SymbolicResult symbolicResult = symbolicExecutor.getResult();
-    final Encoder encoder = symbolicResult.getEncoder();
+    final ConstraintEncoder encoder = symbolicResult.getEncoder();
     final Solver solver = newSolver();
 
     return solver.solve(encoder.encode() /*, mode*/);
   }
 
-  public static Encoder newEncoder() {
-    return new EncoderSat4j();
+  public static ConstraintEncoder newEncoder() {
+    return new Sat4jFormulaEncoder();
   }
 
   public static SymbolicResult newSymbolicResult() {

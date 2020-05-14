@@ -24,6 +24,7 @@ import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.fortress.expression.Node;
 
 import java.util.Map;
+import ru.ispras.microtesk.basis.solver.Restriction;
 
 /**
  * Test for {@link Restriction}.

@@ -21,10 +21,10 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
+import ru.ispras.fortress.solver.constraint.ConstraintEncoder;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.Encoder;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.model.spec.MmuAction;
@@ -53,7 +53,7 @@ public final class SymbolicResult {
   private boolean hasConflict = false;
 
   /** Allows updating the formula, i.e. performing symbolic execution. */
-  private final Encoder encoder;
+  private final ConstraintEncoder encoder;
 
   /** Enables recursive memory calls. */
   private final Map<Integer, MemoryAccessContext> contexts;
@@ -75,7 +75,7 @@ public final class SymbolicResult {
   private final Map<Variable, BitVector> constants;
 
   private SymbolicResult(
-      final Encoder encoder,
+      final ConstraintEncoder encoder,
       final Map<Integer, MemoryAccessContext> contexts,
       final Collection<Variable> originals,
       final Map<String, Integer> versions,
@@ -96,7 +96,7 @@ public final class SymbolicResult {
     this.constants = constants;
   }
 
-  public SymbolicResult(final Encoder encoder) {
+  public SymbolicResult(final ConstraintEncoder encoder) {
     this(
         encoder,
         new HashMap<>(),
@@ -107,7 +107,7 @@ public final class SymbolicResult {
     );
   }
 
-  public SymbolicResult(final Encoder encoder, final SymbolicResult other) {
+  public SymbolicResult(final ConstraintEncoder encoder, final SymbolicResult other) {
     this(
         encoder,
         new HashMap<>(other.contexts.size()),
@@ -135,7 +135,7 @@ public final class SymbolicResult {
     this.hasConflict = hasConflict;
   }
 
-  public Encoder getEncoder() {
+  public ConstraintEncoder getEncoder() {
     return encoder;
   }
 

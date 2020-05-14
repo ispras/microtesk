@@ -25,10 +25,10 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.solver.constraint.Constraint;
+import ru.ispras.fortress.solver.constraint.FormulasEncoder;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.bitvector.Restriction;
-import ru.ispras.microtesk.basis.solver.bitvector.EncoderTrivial;
+import ru.ispras.microtesk.basis.solver.Restriction;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -493,7 +493,7 @@ public final class SymbolicExecutor {
     final List<Set<Variable>> switchDefines = new ArrayList<>(statement.size());
 
     for (final MmuProgram program : statement) {
-      final EncoderTrivial caseBuilder = new EncoderTrivial();
+      final FormulasEncoder caseBuilder = new FormulasEncoder();
       final SymbolicResult caseResult = new SymbolicResult(caseBuilder, result);
       final Set<Variable> caseDefines = new LinkedHashSet<>();
 
@@ -565,8 +565,7 @@ public final class SymbolicExecutor {
     if (switchResults.size() == 1) {
       // There is only one control flow.
       final SymbolicResult caseResult = switchResults.get(0);
-      final EncoderTrivial caseBuilder =
-          (EncoderTrivial) caseResult.getEncoder();
+      final FormulasEncoder caseBuilder = (FormulasEncoder) caseResult.getEncoder();
       final Constraint caseFormula = caseBuilder.encode();
       final Node caseNode = (Node) caseFormula.getInnerRep();
 
@@ -594,8 +593,7 @@ public final class SymbolicExecutor {
 
       for (int i = 0; i < switchResults.size(); i++) {
         final SymbolicResult caseResult = switchResults.get(i);
-        final EncoderTrivial caseBuilder =
-            (EncoderTrivial) caseResult.getEncoder();
+        final FormulasEncoder caseBuilder = (FormulasEncoder) caseResult.getEncoder();
         final Constraint caseFormula = caseBuilder.encode();
         final Node caseNode = (Node) caseFormula.getInnerRep();
 
