@@ -14,18 +14,21 @@
 
 package ru.ispras.microtesk.mmu.test.engine.memory;
 
+import java.util.LinkedHashMap;
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.solver.Solver;
+import ru.ispras.fortress.solver.SolverResult;
+import ru.ispras.fortress.solver.SolverResult.Status;
+import ru.ispras.fortress.solver.SolverResultBuilder;
 import ru.ispras.fortress.solver.engine.sat.Initializer;
+import ru.ispras.fortress.solver.engine.sat.Sat4jSolver;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.basis.solver.Encoder;
-import ru.ispras.microtesk.basis.solver.Solver;
-import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.bitvector.EncoderSat4j;
-import ru.ispras.microtesk.basis.solver.bitvector.SolverSat4j;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;
@@ -183,9 +186,7 @@ public final class MemoryEngineUtils {
     // Integer constraints are not applied, because they are relevant only for
     // latest assignments and latest buffer accesses.
 
-    final SolverResult<Map<Variable, BitVector>> result =
-        solve(partialResult, Solver.Mode.SAT);
-
+    final SolverResult result = solve(partialResult /*, Solver.Mode.SAT */);
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
@@ -198,13 +199,13 @@ public final class MemoryEngineUtils {
       return false;
     }
 
-    final SolverResult<Map<Variable, BitVector>> result =
+    final SolverResult result =
         solve(
             access,
             Collections.emptyList(),
             constraints.getGeneralConstraints(),
-            Initializer.ZEROS,
-            Solver.Mode.SAT
+            Initializer.ZEROS //,
+            //Solver.Mode.SAT
         );
 
     return result.getStatus() == SolverResult.Status.SAT;
@@ -221,39 +222,43 @@ public final class MemoryEngineUtils {
 
     Logger.debug("Start generating data");
 
-    final SolverResult<Map<Variable, BitVector>> result =
-        solve(access, conditions, constraints, initializer, Solver.Mode.MAP);
+    final SolverResult result =
+        solve(access, conditions, constraints, initializer /*, Solver.Mode.MAP */);
 
     Logger.debug("Stop generating data: %s", result.getResult());
 
-    // Solution contains only such variables that are used in the path.
-    return result.getStatus() == SolverResult.Status.SAT ? result.getResult() : null;
+    if (result.getStatus() != Status.SAT) {
+      return null;
+    }
+
+    // FIXME: Enable Fortress to return variable-to-values maps.
+    final Map<Variable, BitVector> values = new LinkedHashMap<>();
+    result.getVariables().stream().forEach(v -> values.put(v, v.getData().getBitVector()));
+
+    return values;
   }
 
   public static boolean isFeasibleStructure(final List<Access> structure) {
     InvariantChecks.checkNotNull(structure);
 
-    final SolverResult<Map<Variable, BitVector>> result =
-        solve(structure, Solver.Mode.SAT);
-
+    final SolverResult result = solve(structure, false /*, Solver.Mode.SAT */);
     return result.getStatus() == SolverResult.Status.SAT;
   }
 
-  private static SolverResult<Map<Variable, BitVector>> solve(
-      final SymbolicResult symbolicResult /* INOUT */,
-      final Solver.Mode mode) {
-    InvariantChecks.checkNotNull(mode);
-
+  private static SolverResult solve(
+      final SymbolicResult symbolicResult /* INOUT */
+      /* FIXME: final Solver.Mode mode */) {
     if (symbolicResult.hasConflict()) {
-      return SolverResult.newUnsat("Conflict in symbolic execution");
+      final SolverResultBuilder resultBuilder = new SolverResultBuilder(Status.UNSAT);
+      resultBuilder.addError("Conflict in symbolic execution");
+      return resultBuilder.build();
     }
 
     final Encoder encoder = symbolicResult.getEncoder();
+    final Solver solver = newSolver();
+    final SolverResult result = solver.solve(encoder.encode()); // FIXME: mode
 
-    final Solver solver = newSolver(encoder);
-    final SolverResult<Map<Variable, BitVector>> result = solver.solve(mode);
-
-    if (result.getStatus() != SolverResult.Status.SAT && mode == Solver.Mode.MAP) {
+    if (result.getStatus() != SolverResult.Status.SAT) {
       for (final String error : result.getErrors()) {
         Logger.debug("Error: %s", error);
       }
@@ -262,17 +267,16 @@ public final class MemoryEngineUtils {
     return result;
   }
 
-  private static SolverResult<Map<Variable, BitVector>> solve(
+  private static SolverResult solve(
       final Access access,
       final Collection<Node> conditions,
       final Collection<Node> constraints,
-      final Initializer initializer,
-      final Solver.Mode mode) {
+      final Initializer initializer//,
+      /* FIXME: final Solver.Mode mode */) {
     InvariantChecks.checkNotNull(access);
     InvariantChecks.checkNotNull(conditions);
     InvariantChecks.checkNotNull(constraints);
     InvariantChecks.checkNotNull(initializer);
-    InvariantChecks.checkNotNull(mode);
 
     Logger.debug("Solving path constraints");
 
@@ -294,7 +298,10 @@ public final class MemoryEngineUtils {
 
     if (symbolicResult.hasConflict()) {
       Logger.debug("Conflict in symbolic execution");
-      return SolverResult.newUnsat("Conflict in symbolic execution");
+
+      final SolverResultBuilder resultBuilder = new SolverResultBuilder(Status.UNSAT);
+      resultBuilder.addError("Conflict in symbolic execution");
+      return resultBuilder.build();
     }
 
     final Encoder encoder = symbolicResult.getEncoder().clone();
@@ -304,10 +311,10 @@ public final class MemoryEngineUtils {
       encoder.addNode(constraint);
     }
 
-    final Solver solver = newSolver(encoder);
-    final SolverResult<Map<Variable, BitVector>> result = solver.solve(mode);
+    final Solver solver = newSolver();
+    final SolverResult result = solver.solve(encoder.encode()/*mode*/);
 
-    if (result.getStatus() != SolverResult.Status.SAT && mode == Solver.Mode.MAP) {
+    if (result.getStatus() != SolverResult.Status.SAT) {
       Logger.debug("Access: %s", access);
       for (final String msg : result.getErrors()) {
         Logger.debug("Error: %s", msg);
@@ -318,20 +325,20 @@ public final class MemoryEngineUtils {
     return result;
   }
 
-  private static SolverResult<Map<Variable, BitVector>> solve(
+  private static SolverResult solve(
       final List<Access> structure,
-      final Solver.Mode mode) {
+      /* FIXME: final Solver.Mode mode*/
+      final boolean finalize) {
     InvariantChecks.checkNotNull(structure);
-    InvariantChecks.checkNotNull(mode);
 
     final SymbolicExecutor symbolicExecutor = newSymbolicExecutor(null);
-    symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
+    symbolicExecutor.execute(structure, finalize);
 
     final SymbolicResult symbolicResult = symbolicExecutor.getResult();
     final Encoder encoder = symbolicResult.getEncoder();
-    final Solver solver = newSolver(encoder);
+    final Solver solver = newSolver();
 
-    return solver.solve(mode);
+    return solver.solve(encoder.encode() /*, mode*/);
   }
 
   public static Encoder newEncoder() {
@@ -359,7 +366,7 @@ public final class MemoryEngineUtils {
     return new SymbolicExecutor(newSymbolicRestrictor(region), result);
   }
 
-  public static Solver newSolver(final Encoder encoder) {
-    return new SolverSat4j(encoder);
+  public static Solver newSolver() {
+    return new Sat4jSolver();
   }
 }

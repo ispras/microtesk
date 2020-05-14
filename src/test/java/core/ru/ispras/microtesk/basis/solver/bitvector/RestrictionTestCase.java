@@ -22,8 +22,6 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.microtesk.basis.solver.Solver;
-import ru.ispras.microtesk.basis.solver.SolverResult;
 
 import java.util.Map;
 
@@ -38,7 +36,7 @@ public final class RestrictionTestCase {
 
     final Node constraint = Restriction.range(x, a, b);
 
-    final SolverSat4j solver = new SolverSat4j();
+    final Sat4jSolver solver = new Sat4jSolver();
     solver.addNode(constraint);
 
     final SolverResult<Map<Variable, BitVector>> result = solver.solve(Solver.Mode.MAP);
