@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.sat4j.core.VecInt;
 import org.sat4j.specs.IVecInt;
+import ru.ispras.fortress.util.IntArray;
 import ru.ispras.fortress.util.InvariantChecks;
 
 /**
