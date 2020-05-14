@@ -18,6 +18,7 @@ import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
+import ru.ispras.fortress.solver.engine.sat.Initializer;
 import ru.ispras.fortress.util.InvariantChecks;
 
 import ru.ispras.microtesk.basis.solver.Solver;
@@ -25,7 +26,6 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
 import ru.ispras.microtesk.basis.solver.Coder;
 import ru.ispras.microtesk.basis.solver.bitvector.CoderSat4j;
 import ru.ispras.microtesk.basis.solver.bitvector.SolverSat4j;
-import ru.ispras.microtesk.basis.solver.bitvector.Initializer;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;

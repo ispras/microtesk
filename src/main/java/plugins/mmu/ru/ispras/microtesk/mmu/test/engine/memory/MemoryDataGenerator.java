@@ -25,12 +25,12 @@ import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.solver.engine.sat.Initializer;
 import ru.ispras.fortress.transformer.ValueProvider;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 
 import ru.ispras.microtesk.basis.solver.bitvector.Restriction;
-import ru.ispras.microtesk.basis.solver.bitvector.Initializer;
 import ru.ispras.microtesk.mmu.MmuPlugin;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessType;

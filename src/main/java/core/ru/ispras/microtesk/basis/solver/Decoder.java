@@ -14,8 +14,6 @@
 
 package ru.ispras.microtesk.basis.solver;
 
-import ru.ispras.fortress.solver.constraint.Constraint;
-
 /**
  * {@link Decoder} represents a solution decoder.
  *

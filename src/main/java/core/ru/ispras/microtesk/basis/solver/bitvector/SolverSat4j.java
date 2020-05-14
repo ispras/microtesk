@@ -23,6 +23,7 @@ import org.sat4j.specs.TimeoutException;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.solver.constraint.Constraint;
+import ru.ispras.fortress.solver.constraint.FormulaSat4j;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Coder;
 import ru.ispras.microtesk.basis.solver.Solver;

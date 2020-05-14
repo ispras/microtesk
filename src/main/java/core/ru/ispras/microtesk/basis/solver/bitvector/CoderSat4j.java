@@ -67,6 +67,8 @@ import ru.ispras.fortress.expression.StandardOperation;
 import ru.ispras.fortress.logic.BitBlaster.Operand;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
+import ru.ispras.fortress.solver.constraint.FormulaSat4j;
+import ru.ispras.fortress.solver.engine.sat.Initializer;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.basis.solver.Coder;
 import ru.ispras.microtesk.utils.FortressUtils;
@@ -102,9 +104,11 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
   public CoderSat4j(final Initializer initializer) {
     InvariantChecks.checkNotNull(initializer);
 
-    this.builder = new FormulaSat4j.Builder();
     this.indices = new LinkedHashMap<>();
     this.masks = new LinkedHashMap<>();
+
+    this.builder = new FormulaSat4j.Builder(indices, masks);
+
     // In SAT4J, a boolean variable index should be positive:
     // x[i] and ~x[i] are mapped to +i and -i respectively.
     this.index = 1;
