@@ -24,7 +24,7 @@ import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.transformer.Transformer;
 import ru.ispras.fortress.transformer.VariableProvider;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.Coder;
+import ru.ispras.microtesk.basis.solver.Encoder;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessStack;
 import ru.ispras.microtesk.mmu.model.spec.MmuAction;
@@ -53,7 +53,7 @@ public final class SymbolicResult {
   private boolean hasConflict = false;
 
   /** Allows updating the formula, i.e. performing symbolic execution. */
-  private final Coder<Map<Variable, BitVector>> coder;
+  private final Encoder encoder;
 
   /** Enables recursive memory calls. */
   private final Map<Integer, MemoryAccessContext> contexts;
@@ -75,20 +75,20 @@ public final class SymbolicResult {
   private final Map<Variable, BitVector> constants;
 
   private SymbolicResult(
-      final Coder<Map<Variable, BitVector>> coder,
+      final Encoder encoder,
       final Map<Integer, MemoryAccessContext> contexts,
       final Collection<Variable> originals,
       final Map<String, Integer> versions,
       final Map<String, Variable> cache,
       final Map<Variable, BitVector> constants) {
-    InvariantChecks.checkNotNull(coder);
+    InvariantChecks.checkNotNull(encoder);
     InvariantChecks.checkNotNull(contexts);
     InvariantChecks.checkNotNull(originals);
     InvariantChecks.checkNotNull(versions);
     InvariantChecks.checkNotNull(cache);
     InvariantChecks.checkNotNull(constants);
 
-    this.coder = coder;
+    this.encoder = encoder;
     this.contexts = contexts;
     this.originals = originals;
     this.versions = versions;
@@ -96,9 +96,9 @@ public final class SymbolicResult {
     this.constants = constants;
   }
 
-  public SymbolicResult(final Coder<Map<Variable, BitVector>> coder) {
+  public SymbolicResult(final Encoder encoder) {
     this(
-        coder,
+        encoder,
         new HashMap<>(),
         new LinkedHashSet<>(),
         new HashMap<>(),
@@ -107,9 +107,9 @@ public final class SymbolicResult {
     );
   }
 
-  public SymbolicResult(final Coder<Map<Variable, BitVector>> coder, final SymbolicResult other) {
+  public SymbolicResult(final Encoder encoder, final SymbolicResult other) {
     this(
-        coder,
+        encoder,
         new HashMap<>(other.contexts.size()),
         new LinkedHashSet<>(other.originals),
         new HierarchicalMap<>(other.versions, new HashMap<>()),
@@ -124,7 +124,7 @@ public final class SymbolicResult {
   }
 
   public SymbolicResult(final SymbolicResult other) {
-    this(other.coder.clone(), other);
+    this(other.encoder.clone(), other);
   }
 
   public boolean hasConflict() {
@@ -135,8 +135,8 @@ public final class SymbolicResult {
     this.hasConflict = hasConflict;
   }
 
-  public Coder<Map<Variable, BitVector>> getCoder() {
-    return coder;
+  public Encoder getEncoder() {
+    return encoder;
   }
 
   public Map<Integer, MemoryAccessContext> getContexts() {
@@ -172,7 +172,7 @@ public final class SymbolicResult {
   }
 
   public void addNode(final Node formula) {
-    coder.addNode(formula);
+    encoder.addNode(formula);
   }
 
   public MemoryAccessContext getContext() {

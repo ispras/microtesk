@@ -14,6 +14,9 @@
 
 package ru.ispras.microtesk.basis.solver;
 
+import java.util.Map;
+import ru.ispras.fortress.data.Variable;
+import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.util.InvariantChecks;
@@ -23,7 +26,7 @@ import ru.ispras.fortress.util.InvariantChecks;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public abstract class Solver<T> {
+public abstract class Solver {
   /**
    * {@link Mode} represents a solver mode.
    */
@@ -36,19 +39,10 @@ public abstract class Solver<T> {
 
   /** Constraint encoder. */
   protected final Encoder encoder;
-  /** Solution decoder. */
-  protected final Decoder<T> decoder;
 
-  protected Solver(final Encoder encoder, final Decoder<T> decoder) {
+  protected Solver(final Encoder encoder) {
     InvariantChecks.checkNotNull(encoder);
-    InvariantChecks.checkNotNull(decoder);
-
     this.encoder = encoder;
-    this.decoder = decoder;
-  }
-
-  protected Solver(final Coder<T> coder) {
-    this(coder, coder);
   }
 
   /**
@@ -67,7 +61,7 @@ public abstract class Solver<T> {
    * @param mode the solver mode.
    * @return {@code SAT} if the constraint is satisfiable; {@code UNSAT} otherwise.
    */
-  protected abstract SolverResult<Object> solve(Constraint constraint, Mode mode);
+  protected abstract SolverResult<Map<Variable, BitVector>> solve(Constraint constraint, Mode mode);
 
   /**
    * Checks whether the encoded constraint is satisfiable and returns a solution (if required).
@@ -75,15 +69,8 @@ public abstract class Solver<T> {
    * @param mode the solver mode.
    * @return {@code SAT} if the constraint is satisfiable; {@code UNSAT} otherwise.
    */
-  public final SolverResult<T> solve(final Mode mode) {
+  public final SolverResult<Map<Variable, BitVector>> solve(final Mode mode) {
     final Constraint constraint = encoder.encode();
-    final SolverResult<Object> result = solve(constraint, mode);
-
-    if (result.getResult() == null) {
-      return new SolverResult<>(result.getStatus(), null, result.getErrors());
-    }
-
-    final T solution = decoder.decode(result.getResult());
-    return new SolverResult<>(result.getStatus(), solution, result.getErrors());
+    return solve(constraint, mode);
   }
 }

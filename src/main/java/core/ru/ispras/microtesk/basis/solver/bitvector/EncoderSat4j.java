@@ -70,15 +70,15 @@ import ru.ispras.fortress.solver.constraint.ConstraintBuilder;
 import ru.ispras.fortress.solver.constraint.FormulaSat4j;
 import ru.ispras.fortress.solver.engine.sat.Initializer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.Coder;
+import ru.ispras.microtesk.basis.solver.Encoder;
 import ru.ispras.microtesk.utils.FortressUtils;
 
 /**
- * {@link CoderSat4j} implements a SAT4J constraint/solution encoder/decoder.
+ * {@link EncoderSat4j} implements a SAT4J constraint/solution encoder/decoder.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
+public final class EncoderSat4j implements Encoder {
   /** Using directly ISolver instead of Sat4jFormula.Builder slows down performance. */
   private final FormulaSat4j.Builder builder;
 
@@ -101,7 +101,7 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
   /** Used to fill unused variable fields. */
   private final Initializer initializer;
 
-  public CoderSat4j(final Initializer initializer) {
+  public EncoderSat4j(final Initializer initializer) {
     InvariantChecks.checkNotNull(initializer);
 
     this.indices = new LinkedHashMap<>();
@@ -115,11 +115,11 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
     this.initializer = initializer;
   }
 
-  public CoderSat4j() {
+  public EncoderSat4j() {
     this(Initializer.RANDOM);
   }
 
-  public CoderSat4j(final CoderSat4j other) {
+  public EncoderSat4j(final EncoderSat4j other) {
     InvariantChecks.checkNotNull(other);
 
     this.builder = new FormulaSat4j.Builder(other.builder);
@@ -146,36 +146,8 @@ public final class CoderSat4j implements Coder<Map<Variable, BitVector>> {
   }
 
   @Override
-  public Map<Variable, BitVector> decode(final Object encoded) {
-    InvariantChecks.checkTrue(encoded instanceof IProblem);
-
-    final IProblem problem = (IProblem) encoded;
-    final Map<Variable, BitVector> decoded = new LinkedHashMap<>();
-
-    for (final Map.Entry<Variable, Integer> entry : indices.entrySet()) {
-      final Variable variable = entry.getKey();
-      final int index = entry.getValue();
-      final BitVector mask = masks.get(variable);
-
-      // Initialize the variable (e.g. with a random value).
-      final BitVector value = initializer.getValue(variable.getType().getSize());
-
-      // Reassign the bits used in the constraint.
-      for (int i = 0; i < variable.getType().getSize(); i++) {
-        if (mask.getBit(i)) {
-          value.setBit(i, problem.model(index + i));
-        }
-      }
-
-      decoded.put(variable, value);
-    }
-
-    return decoded;
-  }
-
-  @Override
-  public CoderSat4j clone() {
-    return new CoderSat4j(this);
+  public EncoderSat4j clone() {
+    return new EncoderSat4j(this);
   }
 
   private void encodeConstants(final Node node) {

@@ -23,22 +23,22 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.ConstraintUtils;
-import ru.ispras.microtesk.basis.solver.Coder;
+import ru.ispras.microtesk.basis.solver.Encoder;
 
 /**
- * {@link CoderTrivial} implements a trivial constraint/solution encoder/decoder.
+ * {@link EncoderTrivial} implements a trivial constraint/solution encoder/decoder.
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class CoderTrivial implements Coder<Map<Variable, BitVector>> {
+public final class EncoderTrivial implements Encoder {
 
   private final Collection<Node> nodes;
 
-  public CoderTrivial() {
+  public EncoderTrivial() {
     this.nodes = new ArrayList<>();
   }
 
-  public CoderTrivial(final CoderTrivial r) {
+  public EncoderTrivial(final EncoderTrivial r) {
     this.nodes = new ArrayList<>(r.nodes);
   }
 
@@ -53,13 +53,7 @@ public final class CoderTrivial implements Coder<Map<Variable, BitVector>> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public Map<Variable, BitVector> decode(final Object encoded) {
-    return (Map<Variable, BitVector>) encoded;
-  }
-
-  @Override
-  public CoderTrivial clone() {
-    return new CoderTrivial(this);
+  public EncoderTrivial clone() {
+    return new EncoderTrivial(this);
   }
 }

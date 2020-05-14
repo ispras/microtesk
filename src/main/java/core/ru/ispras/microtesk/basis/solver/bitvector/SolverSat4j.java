@@ -14,9 +14,11 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.TimeoutException;
@@ -24,8 +26,9 @@ import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.solver.constraint.Constraint;
 import ru.ispras.fortress.solver.constraint.FormulaSat4j;
+import ru.ispras.fortress.solver.engine.sat.Initializer;
 import ru.ispras.fortress.util.InvariantChecks;
-import ru.ispras.microtesk.basis.solver.Coder;
+import ru.ispras.microtesk.basis.solver.Encoder;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
 
@@ -34,22 +37,28 @@ import ru.ispras.microtesk.basis.solver.SolverResult;
  *
  * @author <a href="mailto:kamkin@ispras.ru">Alexander Kamkin</a>
  */
-public final class SolverSat4j extends Solver<Map<Variable, BitVector>> {
+public final class SolverSat4j extends Solver {
 
-  private static Coder<Map<Variable, BitVector>> newDefaultCoder() {
-    return new CoderSat4j();
+  private static Encoder newDefaultCoder() {
+    return new EncoderSat4j();
   }
 
-  public SolverSat4j(final Coder<Map<Variable, BitVector>> coder) {
-    super(coder, coder);
+  private Initializer initializer = Initializer.RANDOM;
+
+  public SolverSat4j(final Encoder encoder) {
+    super(encoder);
   }
 
   public SolverSat4j() {
     this(newDefaultCoder());
   }
 
+  public void setInitializer(final Initializer initializer) {
+    this.initializer = initializer;
+  }
+
   @Override
-  protected SolverResult<Object> solve(final Constraint constraint, final Mode mode) {
+  protected SolverResult<Map<Variable, BitVector>> solve(final Constraint constraint, final Mode mode) {
     InvariantChecks.checkNotNull(constraint.getInnerRep() instanceof FormulaSat4j);
 
     final FormulaSat4j formula = (FormulaSat4j) constraint.getInnerRep();
@@ -78,6 +87,30 @@ public final class SolverSat4j extends Solver<Map<Variable, BitVector>> {
     }
 
     // Return the solution.
-    return SolverResult.newSat(solver);
+    return SolverResult.newSat(decode(formula, solver));
+  }
+
+  private Map<Variable, BitVector> decode(final FormulaSat4j formula, final IProblem solution) {
+    final Map<Variable, BitVector> decoded = new LinkedHashMap<>();
+
+    for (final Map.Entry<Variable, Integer> entry : formula.getIndices().entrySet()) {
+      final Variable variable = entry.getKey();
+      final int index = entry.getValue();
+      final BitVector mask = formula.getMasks().get(variable);
+
+      // Initialize the variable (e.g. with a random value).
+      final BitVector value = initializer.getValue(variable.getType().getSize());
+
+      // Reassign the bits used in the constraint.
+      for (int i = 0; i < variable.getType().getSize(); i++) {
+        if (mask.getBit(i)) {
+          value.setBit(i, solution.model(index + i));
+        }
+      }
+
+      decoded.put(variable, value);
+    }
+
+    return decoded;
   }
 }

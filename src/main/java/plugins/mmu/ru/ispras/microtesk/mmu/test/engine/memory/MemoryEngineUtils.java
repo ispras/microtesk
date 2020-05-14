@@ -21,10 +21,10 @@ import ru.ispras.fortress.expression.Node;
 import ru.ispras.fortress.solver.engine.sat.Initializer;
 import ru.ispras.fortress.util.InvariantChecks;
 
+import ru.ispras.microtesk.basis.solver.Encoder;
 import ru.ispras.microtesk.basis.solver.Solver;
 import ru.ispras.microtesk.basis.solver.SolverResult;
-import ru.ispras.microtesk.basis.solver.Coder;
-import ru.ispras.microtesk.basis.solver.bitvector.CoderSat4j;
+import ru.ispras.microtesk.basis.solver.bitvector.EncoderSat4j;
 import ru.ispras.microtesk.basis.solver.bitvector.SolverSat4j;
 import ru.ispras.microtesk.mmu.basis.BufferAccessEvent;
 import ru.ispras.microtesk.mmu.basis.MemoryAccessContext;
@@ -248,9 +248,9 @@ public final class MemoryEngineUtils {
       return SolverResult.newUnsat("Conflict in symbolic execution");
     }
 
-    final Coder<Map<Variable, BitVector>> coder = symbolicResult.getCoder();
+    final Encoder encoder = symbolicResult.getEncoder();
 
-    final Solver<Map<Variable, BitVector>> solver = newSolver(coder);
+    final Solver solver = newSolver(encoder);
     final SolverResult<Map<Variable, BitVector>> result = solver.solve(mode);
 
     if (result.getStatus() != SolverResult.Status.SAT && mode == Solver.Mode.MAP) {
@@ -297,14 +297,14 @@ public final class MemoryEngineUtils {
       return SolverResult.newUnsat("Conflict in symbolic execution");
     }
 
-    final Coder<Map<Variable, BitVector>> coder = symbolicResult.getCoder().clone();
+    final Encoder encoder = symbolicResult.getEncoder().clone();
 
     // Supplement the formula with the constraints.
     for (final Node constraint : constraints) {
-      coder.addNode(constraint);
+      encoder.addNode(constraint);
     }
 
-    final Solver<Map<Variable, BitVector>> solver = newSolver(coder);
+    final Solver solver = newSolver(encoder);
     final SolverResult<Map<Variable, BitVector>> result = solver.solve(mode);
 
     if (result.getStatus() != SolverResult.Status.SAT && mode == Solver.Mode.MAP) {
@@ -328,18 +328,18 @@ public final class MemoryEngineUtils {
     symbolicExecutor.execute(structure, mode == Solver.Mode.MAP);
 
     final SymbolicResult symbolicResult = symbolicExecutor.getResult();
-    final Coder<Map<Variable, BitVector>> coder = symbolicResult.getCoder();
-    final Solver<Map<Variable, BitVector>> solver = newSolver(coder);
+    final Encoder encoder = symbolicResult.getEncoder();
+    final Solver solver = newSolver(encoder);
 
     return solver.solve(mode);
   }
 
-  public static Coder<Map<Variable, BitVector>> newCoder() {
-    return new CoderSat4j();
+  public static Encoder newEncoder() {
+    return new EncoderSat4j();
   }
 
   public static SymbolicResult newSymbolicResult() {
-    return new SymbolicResult(newCoder());
+    return new SymbolicResult(newEncoder());
   }
 
   public static SymbolicRestrictor newSymbolicRestrictor(final RegionSettings region) {
@@ -359,8 +359,7 @@ public final class MemoryEngineUtils {
     return new SymbolicExecutor(newSymbolicRestrictor(region), result);
   }
 
-  public static Solver<Map<Variable, BitVector>> newSolver(
-      final Coder<Map<Variable, BitVector>> coder) {
-    return new SolverSat4j(coder);
+  public static Solver newSolver(final Encoder encoder) {
+    return new SolverSat4j(encoder);
   }
 }
