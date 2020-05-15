@@ -14,6 +14,7 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,7 +24,10 @@ import ru.ispras.fortress.data.types.bitvector.BitVector;
 import ru.ispras.fortress.data.types.bitvector.BitVectorMath;
 import ru.ispras.fortress.expression.Node;
 
-import java.util.Map;
+import ru.ispras.fortress.solver.SolverResult;
+import ru.ispras.fortress.solver.SolverResult.Status;
+import ru.ispras.fortress.solver.constraint.Sat4jFormulaEncoder;
+import ru.ispras.fortress.solver.engine.sat.Sat4jSolver;
 import ru.ispras.microtesk.basis.solver.Restriction;
 
 /**
@@ -38,16 +42,17 @@ public final class RestrictionTestCase {
     final Node constraint = Restriction.range(x, a, b);
 
     final Sat4jSolver solver = new Sat4jSolver();
-    solver.addNode(constraint);
+    final Sat4jFormulaEncoder encoder = new Sat4jFormulaEncoder();
+    encoder.addNode(constraint);
 
-    final SolverResult<Map<Variable, BitVector>> result = solver.solve(Solver.Mode.MAP);
+    final SolverResult result = solver.solve(encoder.encode());
     Assert.assertTrue(result.getErrors().toString(),
-        result.getStatus() == SolverResult.Status.SAT);
+        result.getStatus() == Status.SAT);
 
-    final Map<Variable, BitVector> values = result.getResult();
+    final List<Variable> values = result.getVariables();
     Assert.assertTrue(values != null);
 
-    final BitVector value = values.get(x);
+    final BitVector value = values.iterator().next().getData().getBitVector();
     System.out.format("Value: %s\n", value);
 
     Assert.assertTrue(BitVectorMath.ule(a, value) && BitVectorMath.ule(value, b));
