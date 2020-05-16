@@ -17,30 +17,23 @@ import static ru.ispras.microtesk.translator.mir.Instruction.*;
 public final class EvalContext extends InsnVisitor {
   private static final List<CmpOpcode> EQOPC = Arrays.asList(CmpOpcode.Eq, CmpOpcode.Ne);
 
-  private final Map<String, List<Operand>> globals;
+  private final Map<String, List<Operand>> globals = new java.util.HashMap<>();
   private final Map<Operand, Set<Operand>> inequal = new java.util.HashMap<>();
   private final Frame frame;
 
   private int origin = 0;
 
   public static EvalContext eval(final MirContext mir, final Map<String, BigInteger> presets) {
-    final Map<String, List<Operand>> globals = new java.util.HashMap<>();
-    final EvalContext ctx = new EvalContext(globals);
+    final var context = new EvalContext();
     for (final var entry : presets.entrySet()) {
       // FIXME 128-bit default value may break
-      ctx.frame.set(entry.getKey(), 1, Constant.valueOf(128, entry.getValue()));
+      context.frame.set(entry.getKey(), 1, Constant.valueOf(128, entry.getValue()));
     }
-
-    return ctx.evalInternal(mir);
+    return context.evalInternal(mir);
   }
 
   EvalContext() {
-    this(new java.util.HashMap<String, List<Operand>>());
-  }
-
-  private EvalContext(final Map<String, List<Operand>> globals) {
-    this.globals = globals;
-    this.frame = new Frame(globals);
+    this.frame = new Frame(this.globals);
   }
 
   private EvalContext evalInternal(final MirContext mir) {
@@ -116,20 +109,11 @@ public final class EvalContext extends InsnVisitor {
   }
 
   private Set<Operand> getInequal(final Operand lval) {
-    final Set<Operand> set = inequal.get(lval);
-    if (set == null) {
-      return Collections.emptySet();
-    }
-    return set;
+    return inequal.getOrDefault(lval, Collections.emptySet());
   }
 
   private Set<Operand> getCreateInequal(final Operand lval) {
-    Set<Operand> set = inequal.get(lval);
-    if (set == null) {
-      set = new java.util.HashSet<>();
-      inequal.put(lval, set);
-    }
-    return set;
+    return inequal.computeIfAbsent(lval, k -> new java.util.HashSet<>());
   }
 
   private static Constant newBoolean(final boolean value) {
