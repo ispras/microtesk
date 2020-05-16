@@ -137,17 +137,17 @@ public final class EvalContext extends InsnVisitor {
   public void visit(final Load insn) {
     final Static mem = cast(insn.source, Static.class);
     if (mem != null && mem.version > 0) {
-      final Operand value;
       final Operand stored = frame.get(mem.name, mem.version);
       if (stored instanceof Constant) {
         final int size = insn.target.getType().getSize();
-        value = constantOf(bitVectorOf((Constant) stored).resize(size, false));
+        final var value =
+            constantOf(bitVectorOf((Constant) stored).resize(size, false));
+        setLocal(indexOf(insn.target), value);
       } else if (!stored.equals(VoidTy.VALUE)) {
-        value = stored;
+        setLocal(indexOf(insn.target), stored);
       } else {
-        value = mem;
+        frame.set(mem.name, mem.version, rebaseLocal(insn.target));
       }
-      setLocal(indexOf(insn.target), value);
     }
   }
 
