@@ -25,21 +25,12 @@ public final class Frame {
   }
 
   List<Operand> getValues(final String name) {
-    final List<Operand> values = globals.get(name);
-    if (values != null) {
-      return values;
-    }
-    return Collections.emptyList();
+    return globals.getOrDefault(name, Collections.emptyList());
   }
 
   void set(final String name, final int version, final Operand value) {
-    final List<Operand> values;
-    if (globals.containsKey(name)) {
-      values = globals.get(name);
-    } else {
-      values = new java.util.ArrayList<>();
-      globals.put(name, values);
-    }
+    final List<Operand> values =
+        globals.computeIfAbsent(name, k -> new java.util.ArrayList<>());
     final int ndiff = version - values.size();
     if (ndiff > 0) {
       values.addAll(Collections.nCopies(ndiff, VoidTy.VALUE));
