@@ -54,4 +54,8 @@ public class Static extends Lvalue {
   public Static newVersion(final int n) {
     return new Static(name, n, type);
   }
+
+  public Static removeSubscript() {
+    return newVersion(0);
+  }
 }
