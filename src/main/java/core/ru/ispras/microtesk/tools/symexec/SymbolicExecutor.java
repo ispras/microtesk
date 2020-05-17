@@ -30,6 +30,7 @@ import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.Disassembler.Output;
 import ru.ispras.microtesk.translator.mir.BasicBlock;
 import ru.ispras.microtesk.translator.mir.Constant;
+import ru.ispras.microtesk.translator.mir.DestructCssa;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.Instruction;
 import ru.ispras.microtesk.translator.mir.Mir2Node;
@@ -139,9 +140,11 @@ public final class SymbolicExecutor {
     final List<MirBlock> outros = new java.util.ArrayList<>(nblocks);
 
     int bbIndex = 0;
+    final var destruct = new DestructCssa();
     for (final MirContext body : info.bbMir) {
       final var inoutMap = info.bbInOut.get(bbIndex);
-      final var linkPair = wrapInline(body, mir, inoutMap.values());
+      final var linkPair =
+          wrapInline(body, destruct.apply(mir), inoutMap.values());
       intros.add(linkPair.first);
       outros.add(linkPair.second);
     }
