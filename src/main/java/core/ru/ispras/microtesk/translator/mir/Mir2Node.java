@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static ru.ispras.microtesk.translator.mir.Instruction.*;
 import static ru.ispras.microtesk.translator.mir.GlobalNumbering.*;
@@ -34,8 +35,10 @@ public class Mir2Node extends Pass {
   public MirContext apply(final MirContext mir) {
     final Insn2Node visitor = new Insn2Node();
     for (final BasicBlock bb : mir.blocks) {
-      for (final Instruction insn : bb.insns) {
+      for (final Instruction insn : bb.insns) try {
         insn.accept(visitor);
+      } catch (UnexpectedOperandException e) {
+        throw new UnexpectedOperandException(e.opnd, insn);
       }
     }
     versionBase.putAll(versionMax);
@@ -50,7 +53,7 @@ public class Mir2Node extends Pass {
       new OperandWalker<>(new Opnd2Node(versionBase, versionMax));
 
     private Node dispatch(final Operand opnd) {
-      return opnd2Node.dispatch(opnd);
+      return opnd2Node.dispatch(Objects.requireNonNull(opnd));
     }
 
     private List<Node> dispatchAll(final List<Operand> opnds) {
@@ -158,7 +161,22 @@ public class Mir2Node extends Pass {
       final Node other = dispatch(insn.other);
       assign(insn.lhs, Nodes.ite(Nodes.eq(guard, BIT_ONE), taken, other));
     }
- }
+  }
+
+  public static class UnexpectedOperandException extends RuntimeException {
+    final Operand opnd;
+
+    public UnexpectedOperandException(Operand opnd) {
+      super(opnd.toString() + " of class " + opnd.getClass().getName());
+      this.opnd = opnd;
+    }
+
+    public UnexpectedOperandException(Operand opnd, Instruction insn) {
+      super(String.format("'%s' in '%s' of class %s",
+          opnd.toString(), MirText.stringOf(insn), opnd.getClass().getName()));
+      this.opnd = opnd;
+    }
+  }
 
   private static class Opnd2Node extends OperandVisitor<Node> {
     final Map<String, Integer> versionBase;
@@ -184,7 +202,7 @@ public class Mir2Node extends Pass {
 
     @Override
     public Node visitOperand(final Operand opnd) {
-      throw new UnsupportedOperationException();
+      throw new UnexpectedOperandException(opnd);
     }
 
     @Override
