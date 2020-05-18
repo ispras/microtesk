@@ -125,8 +125,7 @@ public final class SymbolicExecutor {
   }
 
   private static void writeMir(final String name, final MirContext mir) {
-    try (final java.io.BufferedWriter writer =
-                  Files.newBufferedWriter(Paths.get(name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
+    try (final var writer = Files.newBufferedWriter(Paths.get(name + ".mir"))) {
       writer.write(MirText.toString(mir));
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
@@ -388,8 +387,8 @@ public final class SymbolicExecutor {
   private static MirContext buildSsaWithUnrolledLoops(MirContext mir) {
     LoopUnroller unroller = new LoopUnroller(2);
     MirContext unrolledMir = unroller.unroll(mir);
-    try (final java.io.BufferedWriter writer =
-                 Files.newBufferedWriter(Paths.get(unrolledMir.name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
+    try (final var writer =
+        Files.newBufferedWriter(Paths.get(unrolledMir.name + ".mir"))) {
       writer.write(MirText.toString(unrolledMir));
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
