@@ -35,7 +35,9 @@ public class Mir2Node extends Pass {
   public MirContext apply(final MirContext mir) {
     final Insn2Node visitor = new Insn2Node();
     for (final BasicBlock bb : mir.blocks) {
+      int i = 0;
       for (final Instruction insn : bb.insns) try {
+        visitor.setOrigin(bb.getOrigin(i++));
         insn.accept(visitor);
       } catch (UnexpectedOperandException e) {
         throw new UnexpectedOperandException(e.opnd, insn);
@@ -49,8 +51,12 @@ public class Mir2Node extends Pass {
 
   private class Insn2Node extends InsnVisitor {
     private final List<Node> nodes = new java.util.ArrayList<>();
-    private final OperandWalker<Node> opnd2Node =
-      new OperandWalker<>(new Opnd2Node(versionBase, versionMax));
+    private final Opnd2Node visitor = new Opnd2Node(versionBase, versionMax);
+    private final OperandWalker<Node> opnd2Node = new OperandWalker<>(visitor);
+
+    void setOrigin(int org) {
+      visitor.origin = org;
+    }
 
     private Node dispatch(final Operand opnd) {
       return opnd2Node.dispatch(Objects.requireNonNull(opnd));
@@ -183,6 +189,7 @@ public class Mir2Node extends Pass {
   private static class Opnd2Node extends OperandVisitor<Node> {
     final Map<String, Integer> versionBase;
     final Map<String, Integer> versionMax;
+    int origin = 0;
 
     Opnd2Node(
         final Map<String, Integer> versionBase,
@@ -214,7 +221,7 @@ public class Mir2Node extends Pass {
 
     @Override
     public Node visitLocal(final Local opnd) {
-      final int newver = rebase("%", opnd.id, 0);
+      final int newver = rebase("%", opnd.id + this.origin, 0);
       final String varname = String.format("%%%d", newver);
       return NodeVariable.newBitVector(varname, sizeOf(opnd));
     }
