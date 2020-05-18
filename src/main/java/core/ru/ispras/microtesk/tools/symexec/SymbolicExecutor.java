@@ -92,9 +92,13 @@ public final class SymbolicExecutor {
     writeControlFlow(fileName + ".json", info);
     var unroller = new LoopUnroller2(2);
     unroller.unroll(info);
-    final MirContext mir = composeMir(fileName, info);
-    writeMir(fileName, mir);
-    writeMirSmt(fileName, mir);
+
+    final var path = Paths.get(fileName);
+    final var name = path.getFileName().toString();
+    final var dir = path.getParent();
+    final MirContext mir = composeMir(name, info);
+    writeMir(dir.resolve(name + ".mir"), mir);
+    writeMirSmt(dir.resolve(name + ".smt2"), mir);
     return true;
   }
 
@@ -124,8 +128,8 @@ public final class SymbolicExecutor {
     }
   }
 
-  private static void writeMir(final String name, final MirContext mir) {
-    try (final var writer = Files.newBufferedWriter(Paths.get(name + ".mir"))) {
+  private static void writeMir(final Path path, final MirContext mir) {
+    try (final var writer = Files.newBufferedWriter(path)) {
       writer.write(MirText.toString(mir));
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());
@@ -263,13 +267,12 @@ public final class SymbolicExecutor {
     }
   }
 
-  private static void writeMirSmt(final String fileName, final MirContext mir) {
+  private static void writeMirSmt(final Path path, final MirContext mir) {
     final Mir2Node smtOutput = new Mir2Node();
 
     smtOutput.apply(mir);
 
-    final String path = String.format("%s.%s.smt2", fileName, mir.name);
-    writeSmt(path, smtOutput.getFormulae());
+    writeSmt(path.toString(), smtOutput.getFormulae());
   }
 
   private static void writeSmt(
