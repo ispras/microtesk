@@ -14,13 +14,11 @@
 
 package ru.ispras.microtesk;
 
-import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.ModelBuilder;
 import ru.ispras.microtesk.translator.codegen.PackageInfo;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -90,18 +88,15 @@ public final class SysUtils {
   public static Model loadModel(final String modelName) {
     InvariantChecks.checkNotNull(modelName);
 
-    Model model = LOADED_MODELS.get(modelName);
-    if (model == null) {
-      final String modelClassName = String.format(
-          "%s.%s.Model", PackageInfo.MODEL_PACKAGE, modelName);
+    return LOADED_MODELS.computeIfAbsent(modelName, SysUtils::loadModelUncached);
+  }
 
-      final ModelBuilder builder = (ModelBuilder) loadFromModel(modelClassName);
-      if (builder != null) {
-        model = builder.build();
-        LOADED_MODELS.put(modelName, model);
-      }
-    }
-    return model;
+  private static Model loadModelUncached(final String modelName) {
+    final String modelClassName = String.format(
+        "%s.%s.Model", PackageInfo.MODEL_PACKAGE, modelName);
+
+    final var builder = (ModelBuilder) loadFromModel(modelClassName);
+    return builder.build();
   }
 
   private static final Map<String, Model> LOADED_MODELS = new java.util.HashMap<>();
@@ -112,8 +107,9 @@ public final class SysUtils {
    * @param className Name of the class to be loaded.
    * @return New instance of the specified class.
    *
-   * @throws IllegalArgumentException if the class name is {@code null} or
-   *         if for some reason the class cannot be loaded.
+   * @throws IllegalArgumentException if the class name is {@code null}.
+   * @throws IllegalStateException if the models classpath malformed.
+   * @throws TypeNotPresentException if the class instantiation failed.
    */
   public static Object loadFromModel(final String className) {
     InvariantChecks.checkNotNull(className);
@@ -138,8 +134,8 @@ public final class SysUtils {
    * @param className Name of the plug-in class.
    * @return New plug-in instance.
    *
-   * @throws IllegalArgumentException if the class name is {@code null} or
-   *         if  for some reason the class cannot be loaded.
+   * @throws IllegalArgumentException if the class name is {@code null}.
+   * @throws TypeNotPresentException if the class instantiation failed.
    */
   public static Plugin loadPlugin(final String className) {
     InvariantChecks.checkNotNull(className);
