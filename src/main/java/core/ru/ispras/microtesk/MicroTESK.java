@@ -284,11 +284,7 @@ public final class MicroTESK {
     final String modelName = arguments[0];
     final String templateFile = arguments[1];
 
-    if (!TestEngine.generate(options, modelName, templateFile, plugins)) {
-      return false;
-    }
-
-    return true;
+    return TestEngine.generate(options, modelName, templateFile, plugins);
   }
 
   private static boolean checkTwoArguments(final String[] arguments) {
