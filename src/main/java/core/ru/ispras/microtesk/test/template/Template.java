@@ -69,7 +69,6 @@ public final class Template {
 
   public interface Processor {
     void process(ExceptionHandler handler);
-    void process(SectionKind section, Block block);
     void process(SectionKind section, Block block, int times);
     void process(DataSection data);
     void finish();
@@ -181,7 +180,7 @@ public final class Template {
 
   public void endPreSection() {
     final Block rootBlock = endCurrentSection().build();
-    processor.process(SectionKind.PRE, rootBlock);
+    processor.process(SectionKind.PRE, rootBlock, 1);
 
     Logger.debugHeader("Ended Processing Initialization Section");
     currentSection = null;
@@ -195,7 +194,7 @@ public final class Template {
 
   public void endPostSection() {
     final Block rootBlock = endCurrentSection().build();
-    processor.process(SectionKind.POST, rootBlock);
+    processor.process(SectionKind.POST, rootBlock, 1);
 
     Logger.debugHeader("Ended Processing Finalization Section");
     currentSection = null;
@@ -211,7 +210,7 @@ public final class Template {
     final BlockBuilder rootBlockBuilder = endCurrentSection();
     if (!rootBlockBuilder.isEmpty()) {
       final Block rootBlock = rootBlockBuilder.build();
-      processor.process(SectionKind.MAIN, rootBlock);
+      processor.process(SectionKind.MAIN, rootBlock, 1);
     }
 
     Logger.debugHeader("Ended Processing Main Section");
@@ -326,7 +325,7 @@ public final class Template {
 
     if (!rootBuilder.isEmpty()) {
       final Block rootBlock = rootBuilder.build();
-      processor.process(currentSection, rootBlock);
+      processor.process(currentSection, rootBlock, 1);
     }
   }
 
@@ -384,13 +383,7 @@ public final class Template {
     }
 
     public BlockHolder run() {
-      checkAllowedToRun();
-
-      processExternalCode();
-      processor.process(currentSection, block);
-
-      markBlockAsUsed();
-      return this;
+      return run(1);
     }
 
     public BlockHolder run(final int times) {

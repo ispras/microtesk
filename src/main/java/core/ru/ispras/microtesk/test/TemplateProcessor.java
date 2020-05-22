@@ -141,11 +141,6 @@ final class TemplateProcessor implements Template.Processor {
   }
 
   @Override
-  public void process(final SectionKind section, final Block block) {
-    process(section, block, 1);
-  }
-
-  @Override
   public void process(final SectionKind section, final Block block, final int times) {
     InvariantChecks.checkNotNull(section);
     InvariantChecks.checkNotNull(block);
