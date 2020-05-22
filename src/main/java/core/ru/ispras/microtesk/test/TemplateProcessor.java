@@ -679,24 +679,23 @@ final class TemplateProcessor implements Template.Processor {
    * @param sequence The most recently allocated sequence which is expected to be executed
    *                 by some of the threads.
    */
-  private boolean runExecution(final ConcreteSequence sequence) {
+  private void runExecution(final ConcreteSequence sequence) {
     InvariantChecks.checkNotNull(sequence);
     Logger.debugHeader("Running Execution from " + sequence.getTitle());
 
     if (engineContext.getOptions().getValueAsBoolean(Option.NO_SIMULATION)) {
       Logger.debug("Simulation is disabled");
-      return false;
+      return;
     }
 
     // Nothing to execute (no new code was allocated).
     if (sequence.isEmpty()) {
-      return false;
+      return;
     }
 
     final boolean isNoStatuses = executorStatuses.isEmpty();
     final Code code = allocator.getCode();
 
-    boolean isExecuted = false;
     for (int index = 0; index < instanceNumber; index++) {
       // Sets initial statuses (address of first sequence in a program).
       if (isNoStatuses) {
@@ -721,13 +720,10 @@ final class TemplateProcessor implements Template.Processor {
       engineContext.getModel().setActivePE(index);
       final Executor.Status newStatus = executor.execute(code, address);
       executorStatuses.set(index, newStatus);
-      isExecuted = true;
     }
-
-    return isExecuted;
   }
 
-  private boolean runExecutionFromStart() {
+  private void runExecutionFromStart() {
     // Run from the first allocated non-empty entry.
     for (final ConcreteSequence entry : testProgram.getEntries()) {
       if (!entry.isAllocated()) {
@@ -735,10 +731,9 @@ final class TemplateProcessor implements Template.Processor {
       }
 
       if (!entry.isEmpty()) {
-        return runExecution(entry);
+        runExecution(entry);
+        return;
       }
     }
-
-    return false;
   }
 }
