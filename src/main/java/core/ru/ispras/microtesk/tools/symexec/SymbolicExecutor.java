@@ -32,6 +32,7 @@ import ru.ispras.microtesk.translator.mir.BasicBlock;
 import ru.ispras.microtesk.translator.mir.Constant;
 import ru.ispras.microtesk.translator.mir.DestructCssa;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
+import ru.ispras.microtesk.translator.mir.GlobalNumbering;
 import ru.ispras.microtesk.translator.mir.Instruction;
 import ru.ispras.microtesk.translator.mir.LoopUnroller;
 import ru.ispras.microtesk.translator.mir.LoopUnroller2;
@@ -98,7 +99,8 @@ public final class SymbolicExecutor {
     final var path = Paths.get(fileName);
     final var name = path.getFileName().toString();
     final var dir = path.getParent();
-    final MirContext mir = composeMir(name, info);
+    var globNumbering = new GlobalNumbering();
+    final MirContext mir = globNumbering.apply(composeMir(name, info));
     writeMir(dir.resolve(name + ".mir"), mir);
     writeMirSmt(dir.resolve(name + ".smt2"), mir);
     return true;
@@ -382,28 +384,6 @@ public final class SymbolicExecutor {
       version += info.bbMir.get(i).locals.size() - 1;
     }
     return version;
-  }
-
-  private static void writeMirs(String filename, MirContext mir) {
-    Mir2Node mir2Node = new Mir2Node();
-
-    String path = String.format("%s.%s.smt2", filename, mir.name);
-
-    mir2Node.apply(mir);
-    writeSmt(path, mir2Node.getFormulae());
-  }
-
-  private static MirContext buildSsaWithUnrolledLoops(MirContext mir) {
-    LoopUnroller unroller = new LoopUnroller(2);
-    MirContext unrolledMir = unroller.unroll(mir);
-    try (final var writer =
-        Files.newBufferedWriter(Paths.get(unrolledMir.name + ".mir"))) {
-      writer.write(MirText.toString(unrolledMir));
-    } catch (final java.io.IOException e) {
-      Logger.error(e.getMessage());
-    }
-    MirPassDriver driver = new MirPassDriver(MirPassDriver.ssaOptimizeSequence());
-    return driver.apply(unrolledMir);
   }
 
   private static JsonArrayBuilder newHwstateMapping(
