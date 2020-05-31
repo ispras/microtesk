@@ -21,7 +21,8 @@ import ru.ispras.microtesk.test.LabelManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class StreamPreparatorBuilder {
+public final class StreamPreparatorBuilder
+    implements CodeBlockBuilder<StreamPreparator> {
   private final LabelManager memoryMap;
   private final LazyPrimitive data;
   private final LazyPrimitive index;
@@ -85,6 +86,7 @@ public final class StreamPreparatorBuilder {
     currentMethod = null;
   }
 
+  @Override
   public void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
 
@@ -96,6 +98,7 @@ public final class StreamPreparatorBuilder {
     currentMethod.add(call);
   }
 
+  @Override
   public StreamPreparator build() {
     return new StreamPreparator(
         memoryMap,

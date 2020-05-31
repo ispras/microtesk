@@ -25,7 +25,8 @@ import java.util.List;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class BufferPreparatorBuilder {
+public final class BufferPreparatorBuilder
+    implements CodeBlockBuilder<BufferPreparator>, Addressable {
   private final String bufferId;
   private int levels;
   private final BufferPreparatorAddressEntry addressEntry;
@@ -53,10 +54,12 @@ public final class BufferPreparatorBuilder {
     levels = value;
   }
 
+  @Override
   public LazyValue newAddressReference(final int level) {
     return getAddressEntry(level).newAddressReference();
   }
 
+  @Override
   public LazyValue newAddressReference(final int level, final int start, final int end) {
     return getAddressEntry(level).newAddressReference(start, end);
   }
@@ -81,11 +84,13 @@ public final class BufferPreparatorBuilder {
     return getAddressEntry(level).newEntryFieldReference(fieldId, start, end);
   }
 
+  @Override
   public void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
     calls.add(call);
   }
 
+  @Override
   public BufferPreparator build() {
     return new BufferPreparator(bufferId, levels, addressEntry, calls);
   }

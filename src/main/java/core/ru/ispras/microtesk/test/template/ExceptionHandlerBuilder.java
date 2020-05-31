@@ -33,7 +33,8 @@ import java.util.TreeSet;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class ExceptionHandlerBuilder {
+public final class ExceptionHandlerBuilder
+    implements CodeBlockBuilder<ExceptionHandler> {
   private final String id;
   private final Section section;
   private final boolean isDebugPrinting;
@@ -115,11 +116,13 @@ public final class ExceptionHandlerBuilder {
     this.calls = null;
   }
 
+  @Override
   public void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
     this.calls.add(call);
   }
 
+  @Override
   public ExceptionHandler build() {
     InvariantChecks.checkTrue(this.origin == null);
     InvariantChecks.checkTrue(this.exceptions == null);

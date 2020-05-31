@@ -24,11 +24,17 @@ import java.util.Map;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class BufferPreparatorStore {
+public final class BufferPreparatorStore
+    implements CodeBlockCollection<BufferPreparator> {
   private final Map<String, BufferPreparator> preparators;
 
   public BufferPreparatorStore() {
     this.preparators = new HashMap<>();
+  }
+
+  @Override
+  public void add(BufferPreparator p) {
+    addPreparator(p);
   }
 
   public void addPreparator(final BufferPreparator preparator) {

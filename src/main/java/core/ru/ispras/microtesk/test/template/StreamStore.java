@@ -19,7 +19,7 @@ import ru.ispras.fortress.util.InvariantChecks;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class StreamStore {
+public final class StreamStore implements CodeBlockCollection<StreamPreparator> {
   private Map<String, StreamPreparator> preparators;
   private Map<String, Stream> streams;
 
@@ -31,6 +31,11 @@ public final class StreamStore {
   public StreamPreparator getPreparator(
       final Primitive data, final Primitive index) {
     return preparators.get(StreamPreparator.getId(data, index));
+  }
+
+  @Override
+  public void add(StreamPreparator p) {
+    addPreparator(p);
   }
 
   public void addPreparator(final StreamPreparator preparator) {

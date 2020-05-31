@@ -91,11 +91,7 @@ public final class Template {
   // Default situations for instructions and groups
   private final Map<String, Variate<Situation>> defaultSituations;
 
-  private PreparatorBuilder preparatorBuilder;
-  private BufferPreparatorBuilder bufferPreparatorBuilder;
-  private MemoryPreparatorBuilder memoryPreparatorBuilder;
-  private StreamPreparatorBuilder streamPreparatorBuilder;
-  private ExceptionHandlerBuilder exceptionHandlerBuilder;
+  private CodeBlockBuilder<?> codeBlock;
   private final Set<String> definedExceptionHandlers;
 
   private final Deque<Map<String, Object>> attributes;
@@ -126,11 +122,6 @@ public final class Template {
     this.streams = context.getStreams();
     this.processor = processor;
 
-    this.preparatorBuilder = null;
-    this.bufferPreparatorBuilder = null;
-    this.memoryPreparatorBuilder = null;
-    this.streamPreparatorBuilder = null;
-    this.exceptionHandlerBuilder = null;
     this.definedExceptionHandlers = new LinkedHashSet<>();
 
     this.attributes = new LinkedList<>();
@@ -473,16 +464,8 @@ public final class Template {
       call.getAttributes().putAll(attributes.peek());
     }
 
-    if (null != preparatorBuilder) {
-      preparatorBuilder.addCall(call);
-    } else if (null != bufferPreparatorBuilder) {
-      bufferPreparatorBuilder.addCall(call);
-    } else if (null != memoryPreparatorBuilder) {
-      memoryPreparatorBuilder.addCall(call);
-    } else if (null != streamPreparatorBuilder) {
-      streamPreparatorBuilder.addCall(call);
-    } else if (null != exceptionHandlerBuilder) {
-      exceptionHandlerBuilder.addCall(call);
+    if (codeBlock != null) {
+      codeBlock.addCall(call);
     } else {
       currentBlockBuilder().addCall(call);
     }
@@ -674,17 +657,11 @@ public final class Template {
     debug("Begin preparator: %s", targetName);
     InvariantChecks.checkNotNull(targetName);
 
-    if (null != preparatorBuilder) {
+    if (codeBlock instanceof PreparatorBuilder) {
       throw new IllegalStateException(String.format(
           "Nesting is not allowed: The %s block cannot be nested into the %s block.",
-          targetName, preparatorBuilder.getTargetName()));
+          targetName, ((PreparatorBuilder) codeBlock).getTargetName()));
     }
-
-    InvariantChecks.checkTrue(null == preparatorBuilder);
-    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
-    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
-    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
-    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
 
     final MetaAddressingMode targetMode = metaModel.getAddressingMode(targetName);
     if (null == targetMode) {
@@ -692,28 +669,29 @@ public final class Template {
           "%s is not an addressing mode and cannot be a target for a preparator.", targetName));
     }
 
-    preparatorBuilder = new PreparatorBuilder(targetMode, isComparator);
-    return preparatorBuilder;
+    return setActiveBuilder(new PreparatorBuilder(targetMode, isComparator));
   }
 
   public void endPreparator() {
     endBuildingCall();
+    /* FIXME enable debug output
     debug("End preparator: %s", preparatorBuilder.getTargetName());
 
     final Preparator preparator = preparatorBuilder.build();
     debug("Registering preparator: %s", preparator);
+    */
 
-    final Preparator oldPreparator = preparators.addPreparator(preparator);
+    finalizeActiveBuilder(preparators);
+    /*
     if (null != oldPreparator) {
       Logger.warning("%s defined at %s is redefined at %s",
           oldPreparator, oldPreparator.getWhere(), preparator.getWhere());
     }
-
-    preparatorBuilder = null;
+    */
   }
 
   public void beginPreparatorVariant(final String name, final BigInteger bias) {
-    checkPreparatorBlock();
+    final var preparatorBuilder = checkPreparatorBlock();
     if (null != bias) {
       preparatorBuilder.beginVariant(name, bias.intValue());
     } else {
@@ -722,44 +700,36 @@ public final class Template {
   }
 
   public void endPreparatorVariant() {
-    checkPreparatorBlock();
-    preparatorBuilder.endVariant();
+    checkPreparatorBlock().endVariant();
   }
 
   public LazyValue newLazy() {
-    if (null != preparatorBuilder) {
-      return preparatorBuilder.newValue();
-    }
-
-    if (null != memoryPreparatorBuilder) {
-      return memoryPreparatorBuilder.newDataReference();
-    }
-
-    throw new IllegalStateException("The construct cannot be used outside a preparator block.");
+    final var builder = requireInstance(codeBlock, Delegator.class,
+        "The construct cannot be used outside a preparator block.");
+    return builder.delegateValue();
   }
 
   public LazyValue newLazy(final int start, final int end) {
-    if (null != preparatorBuilder) {
-      return preparatorBuilder.newValue(start, end);
-    }
-
-    if (null != memoryPreparatorBuilder) {
-      return memoryPreparatorBuilder.newDataReference(start, end);
-    }
-
-    throw new IllegalStateException("The construct cannot be used outside a preparator block.");
+    final var builder = requireInstance(codeBlock, Delegator.class,
+        "The construct cannot be used outside a preparator block.");
+    return builder.delegateValue(start, end);
   }
 
   public Primitive getPreparatorTarget() {
-    checkPreparatorBlock();
-    return preparatorBuilder.getTarget();
+    return checkPreparatorBlock().getTarget();
   }
 
-  private void checkPreparatorBlock() {
-    if (null == preparatorBuilder) {
-      throw new IllegalStateException(
-          "The construct cannot be used outside a preparator block.");
+  private PreparatorBuilder checkPreparatorBlock() {
+    return requireInstance(this.codeBlock, PreparatorBuilder.class,
+        "The construct cannot be used outside a preparator block.");
+  }
+
+  private static <T> T requireInstance(
+      Object o, Class<T> cls, String msg, Object... args) {
+    if (cls.isInstance(o)) {
+      return cls.cast(o);
     }
+    throw new IllegalStateException(String.format(msg, args));
   }
 
   public void addPreparatorCall(
@@ -778,10 +748,7 @@ public final class Template {
     InvariantChecks.checkNotNull(targetMode);
     InvariantChecks.checkNotNull(value);
 
-    if (value instanceof LazyValue
-        && null == preparatorBuilder
-        && null == bufferPreparatorBuilder
-        && null == memoryPreparatorBuilder) {
+    if (value instanceof LazyValue && !(codeBlock instanceof DelegatorTrait)) {
       throw new IllegalStateException(
           "A preparator with a lazy value can be invoked only inside "
               + "a preparator, buffer_preparator or memory_preparator block."
@@ -814,12 +781,6 @@ public final class Template {
     debug("Begin stream preparator(data_source: %s, index_source: %s)",
         dataModeName, indexModeName);
 
-    InvariantChecks.checkTrue(null == preparatorBuilder);
-    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
-    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
-    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
-    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
-
     final MetaAddressingMode dataMode = metaModel.getAddressingMode(dataModeName);
     if (null == dataMode) {
       throw new IllegalArgumentException(String.format(
@@ -832,10 +793,8 @@ public final class Template {
           "%s is not an addressing mode.", indexModeName));
     }
 
-    streamPreparatorBuilder = new StreamPreparatorBuilder(
-        context.getLabelManager(), dataMode, indexMode);
-
-    return streamPreparatorBuilder;
+    return setActiveBuilder(new StreamPreparatorBuilder(
+        context.getLabelManager(), dataMode, indexMode));
   }
 
   public void endStreamPreparator() {
@@ -843,53 +802,52 @@ public final class Template {
 
     debug("End stream preparator");
 
-    final StreamPreparator streamPreparator = streamPreparatorBuilder.build();
-    streams.addPreparator(streamPreparator);
-
-    streamPreparatorBuilder = null;
+    finalizeActiveBuilder(streams);
   }
 
   public Primitive getDataSource() {
-    checkStreamPreparatorBlock("data_source");
-    return streamPreparatorBuilder.getDataSource();
+    return checkStreamPreparatorBlock("data_source").getDataSource();
   }
 
   public Primitive getIndexSource() {
-    checkStreamPreparatorBlock("index_source");
-    return streamPreparatorBuilder.getIndexSource();
+    return checkStreamPreparatorBlock("index_source").getIndexSource();
   }
 
   public LabelValue getStartLabel() {
-    checkStreamPreparatorBlock("start_label");
-    return streamPreparatorBuilder.getStartLabel();
+    return checkStreamPreparatorBlock("start_label").getStartLabel();
   }
 
-  private void checkStreamPreparatorBlock(final String keyword) {
-    if (null == streamPreparatorBuilder) {
-      throw new IllegalStateException(String.format(
-          "The %s keyword cannot be used outside a stream preparator block.", keyword));
-    }
+  private StreamPreparatorBuilder checkStreamPreparatorBlock(final String keyword) {
+    return requireInstance(codeBlock, StreamPreparatorBuilder.class,
+        "The %s keyword cannot be used outside a stream preparator block.",
+        keyword);
   }
 
   public void beginStreamInitMethod() {
     debug("Begin Stream Method: init");
-    streamPreparatorBuilder.beginInitMethod();
+    requireStreamPB().beginInitMethod();
   }
 
   public void beginStreamReadMethod() {
     debug("Begin Stream Method: read");
-    streamPreparatorBuilder.beginReadMethod();
+    requireStreamPB().beginReadMethod();
   }
 
   public void beginStreamWriteMethod() {
     debug("Begin Stream Method: write");
-    streamPreparatorBuilder.beginWriteMethod();
+    requireStreamPB().beginWriteMethod();
   }
 
   public void endStreamMethod() {
     debug("End Stream Method");
     endBuildingCall();
-    streamPreparatorBuilder.endMethod();
+    requireStreamPB().endMethod();
+  }
+
+  // TODO check if it actually harmless to require
+  private StreamPreparatorBuilder requireStreamPB() {
+    return requireInstance(codeBlock, StreamPreparatorBuilder.class,
+      "The construct cannot be used outside a stream_preparator block.");
   }
 
   public void addStream(
@@ -942,14 +900,21 @@ public final class Template {
     debug("Begin buffer preparator: %s", bufferId);
     InvariantChecks.checkNotNull(bufferId);
 
-    InvariantChecks.checkTrue(null == preparatorBuilder);
-    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
-    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
-    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
-    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
+    return setActiveBuilder(new BufferPreparatorBuilder(bufferId));
+  }
 
-    bufferPreparatorBuilder = new BufferPreparatorBuilder(bufferId);
-    return bufferPreparatorBuilder;
+  private <T extends CodeBlockBuilder<?>> T setActiveBuilder(T builder) {
+    InvariantChecks.checkTrue(null == this.codeBlock);
+    this.codeBlock = builder;
+    return builder;
+  }
+
+  private <T> T finalizeActiveBuilder(CodeBlockCollection<T> c) {
+    final var block = (T) codeBlock.build();
+    c.add(block);
+    codeBlock = null;
+
+    return block;
   }
 
   public MapBuilder newMapBuilder() {
@@ -958,75 +923,47 @@ public final class Template {
 
   public void endBufferPreparator() {
     endBuildingCall();
-    debug("End buffer preparator: %s", bufferPreparatorBuilder.getBufferId());
+    // debug("End buffer preparator: %s", bufferPreparatorBuilder.getBufferId());
 
-    final BufferPreparator bufferPreparator = bufferPreparatorBuilder.build();
-    bufferPreparators.addPreparator(bufferPreparator);
-    bufferPreparatorBuilder = null;
+    finalizeActiveBuilder(bufferPreparators);
   }
 
   public MemoryPreparatorBuilder beginMemoryPreparator(final int dataSize) {
     endBuildingCall();
     debug("Begin memory preparator (size: %d)", dataSize);
 
-    InvariantChecks.checkTrue(null == preparatorBuilder);
-    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
-    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
-    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
-    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
-
-    memoryPreparatorBuilder = new MemoryPreparatorBuilder(dataSize);
-    return memoryPreparatorBuilder;
+    return setActiveBuilder(new MemoryPreparatorBuilder(dataSize));
   }
 
   public void endMemoryPreparator() {
     endBuildingCall();
-    debug("End memory preparator (size: %d)", memoryPreparatorBuilder.getDataSize());
+    // debug("End memory preparator (size: %d)", memoryPreparatorBuilder.getDataSize());
 
-    final MemoryPreparator memoryPreparator = memoryPreparatorBuilder.build();
-    memoryPreparators.addPreparator(memoryPreparator);
-    memoryPreparatorBuilder = null;
+    finalizeActiveBuilder(memoryPreparators);
   }
 
   public LazyValue newAddressReference(final int level) {
-    if (null != bufferPreparatorBuilder) {
-      return bufferPreparatorBuilder.newAddressReference(level);
-    }
-
-    if (null != memoryPreparatorBuilder) {
-      return memoryPreparatorBuilder.newAddressReference();
-    }
-
-    throw new IllegalStateException(
+    final var builder = requireInstance(codeBlock, Addressable.class,
         "The construct cannot be used outside a buffer_preparator or memory_preparator block.");
+    return builder.newAddressReference(level);
   }
 
   public LazyValue newAddressReference(final int level, final int start, final int end) {
-    if (null != bufferPreparatorBuilder) {
-      return bufferPreparatorBuilder.newAddressReference(level, start, end);
-    }
-
-    if (null != memoryPreparatorBuilder) {
-      return memoryPreparatorBuilder.newAddressReference(start, end);
-    }
-
-    throw new IllegalStateException(
+    final var builder = requireInstance(codeBlock, Addressable.class,
         "The construct cannot be used outside a buffer_preparator or memory_preparator block.");
+    return builder.newAddressReference(level, start, end);
   }
 
   public LazyValue newEntryReference(final int level) {
-    checkBufferPreparatorBlock();
-    return bufferPreparatorBuilder.newEntryReference(level);
+    return checkBufferPreparatorBlock().newEntryReference(level);
   }
 
   public LazyValue newEntryReference(final int level, final int start, final int end) {
-    checkBufferPreparatorBlock();
-    return bufferPreparatorBuilder.newEntryReference(level, start, end);
+    return checkBufferPreparatorBlock().newEntryReference(level, start, end);
   }
 
   public LazyValue newEntryFieldReference(final int level, final String fieldId) {
-    checkBufferPreparatorBlock();
-    return bufferPreparatorBuilder.newEntryFieldReference(level, fieldId);
+    return checkBufferPreparatorBlock().newEntryFieldReference(level, fieldId);
   }
 
   public LazyValue newEntryFieldReference(
@@ -1034,15 +971,14 @@ public final class Template {
       final String fieldId,
       final int start,
       final int end) {
-    checkBufferPreparatorBlock();
-    return bufferPreparatorBuilder.newEntryFieldReference(level, fieldId, start, end);
+    return checkBufferPreparatorBlock().newEntryFieldReference(level, fieldId, start, end);
   }
 
-  private void checkBufferPreparatorBlock() {
-    if (null == bufferPreparatorBuilder) {
-      throw new IllegalStateException(
-          "The construct cannot be used outside a buffer_preparator block.");
-    }
+  private BufferPreparatorBuilder checkBufferPreparatorBlock() {
+    return requireInstance(
+        this.codeBlock,
+        BufferPreparatorBuilder.class,
+        "The construct cannot be used outside a buffer_preparator block.");
   }
 
   public PrimitiveBuilder newAddressingModeBuilderForGroup(final String name) {
@@ -1125,28 +1061,21 @@ public final class Template {
           String.format("Exception handler %s is already defined.", id));
     }
 
-    InvariantChecks.checkTrue(null == preparatorBuilder);
-    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
-    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
-    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
-    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
-
     final Section section =
         !sections.isEmpty() ? sections.peek() : Sections.get().getTextSection();
 
     checkSectionDefined(section,
         context.getOptions().getValueAsString(Option.TEXT_SECTION_KEYWORD));
 
-    exceptionHandlerBuilder = new ExceptionHandlerBuilder(id, section, isDebugPrinting);
-    return exceptionHandlerBuilder;
+    return setActiveBuilder(new ExceptionHandlerBuilder(id, section, isDebugPrinting));
   }
 
   public void endExceptionHandler() {
     endBuildingCall();
     debug("End exception handler");
 
-    final ExceptionHandler handler = exceptionHandlerBuilder.build();
-    exceptionHandlerBuilder = null;
+    final var handler = (ExceptionHandler) codeBlock.build();
+    codeBlock = null;
 
     processor.process(handler);
     definedExceptionHandlers.add(handler.getId());
@@ -1158,12 +1087,7 @@ public final class Template {
     endBuildingCall();
 
     final boolean isGlobalContext =
-        currentBlockBuilder().isExternal()
-            && preparatorBuilder == null
-            && bufferPreparatorBuilder == null
-            && memoryPreparatorBuilder == null
-            && streamPreparatorBuilder == null
-            && exceptionHandlerBuilder == null;
+        currentBlockBuilder().isExternal() && codeBlock == null;
 
     final boolean isGlobal = isGlobalContext || isGlobalArgument;
     debug("Begin Data (isGlobal=%b, isSeparateFile=%b)", isGlobal, isSeparateFile);
@@ -1329,11 +1253,7 @@ public final class Template {
     endBuildingCall();
     debug("Begin Test Case Level Prologue");
 
-    InvariantChecks.checkTrue(null == preparatorBuilder);
-    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
-    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
-    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
-    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
+    InvariantChecks.checkTrue(codeBlock == null);
 
     currentBlockBuilder().setPrologue(true);
   }
@@ -1356,11 +1276,7 @@ public final class Template {
     endBuildingCall();
     debug("Begin Test Case Level Epilogue");
 
-    InvariantChecks.checkTrue(null == preparatorBuilder);
-    InvariantChecks.checkTrue(null == bufferPreparatorBuilder);
-    InvariantChecks.checkTrue(null == memoryPreparatorBuilder);
-    InvariantChecks.checkTrue(null == streamPreparatorBuilder);
-    InvariantChecks.checkTrue(null == exceptionHandlerBuilder);
+    InvariantChecks.checkTrue(codeBlock == null);
 
     currentBlockBuilder().setEpilogue(true);
   }

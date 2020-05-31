@@ -24,11 +24,17 @@ import java.util.Map;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class MemoryPreparatorStore {
+public final class MemoryPreparatorStore
+    implements CodeBlockCollection<MemoryPreparator> {
   private final Map<Integer, MemoryPreparator> preparators;
 
   public MemoryPreparatorStore() {
     this.preparators = new HashMap<>();
+  }
+
+  @Override
+  public void add(MemoryPreparator p) {
+    addPreparator(p);
   }
 
   public void addPreparator(final MemoryPreparator preparator) {

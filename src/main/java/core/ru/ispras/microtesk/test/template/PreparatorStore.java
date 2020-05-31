@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class PreparatorStore {
+public final class PreparatorStore implements CodeBlockCollection<Preparator> {
   private static class PreparatorGroup {
     private Preparator defaultPreparator;
     private final List<Preparator> preparators;
@@ -66,6 +66,11 @@ public final class PreparatorStore {
   public PreparatorStore() {
     this.preparatorGroups = new HashMap<>();
     this.comparatorGroups = new HashMap<>();
+  }
+
+  @Override
+  public void add(Preparator p) {
+    addPreparator(p);
   }
 
   public Preparator addPreparator(final Preparator preparator) {

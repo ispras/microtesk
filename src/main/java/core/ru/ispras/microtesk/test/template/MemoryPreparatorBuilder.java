@@ -25,7 +25,8 @@ import java.util.List;
  *
  * @author <a href="mailto:andrewt@ispras.ru">Andrei Tatarnikov</a>
  */
-public final class MemoryPreparatorBuilder {
+public final class MemoryPreparatorBuilder
+    implements CodeBlockBuilder<MemoryPreparator>, Addressable, Delegator {
   private final int dataSize;
   private final LazyData address;
   private final LazyData data;
@@ -40,6 +41,16 @@ public final class MemoryPreparatorBuilder {
     this.calls = new ArrayList<>();
   }
 
+  @Override
+  public LazyValue delegateValue() {
+    return newDataReference();
+  }
+
+  @Override
+  public LazyValue delegateValue(int start, int end) {
+    return newDataReference(start, end);
+  }
+
   public int getDataSize() {
     return dataSize;
   }
@@ -52,19 +63,23 @@ public final class MemoryPreparatorBuilder {
     return new LazyValue(data, start, end);
   }
 
-  public LazyValue newAddressReference() {
+  @Override
+  public LazyValue newAddressReference(int level) {
     return new LazyValue(address);
   }
 
-  public LazyValue newAddressReference(final int start, final int end) {
+  @Override
+  public LazyValue newAddressReference(int level, final int start, final int end) {
     return new LazyValue(address, start, end);
   }
 
+  @Override
   public void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
     calls.add(call);
   }
 
+  @Override
   public MemoryPreparator build() {
     return new MemoryPreparator(dataSize, address, data, calls);
   }

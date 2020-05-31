@@ -25,7 +25,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public final class PreparatorBuilder {
+public final class PreparatorBuilder
+    implements CodeBlockBuilder<Preparator>, Delegator {
   private Where where;
 
   private final MetaAddressingMode targetMetaData;
@@ -153,6 +154,7 @@ public final class PreparatorBuilder {
     currentVariant = null;
   }
 
+  @Override
   public void addCall(final AbstractCall call) {
     InvariantChecks.checkNotNull(call);
 
@@ -166,6 +168,16 @@ public final class PreparatorBuilder {
 
       calls.add(call);
     }
+  }
+
+  @Override
+  public LazyValue delegateValue() {
+    return newValue();
+  }
+
+  @Override
+  public LazyValue delegateValue(int start, int end) {
+    return newValue(start, end);
   }
 
   public LazyValue newValue() {
@@ -184,6 +196,7 @@ public final class PreparatorBuilder {
     return target.getName();
   }
 
+  @Override
   public Preparator build() {
     return new Preparator(
         where,
