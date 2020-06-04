@@ -25,11 +25,11 @@ public abstract class Pass {
     return storage.get(name);
   }
 
-  static MirContext copyOf(final MirContext src) {
+  public static MirContext copyOf(final MirContext src) {
     return copyOf(src, src.name);
   }
 
-  static MirContext copyOf(final MirContext src, final String name) {
+  public static MirContext copyOf(final MirContext src, final String name) {
     return inlineContext(new MirContext(name, src.getSignature()), src);
   }
 

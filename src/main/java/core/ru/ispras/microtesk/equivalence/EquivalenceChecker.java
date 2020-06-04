@@ -12,7 +12,7 @@
  * the License.
  */
 
-package ru.ispras.microtesk.tools.symexec;
+package ru.ispras.microtesk.equivalence;
 
 import ru.ispras.castle.util.Logger;
 import ru.ispras.fortress.expression.Node;
@@ -20,14 +20,13 @@ import ru.ispras.fortress.solver.engine.smt.Cvc4Solver;
 import ru.ispras.fortress.solver.engine.smt.SmtTextBuilder;
 import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
-
 import ru.ispras.microtesk.SysUtils;
 import ru.ispras.microtesk.model.IsaPrimitive;
 import ru.ispras.microtesk.model.Model;
-import ru.ispras.microtesk.model.TemporaryVariables;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.Disassembler;
-import ru.ispras.microtesk.tools.Disassembler.Output;
+import ru.ispras.microtesk.tools.symexec.ControlFlowInspector;
+import ru.ispras.microtesk.tools.symexec.FormulaBuilder;
 import ru.ispras.microtesk.translator.mir.BasicBlock;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.GlobalNumbering;
@@ -43,7 +42,17 @@ import ru.ispras.microtesk.translator.mir.Operand;
 import ru.ispras.microtesk.translator.mir.Pass;
 import ru.ispras.microtesk.translator.mir.Static;
 import ru.ispras.microtesk.translator.mir.StoreAnalysis;
+import static ru.ispras.microtesk.tools.symexec.SymbolicExecutor.*;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonWriter;
+import javax.json.JsonWriterFactory;
+import javax.json.stream.JsonGenerator;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,51 +62,61 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.json.*;
-import javax.json.stream.JsonGenerator;
 
 import static ru.ispras.microtesk.tools.symexec.ControlFlowInspector.Range;
 import static ru.ispras.microtesk.translator.mir.Instruction.Branch;
 import static ru.ispras.microtesk.translator.mir.Instruction.Return;
 
-public final class SymbolicExecutor {
-  private SymbolicExecutor() {}
+public final class EquivalenceChecker {
+  private EquivalenceChecker() {}
 
-  public static boolean execute(
+  public static boolean checkEquivalence(
       final Options options,
-      final String modelName,
-      final String fileName) {
+      final String cpuArch,
+      final String file1,
+      final String file2) {
     InvariantChecks.checkNotNull(options);
-    InvariantChecks.checkNotNull(modelName);
-    InvariantChecks.checkNotNull(fileName);
+    InvariantChecks.checkNotNull(cpuArch);
+    InvariantChecks.checkNotNull(file1);
+    InvariantChecks.checkNotNull(file2);
 
-    Logger.message("Analyzing file: %s...", fileName);
+    var mir1 = getUnrolledMir(options, cpuArch, file1);
+    var mir2 = getUnrolledMir(options, cpuArch, file2);
+    var mir1Paths = new MirPaths(mir1);
+    var solver = new Cvc4Solver();
+    var equivSearcher = new EquivPathSearcher(mir2, solver);
+    var equivPaths = equivSearcher.findEquivalentPaths(mir1Paths.nextPath(true));
+    return true;
+  }
+
+  static private MirContext getUnrolledMir(Options options, String cpuArch, String file) {
+    Logger.message("Analyzing file: %s...", file);
     final DisassemblerOutputFactory outputFactory = new DisassemblerOutputFactory();
-    if (!Disassembler.disassemble(options, modelName, fileName, outputFactory)) {
-      Logger.error("Failed to disassemble " + fileName);
+    if (!Disassembler.disassemble(options, cpuArch, file, outputFactory)) {
+      Logger.error("Failed to disassemble " + file);
     }
 
     final DisassemblerOutput output = outputFactory.getOutput();
+    InvariantChecks.checkNotNull(output);
+
     InvariantChecks.checkNotNull(output);
 
     final Model model = outputFactory.getModel();
     final List<IsaPrimitive> instructions = output.getInstructions();
     InvariantChecks.checkNotNull(instructions);
 
-    final BodyInfo info = writeMir(outputFactory.getModel(), instructions);
+    final BodyInfo info = compileBodyInfo(model, instructions);
     inspectControlFlow(model, info);
-    compileBasicBlocks(fileName, info);
-    writeBasicBlockSmt(fileName, info);
-    writeControlFlow(fileName + ".json", info);
+    compileBasicBlocks(file, info);
+    writeControlFlow(file + ".json", info);
+    var unroller = new LoopUnroller(2);
+    unroller.unroll(info);
 
-    final var path = Paths.get(fileName);
+    final var path = Paths.get(file);
     final var name = path.getFileName().toString();
     final var dir = path.getParent();
     var globNumbering = new GlobalNumbering();
-    final MirContext mir = globNumbering.apply(composeMir(name, info));
-    writeMir(dir.resolve(name + ".mir"), mir);
-    writeMirSmt(dir.resolve(name + ".smt2"), mir);
-    return true;
+    return globNumbering.apply(composeMir(name, info));
   }
 
   private static void compileBasicBlocks(final String fileName, final BodyInfo info) {
@@ -126,7 +145,7 @@ public final class SymbolicExecutor {
     }
   }
 
-  private static void writeMir(final Path path, final MirContext mir) {
+  private static void compileBodyInfo(final Path path, final MirContext mir) {
     try (final var writer = Files.newBufferedWriter(path)) {
       writer.write(MirText.toString(mir));
     } catch (final java.io.IOException e) {
@@ -138,8 +157,8 @@ public final class SymbolicExecutor {
     final MirContext mir = new MirContext(name, MirBuilder.VOID_TO_VOID_TYPE);
 
     final int nblocks = info.bbMir.size();
-    final List<MirBlock> intros = new java.util.ArrayList<>(nblocks);
-    final List<MirBlock> outros = new java.util.ArrayList<>(nblocks);
+    final List<MirBlock> intros = new ArrayList<>(nblocks);
+    final List<MirBlock> outros = new ArrayList<>(nblocks);
 
     int bbIndex = 0;
     for (final MirContext body : info.bbMir) {
@@ -195,7 +214,7 @@ public final class SymbolicExecutor {
     return new Pair<>(inbb, outbb);
   }
 
-  private static BodyInfo writeMir(final Model model, final List<IsaPrimitive> insnList) {
+  private static BodyInfo compileBodyInfo(final Model model, final List<IsaPrimitive> insnList) {
     final Path path = Paths.get(SysUtils.getHomeDir(), "gen", model.getName() + ".zip");
     final MirArchive archive = MirArchive.open(path);
     final MirPassDriver driver =
@@ -230,29 +249,6 @@ public final class SymbolicExecutor {
     }
 
     return info;
-  }
-
-  public static class BodyInfo {
-    public final List<IsaPrimitive> body;
-    public final MirArchive archive;
-    public final Map<String, MirContext> storage;
-    public final List<MirContext> bodyMir = new java.util.ArrayList<>();
-    public final List<Operand> branchCond = new java.util.ArrayList<>();
-    public final List<Collection<Operand>> offsets = new java.util.ArrayList<>();
-
-    public final List<Range> bbRange = new java.util.ArrayList<>();
-    public final List<MirContext> bbMir = new java.util.ArrayList<>();
-    public final List<Operand> bbCond = new java.util.ArrayList<>();
-    public final List<Map<String, Static>> bbModified = new java.util.ArrayList<>();
-    public final List<Map<String, Static>> bbIndexed = new java.util.ArrayList<>();
-    public final List<Map<String, Pair<Static, Static>>> bbInOut = new java.util.ArrayList<>();
-    public final Map<String, Integer> modBase = new java.util.HashMap<>();
-
-    public BodyInfo(final List<IsaPrimitive> body, final MirArchive archive) {
-      this.body = body;
-      this.archive = archive;
-      this.storage = new java.util.HashMap<>(archive.loadAll());
-    }
   }
 
   private static void writeBasicBlockSmt(final String fileName, final BodyInfo info) {
@@ -416,55 +412,4 @@ public final class SymbolicExecutor {
     return mapping;
   }
 
-  public static final class DisassemblerOutput implements Disassembler.Output {
-    private final TemporaryVariables tempVars;
-    private final List<IsaPrimitive> instructions;
-
-    private DisassemblerOutput(final TemporaryVariables tempVars) {
-      InvariantChecks.checkNotNull(tempVars);
-
-      this.tempVars = tempVars;
-      this.instructions = new ArrayList<>();
-    }
-
-    @Override
-    public void add(final IsaPrimitive primitive) {
-      final String text = primitive.text(tempVars);
-      Logger.debug(text);
-      instructions.add(primitive);
-    }
-
-    @Override
-    public void close() {
-      // Nothing
-    }
-
-    public List<IsaPrimitive> getInstructions() {
-      return instructions;
-    }
-  }
-
-  public static final class DisassemblerOutputFactory implements Disassembler.OutputFactory {
-    private DisassemblerOutput output = null;
-    private Model model = null;
-
-    @Override
-    public Output createOutput(final Model model) {
-      InvariantChecks.checkNotNull(model);
-      final TemporaryVariables tempVars = model.getTempVars();
-
-      this.output = new DisassemblerOutput(tempVars);
-      this.model = model;
-
-      return output;
-    }
-
-    public DisassemblerOutput getOutput() {
-      return output;
-    }
-
-    public Model getModel() {
-      return model;
-    }
-  }
 }
