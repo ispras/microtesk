@@ -1,4 +1,9 @@
-package ru.ispras.microtesk.translator.mir;
+package ru.ispras.microtesk.equivalence;
+
+import ru.ispras.microtesk.translator.mir.MirContext;
+import ru.ispras.microtesk.translator.mir.Pass;
+import static ru.ispras.microtesk.tools.symexec.SymbolicExecutor.BodyInfo;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,11 +11,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.ispras.microtesk.tools.symexec.ControlFlowInspector.Range;
-import static ru.ispras.microtesk.tools.symexec.SymbolicExecutor.BodyInfo;
 
-public class LoopUnroller2 {
+public class LoopUnroller {
     public Integer unrollFactor;
-    public LoopUnroller2(Integer unrollFactor) {
+    public LoopUnroller(Integer unrollFactor) {
         this.unrollFactor = unrollFactor;
     }
 

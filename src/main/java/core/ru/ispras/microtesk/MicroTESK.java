@@ -16,6 +16,7 @@ package ru.ispras.microtesk;
 
 import ru.ispras.castle.util.FileUtils;
 import ru.ispras.castle.util.Logger;
+import ru.ispras.microtesk.equivalence.EquivalenceChecker;
 import ru.ispras.microtesk.options.Option;
 import ru.ispras.microtesk.options.OptionReader;
 import ru.ispras.microtesk.options.Options;
@@ -136,6 +137,8 @@ public final class MicroTESK {
       return disassemble(options, arguments);
     } else if (options.getValueAsBoolean(Option.SYMBOLIC_EXECUTE)) {
       return symbolicExecute(options, arguments);
+    } else if (options.getValueAsBoolean(Option.CHECK_EQUIVALENCE)) {
+      return checkEquivalence(options, arguments);
     } else if (options.getValueAsBoolean(Option.TRANSFORM_TRACE)) {
       return transformTrace(options, arguments);
     } else {
@@ -250,6 +253,23 @@ public final class MicroTESK {
 
     if (!SymbolicExecutor.execute(options, modelName, inputFile)) {
       Logger.message("Symbolic execution was aborted.");
+      return false;
+    }
+
+    return true;
+  }
+
+  private static boolean checkEquivalence(final Options options, final String[] arguments) {
+    if (!checkThreeArguments(arguments)) {
+      return false;
+    }
+
+    final String modelName = arguments[0];
+    final String inputFile1 = arguments[1];
+    final String inputFile2 = arguments[2];
+
+    if (!EquivalenceChecker.checkEquivalence(options, modelName, inputFile1, inputFile2)) {
+      Logger.message("Equivalence checking was aborted.");
       return false;
     }
 

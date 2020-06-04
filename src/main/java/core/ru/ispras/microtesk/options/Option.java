@@ -43,6 +43,7 @@ public enum Option implements Property {
   DISASSEMBLE("Disassembles binary files", false, null, "task"),
   SYMBOLIC_EXECUTE("Performs symbolic execution", false, null, "task"),
   TRANSFORM_TRACE("Transforms traces into templates", false, null, "task"),
+  CHECK_EQUIVALENCE("Checks equivalence of two binaries", false, null, "task"),
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
   // Translator Options
