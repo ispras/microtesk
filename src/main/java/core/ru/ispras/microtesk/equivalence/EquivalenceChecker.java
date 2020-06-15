@@ -28,6 +28,7 @@ import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.symexec.ControlFlowInspector;
 import ru.ispras.microtesk.tools.symexec.FormulaBuilder;
 import ru.ispras.microtesk.translator.mir.BasicBlock;
+import ru.ispras.microtesk.translator.mir.DestructCssa;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.GlobalNumbering;
 import ru.ispras.microtesk.translator.mir.Instruction;
@@ -123,7 +124,6 @@ public final class EquivalenceChecker {
     final MirPassDriver driver =
         MirPassDriver.newOptimizing().setStorage(info.storage);
     final StoreAnalysis analysis = new StoreAnalysis();
-    final Mir2Node smtOutput = new Mir2Node();
 
     final String pcName =
       info.archive.getManifest().getJsonObject("program_counter").getString("name");
@@ -161,9 +161,11 @@ public final class EquivalenceChecker {
     final List<MirBlock> outros = new ArrayList<>(nblocks);
 
     int bbIndex = 0;
+    var destruct = new DestructCssa();
     for (final MirContext body : info.bbMir) {
       final var inoutMap = info.bbInOut.get(bbIndex);
-      final var linkPair = wrapInline(body, mir, inoutMap.values());
+      final var linkPair =
+              wrapInline(body, destruct.apply(mir), inoutMap.values());
       intros.add(linkPair.first);
       outros.add(linkPair.second);
     }
