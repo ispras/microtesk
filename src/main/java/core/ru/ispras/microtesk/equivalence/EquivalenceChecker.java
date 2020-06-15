@@ -154,7 +154,7 @@ public final class EquivalenceChecker {
   }
 
   private static MirContext composeMir(final String name, final BodyInfo info) {
-    final MirContext mir = new MirContext(name, MirBuilder.VOID_TO_VOID_TYPE);
+    MirContext mir = new MirContext(name, MirBuilder.VOID_TO_VOID_TYPE);
 
     final int nblocks = info.bbMir.size();
     final List<MirBlock> intros = new ArrayList<>(nblocks);
@@ -164,8 +164,9 @@ public final class EquivalenceChecker {
     var destruct = new DestructCssa();
     for (final MirContext body : info.bbMir) {
       final var inoutMap = info.bbInOut.get(bbIndex);
+      mir = destruct.apply(mir);
       final var linkPair =
-              wrapInline(body, destruct.apply(mir), inoutMap.values());
+              wrapInline(body, mir, inoutMap.values());
       intros.add(linkPair.first);
       outros.add(linkPair.second);
     }
