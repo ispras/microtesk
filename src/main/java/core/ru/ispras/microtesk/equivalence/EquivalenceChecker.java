@@ -83,7 +83,11 @@ public final class EquivalenceChecker {
     InvariantChecks.checkNotNull(file2);
 
     var mir1 = getUnrolledMir(options, cpuArch, file1);
+    writeMirTextDebug(Paths.get(file1), "orig", mir1);
+
     var mir2 = getUnrolledMir(options, cpuArch, file2);
+    writeMirTextDebug(Paths.get(file2), "opt", mir2);
+
     var mir1Paths = new MirPaths(mir1);
     var solver = new Cvc4Solver();
     var equivSearcher = new EquivPathSearcher(mir2, solver);
@@ -143,11 +147,19 @@ public final class EquivalenceChecker {
       info.bbModified.add(analysis.modifiedMap());
       info.bbIndexed.add(analysis.versionMap());
 
-      Logger.debug(MirText.toString(opt));
+      if (Logger.isDebug()) {
+        Logger.debug(MirText.toString(opt));
+      }
     }
   }
 
-  private static void compileBodyInfo(final Path path, final MirContext mir) {
+  private static void writeMirTextDebug(Path inpath, String tag, MirContext mir) {
+    final var name = inpath.getFileName().toString();
+    final var dir = inpath.toAbsolutePath().getParent();
+    writeMirText(dir.resolve(name + "." + tag + ".mir"), mir);
+  }
+
+  private static void writeMirText(final Path path, final MirContext mir) {
     try (final var writer = Files.newBufferedWriter(path)) {
       writer.write(MirText.toString(mir));
     } catch (final java.io.IOException e) {
