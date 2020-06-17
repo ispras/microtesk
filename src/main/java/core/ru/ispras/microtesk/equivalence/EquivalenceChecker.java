@@ -28,6 +28,7 @@ import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.symexec.ControlFlowInspector;
 import ru.ispras.microtesk.tools.symexec.FormulaBuilder;
 import ru.ispras.microtesk.translator.mir.BasicBlock;
+import ru.ispras.microtesk.translator.mir.DestructCssa;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.GlobalNumbering;
 import ru.ispras.microtesk.translator.mir.Instruction;
@@ -53,6 +54,7 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
+
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -161,9 +163,11 @@ public final class EquivalenceChecker {
     final List<MirBlock> outros = new ArrayList<>(nblocks);
 
     int bbIndex = 0;
+    final var destruct = new DestructCssa();
     for (final MirContext body : info.bbMir) {
       final var inoutMap = info.bbInOut.get(bbIndex);
-      final var linkPair = wrapInline(body, mir, inoutMap.values());
+      final var linkPair =
+          wrapInline(destruct.apply(body), mir, inoutMap.values());
       intros.add(linkPair.first);
       outros.add(linkPair.second);
     }
