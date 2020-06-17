@@ -19,7 +19,7 @@ public final class DestructCssa extends Pass {
           it.remove();
         } else if (insn instanceof SsaStore) {
           final var store = (SsaStore) insn;
-          it.set(new Store(removeSubscript(store.target), store.origin.source));
+          it.set(new Store(removeSubscript(store.origin.target), store.origin.source));
         } else if (insn instanceof Load) {
           final var load = (Load) insn;
           it.set(new Load(removeSubscript(load.source), load.target));
