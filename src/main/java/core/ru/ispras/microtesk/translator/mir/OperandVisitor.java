@@ -145,6 +145,6 @@ class OperandWalker<T> extends InsnVisitor {
 
   public void visit(final GlobalNumbering.SsaStore insn) {
     visit(insn.origin);
-    visitor.visitLvalue(insn.target);
+    visitor.visitLvalue(insn.targetDef);
   }
 }

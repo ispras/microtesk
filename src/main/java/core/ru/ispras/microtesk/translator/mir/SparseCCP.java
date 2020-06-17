@@ -404,7 +404,7 @@ abstract class DirectRewriter extends InsnVisitor {
     final Store insn = store.origin;
     final Operand value = dispatch(insn.source);
     final var src = visitLvalue(insn.target);
-    final var lhs = (Static) visitLvalue(store.target);
+    final var lhs = (Static) visitLvalue(store.targetDef);
     notifyRewrite(insn, new SsaStore(lhs, new Store(src, value)));
   }
 }

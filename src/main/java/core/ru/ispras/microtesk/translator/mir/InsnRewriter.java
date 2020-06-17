@@ -316,7 +316,7 @@ public class InsnRewriter extends InsnVisitor {
   public void visit(final SsaStore insn) {
     final Store origin = insn.origin;
     final Store update = new Store(rewriteLvalue(origin.target), rewrite(origin.source));
-    block.append(new GlobalNumbering.SsaStore(insn.target, update));
+    block.append(new GlobalNumbering.SsaStore(insn.targetDef, update));
   }
 
   public void visit(final Phi insn) {

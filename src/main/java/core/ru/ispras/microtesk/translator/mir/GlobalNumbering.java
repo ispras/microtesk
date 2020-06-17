@@ -180,7 +180,7 @@ public class GlobalNumbering extends Pass {
     for (final Instruction insn : bb.insns) {
       if (insn instanceof SsaStore) {
         final SsaStore origin = (SsaStore) insn;
-        getInfo(origin.target).fallback();
+        getInfo(origin.targetDef).fallback();
       } else if (insn instanceof Phi) {
         final Phi origin = (Phi) insn;
         getInfo(origin.target).fallback();
@@ -465,11 +465,11 @@ public class GlobalNumbering extends Pass {
   }
 
   static class SsaStore implements Instruction {
-    final Static target;
+    final Static targetDef;
     final Store origin;
 
     public SsaStore(Static target, Store origin) {
-      this.target = target;
+      this.targetDef = target;
       this.origin = origin;
     }
 

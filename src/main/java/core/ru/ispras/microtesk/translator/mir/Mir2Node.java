@@ -143,22 +143,22 @@ public class Mir2Node extends Pass {
     }
 
     public void visit(final SsaStore insn) {
-      if (insn.target.getType() instanceof MirArray) {
+      if (insn.targetDef.getType() instanceof MirArray) {
         // TODO have to walk recursively
         final NodeOperation select = (NodeOperation) dispatch(insn.origin.target);
         final Node array = select.getOperand(0);
 
         Node key = select.getOperand(1);
         if (ExprUtils.isValue(key)) {
-          final MirArray atype = (MirArray) insn.target.getType();
+          final MirArray atype = (MirArray) insn.targetDef.getType();
           final int indexBits = atype.indexBitLength();
           key = NodeValue.newBitVector(((NodeValue) key).getBitVector().resize(indexBits, false)); 
         }
         assign(
-          insn.target,
+          insn.targetDef,
           Nodes.store(array, key, dispatch(insn.origin.source)));
       } else {
-        assign(insn.target, dispatch(insn.origin.source));
+        assign(insn.targetDef, dispatch(insn.origin.source));
       }
     }
 

@@ -98,10 +98,10 @@ public class StoreAnalysis extends Pass {
 
     @Override
     public void visit(final SsaStore insn) {
-      if (!Types.isArray(insn.target)) {
-        store(insn.target, insn.origin.source);
+      if (!Types.isArray(insn.targetDef)) {
+        store(insn.targetDef, insn.origin.source);
       }
-      assign(insn.target);
+      assign(insn.targetDef);
     }
 
     @Override
