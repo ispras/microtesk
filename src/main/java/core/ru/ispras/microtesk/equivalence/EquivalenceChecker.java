@@ -196,11 +196,6 @@ public final class EquivalenceChecker {
     Pass.inlineContext(mir, callee);
     final MirBlock outbb = mir.newBlock();
 
-    for (final var pair : inout) {
-      inbb.assign(pair.first, pair.first.newVersion(0));
-      outbb.assign(pair.second.newVersion(0), pair.second);
-    }
-
     final BasicBlock entry = mir.blocks.get(start);
     inbb.jump(entry);
     for (final BasicBlock bb : mir.blocks.subList(start, end)) {
