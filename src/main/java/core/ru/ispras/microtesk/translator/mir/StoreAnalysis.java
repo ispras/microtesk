@@ -15,6 +15,7 @@ public class StoreAnalysis extends Pass {
 
   @Override
   public MirContext apply(final MirContext ctx) {
+    final Frame frame = EvalContext.propagatePhi(ctx, Map.of()).getFrame();
     final StoreVisitor visitor = new StoreVisitor();
     final VersionVisitor indexer = new VersionVisitor();
 
@@ -24,7 +25,7 @@ public class StoreAnalysis extends Pass {
         insn.accept(indexer.walker);
       }
     }
-    this.analysisFrame = visitor.frame;
+    this.analysisFrame = frame;
     this.lastAssigned = visitor.lastAssigned;
     this.lastVersioned = indexer.lastVersioned;
 
@@ -50,7 +51,16 @@ public class StoreAnalysis extends Pass {
 
   private Operand lastValueOf(final String name) {
     final int version = lastAssigned.get(name).version;
-    return analysisFrame.get(name, version);
+    Operand ref = analysisFrame.get(name, version);
+    while (ref instanceof Local) {
+      var local = (Local) ref;
+      var value = analysisFrame.locals.get(local.id);
+      if (value == VoidTy.VALUE) {
+        break;
+      }
+      ref = value;
+    }
+    return ref;
   }
 
   public Operand getCondition(final String name) {
@@ -84,49 +94,27 @@ public class StoreAnalysis extends Pass {
   }
 
   private static final class StoreVisitor extends InsnVisitor {
-    private final Frame frame = new Frame();
     private final Map<String, Static> lastAssigned = new java.util.HashMap<>();
     
     @Override
     public void visit(final Store insn) {
-      final Static mem = (Static) insn.target;
-      if (!Types.isArray(mem) && mem.version > 0) {
-        store(mem, insn.source);
+      if (insn.target instanceof Static) {
+        assign((Static) insn.target);
       }
-      assign(mem);
     }
 
     @Override
     public void visit(final SsaStore insn) {
-      if (!Types.isArray(insn.target)) {
-        store(insn.target, insn.origin.source);
-      }
       assign(insn.target);
     }
 
     @Override
     public void visit(final Phi insn) {
-      if (!Types.isArray(insn.target) && insn.values != null) {
-        store(insn.target, insn.value);
-      }
       assign(insn.target);
     }
 
     private void assign(final Static mem) {
       lastAssigned.put(mem.name, mem);
-    }
-
-    private void store(final Static mem, final Operand val) {
-      frame.set(mem.name, mem.version, getValueRec(val));
-    }
-
-    private Operand getValueRec(final Operand opnd) {
-      if (opnd instanceof Static) {
-        final Static mem = (Static) opnd;
-        final Operand value = frame.get(mem.name, mem.version);
-        return (value.equals(VoidTy.VALUE)) ? opnd : value;
-      }
-      return opnd;
     }
   }
 }
