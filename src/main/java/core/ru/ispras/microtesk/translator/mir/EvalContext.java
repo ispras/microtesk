@@ -12,6 +12,8 @@ import java.util.Set;
 
 import static ru.ispras.microtesk.translator.mir.BvOpcode.bitVectorOf;
 import static ru.ispras.microtesk.translator.mir.BvOpcode.constantOf;
+import static ru.ispras.microtesk.translator.mir.GlobalNumbering.Phi;
+import static ru.ispras.microtesk.translator.mir.GlobalNumbering.SsaStore;
 import static ru.ispras.microtesk.translator.mir.Instruction.*;
 
 public final class EvalContext extends InsnVisitor {
@@ -30,6 +32,54 @@ public final class EvalContext extends InsnVisitor {
       context.frame.set(entry.getKey(), 1, Constant.valueOf(128, entry.getValue()));
     }
     return context.evalInternal(mir);
+  }
+
+  public static EvalContext propagatePhi(MirContext mir, Map<String, BigInteger> presets) {
+    // TODO avoid N-times calling topological order
+    final EvalContext ctx = eval(mir, presets);
+    final var propagate = new ScalarPhiPropagation(ctx.getFrame());
+    for (BasicBlock bb : topologicalOrder(mir)) {
+      for (Instruction insn : bb.insns) {
+        insn.accept(propagate);
+      }
+    }
+    return ctx;
+  }
+
+  private static final class ScalarPhiPropagation extends InsnVisitor {
+    final Frame frame;
+
+    ScalarPhiPropagation(Frame frame) {
+      this.frame = frame;
+    }
+
+    @Override
+    public void visit(final Phi insn) {
+      if (!Types.isArray(insn.target) && insn.value != null) {
+        final Operand ref = getStoredValue(insn.target);
+        if (ref instanceof Local) {
+          resetLocal((Local) ref, insn.value);
+        } else if (ref == insn.target) {
+          store(insn.target, insn.value);
+        }
+      }
+    }
+
+    private void resetLocal(Local local, Operand value) {
+      frame.locals.set(local.id, value);
+    }
+
+    private void store(Static mem, Operand val) {
+      if (val instanceof Static) {
+        val = getStoredValue((Static) val);
+      }
+      frame.set(mem.name, mem.version, val);
+    }
+
+    private Operand getStoredValue(final Static mem) {
+      final Operand value = frame.get(mem.name, mem.version);
+      return (value.equals(VoidTy.VALUE)) ? mem : value;
+    }
   }
 
   EvalContext() {
@@ -167,7 +217,7 @@ public final class EvalContext extends InsnVisitor {
   }
 
   @Override
-  public void visit(final GlobalNumbering.SsaStore insn) {
+  public void visit(final SsaStore insn) {
     final Static mem = insn.target;
     if (insn.origin.target instanceof Static) {
       frame.set(mem.name, mem.version, getValueRec(insn.origin.source));
