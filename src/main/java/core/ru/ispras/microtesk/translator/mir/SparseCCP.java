@@ -15,7 +15,8 @@ public class SparseCCP extends InsnVisitor {
   private final Map<Integer, ImmBranch> mapping = new java.util.HashMap<>();
   private final Map<Integer, DefPoint> locals = new java.util.HashMap<>();
   private final Map<Static, DefPoint> globals = new java.util.HashMap<>();
-  private final Map<Lvalue, Phi> phiJoins = new java.util.HashMap<>();
+  private final Map<Operand, Phi> phiJoins = new java.util.HashMap<>();
+  private final Frame frame;
 
   static class ImmBranch {
     final CmpOpcode opc;
@@ -49,7 +50,11 @@ public class SparseCCP extends InsnVisitor {
     }
   }
 
- @Override
+  SparseCCP(Frame frame) {
+    this.frame = frame;
+  }
+
+  @Override
   public void visit(final Assignment insn) {
     if (insn.opc.equals(CmpOpcode.Eq) || insn.opc.equals(CmpOpcode.Ne)) {
       final int condId = insn.lhs.id;
@@ -111,12 +116,17 @@ public class SparseCCP extends InsnVisitor {
 
   @Override
   public void visit(final Phi insn) {
+    final Operand ref = getAssignedValue(insn.target);
+    if (ref instanceof Local) {
+      phiJoins.put(ref, insn);
+    } else if (ref instanceof Ite) {
+      phiJoins.put(((Ite) ref).guard, insn);
+    }
     phiJoins.put(insn.target, insn);
     insn.value = inlineIte(insn.value);
   }
 
   private Ite inlineIte(final Ite origin) {
-    // TODO does it even triggers?
     final ImmBranch br = branchOnImm(origin.guard);
     if (br != null && phiJoins.containsKey(br.lvalue)) {
       final Ite guardIte = phiJoins.get(br.lvalue).value;
@@ -135,9 +145,10 @@ public class SparseCCP extends InsnVisitor {
     return new Ite(guard, propagate(taken, guard, true), propagate(other, guard, false));
   }
 
-  private Operand propagate(final Operand e, final Operand guard, final boolean value) {
-    if (e instanceof Lvalue && phiJoins.containsKey((Lvalue) e)) {
-      return propagate(inlineIte(phiJoins.get((Lvalue) e).value), guard, value);
+  private Operand propagate(final Operand opnd, final Operand guard, final boolean value) {
+    final Operand e = getAssignedValue(opnd);
+    if (phiJoins.containsKey(e)) {
+      return propagate(inlineIte(phiJoins.get(e).value), guard, value);
     }
     if (e instanceof Ite) {
       final Ite ite = (Ite) e;
@@ -149,6 +160,22 @@ public class SparseCCP extends InsnVisitor {
       }
     }
     return e;
+  }
+
+  private Operand getAssignedValue(Operand opnd) {
+    if (opnd instanceof Local) {
+      var local = (Local) opnd;
+      return selectNonVoid(frame.locals.get(local.id), local);
+    } else if (opnd instanceof Static) {
+      var mem = (Static) opnd;
+      return selectNonVoid(frame.get(mem.name, mem.version), mem);
+    } else {
+      return opnd;
+    }
+  }
+
+  private static Operand selectNonVoid(Operand value, Operand def) {
+    return (value != VoidTy.VALUE) ? value : def;
   }
 
   static class Replacer extends OperandVisitor<Operand> {

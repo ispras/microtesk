@@ -148,7 +148,7 @@ public final class SymbolicExecutor {
     for (final MirContext body : info.bbMir) {
       final var inoutMap = info.bbInOut.get(bbIndex);
       final var linkPair =
-          wrapInline(body, destruct.apply(mir), inoutMap.values());
+          wrapInline(destruct.apply(body), mir, inoutMap.values());
       intros.add(linkPair.first);
       outros.add(linkPair.second);
     }
