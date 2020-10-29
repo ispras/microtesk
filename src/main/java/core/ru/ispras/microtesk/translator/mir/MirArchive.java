@@ -66,69 +66,69 @@ public class MirArchive {
     // return Collections.unmodifiableMap(mir);
     return mir;
   }
-}
 
-final class MirLibrary extends AbstractMap<String, MirContext> {
-  private static final String SUFFIX = ".mir";
+  static final class MirLibrary extends AbstractMap<String, MirContext> {
+    private static final String SUFFIX = ".mir";
 
-  private final ZipFile zip;
-  private final Set<Map.Entry<String, MirContext>> entrySet;
+    private final ZipFile zip;
+    private final Set<Map.Entry<String, MirContext>> entrySet;
 
-  MirLibrary(final ZipFile zip) {
-    this.zip = zip;
+    MirLibrary(final ZipFile zip) {
+      this.zip = zip;
 
-    final var entries = new java.util.HashSet<Map.Entry<String, MirContext>>();
-    for (final ZipEntry entry : Collections.list(zip.entries())) {
-      final String name = entry.getName();
-      if (name.endsWith(SUFFIX)) {
-        entries.add(new Entry(name.substring(0, name.length() - SUFFIX.length())));
+      final var entries = new java.util.HashSet<Map.Entry<String, MirContext>>();
+      for (final ZipEntry entry : Collections.list(zip.entries())) {
+        final String name = entry.getName();
+        if (name.endsWith(SUFFIX)) {
+          entries.add(new Entry(name.substring(0, name.length() - SUFFIX.length())));
+        }
       }
-    }
-    this.entrySet = Collections.unmodifiableSet(entries);
-  }
-
-  @Override
-  public Set<Map.Entry<String, MirContext>> entrySet() {
-    return entrySet;
-  }
-
-  private final class Entry implements Map.Entry<String, MirContext> {
-    private final String key;
-
-    Entry(final String key) {
-      this.key = key;
+      this.entrySet = Collections.unmodifiableSet(entries);
     }
 
     @Override
-    public String getKey() {
-      return key;
+    public Set<Map.Entry<String, MirContext>> entrySet() {
+      return entrySet;
     }
 
-    @Override
-    public MirContext getValue() {
-      final var entry = zip.getEntry(key + SUFFIX);
-      try {
-        final var parser = new MirParser(zip.getInputStream(entry));
-        return parser.parse();
-      } catch (final IOException e) {
-        throw new IllegalStateException(
-          String.format("Unable to load MIR '%s'", entry.getName()), e);
+    private final class Entry implements Map.Entry<String, MirContext> {
+      private final String key;
+
+      Entry(final String key) {
+        this.key = key;
       }
-    }
 
-    @Override
-    public MirContext setValue(final MirContext value) {
-      throw new UnsupportedOperationException();
-    }
+      @Override
+      public String getKey() {
+        return key;
+      }
 
-    @Override
-    public boolean equals(final Object that) {
-      return this == that;
-    }
+      @Override
+      public MirContext getValue() {
+        final var entry = zip.getEntry(key + SUFFIX);
+        try {
+          final var parser = new MirParser(zip.getInputStream(entry));
+          return parser.parse();
+        } catch (final IOException e) {
+          throw new IllegalStateException(
+            String.format("Unable to load MIR '%s'", entry.getName()), e);
+        }
+      }
 
-    @Override
-    public int hashCode() {
-      return key.hashCode();
+      @Override
+      public MirContext setValue(final MirContext value) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean equals(final Object that) {
+        return this == that;
+      }
+
+      @Override
+      public int hashCode() {
+        return key.hashCode();
+      }
     }
   }
 }

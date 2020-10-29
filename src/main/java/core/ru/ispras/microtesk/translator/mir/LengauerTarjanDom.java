@@ -21,11 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-interface GraphNodes <Node, Graph> {
-  Collection<Node> nodesOf(Graph g);
-  List<Node> successorsOf(Node node, Graph g);
-}
-
 public class LengauerTarjanDom <Node, Graph> {
   private final GraphNodes<Node, Graph> adapter;
 
@@ -161,88 +156,5 @@ public class LengauerTarjanDom <Node, Graph> {
       bucket.add(that);
       that.sdom = this.selfId;
     }
-  }
-}
-
-class DominanceTree <Node, Graph> {
-  final Graph graph;
-  final GraphNodes<Node, Graph> adapter;
-
-  final Map<Node, Node> idom = new java.util.HashMap<>();
-  final Map<Node, Set<Node>> children = new java.util.HashMap<>();
-  final Map<Node, Set<Node>> frontiers = new java.util.HashMap<>();
-
-  public DominanceTree(final Graph graph, final GraphNodes<Node, Graph> adapter) {
-    this.graph = graph;
-    this.adapter = adapter;
-  }
-
-  public Map<Node, Set<Node>> calculateFrontiers() {
-    final Set<Node> root = new java.util.HashSet<>(idom.values());
-    root.removeAll(idom.keySet());
-
-    final Context ctx = new Context(this.idom, this.frontiers);
-    ctx.getFrontier(root.iterator().next());
-
-    children.putAll(ctx.nodeChildren);
-
-    return frontiers;
-  }
-
-  private List<Node> successorsOf(final Node node) {
-    return adapter.successorsOf(node, graph);
-  }
-
-  private final class Context {
-    final Map<Node, Node> idom;
-    final Map<Node, Set<Node>> frontiers;
-    final Map<Node, Set<Node>> nodeChildren;
-
-    Context(final Map<Node, Node> idom, final Map<Node, Set<Node>> frontiers) {
-      this.idom = idom;
-      this.frontiers = frontiers;
-      this.nodeChildren = calculateTree(idom);
-    }
-
-    Set<Node> getFrontier(final Node node) {
-      Set<Node> df = frontiers.get(node);
-      if (df == null) {
-        df = calculateFrontier(node);
-        frontiers.put(node, df);
-      }
-      return df;
-    }
-
-    Set<Node> calculateFrontier(final Node node) {
-      final Set<Node> frontier = new java.util.LinkedHashSet<>();
-      if (nodeChildren.containsKey(node)) {
-        for (final Node child : nodeChildren.get(node)) {
-          for (final Node cdf : getFrontier(child)) {
-            if (!node.equals(idom.get(cdf))) {
-              frontier.add(cdf);
-            }
-          }
-        }
-      }
-      for (final Node child : successorsOf(node)) {
-        if (!node.equals(idom.get(child))) {
-          frontier.add(child);
-        }
-      }
-      return frontier;
-    }
-  }
-
-  private static <Node> Map<Node, Set<Node>> calculateTree(final Map<Node, Node> idom) {
-    final Map<Node, Set<Node>> nodeChildren = new java.util.HashMap<>();
-    for (final Map.Entry<Node, Node> entry : idom.entrySet()) {
-      Set<Node> children = nodeChildren.get(entry.getValue());
-      if (children == null) {
-        children = new java.util.LinkedHashSet<>();
-        nodeChildren.put(entry.getValue(), children);
-      }
-      children.add(entry.getKey());
-    }
-    return nodeChildren;
   }
 }

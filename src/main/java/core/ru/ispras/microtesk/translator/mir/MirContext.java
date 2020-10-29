@@ -56,14 +56,14 @@ public final class MirContext {
       throw new IndexOutOfBoundsException();
     }
   }
-}
 
-final class LocalInfo {
-  public final int id;
-  public final String name;
+  public static final class LocalInfo {
+    public final int id;
+    public final String name;
 
-  public LocalInfo(final int id, final String name) {
-    this.id = id;
-    this.name = name;
+    public LocalInfo(final int id, final String name) {
+      this.id = id;
+      this.name = name;
+    }
   }
 }

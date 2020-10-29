@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static ru.ispras.microtesk.translator.mir.Instruction.*;
+import static ru.ispras.microtesk.translator.mir.MirContext.LocalInfo;
 
 public final class MirBlock {
   public final BasicBlock bb;

@@ -285,169 +285,169 @@ public class SparseCCP extends InsnVisitor {
   private ImmBranch branchOnImm(final Operand opnd) {
     return (opnd instanceof Local) ? mapping.get(((Local) opnd).id) : null;
   }
-}
 
-abstract class DirectRewriter extends InsnVisitor {
-  private final OperandVisitor<Operand> visitor;
+  abstract static class DirectRewriter extends InsnVisitor {
+    private final OperandVisitor<Operand> visitor;
 
-  DirectRewriter(final OperandVisitor<Operand> visitor) {
-    this.visitor = visitor;
-  }
-
-  public abstract void notifyRewrite(Instruction source, Instruction result);
-
-  public final Operand dispatch(final Operand opnd) {
-    if (opnd instanceof Field) {
-      final Field field = (Field) opnd;
-      return visitor.visitField(field, dispatch(field.base));
+    DirectRewriter(final OperandVisitor<Operand> visitor) {
+      this.visitor = visitor;
     }
-    if (opnd instanceof Index) {
-      final Index index = (Index) opnd;
-      return visitor.visitIndex(index, dispatch(index.base), dispatch(index.index));
+
+    public abstract void notifyRewrite(Instruction source, Instruction result);
+
+    public final Operand dispatch(final Operand opnd) {
+      if (opnd instanceof Field) {
+        final Field field = (Field) opnd;
+        return visitor.visitField(field, dispatch(field.base));
+      }
+      if (opnd instanceof Index) {
+        final Index index = (Index) opnd;
+        return visitor.visitIndex(index, dispatch(index.base), dispatch(index.index));
+      }
+      if (opnd instanceof Closure) {
+        final Closure c = (Closure) opnd;
+        return visitor.visitClosure(c, dispatchAll(c.upvalues));
+      }
+      if (opnd instanceof Local) {
+        return visitor.visitLocal((Local) opnd);
+      }
+      if (opnd instanceof Constant) {
+        return visitor.visitConst((Constant) opnd);
+      }
+      if (opnd instanceof Static) {
+        return visitor.visitStatic((Static) opnd);
+      }
+      if (opnd instanceof Ite) {
+        final Ite ite = (Ite) opnd;
+        return visitor.visitIte(
+          ite, dispatch(ite.guard), dispatch(ite.taken), dispatch(ite.other));
+      }
+      return visitor.visitOperand(opnd);
     }
-    if (opnd instanceof Closure) {
-      final Closure c = (Closure) opnd;
-      return visitor.visitClosure(c, dispatchAll(c.upvalues));
+
+    public final List<Operand> dispatchAll(final List<Operand> operands) {
+      final List<Operand> values = new java.util.ArrayList<>(operands.size());
+      for (final Operand opnd : operands) {
+        values.add(dispatch(opnd));
+      }
+      return values;
     }
-    if (opnd instanceof Local) {
-      return visitor.visitLocal((Local) opnd);
+
+    private Local visitLhs(final Local opnd) {
+      return (Local) visitor.visitLhs(opnd);
     }
-    if (opnd instanceof Constant) {
-      return visitor.visitConst((Constant) opnd);
+
+    private Lvalue visitLvalue(final Lvalue opnd) {
+      return (Lvalue) visitor.visitLvalue(opnd);
     }
-    if (opnd instanceof Static) {
-      return visitor.visitStatic((Static) opnd);
+
+    public void visit(final Assignment insn) {
+      final Operand op1 = dispatch(insn.op1);
+      final Operand op2 = dispatch(insn.op2);
+      final var lhs = visitLhs(insn.lhs);
+      notifyRewrite(insn, new Assignment(lhs, insn.opc.make(op1, op2)));
     }
-    if (opnd instanceof Ite) {
-      final Ite ite = (Ite) opnd;
-      return visitor.visitIte(
-        ite, dispatch(ite.guard), dispatch(ite.taken), dispatch(ite.other));
+
+    public void visit(final Concat insn) {
+      final List<Operand> args = dispatchAll(insn.rhs);
+      final var lhs = visitLhs(insn.lhs);
+      notifyRewrite(insn, new Concat(lhs, args));
     }
-    return visitor.visitOperand(opnd);
-  }
 
-  public final List<Operand> dispatchAll(final List<Operand> operands) {
-    final List<Operand> values = new java.util.ArrayList<>(operands.size());
-    for (final Operand opnd : operands) {
-      values.add(dispatch(opnd));
+    public void visit(final Extract insn) {
+      final Operand rhs = dispatch(insn.rhs);
+      final Operand lo = dispatch(insn.lo);
+      final Operand hi = dispatch(insn.hi);
+      final var lhs = visitLhs(insn.lhs);
+      notifyRewrite(insn, new Extract(lhs, rhs, lo, hi));
     }
-    return values;
-  }
 
-  private Local visitLhs(final Local opnd) {
-    return (Local) visitor.visitLhs(opnd);
-  }
+    public void visit(final Sext insn) {
+      final Operand rhs = dispatch(insn.rhs);
+      final var lhs = visitLhs(insn.lhs);
+      notifyRewrite(insn, new Sext(lhs, rhs));
+    }
 
-  private Lvalue visitLvalue(final Lvalue opnd) {
-    return (Lvalue) visitor.visitLvalue(opnd);
-  }
+    public void visit(final Zext insn) {
+      final Operand rhs = dispatch(insn.rhs);
+      final var lhs = visitLhs(insn.lhs);
+      notifyRewrite(insn, new Zext(lhs, rhs));
+    }
 
-  public void visit(final Assignment insn) {
-    final Operand op1 = dispatch(insn.op1);
-    final Operand op2 = dispatch(insn.op2);
-    final var lhs = visitLhs(insn.lhs);
-    notifyRewrite(insn, new Assignment(lhs, insn.opc.make(op1, op2)));
-  }
+    public void visit(final Branch insn) {
+      if (insn.successors.size() > 1) {
+        final Operand guard = dispatch(insn.guard);
+        notifyRewrite(insn, new Branch(guard, insn.target.get(1), insn.other));
+      }
+    }
 
-  public void visit(final Concat insn) {
-    final List<Operand> args = dispatchAll(insn.rhs);
-    final var lhs = visitLhs(insn.lhs);
-    notifyRewrite(insn, new Concat(lhs, args));
-  }
+    public void visit(final Return insn) {
+      if (insn.value != null) {
+        final Operand value = dispatch(insn.value);
+        notifyRewrite(insn, new Return(value));
+      }
+    }
 
-  public void visit(final Extract insn) {
-    final Operand rhs = dispatch(insn.rhs);
-    final Operand lo = dispatch(insn.lo);
-    final Operand hi = dispatch(insn.hi);
-    final var lhs = visitLhs(insn.lhs);
-    notifyRewrite(insn, new Extract(lhs, rhs, lo, hi));
-  }
+    public void visit(final Instruction.Exception insn) { /* TODO */ }
 
-  public void visit(final Sext insn) {
-    final Operand rhs = dispatch(insn.rhs);
-    final var lhs = visitLhs(insn.lhs);
-    notifyRewrite(insn, new Sext(lhs, rhs));
-  }
+    public void visit(final Call insn) {
+      notifyRewrite(insn, rewriteCall(insn));
+    }
 
-  public void visit(final Zext insn) {
-    final Operand rhs = dispatch(insn.rhs);
-    final var lhs = visitLhs(insn.lhs);
-    notifyRewrite(insn, new Zext(lhs, rhs));
-  }
+    public void visit(final Invoke insn) {
+      notifyRewrite(insn, new Invoke(rewriteCall(insn.call)));
+    }
 
-  public void visit(final Branch insn) {
-    if (insn.successors.size() > 1) {
+    private Call rewriteCall(final Call insn) {
+      final List<Operand> args = dispatchAll(insn.args);
+      final Operand callee = dispatch(insn.callee);
+      final var lhs = (insn.ret != null) ? visitLhs(insn.ret) : null;
+      return new Call(callee, insn.method, args, (Local) lhs);
+    }
+
+    public void visit(final Load insn) {
+      final Lvalue src = (Lvalue) dispatch(insn.source);
+      final Local lhs = visitLhs(insn.target);
+      notifyRewrite(insn, new Load(src, lhs));
+    }
+
+    public void visit(final Store insn) {
+      final Operand value = dispatch(insn.source);
+      final Lvalue lhs = (Lvalue) dispatch(insn.target);
+      notifyRewrite(insn, new Store(lhs, value));
+    }
+
+    public void visit(final Disclose insn) {
+      final Operand source = dispatch(insn.source);
+      final Local lhs = visitLhs(insn.target);
+      notifyRewrite(insn, new Disclose(lhs, source, insn.indices));
+    }
+
+    public void visit(final Conditional insn) {
       final Operand guard = dispatch(insn.guard);
-      notifyRewrite(insn, new Branch(guard, insn.target.get(1), insn.other));
+      final Operand taken = dispatch(insn.taken);
+      final Operand other = dispatch(insn.other);
+      final Local lhs = visitLhs(insn.lhs);
+
+      notifyRewrite(insn, new Conditional(lhs, guard, taken, other));
     }
-  }
 
-  public void visit(final Return insn) {
-    if (insn.value != null) {
-      final Operand value = dispatch(insn.value);
-      notifyRewrite(insn, new Return(value));
+    public void visit(final Phi insn) {
+      if (insn.value != null) {
+        final Operand value = dispatch(insn.value);
+        final Static lhs = (Static) visitLvalue(insn.target);
+        final Phi phi = new Phi(lhs, Collections.<Static>emptyList());
+        phi.value = (Ite) value;
+        notifyRewrite(insn, phi);
+      }
     }
-  }
 
-  public void visit(final Instruction.Exception insn) { /* TODO */ }
-
-  public void visit(final Call insn) {
-    notifyRewrite(insn, rewriteCall(insn));
-  }
-
-  public void visit(final Invoke insn) {
-    notifyRewrite(insn, new Invoke(rewriteCall(insn.call)));
-  }
-
-  private Call rewriteCall(final Call insn) {
-    final List<Operand> args = dispatchAll(insn.args);
-    final Operand callee = dispatch(insn.callee);
-    final var lhs = (insn.ret != null) ? visitLhs(insn.ret) : null;
-    return new Call(callee, insn.method, args, (Local) lhs);
-  }
-
-  public void visit(final Load insn) {
-    final Lvalue src = (Lvalue) dispatch(insn.source);
-    final Local lhs = visitLhs(insn.target);
-    notifyRewrite(insn, new Load(src, lhs));
-  }
-
-  public void visit(final Store insn) {
-    final Operand value = dispatch(insn.source);
-    final Lvalue lhs = (Lvalue) dispatch(insn.target);
-    notifyRewrite(insn, new Store(lhs, value));
-  }
-
-  public void visit(final Disclose insn) {
-    final Operand source = dispatch(insn.source);
-    final Local lhs = visitLhs(insn.target);
-    notifyRewrite(insn, new Disclose(lhs, source, insn.indices));
-  }
-
-  public void visit(final Conditional insn) {
-    final Operand guard = dispatch(insn.guard);
-    final Operand taken = dispatch(insn.taken);
-    final Operand other = dispatch(insn.other);
-    final Local lhs = visitLhs(insn.lhs);
-
-    notifyRewrite(insn, new Conditional(lhs, guard, taken, other));
-  }
-
-  public void visit(final Phi insn) {
-    if (insn.value != null) {
-      final Operand value = dispatch(insn.value);
-      final Static lhs = (Static) visitLvalue(insn.target);
-      final Phi phi = new Phi(lhs, Collections.<Static>emptyList());
-      phi.value = (Ite) value;
-      notifyRewrite(insn, phi);
+    public void visit(final SsaStore store) {
+      final Store insn = store.origin;
+      final Operand value = dispatch(insn.source);
+      final var src = visitLvalue(insn.target);
+      final var lhs = (Static) visitLvalue(store.target);
+      notifyRewrite(insn, new SsaStore(lhs, new Store(src, value)));
     }
-  }
-
-  public void visit(final SsaStore store) {
-    final Store insn = store.origin;
-    final Operand value = dispatch(insn.source);
-    final var src = visitLvalue(insn.target);
-    final var lhs = (Static) visitLvalue(store.target);
-    notifyRewrite(insn, new SsaStore(lhs, new Store(src, value)));
   }
 }
