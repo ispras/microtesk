@@ -155,12 +155,14 @@ public class InlinePass extends Pass {
       return bb;
     }
 
-    private static <T> void move(final Collection<T> dst, final Collection<? extends T> src) {
+    private static <T> void move(
+        final Collection<T> dst, final Collection<? extends T> src) {
       dst.addAll(src);
       src.clear();
     }
 
-    private static List<BasicBlock.Origin> getOutrangedOrigins(final BasicBlock bb, final int index) {
+    private static List<BasicBlock.Origin> getOutrangedOrigins(
+        final BasicBlock bb, final int index) {
       for (int i = 0; i < bb.origins.size(); ++i) {
         final BasicBlock.Origin org = bb.origins.get(i);
         if (org.range > index + 1) {
@@ -207,7 +209,8 @@ public class InlinePass extends Pass {
           bb.insns.remove(index);
 
           if (call.ret != null) {
-            final Local lhs = new Local(call.ret.id + this.callOrg - bb.getOrigin(index), call.ret.getType());
+            final int id = call.ret.id + this.callOrg - bb.getOrigin(index);
+            final Local lhs = new Local(id, call.ret.getType());
             bb.insns.add(new Assignment(lhs, UnOpcode.Use.make(ret.value)));
           }
           bb.insns.add(new Branch(next));
@@ -236,7 +239,8 @@ public class InlinePass extends Pass {
     @Override
     public void visit(final Assignment insn) {
       bb.insns.set(index,
-        new Assignment(rebase(insn.lhs), insn.opc.make(rebase(insn.op1), rebase(insn.op2))));
+          new Assignment(
+              rebase(insn.lhs), insn.opc.make(rebase(insn.op1), rebase(insn.op2))));
     }
 
     @SuppressWarnings("unchecked")

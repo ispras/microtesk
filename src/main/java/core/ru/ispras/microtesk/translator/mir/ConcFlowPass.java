@@ -60,7 +60,8 @@ public class ConcFlowPass extends Pass {
     return ctx;
   }
 
-  private static void inlineBlock(final BasicBlock bb, final Map<BasicBlock, List<BasicBlock>> backrefs) {
+  private static void inlineBlock(
+      final BasicBlock bb, final Map<BasicBlock, List<BasicBlock>> backrefs) {
     final List<BasicBlock> targets = targetsOf(bb);
     if (targets.size() == 1 && backrefs.containsKey(targets.get(0))) {
       inlineBlock(targets.get(0), backrefs);

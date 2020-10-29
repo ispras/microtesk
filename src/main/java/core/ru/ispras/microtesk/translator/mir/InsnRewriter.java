@@ -70,7 +70,9 @@ public class InsnRewriter extends InsnVisitor {
       }
 
       @Override
-      public Void visitOperand(final Operand opnd) { return null; }
+      public Void visitOperand(final Operand opnd) {
+        return null;
+      }
     };
     final OperandWalker<Void> walker = new OperandWalker<>(visitor);
     final List<BasicBlock> worklist = EvalContext.breadthFirst(mir);
@@ -266,7 +268,8 @@ public class InsnRewriter extends InsnVisitor {
 
   @Override
   public void visit(final Extract insn) {
-    block.append(new Extract(rebase(insn.lhs), rewrite(insn.rhs), rewrite(insn.lo), rewrite(insn.hi)));
+    block.append(new Extract(
+        rebase(insn.lhs), rewrite(insn.rhs), rewrite(insn.lo), rewrite(insn.hi)));
   }
 
   public void visit(final Sext insn) {
@@ -293,10 +296,11 @@ public class InsnRewriter extends InsnVisitor {
       if (guard instanceof Constant) {
         final int variant = ((Constant) guard).getValue().abs().intValue();
         final BasicBlock target =
-          (insn.target.containsKey(variant)) ? insn.target.get(variant) : insn.other;
+            (insn.target.containsKey(variant)) ? insn.target.get(variant) : insn.other;
         block.append(new Branch(getBlockImage(target)));
       } else {
-        block.append(new Branch(guard, getBlockImage(insn.target.get(1)), getBlockImage(insn.other)));
+        block.append(new Branch(
+            guard, getBlockImage(insn.target.get(1)), getBlockImage(insn.other)));
       }
     }
   }

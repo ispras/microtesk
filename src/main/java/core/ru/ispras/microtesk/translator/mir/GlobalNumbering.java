@@ -166,9 +166,9 @@ public class GlobalNumbering extends Pass {
         final VarInfo info = getInfo(base);
 
         final Store store =
-          new Store(update(origin.target, info.current()), origin.source);
+            new Store(update(origin.target, info.current()), origin.source);
         final SsaStore upd =
-          new SsaStore((Static) update(base, info.assign()), store);
+            new SsaStore((Static) update(base, info.assign()), store);
         bb.insns.set(i, upd);
       } else if (insn instanceof Phi) {
         final Phi origin = (Phi) insn;
@@ -219,7 +219,9 @@ public class GlobalNumbering extends Pass {
     private final List<Integer> version = new java.util.ArrayList<>();
     private int nassigned = 0;
 
-    VarInfo() { assign(); }
+    VarInfo() {
+      assign();
+    }
 
     int assign() {
       final int value = ++nassigned;
@@ -399,8 +401,8 @@ public class GlobalNumbering extends Pass {
     return Collections.emptyList();
   }
 
-  static class DepthFirstPath <T> {
-    public interface Sibling <T> {
+  static class DepthFirstPath<T> {
+    public interface Sibling<T> {
       Collection<T> get(T input);
     }
 

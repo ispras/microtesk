@@ -79,6 +79,7 @@ public class Constant implements Operand {
   }
 
   private static final Constant[] ZERO = new Constant[64];
+
   static {
     ZERO[0] = BITS[0];
   }
