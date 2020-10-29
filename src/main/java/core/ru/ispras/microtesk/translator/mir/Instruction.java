@@ -12,232 +12,232 @@ import java.util.Map;
 public interface Instruction {
   void accept(InsnVisitor visitor);
 
-static final class Assignment implements Instruction {
-  public Local lhs;
-  public BinOpcode opc;
-  public Operand op1;
-  public Operand op2;
+  static final class Assignment implements Instruction {
+    public Local lhs;
+    public BinOpcode opc;
+    public Operand op1;
+    public Operand op2;
 
-  public Assignment(final Local lhs, final Rvalue rhs) {
-    this.lhs = lhs;
-    this.opc = rhs.opc;
-    this.op1 = rhs.op1;
-    this.op2 = rhs.op2;
+    public Assignment(final Local lhs, final Rvalue rhs) {
+      this.lhs = lhs;
+      this.opc = rhs.opc;
+      this.op1 = rhs.op1;
+      this.op2 = rhs.op2;
+    }
+
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
   }
 
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
+  static class Extract implements Instruction {
+    public Local lhs;
+    public Operand rhs;
+    public Operand lo;
+    public Operand hi;
 
-static class Extract implements Instruction {
-  public Local lhs;
-  public Operand rhs;
-  public Operand lo;
-  public Operand hi;
+    public Extract(final Local lhs, final Operand rhs, final Operand lo, final Operand hi) {
+      this.lhs = lhs;
+      this.rhs = rhs;
+      this.lo = lo;
+      this.hi = hi;
+    }
 
-  public Extract(final Local lhs, final Operand rhs, final Operand lo, final Operand hi) {
-    this.lhs = lhs;
-    this.rhs = rhs;
-    this.lo = lo;
-    this.hi = hi;
-  }
-
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
-
-static class Concat implements Instruction {
-  public Local lhs;
-  public List<Operand> rhs;
-
-  public Concat(final Local lhs, final List<Operand> rhs) {
-    this.lhs = lhs;
-    this.rhs = rhs;
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
   }
 
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
+  static class Concat implements Instruction {
+    public Local lhs;
+    public List<Operand> rhs;
 
-static final class Call implements Instruction {
-  public Operand callee;
-  public String method;
-  public List<Operand> args;
-  public Local ret;
+    public Concat(final Local lhs, final List<Operand> rhs) {
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
 
-  public Call(final Operand callee, final String method, final List<Operand> args, final Local ret) {
-    this.callee = callee;
-    this.method = method;
-    this.args = args;
-    this.ret = ret;
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
   }
 
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
+  static final class Call implements Instruction {
+    public Operand callee;
+    public String method;
+    public List<Operand> args;
+    public Local ret;
 
-static final class Load implements Instruction {
-  public Lvalue source;
-  public Local target;
+    public Call(final Operand callee, final String method, final List<Operand> args, final Local ret) {
+      this.callee = callee;
+      this.method = method;
+      this.args = args;
+      this.ret = ret;
+    }
 
-  public Load(final Lvalue source, final Local target) {
-    this.source = source;
-    this.target = target;
-  }
-
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
-
-static final class Store implements Instruction {
-  public Lvalue target;
-  public Operand source;
-
-  public Store(final Lvalue target, final Operand source) {
-    this.target = target;
-    this.source = source;
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
   }
 
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
+  static final class Load implements Instruction {
+    public Lvalue source;
+    public Local target;
 
-static final class Disclose implements Instruction {
-  public Local target;
-  public Operand source;
-  public List<Constant> indices;
+    public Load(final Lvalue source, final Local target) {
+      this.source = source;
+      this.target = target;
+    }
 
-  public Disclose(final Local target, final Operand source, final List<Constant> indices) {
-    this.target = target;
-    this.source = source;
-    this.indices = indices;
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
   }
 
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
+  static final class Store implements Instruction {
+    public Lvalue target;
+    public Operand source;
 
-static abstract class Terminator implements Instruction {
-  public final List<BasicBlock> successors;
+    public Store(final Lvalue target, final Operand source) {
+      this.target = target;
+      this.source = source;
+    }
 
-  protected Terminator() {
-    this.successors = Collections.emptyList();
-  }
-
-  protected Terminator(final List<BasicBlock> successors) {
-    this.successors = successors;
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
   }
 
-  public abstract void accept(InsnVisitor visitor);
-}
+  static final class Disclose implements Instruction {
+    public Local target;
+    public Operand source;
+    public List<Constant> indices;
 
-static class Invoke extends Terminator {
-  public final Call call;
+    public Disclose(final Local target, final Operand source, final List<Constant> indices) {
+      this.target = target;
+      this.source = source;
+      this.indices = indices;
+    }
 
-  public Invoke(final Call call) {
-    this.call = call;
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
   }
 
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
+  static abstract class Terminator implements Instruction {
+    public final List<BasicBlock> successors;
 
-static final class Branch extends Terminator {
-  public Operand guard;
-  public Map<Integer, BasicBlock> target;
-  public BasicBlock other;
+    protected Terminator() {
+      this.successors = Collections.emptyList();
+    }
 
-  public Branch(final BasicBlock next) {
-    super(Collections.singletonList(next));
-    this.guard = Constant.bitOf(1);
-    this.target = Collections.emptyMap();
-    this.other = next;
+    protected Terminator(final List<BasicBlock> successors) {
+      this.successors = successors;
+    }
+
+    public abstract void accept(InsnVisitor visitor);
   }
 
-  public Branch(final Operand guard, final BasicBlock bbTaken, final BasicBlock bbOther) {
-    super(Arrays.asList(bbTaken, bbOther));
-    this.guard = guard;
-    this.target = Collections.singletonMap(1, bbTaken);
-    this.other = bbOther;
+  static class Invoke extends Terminator {
+    public final Call call;
+
+    public Invoke(final Call call) {
+      this.call = call;
+    }
+
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
   }
 
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
+  static final class Branch extends Terminator {
+    public Operand guard;
+    public Map<Integer, BasicBlock> target;
+    public BasicBlock other;
 
-static final class Return extends Terminator {
-  public Operand value;
+    public Branch(final BasicBlock next) {
+      super(Collections.singletonList(next));
+      this.guard = Constant.bitOf(1);
+      this.target = Collections.emptyMap();
+      this.other = next;
+    }
 
-  public Return(final Operand value) {
-    this.value = value;
-  }
+    public Branch(final Operand guard, final BasicBlock bbTaken, final BasicBlock bbOther) {
+      super(Arrays.asList(bbTaken, bbOther));
+      this.guard = guard;
+      this.target = Collections.singletonMap(1, bbTaken);
+      this.other = bbOther;
+    }
 
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
-
-static final class Exception extends Terminator {
-  final String message;
-
-  public Exception(final String message) {
-    this.message = message;
-  }
-
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
-
-static class Sext implements Instruction {
-  public Local lhs;
-  public Operand rhs;
-
-  Sext(final Local lhs, final Operand rhs) {
-    this.lhs = lhs;
-    this.rhs = rhs;
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
   }
 
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
-  }
-}
+  static final class Return extends Terminator {
+    public Operand value;
 
-static class Zext implements Instruction {
-  public Local lhs;
-  public Operand rhs;
+    public Return(final Operand value) {
+      this.value = value;
+    }
 
-  Zext(final Local lhs, final Operand rhs) {
-    this.lhs = lhs;
-    this.rhs = rhs;
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
   }
 
-  @Override
-  public void accept(final InsnVisitor visitor) {
-    visitor.visit(this);
+  static final class Exception extends Terminator {
+    final String message;
+
+    public Exception(final String message) {
+      this.message = message;
+    }
+
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
   }
-}
+
+  static class Sext implements Instruction {
+    public Local lhs;
+    public Operand rhs;
+
+    Sext(final Local lhs, final Operand rhs) {
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
+  }
+
+  static class Zext implements Instruction {
+    public Local lhs;
+    public Operand rhs;
+
+    Zext(final Local lhs, final Operand rhs) {
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+
+    @Override
+    public void accept(final InsnVisitor visitor) {
+      visitor.visit(this);
+    }
+  }
 
   static class Conditional implements Instruction {
     public Local lhs;
