@@ -92,7 +92,9 @@ public class StoreAnalysis extends Pass {
     private final OperandWalker<Void> walker = new OperandWalker<>(this);
 
     @Override
-    public Void visitOperand(final Operand opnd) { return null; }
+    public Void visitOperand(final Operand opnd) {
+      return null;
+    }
 
     @Override
     public Void visitStatic(final Static opnd) {

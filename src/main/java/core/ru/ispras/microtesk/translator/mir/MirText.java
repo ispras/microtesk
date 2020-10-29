@@ -91,11 +91,11 @@ public class MirText {
     @Override
     public void visit(final Assignment insn) {
       lines.add(String.format("%s = %s %s %s %s",
-        stringOf(insn.lhs),
-        insn.opc.typeOf(insn.op1, insn.op2).getName(),
-        insn.opc,
-        insn.op1.getType().getName(),
-        stringOf(insn.opc, insn.op1, insn.op2)));
+          stringOf(insn.lhs),
+          insn.opc.typeOf(insn.op1, insn.op2).getName(),
+          insn.opc,
+          insn.op1.getType().getName(),
+          stringOf(insn.opc, insn.op1, insn.op2)));
     }
 
 
@@ -140,36 +140,36 @@ public class MirText {
     public void visit(final Concat insn) {
       final String args = concatOperands(insn.rhs);
       lines.add(String.format("%s = Concat %s %s",
-        stringOf(insn.lhs), insn.lhs.getType().getName(), args));
+          stringOf(insn.lhs), insn.lhs.getType().getName(), args));
     }
 
     @Override
     public void visit(final Extract insn) {
       lines.add(String.format("%s = Extract %s of %s %s <%s, %s>",
-        stringOf(insn.lhs),
-        insn.lhs.getType().getName(),
-        insn.rhs.getType().getName(),
-        stringOf(insn.rhs),
-        stringOf(insn.hi),
-        stringOf(insn.lo)));
+          stringOf(insn.lhs),
+          insn.lhs.getType().getName(),
+          insn.rhs.getType().getName(),
+          stringOf(insn.rhs),
+          stringOf(insn.hi),
+          stringOf(insn.lo)));
     }
 
     @Override
     public void visit(final Sext insn) {
       lines.add(String.format("%s = Sext %s %s to %s",
-        stringOf(insn.lhs),
-        insn.rhs.getType().getName(),
-        stringOf(insn.rhs),
-        insn.lhs.getType().getName()));
+          stringOf(insn.lhs),
+          insn.rhs.getType().getName(),
+          stringOf(insn.rhs),
+          insn.lhs.getType().getName()));
     }
 
     @Override
     public void visit(final Zext insn) {
       lines.add(String.format("%s = Zext %s %s to %s",
-        stringOf(insn.lhs),
-        insn.rhs.getType().getName(),
-        stringOf(insn.rhs),
-        insn.lhs.getType().getName()));
+          stringOf(insn.lhs),
+          insn.rhs.getType().getName(),
+          stringOf(insn.rhs),
+          insn.lhs.getType().getName()));
     }
 
     @Override
@@ -178,7 +178,7 @@ public class MirText {
         lines.add(String.format("br label %%%s", getLabel(0, insn)));
       } else {
         lines.add(String.format("br i1 %s, label %%%s, label %%%s",
-          stringOf(insn.guard), getLabel(0, insn), getLabel(1, insn)));
+            stringOf(insn.guard), getLabel(0, insn), getLabel(1, insn)));
       }
     }
 
@@ -204,14 +204,14 @@ public class MirText {
       final String args = concatOperands(insn.args);
       if (insn.ret == null) {
         lines.add(String.format("call void %s %s (%s)",
-          insn.method, stringOf(insn.callee), args));
+            insn.method, stringOf(insn.callee), args));
       } else {
         lines.add(String.format("%s = call %s %s %s (%s)",
-          stringOf(insn.ret),
-          insn.ret.getType().getName(),
-          insn.method,
-          stringOf(insn.callee),
-          args));
+            stringOf(insn.ret),
+            insn.ret.getType().getName(),
+            insn.method,
+            stringOf(insn.callee),
+            args));
       }
     }
 
@@ -222,41 +222,41 @@ public class MirText {
     @Override
     public void visit(final Load insn) {
       lines.add(String.format("%s = load %s, %s %s",
-        stringOf(insn.target),
-        insn.target.getType().getName(),
-        insn.source.getContainerType().getName(),
-        stringOf(insn.source)));
+          stringOf(insn.target),
+          insn.target.getType().getName(),
+          insn.source.getContainerType().getName(),
+          stringOf(insn.source)));
     }
 
     @Override
     public void visit(final Store insn) {
 
       lines.add(String.format("store %s %s, %s %s",
-        insn.source.getType().getName(),
-        stringOf(insn.source),
-        insn.target.getContainerType().getName(),
-        stringOf(insn.target)));
+          insn.source.getType().getName(),
+          stringOf(insn.source),
+          insn.target.getContainerType().getName(),
+          stringOf(insn.target)));
     }
 
     @Override
     public void visit(final Disclose insn) {
       lines.add(String.format("%s = Disclose %s of %s %s %s",
-        stringOf(insn.target),
-        insn.target.getType().getName(),
-        insn.source.getType().getName(),
-        stringOf(insn.source),
-        concatOperands(insn.indices)));
+          stringOf(insn.target),
+          insn.target.getType().getName(),
+          insn.source.getType().getName(),
+          stringOf(insn.source),
+          concatOperands(insn.indices)));
     }
 
     @Override
     public void visit(final Conditional insn) {
       lines.add(String.format("%s = %s ite %s %s %s %s",
-        stringOf(insn.lhs),
-        typeToString(insn.lhs),
-        typeToString(insn.guard),
-        stringOf(insn.guard),
-        stringOf(insn.taken),
-        stringOf(insn.other)));
+          stringOf(insn.lhs),
+          typeToString(insn.lhs),
+          typeToString(insn.guard),
+          stringOf(insn.guard),
+          stringOf(insn.taken),
+          stringOf(insn.other)));
     }
 
     static String typeToString(final Operand opnd) {
@@ -266,8 +266,8 @@ public class MirText {
     @Override
     public void visit(final GlobalNumbering.Phi insn) {
       lines.add(String.format("%s = phi %s",
-        stringOf(insn.target),
-        (insn.value != null) ? stringOf(insn.value) : concatOperands(insn.values)));
+          stringOf(insn.target),
+          (insn.value != null) ? stringOf(insn.value) : concatOperands(insn.values)));
     }
 
     @Override

@@ -111,7 +111,8 @@ public final class MirBlock {
     return call(getNamedLocal(".self"), method, args, ret);
   }
 
-  public Call call(final Operand callee, final String method, final List<Operand> args, final Local ret) {
+  public Call call(
+      final Operand callee, final String method, final List<Operand> args, final Local ret) {
     return append(new Call(callee, method, args, ret));
   }
 

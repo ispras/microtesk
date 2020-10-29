@@ -26,9 +26,9 @@ import static ru.ispras.microtesk.translator.mir.Instruction.Return;
 import static ru.ispras.microtesk.translator.mir.Instruction.Store;
 
 public class MirBuilder {
-  public final static FuncTy VOID_TO_VOID_TYPE =
+  public static final FuncTy VOID_TO_VOID_TYPE =
       new FuncTy(VoidTy.VALUE, Collections.<MirTy>emptyList());
-  private final static Local SELF = new Local(0, VOID_TO_VOID_TYPE);
+  private static final Local SELF = new Local(0, VOID_TO_VOID_TYPE);
 
   private final MirContext mir;
   private final MirBlock block;

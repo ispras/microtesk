@@ -17,8 +17,8 @@
 package ru.ispras.microtesk.translator.mir;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -114,7 +114,7 @@ public class MirParser {
     }
   }
 
-  private final static class Token {
+  private static final class Token {
     public final TokenKind kind;
     public final String value;
 

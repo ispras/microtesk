@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class LengauerTarjanDom <Node, Graph> {
+public class LengauerTarjanDom<Node, Graph> {
   private final GraphNodes<Node, Graph> adapter;
 
   private final List<Node> graphNodes = new java.util.ArrayList<>();
@@ -112,28 +112,28 @@ public class LengauerTarjanDom <Node, Graph> {
     return treeNodes.get(id - 1);
   }
 
-    private DTNode eval(final DTNode node) {
-      if (node.ancestor == null) {
-        return node;
-      }
-      return compress(node);
+  private DTNode eval(final DTNode node) {
+    if (node.ancestor == null) {
+      return node;
     }
+    return compress(node);
+  }
 
-    private DTNode compress(final DTNode node) {
-      final DTNode ancestor = node.ancestor;
-      if (ancestor.ancestor != null) {
-        final DTNode label = compress(ancestor);
-        if (label.sdom < node.label.sdom) {
-          node.label = label;
-        }
-        node.ancestor = ancestor.ancestor;
+  private DTNode compress(final DTNode node) {
+    final DTNode ancestor = node.ancestor;
+    if (ancestor.ancestor != null) {
+      final DTNode label = compress(ancestor);
+      if (label.sdom < node.label.sdom) {
+        node.label = label;
       }
-      return node.label;
+      node.ancestor = ancestor.ancestor;
     }
+    return node.label;
+  }
 
-    private void link(final DTNode source, final DTNode target) {
-      target.ancestor = source;
-    }
+  private void link(final DTNode source, final DTNode target) {
+    target.ancestor = source;
+  }
 
   private static final class DTNode {
     final int selfId;

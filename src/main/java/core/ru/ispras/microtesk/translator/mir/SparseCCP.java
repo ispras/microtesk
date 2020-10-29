@@ -172,7 +172,10 @@ public class SparseCCP extends InsnVisitor {
         final Operand child = (value) ? ite.taken : ite.other;
         return propagate(child, guard, value);
       } else {
-        return new Ite(ite.guard, propagate(ite.taken, guard, value), propagate(ite.other, guard, value));
+        return new Ite(
+            ite.guard,
+            propagate(ite.taken, guard, value),
+            propagate(ite.other, guard, value));
       }
     }
     return e;
@@ -240,7 +243,8 @@ public class SparseCCP extends InsnVisitor {
     }
 
     @Override
-    public Operand visitIte(final Ite opnd, final Operand guard, final Operand taken, final Operand other) {
+    public Operand visitIte(
+        final Ite opnd, final Operand guard, final Operand taken, final Operand other) {
       return new Ite(guard, taken, other);
     }
   }

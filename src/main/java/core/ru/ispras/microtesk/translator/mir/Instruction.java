@@ -84,7 +84,11 @@ public interface Instruction {
     public List<Operand> args;
     public Local ret;
 
-    public Call(final Operand callee, final String method, final List<Operand> args, final Local ret) {
+    public Call(
+        final Operand callee,
+        final String method,
+        final List<Operand> args,
+        final Local ret) {
       this.callee = callee;
       this.method = method;
       this.args = args;
@@ -144,7 +148,7 @@ public interface Instruction {
     }
   }
 
-  static abstract class Terminator implements Instruction {
+  abstract static class Terminator implements Instruction {
     public final List<BasicBlock> successors;
 
     protected Terminator() {

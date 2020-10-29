@@ -20,8 +20,8 @@ import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.DataTypeId;
 import ru.ispras.fortress.expression.ExprUtils;
 import ru.ispras.fortress.expression.Node;
-import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.NodeOperation;
+import ru.ispras.fortress.expression.Nodes;
 import ru.ispras.fortress.expression.NodeValue;
 import ru.ispras.fortress.expression.NodeVariable;
 import ru.ispras.fortress.expression.StandardOperation;
@@ -63,7 +63,7 @@ public class Mir2Node extends Pass {
   private class Insn2Node extends InsnVisitor {
     private final List<Node> nodes = new java.util.ArrayList<>();
     private final OperandWalker<Node> opnd2Node =
-      new OperandWalker<>(new Opnd2Node(versionBase, versionMax));
+        new OperandWalker<>(new Opnd2Node(versionBase, versionMax));
 
     private Node dispatch(final Operand opnd) {
       return opnd2Node.dispatch(opnd);
@@ -119,7 +119,7 @@ public class Mir2Node extends Pass {
         assign(insn.lhs, Nodes.bvextract(Math.max(hi, lo), Math.min(hi, lo), dispatch(insn.rhs)));
       } else {
         final Node amount =
-          Nodes.bvzeroext(sizeOf(insn.rhs) - sizeOf(insn.lo), dispatch(insn.lo));
+            Nodes.bvzeroext(sizeOf(insn.rhs) - sizeOf(insn.lo), dispatch(insn.lo));
         final Node shr = Nodes.bvlshr(dispatch(insn.rhs), amount);
         assign(insn.lhs, Nodes.bvextract(sizeOf(insn.lhs) - 1, 0, shr));
       }
@@ -160,8 +160,8 @@ public class Mir2Node extends Pass {
           key = NodeValue.newBitVector(((NodeValue) key).getBitVector().resize(indexBits, false)); 
         }
         assign(
-          insn.target,
-          Nodes.store(array, key, dispatch(insn.origin.source)));
+            insn.target,
+            Nodes.store(array, key, dispatch(insn.origin.source)));
       } else {
         assign(insn.target, dispatch(insn.origin.source));
       }
@@ -174,7 +174,7 @@ public class Mir2Node extends Pass {
       final Node other = dispatch(insn.other);
       assign(insn.lhs, Nodes.ite(Nodes.eq(guard, BIT_ONE), taken, other));
     }
- }
+  }
 
   private static class Opnd2Node extends OperandVisitor<Node> {
     final Map<String, Integer> versionBase;
