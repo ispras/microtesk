@@ -35,6 +35,7 @@ import ru.ispras.microtesk.translator.nml.ir.expr.Operator;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Instance;
 import ru.ispras.microtesk.translator.nml.ir.primitive.Primitive;
 import ru.ispras.microtesk.translator.nml.ir.primitive.PrimitiveAnd;
+import ru.ispras.microtesk.translator.nml.ir.shared.LetConstant;
 import ru.ispras.microtesk.translator.nml.ir.shared.MemoryResource;
 import ru.ispras.microtesk.translator.nml.ir.shared.Struct;
 import ru.ispras.microtesk.translator.nml.ir.shared.Type;
@@ -64,7 +65,14 @@ public final class LocationFactory extends WalkerFactoryBase {
 
     // Hack to deal with internal variables described by string constants.
     if (NmlSymbolKind.LET_CONST == kind) {
-      final Expr expr = getIr().getConstants().get(name).getExpr();
+      final LetConstant constant = getIr().getConstants().get(name);
+      if (null == constant) {
+        // Forward definition.
+        raiseError(where, String.format(
+            "Constant %s is not found. Forward definitions are not allowed.", name));
+      }
+
+      final Expr expr = constant.getExpr();
       if (expr.isInternalVariable()) {
         return new Expr(expr);
       }
