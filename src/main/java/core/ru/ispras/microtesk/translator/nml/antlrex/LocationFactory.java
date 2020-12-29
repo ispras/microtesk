@@ -90,7 +90,7 @@ public final class LocationFactory extends WalkerFactoryBase {
         ? newLocationMemory(where, name, null)
         : newLocationArgument(where, name);
 
-    return newLocationExpr(location);
+    return newLocationExpr(where, location);
   }
 
   public Expr location(
@@ -110,7 +110,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     final Location location = newLocationMemory(where, name, index);
     final Location locationField = namedField(where, location, fields);
 
-    return newLocationExpr(locationField);
+    return newLocationExpr(where, locationField);
   }
 
   public Expr location(
@@ -132,7 +132,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     if (NmlSymbolKind.MEMORY == kind) {
       final Location location = newLocationMemory(where, name, null);
       final Location locationField = namedField(where, location, fields);
-      return newLocationExpr(locationField);
+      return newLocationExpr(where, locationField);
     }
 
     final Primitive argument = getThisArgs().get(name);
@@ -141,7 +141,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     }
 
     final Location location = argumentField(where, argument, name, fields);
-    return newLocationExpr(location);
+    return newLocationExpr(where, location);
   }
 
   public Expr location(
@@ -162,7 +162,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     final Location location = null;
 
     raiseError(where, "Unsupported construct.");
-    return newLocationExpr(location);
+    return newLocationExpr(where, location);
   }
 
   private Location namedField(
@@ -252,7 +252,7 @@ public final class LocationFactory extends WalkerFactoryBase {
     final Type bitfieldType = type.resize(1);
     final Location result = createBitfield(where, location, pos, pos, bitfieldType);
 
-    return newLocationExpr(result);
+    return newLocationExpr(where, result);
   }
 
   public Expr bitfield(
@@ -278,7 +278,7 @@ public final class LocationFactory extends WalkerFactoryBase {
       final int bitfieldSize = Math.abs(toPos - fromPos) + 1;
       final Type bitfieldType = location.getType().resize(bitfieldSize);
 
-      return newLocationExpr(createBitfield(
+      return newLocationExpr(where, createBitfield(
           where,
           location,
           fromPos < toPos ? from : to,
@@ -301,7 +301,7 @@ public final class LocationFactory extends WalkerFactoryBase {
       final int bitfieldSize = Math.abs(reducedTo.constant - reducedFrom.constant) + 1;
       final Type bitfieldType = location.getType().resize(bitfieldSize);
 
-      return newLocationExpr(createBitfield(
+      return newLocationExpr(where, createBitfield(
           where,
           location,
           reducedFrom.constant < reducedTo.constant ? from : to,
@@ -365,14 +365,18 @@ public final class LocationFactory extends WalkerFactoryBase {
     return symbol;
   }
 
-  private static Expr newLocationExpr(final Location source) {
+  private Expr newLocationExpr(final Where where, final Location source) throws SemanticException {
     InvariantChecks.checkNotNull(source);
 
     final NodeInfo nodeInfo = NodeInfo.newLocation(source);
-
     final String name = source.toString();
-    final DataType dataType = TypeCast.getFortressDataType(nodeInfo.getType());
+    final Type type = nodeInfo.getType();
 
+    if (null == type) {
+      raiseError(where, String.format("Location %s is of unknown type", name));
+    }
+
+    final DataType dataType = TypeCast.getFortressDataType(type);
     final Node node = new NodeVariable(name, dataType);
     node.setUserData(nodeInfo);
 
