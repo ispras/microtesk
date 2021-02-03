@@ -1,0 +1,2 @@
+let CONST_1 = CONST_2 // ERROR: Forward definition.
+let CONST_2 = 0x1
