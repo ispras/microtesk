@@ -94,7 +94,7 @@ public abstract class X86Test extends TemplateTest {
   private static final int QEMU_TIMEOUT_MILLIS = 5000;
 
   /**
-   * Default constructor for tests are related to x86 moel with the specified name.
+   * Default constructor for tests are related to x86 model with the specified name.
    * @param modelName The x86 architecture model name.
    */
   public X86Test(final String modelName) {
