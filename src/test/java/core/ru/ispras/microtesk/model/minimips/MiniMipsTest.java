@@ -32,7 +32,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MiniMipsTest extends TemplateTest {
+public abstract class MiniMipsTest extends TemplateTest {
 
   /**
    * The test program name prefix.
