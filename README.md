@@ -25,14 +25,10 @@ The maintainers are members of Microprocessor Verification Group (MVG).
 
 Currently, MicroTESK-related source code is stored in the following repositories:
 
-- [MicroTESK Framework](https://forge.ispras.ru/projects/microtesk),
-a framework for constructing test program generators for microprocessors;
 - [MicroTESK for MIPS](https://forge.ispras.ru/projects/microtesk-mips64),
 a MicroTESK-based test program generator for MIPS microprocessors.
 - [MicroTESK for RISC-V](https://forge.ispras.ru/projects/microtesk-riscv),
 a MicroTESK-based test program generator for RISC-V microprocessors.
-
-This repository is to organize bug tracking.
 
 ## Licensing
 
