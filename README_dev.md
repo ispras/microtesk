@@ -2,7 +2,7 @@
 
 ## Working in command line
 
-In command line, use [Gradle](https://gradle.org/) (via the wrapper `gradlew`):
+In command line, use [Gradle](https://gradle.org) (via the wrapper `gradlew`):
 
 * `./gradlew clean`
   - Clean the previous build
@@ -17,15 +17,15 @@ In command line, use [Gradle](https://gradle.org/) (via the wrapper `gradlew`):
   - Build the distribution package
   - Run the unit tests
   - Create the tag
-  - Publish the distribution package in [Nexus](https://forge.ispras.ru/nexus/)
+  - Publish the distribution package in [Nexus](https://forge.ispras.ru/nexus)
 
-## Working in [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+## Working in [IntelliJ IDEA](https://www.jetbrains.com/idea)
 
  - Open `build.gradle` as a project
 
-## Working in [Eclipse IDE](https://www.eclipse.org/ide/)
+## Working in [Eclipse IDE](https://www.eclipse.org/ide)
 
- - Generate the Eclipse IDE project and classpath files with [Gradle](https://gradle.org/):
+ - Generate the Eclipse IDE project and classpath files with [Gradle](https://gradle.org):
    ```
    $ ./gradlew eclipse
    ```
