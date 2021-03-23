@@ -21,7 +21,7 @@ In command line, use [Gradle](https://gradle.org/) (via the wrapper `gradlew`):
 
 ## Working in [IntelliJ IDEA](https://www.jetbrains.com/idea/)
 
-- Open `build.gradle` as a project
+ - Open `build.gradle` as a project
 
 ## Working in [Eclipse IDE](https://www.eclipse.org/ide/)
 
