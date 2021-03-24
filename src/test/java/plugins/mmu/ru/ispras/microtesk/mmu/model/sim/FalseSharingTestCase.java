@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 ISP RAS (http://www.ispras.ru)
+ * Copyright 2020-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import ru.ispras.microtesk.mmu.model.sim.model.Model;
 public final class FalseSharingTestCase extends CacheUnitTestCase {
   private final int sharedAddress = 0;
   private final int[] counter = new int[Model.N1];
-  private final boolean isStarted[] = new boolean[Model.N1];
+  private final boolean[] isStarted = new boolean[Model.N1];
 
   private int getAddress(final int core) {
     return sharedAddress | (core << 2);
