@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -467,10 +467,10 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
             "Failed to generate test data for " + concreteCall.getText(), e);
       } finally {
         Logger.debug(
-          "%s Before increment: processing count = %d, execution count = %d",
-          callEntry.getConcreteCall().getText(),
-          callEntry.getProcessingCount(),
-          callEntry.getConcreteCall().getExecutionCount());
+            "%s Before increment: processing count = %d, execution count = %d",
+            callEntry.getConcreteCall().getText(),
+            callEntry.getProcessingCount(),
+            callEntry.getConcreteCall().getExecutionCount());
         callEntry.incProcessingCount();
       }
     }
