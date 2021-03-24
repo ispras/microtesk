@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -97,7 +97,8 @@ public final class BranchDetector implements TranslatorHandler<Ir> {
       //for (final PrimitiveReference i : mapParents) {
         //System.out.println("getParents: " + i.getName() + "  ");
       //}
-      //System.out.printf("[onAssignment] %s %s %n", primitives.getLast().getName(), primitives.getLast().getArguments().size());
+      //System.out.printf("[onAssignment] %s %s %n",
+      //    primitives.getLast().getName(), primitives.getLast().getArguments().size());
       //Map<String, Primitive> temp = primitives.getLast().getArguments();
       //for (Map.Entry<String, Primitive> entry : temp.entrySet())
       //{System.out.println(entry.getKey() + "/" + entry.getValue().getName());      }
@@ -111,7 +112,7 @@ public final class BranchDetector implements TranslatorHandler<Ir> {
         //}
 
         //NodeOperation temp2 = (NodeOperation) conditions.getFirst();
-        //System.out.println("condition operans: " + temp2.getOperands());
+        //System.out.println("condition operands: " + temp2.getOperands());
         //System.out.println("condition operation: " + temp2.getOperationId());
 
         if (isConditional) {
@@ -122,7 +123,9 @@ public final class BranchDetector implements TranslatorHandler<Ir> {
         }
 
         //System.out.printf("[B] %s - %sbranch%s%n",
-        //    primitive.getName(), isConditional ? "conditional " : "", ", condition:" + primitive.getInfo().getConditionForBranch());
+        //    primitive.getName(),
+        //    isConditional ? "conditional " : "", ",
+        //    condition:" + primitive.getInfo().getConditionForBranch());
       }
     }
 

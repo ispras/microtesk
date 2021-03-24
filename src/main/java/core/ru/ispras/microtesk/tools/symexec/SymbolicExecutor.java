@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -130,7 +130,8 @@ public final class SymbolicExecutor {
   private static void writeMir(final String name, final BodyInfo info) {
     final MirContext mir = composeMir(name, info);
     try (final java.io.BufferedWriter writer =
-        Files.newBufferedWriter(Paths.get(name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
+        Files.newBufferedWriter(
+            Paths.get(name + ".mir"), java.nio.charset.StandardCharsets.UTF_8)) {
       writer.write(MirText.toString(mir));
     } catch (final java.io.IOException e) {
       Logger.error(e.getMessage());

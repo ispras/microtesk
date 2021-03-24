@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -313,10 +313,11 @@ public final class TestBase {
             String.format("^\\$.*%s.*", Pattern.quote(qual)));
         final List<NodeVariable> relevant = filter(qualifiers, p);
         if (relevant.isEmpty()) {
-          Logger.error("TestBase: invalid path qualifier '%s', allowed values are substrings of:%s%s",
-            qual,
-            System.lineSeparator(),
-            listToLines(qualifiers).replaceAll("\\$|!\\d+", ""));
+          Logger.error(
+              "TestBase: invalid path qualifier '%s', allowed values are substrings of:%s%s",
+              qual,
+              System.lineSeparator(),
+              listToLines(qualifiers).replaceAll("\\$|!\\d+", ""));
           throw new IllegalArgumentException(
               String.format("Invalid path qualifier '%s'", qual));
         }

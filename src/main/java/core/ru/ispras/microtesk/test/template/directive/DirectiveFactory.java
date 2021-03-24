@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -217,7 +217,8 @@ public final class DirectiveFactory {
       final String text,
       final int data,
       final int length) {
-    return new DirectiveSpace(options, text, BitVector.valueOf(data, addressableUnitBitSize), length);
+    final BitVector bvData = BitVector.valueOf(data, addressableUnitBitSize);
+    return new DirectiveSpace(options, text, bvData, length);
   }
 
   public Directive newStrings(

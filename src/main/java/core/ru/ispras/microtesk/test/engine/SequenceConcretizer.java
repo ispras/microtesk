@@ -262,7 +262,8 @@ final class SequenceConcretizer implements Iterator<ConcreteSequence> {
         }
 
         final ConcreteCall lastExecutedCall = listener.getLastExecutedCall();
-        final long nextAddress = lastExecutedCall.getAddress().longValue() + lastExecutedCall.getByteSize();
+        final long nextAddress =
+            lastExecutedCall.getAddress().longValue() + lastExecutedCall.getByteSize();
 
         if (Logger.isDebug()) {
           Logger.debug(

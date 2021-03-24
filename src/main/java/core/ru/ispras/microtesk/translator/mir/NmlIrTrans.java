@@ -1,5 +1,5 @@
 /*
-    Copyright 2019 ISP RAS (http://www.ispras.ru)
+    Copyright 2019-2021 ISP RAS (http://www.ispras.ru)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -67,7 +67,9 @@ public final class NmlIrTrans {
     this.source = source;
   }
 
-  public static MirContext translate(final PrimitiveAnd p, final String name, final List<Statement> body) {
+  public static MirContext translate(
+      final PrimitiveAnd p, final String name, final List<Statement> body) {
+
     final NmlIrTrans worker = new NmlIrTrans(p);
     return worker.translate(name, body);
   }
@@ -436,7 +438,8 @@ public final class NmlIrTrans {
             final Node hiNode = node.getOperand(0);
             final Node loNode = node.getOperand(1);
             final Operand value = lookUp(node.getOperand(2));
-            local = ctx.extract(value, evaluateBitSize(loNode, hiNode), lookUp(loNode), lookUp(hiNode));
+            local =
+                ctx.extract(value, evaluateBitSize(loNode, hiNode), lookUp(loNode), lookUp(hiNode));
             break;
 
           case ITE:
