@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -72,9 +72,9 @@ public final class Code {
 
     sb.append("Failed to place code at addresses ");
     sb.append(String.format("[0x%016x..0x%016x]. ",
-      newBlock.getStartAddress(), newBlock.getEndAddress()));
+        newBlock.getStartAddress(), newBlock.getEndAddress()));
     sb.append(String.format("Addresses [0x%016x..0x%016x] are already used by:",
-      overlapping.first, overlapping.second));
+        overlapping.first, overlapping.second));
 
     final Iterator iterator = getIterator(overlapping.first, false);
     for (int index = 0; index < 5 && iterator.current() != null; index++, iterator.next()) {
