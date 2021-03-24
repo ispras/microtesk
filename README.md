@@ -21,9 +21,9 @@ and exotic ones (VLIW/EPIC, DSP, GPU, etc.).
 The owner is [Ivannikov Institute for System Programming of the Russian Academy of Sciences (ISP RAS)](https://ispras.ru/en).
 The maintainers are members of Microprocessor Verification Group (MVG).
 
-## Development
+## Related projects
 
-Currently, MicroTESK-related source code is stored in the following repositories:
+Currently, the following MicroTESK-based test generators are available:
 
 - [MicroTESK for MIPS](https://forge.ispras.ru/projects/microtesk-mips64),
 a MicroTESK-based test program generator for MIPS microprocessors.
@@ -40,4 +40,4 @@ the copyright notice and disclaimer.
 
 ## Contacts
 
-For more information, contact microtesk-support@ispras.ru.
+For more information, contact [microtesk-support@ispras.ru](microtesk-support@ispras.ru).
