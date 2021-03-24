@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,10 +14,6 @@
 
 package ru.ispras.microtesk.basis.solver.bitvector;
 
-import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
-
 import ru.ispras.fortress.data.DataType;
 import ru.ispras.fortress.data.Variable;
 import ru.ispras.fortress.data.types.bitvector.BitVector;
@@ -29,6 +25,10 @@ import ru.ispras.fortress.solver.SolverResult.Status;
 import ru.ispras.fortress.solver.constraint.Sat4jFormulaEncoder;
 import ru.ispras.fortress.solver.engine.sat.Sat4jSolver;
 import ru.ispras.microtesk.basis.solver.Restriction;
+
+import java.util.List;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test for {@link Restriction}.
