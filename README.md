@@ -40,4 +40,4 @@ the copyright notice and disclaimer.
 
 ## Contacts
 
-For more information, contact [microtesk-support@ispras.ru](microtesk-support@ispras.ru).
+For more information, contact [microtesk-support@ispras.ru](mailto:microtesk-support@ispras.ru).
