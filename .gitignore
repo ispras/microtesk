@@ -2,7 +2,7 @@ bin/
 build/
 out/
 output/
-tools/
+./tools/
 gradle-local.properties
 .*
 !.gitignore
