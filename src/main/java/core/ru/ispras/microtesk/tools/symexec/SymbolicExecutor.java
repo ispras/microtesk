@@ -28,10 +28,13 @@ import ru.ispras.microtesk.model.TemporaryVariables;
 import ru.ispras.microtesk.options.Options;
 import ru.ispras.microtesk.tools.Disassembler;
 import ru.ispras.microtesk.tools.Disassembler.Output;
+import ru.ispras.microtesk.tools.symexec.ControlFlowInspector.Range;
 import ru.ispras.microtesk.translator.mir.BasicBlock;
 import ru.ispras.microtesk.translator.mir.DestructCssa;
 import ru.ispras.microtesk.translator.mir.ForwardPass;
 import ru.ispras.microtesk.translator.mir.Instruction;
+import ru.ispras.microtesk.translator.mir.Instruction.Branch;
+import ru.ispras.microtesk.translator.mir.Instruction.Return;
 import ru.ispras.microtesk.translator.mir.Mir2Node;
 import ru.ispras.microtesk.translator.mir.MirArchive;
 import ru.ispras.microtesk.translator.mir.MirBlock;
@@ -62,10 +65,6 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
-
-import static ru.ispras.microtesk.tools.symexec.ControlFlowInspector.Range;
-import static ru.ispras.microtesk.translator.mir.Instruction.Branch;
-import static ru.ispras.microtesk.translator.mir.Instruction.Return;
 
 public final class SymbolicExecutor {
   private SymbolicExecutor() {}

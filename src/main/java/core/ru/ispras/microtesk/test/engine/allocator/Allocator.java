@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2014-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,15 +14,15 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
+import ru.ispras.fortress.randomizer.Randomizer;
+import ru.ispras.fortress.randomizer.VariateBiased;
+import ru.ispras.microtesk.utils.function.Supplier;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-
-import ru.ispras.fortress.randomizer.Randomizer;
-import ru.ispras.fortress.randomizer.VariateBiased;
-import ru.ispras.microtesk.utils.function.Supplier;
 
 /**
  * {@link Allocator} defines some resource allocation strategies.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2017-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,12 +22,12 @@ import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.Model;
 import ru.ispras.microtesk.model.memory.MemoryAllocator;
 import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.model.memory.Sections;
 import ru.ispras.microtesk.test.template.ConcreteCall;
 import ru.ispras.microtesk.test.template.Label;
 import ru.ispras.microtesk.test.template.LabelReference;
 import ru.ispras.microtesk.test.template.directive.Directive;
 import ru.ispras.microtesk.test.template.directive.DirectiveLabel;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -35,7 +35,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 public final class CodeAllocator {
   private final Model model;

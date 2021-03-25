@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 ISP RAS (http://www.ispras.ru)
+ * Copyright 2018-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -14,11 +14,11 @@
 
 package ru.ispras.microtesk.test.engine.allocator;
 
+import ru.ispras.fortress.util.InvariantChecks;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-
-import ru.ispras.fortress.util.InvariantChecks;
 
 /**
  * {@link AllocationData} holds data used for register allocation.
@@ -68,7 +68,7 @@ public final class AllocationData<T> {
         allocator,
         retain,
         exclude,
-        -1, 
+        -1,
         Collections.<ResourceOperation, Integer>emptyMap(),
         Collections.<ResourceOperation, Integer>emptyMap(),
         false

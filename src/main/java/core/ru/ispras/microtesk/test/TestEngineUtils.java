@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 ISP RAS (http://www.ispras.ru)
+ * Copyright 2016-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -19,8 +19,21 @@ import ru.ispras.fortress.util.InvariantChecks;
 import ru.ispras.fortress.util.Pair;
 import ru.ispras.microtesk.model.ConfigurationException;
 import ru.ispras.microtesk.model.memory.Section;
-import ru.ispras.microtesk.test.engine.*;
-import ru.ispras.microtesk.test.template.*;
+import ru.ispras.microtesk.test.engine.Engine;
+import ru.ispras.microtesk.test.engine.EngineConfig;
+import ru.ispras.microtesk.test.engine.EngineContext;
+import ru.ispras.microtesk.test.engine.EngineUtils;
+import ru.ispras.microtesk.test.engine.InitializerMaker;
+import ru.ispras.microtesk.test.template.AbstractCall;
+import ru.ispras.microtesk.test.template.AbstractCallBuilder;
+import ru.ispras.microtesk.test.template.Block;
+import ru.ispras.microtesk.test.template.BlockId;
+import ru.ispras.microtesk.test.template.ConcreteCall;
+import ru.ispras.microtesk.test.template.ExceptionHandler;
+import ru.ispras.microtesk.test.template.Label;
+import ru.ispras.microtesk.test.template.LabelUniqualizer;
+import ru.ispras.microtesk.test.template.Output;
+import ru.ispras.microtesk.test.template.Preparator;
 import ru.ispras.microtesk.test.template.directive.Directive;
 import ru.ispras.microtesk.test.template.directive.DirectiveOrigin;
 import ru.ispras.testbase.knowledge.iterator.Iterator;
@@ -139,7 +152,7 @@ final class TestEngineUtils {
 
   /**
    * Checks whether the specified label is defined in the abstract sequence.
-   * 
+   *
    * <p>Note: Labels are considered equal if they have the same name.
    *
    * @param sequence Abstract sequence to be checked.

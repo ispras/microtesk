@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ISP RAS (http://www.ispras.ru)
+ * Copyright 2015-2021 ISP RAS (http://www.ispras.ru)
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -24,9 +24,9 @@ import ru.ispras.microtesk.settings.MemorySettings;
 import ru.ispras.microtesk.settings.RegionSettings;
 import ru.ispras.microtesk.test.GenerationAbortedException;
 import ru.ispras.microtesk.test.LabelManager;
+import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 import java.math.BigInteger;
-import ru.ispras.microtesk.utils.BigIntegerUtils;
 
 public final class MemoryObjectBuilder {
   private final LabelManager memoryMap;
